@@ -2,12 +2,10 @@ using Azure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
-using Microsoft.VisualStudio.Web.CodeGeneration.DotNet;
 using Pandacap.Data;
 using Pandacap.LowLevel;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("PandacapDbContextConnection") ?? throw new InvalidOperationException("Connection string 'PandacapDbContextConnection' not found.");
 
 if (builder.Configuration["CosmosDBAccountEndpoint"] is string cosmosDBAccountEndpoint)
 {
