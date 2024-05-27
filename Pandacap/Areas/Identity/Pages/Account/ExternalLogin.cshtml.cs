@@ -248,11 +248,11 @@ namespace Pandacap.Areas.Identity.Pages.Account
                     };
                     _context.DeviantArtCredentials.Add(credentials);
                 }
-                string accessToken = info.AuthenticationTokens
+                credentials.AccessToken = info.AuthenticationTokens
                     .Where(t => t.Name == "access_token")
                     .Select(t => t.Value)
                     .Single();
-                string refreshToken = info.AuthenticationTokens
+                credentials.RefreshToken = info.AuthenticationTokens
                     .Where(t => t.Name == "refresh_token")
                     .Select(t => t.Value)
                     .Single();

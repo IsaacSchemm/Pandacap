@@ -1,27 +1,14 @@
-using System;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
+using Pandacap.HighLevel;
 
 namespace Pandacap.Functions
 {
-    public class Function1
+    public class Function1(DeviationFeedReader deviationFeedReader)
     {
-        private readonly ILogger _logger;
-
-        public Function1(ILoggerFactory loggerFactory)
-        {
-            _logger = loggerFactory.CreateLogger<Function1>();
-        }
-
         [Function("Function1")]
-        public void Run([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer)
         {
-            _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            
-            if (myTimer.ScheduleStatus is not null)
-            {
-                _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
-            }
+            await deviationFeedReader.ReadFeedAsync();
         }
     }
 }

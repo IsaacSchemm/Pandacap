@@ -1,4 +1,5 @@
 using Azure.Identity;
+using DeviantArtFs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
@@ -45,6 +46,10 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
             d.ClientSecret = deviantArtClientSecret;
             d.SaveTokens = true;
         });
+
+    builder.Services.AddSingleton(new DeviantArtApp(
+        deviantArtClientId,
+        deviantArtClientSecret));
 }
 
 builder.Services.AddSingleton(new ApplicationInformation(

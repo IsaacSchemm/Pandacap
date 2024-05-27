@@ -1,10 +1,12 @@
 using Azure.Identity;
+using DeviantArtFs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FSharp.Collections;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.LowLevel;
 
 var host = new HostBuilder()
@@ -40,11 +42,21 @@ var host = new HostBuilder()
             }
         }
 
+        if (Environment.GetEnvironmentVariable("DeviantArtClientId") is string deviantArtClientId
+            && Environment.GetEnvironmentVariable("DeviantArtClientSecret") is string deviantArtClientSecret)
+        {
+            services.AddSingleton(new DeviantArtApp(
+                deviantArtClientId,
+                deviantArtClientSecret));
+        }
+
         services.AddSingleton(new ApplicationInformation(
             applicationHostname: "https://pandacap.example.com",
             deviantArtUsername: Environment.GetEnvironmentVariable("DeviantArtUsername"),
             handleHostname: "example.org",
             webFingerDomains: SetModule.Empty<string>()));
+
+        services.AddScoped<DeviationFeedReader>();
     })
     .Build();
 
