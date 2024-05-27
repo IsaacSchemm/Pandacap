@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.Data\Pandacap.Data.csproj" />
+    <ProjectReference Include="..\Pandacap.LowLevel\Pandacap.LowLevel.fsproj" />
   </ItemGroup>
 
 </Project>

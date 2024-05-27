@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Pandacap.Data;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.LowLevel;
 
 namespace Pandacap.Areas.Identity.Pages.Account
 {
@@ -29,6 +30,7 @@ namespace Pandacap.Areas.Identity.Pages.Account
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
+        private readonly ApplicationInformation _applicationInformation;
         private readonly PandacapDbContext _context;
         private readonly ILogger<ExternalLoginModel> _logger;
 
@@ -37,6 +39,7 @@ namespace Pandacap.Areas.Identity.Pages.Account
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             ILogger<ExternalLoginModel> logger,
+            ApplicationInformation applicationInformation,
             PandacapDbContext context)
         {
             _signInManager = signInManager;
@@ -44,6 +47,7 @@ namespace Pandacap.Areas.Identity.Pages.Account
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _logger = logger;
+            _applicationInformation = applicationInformation;
             _context = context;
         }
 
@@ -111,6 +115,11 @@ namespace Pandacap.Areas.Identity.Pages.Account
             {
                 ErrorMessage = "Error loading external login information.";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            }
+
+            if (info.Principal.Identity.Name != _applicationInformation.DeviantArtUsername)
+            {
+                return RedirectToPage("./Lockout");
             }
 
             // Sign in the user with this external login provider if the user already has a login.
