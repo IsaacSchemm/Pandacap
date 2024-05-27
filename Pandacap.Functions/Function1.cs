@@ -3,12 +3,12 @@ using Pandacap.HighLevel;
 
 namespace Pandacap.Functions
 {
-    public class Function1(DeviationFeedReader deviationFeedReader)
+    public class Function1(DeviantArtFeedReader deviantArtFeedReader)
     {
         [Function("Function1")]
-        public async Task Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("25 */5 * * * *")] TimerInfo myTimer)
         {
-            await deviationFeedReader.ReadFeedAsync();
+            await deviantArtFeedReader.ReadPostsByUsersWeWatchAsync();
         }
     }
 }

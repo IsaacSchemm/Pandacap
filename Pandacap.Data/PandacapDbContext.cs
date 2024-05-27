@@ -8,6 +8,8 @@ namespace Pandacap.Data
     {
         public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
 
+        public DbSet<DeviantArtInboxItem> DeviantArtInboxItems { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

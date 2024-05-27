@@ -8,6 +8,8 @@ namespace Pandacap.HighLevel
         PandacapDbContext context,
         DeviantArtCredentials credentials) : IDeviantArtRefreshableAccessToken
     {
+        public string UserId => credentials.UserId;
+
         public string RefreshToken => credentials.RefreshToken;
         public string AccessToken => credentials.AccessToken;
 
