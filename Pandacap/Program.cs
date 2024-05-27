@@ -49,7 +49,7 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services
-    .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<PandacapDbContext>();
 builder.Services.AddControllersWithViews();
 
