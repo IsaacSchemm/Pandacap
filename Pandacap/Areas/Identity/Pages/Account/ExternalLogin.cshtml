@@ -10,8 +10,7 @@
 
 <p id="external-login-description" class="text-info">
     You've successfully authenticated with <strong>@Model.ProviderDisplayName</strong>.
-    Please enter an email address for this site below and click the Register button to finish
-    logging in.
+    Please click the Register button to finish logging in.
 </p>
 
 <div class="row">
@@ -19,7 +18,7 @@
         <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
-                <input asp-for="Input.UserName" class="form-control" />
+                <input asp-for="Input.UserName" class="form-control" readonly />
                 <label asp-for="Input.UserName" class="form-label"></label>
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>
