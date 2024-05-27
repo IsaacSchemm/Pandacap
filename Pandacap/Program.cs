@@ -9,25 +9,25 @@ if (builder.Configuration["CosmosDBAccountEndpoint"] is string cosmosDBAccountEn
 {
     if (builder.Configuration["CosmosDBAccountKey"] is string cosmosDBAccountKey)
     {
+        builder.Services.AddDbContextFactory<PandacapDbContext>(options => options.UseCosmos(
+            cosmosDBAccountEndpoint,
+            cosmosDBAccountKey,
+            databaseName: "Pandacap"));
         builder.Services.AddDbContext<PandacapDbContext>(options => options.UseCosmos(
             cosmosDBAccountEndpoint,
             cosmosDBAccountKey,
             databaseName: "Pandacap"));
-        //builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseCosmos(
-        //    cosmosDBAccountEndpoint,
-        //    cosmosDBAccountKey,
-        //    databaseName: "Pandacap"));
     }
     else
     {
+        builder.Services.AddDbContextFactory<PandacapDbContext>(options => options.UseCosmos(
+            cosmosDBAccountEndpoint,
+            new DefaultAzureCredential(),
+            databaseName: "Pandacap"));
         builder.Services.AddDbContext<PandacapDbContext>(options => options.UseCosmos(
             cosmosDBAccountEndpoint,
             new DefaultAzureCredential(),
             databaseName: "Pandacap"));
-        //builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseCosmos(
-        //    cosmosDBAccountEndpoint,
-        //    new DefaultAzureCredential(),
-        //    databaseName: "Pandacap"));
     }
 }
 
