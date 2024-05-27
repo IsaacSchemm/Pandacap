@@ -1,17 +1,55 @@
+using Azure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+if (builder.Configuration["CosmosDBAccountEndpoint"] is string cosmosDBAccountEndpoint)
+{
+    if (builder.Configuration["CosmosDBAccountKey"] is string cosmosDBAccountKey)
+    {
+        builder.Services.AddDbContext<PandacapDbContext>(options => options.UseCosmos(
+            cosmosDBAccountEndpoint,
+            cosmosDBAccountKey,
+            databaseName: "Pandacap"));
+        //builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseCosmos(
+        //    cosmosDBAccountEndpoint,
+        //    cosmosDBAccountKey,
+        //    databaseName: "Pandacap"));
+    }
+    else
+    {
+        builder.Services.AddDbContext<PandacapDbContext>(options => options.UseCosmos(
+            cosmosDBAccountEndpoint,
+            new DefaultAzureCredential(),
+            databaseName: "Pandacap"));
+        //builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseCosmos(
+        //    cosmosDBAccountEndpoint,
+        //    new DefaultAzureCredential(),
+        //    databaseName: "Pandacap"));
+    }
+}
+
+if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
+    && builder.Configuration["DeviantArtClientSecret"] is string deviantArtClientSecret)
+{
+    builder.Services.AddAuthentication()
+        .AddDeviantArt(d =>
+        {
+            d.Scope.Add("browse");
+            d.Scope.Add("message");
+            d.ClientId = deviantArtClientId;
+            d.ClientSecret = deviantArtClientSecret;
+            d.SaveTokens = true;
+        });
+}
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services
+    .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<PandacapDbContext>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
