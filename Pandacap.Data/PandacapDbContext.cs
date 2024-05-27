@@ -6,6 +6,8 @@ namespace Pandacap.Data
 {
     public class PandacapDbContext(DbContextOptions<PandacapDbContext> options) : IdentityDbContext(options)
     {
+        public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Pandacap.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Pandacap.Areas.Identity.Pages.Account
 {
@@ -227,6 +228,17 @@ namespace Pandacap.Areas.Identity.Pages.Account
         {
             if (info.LoginProvider == "DeviantArt")
             {
+                var credentials = await _context.DeviantArtCredentials
+                    .Where(t => t.UserId == user.Id)
+                    .SingleOrDefaultAsync();
+                if (credentials == null)
+                {
+                    credentials = new DeviantArtCredentials
+                    {
+                        UserId = user.Id
+                    };
+                    _context.DeviantArtCredentials.Add(credentials);
+                }
                 string accessToken = info.AuthenticationTokens
                     .Where(t => t.Name == "access_token")
                     .Select(t => t.Value)
@@ -235,6 +247,7 @@ namespace Pandacap.Areas.Identity.Pages.Account
                     .Where(t => t.Name == "refresh_token")
                     .Select(t => t.Value)
                     .Single();
+                await _context.SaveChangesAsync();
             }
         }
     }
