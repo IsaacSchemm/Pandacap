@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("PandacapDbContextConnection") ?? throw new InvalidOperationException("Connection string 'PandacapDbContextConnection' not found.");
 
 if (builder.Configuration["CosmosDBAccountEndpoint"] is string cosmosDBAccountEndpoint)
 {
