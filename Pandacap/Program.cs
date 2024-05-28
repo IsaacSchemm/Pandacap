@@ -58,6 +58,8 @@ builder.Services.AddSingleton(new ApplicationInformation(
     handleHostname: "example.org",
     webFingerDomains: SetModule.Empty<string>()));
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services

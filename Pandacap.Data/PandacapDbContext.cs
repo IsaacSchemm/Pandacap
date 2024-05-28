@@ -6,6 +6,10 @@ namespace Pandacap.Data
 {
     public class PandacapDbContext(DbContextOptions<PandacapDbContext> options) : IdentityDbContext(options)
     {
+        public DbSet<ActivityPubInboxImagePost> ActivityPubInboxImagePosts { get; set; }
+
+        public DbSet<ActivityPubInboxTextPost> ActivityPubInboxTextPosts { get; set; }
+
         public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
 
         public DbSet<DeviantArtInboxArtworkPost> DeviantArtInboxArtworkPosts { get; set; }

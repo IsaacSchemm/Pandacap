@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="DeviantArtFs" Version="9.1.1" />
+    <PackageReference Include="json-ld.net" Version="1.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.5" />
   </ItemGroup>
 

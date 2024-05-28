@@ -56,6 +56,8 @@ var host = new HostBuilder()
             handleHostname: "example.org",
             webFingerDomains: SetModule.Empty<string>()));
 
+        services.AddHttpClient();
+
         services.AddScoped<DeviantArtFeedReader>();
     })
     .Build();
