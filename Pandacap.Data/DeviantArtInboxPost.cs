@@ -1,15 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Pandacap.Data
 {
-    public abstract class DeviantArtInboxPost
+    public abstract class DeviantArtInboxPost : IInboxPost
     {
         public Guid Id { get; set; }
 
@@ -31,5 +26,19 @@ namespace Pandacap.Data
         public string? LinkUrl { get; set; }
 
         public DateTimeOffset? DismissedAt { get; set; }
+
+        string IInboxPost.Id => $"{Id}";
+
+        string? IInboxPost.DisplayTitle
+        {
+            get
+            {
+                string? excerpt = (this as DeviantArtInboxTextPost)?.Excerpt;
+                if (excerpt != null && excerpt.Length > 40)
+                    excerpt = excerpt[..40] + "...";
+
+                return Title ?? excerpt ?? $"{Id}";
+            }
+        }
     }
 }

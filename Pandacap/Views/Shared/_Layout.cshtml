@@ -27,8 +27,8 @@
                                 DeviantArt
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="DeviantArtInbox" asp-action="Artwork">View artwork</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="DeviantArtInbox" asp-action="Text">View journals and status updates</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="DeviantArtImagePosts">View artwork</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="DeviantArtTextPosts">View journals and status updates</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -36,8 +36,8 @@
                                 ActivityPub
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="ActivityPubInbox" asp-action="Artwork">View image posts</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="ActivityPubInbox" asp-action="Text">View text posts</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="ActivityPubImagePosts">View image posts</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="ActivityPubTextPosts">View text posts</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">

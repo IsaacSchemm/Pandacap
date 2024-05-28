@@ -1,6 +1,6 @@
 ﻿@using Pandacap.Data
-@using Pandacap.Models.DeviantArtInbox
-@model InboxViewModel
+@using Pandacap.Models.Inbox
+@model ListViewModel
 
 @if (Model.InboxItems.Any())
 {
@@ -32,35 +32,31 @@
             <div class="row">
                 @foreach (var item in group)
                 {
-                    if (item is DeviantArtInboxArtworkPost artworkPost)
+                    if (item is IInboxImagePost imagePost && imagePost.Images.Any())
                     {
                         <div class="col-sm-4 col-md-3 text-center my-4">
-                                <a href="@item.LinkUrl" target="_blank">
-                                    <img src="@((item as DeviantArtInboxArtworkPost)?.ThumbnailUrl)"
-                                     srcset="@((item as DeviantArtInboxArtworkPost)?.Srcset)"
-                                     alt="View on DeviantArt"
-                                     referrerpolicy="no-referrer"
-                                     class="feed-image" />
-                                </a>
+                            <a href="@item.LinkUrl" target="_blank">
+                                @foreach (var image in imagePost.Images)
+                                {
+                                    <img src="@image.ThumbnailUrl"
+                                         srcset="@image.ThumbnailSrcset"
+                                         alt="@image.AltText"
+                                         referrerpolicy="no-referrer"
+                                         class="feed-image" />
+                                }
+                            </a>
                             <label>
                                 <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                                @item.Title
+                                @item.DisplayTitle
                             </label>
                         </div>
                     }
                     else
                     {
-                        string? excerpt = item is DeviantArtInboxTextPost textPost
-                            ? textPost.Excerpt
-                            : null;
-                        if (excerpt != null && excerpt.Length > 40)
-                        {
-                            excerpt = excerpt.Substring(0, 40) + "...";
-                        }
                         <label>
                             <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                             <a href="@item.LinkUrl">
-                                @(item.Title ?? excerpt ?? item.Id.ToString())
+                                @item.DisplayTitle
                             </a>
                         </label>
                     }

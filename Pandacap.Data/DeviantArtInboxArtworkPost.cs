@@ -7,7 +7,7 @@
         public int Height { get; set; }
     }
 
-    public class DeviantArtInboxArtworkPost : DeviantArtInboxPost
+    public class DeviantArtInboxArtworkPost : DeviantArtInboxPost, IInboxImage, IInboxImagePost
     {
         public List<DeviantArtInboxThumbnail> Thumbnails { get; set; } = [];
 
@@ -19,8 +19,12 @@
 
         public string? ThumbnailUrl => DefaultThumbnail?.Url;
 
-        public string? Srcset => Thumbnails.Skip(1).Any()
+        public string? ThumbnailSrcset => Thumbnails.Skip(1).Any()
             ? string.Join(", ", Thumbnails.Select(x => $"{x.Url} {1.0 * x.Height / 150}x"))
             : null;
+
+        string? IInboxImage.AltText => null;
+
+        IEnumerable<IInboxImage> IInboxImagePost.Images => [this];
     }
 }

@@ -3,19 +3,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.Models.DeviantArtInbox;
+using Pandacap.Models.Inbox;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
-    public class DeviantArtInboxController(
+    public class InboxController(
         PandacapDbContext context,
         UserManager<IdentityUser> userManager) : Controller
     {
         public async Task<IActionResult> Fetch<T>(
             IQueryable<T> queryable,
             int? offset,
-            int? count) where T : DeviantArtInboxPost
+            int? count) where T : IInboxPost
         {
             int vOffset = offset ?? 0;
             int vCount = Math.Min(count ?? 50, 200);
@@ -29,10 +29,15 @@ namespace Pandacap.Controllers
                 .Take(vCount)
                 .ToListAsync();
 
-            return View("InboxList", new InboxViewModel
+            IEnumerable<IInboxPost> enumerate()
+            {
+                foreach (var item in inboxItems) yield return item;
+            }
+
+            return View("List", new ListViewModel
             {
                 Action = nameof(Index),
-                InboxItems = inboxItems,
+                InboxItems = enumerate(),
                 PrevOffset = vOffset > 0
                     ? Math.Max(vOffset - vCount, 0)
                     : null,
@@ -43,7 +48,7 @@ namespace Pandacap.Controllers
             });
         }
 
-        public async Task<IActionResult> Artwork(
+        public async Task<IActionResult> DeviantArtImagePosts(
             int? offset,
             int? count)
         {
@@ -56,7 +61,7 @@ namespace Pandacap.Controllers
         }
 
 
-        public async Task<IActionResult> Text(
+        public async Task<IActionResult> DeviantArtTextPosts(
             int? offset,
             int? count)
         {
@@ -68,15 +73,48 @@ namespace Pandacap.Controllers
                 count);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Dismiss([FromForm] IEnumerable<Guid> id)
+        public async Task<IActionResult> ActivityPubImagePosts(
+            int? offset,
+            int? count)
         {
             string? userId = userManager.GetUserId(User);
+
+            return await Fetch(
+                context.ActivityPubInboxImagePosts,
+                offset,
+                count);
+        }
+
+        public async Task<IActionResult> ActivityPubTextPosts(
+            int? offset,
+            int? count)
+        {
+            string? userId = userManager.GetUserId(User);
+
+            return await Fetch(
+                context.ActivityPubInboxTextPosts,
+                offset,
+                count);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Dismiss([FromForm] IEnumerable<string> id)
+        {
+            string? userId = userManager.GetUserId(User);
+
+            IEnumerable<Guid> getGuids()
+            {
+                foreach (string str in id)
+                    if (Guid.TryParse(str, out Guid g))
+                        yield return g;
+            }
+
+            var guids = new HashSet<Guid>(getGuids());
 
             await foreach (var item in context
                 .DeviantArtInboxArtworkPosts
                 .Where(item => item.UserId == userId)
-                .Where(item => id.Contains(item.Id))
+                .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
                 item.DismissedAt = DateTimeOffset.UtcNow;
@@ -85,6 +123,24 @@ namespace Pandacap.Controllers
             await foreach (var item in context
                 .DeviantArtInboxTextPosts
                 .Where(item => item.UserId == userId)
+                .Where(item => guids.Contains(item.Id))
+                .AsAsyncEnumerable())
+            {
+                item.DismissedAt = DateTimeOffset.UtcNow;
+            }
+
+            await foreach (var item in context
+                .ActivityPubInboxImagePosts
+                //.Where(item => item.UserId == userId)
+                .Where(item => id.Contains(item.Id))
+                .AsAsyncEnumerable())
+            {
+                item.DismissedAt = DateTimeOffset.UtcNow;
+            }
+
+            await foreach (var item in context
+                .ActivityPubInboxTextPosts
+                //.Where(item => item.UserId == userId)
                 .Where(item => id.Contains(item.Id))
                 .AsAsyncEnumerable())
             {

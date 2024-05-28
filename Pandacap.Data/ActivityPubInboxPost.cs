@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public abstract class ActivityPubInboxPost
+    public abstract class ActivityPubInboxPost : IInboxPost
     {
         public string Id { get; set; } = "";
 
@@ -19,5 +19,19 @@
         public DateTimeOffset? DismissedAt { get; set; }
 
         public string? Content { get; set; }
+
+        string? IInboxPost.DisplayTitle
+        {
+            get
+            {
+                string? excerpt = Content;
+                if (excerpt != null && excerpt.Length > 40)
+                    excerpt = excerpt[..40] + "...";
+
+                return Name ?? excerpt ?? Id;
+            }
+        }
+
+        string? IInboxPost.LinkUrl => Id;
     }
 }
