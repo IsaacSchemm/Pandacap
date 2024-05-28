@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
@@ -7,7 +8,9 @@ using Pandacap.Models.DeviantArtInbox;
 namespace Pandacap.Controllers
 {
     [Authorize]
-    public class DeviantArtInboxController(PandacapDbContext context) : Controller
+    public class DeviantArtInboxController(
+        PandacapDbContext context,
+        UserManager<IdentityUser> userManager) : Controller
     {
         public async Task<IActionResult> Artwork(
             int? offset,
@@ -16,7 +19,10 @@ namespace Pandacap.Controllers
             int vOffset = offset ?? 0;
             int vCount = Math.Min(count ?? 50, 200);
 
+            string? userId = userManager.GetUserId(User);
+
             var inboxItems = await context.DeviantArtInboxArtworkPosts
+                .Where(item => item.UserId == userId)
                 .Where(item => item.DismissedAt == null)
                 .OrderBy(item => item.Timestamp)
                 .Skip(vOffset)
@@ -45,7 +51,10 @@ namespace Pandacap.Controllers
             int vOffset = offset ?? 0;
             int vCount = Math.Min(count ?? 50, 200);
 
+            string? userId = userManager.GetUserId(User);
+
             var inboxItems = await context.DeviantArtInboxTextPosts
+                .Where(item => item.UserId == userId)
                 .Where(item => item.DismissedAt == null)
                 .OrderBy(item => item.Timestamp)
                 .Skip(vOffset)
@@ -69,8 +78,11 @@ namespace Pandacap.Controllers
         [HttpPost]
         public async Task<IActionResult> Dismiss([FromForm] IEnumerable<Guid> id)
         {
+            string? userId = userManager.GetUserId(User);
+
             await foreach (var item in context
                 .DeviantArtInboxArtworkPosts
+                .Where(item => item.UserId == userId)
                 .Where(item => id.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -79,6 +91,7 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .DeviantArtInboxTextPosts
+                .Where(item => item.UserId == userId)
                 .Where(item => id.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
