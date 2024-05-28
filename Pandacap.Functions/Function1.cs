@@ -8,7 +8,8 @@ namespace Pandacap.Functions
         [Function("Function1")]
         public async Task Run([TimerTrigger("25 */5 * * * *")] TimerInfo myTimer)
         {
-            await deviantArtFeedReader.ReadPostsByUsersWeWatchAsync();
+            await deviantArtFeedReader.ReadArtworkPostsByUsersWeWatchAsync();
+            await deviantArtFeedReader.ReadTextPostsByUsersWeWatchAsync();
         }
     }
 }

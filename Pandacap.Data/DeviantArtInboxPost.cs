@@ -1,17 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Pandacap.Data
 {
-    public class DeviantArtInboxThumbnail
-    {
-        public string Url { get; set; } = "";
-        public int Width { get; set; }
-        public int Height { get; set; }
-    }
-
-    public class DeviantArtInboxItem
+    public abstract class DeviantArtInboxPost
     {
         public Guid Id { get; set; }
 
@@ -30,8 +28,6 @@ namespace Pandacap.Data
         public bool MatureContent { get; set; }
 
         public string? Title { get; set; }
-        public List<DeviantArtInboxThumbnail> Thumbnails { get; set; } = [];
-        public string? Excerpt { get; set; }
         public string? LinkUrl { get; set; }
 
         public DateTimeOffset? DismissedAt { get; set; }

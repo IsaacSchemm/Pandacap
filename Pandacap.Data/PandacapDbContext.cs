@@ -8,7 +8,9 @@ namespace Pandacap.Data
     {
         public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
 
-        public DbSet<DeviantArtInboxItem> DeviantArtInboxItems { get; set; }
+        public DbSet<DeviantArtInboxArtworkPost> DeviantArtInboxArtworkPosts { get; set; }
+
+        public DbSet<DeviantArtInboxTextPost> DeviantArtInboxTextPosts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

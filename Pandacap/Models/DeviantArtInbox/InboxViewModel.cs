@@ -1,10 +1,12 @@
-﻿namespace Pandacap.Models.Inbox
+﻿using Pandacap.Data;
+
+namespace Pandacap.Models.DeviantArtInbox
 {
-    public class InboxViewModel<T>
+    public class InboxViewModel
     {
         public string Action { get; set; } = "";
 
-        public IEnumerable<T> InboxItems { get; set; } = [];
+        public IEnumerable<DeviantArtInboxPost> InboxItems { get; set; } = [];
 
         public int? PrevOffset { get; set; }
 
