@@ -12,24 +12,24 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         UserManager<IdentityUser> userManager) : Controller
     {
-        public async Task<IActionResult> Artwork(
+        public async Task<IActionResult> Fetch<T>(
+            IQueryable<T> queryable,
             int? offset,
-            int? count)
+            int? count) where T : DeviantArtInboxPost
         {
             int vOffset = offset ?? 0;
             int vCount = Math.Min(count ?? 50, 200);
 
             string? userId = userManager.GetUserId(User);
 
-            var inboxItems = await context.DeviantArtInboxArtworkPosts
-                .Where(item => item.UserId == userId)
+            var inboxItems = await queryable
                 .Where(item => item.DismissedAt == null)
                 .OrderBy(item => item.Timestamp)
                 .Skip(vOffset)
                 .Take(vCount)
                 .ToListAsync();
 
-            return View("ThumbnailView", new InboxViewModel
+            return View("InboxList", new InboxViewModel
             {
                 Action = nameof(Index),
                 InboxItems = inboxItems,
@@ -43,36 +43,29 @@ namespace Pandacap.Controllers
             });
         }
 
+        public async Task<IActionResult> Artwork(
+            int? offset,
+            int? count)
+        {
+            string? userId = userManager.GetUserId(User);
+
+            return await Fetch(
+                context.DeviantArtInboxArtworkPosts.Where(item => item.UserId == userId),
+                offset,
+                count);
+        }
+
 
         public async Task<IActionResult> Text(
             int? offset,
             int? count)
         {
-            int vOffset = offset ?? 0;
-            int vCount = Math.Min(count ?? 50, 200);
-
             string? userId = userManager.GetUserId(User);
 
-            var inboxItems = await context.DeviantArtInboxTextPosts
-                .Where(item => item.UserId == userId)
-                .Where(item => item.DismissedAt == null)
-                .OrderBy(item => item.Timestamp)
-                .Skip(vOffset)
-                .Take(vCount)
-                .ToListAsync();
-
-            return View("ListView", new InboxViewModel
-            {
-                Action = nameof(Index),
-                InboxItems = inboxItems,
-                PrevOffset = vOffset > 0
-                    ? Math.Max(vOffset - vCount, 0)
-                    : null,
-                NextOffset = inboxItems.Count >= vCount
-                    ? vOffset + inboxItems.Count
-                    : null,
-                Count = vCount
-            });
+            return await Fetch(
+                context.DeviantArtInboxTextPosts.Where(item => item.UserId == userId),
+                offset,
+                count);
         }
 
         [HttpPost]

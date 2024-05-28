@@ -32,22 +32,38 @@
             <div class="row">
                 @foreach (var item in group)
                 {
-                    <div class="col-sm-4 col-md-3 text-center my-4">
-                        @if (item is DeviantArtInboxArtworkPost artworkPost)
-                        {
-                            <a href="@item.LinkUrl" target="_blank">
-                                <img src="@((item as DeviantArtInboxArtworkPost)?.ThumbnailUrl)"
+                    if (item is DeviantArtInboxArtworkPost artworkPost)
+                    {
+                        <div class="col-sm-4 col-md-3 text-center my-4">
+                                <a href="@item.LinkUrl" target="_blank">
+                                    <img src="@((item as DeviantArtInboxArtworkPost)?.ThumbnailUrl)"
                                      srcset="@((item as DeviantArtInboxArtworkPost)?.Srcset)"
                                      alt="View on DeviantArt"
                                      referrerpolicy="no-referrer"
                                      class="feed-image" />
-                            </a>
+                                </a>
+                            <label>
+                                <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                                @item.Title
+                            </label>
+                        </div>
+                    }
+                    else
+                    {
+                        string? excerpt = item is DeviantArtInboxTextPost textPost
+                            ? textPost.Excerpt
+                            : null;
+                        if (excerpt != null && excerpt.Length > 40)
+                        {
+                            excerpt = excerpt.Substring(0, 40) + "...";
                         }
                         <label>
                             <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                            @item.Title
+                            <a href="@item.LinkUrl">
+                                @(item.Title ?? excerpt ?? item.Id.ToString())
+                            </a>
                         </label>
-                    </div>
+                    }
                 }
             </div>
         </div>
