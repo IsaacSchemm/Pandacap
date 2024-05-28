@@ -22,17 +22,23 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="DeviantArtInbox" asp-action="Artwork">Artwork Posts (DeviantArt)</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                DeviantArt
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="DeviantArtInbox" asp-action="Artwork">View artwork</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="DeviantArtInbox" asp-action="Text">View journals and status updates</a></li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="DeviantArtInbox" asp-action="Text">Text Posts (DeviantArt)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ActivityPubInbox" asp-action="Artwork">Artwork Posts (ActivityPub)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ActivityPubInbox" asp-action="Text">Text Posts (ActivityPub)</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                ActivityPub
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="ActivityPubInbox" asp-action="Artwork">View image posts</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="ActivityPubInbox" asp-action="Text">View text posts</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
