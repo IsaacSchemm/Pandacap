@@ -23,7 +23,7 @@ namespace Pandacap.Controllers
                 .Take(vCount)
                 .ToListAsync();
 
-            return View("ListView", new InboxViewModel
+            return View("ThumbnailView", new InboxViewModel
             {
                 Action = nameof(Index),
                 InboxItems = inboxItems,
