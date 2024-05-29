@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <Compile Include="ApplicationInformation.fs" />
+    <Compile Include="IdMapper.fs" />
   </ItemGroup>
 
 </Project>

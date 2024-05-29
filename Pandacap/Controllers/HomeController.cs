@@ -1,12 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
 using Pandacap.Models;
 using System.Diagnostics;
 
 namespace Pandacap.Controllers
 {
-    public class HomeController(PandacapDbContext context) : Controller
+    public class HomeController : Controller
     {
         public IActionResult Index()
         {

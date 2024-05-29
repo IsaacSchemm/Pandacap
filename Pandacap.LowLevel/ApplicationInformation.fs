@@ -13,6 +13,10 @@ type ApplicationInformation = {
     /// May or may not be the same as Pandacap's domain.
     HandleHostname: string
 
+    /// The host / domain name of the key vault used for the signing key for
+    /// ActivityPub.
+    KeyVaultHostname: string
+
     /// Additional hostnames to make WebFinger requests to if an incoming
     /// WebFinger request doesn't match the admin actor.
     WebFingerDomains: Set<string>

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 using Pandacap.LowLevel;
+using Pandacap.HighLevel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,9 +53,10 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
         deviantArtClientSecret));
 }
 
-builder.Services.AddSingleton(new ApplicationInformation(
+builder.Services.AddPandacapServices(new ApplicationInformation(
     applicationHostname: "https://pandacap.example.com",
     deviantArtUsername: builder.Configuration["DeviantArtUsername"],
+    keyVaultHostname: builder.Configuration["KeyVaultHostname"],
     handleHostname: "example.org",
     webFingerDomains: SetModule.Empty<string>()));
 

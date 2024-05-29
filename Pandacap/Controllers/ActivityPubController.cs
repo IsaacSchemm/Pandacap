@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
+using Pandacap.HighLevel.ActivityPub;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -12,8 +13,9 @@ namespace Pandacap.Controllers
 {
     [Route("activitypub")]
     public class ActivityPubController(
+        PandacapDbContext context,
         IHttpClientFactory httpClientFactory,
-        PandacapDbContext context) : Controller
+        RemoteActorFetcher remoteActorFetcher) : Controller
     {
         private static new readonly IEnumerable<JToken> Empty = [];
 
@@ -42,7 +44,7 @@ namespace Pandacap.Controllers
 
             // Find out which ActivityPub actor they say they are, and grab that actor's information and public key
             string actorId = (expansionObj["https://www.w3.org/ns/activitystreams#attributedTo"] ?? Empty).Single()["@id"]!.Value<string>()!;
-            //var actor = await requester.FetchActorAsync(actorId);
+            var actor = await remoteActorFetcher.FetchActorAsync(actorId);
 
             //// Verify HTTP signature against the public key
             //var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(

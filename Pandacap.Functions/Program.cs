@@ -50,15 +50,14 @@ var host = new HostBuilder()
                 deviantArtClientSecret));
         }
 
-        services.AddSingleton(new ApplicationInformation(
+        services.AddPandacapServices(new ApplicationInformation(
             applicationHostname: "https://pandacap.example.com",
             deviantArtUsername: Environment.GetEnvironmentVariable("DeviantArtUsername"),
+            keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
             handleHostname: "example.org",
             webFingerDomains: SetModule.Empty<string>()));
 
         services.AddHttpClient();
-
-        services.AddScoped<DeviantArtFeedReader>();
     })
     .Build();
 
