@@ -114,8 +114,8 @@ namespace Pandacap.Controllers
             if (existingPost.CreatedBy != actorId)
                 return;
 
-            existingPost.Username = actorId;
-            existingPost.Usericon = null;
+            existingPost.Username = actor.PreferredUsername ?? actorId;
+            existingPost.Usericon = actor.IconUrl;
 
             existingPost.Timestamp = (expansionObj["https://www.w3.org/ns/activitystreams#published"] ?? Empty)
                 .Select(token => token["@value"]!.Value<DateTime>())

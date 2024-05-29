@@ -4,10 +4,21 @@
 
 @if (Model.InboxItems.Any())
 {
+    var minDate = Model.InboxItems.Select(item => item.Timestamp).Min().UtcDateTime;
+    var maxDate = Model.InboxItems.Select(item => item.Timestamp).Max().UtcDateTime;
+
     <p>
-        @Model.InboxItems.Select(item => item.Timestamp).Min().Date.ToLongDateString()
-        to
-        @Model.InboxItems.Select(item => item.Timestamp).Max().Date.ToLongDateString()
+        Showing
+        <strong>@Model.InboxItems.Count()</strong>
+        item(s) posted between
+        <strong>@minDate.ToLongDateString()</strong> (@minDate.ToShortTimeString())
+        and
+        <strong>@maxDate.ToLongDateString()</strong> (@maxDate.ToShortTimeString()).
+    </p>
+
+    <p>
+        The items on each page are grouped by author, then sorted by date (oldest first).
+        (Other pages may also feature posts from the same authors.)
     </p>
 }
 
@@ -34,22 +45,24 @@
                 {
                     if (item is IInboxImagePost imagePost && imagePost.Images.Any())
                     {
-                        <div class="col-sm-4 col-md-3 text-center my-4">
-                            <a href="@item.LinkUrl" target="_blank">
-                                @foreach (var image in imagePost.Images)
-                                {
+                        @foreach (var image in imagePost.Images)
+                        {
+                            <div class="col-sm-4 col-md-3 text-center my-4">
+                                <a href="@item.LinkUrl" target="_blank">
                                     <img src="@image.ThumbnailUrl"
                                          srcset="@image.ThumbnailSrcset"
                                          alt="@image.AltText"
                                          referrerpolicy="no-referrer"
                                          class="feed-image" />
-                                }
-                            </a>
-                            <label>
-                                <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                                @item.DisplayTitle
-                            </label>
-                        </div>
+                                </a>
+                                <label>
+                                    <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                                    <a href="@item.LinkUrl">
+                                        @item.DisplayTitle
+                                    </a>
+                                </label>
+                            </div>
+                        }
                     }
                     else
                     {

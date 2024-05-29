@@ -20,17 +20,7 @@
 
         public string? Content { get; set; }
 
-        string? IInboxPost.DisplayTitle
-        {
-            get
-            {
-                string? excerpt = Content;
-                if (excerpt != null && excerpt.Length > 40)
-                    excerpt = excerpt[..40] + "...";
-
-                return Name ?? excerpt ?? Id;
-            }
-        }
+        string? IInboxPost.DisplayTitle => Name ?? Timestamp.UtcDateTime.ToString();
 
         string? IInboxPost.LinkUrl => Id;
     }

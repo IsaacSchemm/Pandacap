@@ -13,6 +13,7 @@ namespace Pandacap.Controllers
         UserManager<IdentityUser> userManager) : Controller
     {
         public async Task<IActionResult> Fetch<T>(
+            string action,
             IQueryable<T> queryable,
             int? offset,
             int? count) where T : IInboxPost
@@ -36,7 +37,7 @@ namespace Pandacap.Controllers
 
             return View("List", new ListViewModel
             {
-                Action = nameof(Index),
+                Action = action,
                 InboxItems = enumerate(),
                 PrevOffset = vOffset > 0
                     ? Math.Max(vOffset - vCount, 0)
@@ -55,6 +56,7 @@ namespace Pandacap.Controllers
             string? userId = userManager.GetUserId(User);
 
             return await Fetch(
+                nameof(DeviantArtImagePosts),
                 context.DeviantArtInboxArtworkPosts.Where(item => item.UserId == userId),
                 offset,
                 count);
@@ -68,6 +70,7 @@ namespace Pandacap.Controllers
             string? userId = userManager.GetUserId(User);
 
             return await Fetch(
+                nameof(DeviantArtTextPosts),
                 context.DeviantArtInboxTextPosts.Where(item => item.UserId == userId),
                 offset,
                 count);
@@ -80,6 +83,7 @@ namespace Pandacap.Controllers
             string? userId = userManager.GetUserId(User);
 
             return await Fetch(
+                nameof(ActivityPubImagePosts),
                 context.ActivityPubInboxImagePosts,
                 offset,
                 count);
@@ -92,6 +96,7 @@ namespace Pandacap.Controllers
             string? userId = userManager.GetUserId(User);
 
             return await Fetch(
+                nameof(ActivityPubTextPosts),
                 context.ActivityPubInboxTextPosts,
                 offset,
                 count);
