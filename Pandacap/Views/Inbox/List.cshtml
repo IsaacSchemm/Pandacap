@@ -67,9 +67,8 @@
                     {
                         <label>
                             <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                            <a href="@item.LinkUrl">
-                                @item.DisplayTitle
-                            </a>
+                            <a href="@item.LinkUrl">@item.DisplayTitle</a>
+                            <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
                         </label>
                     }
                 }

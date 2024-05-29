@@ -16,6 +16,10 @@ namespace Pandacap.Data
 
         public DbSet<DeviantArtInboxTextPost> DeviantArtInboxTextPosts { get; set; }
 
+        public DbSet<DeviantArtOurArtworkPost> DeviantArtOurArtworkPosts { get; set; }
+
+        public DbSet<DeviantArtOurTextPost> DeviantArtOurTextPosts { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

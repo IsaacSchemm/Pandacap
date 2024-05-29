@@ -13,7 +13,7 @@ namespace Pandacap.HighLevel
         PandacapDbContext context,
         DeviantArtApp deviantArtApp)
     {
-        private async Task<DeviantArtTokenWrapper?> GetCredentialsAsync()
+        private readonly Lazy<Task<IDeviantArtRefreshableAccessToken?>> Credentials = new(async () =>
         {
             var allCredentials = await context.DeviantArtCredentials
                 .ToListAsync();
@@ -29,11 +29,11 @@ namespace Pandacap.HighLevel
             }
 
             return null;
-        }
+        });
 
         public async Task ReadArtworkPostsByUsersWeWatchAsync()
         {
-            if (await GetCredentialsAsync() is not DeviantArtTokenWrapper credentials)
+            if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
@@ -92,7 +92,7 @@ namespace Pandacap.HighLevel
 
         public async Task ReadTextPostsByUsersWeWatchAsync()
         {
-            if (await GetCredentialsAsync() is not DeviantArtTokenWrapper credentials)
+            if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
@@ -149,12 +149,12 @@ namespace Pandacap.HighLevel
             await context.SaveChangesAsync();
         }
 
-        public async Task ReadOurGalleryAsync()
+        public async Task ReadOurGalleryAsync(DateTimeOffset notOlderThan)
         {
-            if (await GetCredentialsAsync() is not IDeviantArtRefreshableAccessToken credentials)
-            {
+            if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
-            }
+
+            List<DeviantArtFs.ResponseTypes.Deviation> recentDeviations = [];
 
             await foreach (var d in DeviantArtFs.Api.Gallery.GetAllViewAsync(
                 credentials,
@@ -162,28 +162,157 @@ namespace Pandacap.HighLevel
                 PagingLimit.MaximumPagingLimit,
                 PagingOffset.StartingOffset))
             {
-                if (!d.is_deleted)
-                {
-                    Debug.WriteLine(d);
+                if (d.published_time.OrNull() is DateTimeOffset publishedTime && publishedTime < notOlderThan)
+                    break;
+
+                recentDeviations.Add(d);
+            }
+
+            foreach (var chunk in recentDeviations.Chunk(50))
+            {
+                var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
+
+                var existingPosts = await context.DeviantArtOurArtworkPosts
+                    .Where(p => deviationIds.Contains(p.Id))
+                    .ToListAsync();
+
+                var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
+                    credentials,
+                    deviationIds);
+
+                foreach (var deviation in chunk) {
+                    if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
+                        continue;
+
+                    if (deviation.content?.OrNull() is not DeviantArtFs.ResponseTypes.Content content)
+                        continue;
+
+                    var post = existingPosts
+                        .FirstOrDefault(p => p.Id == deviation.deviationid);
+
+                    if (post == null)
+                    {
+                        post = new DeviantArtOurArtworkPost
+                        {
+                            Id = deviation.deviationid
+                        };
+                        context.Add(post);
+                    }
+
+                    var metadata = metadataResponse.metadata
+                        .FirstOrDefault(m => m.deviationid == deviation.deviationid);
+
+                    post.Url = deviation.url.OrNull();
+                    post.Title = deviation.title.OrNull();
+                    post.Username = deviation.author.OrNull()?.username;
+                    post.Usericon = deviation.author.OrNull()?.usericon;
+                    post.PublishedTime = publishedTime;
+                    post.IsMature = deviation.is_mature.OrNull() ?? false;
+
+                    post.Description = metadata?.description;
+
+                    post.CacheRefreshAttemptedAt = DateTimeOffset.UtcNow;
+                    post.CacheRefreshSucceededAt = DateTimeOffset.UtcNow;
+
+                    post.Tags.Clear();
+                    post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
+
+                    post.Image.Url = content.src;
+                    post.Image.Width = content.width;
+                    post.Image.Height = content.height;
+
+                    post.Thumbnails.Clear();
+                    foreach (var thumbnail in deviation.thumbs.OrEmpty())
+                    {
+                        post.Thumbnails.Add(new DeviantArtOurImage
+                        {
+                            Url = thumbnail.src,
+                            Width = thumbnail.width,
+                            Height = thumbnail.height
+                        });
+                    }
+
+                    await context.SaveChangesAsync();
                 }
             }
         }
 
-        public async Task ReadOurPostsAsync()
+        public async Task ReadOurPostsAsync(DateTimeOffset notOlderThan)
         {
-            if (await GetCredentialsAsync() is not IDeviantArtRefreshableAccessToken credentials)
-            {
+            if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
-            }
+
+            List<DeviantArtFs.ResponseTypes.Deviation> recentDeviations = [];
+
+            var whoami = await DeviantArtFs.Api.User.WhoamiAsync(credentials);
 
             await foreach (var d in DeviantArtFs.Api.User.GetProfilePostsAsync(
                 credentials,
-                applicationInformation.DeviantArtUsername,
+                whoami.username,
                 DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning))
             {
-                if (!d.is_deleted)
+                if (d.published_time.OrNull() is DateTimeOffset publishedTime && publishedTime < notOlderThan)
+                    break;
+
+                recentDeviations.Add(d);
+            }
+
+            foreach (var chunk in recentDeviations.Chunk(50))
+            {
+                var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
+
+                var existingPosts = await context.DeviantArtOurTextPosts
+                    .Where(p => deviationIds.Contains(p.Id))
+                    .ToListAsync();
+
+                var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
+                    credentials,
+                    deviationIds);
+
+                foreach (var deviation in chunk)
                 {
-                    Debug.WriteLine(d);
+                    if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
+                        continue;
+
+                    var content = await DeviantArtFs.Api.Deviation.GetContentAsync(
+                        credentials,
+                        deviation.deviationid);
+
+                    var post = existingPosts
+                        .FirstOrDefault(p => p.Id == deviation.deviationid);
+
+                    if (post == null)
+                    {
+                        post = new DeviantArtOurTextPost
+                        {
+                            Id = deviation.deviationid
+                        };
+                        context.Add(post);
+                    }
+
+                    var metadata = metadataResponse.metadata
+                        .FirstOrDefault(m => m.deviationid == deviation.deviationid);
+
+                    post.Url = deviation.url.OrNull();
+                    post.Title = deviation.category_path.OrNull() == "status"
+                        ? null
+                        : deviation.title.OrNull();
+                    post.Username = deviation.author.OrNull()?.username;
+                    post.Usericon = deviation.author.OrNull()?.usericon;
+                    post.PublishedTime = publishedTime;
+                    post.IsMature = deviation.is_mature.OrNull() ?? false;
+
+                    post.Description = metadata?.description;
+
+                    post.CacheRefreshAttemptedAt = DateTimeOffset.UtcNow;
+                    post.CacheRefreshSucceededAt = DateTimeOffset.UtcNow;
+
+                    post.Tags.Clear();
+                    post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
+
+                    post.Html = content.html.OrNull();
+
+                    await context.SaveChangesAsync();
                 }
             }
         }

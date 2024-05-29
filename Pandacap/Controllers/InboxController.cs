@@ -12,14 +12,14 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         UserManager<IdentityUser> userManager) : Controller
     {
-        public async Task<IActionResult> Fetch<T>(
+        private async Task<IActionResult> Fetch<T>(
             string action,
             IQueryable<T> queryable,
             int? offset,
             int? count) where T : IInboxPost
         {
             int vOffset = offset ?? 0;
-            int vCount = Math.Min(count ?? 100, 200);
+            int vCount = Math.Min(count ?? 100, 500);
 
             string? userId = userManager.GetUserId(User);
 
