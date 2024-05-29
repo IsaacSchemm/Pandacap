@@ -1,6 +1,7 @@
 ﻿namespace Pandacap.Data
 {
-    public class DeviantArtInboxTextPost : DeviantArtInboxPost {
-        public string? Excerpt { get; set; } = null;
+    public class DeviantArtInboxTextPost : DeviantArtInboxPost
+    {
+        public string? Excerpt { get; set; }
     }
 }

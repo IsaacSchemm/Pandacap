@@ -2,7 +2,13 @@
 @using Pandacap.Models
 @model ListViewModel
 
-@if (Model.Items.Any())
+@if (!Model.Items.Any())
+{
+    <p>
+        Showing <strong>0</strong> items.
+    </p>
+}
+else
 {
     var minDate = Model.Items.Select(item => item.Timestamp).Min().UtcDateTime;
     var maxDate = Model.Items.Select(item => item.Timestamp).Max().UtcDateTime;
@@ -15,104 +21,104 @@
         and
         <strong>@maxDate.ToLongDateString()</strong> (@maxDate.ToShortTimeString()).
     </p>
-}
 
-<form asp-action="Dismiss" method="post">
-    @foreach (var group in Model.Items.GroupBy(item => (
-        item.Username,
-        item.Usericon
-    )))
-    {
-        <h1>
-            <img height="50" src="@group.Key.Usericon" alt="" />
-            <div style="display: inline-block; vertical-align: top">
-                <strong>
-                    @group.Key.Username
-                </strong>
-            </div>
-        </h1>
+    <form asp-action="Dismiss" method="post">
+        @foreach (var group in Model.Items.GroupBy(item => (
+            item.Username,
+            item.Usericon
+        )))
+        {
+            <h1>
+                <img height="50" src="@group.Key.Usericon" alt="" />
+                <div style="display: inline-block; vertical-align: top">
+                    <strong>
+                        @group.Key.Username
+                    </strong>
+                </div>
+            </h1>
 
-        <div class="container-fluid">
-            <div class="row">
-                @foreach (var item in group)
-                {
-                    if (item is IImagePost imagePost && imagePost.Images.Any())
+            <div class="container-fluid">
+                <div class="row">
+                    @foreach (var item in group)
                     {
-                        @foreach (var image in imagePost.Images)
+                        if (item is IImagePost imagePost && imagePost.Images.Any())
                         {
-                            <div class="col-sm-4 col-md-3 text-center my-4">
-                                <a href="@item.LinkUrl" target="_blank">
-                                    <img src="@image.ThumbnailUrl"
-                                         srcset="@image.ThumbnailSrcset"
-                                         alt="@image.AltText"
-                                         referrerpolicy="no-referrer"
-                                         class="feed-image" />
-                                </a>
-                                <label>
-                                    @if (Model.Controller == "Inbox")
-                                    {
-                                        <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                                    }
-                                    <a href="@item.LinkUrl">
-                                        @item.DisplayTitle
+                            @foreach (var image in imagePost.Images)
+                            {
+                                <div class="col-sm-4 col-md-3 text-center my-4">
+                                    <a href="@item.LinkUrl" target="_blank">
+                                        <img src="@image.ThumbnailUrl"
+                                             srcset="@image.ThumbnailSrcset"
+                                             alt="@image.AltText"
+                                             referrerpolicy="no-referrer"
+                                             class="feed-image" />
                                     </a>
-                                </label>
-                            </div>
+                                    <label>
+                                        @if (Model.Controller == "Inbox")
+                                        {
+                                            <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                                        }
+                                        <a href="@item.LinkUrl">
+                                            @item.DisplayTitle
+                                        </a>
+                                    </label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <label>
+                                @if (Model.Controller == "Inbox")
+                                {
+                                    <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                                }
+                                <a href="@item.LinkUrl">@item.DisplayTitle</a>
+                                <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
+                            </label>
                         }
                     }
-                    else
-                    {
-                        <label>
-                            @if (Model.Controller == "Inbox")
-                            {
-                                <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                            }
-                            <a href="@item.LinkUrl">@item.DisplayTitle</a>
-                            <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
-                        </label>
-                    }
-                }
+                </div>
             </div>
-        </div>
-    }
+        }
 
-    @if (Model.Controller == "Inbox")
-    {
+        @if (Model.Controller == "Inbox")
+        {
+            <hr />
+
+            <button type="button" id="selectAll" class="btn btn-secondary">
+                Select / deselect all
+            </button>
+
+            <button type="submit" class="btn btn-secondary">
+                Remove selected items from inbox
+            </button>
+        }
+
         <hr />
 
-        <button type="button" id="selectAll" class="btn btn-secondary">
-            Select / deselect all
-        </button>
+        @if (Model.PrevOffset is int prevOffset)
+        {
+            <a asp-controller="@Model.Controller"
+               asp-action="@Model.Action"
+               asp-route-offset="@prevOffset"
+               asp-route-count="@Model.Count"
+               class="btn btn-primary">
+                &laquo; Previous @Model.Count items
+            </a>
+        }
 
-        <button type="submit" class="btn btn-secondary">
-            Remove selected items from inbox
-        </button>
-    }
-
-    <hr />
-
-    @if (Model.PrevOffset is int prevOffset)
-    {
-        <a asp-controller="@Model.Controller"
-           asp-action="@Model.Action"
-           asp-route-offset="@prevOffset"
-           asp-route-count="@Model.Count"
-           class="btn btn-primary">
-            &laquo; Previous @Model.Count items
-        </a>
-    }
-
-    @if (Model.NextOffset is int nextOffset)
-    {
-        <a asp-controller="@Model.Controller"
-           asp-action="@Model.Action"
-           asp-route-offset="@nextOffset"
-           asp-route-count="@Model.Count"
-           class="btn btn-primary">
-            Next @Model.Count items &raquo;
-        </a>
-    }
-</form>
+        @if (Model.NextOffset is int nextOffset)
+        {
+            <a asp-controller="@Model.Controller"
+               asp-action="@Model.Action"
+               asp-route-offset="@nextOffset"
+               asp-route-count="@Model.Count"
+               class="btn btn-primary">
+                Next @Model.Count items &raquo;
+            </a>
+        }
+    </form>
+}
 
 <script type="text/javascript">
     document.getElementById("selectAll").addEventListener("click", e => {

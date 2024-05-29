@@ -25,7 +25,17 @@
 
         string IPost.Id => $"{Id}";
 
-        string? IPost.DisplayTitle => Title ?? "???";
+        string? IPost.DisplayTitle
+        {
+            get
+            {
+                string? excerpt = (this as DeviantArtOurTextPost)?.Excerpt;
+                if (excerpt != null && excerpt.Length > 40)
+                    excerpt = excerpt[..40] + "...";
+
+                return Title ?? excerpt ?? $"{Id}";
+            }
+        }
 
         DateTimeOffset IPost.Timestamp => PublishedTime;
 

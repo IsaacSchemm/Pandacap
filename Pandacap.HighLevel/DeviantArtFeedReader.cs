@@ -300,6 +300,7 @@ namespace Pandacap.HighLevel
                     post.Tags.Clear();
                     post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
+                    post.Excerpt = deviation.excerpt.OrNull();
                     post.Html = content.html.OrNull();
 
                     await context.SaveChangesAsync();

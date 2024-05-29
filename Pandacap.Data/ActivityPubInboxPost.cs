@@ -2,6 +2,8 @@
 {
     public abstract class ActivityPubInboxPost : IPost
     {
+        private static readonly Textify.HtmlToTextConverter _converter = new();
+
         public string Id { get; set; } = "";
 
         public string CreatedBy { get; set; } = "";
@@ -20,7 +22,22 @@
 
         public string? Content { get; set; }
 
-        string? IPost.DisplayTitle => Name ?? "???";
+        string? IPost.DisplayTitle
+        {
+            get
+            {
+                string? excerpt = Content == null
+                    ? null
+                    : _converter.Convert(Content)
+                        .Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .FirstOrDefault();
+
+                if (excerpt != null && excerpt.Length > 40)
+                    excerpt = excerpt[..40] + "...";
+
+                return Name ?? excerpt ?? $"{Id}";
+            }
+        }
 
         string? IPost.LinkUrl => Id;
     }
