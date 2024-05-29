@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public interface IInboxPost
+    public interface IPost
     {
         string Id { get; }
 

@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public abstract class DeviantArtOurPost
+    public abstract class DeviantArtOurPost : IPost
     {
         public Guid Id { get; set; }
         public string? Url { get; set; }
@@ -22,5 +22,15 @@
         /// The last time Pandacap successfully refreshed this item.
         /// </summary>
         public DateTimeOffset CacheRefreshSucceededAt { get; set; }
+
+        string IPost.Id => $"{Id}";
+
+        string? IPost.DisplayTitle => Title ?? "???";
+
+        DateTimeOffset IPost.Timestamp => PublishedTime;
+
+        string? IPost.LinkUrl => Url;
+
+        DateTimeOffset? IPost.DismissedAt => null;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public abstract class ActivityPubInboxPost : IInboxPost
+    public abstract class ActivityPubInboxPost : IPost
     {
         public string Id { get; set; } = "";
 
@@ -20,8 +20,8 @@
 
         public string? Content { get; set; }
 
-        string? IInboxPost.DisplayTitle => Name ?? Timestamp.UtcDateTime.ToString();
+        string? IPost.DisplayTitle => Name ?? "???";
 
-        string? IInboxPost.LinkUrl => Id;
+        string? IPost.LinkUrl => Id;
     }
 }

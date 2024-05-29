@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Pandacap.Data
+﻿namespace Pandacap.Data
 {
-    public abstract class DeviantArtInboxPost : IInboxPost
+    public abstract class DeviantArtInboxPost : IPost
     {
         public Guid Id { get; set; }
 
@@ -21,9 +17,9 @@ namespace Pandacap.Data
 
         public DateTimeOffset? DismissedAt { get; set; }
 
-        string IInboxPost.Id => $"{Id}";
+        string IPost.Id => $"{Id}";
 
-        string? IInboxPost.DisplayTitle
+        string? IPost.DisplayTitle
         {
             get
             {

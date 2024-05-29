@@ -7,7 +7,7 @@
         public int Height { get; set; }
     }
 
-    public class DeviantArtInboxArtworkPost : DeviantArtInboxPost, IInboxImage, IInboxImagePost
+    public class DeviantArtInboxArtworkPost : DeviantArtInboxPost, IImage, IImagePost
     {
         public List<DeviantArtInboxThumbnail> Thumbnails { get; set; } = [];
 
@@ -23,8 +23,8 @@
             ? string.Join(", ", Thumbnails.Select(x => $"{x.Url} {1.0 * x.Height / 150}x"))
             : null;
 
-        string? IInboxImage.AltText => null;
+        string? IImage.AltText => null;
 
-        IEnumerable<IInboxImage> IInboxImagePost.Images => [this];
+        IEnumerable<IImage> IImagePost.Images => [this];
     }
 }

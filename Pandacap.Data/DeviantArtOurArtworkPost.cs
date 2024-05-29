@@ -7,9 +7,10 @@
         public int Height { get; set; }
     }
 
-    public class DeviantArtOurArtworkPost : DeviantArtOurPost
+    public class DeviantArtOurArtworkPost : DeviantArtOurPost, IImage, IImagePost
     {
         public DeviantArtOurImage Image { get; set; } = new DeviantArtOurImage();
+
         public List<DeviantArtOurImage> Thumbnails { get; set; } = [];
 
         public DeviantArtOurImage? DefaultThumbnail =>
@@ -25,5 +26,7 @@
             : null;
 
         public string? AltText { get; set; }
+
+        IEnumerable<IImage> IImagePost.Images => [this];
     }
 }

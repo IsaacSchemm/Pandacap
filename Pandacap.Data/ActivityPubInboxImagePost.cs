@@ -1,21 +1,21 @@
 ﻿namespace Pandacap.Data
 {
-    public class ActivityPubImageAttachment : IInboxImage
+    public class ActivityPubImageAttachment : IImage
     {
         public string Url { get; set; } = "";
         public string? Name { get; set; }
 
-        string? IInboxImage.ThumbnailUrl => Url;
-        string? IInboxImage.ThumbnailSrcset => null;
-        string? IInboxImage.AltText => Name;
+        string? IImage.ThumbnailUrl => Url;
+        string? IImage.ThumbnailSrcset => null;
+        string? IImage.AltText => Name;
     }
 
-    public class ActivityPubInboxImagePost : ActivityPubInboxPost, IInboxImagePost
+    public class ActivityPubInboxImagePost : ActivityPubInboxPost, IImagePost
     {
         public List<ActivityPubImageAttachment> Attachments { get; set; } = [];
 
         public string? ThumbnailUrl => Attachments.Select(x => x.Url).FirstOrDefault();
 
-        IEnumerable<IInboxImage> IInboxImagePost.Images => Attachments;
+        IEnumerable<IImage> IImagePost.Images => Attachments;
     }
 }
