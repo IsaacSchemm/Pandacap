@@ -19,7 +19,7 @@ namespace Pandacap.Controllers
             int? count) where T : IInboxPost
         {
             int vOffset = offset ?? 0;
-            int vCount = Math.Min(count ?? 50, 200);
+            int vCount = Math.Min(count ?? 100, 200);
 
             string? userId = userManager.GetUserId(User);
 
@@ -57,7 +57,7 @@ namespace Pandacap.Controllers
 
             return await Fetch(
                 nameof(DeviantArtImagePosts),
-                context.DeviantArtInboxArtworkPosts.Where(item => item.UserId == userId),
+                context.DeviantArtInboxArtworkPosts,
                 offset,
                 count);
         }
@@ -71,7 +71,7 @@ namespace Pandacap.Controllers
 
             return await Fetch(
                 nameof(DeviantArtTextPosts),
-                context.DeviantArtInboxTextPosts.Where(item => item.UserId == userId),
+                context.DeviantArtInboxTextPosts,
                 offset,
                 count);
         }
@@ -118,7 +118,6 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .DeviantArtInboxArtworkPosts
-                .Where(item => item.UserId == userId)
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -127,7 +126,6 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .DeviantArtInboxTextPosts
-                .Where(item => item.UserId == userId)
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {

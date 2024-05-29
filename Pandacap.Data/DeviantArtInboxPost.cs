@@ -8,12 +8,6 @@ namespace Pandacap.Data
     {
         public Guid Id { get; set; }
 
-        [Required]
-        public string UserId { get; set; } = "";
-
-        [ForeignKey(nameof(UserId))]
-        public IdentityUser? User { get; set; }
-
         public Guid CreatedBy { get; set; }
 
         public string? Username { get; set; }

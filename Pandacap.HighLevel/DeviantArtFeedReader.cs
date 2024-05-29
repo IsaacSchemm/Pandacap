@@ -34,9 +34,7 @@ namespace Pandacap.HighLevel
         public async Task ReadArtworkPostsByUsersWeWatchAsync()
         {
             if (await GetCredentialsAsync() is not DeviantArtTokenWrapper credentials)
-            {
                 return;
-            }
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
@@ -74,7 +72,6 @@ namespace Pandacap.HighLevel
                 {
                     Id = deviation.deviationid,
                     Timestamp = publishedTime,
-                    UserId = credentials.UserId,
                     CreatedBy = author.userid,
                     Usericon = author.usericon,
                     Username = author.username,
@@ -96,9 +93,7 @@ namespace Pandacap.HighLevel
         public async Task ReadTextPostsByUsersWeWatchAsync()
         {
             if (await GetCredentialsAsync() is not DeviantArtTokenWrapper credentials)
-            {
                 return;
-            }
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
@@ -139,7 +134,6 @@ namespace Pandacap.HighLevel
                 {
                     Id = deviation.deviationid,
                     Timestamp = publishedTime,
-                    UserId = credentials.UserId,
                     CreatedBy = author.userid,
                     Usericon = author.usericon,
                     Username = author.username,
