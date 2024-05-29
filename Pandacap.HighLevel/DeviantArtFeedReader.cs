@@ -154,21 +154,16 @@ namespace Pandacap.HighLevel
             if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
 
-            List<DeviantArtFs.ResponseTypes.Deviation> recentDeviations = [];
+            var asyncSeq =
+                DeviantArtFs.Api.Gallery.GetAllViewAsync(
+                    credentials,
+                    UserScope.ForCurrentUser,
+                    PagingLimit.MaximumPagingLimit,
+                    PagingOffset.StartingOffset)
+                .TakeUntilOlderThan(notOlderThan)
+                .Chunk(50);
 
-            await foreach (var d in DeviantArtFs.Api.Gallery.GetAllViewAsync(
-                credentials,
-                UserScope.ForCurrentUser,
-                PagingLimit.MaximumPagingLimit,
-                PagingOffset.StartingOffset))
-            {
-                if (d.published_time.OrNull() is DateTimeOffset publishedTime && publishedTime < notOlderThan)
-                    break;
-
-                recentDeviations.Add(d);
-            }
-
-            foreach (var chunk in recentDeviations.Chunk(50))
+            await foreach (var chunk in asyncSeq)
             {
                 var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
 
@@ -242,22 +237,17 @@ namespace Pandacap.HighLevel
             if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
 
-            List<DeviantArtFs.ResponseTypes.Deviation> recentDeviations = [];
-
             var whoami = await DeviantArtFs.Api.User.WhoamiAsync(credentials);
 
-            await foreach (var d in DeviantArtFs.Api.User.GetProfilePostsAsync(
-                credentials,
-                whoami.username,
-                DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning))
-            {
-                if (d.published_time.OrNull() is DateTimeOffset publishedTime && publishedTime < notOlderThan)
-                    break;
+            var asyncSeq =
+                DeviantArtFs.Api.User.GetProfilePostsAsync(
+                    credentials,
+                    whoami.username,
+                    DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning)
+                .TakeUntilOlderThan(notOlderThan)
+                .Chunk(50);
 
-                recentDeviations.Add(d);
-            }
-
-            foreach (var chunk in recentDeviations.Chunk(50))
+            await foreach (var chunk in asyncSeq)
             {
                 var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
 
