@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.Models.Inbox;
+using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
@@ -16,7 +16,7 @@ namespace Pandacap.Controllers
             string action,
             IQueryable<T> queryable,
             int? offset,
-            int? count) where T : IInboxPost
+            int? count) where T : IPost
         {
             int vOffset = offset ?? 0;
             int vCount = Math.Min(count ?? 100, 500);
@@ -30,15 +30,16 @@ namespace Pandacap.Controllers
                 .Take(vCount)
                 .ToListAsync();
 
-            IEnumerable<IInboxPost> enumerate()
+            IEnumerable<IPost> enumerate()
             {
                 foreach (var item in inboxItems) yield return item;
             }
 
             return View("List", new ListViewModel
             {
+                Controller = "Gallery",
                 Action = action,
-                InboxItems = enumerate(),
+                Items = enumerate(),
                 PrevOffset = vOffset > 0
                     ? Math.Max(vOffset - vCount, 0)
                     : null,

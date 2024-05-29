@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.Models.Gallery;
+using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
@@ -20,6 +20,8 @@ namespace Pandacap.Controllers
 
             return View("List", new ListViewModel
             {
+                Controller = "Gallery",
+                Action = nameof(Index),
                 Items = inboxItems,
                 PrevOffset = vOffset > 0
                     ? Math.Max(vOffset - vCount, 0)

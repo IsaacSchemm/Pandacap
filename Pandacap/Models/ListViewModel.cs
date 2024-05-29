@@ -1,10 +1,14 @@
 ﻿using Pandacap.Data;
 
-namespace Pandacap.Models.Gallery
+namespace Pandacap.Models
 {
     public class ListViewModel
     {
-        public IEnumerable<DeviantArtOurPost> Items { get; set; } = [];
+        public string Controller { get; set; } = "";
+
+        public string Action { get; set; } = "";
+
+        public IEnumerable<IPost> Items { get; set; } = [];
 
         public int? PrevOffset { get; set; }
 

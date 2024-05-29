@@ -1,30 +1,24 @@
 ﻿@using Pandacap.Data
-@using Pandacap.Models.Inbox
+@using Pandacap.Models
 @model ListViewModel
 
-@if (Model.InboxItems.Any())
+@if (Model.Items.Any())
 {
-    var minDate = Model.InboxItems.Select(item => item.Timestamp).Min().UtcDateTime;
-    var maxDate = Model.InboxItems.Select(item => item.Timestamp).Max().UtcDateTime;
+    var minDate = Model.Items.Select(item => item.Timestamp).Min().UtcDateTime;
+    var maxDate = Model.Items.Select(item => item.Timestamp).Max().UtcDateTime;
 
     <p>
         Showing
-        <strong>@Model.InboxItems.Count()</strong>
+        <strong>@Model.Items.Count()</strong>
         item(s) posted between
         <strong>@minDate.ToLongDateString()</strong> (@minDate.ToShortTimeString())
         and
         <strong>@maxDate.ToLongDateString()</strong> (@maxDate.ToShortTimeString()).
     </p>
-
-    <p>
-        The items on each page are grouped by author, then sorted by date (oldest first).
-    </p>
 }
 
-<form asp-action="Dismiss"
-      method="post">
-
-    @foreach (var group in Model.InboxItems.GroupBy(item => (
+<form asp-action="Dismiss" method="post">
+    @foreach (var group in Model.Items.GroupBy(item => (
         item.Username,
         item.Usericon
     )))
@@ -42,7 +36,7 @@
             <div class="row">
                 @foreach (var item in group)
                 {
-                    if (item is IInboxImagePost imagePost && imagePost.Images.Any())
+                    if (item is IImagePost imagePost && imagePost.Images.Any())
                     {
                         @foreach (var image in imagePost.Images)
                         {
@@ -55,7 +49,10 @@
                                          class="feed-image" />
                                 </a>
                                 <label>
-                                    <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                                    @if (Model.Controller == "Inbox")
+                                    {
+                                        <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                                    }
                                     <a href="@item.LinkUrl">
                                         @item.DisplayTitle
                                     </a>
@@ -66,7 +63,10 @@
                     else
                     {
                         <label>
-                            <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                            @if (Model.Controller == "Inbox")
+                            {
+                                <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                            }
                             <a href="@item.LinkUrl">@item.DisplayTitle</a>
                             <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
                         </label>
@@ -76,21 +76,24 @@
         </div>
     }
 
-    <hr />
+    @if (Model.Controller == "Inbox")
+    {
+        <hr />
 
-    <button type="button" id="selectAll" class="btn btn-secondary">
-        Select / deselect all
-    </button>
+        <button type="button" id="selectAll" class="btn btn-secondary">
+            Select / deselect all
+        </button>
 
-    <button type="submit" class="btn btn-secondary">
-        Remove selected items from inbox
-    </button>
+        <button type="submit" class="btn btn-secondary">
+            Remove selected items from inbox
+        </button>
+    }
 
     <hr />
 
     @if (Model.PrevOffset is int prevOffset)
     {
-        <a asp-controller="Inbox"
+        <a asp-controller="@Model.Controller"
            asp-action="@Model.Action"
            asp-route-offset="@prevOffset"
            asp-route-count="@Model.Count"
@@ -101,7 +104,7 @@
 
     @if (Model.NextOffset is int nextOffset)
     {
-        <a asp-controller="Inbox"
+        <a asp-controller="@Model.Controller"
            asp-action="@Model.Action"
            asp-route-offset="@nextOffset"
            asp-route-count="@Model.Count"
