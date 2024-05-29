@@ -4,4 +4,4 @@
 type IdMapper(appInfo: ApplicationInformation) =
     /// The ActivityPub actor ID of the single actor hosted by this Pandacap instance.
     member _.ActorId =
-        $"https://{appInfo.ApplicationHostname}/api/actor"
+        $"https://{appInfo.ApplicationHostname}/activitypub/actor1"

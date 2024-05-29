@@ -51,10 +51,10 @@ var host = new HostBuilder()
         }
 
         services.AddPandacapServices(new ApplicationInformation(
-            applicationHostname: "https://pandacap.example.com",
+            applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
             deviantArtUsername: Environment.GetEnvironmentVariable("DeviantArtUsername"),
             keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
-            handleHostname: "example.org",
+            handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
             webFingerDomains: SetModule.Empty<string>()));
 
         services.AddHttpClient();

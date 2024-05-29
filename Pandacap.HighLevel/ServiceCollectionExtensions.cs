@@ -12,6 +12,7 @@ namespace Pandacap.HighLevel
         {
             return services
                 .AddSingleton(applicationInformation)
+                .AddScoped<ActivityPubTranslator>()
                 .AddScoped<DeviantArtFeedReader>()
                 .AddScoped<IdMapper>()
                 .AddSingleton(new KeyProvider($"https://{applicationInformation.KeyVaultHostname}"))

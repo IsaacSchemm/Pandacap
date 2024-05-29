@@ -1,37 +1,40 @@
-﻿using Azure.Core;
-using JsonLD.Core;
+﻿using JsonLD.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
 using Pandacap.HighLevel.ActivityPub;
+using Pandacap.LowLevel;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
+using System.Text;
 
 namespace Pandacap.Controllers
 {
     [Route("activitypub")]
     public class ActivityPubController(
         PandacapDbContext context,
-        IHttpClientFactory httpClientFactory,
-        RemoteActorFetcher remoteActorFetcher) : Controller
+        KeyProvider keyProvider,
+        RemoteActorFetcher remoteActorFetcher,
+        ActivityPubTranslator translator) : Controller
     {
         private static new readonly IEnumerable<JToken> Empty = [];
+
+        [HttpGet]
+        [Route("actor1")]
+        public async Task<IActionResult> Actor()
+        {
+            var key = await keyProvider.GetPublicKeyAsync();
+            string json = ActivityPubSerializer.SerializeWithContext(
+                translator.PersonToObject(
+                    key));
+            return Content(json, "application/activity+json", Encoding.UTF8);
+        }
 
         [HttpGet]
         [Route("add")]
         public async Task AddPublicObjectToNotifications(string apurl)
         {
-            using var client = httpClientFactory.CreateClient();
-
-            using var publicObjectReq = new HttpRequestMessage(HttpMethod.Get, apurl);
-            publicObjectReq.Headers.Accept.ParseAdd("application/activity+json");
-
-            using var publicObjectResp = await client.SendAsync(publicObjectReq);
-            publicObjectResp.EnsureSuccessStatusCode();
-
-            string json = await publicObjectResp.Content.ReadAsStringAsync();
+            string json = await remoteActorFetcher.GetJsonAsync(new Uri(apurl));
 
             // Expand JSON-LD
             // This is important to do, because objects can be replaced with IDs, pretty much anything can be an array, etc.

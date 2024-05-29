@@ -8,6 +8,8 @@
   <ItemGroup>
     <Compile Include="ApplicationInformation.fs" />
     <Compile Include="IdMapper.fs" />
+    <Compile Include="ActorKey.fs" />
+    <Compile Include="ActivityPub.fs" />
   </ItemGroup>
 
 </Project>

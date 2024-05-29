@@ -54,10 +54,10 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
 }
 
 builder.Services.AddPandacapServices(new ApplicationInformation(
-    applicationHostname: "https://pandacap.example.com",
+    applicationHostname: builder.Configuration["ApplicationHostname"],
     deviantArtUsername: builder.Configuration["DeviantArtUsername"],
     keyVaultHostname: builder.Configuration["KeyVaultHostname"],
-    handleHostname: "example.org",
+    handleHostname: builder.Configuration["ApplicationHostname"],
     webFingerDomains: SetModule.Empty<string>()));
 
 builder.Services.AddHttpClient();
