@@ -1,5 +1,13 @@
 ﻿namespace Pandacap.Data
 {
+    public class DeviantArtOurImage
+    {
+        public string Url { get; set; } = "";
+        public string ContentType { get; set; } = "";
+        public int Width { get; set; }
+        public int Height { get; set; }
+    }
+
     public abstract class DeviantArtOurPost : IPost
     {
         public Guid Id { get; set; }
@@ -12,16 +20,6 @@
 
         public string? Description { get; set; }
         public List<string> Tags { get; set; } = [];
-
-        /// <summary>
-        /// The last time Pandacap attempted to refresh this item.
-        /// </summary>
-        public DateTimeOffset CacheRefreshAttemptedAt { get; set; }
-
-        /// <summary>
-        /// The last time Pandacap successfully refreshed this item.
-        /// </summary>
-        public DateTimeOffset CacheRefreshSucceededAt { get; set; }
 
         string IPost.Id => $"{Id}";
 

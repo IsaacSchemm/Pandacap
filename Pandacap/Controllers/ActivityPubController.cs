@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Pandacap.Controllers
 {
-    [Route("activitypub")]
+    [Route("ap")]
     public class ActivityPubController(
         PandacapDbContext context,
         KeyProvider keyProvider,
@@ -20,13 +20,21 @@ namespace Pandacap.Controllers
         private static new readonly IEnumerable<JToken> Empty = [];
 
         [HttpGet]
-        [Route("actor1")]
+        [Route("actor")]
         public async Task<IActionResult> Actor()
         {
             var key = await keyProvider.GetPublicKeyAsync();
+
+            var recentPosts = Enumerable.Empty<IPost>()
+                .Concat(await context.DeviantArtOurArtworkPosts.OrderByDescending(d => d.PublishedTime).Take(1).ToListAsync())
+                .Concat(await context.DeviantArtOurTextPosts.OrderByDescending(d => d.PublishedTime).Take(1).ToListAsync())
+                .OrderByDescending(d => d.Timestamp);
+
             string json = ActivityPubSerializer.SerializeWithContext(
                 translator.PersonToObject(
-                    key));
+                    key,
+                    recentPosts));
+
             return Content(json, "application/activity+json", Encoding.UTF8);
         }
 

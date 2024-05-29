@@ -206,9 +206,6 @@ namespace Pandacap.HighLevel
 
                     post.Description = metadata?.description;
 
-                    post.CacheRefreshAttemptedAt = DateTimeOffset.UtcNow;
-                    post.CacheRefreshSucceededAt = DateTimeOffset.UtcNow;
-
                     post.Tags.Clear();
                     post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
@@ -293,9 +290,6 @@ namespace Pandacap.HighLevel
                     post.IsMature = deviation.is_mature.OrNull() ?? false;
 
                     post.Description = metadata?.description;
-
-                    post.CacheRefreshAttemptedAt = DateTimeOffset.UtcNow;
-                    post.CacheRefreshSucceededAt = DateTimeOffset.UtcNow;
 
                     post.Tags.Clear();
                     post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);

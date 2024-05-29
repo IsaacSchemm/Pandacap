@@ -4,6 +4,7 @@ open System
 open System.Collections.Generic
 open System.Net
 open System.Text.Json
+open Pandacap.Data
 
 /// Contains functions for JSON-LD serialization.
 module ActivityPubSerializer =
@@ -44,7 +45,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         && not (Char.IsUpper(c))
 
     /// Builds a Person object for the Pandacap actor.
-    member _.PersonToObject (key: ActorKey) = dict [
+    member _.PersonToObject (key: ActorKey, recentPosts: IPost seq) = dict [
         pair "id" mapper.ActorId
         pair "type" "Person"
         pair "inbox" $"{mapper.ActorId}/inbox"
@@ -53,7 +54,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         //pair "following" $"{mapper.ActorId}/following"
         pair "preferredUsername" appInfo.Username
         pair "name" appInfo.DeviantArtUsername
-        //pair "summary" person.summary
         pair "url" mapper.ActorId
         pair "discoverable" true
         pair "indexable" true
@@ -62,37 +62,118 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             owner = mapper.ActorId
             publicKeyPem = key.Pem
         |}
-        //match person.iconUrls with
-        //| [] -> ()
-        //| url::_ ->
-        //    pair "icon" {|
-        //        mediaType = "image/png"
-        //        ``type`` = "Image"
-        //        url = url
-        //    |}
+        match Seq.tryHead recentPosts with
+        | None -> ()
+        | Some recentPost ->
+            pair "icon" {|
+                mediaType = "image/jpeg"
+                ``type`` = "Image"
+                url = recentPost.Usericon
+            |}
         pair "attachment" [
-            //for metadata in person.attachments do {|
-            //    ``type`` = "PropertyValue"
-            //    name = metadata.name
-            //    value =
-            //        match metadata.uri with
-            //        | Some uri -> $"<a href='{uri}'>{WebUtility.HtmlEncode(metadata.value)}</a>"
-            //        | None -> WebUtility.HtmlEncode(metadata.value)
-            //|}
-
             {|
                 ``type`` = "PropertyValue"
-                name = "Mirrored by"
-                value = $"<a href='https://{appInfo.ApplicationHostname}'>{WebUtility.HtmlEncode(appInfo.ApplicationName)}</a>"
+                name = "DeviantArt"
+                value = $"<a href='https://www.deviantart.com/{appInfo.DeviantArtUsername}'>{WebUtility.HtmlEncode(appInfo.DeviantArtUsername)}</a>"
             |}
         ]
     ]
 
-    ///// Builds a transient Update activity for the Pandacap actor.
-    //member this.PersonToUpdate (person: Person) (key: ActorKey) = dict [
-    //    pair "type" "Update"
-    //    pair "id" (mapper.GenerateTransientId())
-    //    pair "actor" actor
-    //    pair "published" DateTimeOffset.UtcNow
-    //    pair "object" (this.PersonToObject person key)
-    //]
+    /// Builds a transient Update activity for the Pandacap actor.
+    member this.PersonToUpdate(key, recentPosts) = dict [
+        pair "type" "Update"
+        pair "id" (mapper.GenerateTransientId())
+        pair "actor" mapper.ActorId
+        pair "published" DateTimeOffset.UtcNow
+        pair "object" (this.PersonToObject(key, recentPosts))
+    ]
+
+    /// Builds a Note or Article object for a post.
+    member _.AsObject (post: DeviantArtOurPost) = dict [
+        let id = mapper.GetObjectId(post.Id)
+
+        pair "id" id
+        pair "url" id
+
+        match post with
+        | :? DeviantArtOurTextPost as textPost ->
+            if not (String.IsNullOrEmpty(post.Title)) then
+                pair "type" "Article"
+                pair "name" post.Title
+            else
+                pair "type" "Note"
+
+            pair "content" textPost.Html
+        | _ ->
+            pair "type" "Note"
+            pair "content" (String.concat "\n" [
+                if not (String.IsNullOrEmpty(post.Title)) then
+                    $"<p><strong>{WebUtility.HtmlEncode(post.Title)}</strong></p>"
+
+                post.Description
+            ])
+
+        pair "attributedTo" mapper.ActorId
+        pair "tag" [
+            for tag in post.Tags do
+                // Skip the tag if it doesn't meet our character set expectations.
+                if tag |> Seq.forall isRestrictedSet then
+                    dict [
+                        pair "type" "Hashtag"
+                        pair "name" $"#{tag}"
+                        pair "href" $"https://www.deviantart.com/tag/{Uri.EscapeDataString(tag)}"
+                    ]
+        ]
+        pair "published" post.PublishedTime
+        pair "to" "https://www.w3.org/ns/activitystreams#Public"
+        pair "cc" [$"{mapper.ActorId}/followers"]
+        if post.IsMature then
+            pair "summary" "Mature Content (DeviantArt)"
+            pair "sensitive" true
+
+        match post with
+        | :? DeviantArtOurArtworkPost as artworkPost ->
+            pair "attachment" [
+                dict [
+                    pair "type" "Document"
+                    pair "mediaType" "image/png"
+                    pair "url" artworkPost.Image.Url
+                    if not (String.IsNullOrEmpty(artworkPost.AltText)) then
+                        pair "name" artworkPost.AltText
+                ]
+            ]
+        | _ -> ()
+    ]
+
+    /// Builds a Create activity for a post.
+    member this.ObjectToCreate (post: DeviantArtOurPost) = dict [
+        pair "type" "Create"
+        pair "id" (mapper.GetCreateId(post.Id))
+        pair "actor" mapper.ActorId
+        pair "published" post.PublishedTime
+        pair "to" "https://www.w3.org/ns/activitystreams#Public"
+        pair "cc" [$"{mapper.ActorId}/followers"]
+        pair "object" (this.AsObject post)
+    ]
+
+    /// Builds a Update activity for a post.
+    member this.ObjectToUpdate (post: DeviantArtOurPost) = dict [
+        pair "type" "Update"
+        pair "id" (mapper.GenerateTransientId())
+        pair "actor" mapper.ActorId
+        pair "published" DateTimeOffset.UtcNow
+        pair "to" "https://www.w3.org/ns/activitystreams#Public"
+        pair "cc" [$"{mapper.ActorId}/followers"]
+        pair "object" (this.AsObject post)
+    ]
+
+    /// Builds a Delete activity for a post.
+    member _.ObjectToDelete (post: DeviantArtOurPost) = dict [
+        pair "type" "Delete"
+        pair "id" (mapper.GenerateTransientId())
+        pair "actor" mapper.ActorId
+        pair "published" DateTimeOffset.UtcNow
+        pair "to" "https://www.w3.org/ns/activitystreams#Public"
+        pair "cc" [$"{mapper.ActorId}/followers"]
+        pair "object" (mapper.GetObjectId(post.Id))
+    ]

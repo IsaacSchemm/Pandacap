@@ -7,7 +7,7 @@ namespace Pandacap.Controllers
 {
     public class GalleryController(PandacapDbContext context) : Controller
     {
-        public async Task<IActionResult> Index(int? offset, int? count)
+        public async Task<IActionResult> ImagePosts(int? offset, int? count)
         {
             int vOffset = offset ?? 0;
             int vCount = Math.Min(count ?? 25, 500);

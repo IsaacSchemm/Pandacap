@@ -41,12 +41,12 @@ else
                 <div class="row">
                     @foreach (var item in group)
                     {
-                        if (item is IImagePost imagePost && imagePost.Images.Any())
+                        if (item is IImagePost imagePost && imagePost.Thumbnails.Any())
                         {
-                            @foreach (var image in imagePost.Images)
+                            @foreach (var image in imagePost.Thumbnails)
                             {
                                 <div class="col-sm-4 col-md-3 text-center my-4">
-                                    <a href="@item.LinkUrl" target="_blank">
+                                    <a href="/Posts/@item.Id" target="_blank">
                                         <img src="@image.ThumbnailUrl"
                                              srcset="@image.ThumbnailSrcset"
                                              alt="@image.AltText"
@@ -58,9 +58,7 @@ else
                                         {
                                             <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                                         }
-                                        <a href="@item.LinkUrl">
-                                            @item.DisplayTitle
-                                        </a>
+                                        <a href="/Posts/@item.Id">@item.DisplayTitle</a>
                                     </label>
                                 </div>
                             }
@@ -72,7 +70,7 @@ else
                                 {
                                     <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                                 }
-                                <a href="@item.LinkUrl">@item.DisplayTitle</a>
+                                <a href="/Posts/@item.Id">@item.DisplayTitle</a>
                                 <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
                             </label>
                         }

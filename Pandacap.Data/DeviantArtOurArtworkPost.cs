@@ -1,13 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public class DeviantArtOurImage
-    {
-        public string Url { get; set; } = "";
-        public int Width { get; set; }
-        public int Height { get; set; }
-    }
-
-    public class DeviantArtOurArtworkPost : DeviantArtOurPost, IImage, IImagePost
+    public class DeviantArtOurArtworkPost : DeviantArtOurPost, IThumbnail, IImagePost
     {
         public DeviantArtOurImage Image { get; set; } = new DeviantArtOurImage();
 
@@ -27,6 +20,6 @@
 
         public string? AltText { get; set; }
 
-        IEnumerable<IImage> IImagePost.Images => [this];
+        IEnumerable<IThumbnail> IImagePost.Thumbnails => [this];
     }
 }

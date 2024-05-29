@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public interface IImage
+    public interface IThumbnail
     {
         string? ThumbnailUrl { get; }
         string? ThumbnailSrcset { get; }

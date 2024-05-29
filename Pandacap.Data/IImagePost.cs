@@ -2,6 +2,6 @@
 {
     public interface IImagePost : IPost
     {
-        IEnumerable<IImage> Images { get; }
+        IEnumerable<IThumbnail> Thumbnails { get; }
     }
 }
