@@ -1,13 +1,5 @@
 ﻿namespace Pandacap.Data
 {
-    public class DeviantArtOurImage
-    {
-        public string Url { get; set; } = "";
-        public string ContentType { get; set; } = "";
-        public int Width { get; set; }
-        public int Height { get; set; }
-    }
-
     public abstract class DeviantArtOurPost : IPost
     {
         public Guid Id { get; set; }

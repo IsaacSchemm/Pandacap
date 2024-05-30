@@ -1,12 +1,27 @@
 ﻿namespace Pandacap.Data
 {
+    public class DeviantArtOurImage
+    {
+        public string Url { get; set; } = "";
+        public string ContentType { get; set; } = "";
+        public int Width { get; set; }
+        public int Height { get; set; }
+    }
+
+    public class DeviantArtOurThumbnail
+    {
+        public string Url { get; set; } = "";
+        public int Width { get; set; }
+        public int Height { get; set; }
+    }
+
     public class DeviantArtOurArtworkPost : DeviantArtOurPost, IThumbnail, IImagePost
     {
         public DeviantArtOurImage Image { get; set; } = new DeviantArtOurImage();
 
-        public List<DeviantArtOurImage> Thumbnails { get; set; } = [];
+        public List<DeviantArtOurThumbnail> Thumbnails { get; set; } = [];
 
-        public DeviantArtOurImage? DefaultThumbnail =>
+        public DeviantArtOurThumbnail? DefaultThumbnail =>
             Thumbnails
             .OrderBy(t => t.Height >= 150 ? 1 : 2)
             .ThenBy(t => t.Height)

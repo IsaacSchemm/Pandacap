@@ -4,7 +4,6 @@ using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
-using System.Diagnostics;
 
 namespace Pandacap.HighLevel
 {
@@ -210,13 +209,17 @@ namespace Pandacap.HighLevel
                     post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
                     post.Image.Url = content.src;
+                    post.Image.ContentType = !Uri.TryCreate(content.src, UriKind.Absolute, out Uri? uri) ? "application/octet-stream"
+                        : uri.AbsolutePath.EndsWith(".png") ? "image/png"
+                        : uri.AbsolutePath.EndsWith(".jpg") ? "image/jpeg"
+                        : "application/octet-stream";
                     post.Image.Width = content.width;
                     post.Image.Height = content.height;
 
                     post.Thumbnails.Clear();
                     foreach (var thumbnail in deviation.thumbs.OrEmpty())
                     {
-                        post.Thumbnails.Add(new DeviantArtOurImage
+                        post.Thumbnails.Add(new DeviantArtOurThumbnail
                         {
                             Url = thumbnail.src,
                             Width = thumbnail.width,
