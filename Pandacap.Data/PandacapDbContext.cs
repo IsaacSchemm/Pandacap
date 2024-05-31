@@ -10,6 +10,10 @@ namespace Pandacap.Data
 
         public DbSet<ActivityPubInboxTextPost> ActivityPubInboxTextPosts { get; set; }
 
+        public DbSet<ActivityPubOutboundActivity> ActivityPubOutboundActivities { get; set; }
+
+        public DbSet<ActivityPubOutboundActivityRecipient> ActivityPubOutboundActivityRecipients { get; set; }
+
         public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
 
         public DbSet<DeviantArtInboxArtworkPost> DeviantArtInboxArtworkPosts { get; set; }
@@ -19,6 +23,8 @@ namespace Pandacap.Data
         public DbSet<DeviantArtOurArtworkPost> DeviantArtOurArtworkPosts { get; set; }
 
         public DbSet<DeviantArtOurTextPost> DeviantArtOurTextPosts { get; set; }
+
+        public DbSet<Follower> Followers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -4,13 +4,15 @@ using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
+using static DeviantArtFs.Api.Browse;
 
 namespace Pandacap.HighLevel
 {
     public class DeviantArtFeedReader(
         ApplicationInformation applicationInformation,
         PandacapDbContext context,
-        DeviantArtApp deviantArtApp)
+        DeviantArtApp deviantArtApp,
+        ActivityPubTranslator translator)
     {
         private readonly Lazy<Task<IDeviantArtRefreshableAccessToken?>> Credentials = new(async () =>
         {
@@ -148,10 +150,73 @@ namespace Pandacap.HighLevel
             await context.SaveChangesAsync();
         }
 
-        public async Task ReadOurGalleryAsync(DateTimeOffset notOlderThan)
+        private enum ActivityType { Create, Update, Delete };
+
+        private async Task AddActivityAsync(DeviantArtOurPost post, ActivityType activityType)
+        {
+            string activityJson = ActivityPubSerializer.SerializeWithContext(
+                activityType == ActivityType.Create ? translator.ObjectToCreate(post)
+                    : activityType == ActivityType.Update ? translator.ObjectToUpdate(post)
+                    : activityType == ActivityType.Delete ? translator.ObjectToDelete(post)
+                    : throw new NotImplementedException());
+
+            Guid activityId = Guid.NewGuid();
+
+            context.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
+            {
+                Id = activityId,
+                JsonBody = activityJson,
+                DeviationId = post.Id,
+                StoredAt = DateTimeOffset.UtcNow
+            });
+
+            var followers = await context.Followers
+                .Select(follower => new
+                {
+                    follower.Inbox,
+                    follower.SharedInbox
+                })
+                .ToListAsync();
+
+            var inboxes = followers
+                .Select(follower => follower.SharedInbox ?? follower.Inbox)
+                .Distinct();
+
+            foreach (string inbox in inboxes)
+            {
+                context.ActivityPubOutboundActivityRecipients.Add(new ActivityPubOutboundActivityRecipient
+                {
+                    Id = Guid.NewGuid(),
+                    ActivityId = activityId,
+                    Inbox = inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
+
+            var activities = await context.ActivityPubOutboundActivities
+                .Where(activity => activity.DeviationId == post.Id)
+                .ToListAsync();
+
+            foreach (var activity in activities)
+            {
+                activity.HideFromOutbox = true;
+            }
+        }
+
+        public async Task ReadOurGalleryAsync(DateTimeOffset notOlderThan, bool deleteAnyNotFound = false)
         {
             if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
+
+            HashSet<Guid> pendingDeletion = [];
+
+            if (deleteAnyNotFound)
+            {
+                pendingDeletion = new(
+                    await context.DeviantArtOurArtworkPosts
+                        .Select(p => p.Id)
+                        .ToListAsync());
+            }
 
             var asyncSeq =
                 DeviantArtFs.Api.Gallery.GetAllViewAsync(
@@ -175,6 +240,8 @@ namespace Pandacap.HighLevel
                     deviationIds);
 
                 foreach (var deviation in chunk) {
+                    pendingDeletion.Remove(deviation.deviationid);
+
                     if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                         continue;
 
@@ -183,6 +250,12 @@ namespace Pandacap.HighLevel
 
                     var post = existingPosts
                         .FirstOrDefault(p => p.Id == deviation.deviationid);
+
+                    string? oldObjectJson = post == null
+                        ? null
+                        : ActivityPubSerializer.SerializeWithContext(
+                            translator.AsObject(
+                                post));
 
                     if (post == null)
                     {
@@ -227,15 +300,53 @@ namespace Pandacap.HighLevel
                         });
                     }
 
-                    await context.SaveChangesAsync();
+                    string newObjectJson =
+                        ActivityPubSerializer.SerializeWithContext(
+                            translator.AsObject(
+                                post));
+
+                    if (oldObjectJson == null)
+                    {
+                        await AddActivityAsync(post, ActivityType.Create);
+                    }
+                    else if (oldObjectJson != newObjectJson)
+                    {
+                        await AddActivityAsync(post, ActivityType.Update);
+                    }
                 }
+
+                await context.SaveChangesAsync();
+            }
+
+            if (pendingDeletion.Count > 0)
+            {
+                var toDelete = await context.DeviantArtOurArtworkPosts
+                    .Where(p => pendingDeletion.Contains(p.Id))
+                    .ToListAsync();
+
+                foreach (var post in toDelete)
+                {
+                    await AddActivityAsync(post, ActivityType.Delete);
+                }
+
+                await context.SaveChangesAsync();
             }
         }
 
-        public async Task ReadOurPostsAsync(DateTimeOffset notOlderThan)
+        public async Task ReadOurPostsAsync(DateTimeOffset notOlderThan, bool deleteAnyNotFound = false)
         {
             if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
+
+            HashSet<Guid> pendingDeletion = [];
+
+            if (deleteAnyNotFound)
+            {
+                pendingDeletion = new(
+                    await context.DeviantArtOurTextPosts
+                        .Select(p => p.Id)
+                        .ToListAsync());
+            }
 
             var whoami = await DeviantArtFs.Api.User.WhoamiAsync(credentials);
 
@@ -261,6 +372,8 @@ namespace Pandacap.HighLevel
 
                 foreach (var deviation in chunk)
                 {
+                    pendingDeletion.Remove(deviation.deviationid);
+
                     if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                         continue;
 
@@ -270,6 +383,12 @@ namespace Pandacap.HighLevel
 
                     var post = existingPosts
                         .FirstOrDefault(p => p.Id == deviation.deviationid);
+
+                    string? oldObjectJson = post == null
+                        ? null
+                        : ActivityPubSerializer.SerializeWithContext(
+                            translator.AsObject(
+                                post));
 
                     if (post == null)
                     {
@@ -300,8 +419,36 @@ namespace Pandacap.HighLevel
                     post.Excerpt = deviation.excerpt.OrNull();
                     post.Html = content.html.OrNull();
 
-                    await context.SaveChangesAsync();
+                    string newObjectJson =
+                        ActivityPubSerializer.SerializeWithContext(
+                            translator.AsObject(
+                                post));
+
+                    if (oldObjectJson == null)
+                    {
+                        await AddActivityAsync(post, ActivityType.Create);
+                    }
+                    else if (oldObjectJson != newObjectJson)
+                    {
+                        await AddActivityAsync(post, ActivityType.Update);
+                    }
                 }
+
+                await context.SaveChangesAsync();
+            }
+
+            if (pendingDeletion.Count > 0)
+            {
+                var toDelete = await context.DeviantArtOurTextPosts
+                    .Where(p => pendingDeletion.Contains(p.Id))
+                    .ToListAsync();
+
+                foreach (var post in toDelete)
+                {
+                    await AddActivityAsync(post, ActivityType.Delete);
+                }
+
+                await context.SaveChangesAsync();
             }
         }
     }
