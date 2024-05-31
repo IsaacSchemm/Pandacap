@@ -15,7 +15,7 @@
         public int Height { get; set; }
     }
 
-    public class DeviantArtOurArtworkPost : DeviantArtOurPost, IThumbnail, IImagePost
+    public class DeviantArtArtworkDeviation : DeviantArtDeviation, IThumbnail, IImagePost
     {
         public DeviantArtOurImage Image { get; set; } = new DeviantArtOurImage();
 

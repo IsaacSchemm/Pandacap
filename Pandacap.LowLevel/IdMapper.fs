@@ -6,17 +6,18 @@ open System
 type IdMapper(appInfo: ApplicationInformation) =
     /// The ActivityPub actor ID of the single actor hosted by this Pandacap instance.
     member _.ActorId =
-        $"https://{appInfo.ApplicationHostname}/ap/actor"
+        $"https://{appInfo.ApplicationHostname}/ActivityPub/Actor"
 
-    /// Generates a random ID that is not intended to be looked up.
-    /// Used for Update and Delete activities.
-    member _.GenerateTransientId() =
-        $"https://{appInfo.ApplicationHostname}#transient-{Guid.NewGuid()}"
+    member _.InboxId =
+        $"https://{appInfo.ApplicationHostname}/ActivityPub/Inbox"
+
+    member _.OutboxId =
+        $"https://{appInfo.ApplicationHostname}/ActivityPub/Outbox"
 
     /// Determines the ActivityPub object ID for a post.
     member _.GetObjectId(deviationid: Guid) =
         $"https://{appInfo.ApplicationHostname}/Posts/{deviationid}"
 
-    /// Determines the ActivityPub object ID for a Create activity.
-    member _.GetCreateId(deviationid: Guid) =
-        $"https://{appInfo.ApplicationHostname}/ap/create/{deviationid}"
+    /// Determines the ActivityPub object ID for an activity.
+    member _.GetActivityId(activityGuid: Guid) =
+        $"https://{appInfo.ApplicationHostname}/ActivityPub/Activities/{activityGuid}"

@@ -45,11 +45,11 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         && not (Char.IsUpper(c))
 
     /// Builds a Person object for the Pandacap actor.
-    member _.PersonToObject (key: ActorKey, recentPosts: IPost seq) = dict [
+    member _.PersonToObject(key: ActorKey, recentPosts: IPost seq) = dict [
         pair "id" mapper.ActorId
         pair "type" "Person"
-        pair "inbox" $"{mapper.ActorId}/inbox"
-        pair "outbox" $"{mapper.ActorId}/outbox"
+        pair "inbox" mapper.InboxId
+        pair "outbox" mapper.OutboxId
         //pair "followers" $"{mapper.ActorId}/followers"
         //pair "following" $"{mapper.ActorId}/following"
         pair "preferredUsername" appInfo.Username
@@ -80,23 +80,23 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     ]
 
     /// Builds a transient Update activity for the Pandacap actor.
-    member this.PersonToUpdate(key, recentPosts) = dict [
+    member this.PersonToUpdate(activityGuid, actorKey, recentPosts) = dict [
         pair "type" "Update"
-        pair "id" (mapper.GenerateTransientId())
+        pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
-        pair "object" (this.PersonToObject(key, recentPosts))
+        pair "object" (this.PersonToObject(actorKey, recentPosts))
     ]
 
     /// Builds a Note or Article object for a post.
-    member _.AsObject (post: DeviantArtOurPost) = dict [
+    member _.AsObject(post: DeviantArtDeviation) = dict [
         let id = mapper.GetObjectId(post.Id)
 
         pair "id" id
         pair "url" id
 
         match post with
-        | :? DeviantArtOurTextPost as textPost ->
+        | :? DeviantArtTextDeviation as textPost ->
             if not (String.IsNullOrEmpty(post.Title)) then
                 pair "type" "Article"
                 pair "name" post.Title
@@ -132,7 +132,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             pair "sensitive" true
 
         match post with
-        | :? DeviantArtOurArtworkPost as artworkPost ->
+        | :? DeviantArtArtworkDeviation as artworkPost ->
             pair "attachment" [
                 dict [
                     pair "type" "Document"
@@ -146,9 +146,9 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     ]
 
     /// Builds a Create activity for a post.
-    member this.ObjectToCreate (post: DeviantArtOurPost) = dict [
+    member this.ObjectToCreate(post: DeviantArtDeviation, activityGuid: Guid) = dict [
         pair "type" "Create"
-        pair "id" (mapper.GetCreateId(post.Id))
+        pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
@@ -157,9 +157,9 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     ]
 
     /// Builds a Update activity for a post.
-    member this.ObjectToUpdate (post: DeviantArtOurPost) = dict [
+    member this.ObjectToUpdate(post: DeviantArtDeviation, activityGuid: Guid) = dict [
         pair "type" "Update"
-        pair "id" (mapper.GenerateTransientId())
+        pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
@@ -168,9 +168,9 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     ]
 
     /// Builds a Delete activity for a post.
-    member _.ObjectToDelete (post: DeviantArtOurPost) = dict [
+    member _.ObjectToDelete(post: DeviantArtDeviation, activityGuid: Guid) = dict [
         pair "type" "Delete"
-        pair "id" (mapper.GenerateTransientId())
+        pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" "https://www.w3.org/ns/activitystreams#Public"

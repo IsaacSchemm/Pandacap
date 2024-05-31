@@ -152,19 +152,19 @@ namespace Pandacap.HighLevel
 
         private enum ActivityType { Create, Update, Delete };
 
-        private async Task AddActivityAsync(DeviantArtOurPost post, ActivityType activityType)
+        private async Task AddActivityAsync(DeviantArtDeviation post, ActivityType activityType)
         {
-            string activityJson = ActivityPubSerializer.SerializeWithContext(
-                activityType == ActivityType.Create ? translator.ObjectToCreate(post)
-                    : activityType == ActivityType.Update ? translator.ObjectToUpdate(post)
-                    : activityType == ActivityType.Delete ? translator.ObjectToDelete(post)
-                    : throw new NotImplementedException());
+            Guid activityGuid = Guid.NewGuid();
 
-            Guid activityId = Guid.NewGuid();
+            string activityJson = ActivityPubSerializer.SerializeWithContext(
+                activityType == ActivityType.Create ? translator.ObjectToCreate(post, activityGuid)
+                    : activityType == ActivityType.Update ? translator.ObjectToUpdate(post, activityGuid)
+                    : activityType == ActivityType.Delete ? translator.ObjectToDelete(post, activityGuid)
+                    : throw new NotImplementedException());
 
             context.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
             {
-                Id = activityId,
+                Id = activityGuid,
                 JsonBody = activityJson,
                 DeviationId = post.Id,
                 StoredAt = DateTimeOffset.UtcNow
@@ -187,7 +187,7 @@ namespace Pandacap.HighLevel
                 context.ActivityPubOutboundActivityRecipients.Add(new ActivityPubOutboundActivityRecipient
                 {
                     Id = Guid.NewGuid(),
-                    ActivityId = activityId,
+                    ActivityId = activityGuid,
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });
@@ -213,7 +213,7 @@ namespace Pandacap.HighLevel
             if (deleteAnyNotFound)
             {
                 pendingDeletion = new(
-                    await context.DeviantArtOurArtworkPosts
+                    await context.DeviantArtArtworkDeviations
                         .Select(p => p.Id)
                         .ToListAsync());
             }
@@ -224,14 +224,14 @@ namespace Pandacap.HighLevel
                     UserScope.ForCurrentUser,
                     PagingLimit.MaximumPagingLimit,
                     PagingOffset.StartingOffset)
-                .TakeUntilOlderThan(notOlderThan)
+                .TakeUntilOlderThan(notOlderThan, item => item.published_time.OrNull())
                 .Chunk(50);
 
             await foreach (var chunk in asyncSeq)
             {
                 var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
 
-                var existingPosts = await context.DeviantArtOurArtworkPosts
+                var existingPosts = await context.DeviantArtArtworkDeviations
                     .Where(p => deviationIds.Contains(p.Id))
                     .ToListAsync();
 
@@ -259,7 +259,7 @@ namespace Pandacap.HighLevel
 
                     if (post == null)
                     {
-                        post = new DeviantArtOurArtworkPost
+                        post = new DeviantArtArtworkDeviation
                         {
                             Id = deviation.deviationid
                         };
@@ -320,7 +320,7 @@ namespace Pandacap.HighLevel
 
             if (pendingDeletion.Count > 0)
             {
-                var toDelete = await context.DeviantArtOurArtworkPosts
+                var toDelete = await context.DeviantArtArtworkDeviations
                     .Where(p => pendingDeletion.Contains(p.Id))
                     .ToListAsync();
 
@@ -343,7 +343,7 @@ namespace Pandacap.HighLevel
             if (deleteAnyNotFound)
             {
                 pendingDeletion = new(
-                    await context.DeviantArtOurTextPosts
+                    await context.DeviantArtTextDeviations
                         .Select(p => p.Id)
                         .ToListAsync());
             }
@@ -355,14 +355,14 @@ namespace Pandacap.HighLevel
                     credentials,
                     whoami.username,
                     DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning)
-                .TakeUntilOlderThan(notOlderThan)
+                .TakeUntilOlderThan(notOlderThan, item => item.published_time.OrNull())
                 .Chunk(50);
 
             await foreach (var chunk in asyncSeq)
             {
                 var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
 
-                var existingPosts = await context.DeviantArtOurTextPosts
+                var existingPosts = await context.DeviantArtTextDeviations
                     .Where(p => deviationIds.Contains(p.Id))
                     .ToListAsync();
 
@@ -392,7 +392,7 @@ namespace Pandacap.HighLevel
 
                     if (post == null)
                     {
-                        post = new DeviantArtOurTextPost
+                        post = new DeviantArtTextDeviation
                         {
                             Id = deviation.deviationid
                         };
@@ -439,7 +439,7 @@ namespace Pandacap.HighLevel
 
             if (pendingDeletion.Count > 0)
             {
-                var toDelete = await context.DeviantArtOurTextPosts
+                var toDelete = await context.DeviantArtTextDeviations
                     .Where(p => pendingDeletion.Contains(p.Id))
                     .ToListAsync();
 

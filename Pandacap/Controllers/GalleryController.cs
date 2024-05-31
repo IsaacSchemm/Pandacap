@@ -12,7 +12,7 @@ namespace Pandacap.Controllers
             int vOffset = offset ?? 0;
             int vCount = Math.Min(count ?? 25, 500);
 
-            var inboxItems = await context.DeviantArtOurArtworkPosts
+            var inboxItems = await context.DeviantArtArtworkDeviations
                 .OrderByDescending(item => item.PublishedTime)
                 .Skip(vOffset)
                 .Take(vCount)
@@ -38,7 +38,7 @@ namespace Pandacap.Controllers
             int vOffset = offset ?? 0;
             int vCount = Math.Min(count ?? 100, 500);
 
-            var inboxItems = await context.DeviantArtOurTextPosts
+            var inboxItems = await context.DeviantArtTextDeviations
                 .OrderBy(item => item.PublishedTime)
                 .Skip(vOffset)
                 .Take(vCount)

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.HighLevel.ActivityPub;
 using Pandacap.LowLevel;
 using System.Diagnostics;
@@ -10,9 +11,9 @@ using System.Text;
 
 namespace Pandacap.Controllers
 {
-    [Route("ap")]
     public class ActivityPubController(
         PandacapDbContext context,
+        FeedAggregator feedAggregator,
         KeyProvider keyProvider,
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
@@ -20,15 +21,13 @@ namespace Pandacap.Controllers
         private static new readonly IEnumerable<JToken> Empty = [];
 
         [HttpGet]
-        [Route("actor")]
         public async Task<IActionResult> Actor()
         {
             var key = await keyProvider.GetPublicKeyAsync();
 
-            var recentPosts = Enumerable.Empty<IPost>()
-                .Concat(await context.DeviantArtOurArtworkPosts.OrderByDescending(d => d.PublishedTime).Take(1).ToListAsync())
-                .Concat(await context.DeviantArtOurTextPosts.OrderByDescending(d => d.PublishedTime).Take(1).ToListAsync())
-                .OrderByDescending(d => d.Timestamp);
+            var recentPosts = await feedAggregator.GetDeviationsAsync()
+                .Take(1)
+                .ToListAsync();
 
             string json = ActivityPubSerializer.SerializeWithContext(
                 translator.PersonToObject(
@@ -39,7 +38,18 @@ namespace Pandacap.Controllers
         }
 
         [HttpGet]
-        [Route("add")]
+        public async Task<IActionResult> Activity(Guid id)
+        {
+            var activity = await context.ActivityPubOutboundActivities
+                .Where(activity => activity.Id == id)
+                .SingleOrDefaultAsync();
+
+            return activity == null
+                ? NotFound()
+                : Content(activity.JsonBody, "application/activity+json", Encoding.UTF8);
+        }
+
+        [HttpGet]
         public async Task AddPublicObjectToNotifications(string apurl)
         {
             string json = await remoteActorFetcher.GetJsonAsync(new Uri(apurl));

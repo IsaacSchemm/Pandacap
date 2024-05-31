@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public class DeviantArtOurTextPost : DeviantArtOurPost
+    public class DeviantArtTextDeviation : DeviantArtDeviation
     {
         public string? Excerpt { get; set; }
         public string? Html { get; set; }

@@ -27,9 +27,9 @@ namespace Pandacap.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
-            DeviantArtOurPost? post = null;
-            post ??= await context.DeviantArtOurArtworkPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
-            post ??= await context.DeviantArtOurTextPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
+            DeviantArtDeviation? post = null;
+            post ??= await context.DeviantArtArtworkDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
+            post ??= await context.DeviantArtTextDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
 
             if (post == null)
                 return NotFound();

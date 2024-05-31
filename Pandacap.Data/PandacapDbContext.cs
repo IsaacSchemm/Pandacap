@@ -20,9 +20,9 @@ namespace Pandacap.Data
 
         public DbSet<DeviantArtInboxTextPost> DeviantArtInboxTextPosts { get; set; }
 
-        public DbSet<DeviantArtOurArtworkPost> DeviantArtOurArtworkPosts { get; set; }
+        public DbSet<DeviantArtArtworkDeviation> DeviantArtArtworkDeviations { get; set; }
 
-        public DbSet<DeviantArtOurTextPost> DeviantArtOurTextPosts { get; set; }
+        public DbSet<DeviantArtTextDeviation> DeviantArtTextDeviations { get; set; }
 
         public DbSet<Follower> Followers { get; set; }
 
