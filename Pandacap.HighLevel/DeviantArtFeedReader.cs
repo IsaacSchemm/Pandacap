@@ -450,5 +450,18 @@ namespace Pandacap.HighLevel
                 await context.SaveChangesAsync();
             }
         }
+
+        public async Task UpdateAltTextAsync(Guid deviationId, string altText)
+        {
+            var post = await context.DeviantArtArtworkDeviations
+                .Where(p => p.Id == deviationId)
+                .SingleOrDefaultAsync();
+            if (post == null)
+                return;
+
+            post.AltText = altText;
+            await AddActivityAsync(post, ActivityType.Update);
+            await context.SaveChangesAsync();
+        }
     }
 }
