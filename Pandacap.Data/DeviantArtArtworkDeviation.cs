@@ -21,6 +21,10 @@
 
         public List<DeviantArtOurThumbnail> Thumbnails { get; set; } = [];
 
+        public string? AltText { get; set; }
+
+        public override bool RenderAsArticle => false;
+
         public DeviantArtOurThumbnail? DefaultThumbnail =>
             Thumbnails
             .OrderBy(t => t.Height >= 150 ? 1 : 2)
@@ -32,8 +36,6 @@
         public string? ThumbnailSrcset => Thumbnails.Skip(1).Any()
             ? string.Join(", ", Thumbnails.Select(x => $"{x.Url} {1.0 * x.Height / 150}x"))
             : null;
-
-        public string? AltText { get; set; }
 
         IEnumerable<IThumbnail> IImagePost.Thumbnails => [this];
     }

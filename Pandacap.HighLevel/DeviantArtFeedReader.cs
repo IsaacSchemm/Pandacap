@@ -411,13 +411,12 @@ namespace Pandacap.HighLevel
                     post.PublishedTime = publishedTime;
                     post.IsMature = deviation.is_mature.OrNull() ?? false;
 
-                    post.Description = metadata?.description;
+                    post.Description = content.html.OrNull() ?? metadata?.description;
 
                     post.Tags.Clear();
                     post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
                     post.Excerpt = deviation.excerpt.OrNull();
-                    post.Html = content.html.OrNull();
 
                     string newObjectJson =
                         ActivityPubSerializer.SerializeWithContext(
@@ -428,7 +427,7 @@ namespace Pandacap.HighLevel
                     {
                         await AddActivityAsync(post, ActivityType.Create);
                     }
-                    else if (oldObjectJson != newObjectJson)
+                    else //if (oldObjectJson != newObjectJson)
                     {
                         await AddActivityAsync(post, ActivityType.Update);
                     }

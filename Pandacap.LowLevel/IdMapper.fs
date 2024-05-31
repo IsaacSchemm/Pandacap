@@ -14,6 +14,12 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.OutboxId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Outbox"
 
+    member _.FollowersId =
+        $"https://{appInfo.ApplicationHostname}/ActivityPub/Followers"
+
+    member _.FollowingId =
+        $"https://{appInfo.ApplicationHostname}/ActivityPub/Following"
+
     /// Determines the ActivityPub object ID for a post.
     member _.GetObjectId(deviationid: Guid) =
         $"https://{appInfo.ApplicationHostname}/Posts/{deviationid}"

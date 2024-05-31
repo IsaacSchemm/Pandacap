@@ -50,8 +50,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "type" "Person"
         pair "inbox" mapper.InboxId
         pair "outbox" mapper.OutboxId
-        //pair "followers" $"{mapper.ActorId}/followers"
-        //pair "following" $"{mapper.ActorId}/following"
+        pair "followers" mapper.FollowersId
+        pair "following" mapper.FollowingId
         pair "preferredUsername" appInfo.Username
         pair "name" appInfo.DeviantArtUsername
         pair "url" mapper.ActorId
@@ -95,23 +95,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "id" id
         pair "url" id
 
-        match post with
-        | :? DeviantArtTextDeviation as textPost ->
-            if not (String.IsNullOrEmpty(post.Title)) then
-                pair "type" "Article"
-                pair "name" post.Title
-            else
-                pair "type" "Note"
-
-            pair "content" textPost.Html
-        | _ ->
-            pair "type" "Note"
-            pair "content" (String.concat "\n" [
-                if not (String.IsNullOrEmpty(post.Title)) then
-                    $"<p><strong>{WebUtility.HtmlEncode(post.Title)}</strong></p>"
-
-                post.Description
-            ])
+        pair "type" (if post.RenderAsArticle then "Article" else "Note")
+        pair "content" post.Description
 
         pair "attributedTo" mapper.ActorId
         pair "tag" [
@@ -126,7 +111,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         ]
         pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [$"{mapper.ActorId}/followers"]
+        pair "cc" [mapper.FollowersId]
         if post.IsMature then
             pair "summary" "Mature Content (DeviantArt)"
             pair "sensitive" true
@@ -152,7 +137,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [$"{mapper.ActorId}/followers"]
+        pair "cc" [mapper.FollowersId]
         pair "object" (this.AsObject post)
     ]
 
@@ -163,7 +148,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [$"{mapper.ActorId}/followers"]
+        pair "cc" [mapper.FollowersId]
         pair "object" (this.AsObject post)
     ]
 
@@ -174,6 +159,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [$"{mapper.ActorId}/followers"]
+        pair "cc" [mapper.FollowersId]
         pair "object" (mapper.GetObjectId(post.Id))
     ]
