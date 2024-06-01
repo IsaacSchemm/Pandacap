@@ -43,9 +43,8 @@ namespace Pandacap.Functions
 
                     try
                     {
-                        var activity = activities.SingleOrDefault(a => a.Id == recipient.ActivityId);
-                        if (activity != null)
-                            await remoteActorFetcher.PostAsync(new Uri(recipient.Inbox), activity.JsonBody);
+                        var activity = activities.Single(a => a.Id == recipient.ActivityId);
+                        await remoteActorFetcher.PostAsync(new Uri(recipient.Inbox), activity.JsonBody);
                         context.ActivityPubOutboundActivityRecipients.Remove(recipient);
                     }
                     catch (HttpRequestException)

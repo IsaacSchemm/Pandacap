@@ -166,7 +166,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     /// Builds a transient Accept activity to accept a follow request.
     member _.AcceptFollow (followId: string, activityGuid: Guid) = dict [
         pair "type" "Accept"
-        pair "id" activityGuid
+        pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId
         pair "object" followId
     ]
