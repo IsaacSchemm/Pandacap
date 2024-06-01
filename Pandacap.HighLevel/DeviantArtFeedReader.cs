@@ -4,7 +4,6 @@ using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
-using static DeviantArtFs.Api.Browse;
 
 namespace Pandacap.HighLevel
 {
@@ -203,14 +202,14 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public async Task ReadOurGalleryAsync(DateTimeOffset notOlderThan, bool deleteAnyNotFound = false)
+        public async Task ReadOurGalleryAsync(FeedReaderScope scope)
         {
             if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
 
             HashSet<Guid> pendingDeletion = [];
 
-            if (deleteAnyNotFound)
+            if (scope.IsAllTime)
             {
                 pendingDeletion = new(
                     await context.DeviantArtArtworkDeviations
@@ -224,7 +223,7 @@ namespace Pandacap.HighLevel
                     UserScope.ForCurrentUser,
                     PagingLimit.MaximumPagingLimit,
                     PagingOffset.StartingOffset)
-                .TakeUntilOlderThan(notOlderThan, item => item.published_time.OrNull())
+                .TakeWhile(post => scope.IsInScope(post.published_time))
                 .Chunk(50);
 
             await foreach (var chunk in asyncSeq)
@@ -333,14 +332,14 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public async Task ReadOurPostsAsync(DateTimeOffset notOlderThan, bool deleteAnyNotFound = false)
+        public async Task ReadOurPostsAsync(FeedReaderScope scope)
         {
             if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
 
             HashSet<Guid> pendingDeletion = [];
 
-            if (deleteAnyNotFound)
+            if (scope.IsAllTime)
             {
                 pendingDeletion = new(
                     await context.DeviantArtTextDeviations
@@ -355,7 +354,7 @@ namespace Pandacap.HighLevel
                     credentials,
                     whoami.username,
                     DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning)
-                .TakeUntilOlderThan(notOlderThan, item => item.published_time.OrNull())
+                .TakeWhile(post => scope.IsInScope(post.published_time))
                 .Chunk(50);
 
             await foreach (var chunk in asyncSeq)

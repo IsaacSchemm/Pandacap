@@ -141,27 +141,5 @@ namespace Pandacap.HighLevel
                     yield return item;
             }
         }
-
-        /// <summary>
-        /// Returns items from the original asynchronous sequence as long as
-        /// their date/time is more recent than the given date/time.
-        /// </summary>
-        /// <param name="asyncSeq">An asynchronous sequence of items</param>
-        /// <param name="timestamp">The cutoff date/time</param>
-        /// <param name="dateSelector">A function that extracts the date field from each item</param>
-        /// <returns>An asynchronous sequence of items that are more recent than the given date/time</returns>
-        public static async IAsyncEnumerable<T> TakeUntilOlderThan<T>(
-            this IAsyncEnumerable<T> asyncSeq,
-            DateTimeOffset timestamp,
-            Func<T, DateTimeOffset?> dateSelector)
-        {
-            await foreach (var item in asyncSeq)
-            {
-                if (dateSelector(item) is DateTimeOffset publishedTime && publishedTime < timestamp)
-                    yield break;
-
-                yield return item;
-            }
-        }
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.Azure.Functions.Worker;
 using Pandacap.HighLevel;
+using Pandacap.LowLevel;
 
 namespace Pandacap.Functions
 {
@@ -8,8 +9,9 @@ namespace Pandacap.Functions
         [Function("DeviantArtDaily")]
         public async Task Run([TimerTrigger("0 35 0 * * *")] TimerInfo myTimer)
         {
-            await deviantArtFeedReader.ReadOurGalleryAsync(DateTimeOffset.UtcNow.AddDays(-7));
-            await deviantArtFeedReader.ReadOurPostsAsync(DateTimeOffset.UtcNow.AddDays(-7));
+            var scope = FeedReaderScope.NewAtOrSince(DateTimeOffset.UtcNow.AddDays(-7));
+            await deviantArtFeedReader.ReadOurGalleryAsync(scope);
+            await deviantArtFeedReader.ReadOurPostsAsync(scope);
         }
     }
 }
