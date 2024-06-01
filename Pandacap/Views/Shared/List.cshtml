@@ -92,10 +92,10 @@ else
             </button>
         }
 
-        <hr />
-
         @if (Model.Items.LastOrDefault() is IPost lastPost)
         {
+            <hr />
+
             <a asp-controller="@Model.Controller"
                asp-action="@Model.Action"
                asp-route-after="@lastPost.Id"

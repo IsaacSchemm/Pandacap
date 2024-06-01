@@ -50,8 +50,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "type" "Person"
         pair "inbox" mapper.InboxId
         pair "outbox" mapper.OutboxId
-        pair "followers" mapper.FollowersId
-        pair "following" mapper.FollowingId
+        pair "followers" mapper.FollowersRootId
+        pair "following" mapper.FollowingRootId
         pair "preferredUsername" appInfo.Username
         pair "name" appInfo.DeviantArtUsername
         pair "url" mapper.ActorId
@@ -111,7 +111,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         ]
         pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [mapper.FollowersId]
+        pair "cc" [mapper.FollowersRootId]
         if post.IsMature then
             pair "summary" "Mature Content (DeviantArt)"
             pair "sensitive" true
@@ -137,7 +137,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [mapper.FollowersId]
+        pair "cc" [mapper.FollowersRootId]
         pair "object" (this.AsObject post)
     ]
 
@@ -148,7 +148,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [mapper.FollowersId]
+        pair "cc" [mapper.FollowersRootId]
         pair "object" (this.AsObject post)
     ]
 
@@ -159,7 +159,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [mapper.FollowersId]
+        pair "cc" [mapper.FollowersRootId]
         pair "object" (mapper.GetObjectId(post.Id))
     ]
 
@@ -169,4 +169,48 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "id" activityGuid
         pair "actor" mapper.ActorId
         pair "object" followId
+    ]
+
+    /// Builds a Collection to point to the CollectionPage that lists the user's followers.
+    member _.AsFollowersCollection (followers: int) = dict [
+        pair "id" mapper.FollowersRootId
+        pair "type" "Collection"
+        pair "totalItems" followers
+        pair "first" mapper.FollowersPageId
+    ]
+
+    /// Builds a CollectionPage to list the user's followers.
+    member _.AsFollowersCollectionPage (currentPage: string, followers: Follower seq) = dict [
+        pair "id" currentPage
+        pair "type" "OrderedCollectionPage"
+
+        match Seq.tryLast followers with
+        | None -> ()
+        | Some lastItem ->
+            pair "next" $"{mapper.FollowersPageId}?after={lastItem.ActorId}&count={Seq.length followers}"
+
+        pair "partOf" mapper.FollowersRootId
+        pair "orderedItems" [for f in followers do f.ActorId]
+    ]
+
+    /// Builds a Collection to point to the CollectionPage that lists the user's follows.
+    member _.AsFollowingCollection (following: int) = dict [
+        pair "id" mapper.FollowingRootId
+        pair "type" "Collection"
+        pair "totalItems" following
+        pair "first" mapper.FollowingPageId
+    ]
+
+    /// Builds a CollectionPage to list the user's follows.
+    member _.AsFollowingCollectionPage (currentPage: string, following: Following seq) = dict [
+        pair "id" currentPage
+        pair "type" "OrderedCollectionPage"
+
+        match Seq.tryLast following with
+        | None -> ()
+        | Some lastItem ->
+            pair "next" $"{mapper.FollowingPageId}?after={lastItem.ActorId}&count={Seq.length following}"
+
+        pair "partOf" mapper.FollowingRootId
+        pair "orderedItems" [for f in following do f.ActorId]
     ]

@@ -15,9 +15,6 @@ namespace Pandacap.Controllers
     public class ActivityPubController(
         ApplicationInformation appInfo,
         PandacapDbContext context,
-        FeedAggregator feedAggregator,
-        KeyProvider keyProvider,
-        InboxHandler inboxHandler,
         MastodonVerifier mastodonVerifier,
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
@@ -25,32 +22,42 @@ namespace Pandacap.Controllers
         private static new readonly IEnumerable<JToken> Empty = [];
 
         [HttpGet]
-        public async Task<IActionResult> Actor()
-        {
-            var key = await keyProvider.GetPublicKeyAsync();
-
-            var recentPosts = await feedAggregator.GetDeviationsAsync()
-                .Take(1)
-                .ToListAsync();
-
-            string json = ActivityPubSerializer.SerializeWithContext(
-                translator.PersonToObject(
-                    key,
-                    recentPosts));
-
-            return Content(json, "application/activity+json", Encoding.UTF8);
-        }
-
-        [HttpGet]
         public async Task<IActionResult> Activity(Guid id)
         {
             var activity = await context.ActivityPubOutboundActivities
                 .Where(activity => activity.Id == id)
+                .Where(activity => !activity.Unresolvable)
                 .SingleOrDefaultAsync();
 
             return activity == null
                 ? NotFound()
                 : Content(activity.JsonBody, "application/activity+json", Encoding.UTF8);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Followers()
+        {
+            int count = await context.Followers.CountAsync();
+            return Content(
+                ActivityPubSerializer.SerializeWithContext(
+                    translator.AsFollowersCollection(
+                        count)),
+                "application/activity+json",
+                Encoding.UTF8);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Following()
+        {
+            int count = await context.Followings
+                .Where(f => f.Accepted)
+                .CountAsync();
+            return Content(
+                ActivityPubSerializer.SerializeWithContext(
+                    translator.AsFollowingCollection(
+                        count)),
+                "application/activity+json",
+                Encoding.UTF8);
         }
 
         private class Wrapper(HttpRequest Request) : IRequest
@@ -93,7 +100,7 @@ namespace Pandacap.Controllers
             {
                 string objectId = expansionObj["@id"]!.Value<string>()!;
 
-                await inboxHandler.AddFollowAsync(objectId, actor);
+                await AddFollowAsync(objectId, actor);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Undo")
             {
@@ -101,7 +108,7 @@ namespace Pandacap.Controllers
                 {
                     string objectId = objectToUndo["@id"]!.Value<string>()!;
 
-                    await inboxHandler.RemoveFollowAsync(objectId);
+                    await RemoveFollowAsync(objectId);
                 }
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Accept")
@@ -295,6 +302,62 @@ namespace Pandacap.Controllers
                 imagePost.Attachments.Clear();
                 imagePost.Attachments.AddRange(findAttachments());
             }
+
+            await context.SaveChangesAsync();
+        }
+
+        private async Task AddFollowAsync(string objectId, RemoteActor actor)
+        {
+            var existing = await context.Followers
+                .Where(f => f.ActorId == actor.Id)
+                .SingleOrDefaultAsync();
+
+            if (existing != null)
+            {
+                existing.MostRecentFollowId = objectId;
+            }
+            else
+            {
+                context.Followers.Add(new Follower
+                {
+                    Id = Guid.NewGuid(),
+                    ActorId = actor.Id,
+                    MostRecentFollowId = objectId,
+                    Inbox = actor.Inbox,
+                    SharedInbox = actor.SharedInbox
+                });
+
+                Guid acceptGuid = Guid.NewGuid();
+
+                context.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
+                {
+                    HideFromOutbox = true,
+                    Id = acceptGuid,
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.AcceptFollow(objectId, acceptGuid)),
+                    StoredAt = DateTimeOffset.UtcNow,
+                    Unresolvable = true
+                });
+
+                context.ActivityPubOutboundActivityRecipients.Add(new ActivityPubOutboundActivityRecipient
+                {
+                    ActivityId = acceptGuid,
+                    Id = Guid.NewGuid(),
+                    Inbox = actor.Inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        private async Task RemoveFollowAsync(string objectId)
+        {
+            var followers = context.Followers
+                .Where(i => i.MostRecentFollowId == objectId)
+                .AsAsyncEnumerable();
+            await foreach (var i in followers)
+                context.Followers.Remove(i);
 
             await context.SaveChangesAsync();
         }

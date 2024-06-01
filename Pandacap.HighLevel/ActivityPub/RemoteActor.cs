@@ -1,4 +1,6 @@
-﻿namespace Pandacap.HighLevel.ActivityPub
+﻿using Pandacap.LowLevel;
+
+namespace Pandacap.HighLevel.ActivityPub
 {
     /// <summary>
     /// Represents an actor on a remote ActivityPub server.
@@ -17,5 +19,9 @@
         string? PreferredUsername,
         string? IconUrl,
         string KeyId,
-        string KeyPem);
+        string KeyPem) : IUserDisplay
+    {
+        string IUserDisplay.Name => PreferredUsername ?? Id;
+        string IUserDisplay.Url => Id;
+    }
 }

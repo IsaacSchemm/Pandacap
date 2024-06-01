@@ -1,0 +1,35 @@
+﻿@using Pandacap.LowLevel
+@model IEnumerable<IUserDisplay>
+
+@{
+    ViewData["Title"] = "Followers";
+}
+
+<h1>Following</h1>
+
+<ul>
+    @foreach (var user in Model)
+    {
+        <li>
+            <a href="@user.Url">
+                <img src="@user.IconUrl"
+                     alt="Avatar"
+                     float="left"
+                     style="vertical-align: top" />
+                @user.Name
+            </a>
+        </li>
+    }
+</ul>
+
+@if (Model.LastOrDefault() is IUserDisplay lastUser)
+{
+    <hr />
+
+    <a asp-action="Following"
+       asp-route-after="@lastUser.Id"
+       asp-route-count="@Model.Count()"
+       class="btn btn-primary">
+        Next @Model.Count() items &raquo;
+    </a>
+}
