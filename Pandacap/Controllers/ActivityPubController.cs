@@ -215,6 +215,16 @@ namespace Pandacap.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult Outbox()
+        {
+            return Content(
+                ActivityPubSerializer.SerializeWithContext(
+                    translator.Outbox),
+                "application/activity+json",
+                Encoding.UTF8);
+        }
+
         private async Task AddToInboxAsync(RemoteActor sendingActor, JToken post)
         {
             string attributedTo = (post["https://www.w3.org/ns/activitystreams#attributedTo"] ?? Empty).Single()["@id"]!.Value<string>()!;
@@ -320,7 +330,6 @@ namespace Pandacap.Controllers
             {
                 context.Followers.Add(new Follower
                 {
-                    Id = Guid.NewGuid(),
                     ActorId = actor.Id,
                     MostRecentFollowId = objectId,
                     Inbox = actor.Inbox,

@@ -8,19 +8,15 @@ namespace Pandacap.Data
     public class Follower
     {
         /// <summary>
-        /// An internal ID for this follower.
+        /// The follower's actor ID.
         /// </summary>
-        public Guid Id { get; set; }
+        [Key]
+        public string ActorId { get; set; } = "";
 
         /// <summary>
         /// The date/time at which this follower was added.
         /// </summary>
         public DateTimeOffset AddedAt { get; set; }
-
-        /// <summary>
-        /// The follower's actor ID.
-        /// </summary>
-        public string ActorId { get; set; } = "";
 
         /// <summary>
         /// The ID of the Follow activity that this actor sent. If Pandacap

@@ -214,3 +214,10 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "partOf" mapper.FollowingRootId
         pair "orderedItems" [for f in following do f.ActorId]
     ]
+
+    member _.Outbox = dict [
+        pair "id" mapper.OutboxId
+        pair "type" "Collection"
+        pair "totalItems" 0
+        pair "items" []
+    ]

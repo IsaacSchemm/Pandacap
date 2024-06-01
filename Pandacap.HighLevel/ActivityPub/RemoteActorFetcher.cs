@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using Pandacap.LowLevel;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Pandacap.HighLevel.ActivityPub
@@ -87,6 +88,34 @@ namespace Pandacap.HighLevel.ActivityPub
                 headerNames += " digest";
             }
             req.Headers.Add("Signature", $"keyId=\"{mapper.ActorId}#main-key\",algorithm=\"rsa-sha256\",headers=\"{headerNames}\",signature=\"{Convert.ToBase64String(signature)}\"");
+        }
+
+        /// <summary>
+        /// Makes a signed HTTP POST request to a remote ActivityPub server.
+        /// </summary>
+        /// <param name="url">The URL to request</param>
+        /// <param name="json">The raw JSON-LD request body</param>
+        public async Task PostAsync(Uri url, string json)
+        {
+            byte[]? body = Encoding.UTF8.GetBytes(json);
+            string? digest = Convert.ToBase64String(SHA256.HashData(body));
+
+            using var req = new HttpRequestMessage(HttpMethod.Post, url);
+            req.Headers.Host = url.Host;
+            req.Headers.Date = DateTime.UtcNow;
+            req.Headers.UserAgent.ParseAdd(appInfo.UserAgent);
+
+            req.Headers.Add("Digest", $"SHA-256={digest}");
+
+            await AddSignatureAsync(req);
+
+            req.Content = new ByteArrayContent(body);
+            req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/activity+json");
+
+            using var httpClient = httpClientFactory.CreateClient();
+
+            using var res = await httpClient.SendAsync(req);
+            res.EnsureSuccessStatusCode();
         }
 
         /// <summary>

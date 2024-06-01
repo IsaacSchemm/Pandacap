@@ -61,9 +61,7 @@ public partial class MastodonVerifier
 
     private IEnumerable<MastodonSignatureComponents> ParseMastodonSignatureComponents(IRequest message)
     {
-        var mastodonSignatures = message.Headers
-            .Where(h => string.Equals(h.Value, Constants.Headers.Signature, StringComparison.InvariantCultureIgnoreCase))
-            .SelectMany(h => h.Value)
+        var mastodonSignatures = message.Headers[Constants.Headers.Signature]
             .Select(header => header?.Split(',', RemoveEmpty) ?? [])
             .Where(parts => parts.Length > 1);
 
