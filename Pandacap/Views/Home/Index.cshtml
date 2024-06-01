@@ -1,8 +1,89 @@
-﻿@{
+﻿@using Pandacap.Data
+@model ProfileViewModel
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<img
+    src="@Model.MostRecentPost?.Usericon"
+    alt="Avatar"
+    float="left"
+    style="vertical-align: top" />
+
+<div style="display: inline-block">
+    <h1>
+        @Model.MostRecentPost?.Username
+    </h1>
+
+    <p>
+        Followers:
+        <a asp-action="Followers">
+            @Model.FollowerCount
+        </a>
+        <br />
+        Following:
+        <a asp-action="Following">
+            @Model.FollowingCount
+        </a>
+    </p>
 </div>
+
+@if (Model.RecentArtwork.Any()) {
+    <h2>
+        Newest artwork
+    </h2>
+
+    <div class="container-fluid">
+        <div class="row">
+            @foreach (var post in Model.RecentArtwork)
+            {
+                <div class="col-sm-4 col-md-3 text-center my-4">
+                    <a href="/Posts/@post.Id" target="_blank">
+                        <img src="@post.ThumbnailUrl"
+                             srcset="@post.ThumbnailSrcset"
+                             alt="@post.AltText"
+                             referrerpolicy="no-referrer"
+                             class="feed-image" />
+                        @post.Title
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <a asp-controller="Gallery" asp-action="Artwork">
+        View more &raquo;
+    </a>
+}
+
+@if (Model.RecentTextPosts.Any()) {
+    <h2>
+        Recent posts
+    </h2>
+
+    @foreach (IPost post in Model.RecentTextPosts)
+    {
+        <div>
+            <a href="/Posts/@post.Id">@post.DisplayTitle</a>
+            <span class="text-muted">(@post.Timestamp.UtcDateTime.ToLongDateString())</span>
+        </div>
+    }
+
+    <a asp-controller="Gallery" asp-action="TextPosts">
+        View more &raquo;
+    </a>
+}
+
+<style type="text/css">
+    img.feed-image {
+        height: 150px;
+    }
+
+    @@supports (object-fit: contain) {
+        img.feed-image {
+            width: 100%;
+            object-fit: contain;
+        }
+    }
+</style>

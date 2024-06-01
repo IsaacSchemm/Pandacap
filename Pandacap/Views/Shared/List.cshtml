@@ -115,6 +115,17 @@ else
                 Next @Model.Count items &raquo;
             </a>
         }
+
+        @if (Model.Items.LastOrDefault() is DeviantArtDeviation lastDeviation)
+        {
+            <a asp-controller="@Model.Controller"
+               asp-action="@Model.Action"
+               asp-route-after="@lastDeviation.Id"
+               asp-route-count="@Model.Count"
+               class="btn btn-primary">
+                Next @Model.Count items &raquo;
+            </a>
+        }
     </form>
 }
 

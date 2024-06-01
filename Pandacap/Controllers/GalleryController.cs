@@ -1,59 +1,62 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     public class GalleryController(PandacapDbContext context) : Controller
     {
-        public async Task<IActionResult> ImagePosts(int? offset, int? count)
+        public async Task<IActionResult> Artwork(Guid? after, int? count)
         {
-            int vOffset = offset ?? 0;
-            int vCount = Math.Min(count ?? 25, 500);
+            DateTimeOffset startTime = after is Guid pg
+                ? await context.DeviantArtArtworkDeviations
+                    .Where(f => f.Id == pg)
+                    .Select(f => f.PublishedTime)
+                    .SingleAsync()
+                : DateTimeOffset.MinValue;
 
-            var inboxItems = await context.DeviantArtArtworkDeviations
-                .OrderByDescending(item => item.PublishedTime)
-                .Skip(vOffset)
-                .Take(vCount)
+            var posts = await context.DeviantArtArtworkDeviations
+                .Where(f => f.PublishedTime >= startTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == after || after == null)
+                .Where(f => f.Id != after)
+                .Take(count ?? 10)
                 .ToListAsync();
 
             return View("List", new ListViewModel
             {
                 Controller = "Gallery",
-                Action = nameof(Index),
-                Items = inboxItems,
-                PrevOffset = vOffset > 0
-                    ? Math.Max(vOffset - vCount, 0)
-                    : null,
-                NextOffset = inboxItems.Count >= vCount
-                    ? vOffset + inboxItems.Count
-                    : null,
-                Count = vCount
+                Action = nameof(Artwork),
+                Items = posts,
+                Count = count ?? 10
             });
         }
 
-        public async Task<IActionResult> TextPosts(int? offset, int? count)
+        public async Task<IActionResult> TextPosts(Guid? after, int? count)
         {
-            int vOffset = offset ?? 0;
-            int vCount = Math.Min(count ?? 100, 500);
+            DateTimeOffset startTime = after is Guid pg
+                ? await context.DeviantArtTextDeviations
+                    .Where(f => f.Id == pg)
+                    .Select(f => f.PublishedTime)
+                    .SingleAsync()
+                : DateTimeOffset.MinValue;
 
-            var inboxItems = await context.DeviantArtTextDeviations
-                .OrderBy(item => item.PublishedTime)
-                .Skip(vOffset)
-                .Take(vCount)
+            var posts = await context.DeviantArtTextDeviations
+                .Where(f => f.PublishedTime >= startTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == after || after == null)
+                .Where(f => f.Id != after)
+                .Take(count ?? 10)
                 .ToListAsync();
 
             return View("List", new ListViewModel
             {
-                Items = inboxItems,
-                PrevOffset = vOffset > 0
-                    ? Math.Max(vOffset - vCount, 0)
-                    : null,
-                NextOffset = inboxItems.Count >= vCount
-                    ? vOffset + inboxItems.Count
-                    : null,
-                Count = vCount
+                Controller = "Gallery",
+                Action = nameof(TextPosts),
+                Items = posts,
+                Count = count ?? 10
             });
         }
     }

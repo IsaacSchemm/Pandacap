@@ -1,5 +1,6 @@
 ﻿using DeviantArtFs.Extensions;
 using DeviantArtFs.ResponseTypes;
+using System.Diagnostics;
 
 namespace Pandacap.HighLevel
 {
@@ -115,6 +116,30 @@ namespace Pandacap.HighLevel
 
             if (buffer.Count > 0)
                 yield return buffer;
+        }
+
+        /// <summary>
+        /// Skips all items from the asynchronous sequence until the predicate
+        /// returns true for an item, then yields that item and any further
+        /// items.
+        /// </summary>
+        /// <typeparam name="T">The type of element in the original sequence</typeparam>
+        /// <param name="asyncSeq">The original synchronous sequence</param>
+        /// <param name="predicate">A check to perform on items in the sequence</param>
+        /// <returns>An asynchronous sequence that starts with an element where the predicate is true</returns>
+        public static async IAsyncEnumerable<T> SkipUntil<T>(
+            this IAsyncEnumerable<T> asyncSeq,
+            Func<T, bool> predicate)
+        {
+            bool skipping = true;
+            await foreach (var item in asyncSeq)
+            {
+                if (predicate(item))
+                    skipping = false;
+
+                if (!skipping)
+                    yield return item;
+            }
         }
 
         /// <summary>

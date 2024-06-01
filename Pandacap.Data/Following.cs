@@ -3,17 +3,17 @@
 namespace Pandacap.Data
 {
     /// <summary>
-    /// An ActivityPub actor who is following this Pandacap actor.
+    /// An ActivityPub actor who this Pandacap actor is following.
     /// </summary>
-    public class Follower
+    public class Following
     {
         /// <summary>
-        /// An internal ID for this follower.
+        /// An internal ID for this follow.
         /// </summary>
         public Guid Id { get; set; }
 
         /// <summary>
-        /// The date/time at which this follower was added.
+        /// The date/time at which this follow was added.
         /// </summary>
         public DateTimeOffset AddedAt { get; set; }
 
@@ -23,12 +23,15 @@ namespace Pandacap.Data
         public string ActorId { get; set; } = "";
 
         /// <summary>
-        /// The ID of the Follow activity that this actor sent. If Pandacap
-        /// recieves an Undo of this activity, it should remove this Follower
-        /// record.
+        /// The ID of the Follow activity sent to the remote server.
         /// </summary>
         [Required]
-        public string MostRecentFollowId { get; set; } = "";
+        public string FollowId { get; set; } = "";
+
+        /// <summary>
+        /// Whether the follow has been accepted.
+        /// </summary>
+        public bool Accepted { get; set; }
 
         /// <summary>
         /// This actor's personal ActivityPub inbox.

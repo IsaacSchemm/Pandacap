@@ -26,6 +26,8 @@ namespace Pandacap.Data
 
         public DbSet<Follower> Followers { get; set; }
 
+        public DbSet<Following> Followings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
