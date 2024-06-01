@@ -94,33 +94,11 @@ else
 
         <hr />
 
-        @if (Model.PrevOffset is int prevOffset)
+        @if (Model.Items.LastOrDefault() is IPost lastPost)
         {
             <a asp-controller="@Model.Controller"
                asp-action="@Model.Action"
-               asp-route-offset="@prevOffset"
-               asp-route-count="@Model.Count"
-               class="btn btn-primary">
-                &laquo; Previous @Model.Count items
-            </a>
-        }
-
-        @if (Model.NextOffset is int nextOffset)
-        {
-            <a asp-controller="@Model.Controller"
-               asp-action="@Model.Action"
-               asp-route-offset="@nextOffset"
-               asp-route-count="@Model.Count"
-               class="btn btn-primary">
-                Next @Model.Count items &raquo;
-            </a>
-        }
-
-        @if (Model.Items.LastOrDefault() is DeviantArtDeviation lastDeviation)
-        {
-            <a asp-controller="@Model.Controller"
-               asp-action="@Model.Action"
-               asp-route-after="@lastDeviation.Id"
+               asp-route-after="@lastPost.Id"
                asp-route-count="@Model.Count"
                class="btn btn-primary">
                 Next @Model.Count items &raquo;

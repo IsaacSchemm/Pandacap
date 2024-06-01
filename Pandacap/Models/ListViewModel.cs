@@ -10,10 +10,6 @@ namespace Pandacap.Models
 
         public IEnumerable<IPost> Items { get; set; } = [];
 
-        public int? PrevOffset { get; set; }
-
-        public int? NextOffset { get; set; }
-
         public int Count { get; set; }
     }
 }

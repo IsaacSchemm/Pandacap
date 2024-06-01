@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
@@ -12,95 +13,117 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         UserManager<IdentityUser> userManager) : Controller
     {
-        private async Task<IActionResult> Fetch<T>(
-            string action,
-            IQueryable<T> queryable,
-            int? offset,
-            int? count) where T : IPost
+        public async Task<IActionResult> DeviantArtImagePosts(
+            Guid? after,
+            int? count)
         {
-            int vOffset = offset ?? 0;
-            int vCount = Math.Min(count ?? 100, 500);
+            DateTimeOffset startTime = after is Guid afterGuid
+                ? await context.DeviantArtInboxArtworkPosts
+                    .Where(f => f.Id == afterGuid)
+                    .Select(f => f.Timestamp)
+                    .SingleAsync()
+                : DateTimeOffset.MinValue;
 
-            string? userId = userManager.GetUserId(User);
-
-            var inboxItems = await queryable
-                .Where(item => item.DismissedAt == null)
-                .OrderBy(item => item.Timestamp)
-                .Skip(vOffset)
-                .Take(vCount)
+            var posts = await context.DeviantArtInboxArtworkPosts
+                .Where(f => f.Timestamp >= startTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == after || after == null)
+                .Where(f => f.Id != after)
+                .Take(count ?? 100)
                 .ToListAsync();
-
-            IEnumerable<IPost> enumerate()
-            {
-                foreach (var item in inboxItems) yield return item;
-            }
 
             return View("List", new ListViewModel
             {
-                Controller = "Gallery",
-                Action = action,
-                Items = enumerate(),
-                PrevOffset = vOffset > 0
-                    ? Math.Max(vOffset - vCount, 0)
-                    : null,
-                NextOffset = inboxItems.Count >= vCount
-                    ? vOffset + inboxItems.Count
-                    : null,
-                Count = vCount
+                Controller = "Inbox",
+                Action = nameof(DeviantArtImagePosts),
+                Items = posts,
+                Count = count ?? 100
             });
-        }
-
-        public async Task<IActionResult> DeviantArtImagePosts(
-            int? offset,
-            int? count)
-        {
-            string? userId = userManager.GetUserId(User);
-
-            return await Fetch(
-                nameof(DeviantArtImagePosts),
-                context.DeviantArtInboxArtworkPosts,
-                offset,
-                count);
         }
 
 
         public async Task<IActionResult> DeviantArtTextPosts(
-            int? offset,
+            Guid? after,
             int? count)
         {
-            string? userId = userManager.GetUserId(User);
+            DateTimeOffset startTime = after is Guid afterGuid
+                ? await context.DeviantArtInboxTextPosts
+                    .Where(f => f.Id == afterGuid)
+                    .Select(f => f.Timestamp)
+                    .SingleAsync()
+                : DateTimeOffset.MinValue;
 
-            return await Fetch(
-                nameof(DeviantArtTextPosts),
-                context.DeviantArtInboxTextPosts,
-                offset,
-                count);
+            var posts = await context.DeviantArtInboxTextPosts
+                .Where(f => f.Timestamp >= startTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == after || after == null)
+                .Where(f => f.Id != after)
+                .Take(count ?? 100)
+                .ToListAsync();
+
+            return View("List", new ListViewModel
+            {
+                Controller = "Inbox",
+                Action = nameof(DeviantArtTextPosts),
+                Items = posts,
+                Count = count ?? 100
+            });
         }
 
         public async Task<IActionResult> ActivityPubImagePosts(
-            int? offset,
+            string? after,
             int? count)
         {
-            string? userId = userManager.GetUserId(User);
+            DateTimeOffset startTime = after is string afterId
+                ? await context.ActivityPubInboxImagePosts
+                    .Where(f => f.Id == afterId)
+                    .Select(f => f.Timestamp)
+                    .SingleAsync()
+                : DateTimeOffset.MinValue;
 
-            return await Fetch(
-                nameof(ActivityPubImagePosts),
-                context.ActivityPubInboxImagePosts,
-                offset,
-                count);
+            var posts = await context.ActivityPubInboxImagePosts
+                .Where(f => f.Timestamp >= startTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == after || after == null)
+                .Where(f => f.Id != after)
+                .Take(count ?? 100)
+                .ToListAsync();
+
+            return View("List", new ListViewModel
+            {
+                Controller = "Inbox",
+                Action = nameof(ActivityPubImagePosts),
+                Items = posts,
+                Count = count ?? 100
+            });
         }
 
         public async Task<IActionResult> ActivityPubTextPosts(
-            int? offset,
+            string? after,
             int? count)
         {
-            string? userId = userManager.GetUserId(User);
+            DateTimeOffset startTime = after is string afterId
+                ? await context.ActivityPubInboxTextPosts
+                    .Where(f => f.Id == afterId)
+                    .Select(f => f.Timestamp)
+                    .SingleAsync()
+                : DateTimeOffset.MinValue;
 
-            return await Fetch(
-                nameof(ActivityPubTextPosts),
-                context.ActivityPubInboxTextPosts,
-                offset,
-                count);
+            var posts = await context.ActivityPubInboxTextPosts
+                .Where(f => f.Timestamp >= startTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == after || after == null)
+                .Where(f => f.Id != after)
+                .Take(count ?? 100)
+                .ToListAsync();
+
+            return View("List", new ListViewModel
+            {
+                Controller = "Inbox",
+                Action = nameof(ActivityPubTextPosts),
+                Items = posts,
+                Count = count ?? 100
+            });
         }
 
         [HttpPost]
