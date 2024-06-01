@@ -61,11 +61,10 @@ public partial class MastodonVerifier
 
     private IEnumerable<MastodonSignatureComponents> ParseMastodonSignatureComponents(IRequest message)
     {
-        if (!message.Headers.TryGetValues(Constants.Headers.Signature, out var values))
-            yield break;
-
-        var mastodonSignatures = values
-            .Select(header => header.Split(',', RemoveEmpty))
+        var mastodonSignatures = message.Headers
+            .Where(h => string.Equals(h.Value, Constants.Headers.Signature, StringComparison.InvariantCultureIgnoreCase))
+            .SelectMany(h => h.Value)
+            .Select(header => header?.Split(',', RemoveEmpty) ?? [])
             .Where(parts => parts.Length > 1);
 
         if (!mastodonSignatures.Any())
@@ -122,7 +121,7 @@ public partial class MastodonVerifier
         return components;
     }
 
-    private bool VerifySignature(MastodonSignatureComponents components, RemoteActor remoteActor,
+    private static bool VerifySignature(MastodonSignatureComponents components, RemoteActor remoteActor,
         MastodonComponentBuilder builder)
     {
         using var algorithm = RSA.Create();

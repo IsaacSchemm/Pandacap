@@ -4,6 +4,7 @@
 
 using static NSign.Constants;
 using NSign.Signatures;
+using Microsoft.Extensions.Primitives;
 
 namespace Pandacap.HighLevel.Signatures;
 
@@ -20,13 +21,13 @@ public class MastodonComponentBuilder(IRequest _message) : ISignatureComponentVi
     {
         string fieldName = httpHeader.ComponentName;
 
-        if (_message.Headers.TryGetValues(fieldName, out var values))
+        if (_message.Headers[fieldName] is StringValues values)
         {
             string mastodonHeader =
                 fieldName.Equals("content-digest", StringComparison.InvariantCultureIgnoreCase)
                     ? "digest"
                     : fieldName;
-            _headerParamsValues.Add($"{mastodonHeader}: {string.Join(", ", values)}");
+            _headerParamsValues.Add($"{mastodonHeader}: {string.Join(", ", values!)}");
         }
         else
         {

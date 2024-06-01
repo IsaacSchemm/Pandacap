@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using Microsoft.AspNetCore.Http;
+using System.Net.Http.Headers;
 
 namespace Pandacap.HighLevel.Signatures
 {
@@ -20,6 +21,6 @@ namespace Pandacap.HighLevel.Signatures
         /// <summary>
         /// A collection of request headers.
         /// </summary>
-        HttpHeaders Headers { get; }
+        IHeaderDictionary Headers { get; }
     }
 }
