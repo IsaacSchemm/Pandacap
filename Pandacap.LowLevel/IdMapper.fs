@@ -26,6 +26,11 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.FollowingPageId =
         $"https://{appInfo.ApplicationHostname}/Profile/Following"
 
+    /// Gets a URL that can be used to retrieve the original image (e.g. PNG,
+    /// JPEG), proxied through Pandacap.
+    member _.GetImageUrl(deviationid: Guid) =
+        $"https://{appInfo.ApplicationHostname}/Images/{deviationid}"
+
     /// Determines the ActivityPub object ID for a post.
     member _.GetObjectId(deviationid: Guid) =
         $"https://{appInfo.ApplicationHostname}/Posts/{deviationid}"
