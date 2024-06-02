@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ActivityPub;
@@ -15,6 +16,7 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         FeedAggregator feedAggregator,
         KeyProvider keyProvider,
+        IMemoryCache memoryCache,
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
     {
@@ -55,47 +57,38 @@ namespace Pandacap.Controllers
             });
         }
 
-        private class ResolvedActor(RemoteActor Actor) : IImagePost, IThumbnail, IThumbnailRendition
+        private class ResolvedActor(RemoteActor Actor, DateTimeOffset timestamp) : IPost
         {
             string IPost.Id => Actor.Id;
             string? IPost.Username => Actor.PreferredUsername ?? Actor.Id;
             string? IPost.Usericon => Actor.IconUrl;
-            string? IPost.DisplayTitle => Actor.PreferredUsername ?? Actor.Id;
-            DateTimeOffset IPost.Timestamp => default;
+            string? IPost.DisplayTitle => Actor.Id;
+            DateTimeOffset IPost.Timestamp => timestamp;
             string? IPost.LinkUrl => Actor.Id;
             DateTimeOffset? IPost.DismissedAt => null;
-
-            IEnumerable<IThumbnail> IImagePost.Thumbnails => [this];
-
-            IEnumerable<IThumbnailRendition> IThumbnail.Renditions => [this];
-            string? IThumbnail.AltText => "Avatar";
-
-            string? IThumbnailRendition.Url => Actor.IconUrl;
-            int IThumbnailRendition.Width => 0;
-            int IThumbnailRendition.Height => 0;
         }
 
-        private class UnresolvedActor(string Id) : IPost
+        private class UnresolvedActor(string Id, DateTimeOffset timestamp) : IPost
         {
             string IPost.Id => Id;
             string? IPost.Username => Id;
             string? IPost.Usericon => null;
             string? IPost.DisplayTitle => Id;
-            DateTimeOffset IPost.Timestamp => default;
+            DateTimeOffset IPost.Timestamp => timestamp;
             string? IPost.LinkUrl => Id;
             DateTimeOffset? IPost.DismissedAt => null;
         }
 
-        private async Task<IPost> ResolveActorAsIPost(string id)
+        private async Task<IPost> ResolveActorAsIPost(string id, DateTimeOffset timestamp)
         {
             try
             {
                 var actor = await remoteActorFetcher.FetchActorAsync(id);
-                return new ResolvedActor(actor);
+                return new ResolvedActor(actor, timestamp);
             }
             catch (Exception) { }
 
-            return new UnresolvedActor(id);
+            return new UnresolvedActor(id, timestamp);
         }
 
         public async Task<IActionResult> Followers(string? next, int? count)
@@ -128,7 +121,7 @@ namespace Pandacap.Controllers
             }
             else {
                 var page = await source
-                    .SelectAwait(async f => await ResolveActorAsIPost(f.ActorId))
+                    .SelectAwait(async f => await ResolveActorAsIPost(f.ActorId, f.AddedAt))
                     .AsListPage(count ?? 10);
 
                 return View("List", new ListViewModel
@@ -172,7 +165,7 @@ namespace Pandacap.Controllers
             else
             {
                 var page = await source
-                    .SelectAwait(async f => await ResolveActorAsIPost(f.ActorId))
+                    .SelectAwait(async f => await ResolveActorAsIPost(f.ActorId, f.AddedAt))
                     .AsListPage(count ?? 20);
 
                 return View("List", new ListViewModel

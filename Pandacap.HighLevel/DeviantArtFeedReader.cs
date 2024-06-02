@@ -304,14 +304,20 @@ namespace Pandacap.HighLevel
                 await context.SaveChangesAsync();
             }
 
-            foreach (var dbObject in queuedForDeletionCheck)
+            foreach (var chunk in queuedForDeletionCheck.Chunk(10))
             {
-                var deviation = await DeviantArtFs.Api.Deviation.GetAsync(credentials, dbObject.Id);
-                if (deviation == null)
+                var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
+                    credentials,
+                    chunk.Select(d => d.Id));
+
+                foreach (var dbObject in chunk)
                 {
-                    context.Remove(dbObject);
-                    await AddActivityAsync(dbObject, ActivityType.Delete);
-                    await context.SaveChangesAsync();
+                    if (!metadataResponse.metadata.Any(m => m.deviationid == dbObject.Id))
+                    {
+                        context.Remove(dbObject);
+                        await AddActivityAsync(dbObject, ActivityType.Delete);
+                        await context.SaveChangesAsync();
+                    }
                 }
             }
         }
@@ -324,7 +330,7 @@ namespace Pandacap.HighLevel
             DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
             int cutoffCount = max ?? 10;
 
-            var queuedForDeletionCheck = await context.DeviantArtArtworkDeviations
+            var queuedForDeletionCheck = await context.DeviantArtTextDeviations
                 .Where(post => post.PublishedTime >= cutoffDate)
                 .OrderByDescending(post => post.PublishedTime)
                 .Take(cutoffCount)
@@ -422,14 +428,20 @@ namespace Pandacap.HighLevel
                 await context.SaveChangesAsync();
             }
 
-            foreach (var dbObject in queuedForDeletionCheck)
+            foreach (var chunk in queuedForDeletionCheck.Chunk(10))
             {
-                var deviation = await DeviantArtFs.Api.Deviation.GetAsync(credentials, dbObject.Id);
-                if (deviation == null)
+                var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
+                    credentials,
+                    chunk.Select(d => d.Id));
+
+                foreach (var dbObject in chunk)
                 {
-                    context.Remove(dbObject);
-                    await AddActivityAsync(dbObject, ActivityType.Delete);
-                    await context.SaveChangesAsync();
+                    if (!metadataResponse.metadata.Any(m => m.deviationid == dbObject.Id))
+                    {
+                        context.Remove(dbObject);
+                        await AddActivityAsync(dbObject, ActivityType.Delete);
+                        await context.SaveChangesAsync();
+                    }
                 }
             }
         }

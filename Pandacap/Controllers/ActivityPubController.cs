@@ -337,6 +337,7 @@ namespace Pandacap.Controllers
                 context.Followers.Add(new Follower
                 {
                     ActorId = actor.Id,
+                    AddedAt = DateTimeOffset.UtcNow,
                     Inbox = actor.Inbox,
                     SharedInbox = actor.SharedInbox
                 });
