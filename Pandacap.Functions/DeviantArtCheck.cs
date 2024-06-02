@@ -6,7 +6,7 @@ namespace Pandacap.Functions
     public class DeviantArtCheck(DeviantArtFeedReader deviantArtFeedReader)
     {
         [Function("DeviantArtRefresh")]
-        public async Task Run([TimerTrigger("40 56 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 */30 * * * *")] TimerInfo myTimer)
         {
             await deviantArtFeedReader.ReadArtworkPostsByUsersWeWatchAsync();
             await deviantArtFeedReader.ReadTextPostsByUsersWeWatchAsync();

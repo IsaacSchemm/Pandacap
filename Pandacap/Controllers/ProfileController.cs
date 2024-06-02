@@ -11,19 +11,14 @@ using System.Text;
 
 namespace Pandacap.Controllers
 {
-    public class ActorController(
+    public class ProfileController(
         PandacapDbContext context,
         FeedAggregator feedAggregator,
         KeyProvider keyProvider,
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
     {
-        public IActionResult Index()
-        {
-            return RedirectToAction(nameof(Profile));
-        }
-
-        public async Task<IActionResult> Profile()
+        public async Task<IActionResult> Index()
         {
             var someTimeAgo = DateTime.UtcNow.AddMonths(-6);
 
@@ -138,7 +133,7 @@ namespace Pandacap.Controllers
 
                 return View("List", new ListViewModel
                 {
-                    Controller = "Actor",
+                    Controller = "Profile",
                     Action = nameof(Followers),
                     Items = page
                 });
@@ -182,7 +177,7 @@ namespace Pandacap.Controllers
 
                 return View("List", new ListViewModel
                 {
-                    Controller = "Actor",
+                    Controller = "Profile",
                     Action = nameof(Following),
                     Items = page
                 });
