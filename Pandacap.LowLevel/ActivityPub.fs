@@ -96,7 +96,24 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "url" id
 
         pair "type" (if post.RenderAsArticle then "Article" else "Note")
-        pair "content" post.Description
+
+        if not (String.IsNullOrEmpty post.Title) then
+            pair "name" post.Title
+
+        pair "content" (String.concat "" [
+            if post.Description.StartsWith("<p>", StringComparison.InvariantCultureIgnoreCase) then
+                post.Description
+            else
+                "<p>"
+                post.Description
+                "</p>"
+
+            if post.Tags.Count > 0 then
+                "<p>"
+                for tag in post.Tags do
+                    $"<a href='https://www.deviantart.com/tag/{Uri.EscapeDataString(tag)}'>#{WebUtility.HtmlEncode(tag)}</a> "
+                "</p>"
+        ])
 
         pair "attributedTo" mapper.ActorId
         pair "tag" [
