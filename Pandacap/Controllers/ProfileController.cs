@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ActivityPub;
@@ -16,7 +15,6 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         FeedAggregator feedAggregator,
         KeyProvider keyProvider,
-        IMemoryCache memoryCache,
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
     {
@@ -57,38 +55,40 @@ namespace Pandacap.Controllers
             });
         }
 
-        private class ResolvedActor(RemoteActor Actor, DateTimeOffset timestamp) : IPost
+        private class ResolvedActor(RemoteActor Actor, IRemoteActorRelationship Relationship) : IPost
         {
             string IPost.Id => Actor.Id;
             string? IPost.Username => Actor.PreferredUsername ?? Actor.Id;
             string? IPost.Usericon => Actor.IconUrl;
-            string? IPost.DisplayTitle => Actor.Id;
-            DateTimeOffset IPost.Timestamp => timestamp;
+            string? IPost.DisplayTitle => Relationship.Pending
+                ? $"{Actor.Id} (pending)"
+                : Actor.Id;
+            DateTimeOffset IPost.Timestamp => Relationship.AddedAt;
             string? IPost.LinkUrl => Actor.Id;
             DateTimeOffset? IPost.DismissedAt => null;
         }
 
-        private class UnresolvedActor(string Id, DateTimeOffset timestamp) : IPost
+        private class UnresolvedActor(IRemoteActorRelationship Relationship) : IPost
         {
-            string IPost.Id => Id;
-            string? IPost.Username => Id;
+            string IPost.Id => Relationship.ActorId;
+            string? IPost.Username => Relationship.ActorId;
             string? IPost.Usericon => null;
-            string? IPost.DisplayTitle => Id;
-            DateTimeOffset IPost.Timestamp => timestamp;
-            string? IPost.LinkUrl => Id;
+            string? IPost.DisplayTitle => $"{Relationship.ActorId} (could not connect)";
+            DateTimeOffset IPost.Timestamp => Relationship.AddedAt;
+            string? IPost.LinkUrl => Relationship.ActorId;
             DateTimeOffset? IPost.DismissedAt => null;
         }
 
-        private async Task<IPost> ResolveActorAsIPost(string id, DateTimeOffset timestamp)
+        private async Task<IPost> ResolveActorAsIPost(IRemoteActorRelationship relationship)
         {
             try
             {
-                var actor = await remoteActorFetcher.FetchActorAsync(id);
-                return new ResolvedActor(actor, timestamp);
+                var actor = await remoteActorFetcher.FetchActorAsync(relationship.ActorId);
+                return new ResolvedActor(actor, relationship);
             }
             catch (Exception) { }
 
-            return new UnresolvedActor(id, timestamp);
+            return new UnresolvedActor(relationship);
         }
 
         public async Task<IActionResult> Followers(string? next, int? count)
@@ -121,7 +121,7 @@ namespace Pandacap.Controllers
             }
             else {
                 var page = await source
-                    .SelectAwait(async f => await ResolveActorAsIPost(f.ActorId, f.AddedAt))
+                    .SelectAwait(async f => await ResolveActorAsIPost(f))
                     .AsListPage(count ?? 10);
 
                 return View("List", new ListViewModel
@@ -165,7 +165,7 @@ namespace Pandacap.Controllers
             else
             {
                 var page = await source
-                    .SelectAwait(async f => await ResolveActorAsIPost(f.ActorId, f.AddedAt))
+                    .SelectAwait(async f => await ResolveActorAsIPost(f))
                     .AsListPage(count ?? 20);
 
                 return View("List", new ListViewModel
@@ -175,6 +175,40 @@ namespace Pandacap.Controllers
                     Items = page
                 });
             }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Follow(string id)
+        {
+            var actor = await remoteActorFetcher.FetchActorAsync(id);
+
+            Guid followGuid = Guid.NewGuid();
+
+            context.ActivityPubOutboundActivities.Add(new()
+            {
+                Id = followGuid,
+                Inbox = actor.Inbox,
+                JsonBody = ActivityPubSerializer.SerializeWithContext(
+                    translator.Follow(
+                        followGuid,
+                        actor.Id)),
+                StoredAt = DateTimeOffset.UtcNow
+            });
+
+            context.Follows.Add(new()
+            {
+                ActorId = actor.Id,
+                AddedAt = DateTimeOffset.UtcNow,
+                FollowGuid = followGuid,
+                Accepted = false,
+                Inbox = actor.Inbox,
+                SharedInbox = actor.SharedInbox
+            });
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Following));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

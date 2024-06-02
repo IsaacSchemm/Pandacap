@@ -44,7 +44,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         && (Char.IsLetterOrDigit(c) || c = '_')
         && not (Char.IsUpper(c))
 
-    /// Builds a Person object for the Pandacap actor.
     member _.PersonToObject(key: ActorKey, recentPosts: IPost seq) = dict [
         pair "id" mapper.ActorId
         pair "type" "Person"
@@ -79,7 +78,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         ]
     ]
 
-    /// Builds a transient Update activity for the Pandacap actor.
     member this.PersonToUpdate(activityGuid, actorKey, recentPosts) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetActivityId(activityGuid))
@@ -88,7 +86,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.PersonToObject(actorKey, recentPosts))
     ]
 
-    /// Builds a Note or Article object for a post.
     member _.AsObject(post: DeviantArtDeviation) = dict [
         let id = mapper.GetObjectId(post.Id)
 
@@ -147,7 +144,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         | _ -> ()
     ]
 
-    /// Builds a Create activity for a post.
     member this.ObjectToCreate(post: DeviantArtDeviation, activityGuid: Guid) = dict [
         pair "type" "Create"
         pair "id" (mapper.GetActivityId(activityGuid))
@@ -158,7 +154,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    /// Builds a Update activity for a post.
     member this.ObjectToUpdate(post: DeviantArtDeviation, activityGuid: Guid) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetActivityId(activityGuid))
@@ -169,7 +164,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    /// Builds a Delete activity for a post.
     member _.ObjectToDelete(post: DeviantArtDeviation, activityGuid: Guid) = dict [
         pair "type" "Delete"
         pair "id" (mapper.GetActivityId(activityGuid))
@@ -180,24 +174,21 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (mapper.GetObjectId(post.Id))
     ]
 
-    /// Builds a transient Accept activity to accept a follow request.
-    member _.AcceptFollow (followId: string, activityGuid: Guid) = dict [
+    member _.AcceptFollow(followId: string, activityGuid: Guid) = dict [
         pair "type" "Accept"
         pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId
         pair "object" followId
     ]
 
-    /// Builds a Collection to point to the CollectionPage that lists the user's followers.
-    member _.AsFollowersCollection (followers: int) = dict [
+    member _.AsFollowersCollection(followers: int) = dict [
         pair "id" mapper.FollowersRootId
         pair "type" "Collection"
         pair "totalItems" followers
         pair "first" mapper.FollowersPageId
     ]
 
-    /// Builds a CollectionPage to list the user's followers.
-    member _.AsFollowersCollectionPage (currentPage: string, followers: ListPage<Follower>) = dict [
+    member _.AsFollowersCollectionPage(currentPage: string, followers: ListPage<Follower>) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" mapper.FollowersRootId
@@ -209,16 +200,14 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             pair "next" $"{mapper.FollowersPageId}?next={next.ActorId}&count={Seq.length followers.DisplayList}"
     ]
 
-    /// Builds a Collection to point to the CollectionPage that lists the user's follows.
-    member _.AsFollowingCollection (following: int) = dict [
+    member _.AsFollowingCollection(following: int) = dict [
         pair "id" mapper.FollowingRootId
         pair "type" "Collection"
         pair "totalItems" following
         pair "first" mapper.FollowingPageId
     ]
 
-    /// Builds a CollectionPage to list the user's follows.
-    member _.AsFollowingCollectionPage (currentPage: string, following: ListPage<Follow>) = dict [
+    member _.AsFollowingCollectionPage(currentPage: string, following: ListPage<Follow>) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" mapper.FollowingRootId
@@ -235,4 +224,18 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "type" "Collection"
         pair "totalItems" 0
         pair "items" []
+    ]
+
+    member _.Follow(followGuid: Guid, remoteActorId: string) = dict [
+        pair "id" (mapper.GetActivityId(followGuid))
+        pair "type" "Follow"
+        pair "actor" mapper.ActorId
+        pair "object" remoteActorId
+    ]
+
+    member this.UndoFollow(undoGuid: Guid, followGuid: Guid, remoteActorId: string) = dict [
+        pair "id" (mapper.GetActivityId(undoGuid))
+        pair "type" "Undo"
+        pair "actor" mapper.ActorId
+        pair "object" (this.Follow(followGuid, remoteActorId))
     ]

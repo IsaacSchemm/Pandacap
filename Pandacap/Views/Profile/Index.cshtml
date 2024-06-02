@@ -76,6 +76,29 @@
     </a>
 }
 
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="card mt-3" style="max-width: 800px">
+        <div class="card-header">
+            Follow new user
+        </div>
+        <div class="card-body">
+            <form asp-action="Follow">
+                <div class="mb-3">
+                    <label for="alt" class="form-label">
+                        ActivityPub ID / URL
+                    </label>
+                    <input type="text" class="form-control" id="id" name="id" />
+                    <div class="form-text">Mastodon-style handles (of the form <tt>@@user@@hostname</tt>) are not supported.</div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    Send follow request
+                </button>
+            </form>
+        </div>
+    </div>
+}
+
 <style type="text/css">
     img.feed-image {
         height: 150px;

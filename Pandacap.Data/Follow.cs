@@ -5,7 +5,7 @@ namespace Pandacap.Data
     /// <summary>
     /// An ActivityPub actor who this Pandacap actor is following.
     /// </summary>
-    public class Follow
+    public class Follow : IRemoteActorRelationship
     {
         /// <summary>
         /// The follower's actor ID.
@@ -19,16 +19,11 @@ namespace Pandacap.Data
         public DateTimeOffset AddedAt { get; set; }
 
         /// <summary>
-        /// The ID of the Follow activity sent to the remote server.
+        /// The Pandacap-generated ID used for this activity when it was placed
+        /// in the ActivityPubOutboundActivities table.
         /// </summary>
         [Required]
-        public string FollowId { get; set; } = "";
-
-        /// <summary>
-        /// The JSON of the Follow activity sent to the remote server.
-        /// </summary>
-        [Required]
-        public string FollowJson { get; set; } = "{}";
+        public Guid FollowGuid { get; set; }
 
         /// <summary>
         /// Whether the follow has been accepted.
@@ -45,5 +40,7 @@ namespace Pandacap.Data
         /// The shared inbox of this actor's ActivityPub server, if any.
         /// </summary>
         public string? SharedInbox { get; set; }
+
+        bool IRemoteActorRelationship.Pending => !Accepted;
     }
 }

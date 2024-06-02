@@ -125,10 +125,8 @@ namespace Pandacap.Controllers
             {
                 foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
                 {
-                    string followId = obj["@id"]!.Value<string>()!;
-
                     var follows = await context.Follows
-                        .Where(f => f.FollowId == followId)
+                        .Where(f => f.ActorId == actor.Id)
                         .ToListAsync();
 
                     foreach (var follow in follows)
@@ -141,10 +139,8 @@ namespace Pandacap.Controllers
             {
                 foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
                 {
-                    string followId = obj["@id"]!.Value<string>()!;
-
                     var follows = await context.Follows
-                        .Where(f => f.FollowId == followId)
+                        .Where(f => f.ActorId == actor.Id)
                         .ToListAsync();
 
                     foreach (var follow in follows)
@@ -174,7 +170,7 @@ namespace Pandacap.Controllers
 
                     bool isFromFollow = await context.Follows
                         .Where(f => f.ActorId == actor.Id)
-                        .AnyAsync();
+                        .CountAsync() > 0;
 
                     if (mentionsThisActor || isFromFollow)
                     {

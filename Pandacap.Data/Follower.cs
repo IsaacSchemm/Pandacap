@@ -5,7 +5,7 @@ namespace Pandacap.Data
     /// <summary>
     /// An ActivityPub actor who is following this Pandacap actor.
     /// </summary>
-    public class Follower
+    public class Follower : IRemoteActorRelationship
     {
         /// <summary>
         /// The follower's actor ID.
@@ -28,5 +28,7 @@ namespace Pandacap.Data
         /// The shared inbox of this actor's ActivityPub server, if any.
         /// </summary>
         public string? SharedInbox { get; set; }
+
+        bool IRemoteActorRelationship.Pending => false;
     }
 }
