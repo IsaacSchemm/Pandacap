@@ -6,12 +6,13 @@ using System.Text;
 
 namespace Pandacap.Controllers
 {
+    [Route("Post")]
     public class PostController(
         PandacapDbContext context,
         ActivityPubTranslator translator) : Controller
     {
         [Route("{id}")]
-        public async Task<IActionResult> Get(Guid id)
+        public async Task<IActionResult> Index(Guid id)
         {
             DeviantArtDeviation? post = null;
             post ??= await context.DeviantArtArtworkDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
@@ -26,7 +27,7 @@ namespace Pandacap.Controllers
                     "application/activity+json",
                     Encoding.UTF8);
 
-            return Redirect(post?.Url ?? "/");
+            return View(post);
         }
     }
 }

@@ -1,0 +1,43 @@
+﻿@using Pandacap.Data
+@model DeviantArtDeviation
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+<h1>@Model.Title</h1>
+
+@if (Model is DeviantArtArtworkDeviation artwork) {
+    <p>
+        <img src="@artwork.Image.Url"
+             alt="@artwork.AltText"
+             style="max-width: 640px; max-height: 640px" />
+    </p>
+}
+
+@Html.Raw(Model.Description)
+
+@if (Model.Tags.Count > 0)
+{
+    <p>
+        @foreach (string tag in Model.Tags)
+        {
+            <a href="https://www.deviantart.com/tag/@Uri.EscapeDataString(tag)">#@tag</a>
+        }
+    </p>
+}
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <hr />
+
+    <form>
+        <label>
+            Alt text:
+            <input type="text" />
+        </label>
+        <button type="submit">
+            Save
+        </button>
+    </form>
+}
