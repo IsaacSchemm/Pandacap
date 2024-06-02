@@ -18,7 +18,8 @@ namespace Pandacap.Controllers
                 : DateTimeOffset.MinValue;
 
             var posts = await context.DeviantArtArtworkDeviations
-                .Where(f => f.PublishedTime >= startTime)
+                .Where(d => d.PublishedTime >= startTime)
+                .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
                 .OfType<IPost>()
@@ -42,7 +43,8 @@ namespace Pandacap.Controllers
                 : DateTimeOffset.MinValue;
 
             var posts = await context.DeviantArtTextDeviations
-                .Where(f => f.PublishedTime >= startTime)
+                .Where(d => d.PublishedTime >= startTime)
+                .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
                 .OfType<IPost>()

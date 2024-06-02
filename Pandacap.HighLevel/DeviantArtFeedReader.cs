@@ -185,28 +185,28 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public async Task ReadOurGalleryAsync(FeedReaderScope scope)
+        public async Task ReadOurGalleryAsync(DateTimeOffset? since = null, int? max = null)
         {
             if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
 
-            HashSet<Guid> pendingDeletion = [];
+            DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
+            int cutoffCount = max ?? 10;
 
-            if (scope.IsAllTime)
-            {
-                pendingDeletion = new(
-                    await context.DeviantArtArtworkDeviations
-                        .Select(p => p.Id)
-                        .ToListAsync());
-            }
+            var queuedForDeletionCheck = await context.DeviantArtArtworkDeviations
+                .Where(post => post.PublishedTime >= cutoffDate)
+                .OrderByDescending(post => post.PublishedTime)
+                .Take(cutoffCount)
+                .ToListAsync();
 
             var asyncSeq =
                 DeviantArtFs.Api.Gallery.GetAllViewAsync(
                     credentials,
                     UserScope.ForCurrentUser,
-                    PagingLimit.MaximumPagingLimit,
+                    PagingLimit.DefaultPagingLimit,
                     PagingOffset.StartingOffset)
-                .TakeWhile(post => scope.IsInScope(post.published_time))
+                .TakeWhile(post => post.published_time.OrNull() is not DateTimeOffset dt || dt >= cutoffDate)
+                .Take(cutoffCount)
                 .Chunk(50);
 
             await foreach (var chunk in asyncSeq)
@@ -223,7 +223,7 @@ namespace Pandacap.HighLevel
 
                 foreach (var deviation in chunk)
                 {
-                    pendingDeletion.Remove(deviation.deviationid);
+                    queuedForDeletionCheck.RemoveAll(dbObject => dbObject.Id == deviation.deviationid);
 
                     if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                         continue;
@@ -290,7 +290,10 @@ namespace Pandacap.HighLevel
 
                     if (oldObjectJson == null)
                     {
-                        await AddActivityAsync(post, ActivityType.Create);
+                        if (DateTimeOffset.UtcNow - publishedTime < TimeSpan.FromDays(1))
+                        {
+                            await AddActivityAsync(post, ActivityType.Create);
+                        }
                     }
                     else if (oldObjectJson != newObjectJson)
                     {
@@ -301,35 +304,31 @@ namespace Pandacap.HighLevel
                 await context.SaveChangesAsync();
             }
 
-            if (pendingDeletion.Count > 0)
+            foreach (var dbObject in queuedForDeletionCheck)
             {
-                var toDelete = await context.DeviantArtArtworkDeviations
-                    .Where(p => pendingDeletion.Contains(p.Id))
-                    .ToListAsync();
-
-                foreach (var post in toDelete)
+                var deviation = await DeviantArtFs.Api.Deviation.GetAsync(credentials, dbObject.Id);
+                if (deviation == null)
                 {
-                    await AddActivityAsync(post, ActivityType.Delete);
+                    context.Remove(dbObject);
+                    await AddActivityAsync(dbObject, ActivityType.Delete);
+                    await context.SaveChangesAsync();
                 }
-
-                await context.SaveChangesAsync();
             }
         }
 
-        public async Task ReadOurPostsAsync(FeedReaderScope scope)
+        public async Task ReadOurPostsAsync(DateTimeOffset? since = null, int? max = null)
         {
             if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
                 return;
 
-            HashSet<Guid> pendingDeletion = [];
+            DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
+            int cutoffCount = max ?? 10;
 
-            if (scope.IsAllTime)
-            {
-                pendingDeletion = new(
-                    await context.DeviantArtTextDeviations
-                        .Select(p => p.Id)
-                        .ToListAsync());
-            }
+            var queuedForDeletionCheck = await context.DeviantArtArtworkDeviations
+                .Where(post => post.PublishedTime >= cutoffDate)
+                .OrderByDescending(post => post.PublishedTime)
+                .Take(cutoffCount)
+                .ToListAsync();
 
             var whoami = await DeviantArtFs.Api.User.WhoamiAsync(credentials);
 
@@ -338,7 +337,8 @@ namespace Pandacap.HighLevel
                     credentials,
                     whoami.username,
                     DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning)
-                .TakeWhile(post => scope.IsInScope(post.published_time))
+                .TakeWhile(post => post.published_time.OrNull() is not DateTimeOffset dt || dt >= cutoffDate)
+                .Take(cutoffCount)
                 .Chunk(50);
 
             await foreach (var chunk in asyncSeq)
@@ -355,7 +355,7 @@ namespace Pandacap.HighLevel
 
                 foreach (var deviation in chunk)
                 {
-                    pendingDeletion.Remove(deviation.deviationid);
+                    queuedForDeletionCheck.RemoveAll(dbObject => dbObject.Id == deviation.deviationid);
 
                     if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                         continue;
@@ -408,9 +408,12 @@ namespace Pandacap.HighLevel
 
                     if (oldObjectJson == null)
                     {
-                        await AddActivityAsync(post, ActivityType.Create);
+                        if (DateTimeOffset.UtcNow - publishedTime < TimeSpan.FromDays(1))
+                        {
+                            await AddActivityAsync(post, ActivityType.Create);
+                        }
                     }
-                    else //if (oldObjectJson != newObjectJson)
+                    else if (oldObjectJson != newObjectJson)
                     {
                         await AddActivityAsync(post, ActivityType.Update);
                     }
@@ -419,18 +422,15 @@ namespace Pandacap.HighLevel
                 await context.SaveChangesAsync();
             }
 
-            if (pendingDeletion.Count > 0)
+            foreach (var dbObject in queuedForDeletionCheck)
             {
-                var toDelete = await context.DeviantArtTextDeviations
-                    .Where(p => pendingDeletion.Contains(p.Id))
-                    .ToListAsync();
-
-                foreach (var post in toDelete)
+                var deviation = await DeviantArtFs.Api.Deviation.GetAsync(credentials, dbObject.Id);
+                if (deviation == null)
                 {
-                    await AddActivityAsync(post, ActivityType.Delete);
+                    context.Remove(dbObject);
+                    await AddActivityAsync(dbObject, ActivityType.Delete);
+                    await context.SaveChangesAsync();
                 }
-
-                await context.SaveChangesAsync();
             }
         }
 

@@ -18,6 +18,48 @@ namespace Pandacap.Controllers
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
     {
+        public IActionResult Index()
+        {
+            return RedirectToAction(nameof(Profile));
+        }
+
+        public async Task<IActionResult> Profile()
+        {
+            var someTimeAgo = DateTime.UtcNow.AddMonths(-6);
+
+            if (Request.IsActivityPub())
+            {
+                var key = await keyProvider.GetPublicKeyAsync();
+
+                var recentPosts = await feedAggregator.GetDeviationsAsync()
+                    .Take(1)
+                    .ToListAsync();
+
+                return Content(
+                    ActivityPubSerializer.SerializeWithContext(
+                        translator.PersonToObject(
+                            key,
+                            recentPosts)),
+                    "application/activity+json",
+                    Encoding.UTF8);
+            }
+
+            return View(new ProfileViewModel
+            {
+                RecentArtwork = await context.DeviantArtArtworkDeviations
+                    .OrderByDescending(post => post.PublishedTime)
+                    .Take(8)
+                    .ToListAsync(),
+                RecentTextPosts = await context.DeviantArtTextDeviations
+                    .Where(post => post.PublishedTime >= someTimeAgo)
+                    .OrderByDescending(post => post.PublishedTime)
+                    .Take(3)
+                    .ToListAsync(),
+                FollowerCount = await context.Followers.CountAsync(),
+                FollowingCount = await context.Follows.CountAsync()
+            });
+        }
+
         private class ResolvedActor(RemoteActor Actor) : IImagePost, IThumbnail, IThumbnailRendition
         {
             string IPost.Id => Actor.Id;
@@ -61,48 +103,6 @@ namespace Pandacap.Controllers
             return new UnresolvedActor(id);
         }
 
-        public IActionResult Index()
-        {
-            return RedirectToAction(nameof(Profile));
-        }
-
-        public async Task<IActionResult> Profile()
-        {
-            var someTimeAgo = DateTime.UtcNow.AddMonths(-6);
-
-            if (Request.IsActivityPub())
-            {
-                var key = await keyProvider.GetPublicKeyAsync();
-
-                var recentPosts = await feedAggregator.GetDeviationsAsync()
-                    .Take(1)
-                    .ToListAsync();
-
-                return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        translator.PersonToObject(
-                            key,
-                            recentPosts)),
-                    "application/activity+json",
-                    Encoding.UTF8);
-            }
-
-            return View(new ProfileViewModel
-            {
-                RecentArtwork = await context.DeviantArtArtworkDeviations
-                    .OrderByDescending(post => post.PublishedTime)
-                    .Take(8)
-                    .ToListAsync(),
-                RecentTextPosts = await context.DeviantArtTextDeviations
-                    .Where(post => post.PublishedTime >= someTimeAgo)
-                    .OrderByDescending(post => post.PublishedTime)
-                    .Take(3)
-                    .ToListAsync(),
-                FollowerCount = await context.Followers.CountAsync(),
-                FollowingCount = await context.Follows.CountAsync()
-            });
-        }
-
         public async Task<IActionResult> Followers(string? next, int? count)
         {
             DateTimeOffset startTime = next is string s
@@ -114,6 +114,7 @@ namespace Pandacap.Controllers
 
             var source = context.Followers
                 .Where(f => f.AddedAt >= startTime)
+                .OrderByDescending(f => f.AddedAt)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.ActorId == next || next == null);
 
@@ -155,6 +156,7 @@ namespace Pandacap.Controllers
 
             var source = context.Follows
                 .Where(f => f.AddedAt >= startTime)
+                .OrderByDescending(f => f.AddedAt)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.ActorId == next || next == null)
                 .Take((count ?? 10) + 1);

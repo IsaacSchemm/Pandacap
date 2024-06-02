@@ -8,7 +8,6 @@
   <ItemGroup>
     <Compile Include="ApplicationInformation.fs" />
     <Compile Include="ListPage.fs" />
-    <Compile Include="FeedReaderScope.fs" />
     <Compile Include="IUserDisplay.fs" />
     <Compile Include="IdMapper.fs" />
     <Compile Include="ActorKey.fs" />

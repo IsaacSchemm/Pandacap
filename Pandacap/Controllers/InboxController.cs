@@ -26,6 +26,7 @@ namespace Pandacap.Controllers
 
             var posts = await context.DeviantArtInboxArtworkPosts
                 .Where(f => f.Timestamp >= startTime)
+                .OrderBy(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
                 .OfType<IPost>()
@@ -53,6 +54,7 @@ namespace Pandacap.Controllers
 
             var posts = await context.DeviantArtInboxTextPosts
                 .Where(f => f.Timestamp >= startTime)
+                .OrderBy(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
                 .OfType<IPost>()
@@ -79,6 +81,7 @@ namespace Pandacap.Controllers
 
             var posts = await context.ActivityPubInboxImagePosts
                 .Where(f => f.Timestamp >= startTime)
+                .OrderBy(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
                 .OfType<IPost>()
@@ -105,6 +108,7 @@ namespace Pandacap.Controllers
 
             var posts = await context.ActivityPubInboxTextPosts
                 .Where(f => f.Timestamp >= startTime)
+                .OrderBy(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
                 .OfType<IPost>()

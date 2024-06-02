@@ -18,7 +18,7 @@ module ListPage =
             Empty
         | list when list.Length <= size ->
             {
-                DisplayList = list
+                DisplayList = List.rev list
                 Next = None
             }
         | next::this ->
