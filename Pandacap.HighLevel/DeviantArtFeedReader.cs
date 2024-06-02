@@ -161,14 +161,6 @@ namespace Pandacap.HighLevel
                     : activityType == ActivityType.Delete ? translator.ObjectToDelete(post, activityGuid)
                     : throw new NotImplementedException());
 
-            context.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
-            {
-                Id = activityGuid,
-                JsonBody = activityJson,
-                DeviationId = post.Id,
-                StoredAt = DateTimeOffset.UtcNow
-            });
-
             var followers = await context.Followers
                 .Select(follower => new
                 {
@@ -183,22 +175,13 @@ namespace Pandacap.HighLevel
 
             foreach (string inbox in inboxes)
             {
-                context.ActivityPubOutboundActivityRecipients.Add(new ActivityPubOutboundActivityRecipient
+                context.ActivityPubOutboundActivities.Add(new()
                 {
-                    Id = Guid.NewGuid(),
-                    ActivityId = activityGuid,
+                    Id = activityGuid,
+                    JsonBody = activityJson,
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });
-            }
-
-            var activities = await context.ActivityPubOutboundActivities
-                .Where(activity => activity.DeviationId == post.Id)
-                .ToListAsync();
-
-            foreach (var activity in activities)
-            {
-                activity.HideFromOutbox = true;
             }
         }
 
@@ -238,7 +221,8 @@ namespace Pandacap.HighLevel
                     credentials,
                     deviationIds);
 
-                foreach (var deviation in chunk) {
+                foreach (var deviation in chunk)
+                {
                     pendingDeletion.Remove(deviation.deviationid);
 
                     if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)

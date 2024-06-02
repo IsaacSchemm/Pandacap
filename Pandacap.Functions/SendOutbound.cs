@@ -16,43 +16,36 @@ namespace Pandacap.Functions
 
             while (true)
             {
-                var recipients = await context.ActivityPubOutboundActivityRecipients
+                var activities = await context.ActivityPubOutboundActivities
                     .Where(r => !inboxesToSkip.Contains(r.Inbox))
                     .OrderBy(r => r.StoredAt)
                     .Take(100)
                     .ToListAsync();
 
-                if (recipients.Count == 0)
+                if (activities.Count == 0)
                     return;
 
-                var activityIds = recipients.Select(r => r.ActivityId).ToHashSet();
-
-                var activities = await context.ActivityPubOutboundActivities
-                    .Where(a => activityIds.Contains(a.Id))
-                    .ToListAsync();
-
-                foreach (var recipient in recipients)
+                foreach (var activity in activities)
                 {
                     // If this recipient is to be skipped, also skip any other activity to the same recipient
-                    if (recipient.DelayUntil > DateTimeOffset.UtcNow)
-                        inboxesToSkip.Add(recipient.Inbox);
+                    if (activity.DelayUntil > DateTimeOffset.UtcNow)
+                        inboxesToSkip.Add(activity.Inbox);
 
                     // If we're now skipping this inbox, skip this activity
-                    if (inboxesToSkip.Contains(recipient.Inbox))
+                    if (inboxesToSkip.Contains(activity.Inbox))
                         continue;
 
                     try
                     {
-                        var activity = activities.Single(a => a.Id == recipient.ActivityId);
-                        await remoteActorFetcher.PostAsync(new Uri(recipient.Inbox), activity.JsonBody);
-                        context.ActivityPubOutboundActivityRecipients.Remove(recipient);
+                        await remoteActorFetcher.PostAsync(new Uri(activity.Inbox), activity.JsonBody);
+                        context.ActivityPubOutboundActivities.Remove(activity);
                     }
                     catch (HttpRequestException)
                     {
                         // Don't send this activity again for four hours
                         // This will also skip later activities to that inbox (see above)
-                        recipient.DelayUntil = DateTimeOffset.UtcNow.AddHours(4);
-                        inboxesToSkip.Add(recipient.Inbox);
+                        activity.DelayUntil = DateTimeOffset.UtcNow.AddHours(4);
+                        inboxesToSkip.Add(activity.Inbox);
                     }
 
                     try
@@ -61,7 +54,7 @@ namespace Pandacap.Functions
                     }
                     catch (Exception ex)
                     {
-                        throw new Exception($"Could not save status of activity recipient {recipient.Id} (has it already been deleted?)", ex);
+                        throw new Exception($"Could not save status of activity {activity.Id} (has it already been deleted?)", ex);
                     }
                 }
             }

@@ -22,16 +22,9 @@ namespace Pandacap.Controllers
         private static new readonly IEnumerable<JToken> Empty = [];
 
         [HttpGet]
-        public async Task<IActionResult> Activity(Guid id)
+        public IActionResult Activity(Guid id)
         {
-            var activity = await context.ActivityPubOutboundActivities
-                .Where(activity => activity.Id == id)
-                .Where(activity => !activity.Unresolvable)
-                .SingleOrDefaultAsync();
-
-            return activity == null
-                ? NotFound()
-                : Content(activity.JsonBody, "application/activity+json", Encoding.UTF8);
+            return BadRequest($"Activity {id} does not exist or is not resolvable via its ID.");
         }
 
         [HttpGet]
@@ -352,19 +345,10 @@ namespace Pandacap.Controllers
 
                 context.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
                 {
-                    HideFromOutbox = true,
                     Id = acceptGuid,
+                    Inbox = actor.Inbox,
                     JsonBody = ActivityPubSerializer.SerializeWithContext(
                         translator.AcceptFollow(objectId, acceptGuid)),
-                    StoredAt = DateTimeOffset.UtcNow,
-                    Unresolvable = true
-                });
-
-                context.ActivityPubOutboundActivityRecipients.Add(new ActivityPubOutboundActivityRecipient
-                {
-                    ActivityId = acceptGuid,
-                    Id = Guid.NewGuid(),
-                    Inbox = actor.Inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });
             }
