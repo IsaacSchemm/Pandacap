@@ -42,13 +42,13 @@ else
                 <div class="row">
                     @foreach (var item in group)
                     {
+                        string? url = item is DeviantArtDeviation deviation
+                            ? $"/Post/{deviation.Id}"
+                            : item.LinkUrl;
                         if (item is IImagePost imagePost && imagePost.Thumbnails.Any())
                         {
                             @foreach (var image in imagePost.Thumbnails)
                             {
-                                string? url = item is DeviantArtDeviation deviation
-                                    ? $"/Post/{deviation.Id}"
-                                    : item.LinkUrl;
                                 <div class="col-sm-4 col-md-3 text-center my-4">
                                     <a href="@url" target="_blank">
                                         <img src="@image.GetThumbnailSrc()"
@@ -62,7 +62,7 @@ else
                                         {
                                             <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                                         }
-                                        <a href="/Posts/@item.Id">@item.DisplayTitle</a>
+                                        <a href="@url">@item.DisplayTitle</a>
                                     </label>
                                 </div>
                             }
@@ -74,7 +74,7 @@ else
                                 {
                                     <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                                 }
-                                <a href="/Posts/@item.Id">@item.DisplayTitle</a>
+                                <a href="@url">@item.DisplayTitle</a>
                                 <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
                             </label>
                         }

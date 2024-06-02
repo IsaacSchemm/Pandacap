@@ -6,8 +6,7 @@ using System.Text;
 
 namespace Pandacap.Controllers
 {
-    [Route("Posts")]
-    public class PostsController(
+    public class PostController(
         PandacapDbContext context,
         ActivityPubTranslator translator) : Controller
     {

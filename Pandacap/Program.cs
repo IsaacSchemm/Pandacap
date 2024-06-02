@@ -92,7 +92,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Profile}/{action=Index}/{id?}");
+    pattern: "{controller=Actor}/{action=Index}/{id?}");
 app.MapRazorPages();
 
 app.Run();

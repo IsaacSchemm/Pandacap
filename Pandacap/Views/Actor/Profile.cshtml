@@ -40,7 +40,7 @@
             @foreach (var post in Model.RecentArtwork)
             {
                 <div class="col-sm-4 col-md-3 text-center my-4">
-                    <a href="/Posts/@post.Id" target="_blank">
+                    <a href="/Post/@post.Id" target="_blank">
                         <img src="@post.GetThumbnailSrc()"
                              srcset="@post.GetThumbnailSrcset()"
                              alt="@post.AltText"
@@ -66,7 +66,7 @@
     @foreach (IPost post in Model.RecentTextPosts)
     {
         <div>
-            <a href="/Posts/@post.Id">@post.DisplayTitle</a>
+            <a href="/Post/@post.Id">@post.DisplayTitle</a>
             <span class="text-muted">(@post.Timestamp.UtcDateTime.ToLongDateString())</span>
         </div>
     }
