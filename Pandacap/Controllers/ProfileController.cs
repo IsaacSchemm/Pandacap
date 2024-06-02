@@ -139,11 +139,11 @@ namespace Pandacap.Controllers
             }
         }
 
-        public async Task<IActionResult> Following(Guid? next, int? count)
+        public async Task<IActionResult> Following(string? next, int? count)
         {
-            DateTimeOffset startTime = next is Guid g
+            DateTimeOffset startTime = next is string s
                 ? await context.Follows
-                    .Where(f => f.Id == g)
+                    .Where(f => f.ActorId == s)
                     .Select(f => f.AddedAt)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
@@ -151,7 +151,7 @@ namespace Pandacap.Controllers
             var source = context.Follows
                 .Where(f => f.AddedAt >= startTime)
                 .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == next || next == null)
+                .SkipUntil(f => f.ActorId == next || next == null)
                 .Take((count ?? 10) + 1);
 
             if (Request.IsActivityPub())

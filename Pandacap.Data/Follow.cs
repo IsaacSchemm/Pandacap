@@ -8,9 +8,10 @@ namespace Pandacap.Data
     public class Follow
     {
         /// <summary>
-        /// An internal ID for this follow.
+        /// The follower's actor ID.
         /// </summary>
-        public Guid Id { get; set; }
+        [Key]
+        public string ActorId { get; set; } = "";
 
         /// <summary>
         /// The date/time at which this follow was added.
@@ -18,15 +19,16 @@ namespace Pandacap.Data
         public DateTimeOffset AddedAt { get; set; }
 
         /// <summary>
-        /// The follower's actor ID.
-        /// </summary>
-        public string ActorId { get; set; } = "";
-
-        /// <summary>
         /// The ID of the Follow activity sent to the remote server.
         /// </summary>
         [Required]
         public string FollowId { get; set; } = "";
+
+        /// <summary>
+        /// The JSON of the Follow activity sent to the remote server.
+        /// </summary>
+        [Required]
+        public string FollowJson { get; set; } = "{}";
 
         /// <summary>
         /// Whether the follow has been accepted.
