@@ -180,17 +180,16 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     ]
 
     /// Builds a CollectionPage to list the user's followers.
-    member _.AsFollowersCollectionPage (currentPage: string, followers: Follower seq) = dict [
+    member _.AsFollowersCollectionPage (currentPage: string, followers: ListPage<Follower>) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
-
-        match Seq.tryLast followers with
-        | None -> ()
-        | Some lastItem ->
-            pair "next" $"{mapper.FollowersPageId}?after={lastItem.ActorId}&count={Seq.length followers}"
-
         pair "partOf" mapper.FollowersRootId
-        pair "orderedItems" [for f in followers do f.ActorId]
+
+        pair "orderedItems" [for f in followers.DisplayList do f.ActorId]
+        match followers.Next with
+        | None -> ()
+        | Some next ->
+            pair "next" $"{mapper.FollowersPageId}?next={next.ActorId}&count={Seq.length followers.DisplayList}"
     ]
 
     /// Builds a Collection to point to the CollectionPage that lists the user's follows.
@@ -202,17 +201,16 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     ]
 
     /// Builds a CollectionPage to list the user's follows.
-    member _.AsFollowingCollectionPage (currentPage: string, following: Follow seq) = dict [
+    member _.AsFollowingCollectionPage (currentPage: string, following: ListPage<Follow>) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
-
-        match Seq.tryLast following with
-        | None -> ()
-        | Some lastItem ->
-            pair "next" $"{mapper.FollowingPageId}?after={lastItem.ActorId}&count={Seq.length following}"
-
         pair "partOf" mapper.FollowingRootId
-        pair "orderedItems" [for f in following do f.ActorId]
+
+        pair "orderedItems" [for f in following.DisplayList do f.ActorId]
+        match following.Next with
+        | None -> ()
+        | Some next ->
+            pair "next" $"{mapper.FollowingPageId}?next={next.ActorId}&count={Seq.length following.DisplayList}"
     ]
 
     member _.Outbox = dict [

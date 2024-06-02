@@ -14,12 +14,12 @@ namespace Pandacap.Controllers
         UserManager<IdentityUser> userManager) : Controller
     {
         public async Task<IActionResult> DeviantArtImagePosts(
-            Guid? after,
+            Guid? next,
             int? count)
         {
-            DateTimeOffset startTime = after is Guid afterGuid
+            DateTimeOffset startTime = next is Guid g
                 ? await context.DeviantArtInboxArtworkPosts
-                    .Where(f => f.Id == afterGuid)
+                    .Where(f => f.Id == g)
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
@@ -27,28 +27,26 @@ namespace Pandacap.Controllers
             var posts = await context.DeviantArtInboxArtworkPosts
                 .Where(f => f.Timestamp >= startTime)
                 .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == after || after == null)
-                .Where(f => f.Id != after)
-                .Take(count ?? 100)
-                .ToListAsync();
+                .SkipUntil(f => f.Id == next || next == null)
+                .OfType<IPost>()
+                .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel
             {
                 Controller = "Inbox",
                 Action = nameof(DeviantArtImagePosts),
-                Items = posts,
-                Count = count ?? 100
+                Items = posts
             });
         }
 
 
         public async Task<IActionResult> DeviantArtTextPosts(
-            Guid? after,
+            Guid? next,
             int? count)
         {
-            DateTimeOffset startTime = after is Guid afterGuid
+            DateTimeOffset startTime = next is Guid g
                 ? await context.DeviantArtInboxTextPosts
-                    .Where(f => f.Id == afterGuid)
+                    .Where(f => f.Id == g)
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
@@ -56,27 +54,25 @@ namespace Pandacap.Controllers
             var posts = await context.DeviantArtInboxTextPosts
                 .Where(f => f.Timestamp >= startTime)
                 .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == after || after == null)
-                .Where(f => f.Id != after)
-                .Take(count ?? 100)
-                .ToListAsync();
+                .SkipUntil(f => f.Id == next || next == null)
+                .OfType<IPost>()
+                .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel
             {
                 Controller = "Inbox",
                 Action = nameof(DeviantArtTextPosts),
-                Items = posts,
-                Count = count ?? 100
+                Items = posts
             });
         }
 
         public async Task<IActionResult> ActivityPubImagePosts(
-            string? after,
+            string? next,
             int? count)
         {
-            DateTimeOffset startTime = after is string afterId
+            DateTimeOffset startTime = next is string s
                 ? await context.ActivityPubInboxImagePosts
-                    .Where(f => f.Id == afterId)
+                    .Where(f => f.Id == s)
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
@@ -84,27 +80,25 @@ namespace Pandacap.Controllers
             var posts = await context.ActivityPubInboxImagePosts
                 .Where(f => f.Timestamp >= startTime)
                 .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == after || after == null)
-                .Where(f => f.Id != after)
-                .Take(count ?? 100)
-                .ToListAsync();
+                .SkipUntil(f => f.Id == next || next == null)
+                .OfType<IPost>()
+                .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel
             {
                 Controller = "Inbox",
                 Action = nameof(ActivityPubImagePosts),
-                Items = posts,
-                Count = count ?? 100
+                Items = posts
             });
         }
 
         public async Task<IActionResult> ActivityPubTextPosts(
-            string? after,
+            string? next,
             int? count)
         {
-            DateTimeOffset startTime = after is string afterId
+            DateTimeOffset startTime = next is string s
                 ? await context.ActivityPubInboxTextPosts
-                    .Where(f => f.Id == afterId)
+                    .Where(f => f.Id == s)
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
@@ -112,17 +106,15 @@ namespace Pandacap.Controllers
             var posts = await context.ActivityPubInboxTextPosts
                 .Where(f => f.Timestamp >= startTime)
                 .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == after || after == null)
-                .Where(f => f.Id != after)
-                .Take(count ?? 100)
-                .ToListAsync();
+                .SkipUntil(f => f.Id == next || next == null)
+                .OfType<IPost>()
+                .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel
             {
                 Controller = "Inbox",
                 Action = nameof(ActivityPubTextPosts),
-                Items = posts,
-                Count = count ?? 100
+                Items = posts
             });
         }
 

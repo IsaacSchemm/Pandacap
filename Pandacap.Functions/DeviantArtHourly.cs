@@ -12,8 +12,8 @@ namespace Pandacap.Functions
         [Function("DeviantArtHourly")]
         public async Task Run([TimerTrigger("0 20 */1 * * *")] TimerInfo myTimer)
         {
-            //await deviantArtFeedReader.ReadArtworkPostsByUsersWeWatchAsync();
-            //await deviantArtFeedReader.ReadTextPostsByUsersWeWatchAsync();
+            await deviantArtFeedReader.ReadArtworkPostsByUsersWeWatchAsync();
+            await deviantArtFeedReader.ReadTextPostsByUsersWeWatchAsync();
 
             //bool anyPosts = await feedAggregator.GetDeviationsAsync().AnyAsync();
             //var scope = anyPosts

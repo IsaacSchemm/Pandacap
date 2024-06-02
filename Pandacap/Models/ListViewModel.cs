@@ -1,4 +1,5 @@
 ﻿using Pandacap.Data;
+using Pandacap.LowLevel;
 
 namespace Pandacap.Models
 {
@@ -8,8 +9,6 @@ namespace Pandacap.Models
 
         public string Action { get; set; } = "";
 
-        public IEnumerable<IPost> Items { get; set; } = [];
-
-        public int Count { get; set; }
+        public ListPage<IPost> Items { get; set; } = ListPage.Empty<IPost>();
     }
 }

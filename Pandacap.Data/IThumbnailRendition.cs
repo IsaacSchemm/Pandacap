@@ -2,7 +2,7 @@
 {
     public interface IThumbnailRendition
     {
-        string Url { get; }
+        string? Url { get; }
         int Width { get; }
         int Height { get; }
     }

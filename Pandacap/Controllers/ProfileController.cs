@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ActivityPub;
@@ -19,6 +18,49 @@ namespace Pandacap.Controllers
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
     {
+        private class ResolvedActor(RemoteActor Actor) : IImagePost, IThumbnail, IThumbnailRendition
+        {
+            string IPost.Id => Actor.Id;
+            string? IPost.Username => Actor.PreferredUsername ?? Actor.Id;
+            string? IPost.Usericon => Actor.IconUrl;
+            string? IPost.DisplayTitle => Actor.PreferredUsername ?? Actor.Id;
+            DateTimeOffset IPost.Timestamp => default;
+            string? IPost.LinkUrl => Actor.Id;
+            DateTimeOffset? IPost.DismissedAt => null;
+
+            IEnumerable<IThumbnail> IImagePost.Thumbnails => [this];
+
+            IEnumerable<IThumbnailRendition> IThumbnail.Renditions => [this];
+            string? IThumbnail.AltText => "Avatar";
+
+            string? IThumbnailRendition.Url => Actor.IconUrl;
+            int IThumbnailRendition.Width => 0;
+            int IThumbnailRendition.Height => 0;
+        }
+
+        private class UnresolvedActor(string Id) : IPost
+        {
+            string IPost.Id => Id;
+            string? IPost.Username => Id;
+            string? IPost.Usericon => null;
+            string? IPost.DisplayTitle => Id;
+            DateTimeOffset IPost.Timestamp => default;
+            string? IPost.LinkUrl => Id;
+            DateTimeOffset? IPost.DismissedAt => null;
+        }
+
+        private async Task<IPost> ResolveActorAsIPost(string id)
+        {
+            try
+            {
+                var actor = await remoteActorFetcher.FetchActorAsync(id);
+                return new ResolvedActor(actor);
+            }
+            catch (Exception) { }
+
+            return new UnresolvedActor(id);
+        }
+
         public async Task<IActionResult> Index()
         {
             var someTimeAgo = DateTime.UtcNow.AddMonths(-6);
@@ -56,93 +98,88 @@ namespace Pandacap.Controllers
             });
         }
 
-        public async Task<IActionResult> Followers(string? after, int? count)
+        public async Task<IActionResult> Followers(string? next, int? count)
         {
-            DateTimeOffset startTime = after is string pg
+            DateTimeOffset startTime = next is string s
                 ? await context.Followers
-                    .Where(f => f.ActorId == pg)
+                    .Where(f => f.ActorId == s)
                     .Select(f => f.AddedAt)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var followers = await context.Followers
+            var source = context.Followers
                 .Where(f => f.AddedAt >= startTime)
                 .AsAsyncEnumerable()
-                .SkipUntil(f => f.ActorId == after || after == null)
-                .Where(f => f.ActorId != after)
-                .Take(count ?? 10)
-                .ToListAsync();
+                .SkipUntil(f => f.ActorId == next || next == null);
 
             if (Request.IsActivityPub())
             {
+                var page = await source
+                    .AsListPage(count ?? 20);
+
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.AsFollowersCollectionPage(
                             Request.GetEncodedUrl(),
-                            followers)),
+                            page)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
+            else {
+                var page = await source
+                    .SelectAwait(async f => await ResolveActorAsIPost(f.ActorId))
+                    .AsListPage(count ?? 10);
 
-            var users = await Task.WhenAll(
-                followers.Select(async f =>
+                return View("List", new ListViewModel
                 {
-                    try
-                    {
-                        return await remoteActorFetcher.FetchActorAsync(f.ActorId);
-                    }
-                    catch (Exception)
-                    {
-                        return UserDisplay.ForUnresolvableActor(f.ActorId);
-                    }
-                }));
-
-            return View(users);
+                    Controller = "Profile",
+                    Action = nameof(Followers),
+                    Items = page
+                });
+            }
         }
 
-        public async Task<IActionResult> Following(Guid? after, int? count)
+        public async Task<IActionResult> Following(Guid? next, int? count)
         {
-            DateTimeOffset startTime = after is Guid pg
+            DateTimeOffset startTime = next is Guid g
                 ? await context.Follows
-                    .Where(f => f.Id == pg)
+                    .Where(f => f.Id == g)
                     .Select(f => f.AddedAt)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var followings = await context.Follows
+            var source = context.Follows
                 .Where(f => f.AddedAt >= startTime)
-                .Where(f => f.Accepted)
                 .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == after || after == null)
-                .Where(f => f.Id != after)
-                .Take(count ?? 10)
-                .ToListAsync();
+                .SkipUntil(f => f.Id == next || next == null)
+                .Take((count ?? 10) + 1);
 
             if (Request.IsActivityPub())
             {
+                var page = await source
+                    .AsListPage(count ?? 10);
+
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.AsFollowingCollectionPage(
                             Request.GetEncodedUrl(),
-                            followings)),
+                            page)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
+            else
+            {
+                var page = await source
+                    .SelectAwait(async f => await ResolveActorAsIPost(f.ActorId))
+                    .AsListPage(count ?? 20);
 
-            var users = await Task.WhenAll(
-                followings.Select(async f =>
+                return View("List", new ListViewModel
                 {
-                    try
-                    {
-                        return await remoteActorFetcher.FetchActorAsync(f.ActorId);
-                    }
-                    catch (Exception)
-                    {
-                        return UserDisplay.ForUnresolvableActor(f.ActorId);
-                    }
-                }));
-
-            return View(users);
+                    Controller = "Profile",
+                    Action = nameof(Following),
+                    Items = page
+                });
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

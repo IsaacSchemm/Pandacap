@@ -3,7 +3,7 @@
 @using Pandacap.Models
 @model ListViewModel
 
-@if (!Model.Items.Any())
+@if (!Model.Items.DisplayList.Any())
 {
     <p>
         Showing <strong>0</strong> items.
@@ -11,12 +11,12 @@
 }
 else
 {
-    var minDate = Model.Items.Select(item => item.Timestamp).Min().UtcDateTime;
-    var maxDate = Model.Items.Select(item => item.Timestamp).Max().UtcDateTime;
+    var minDate = Model.Items.DisplayList.Select(item => item.Timestamp).Min().UtcDateTime;
+    var maxDate = Model.Items.DisplayList.Select(item => item.Timestamp).Max().UtcDateTime;
 
     <p>
         Showing
-        <strong>@Model.Items.Count()</strong>
+        <strong>@Model.Items.DisplayList.Count()</strong>
         item(s) posted between
         <strong>@minDate.ToLongDateString()</strong> (@minDate.ToShortTimeString())
         and
@@ -24,7 +24,7 @@ else
     </p>
 
     <form asp-action="Dismiss" method="post">
-        @foreach (var group in Model.Items.GroupBy(item => (
+        @foreach (var group in Model.Items.DisplayList.GroupBy(item => (
             item.Username,
             item.Usericon
         )))
@@ -46,8 +46,11 @@ else
                         {
                             @foreach (var image in imagePost.Thumbnails)
                             {
+                                string? url = item is DeviantArtDeviation deviation
+                                    ? $"/Post/{deviation.Id}"
+                                    : item.LinkUrl;
                                 <div class="col-sm-4 col-md-3 text-center my-4">
-                                    <a href="/Posts/@item.Id" target="_blank">
+                                    <a href="@url" target="_blank">
                                         <img src="@image.GetThumbnailSrc()"
                                              srcset="@image.GetThumbnailSrcset()"
                                              alt="@image.AltText"
@@ -93,16 +96,16 @@ else
             </button>
         }
 
-        @if (Model.Items.LastOrDefault() is IPost lastPost)
+        @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IPost nextPost)
         {
             <hr />
 
             <a asp-controller="@Model.Controller"
                asp-action="@Model.Action"
-               asp-route-after="@lastPost.Id"
-               asp-route-count="@Model.Count"
+               asp-route-next="@nextPost.Id"
+               asp-route-count="@Model.Items.DisplayList.Length"
                class="btn btn-primary">
-                Next @Model.Count items &raquo;
+                Next @Model.Items.DisplayList.Length items &raquo;
             </a>
         }
     </form>

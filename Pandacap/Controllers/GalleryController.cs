@@ -8,11 +8,11 @@ namespace Pandacap.Controllers
 {
     public class GalleryController(PandacapDbContext context) : Controller
     {
-        public async Task<IActionResult> Artwork(Guid? after, int? count)
+        public async Task<IActionResult> Artwork(Guid? next, int? count)
         {
-            DateTimeOffset startTime = after is Guid pg
+            DateTimeOffset startTime = next is Guid g
                 ? await context.DeviantArtArtworkDeviations
-                    .Where(f => f.Id == pg)
+                    .Where(f => f.Id == g)
                     .Select(f => f.PublishedTime)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
@@ -20,25 +20,23 @@ namespace Pandacap.Controllers
             var posts = await context.DeviantArtArtworkDeviations
                 .Where(f => f.PublishedTime >= startTime)
                 .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == after || after == null)
-                .Where(f => f.Id != after)
-                .Take(count ?? 10)
-                .ToListAsync();
+                .SkipUntil(f => f.Id == next || next == null)
+                .OfType<IPost>()
+                .AsListPage(count ?? 10);
 
             return View("List", new ListViewModel
             {
                 Controller = "Gallery",
                 Action = nameof(Artwork),
-                Items = posts,
-                Count = count ?? 10
+                Items = posts
             });
         }
 
-        public async Task<IActionResult> TextPosts(Guid? after, int? count)
+        public async Task<IActionResult> TextPosts(Guid? next, int? count)
         {
-            DateTimeOffset startTime = after is Guid pg
+            DateTimeOffset startTime = next is Guid g
                 ? await context.DeviantArtTextDeviations
-                    .Where(f => f.Id == pg)
+                    .Where(f => f.Id == g)
                     .Select(f => f.PublishedTime)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
@@ -46,17 +44,15 @@ namespace Pandacap.Controllers
             var posts = await context.DeviantArtTextDeviations
                 .Where(f => f.PublishedTime >= startTime)
                 .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == after || after == null)
-                .Where(f => f.Id != after)
-                .Take(count ?? 10)
-                .ToListAsync();
+                .SkipUntil(f => f.Id == next || next == null)
+                .OfType<IPost>()
+                .AsListPage(count ?? 10);
 
             return View("List", new ListViewModel
             {
                 Controller = "Gallery",
                 Action = nameof(TextPosts),
-                Items = posts,
-                Count = count ?? 10
+                Items = posts
             });
         }
     }
