@@ -1,13 +1,15 @@
 ﻿namespace Pandacap.Data
 {
-    public class ActivityPubImageAttachment : IThumbnail
+    public class ActivityPubImageAttachment : IThumbnail, IThumbnailRendition
     {
         public string Url { get; set; } = "";
         public string? Name { get; set; }
 
-        string? IThumbnail.ThumbnailUrl => Url;
-        string? IThumbnail.ThumbnailSrcset => null;
+        int IThumbnailRendition.Width => 0;
+        int IThumbnailRendition.Height => 0;
+
         string? IThumbnail.AltText => Name;
+        IEnumerable<IThumbnailRendition> IThumbnail.Renditions => [this];
     }
 
     public class ActivityPubInboxImagePost : ActivityPubInboxPost, IImagePost

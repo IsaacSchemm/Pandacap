@@ -202,7 +202,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     ]
 
     /// Builds a CollectionPage to list the user's follows.
-    member _.AsFollowingCollectionPage (currentPage: string, following: Following seq) = dict [
+    member _.AsFollowingCollectionPage (currentPage: string, following: Follow seq) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
 

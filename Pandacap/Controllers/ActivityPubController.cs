@@ -42,7 +42,7 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Following()
         {
-            int count = await context.Followings
+            int count = await context.Follows
                 .Where(f => f.Accepted)
                 .CountAsync();
             return Content(
@@ -127,7 +127,7 @@ namespace Pandacap.Controllers
                 {
                     string followId = obj["@id"]!.Value<string>()!;
 
-                    var follows = await context.Followings
+                    var follows = await context.Follows
                         .Where(f => f.FollowId == followId)
                         .ToListAsync();
 
@@ -143,7 +143,7 @@ namespace Pandacap.Controllers
                 {
                     string followId = obj["@id"]!.Value<string>()!;
 
-                    var follows = await context.Followings
+                    var follows = await context.Follows
                         .Where(f => f.FollowId == followId)
                         .ToListAsync();
 
@@ -172,7 +172,7 @@ namespace Pandacap.Controllers
                         Uri.TryCreate(id, UriKind.Absolute, out Uri? uri)
                         && uri.Host == appInfo.ApplicationHostname);
 
-                    bool isFromFollow = await context.Followings
+                    bool isFromFollow = await context.Follows
                         .Where(f => f.ActorId == actor.Id)
                         .AnyAsync();
 

@@ -1,4 +1,5 @@
 ﻿@using Pandacap.Data
+@using Pandacap.HighLevel
 @model ProfileViewModel
 
 @{
@@ -40,8 +41,8 @@
             {
                 <div class="col-sm-4 col-md-3 text-center my-4">
                     <a href="/Posts/@post.Id" target="_blank">
-                        <img src="@post.ThumbnailUrl"
-                             srcset="@post.ThumbnailSrcset"
+                        <img src="@post.GetThumbnailSrc()"
+                             srcset="@post.GetThumbnailSrcset()"
                              alt="@post.AltText"
                              referrerpolicy="no-referrer"
                              class="feed-image" />

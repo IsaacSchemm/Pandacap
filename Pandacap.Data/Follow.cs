@@ -5,7 +5,7 @@ namespace Pandacap.Data
     /// <summary>
     /// An ActivityPub actor who this Pandacap actor is following.
     /// </summary>
-    public class Following
+    public class Follow
     {
         /// <summary>
         /// An internal ID for this follow.

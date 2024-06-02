@@ -52,7 +52,7 @@ namespace Pandacap.Controllers
                     .Take(3)
                     .ToListAsync(),
                 FollowerCount = await context.Followers.CountAsync(),
-                FollowingCount = await context.Followings.CountAsync()
+                FollowingCount = await context.Follows.CountAsync()
             });
         }
 
@@ -103,13 +103,13 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Following(Guid? after, int? count)
         {
             DateTimeOffset startTime = after is Guid pg
-                ? await context.Followings
+                ? await context.Follows
                     .Where(f => f.Id == pg)
                     .Select(f => f.AddedAt)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var followings = await context.Followings
+            var followings = await context.Follows
                 .Where(f => f.AddedAt >= startTime)
                 .Where(f => f.Accepted)
                 .AsAsyncEnumerable()

@@ -2,8 +2,7 @@
 {
     public interface IThumbnail
     {
-        string? ThumbnailUrl { get; }
-        string? ThumbnailSrcset { get; }
+        IEnumerable<IThumbnailRendition> Renditions { get; }
         string? AltText { get; }
     }
 }
