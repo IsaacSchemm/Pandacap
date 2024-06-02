@@ -11,8 +11,32 @@
     <p>
         <img src="@artwork.Image.Url"
              alt="@artwork.AltText"
-             style="max-width: 640px; max-height: 640px" />
+             title="@artwork.AltText"
+             style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
     </p>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <div class="card mb-3" style="max-width: 800px">
+            <div class="card-header">
+                Properties
+            </div>
+            <div class="card-body">
+                <form asp-action="SetAltText">
+                    <input type="hidden" name="id" value="@artwork.Id" />
+                    <div class="mb-3">
+                        <label for="alt" class="form-label">
+                            Alt text
+                        </label>
+                        <input type="text" class="form-control" id="alt" name="alt" value="@artwork.AltText" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Save
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
 }
 
 @Html.Raw(Model.Description)
@@ -27,17 +51,6 @@
     </p>
 }
 
-@if (User.Identity?.IsAuthenticated == true)
-{
-    <hr />
-
-    <form>
-        <label>
-            Alt text:
-            <input type="text" />
-        </label>
-        <button type="submit">
-            Save
-        </button>
-    </form>
-}
+<p>
+    <a href="@Model.Url">View on DeviantArt</a>
+</p>

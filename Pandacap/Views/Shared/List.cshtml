@@ -50,7 +50,7 @@ else
                             @foreach (var image in imagePost.Thumbnails)
                             {
                                 <div class="col-sm-4 col-md-3 text-center my-4">
-                                    <a href="@url" target="_blank">
+                                    <a href="@url">
                                         <img src="@image.GetThumbnailSrc()"
                                              srcset="@image.GetThumbnailSrcset()"
                                              alt="@image.AltText"

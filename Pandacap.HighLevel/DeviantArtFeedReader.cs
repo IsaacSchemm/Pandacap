@@ -153,14 +153,6 @@ namespace Pandacap.HighLevel
 
         private async Task AddActivityAsync(DeviantArtDeviation post, ActivityType activityType)
         {
-            Guid activityGuid = Guid.NewGuid();
-
-            string activityJson = ActivityPubSerializer.SerializeWithContext(
-                activityType == ActivityType.Create ? translator.ObjectToCreate(post, activityGuid)
-                    : activityType == ActivityType.Update ? translator.ObjectToUpdate(post, activityGuid)
-                    : activityType == ActivityType.Delete ? translator.ObjectToDelete(post, activityGuid)
-                    : throw new NotImplementedException());
-
             var followers = await context.Followers
                 .Select(follower => new
                 {
@@ -175,6 +167,14 @@ namespace Pandacap.HighLevel
 
             foreach (string inbox in inboxes)
             {
+                Guid activityGuid = Guid.NewGuid();
+
+                string activityJson = ActivityPubSerializer.SerializeWithContext(
+                    activityType == ActivityType.Create ? translator.ObjectToCreate(post, activityGuid)
+                        : activityType == ActivityType.Update ? translator.ObjectToUpdate(post, activityGuid)
+                        : activityType == ActivityType.Delete ? translator.ObjectToDelete(post, activityGuid)
+                        : throw new NotImplementedException());
+
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = activityGuid,

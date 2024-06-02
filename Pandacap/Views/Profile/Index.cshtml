@@ -40,7 +40,7 @@
             @foreach (var post in Model.RecentArtwork)
             {
                 <div class="col-sm-4 col-md-3 text-center my-4">
-                    <a href="/Post/@post.Id" target="_blank">
+                    <a href="/Post/@post.Id">
                         <img src="@post.GetThumbnailSrc()"
                              srcset="@post.GetThumbnailSrcset()"
                              alt="@post.AltText"
