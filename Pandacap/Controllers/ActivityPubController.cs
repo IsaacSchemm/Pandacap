@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
-using Pandacap.HighLevel;
 using Pandacap.HighLevel.ActivityPub;
 using Pandacap.HighLevel.Signatures;
 using Pandacap.LowLevel;
@@ -15,6 +14,7 @@ namespace Pandacap.Controllers
     public class ActivityPubController(
         ApplicationInformation appInfo,
         PandacapDbContext context,
+        IdMapper mapper,
         MastodonVerifier mastodonVerifier,
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
@@ -98,17 +98,34 @@ namespace Pandacap.Controllers
 
             if (type == "https://www.w3.org/ns/activitystreams#Follow")
             {
-                string objectId = expansionObj["@id"]!.Value<string>()!;
+                string activityId = expansionObj["@id"]!.Value<string>()!;
 
-                await AddFollowAsync(objectId, actor);
+                string fActor = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
+                string fObject = expansionObj["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
+
+                if (fActor == actor.Id && fObject == mapper.ActorId)
+                    await AddFollowAsync(activityId, actor);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Undo")
             {
                 foreach (var objectToUndo in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
                 {
-                    string objectId = objectToUndo["@id"]!.Value<string>()!;
+                    if ((objectToUndo["@type"] ?? Empty).Any(token => token.Value<string>() == "https://www.w3.org/ns/activitystreams#Follow"))
+                    {
+                        string fActor = objectToUndo["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
+                        string fObject = objectToUndo["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
+                        if (fActor == actor.Id && fObject == mapper.ActorId)
+                        {
+                            await foreach (var follower in context.Followers
+                                .Where(f => f.ActorId == fActor)
+                                .AsAsyncEnumerable())
+                            {
+                                context.Remove(follower);
+                            }
+                        }
+                    }
 
-                    await RemoveFollowAsync(objectId);
+                    await context.SaveChangesAsync();
                 }
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Accept")
@@ -322,16 +339,11 @@ namespace Pandacap.Controllers
                 .Where(f => f.ActorId == actor.Id)
                 .SingleOrDefaultAsync();
 
-            if (existing != null)
-            {
-                existing.MostRecentFollowId = objectId;
-            }
-            else
+            if (existing == null)
             {
                 context.Followers.Add(new Follower
                 {
                     ActorId = actor.Id,
-                    MostRecentFollowId = objectId,
                     Inbox = actor.Inbox,
                     SharedInbox = actor.SharedInbox
                 });
@@ -356,17 +368,6 @@ namespace Pandacap.Controllers
                     StoredAt = DateTimeOffset.UtcNow
                 });
             }
-
-            await context.SaveChangesAsync();
-        }
-
-        private async Task RemoveFollowAsync(string objectId)
-        {
-            var followers = context.Followers
-                .Where(i => i.MostRecentFollowId == objectId)
-                .AsAsyncEnumerable();
-            await foreach (var i in followers)
-                context.Followers.Remove(i);
 
             await context.SaveChangesAsync();
         }

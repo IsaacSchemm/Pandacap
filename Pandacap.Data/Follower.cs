@@ -19,14 +19,6 @@ namespace Pandacap.Data
         public DateTimeOffset AddedAt { get; set; }
 
         /// <summary>
-        /// The ID of the Follow activity that this actor sent. If Pandacap
-        /// recieves an Undo of this activity, it should remove this Follower
-        /// record.
-        /// </summary>
-        [Required]
-        public string MostRecentFollowId { get; set; } = "";
-
-        /// <summary>
         /// This actor's personal ActivityPub inbox.
         /// </summary>
         [Required]
