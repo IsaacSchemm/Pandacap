@@ -1,4 +1,5 @@
 ﻿using JsonLD.Core;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using Pandacap.LowLevel;
 using System.Net.Http.Headers;
@@ -14,8 +15,11 @@ namespace Pandacap.HighLevel.ActivityPub
         ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory,
         KeyProvider keyProvider,
-        IdMapper mapper)
+        IdMapper mapper,
+        IMemoryCache memoryCache)
     {
+        private const string CACHE_PREFIX = "48202458-10d1-4c64-a9bb-6c61747bf119";
+
         /// <summary>
         /// Fetches and returns an actor.
         /// </summary>
@@ -23,6 +27,9 @@ namespace Pandacap.HighLevel.ActivityPub
         /// <returns>An actor record</returns>
         public async Task<RemoteActor> FetchActorAsync(string url)
         {
+            if (memoryCache.TryGetValue(CACHE_PREFIX + url, out RemoteActor? cachedActor) && cachedActor != null)
+                return cachedActor;
+
             string json = await GetJsonAsync(new Uri(url));
 
             JObject document = JObject.Parse(json);
@@ -52,7 +59,7 @@ namespace Pandacap.HighLevel.ActivityPub
             string keyId = expansion[0]["https://w3id.org/security#publicKey"][0]["@id"].Value<string>();
             string keyPem = expansion[0]["https://w3id.org/security#publicKey"][0]["https://w3id.org/security#publicKeyPem"][0]["@value"].Value<string>();
 
-            return new RemoteActor(
+            var actor = new RemoteActor(
                 Id: id,
                 Inbox: inbox,
                 SharedInbox: sharedInbox,
@@ -60,6 +67,10 @@ namespace Pandacap.HighLevel.ActivityPub
                 IconUrl: iconUrl,
                 KeyId: keyId,
                 KeyPem: keyPem);
+
+            memoryCache.Set(CACHE_PREFIX + url, actor, DateTimeOffset.UtcNow.AddMinutes(5));
+
+            return actor;
         }
 
         /// <summary>
