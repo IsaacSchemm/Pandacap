@@ -35,6 +35,18 @@
         Newest artwork
     </h2>
 
+    <form asp-action="Search" method="get">
+        <div class="mb-3">
+            <label for="q" class="form-label">
+                Title / GUID / URL
+            </label>
+            <input type="text" class="form-control" id="q" name="q" />
+        </div>
+        <button type="submit" class="btn btn-primary">
+            Search
+        </button>
+    </form>
+
     <div class="container-fluid">
         <div class="row">
             @foreach (var post in Model.RecentArtwork)

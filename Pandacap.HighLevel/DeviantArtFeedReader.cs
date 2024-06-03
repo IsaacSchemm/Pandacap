@@ -191,7 +191,7 @@ namespace Pandacap.HighLevel
                 return;
 
             DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
-            int cutoffCount = max ?? 10;
+            int cutoffCount = max ?? int.MaxValue;
 
             var queuedForDeletionCheck = await context.DeviantArtArtworkDeviations
                 .Where(post => post.PublishedTime >= cutoffDate)
@@ -328,7 +328,7 @@ namespace Pandacap.HighLevel
                 return;
 
             DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
-            int cutoffCount = max ?? 10;
+            int cutoffCount = max ?? int.MaxValue;
 
             var queuedForDeletionCheck = await context.DeviantArtTextDeviations
                 .Where(post => post.PublishedTime >= cutoffDate)
