@@ -55,6 +55,41 @@ namespace Pandacap.Controllers
             });
         }
 
+        public async Task<IActionResult> Search(string? q, Guid? next, int? count)
+        {
+            var posts = await feedAggregator.GetDeviationsAsync()
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(d => d.Id == next || next == null)
+                .Where(d =>
+                {
+                    IEnumerable<string> getKeywords()
+                    {
+                        yield return $"{d.Id}";
+
+                        if (d.Title != null)
+                            foreach (string keyword in d.Title.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                                yield return keyword;
+
+                        foreach (string tag in d.Tags)
+                            yield return tag;
+                    }
+
+                    return q == null || getKeywords().Contains(q, StringComparer.InvariantCultureIgnoreCase);
+                })
+                .OfType<IPost>()
+                .AsListPage(count ?? 20);
+
+            return View("List", new ListViewModel
+            {
+                Title = "Search",
+                Controller = "Profile",
+                Action = nameof(Search),
+                Q = q,
+                Items = posts
+            });
+        }
+
         private class ResolvedActor(RemoteActor Actor, IRemoteActorRelationship Relationship) : IPost
         {
             string IPost.Id => Actor.Id;
@@ -126,6 +161,7 @@ namespace Pandacap.Controllers
 
                 return View("List", new ListViewModel
                 {
+                    Title = "Followers",
                     Controller = "Profile",
                     Action = nameof(Followers),
                     Items = page
@@ -170,6 +206,7 @@ namespace Pandacap.Controllers
 
                 return View("List", new ListViewModel
                 {
+                    Title = "Following",
                     Controller = "Profile",
                     Action = nameof(Following),
                     Items = page

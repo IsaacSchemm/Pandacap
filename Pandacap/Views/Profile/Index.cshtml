@@ -30,22 +30,29 @@
     </p>
 </div>
 
+<div class="card mb-3">
+    <div class="card-header">
+        Search
+    </div>
+    <div class="card-body">
+        <form asp-action="Search" method="get">
+            <div class="mb-3">
+                <label for="q" class="form-label">
+                    ID / Title / Tag
+                </label>
+                <input type="text" class="form-control" id="q" name="q" />
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Search
+            </button>
+        </form>
+    </div>
+</div>
+
 @if (Model.RecentArtwork.Any()) {
     <h2>
         Newest artwork
     </h2>
-
-    <form asp-action="Search" method="get">
-        <div class="mb-3">
-            <label for="q" class="form-label">
-                Title / GUID / URL
-            </label>
-            <input type="text" class="form-control" id="q" name="q" />
-        </div>
-        <button type="submit" class="btn btn-primary">
-            Search
-        </button>
-    </form>
 
     <div class="container-fluid">
         <div class="row">
@@ -90,7 +97,7 @@
 
 @if (User.Identity?.IsAuthenticated == true)
 {
-    <div class="card mt-3" style="max-width: 800px">
+    <div class="card mt-3">
         <div class="card-header">
             Follow new user
         </div>

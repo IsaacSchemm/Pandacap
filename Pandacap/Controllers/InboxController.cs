@@ -35,6 +35,7 @@ namespace Pandacap.Controllers
 
             return View("List", new ListViewModel
             {
+                Title = "DeviantArt Inbox (Artwork)",
                 Controller = "Inbox",
                 Action = nameof(DeviantArtImagePosts),
                 Items = posts
@@ -64,6 +65,7 @@ namespace Pandacap.Controllers
 
             return View("List", new ListViewModel
             {
+                Title = "DeviantArt Inbox (Journals and Status Updates)",
                 Controller = "Inbox",
                 Action = nameof(DeviantArtTextPosts),
                 Items = posts
@@ -92,6 +94,7 @@ namespace Pandacap.Controllers
 
             return View("List", new ListViewModel
             {
+                Title = "ActivityPub Inbox (Image Posts)",
                 Controller = "Inbox",
                 Action = nameof(ActivityPubImagePosts),
                 Items = posts
@@ -120,6 +123,7 @@ namespace Pandacap.Controllers
 
             return View("List", new ListViewModel
             {
+                Title = "ActivityPub Inbox (Text Posts)",
                 Controller = "Inbox",
                 Action = nameof(ActivityPubTextPosts),
                 Items = posts

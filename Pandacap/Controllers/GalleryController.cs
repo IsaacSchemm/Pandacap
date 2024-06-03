@@ -27,6 +27,7 @@ namespace Pandacap.Controllers
 
             return View("List", new ListViewModel
             {
+                Title = "Gallery",
                 Controller = "Gallery",
                 Action = nameof(Artwork),
                 Items = posts
@@ -52,6 +53,7 @@ namespace Pandacap.Controllers
 
             return View("List", new ListViewModel
             {
+                Title = "Posts",
                 Controller = "Gallery",
                 Action = nameof(TextPosts),
                 Items = posts

@@ -3,6 +3,10 @@
 @using Pandacap.Models
 @model ListViewModel
 
+@{
+    ViewBag.Title = Model.Title;
+}
+
 @if (!Model.Items.DisplayList.Any())
 {
     <p>
@@ -49,6 +53,7 @@ else
                         {
                             @foreach (var image in imagePost.Thumbnails)
                             {
+                                int year = item.Timestamp.UtcDateTime.Year;
                                 <div class="col-sm-4 col-md-3 text-center my-4">
                                     <a href="@url">
                                         <img src="@image.GetThumbnailSrc()"
@@ -63,6 +68,11 @@ else
                                             <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                                         }
                                         <a href="@url">@item.DisplayTitle</a>
+                                        @if (item is DeviantArtDeviation)
+                                        {
+                                            <br />
+                                            <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
+                                        }
                                     </label>
                                 </div>
                             }
@@ -75,7 +85,10 @@ else
                                     <input type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                                 }
                                 <a href="@url">@item.DisplayTitle</a>
-                                <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
+                                @if (item is DeviantArtDeviation)
+                                {
+                                    <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
+                                }
                             </label>
                         }
                     }
@@ -102,6 +115,7 @@ else
 
             <a asp-controller="@Model.Controller"
                asp-action="@Model.Action"
+               asp-route-q="@Model.Q"
                asp-route-next="@nextPost.Id"
                asp-route-count="@Model.Items.DisplayList.Length"
                class="btn btn-primary">

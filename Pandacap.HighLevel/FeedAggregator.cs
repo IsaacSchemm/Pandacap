@@ -1,11 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Pandacap.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pandacap.HighLevel
 {
@@ -18,10 +12,12 @@ namespace Pandacap.HighLevel
 
             var query1 = context1.DeviantArtArtworkDeviations
                 .OrderByDescending(d => d.PublishedTime)
-                .AsAsyncEnumerable();
-            var query2 = context2.DeviantArtArtworkDeviations
+                .AsAsyncEnumerable()
+                .OfType<DeviantArtDeviation>();
+            var query2 = context2.DeviantArtTextDeviations
                 .OrderByDescending(d => d.PublishedTime)
-                .AsAsyncEnumerable();
+                .AsAsyncEnumerable()
+                .OfType<DeviantArtDeviation>();
 
             var combinedQuery = new[]
             {
