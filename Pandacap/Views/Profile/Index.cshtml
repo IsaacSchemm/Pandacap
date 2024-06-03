@@ -1,4 +1,5 @@
 ﻿@using Pandacap.Data
+@using Pandacap.LowLevel
 @using Pandacap.HighLevel
 @model ProfileViewModel
 
@@ -30,24 +31,19 @@
     </p>
 </div>
 
-<div class="card mb-3">
-    <div class="card-header">
-        Search
+<form asp-action="Search" method="get">
+<div class="input-group mb-3">
+        <input
+            name="q"
+            type="text"
+            class="form-control"
+            placeholder="Search (ID / Title / Tag)"
+            aria-label="ID, title, or tag to search for">
+        <button class="btn btn-primary" type="button">
+            Search
+        </button>
     </div>
-    <div class="card-body">
-        <form asp-action="Search" method="get">
-            <div class="mb-3">
-                <label for="q" class="form-label">
-                    ID / Title / Tag
-                </label>
-                <input type="text" class="form-control" id="q" name="q" />
-            </div>
-            <button type="submit" class="btn btn-primary">
-                Search
-            </button>
-        </form>
-    </div>
-</div>
+</form>
 
 @if (Model.RecentArtwork.Any()) {
     <h2>

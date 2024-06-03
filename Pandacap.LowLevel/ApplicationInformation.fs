@@ -33,5 +33,5 @@ type ApplicationInformation = {
     /// The username of the Pandacap actor (used in the @ handle).
     member this.Username = this.DeviantArtUsername
 
-    /// The user agent string for outgoing requests.
+    /// The user agent string for outgoing ActivityPub requests.
     member this.UserAgent = $"{this.ApplicationName}/{this.VersionNumber} ({this.WebsiteUrl})"
