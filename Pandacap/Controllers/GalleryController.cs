@@ -23,7 +23,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
                 .OfType<IPost>()
-                .AsListPage(count ?? 10);
+                .AsListPage(count ?? 20);
 
             return View("List", new ListViewModel
             {
@@ -49,7 +49,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
                 .OfType<IPost>()
-                .AsListPage(count ?? 10);
+                .AsListPage(count ?? 20);
 
             return View("List", new ListViewModel
             {
