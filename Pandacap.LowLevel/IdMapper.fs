@@ -33,7 +33,7 @@ type IdMapper(appInfo: ApplicationInformation) =
 
     /// Determines the ActivityPub object ID for a post.
     member _.GetObjectId(deviationid: Guid) =
-        $"https://{appInfo.ApplicationHostname}/Posts/{deviationid}"
+        $"https://{appInfo.ApplicationHostname}/Post/{deviationid}"
 
     /// Determines the ActivityPub object ID for an activity.
     member _.GetActivityId(activityGuid: Guid) =
