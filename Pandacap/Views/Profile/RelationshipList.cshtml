@@ -3,7 +3,6 @@
 @using Pandacap.HighLevel.ActivityPub
 @using Pandacap.Models
 @model ListViewModel<IRemoteActorRelationship>
-@inject RemoteActorFetcher remoteActorFetcher
 
 @{
     ViewBag.Title = Model.Title;
@@ -19,13 +18,11 @@ else
 {
     @foreach (var item in Model.Items.DisplayList)
     {
-        var actor = await remoteActorFetcher.FetchActorAsync(item.ActorId);
-
         <p>
-            <img height="50" src="@actor?.IconUrl" alt="" />
+            <img height="50" src="@item?.IconUrl" alt="" />
             <span style="display: inline-block; vertical-align: top">
                 <strong>
-                    @(actor?.PreferredUsername ?? item.ActorId)
+                    @(item?.PreferredUsername ?? item.ActorId)
                 </strong>
                 <br />
                 <a href="@item.ActorId">@item.ActorId</a>
@@ -41,7 +38,7 @@ else
             <p>
                 <form asp-action="Unfollow">
                     <input type="hidden" name="id" value="@item.ActorId" />
-                    <button type="submit" class="btn btn-primary">Unfollow @(actor?.PreferredUsername ?? item.ActorId)</button>
+                    <button type="submit" class="btn btn-primary">Unfollow @(item?.PreferredUsername ?? item.ActorId)</button>
                 </form>
             </p>
         }

@@ -193,7 +193,9 @@ namespace Pandacap.Controllers
                 FollowGuid = followGuid,
                 Accepted = false,
                 Inbox = actor.Inbox,
-                SharedInbox = actor.SharedInbox
+                SharedInbox = actor.SharedInbox,
+                PreferredUsername = actor.PreferredUsername,
+                IconUrl = actor.IconUrl
             });
 
             await context.SaveChangesAsync();

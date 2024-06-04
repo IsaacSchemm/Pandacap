@@ -15,11 +15,8 @@ namespace Pandacap.HighLevel.ActivityPub
         ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory,
         KeyProvider keyProvider,
-        IdMapper mapper,
-        IMemoryCache memoryCache)
+        IdMapper mapper)
     {
-        private const string CACHE_PREFIX = "48202458-10d1-4c64-a9bb-6c61747bf119";
-
         private static readonly IEnumerable<JToken> Empty = [];
 
         /// <summary>
@@ -29,9 +26,6 @@ namespace Pandacap.HighLevel.ActivityPub
         /// <returns>An actor record</returns>
         public async Task<RemoteActor> FetchActorAsync(string url)
         {
-            if (memoryCache.TryGetValue(CACHE_PREFIX + url, out RemoteActor? cachedActor) && cachedActor != null)
-                return cachedActor;
-
             string json = await GetJsonAsync(new Uri(url));
 
             JObject document = JObject.Parse(json);
@@ -69,8 +63,6 @@ namespace Pandacap.HighLevel.ActivityPub
                 IconUrl: iconUrl,
                 KeyId: keyId,
                 KeyPem: keyPem);
-
-            memoryCache.Set(CACHE_PREFIX + url, actor, DateTimeOffset.UtcNow.AddMinutes(5));
 
             return actor;
         }

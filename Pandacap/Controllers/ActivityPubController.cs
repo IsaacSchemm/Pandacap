@@ -185,9 +185,29 @@ namespace Pandacap.Controllers
                     string postId = obj["@id"]!.Value<string>()!;
                     string postType = obj["@type"]!.Value<string>()!;
 
-                    if (postType == "Person")
+                    if (postType == "Person" && postId == actor.Id)
                     {
+                        await foreach (var follower in context.Followers
+                            .Where(f => f.ActorId == postId)
+                            .AsAsyncEnumerable())
+                        {
+                            follower.Inbox = actor.Inbox;
+                            follower.SharedInbox = actor.SharedInbox;
+                            follower.PreferredUsername = actor.PreferredUsername;
+                            follower.IconUrl = actor.IconUrl;
+                        }
 
+                        await foreach (var follow in context.Follows
+                            .Where(f => f.ActorId == postId)
+                            .AsAsyncEnumerable())
+                        {
+                            follow.Inbox = actor.Inbox;
+                            follow.SharedInbox = actor.SharedInbox;
+                            follow.PreferredUsername = actor.PreferredUsername;
+                            follow.IconUrl = actor.IconUrl;
+                        }
+
+                        await context.SaveChangesAsync();
                     }
                     else
                     {
@@ -335,7 +355,9 @@ namespace Pandacap.Controllers
                     ActorId = actor.Id,
                     AddedAt = DateTimeOffset.UtcNow,
                     Inbox = actor.Inbox,
-                    SharedInbox = actor.SharedInbox
+                    SharedInbox = actor.SharedInbox,
+                    PreferredUsername = actor.PreferredUsername,
+                    IconUrl = actor.IconUrl
                 });
 
                 Guid acceptGuid = Guid.NewGuid();

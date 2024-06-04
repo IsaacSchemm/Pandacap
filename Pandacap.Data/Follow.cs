@@ -41,6 +41,16 @@ namespace Pandacap.Data
         /// </summary>
         public string? SharedInbox { get; set; }
 
+        /// <summary>
+        /// The preferred username of this actor, if any.
+        /// </summary>
+        public string? PreferredUsername { get; set; }
+
+        /// <summary>
+        /// The icon URL of this actor, if any.
+        /// </summary>
+        public string? IconUrl { get; set; }
+
         bool IRemoteActorRelationship.Pending => !Accepted;
     }
 }
