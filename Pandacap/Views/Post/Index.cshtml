@@ -39,7 +39,9 @@
     }
 }
 
-@Html.Raw(Model.Description)
+<p>
+    @Html.Raw(Model.Description)
+</p>
 
 @if (Model.Tags.Count > 0)
 {
