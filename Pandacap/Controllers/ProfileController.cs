@@ -204,7 +204,7 @@ namespace Pandacap.Controllers
                     .SelectAwait(async f => await ResolveActorAsIPost(f))
                     .AsListPage(count ?? 20);
 
-                return View("List", new ListViewModel
+                return View("Following", new ListViewModel
                 {
                     Title = "Following",
                     Controller = "Profile",
@@ -242,6 +242,34 @@ namespace Pandacap.Controllers
                 Inbox = actor.Inbox,
                 SharedInbox = actor.SharedInbox
             });
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Following));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unfollow(string id)
+        {
+            await foreach (var follow in context.Follows.Where(f => f.ActorId == id).AsAsyncEnumerable())
+            {
+                Guid undoGuid = Guid.NewGuid();
+
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = undoGuid,
+                    Inbox = follow.Inbox,
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.UndoFollow(
+                            undoGuid,
+                            follow.FollowGuid,
+                            follow.ActorId)),
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+
+                context.Follows.Remove(follow);
+            }
 
             await context.SaveChangesAsync();
 

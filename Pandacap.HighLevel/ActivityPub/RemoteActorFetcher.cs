@@ -20,6 +20,8 @@ namespace Pandacap.HighLevel.ActivityPub
     {
         private const string CACHE_PREFIX = "48202458-10d1-4c64-a9bb-6c61747bf119";
 
+        private static readonly IEnumerable<JToken> Empty = [];
+
         /// <summary>
         /// Fetches and returns an actor.
         /// </summary>
@@ -40,7 +42,7 @@ namespace Pandacap.HighLevel.ActivityPub
             string inbox = expansion[0]["http://www.w3.org/ns/ldp#inbox"][0]["@id"].Value<string>();
 
             string? sharedInbox = null;
-            foreach (var endpoint in expansion[0]["https://www.w3.org/ns/activitystreams#endpoints"] ?? Enumerable.Empty<JToken>())
+            foreach (var endpoint in expansion[0]["https://www.w3.org/ns/activitystreams#endpoints"] ?? Empty)
             {
                 foreach (var si in endpoint["https://www.w3.org/ns/activitystreams#sharedInbox"])
                 {
@@ -48,10 +50,10 @@ namespace Pandacap.HighLevel.ActivityPub
                 }
             }
 
-            string? preferredUsername = expansion[0]["https://www.w3.org/ns/activitystreams#preferredUsername"]
+            string? preferredUsername = (expansion[0]["https://www.w3.org/ns/activitystreams#preferredUsername"] ?? Empty)
                 .Select(token => token["@value"].Value<string>())
                 .FirstOrDefault();
-            string? iconUrl = expansion[0]["https://www.w3.org/ns/activitystreams#icon"]
+            string? iconUrl = (expansion[0]["https://www.w3.org/ns/activitystreams#icon"] ?? Empty)
                 .SelectMany(token => token["https://www.w3.org/ns/activitystreams#url"])
                 .Select(token => token["@id"].Value<string>())
                 .FirstOrDefault();
@@ -136,22 +138,42 @@ namespace Pandacap.HighLevel.ActivityPub
         /// <returns>The raw JSON-LD response</returns>
         public async Task<string> GetJsonAsync(Uri url)
         {
-            using var req = new HttpRequestMessage(HttpMethod.Get, url);
-            req.Headers.Host = url.Host;
-            req.Headers.Date = DateTime.UtcNow;
-            req.Headers.UserAgent.ParseAdd(appInfo.UserAgent);
+            try
+            {
+                using var req = new HttpRequestMessage(HttpMethod.Get, url);
+                req.Headers.Host = url.Host;
+                req.Headers.Date = DateTime.UtcNow;
+                req.Headers.UserAgent.ParseAdd(appInfo.UserAgent);
 
-            await AddSignatureAsync(req);
+                await AddSignatureAsync(req);
 
-            req.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""));
-            req.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/activity+json"));
+                req.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""));
+                req.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/activity+json"));
 
-            using var httpClient = httpClientFactory.CreateClient();
+                using var httpClient = httpClientFactory.CreateClient();
 
-            using var res = await httpClient.SendAsync(req);
-            res.EnsureSuccessStatusCode();
+                using var res = await httpClient.SendAsync(req);
+                res.EnsureSuccessStatusCode();
 
-            return await res.Content.ReadAsStringAsync();
+                return await res.Content.ReadAsStringAsync();
+            }
+            catch (Exception)
+            {
+                using var req = new HttpRequestMessage(HttpMethod.Get, url);
+                req.Headers.Host = url.Host;
+                req.Headers.Date = DateTime.UtcNow;
+                req.Headers.UserAgent.ParseAdd(appInfo.UserAgent);
+
+                req.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""));
+                req.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/activity+json"));
+
+                using var httpClient = httpClientFactory.CreateClient();
+
+                using var res = await httpClient.SendAsync(req);
+                res.EnsureSuccessStatusCode();
+
+                return await res.Content.ReadAsStringAsync();
+            }
         }
     }
 }

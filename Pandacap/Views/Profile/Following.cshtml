@@ -1,0 +1,53 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model ListViewModel
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+@if (!Model.Items.DisplayList.Any())
+{
+    <p>
+        This user does not currently follow any other ActivityPub users.
+    </p>
+}
+else
+{
+    @foreach (var item in Model.Items.DisplayList)
+    {
+        <p>
+            <img height="50" src="@item.Usericon" alt="" />
+            <span style="display: inline-block; vertical-align: top">
+                <strong>
+                    @item.Username
+                </strong>
+                <br />
+                <a href="@item.LinkUrl">@item.DisplayTitle</a>
+            </span>
+        </p>
+
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            <form asp-action="Unfollow">
+                <input type="hidden" name="id" value="@item.Id" />
+                <button type="submit">Unfollow @item.Username</button>
+            </form>
+        }
+    }
+
+    @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IPost nextPost)
+    {
+        <hr />
+
+        <a asp-controller="@Model.Controller"
+            asp-action="@Model.Action"
+            asp-route-q="@Model.Q"
+            asp-route-next="@nextPost.Id"
+            asp-route-count="@Model.Items.DisplayList.Length"
+            class="btn btn-primary">
+            Next @Model.Items.DisplayList.Length items &raquo;
+        </a>
+    }
+}
