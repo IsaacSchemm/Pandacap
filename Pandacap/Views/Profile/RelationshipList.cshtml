@@ -1,0 +1,63 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.HighLevel.ActivityPub
+@using Pandacap.Models
+@model ListViewModel<IRemoteActorRelationship>
+@inject RemoteActorFetcher remoteActorFetcher
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+@if (!Model.Items.DisplayList.Any())
+{
+    <p>
+        This user does not currently follow any other ActivityPub users.
+    </p>
+}
+else
+{
+    @foreach (var item in Model.Items.DisplayList)
+    {
+        var actor = await remoteActorFetcher.FetchActorAsync(item.ActorId);
+
+        <p>
+            <img height="50" src="@actor?.IconUrl" alt="" />
+            <span style="display: inline-block; vertical-align: top">
+                <strong>
+                    @(actor?.PreferredUsername ?? item.ActorId)
+                </strong>
+                <br />
+                <a href="@item.ActorId">@item.ActorId</a>
+                @if (item.Pending)
+                {
+                    @:(pending)
+                }
+            </span>
+        </p>
+
+        if (User.Identity?.IsAuthenticated == true && item is Follow)
+        {
+            <p>
+                <form asp-action="Unfollow">
+                    <input type="hidden" name="id" value="@item.ActorId" />
+                    <button type="submit" class="btn btn-primary">Unfollow @(actor?.PreferredUsername ?? item.ActorId)</button>
+                </form>
+            </p>
+        }
+    }
+
+    @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IRemoteActorRelationship nextActor)
+    {
+        <hr />
+
+        <a asp-controller="@Model.Controller"
+           asp-action="@Model.Action"
+           asp-route-q="@Model.Q"
+           asp-route-next="@nextActor.ActorId"
+           asp-route-count="@Model.Items.DisplayList.Length"
+           class="btn btn-primary">
+            Next @Model.Items.DisplayList.Length items &raquo;
+        </a>
+    }
+}

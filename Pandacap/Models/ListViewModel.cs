@@ -1,9 +1,8 @@
-﻿using Pandacap.Data;
-using Pandacap.LowLevel;
+﻿using Pandacap.LowLevel;
 
 namespace Pandacap.Models
 {
-    public class ListViewModel
+    public class ListViewModel<T>
     {
         public string? Title { get; set; }
 
@@ -13,6 +12,6 @@ namespace Pandacap.Models
 
         public string? Q { get; set; }
 
-        public ListPage<IPost> Items { get; set; } = ListPage.Empty<IPost>();
+        public ListPage<T> Items { get; set; } = ListPage.Empty<T>();
     }
 }

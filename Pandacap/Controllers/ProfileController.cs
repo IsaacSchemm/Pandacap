@@ -80,7 +80,7 @@ namespace Pandacap.Controllers
                 .OfType<IPost>()
                 .AsListPage(count ?? 20);
 
-            return View("List", new ListViewModel
+            return View("List", new ListViewModel<IPost>
             {
                 Title = "Search",
                 Controller = "Profile",
@@ -90,42 +90,6 @@ namespace Pandacap.Controllers
             });
         }
 
-        private class ResolvedActor(RemoteActor Actor, IRemoteActorRelationship Relationship) : IPost
-        {
-            string IPost.Id => Actor.Id;
-            string? IPost.Username => Actor.PreferredUsername ?? Actor.Id;
-            string? IPost.Usericon => Actor.IconUrl;
-            string? IPost.DisplayTitle => Relationship.Pending
-                ? $"{Actor.Id} (pending)"
-                : Actor.Id;
-            DateTimeOffset IPost.Timestamp => Relationship.AddedAt;
-            string? IPost.LinkUrl => Actor.Id;
-            DateTimeOffset? IPost.DismissedAt => null;
-        }
-
-        private class UnresolvedActor(IRemoteActorRelationship Relationship) : IPost
-        {
-            string IPost.Id => Relationship.ActorId;
-            string? IPost.Username => Relationship.ActorId;
-            string? IPost.Usericon => null;
-            string? IPost.DisplayTitle => $"{Relationship.ActorId} (could not connect)";
-            DateTimeOffset IPost.Timestamp => Relationship.AddedAt;
-            string? IPost.LinkUrl => Relationship.ActorId;
-            DateTimeOffset? IPost.DismissedAt => null;
-        }
-
-        private async Task<IPost> ResolveActorAsIPost(IRemoteActorRelationship relationship)
-        {
-            try
-            {
-                var actor = await remoteActorFetcher.FetchActorAsync(relationship.ActorId);
-                return new ResolvedActor(actor, relationship);
-            }
-            catch (Exception) { }
-
-            return new UnresolvedActor(relationship);
-        }
-
         public async Task<IActionResult> Followers(string? next, int? count)
         {
             DateTimeOffset startTime = next is string s
@@ -133,19 +97,18 @@ namespace Pandacap.Controllers
                     .Where(f => f.ActorId == s)
                     .Select(f => f.AddedAt)
                     .SingleAsync()
-                : DateTimeOffset.MinValue;
+                : DateTimeOffset.MaxValue;
 
-            var source = context.Followers
-                .Where(f => f.AddedAt >= startTime)
+            var page = await context.Followers
+                .Where(f => f.AddedAt <= startTime)
                 .OrderByDescending(f => f.AddedAt)
                 .AsAsyncEnumerable()
-                .SkipUntil(f => f.ActorId == next || next == null);
+                .SkipUntil(f => f.ActorId == next || next == null)
+                .OfType<IRemoteActorRelationship>()
+                .AsListPage(count ?? 20);
 
             if (Request.IsActivityPub())
             {
-                var page = await source
-                    .AsListPage(count ?? 20);
-
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.AsFollowersCollectionPage(
@@ -155,11 +118,7 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
             else {
-                var page = await source
-                    .SelectAwait(async f => await ResolveActorAsIPost(f))
-                    .AsListPage(count ?? 10);
-
-                return View("List", new ListViewModel
+                return View("RelationshipList", new ListViewModel<IRemoteActorRelationship>
                 {
                     Title = "Followers",
                     Controller = "Profile",
@@ -176,20 +135,18 @@ namespace Pandacap.Controllers
                     .Where(f => f.ActorId == s)
                     .Select(f => f.AddedAt)
                     .SingleAsync()
-                : DateTimeOffset.MinValue;
+                : DateTimeOffset.MaxValue;
 
-            var source = context.Follows
-                .Where(f => f.AddedAt >= startTime)
+            var page = await context.Follows
+                .Where(f => f.AddedAt <= startTime)
                 .OrderByDescending(f => f.AddedAt)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.ActorId == next || next == null)
-                .Take((count ?? 10) + 1);
+                .OfType<IRemoteActorRelationship>()
+                .AsListPage(count ?? 10);
 
             if (Request.IsActivityPub())
             {
-                var page = await source
-                    .AsListPage(count ?? 10);
-
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.AsFollowingCollectionPage(
@@ -200,11 +157,7 @@ namespace Pandacap.Controllers
             }
             else
             {
-                var page = await source
-                    .SelectAwait(async f => await ResolveActorAsIPost(f))
-                    .AsListPage(count ?? 20);
-
-                return View("Following", new ListViewModel
+                return View("RelationshipList", new ListViewModel<IRemoteActorRelationship>
                 {
                     Title = "Following",
                     Controller = "Profile",

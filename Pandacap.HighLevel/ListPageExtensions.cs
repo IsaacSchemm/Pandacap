@@ -6,7 +6,14 @@ namespace Pandacap.HighLevel
     {
         public static async Task<ListPage<T>> AsListPage<T>(this IAsyncEnumerable<T> asyncSeq, int count)
         {
-            return ListPage.Create(await asyncSeq.Take(count + 1).ToListAsync(), count);
+            List<T> accumulator = [];
+            await foreach (var item in asyncSeq)
+            {
+                accumulator.Add(item);
+                if (accumulator.Count >= count + 1)
+                    break;
+            }
+            return ListPage.Create(accumulator, count);
         }
     }
 }

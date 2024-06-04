@@ -15,17 +15,17 @@ namespace Pandacap.Controllers
                     .Where(f => f.Id == g)
                     .Select(f => f.PublishedTime)
                     .SingleAsync()
-                : DateTimeOffset.MinValue;
+                : DateTimeOffset.MaxValue;
 
             var posts = await context.DeviantArtArtworkDeviations
-                .Where(d => d.PublishedTime >= startTime)
+                .Where(d => d.PublishedTime <= startTime)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
                 .OfType<IPost>()
                 .AsListPage(count ?? 20);
 
-            return View("List", new ListViewModel
+            return View("List", new ListViewModel<IPost>
             {
                 Title = "Gallery",
                 Controller = "Gallery",
@@ -41,17 +41,17 @@ namespace Pandacap.Controllers
                     .Where(f => f.Id == g)
                     .Select(f => f.PublishedTime)
                     .SingleAsync()
-                : DateTimeOffset.MinValue;
+                : DateTimeOffset.MaxValue;
 
             var posts = await context.DeviantArtTextDeviations
-                .Where(d => d.PublishedTime >= startTime)
+                .Where(d => d.PublishedTime <= startTime)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
                 .OfType<IPost>()
                 .AsListPage(count ?? 20);
 
-            return View("List", new ListViewModel
+            return View("List", new ListViewModel<IPost>
             {
                 Title = "Posts",
                 Controller = "Gallery",

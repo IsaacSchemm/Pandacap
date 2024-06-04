@@ -33,7 +33,7 @@ namespace Pandacap.Controllers
                 .OfType<IPost>()
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel
+            return View("List", new ListViewModel<IPost>
             {
                 Title = "DeviantArt Inbox (Artwork)",
                 Controller = "Inbox",
@@ -63,7 +63,7 @@ namespace Pandacap.Controllers
                 .OfType<IPost>()
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel
+            return View("List", new ListViewModel<IPost>
             {
                 Title = "DeviantArt Inbox (Journals and Status Updates)",
                 Controller = "Inbox",
@@ -92,7 +92,7 @@ namespace Pandacap.Controllers
                 .OfType<IPost>()
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel
+            return View("List", new ListViewModel<IPost>
             {
                 Title = "ActivityPub Inbox (Image Posts)",
                 Controller = "Inbox",
@@ -121,7 +121,7 @@ namespace Pandacap.Controllers
                 .OfType<IPost>()
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel
+            return View("List", new ListViewModel<IPost>
             {
                 Title = "ActivityPub Inbox (Text Posts)",
                 Controller = "Inbox",
