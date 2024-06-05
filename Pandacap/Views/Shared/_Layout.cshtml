@@ -28,6 +28,9 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Gallery" asp-action="TextPosts">Posts</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Favorites" asp-action="Index">Favorites</a>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Inbox
@@ -36,9 +39,6 @@
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="ImagePosts">View artwork</a></li>
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="TextPosts">View blog posts and status updates</a></li>
                             </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Favorites" asp-action="Index">Favorites</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />

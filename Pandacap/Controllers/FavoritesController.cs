@@ -1,9 +1,4 @@
-﻿using DeviantArtFs;
-using DeviantArtFs.Extensions;
-using DeviantArtFs.ParameterTypes;
-using DeviantArtFs.ResponseTypes;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -11,25 +6,16 @@ using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
-    public class FavoritesController(
-        PandacapDbContext context,
-        DeviantArtFeedReader feedReader) : Controller
+    public class FavoritesController(PandacapDbContext context) : Controller
     {
         public async Task<IActionResult> Index(string? next, int? count)
         {
             var activityPubPosts = context.RemoteActivityPubPosts
                 .Where(post => post.FavoritedAt != null)
-                .AsAsyncEnumerable();
+                .AsAsyncEnumerable()
+                .OfType<IPost>();
 
-            var deviantArtPosts = feedReader.GetFavoriteDeviationsAsync();
-
-            var posts =
-                await new[]
-                {
-                    activityPubPosts,
-                    deviantArtPosts
-                }
-                .MergeNewest(post => post.Timestamp)
+            var posts = await activityPubPosts
                 .SkipUntil(post => post.Id == next || next == null)
                 .AsListPage(count ?? 20);
 
