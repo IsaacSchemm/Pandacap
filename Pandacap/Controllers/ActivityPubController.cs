@@ -260,7 +260,7 @@ namespace Pandacap.Controllers
             string id = post["@id"]!.Value<string>()!;
             IEnumerable<string> types = (post["@type"] ?? Empty).Select(token => token.Value<string>()!);
 
-            IEnumerable<ActivityPubImageAttachment> findAttachments()
+            IEnumerable<RemoteActivityPubImagePost.ActivityPubImageAttachment> findAttachments()
             {
                 foreach (var attachment in post["https://www.w3.org/ns/activitystreams#attachment"] ?? Empty)
                 {
@@ -284,7 +284,7 @@ namespace Pandacap.Controllers
                         case "image/gif":
                         case "image/webp":
                         case "image/heif":
-                            yield return new ActivityPubImageAttachment
+                            yield return new()
                             {
                                 Name = name,
                                 Url = url

@@ -15,6 +15,8 @@
 
         public abstract bool RenderAsArticle { get; }
 
+        public virtual IEnumerable<IThumbnail> Thumbnails => [];
+
         string IPost.Id => $"{Id}";
 
         string? IPost.DisplayTitle

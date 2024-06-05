@@ -31,14 +31,7 @@ namespace Pandacap.HighLevel
             return null;
         });
 
-        private class ThumbnailWrapper(DeviantArtFs.ResponseTypes.Preview preview) : IThumbnailRendition
-        {
-            public string? Url => preview.src;
-            public int Width => preview.width;
-            public int Height => preview.height;
-        }
-
-        private class DeviationWrapper(DeviantArtFs.ResponseTypes.Deviation deviation) : IImagePost, IThumbnail
+        private class DeviationWrapper(DeviantArtFs.ResponseTypes.Deviation deviation) : IPost, IThumbnail
         {
             public string Id => $"{deviation.deviationid}";
             public string? Username => deviation.author.OrNull()?.username;
@@ -48,6 +41,13 @@ namespace Pandacap.HighLevel
             public string? LinkUrl => deviation.url.OrNull();
             public DateTimeOffset? DismissedAt => null;
             public IEnumerable<IThumbnail> Thumbnails => [this];
+
+            private class ThumbnailWrapper(DeviantArtFs.ResponseTypes.Preview preview) : IThumbnailRendition
+            {
+                public string? Url => preview.src;
+                public int Width => preview.width;
+                public int Height => preview.height;
+            }
 
             public IEnumerable<IThumbnailRendition> Renditions => deviation.thumbs
                 .OrEmpty()

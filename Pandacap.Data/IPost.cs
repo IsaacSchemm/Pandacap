@@ -11,6 +11,8 @@
         DateTimeOffset Timestamp { get; }
         string? LinkUrl { get; }
 
+        IEnumerable<IThumbnail> Thumbnails { get; }
+
         DateTimeOffset? DismissedAt { get; }
     }
 }

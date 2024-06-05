@@ -45,11 +45,8 @@ else
                 @foreach (var item in group)
                 {
                     string? url = item.LinkUrl;
-                    var thumbnails = item is IImagePost imagePost
-                        ? imagePost.Thumbnails
-                        : [];
-                    <div class="@(thumbnails.Any() ? "col-sm-4 col-md-3 text-center my-4" : "")">
-                        @foreach (var image in thumbnails)
+                    <div class="@(item.Thumbnails.Any() ? "col-sm-4 col-md-3 text-center my-4" : "")">
+                        @foreach (var image in item.Thumbnails)
                         {
                             <a href="@url">
                                 <img src="@image.GetThumbnailSrc()"

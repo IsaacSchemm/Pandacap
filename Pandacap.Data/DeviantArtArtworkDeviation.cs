@@ -1,6 +1,8 @@
-﻿namespace Pandacap.Data
+﻿using System.Net.Mail;
+
+namespace Pandacap.Data
 {
-    public class DeviantArtArtworkDeviation : DeviantArtDeviation, IThumbnail, IImagePost
+    public class DeviantArtArtworkDeviation : DeviantArtDeviation, IThumbnail
     {
         public class DeviantArtImage
         {
@@ -23,9 +25,9 @@
 
         public string? AltText { get; set; }
 
-        public override bool RenderAsArticle => false;
+        public override IEnumerable<IThumbnail> Thumbnails => [this];
 
-        IEnumerable<IThumbnail> IImagePost.Thumbnails => [this];
+        public override bool RenderAsArticle => false;
 
         IEnumerable<IThumbnailRendition> IThumbnail.Renditions => ThumbnailRenditions;
     }

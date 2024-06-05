@@ -34,19 +34,19 @@ else
                 string? url = item is DeviantArtDeviation deviation
                     ? $"/Post/{deviation.Id}"
                     : item.LinkUrl;
-                var thumbnails = item is IImagePost imagePost
-                    ? imagePost.Thumbnails
-                    : [];
-                <div class="@(thumbnails.Any() ? "col-sm-4 col-md-3 text-center my-4" : "")">
-                    <div class="mb-3">
-                        <img height="50" src="@item.Usericon" alt="" />
-                        <span style="display: inline-block; vertical-align: middle">
-                            <strong>
-                                @item.Username
-                            </strong>
-                        </span>
-                    </div>
-                    @foreach (var image in thumbnails)
+                <div class="@(item.Thumbnails.Any() ? "col-sm-4 col-md-3 text-center my-4" : "")">
+                    @if (item is not DeviantArtDeviation)
+                    {
+                        <div class="mb-3">
+                            <img height="50" src="@item.Usericon" alt="" />
+                            <span style="display: inline-block; vertical-align: middle">
+                                <strong>
+                                    @item.Username
+                                </strong>
+                            </span>
+                        </div>
+                    }
+                    @foreach (var image in item.Thumbnails)
                     {
                         <a href="@url">
                             <img src="@image.GetThumbnailSrc()"

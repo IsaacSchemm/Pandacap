@@ -18,6 +18,8 @@
 
         public string? Name { get; set; }
 
+        public virtual IEnumerable<IThumbnail> Thumbnails => [];
+
         public DateTimeOffset? FavoritedAt { get; set; }
         public DateTimeOffset? DismissedAt { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public class RemoteActivityPubImagePost : RemoteActivityPubPost, IImagePost
+    public class RemoteActivityPubImagePost : RemoteActivityPubPost
     {
         public class ActivityPubImageAttachment : IThumbnail, IThumbnailRendition
         {
@@ -16,8 +16,6 @@
 
         public List<ActivityPubImageAttachment> Attachments { get; set; } = [];
 
-        public string? ThumbnailUrl => Attachments.Select(x => x.Url).FirstOrDefault();
-
-        IEnumerable<IThumbnail> IImagePost.Thumbnails => Attachments;
+        public override IEnumerable<IThumbnail> Thumbnails => Attachments;
     }
 }

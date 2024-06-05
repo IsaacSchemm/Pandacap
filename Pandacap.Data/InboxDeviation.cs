@@ -15,6 +15,8 @@
         public string? Title { get; set; }
         public string? LinkUrl { get; set; }
 
+        public virtual IEnumerable<IThumbnail> Thumbnails => [];
+
         public DateTimeOffset? DismissedAt { get; set; }
 
         string IPost.Id => $"{Id}";

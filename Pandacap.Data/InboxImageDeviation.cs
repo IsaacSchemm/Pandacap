@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public class InboxImageDeviation : InboxDeviation, IThumbnail, IImagePost
+    public class InboxImageDeviation : InboxDeviation, IThumbnail
     {
         public class DeviantArtThumbnailRendition : IThumbnailRendition
         {
@@ -11,9 +11,9 @@
 
         public List<DeviantArtThumbnailRendition> ThumbnailRenditions { get; set; } = [];
 
-        string? IThumbnail.AltText => null;
+        public override IEnumerable<IThumbnail> Thumbnails => [this];
 
-        IEnumerable<IThumbnail> IImagePost.Thumbnails => [this];
+        string? IThumbnail.AltText => null;
 
         IEnumerable<IThumbnailRendition> IThumbnail.Renditions => ThumbnailRenditions;
     }
