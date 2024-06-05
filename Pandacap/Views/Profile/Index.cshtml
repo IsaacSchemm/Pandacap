@@ -2,58 +2,10 @@
 @using Pandacap.LowLevel
 @using Pandacap.HighLevel
 @model ProfileViewModel
+@inject ApplicationInformation appInfo
 
 @{
     ViewData["Title"] = "Profile";
-}
-
-@if (User.Identity?.IsAuthenticated == true)
-{
-    <div class="container mb-3">
-        <div class="row">
-            <div class="col col-md-6">
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Follow ActivityPub actor
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="Follow">
-                            <div class="mb-3">
-                                <label for="alt" class="form-label">
-                                    ActivityPub ID / URL
-                                </label>
-                                <input type="text" class="form-control" id="id" name="id" />
-                                <div class="form-text">Mastodon-style handles (of the form <tt>@@user@@hostname</tt>) are not supported.</div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                Send follow request
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col col-md-6">
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Add remote ActivityPub post to Favorites
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="AddFavorite">
-                            <div class="mb-3">
-                                <label for="alt" class="form-label">
-                                    ActivityPub ID / URL
-                                </label>
-                                <input type="text" class="form-control" id="id" name="id" />
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                Add to Favorites
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 }
 
 <img
@@ -68,6 +20,8 @@
     </h1>
 
     <p>
+        <tt>@@@appInfo.Username@@@appInfo.HandleHostname</tt>
+        <br />
         <a asp-action="Followers">
             Followers:
             @Model.FollowerCount
@@ -138,6 +92,59 @@
     <a asp-controller="Gallery" asp-action="TextPosts">
         View more &raquo;
     </a>
+}
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <h2>
+        Tools
+    </h2>
+
+    <div class="container mb-3">
+        <div class="row">
+            <div class="col col-md-6">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Follow ActivityPub actor
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Follow">
+                            <div class="mb-3">
+                                <label for="alt" class="form-label">
+                                    ActivityPub ID / URL
+                                </label>
+                                <input type="text" class="form-control" id="id" name="id" />
+                                <div class="form-text">Mastodon-style handles (of the form <tt>@@user@@hostname</tt>) are not supported.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Send follow request
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col col-md-6">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Add remote ActivityPub post to Favorites
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="AddFavorite">
+                            <div class="mb-3">
+                                <label for="alt" class="form-label">
+                                    ActivityPub ID / URL
+                                </label>
+                                <input type="text" class="form-control" id="id" name="id" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Add to Favorites
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 <style type="text/css">
