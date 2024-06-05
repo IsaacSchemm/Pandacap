@@ -211,9 +211,7 @@ namespace Pandacap.Controllers
                     }
                     else
                     {
-                        var inboxPosts = Enumerable.Empty<RemoteActivityPubPost>()
-                            .Concat(await context.RemoteActivityPubImagePosts.Where(p => p.Id == postId).ToListAsync())
-                            .Concat(await context.RemoteActivityPubTextPosts.Where(p => p.Id == postId).ToListAsync());
+                        var inboxPosts = await context.RemoteActivityPubPosts.Where(p => p.Id == postId).ToListAsync();
 
                         if (inboxPosts.Any())
                         {
@@ -231,9 +229,7 @@ namespace Pandacap.Controllers
                 {
                     string deletedObjectId = deletedObject["@id"]!.Value<string>()!;
 
-                    var inboxPosts = Enumerable.Empty<RemoteActivityPubPost>()
-                        .Concat(await context.RemoteActivityPubImagePosts.Where(p => p.Id == deletedObjectId).ToListAsync())
-                        .Concat(await context.RemoteActivityPubTextPosts.Where(p => p.Id == deletedObjectId).ToListAsync());
+                    var inboxPosts = await context.RemoteActivityPubPosts.Where(p => p.Id == deletedObjectId).ToListAsync();
 
                     context.RemoveRange(inboxPosts);
                     await context.SaveChangesAsync();
@@ -260,51 +256,15 @@ namespace Pandacap.Controllers
             string id = post["@id"]!.Value<string>()!;
             IEnumerable<string> types = (post["@type"] ?? Empty).Select(token => token.Value<string>()!);
 
-            IEnumerable<RemoteActivityPubImagePost.ActivityPubImageAttachment> findAttachments()
-            {
-                foreach (var attachment in post["https://www.w3.org/ns/activitystreams#attachment"] ?? Empty)
-                {
-                    string? mediaType = (attachment["https://www.w3.org/ns/activitystreams#mediaType"] ?? Empty)
-                        .Select(token => token["@value"]!.Value<string>())
-                        .FirstOrDefault();
-                    string? url = (attachment["https://www.w3.org/ns/activitystreams#url"] ?? Empty)
-                        .Select(token => token["@id"]!.Value<string>())
-                        .FirstOrDefault();
-                    string? name = (attachment["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
-                        .Select(token => token["@value"]!.Value<string>())
-                        .FirstOrDefault();
-
-                    if (url == null)
-                        continue;
-
-                    switch (mediaType)
-                    {
-                        case "image/jpeg":
-                        case "image/png":
-                        case "image/gif":
-                        case "image/webp":
-                        case "image/heif":
-                            yield return new()
-                            {
-                                Name = name,
-                                Url = url
-                            };
-                            break;
-                    }
-                }
-            }
-
-            RemoteActivityPubPost? existingPost = null;
-            existingPost ??= await context.RemoteActivityPubImagePosts.FirstOrDefaultAsync(item => item.Id == id);
-            existingPost ??= await context.RemoteActivityPubTextPosts.FirstOrDefaultAsync(item => item.Id == id);
+            RemoteActivityPubPost? existingPost = await context.RemoteActivityPubPosts.FirstOrDefaultAsync(item => item.Id == id);
 
             if (existingPost == null)
             {
-                existingPost = findAttachments().Any()
-                    ? new RemoteActivityPubImagePost()
-                    : new RemoteActivityPubTextPost();
-                existingPost.Id = id;
-                existingPost.CreatedBy = sendingActor.Id;
+                existingPost = new RemoteActivityPubPost
+                {
+                    Id = id,
+                    CreatedBy = sendingActor.Id
+                };
                 context.Add(existingPost);
             }
 
@@ -333,10 +293,37 @@ namespace Pandacap.Controllers
                 .Select(token => token["@value"]!.Value<string>())
                 .FirstOrDefault();
 
-            if (existingPost is RemoteActivityPubImagePost imagePost)
+            existingPost.Attachments.Clear();
+
+            foreach (var attachment in post["https://www.w3.org/ns/activitystreams#attachment"] ?? Empty)
             {
-                imagePost.Attachments.Clear();
-                imagePost.Attachments.AddRange(findAttachments());
+                string? mediaType = (attachment["https://www.w3.org/ns/activitystreams#mediaType"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<string>())
+                    .FirstOrDefault();
+                string? url = (attachment["https://www.w3.org/ns/activitystreams#url"] ?? Empty)
+                    .Select(token => token["@id"]!.Value<string>())
+                    .FirstOrDefault();
+                string? name = (attachment["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<string>())
+                    .FirstOrDefault();
+
+                if (url == null)
+                    continue;
+
+                switch (mediaType)
+                {
+                    case "image/jpeg":
+                    case "image/png":
+                    case "image/gif":
+                    case "image/webp":
+                    case "image/heif":
+                        existingPost.Attachments.Add(new()
+                        {
+                            Name = name,
+                            Url = url
+                        });
+                        break;
+                }
             }
 
             await context.SaveChangesAsync();

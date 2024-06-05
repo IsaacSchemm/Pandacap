@@ -25,15 +25,7 @@ namespace Pandacap.Functions
                 context.Remove(inboxItem);
             }
 
-            await foreach (var inboxItem in context.RemoteActivityPubImagePosts
-                .Where(item => item.DismissedAt < dayAgo)
-                .Where(item => item.FavoritedAt == null)
-                .AsAsyncEnumerable())
-            {
-                context.Remove(inboxItem);
-            }
-
-            await foreach (var inboxItem in context.RemoteActivityPubTextPosts
+            await foreach (var inboxItem in context.RemoteActivityPubPosts
                 .Where(item => item.DismissedAt < dayAgo)
                 .Where(item => item.FavoritedAt == null)
                 .AsAsyncEnumerable())

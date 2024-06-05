@@ -22,9 +22,7 @@ namespace Pandacap.Data
 
         public DbSet<InboxTextDeviation> InboxTextDeviations { get; set; }
 
-        public DbSet<RemoteActivityPubImagePost> RemoteActivityPubImagePosts { get; set; }
-
-        public DbSet<RemoteActivityPubTextPost> RemoteActivityPubTextPosts { get; set; }
+        public DbSet<RemoteActivityPubPost> RemoteActivityPubPosts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

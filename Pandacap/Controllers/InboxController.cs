@@ -70,18 +70,19 @@ namespace Pandacap.Controllers
             int? count)
         {
             DateTimeOffset startTime = next is string s
-                ? await context.RemoteActivityPubImagePosts
+                ? await context.RemoteActivityPubPosts
                     .Where(f => f.Id == s)
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var posts = await context.RemoteActivityPubImagePosts
+            var posts = await context.RemoteActivityPubPosts
                 .Where(f => f.Timestamp >= startTime)
                 .Where(f => f.DismissedAt == null)
                 .OrderBy(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
+                .Where(f => f.Attachments.Count > 0)
                 .OfType<IPost>()
                 .AsListPage(count ?? 100);
 
@@ -97,18 +98,19 @@ namespace Pandacap.Controllers
             int? count)
         {
             DateTimeOffset startTime = next is string s
-                ? await context.RemoteActivityPubTextPosts
+                ? await context.RemoteActivityPubPosts
                     .Where(f => f.Id == s)
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var posts = await context.RemoteActivityPubTextPosts
+            var posts = await context.RemoteActivityPubPosts
                 .Where(f => f.Timestamp >= startTime)
                 .Where(f => f.DismissedAt == null)
                 .OrderBy(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
+                .Where(f => f.Attachments.Count == 0)
                 .OfType<IPost>()
                 .AsListPage(count ?? 100);
 
@@ -147,15 +149,7 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .RemoteActivityPubImagePosts
-                .Where(item => ids.Contains(item.Id))
-                .AsAsyncEnumerable())
-            {
-                yield return item;
-            }
-
-            await foreach (var item in context
-                .RemoteActivityPubTextPosts
+                .RemoteActivityPubPosts
                 .Where(item => ids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
