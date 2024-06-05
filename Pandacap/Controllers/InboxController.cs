@@ -10,113 +10,76 @@ namespace Pandacap.Controllers
     [Authorize]
     public class InboxController(PandacapDbContext context) : Controller
     {
-        public async Task<IActionResult> DeviantArtImagePosts(
-            Guid? next,
-            int? count)
-        {
-            DateTimeOffset startTime = next is Guid g
-                ? await context.InboxArtworkDeviations
-                    .Where(f => f.Id == g)
-                    .Select(f => f.Timestamp)
-                    .SingleAsync()
-                : DateTimeOffset.MinValue;
-
-            var posts = await context.InboxArtworkDeviations
-                .Where(f => f.Timestamp >= startTime)
-                .Where(f => f.DismissedAt == null)
-                .OrderBy(d => d.Timestamp)
-                .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == next || next == null)
-                .OfType<IPost>()
-                .AsListPage(count ?? 100);
-
-            return View("List", new ListViewModel<IPost>
-            {
-                Title = "DeviantArt Inbox (Artwork)",
-                Items = posts
-            });
-        }
-
-
-        public async Task<IActionResult> DeviantArtTextPosts(
-            Guid? next,
-            int? count)
-        {
-            DateTimeOffset startTime = next is Guid g
-                ? await context.InboxTextDeviations
-                    .Where(f => f.Id == g)
-                    .Select(f => f.Timestamp)
-                    .SingleAsync()
-                : DateTimeOffset.MinValue;
-
-            var posts = await context.InboxTextDeviations
-                .Where(f => f.Timestamp >= startTime)
-                .Where(f => f.DismissedAt == null)
-                .OrderBy(d => d.Timestamp)
-                .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == next || next == null)
-                .OfType<IPost>()
-                .AsListPage(count ?? 100);
-
-            return View("List", new ListViewModel<IPost>
-            {
-                Title = "DeviantArt Inbox (Journals and Status Updates)",
-                Items = posts
-            });
-        }
-
-        public async Task<IActionResult> ActivityPubImagePosts(
+        public async Task<IActionResult> ImagePosts(
             string? next,
             int? count)
         {
             DateTimeOffset startTime = next is string s
-                ? await context.RemoteActivityPubPosts
-                    .Where(f => f.Id == s)
+                ? await GetInboxPostsByIds([s])
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var posts = await context.RemoteActivityPubPosts
-                .Where(f => f.Timestamp >= startTime)
-                .Where(f => f.DismissedAt == null)
-                .OrderBy(d => d.Timestamp)
-                .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == next || next == null)
-                .Where(f => f.Attachments.Count > 0)
+            var source1 = context.InboxArtworkDeviations
+                .Where(d => d.Timestamp >= startTime)
+                .Where(d => d.DismissedAt == null)
+                .OrderByDescending(d => d.Timestamp)
                 .OfType<IPost>()
+                .AsAsyncEnumerable();
+
+            var source2 = context.RemoteActivityPubPosts
+                .Where(a => a.Timestamp >= startTime)
+                .Where(a => a.DismissedAt == null)
+                .OrderByDescending(a => a.Timestamp)
+                .OfType<IPost>()
+                .AsAsyncEnumerable()
+                .Where(x => x.Thumbnails.Any());
+
+            var posts = await new[] { source1, source2 }
+                .MergeNewest(x => x.Timestamp)
+                .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel<IPost>
             {
-                Title = "ActivityPub Inbox (Image Posts)",
+                Title = "Inbox (Image Posts)",
                 Items = posts
             });
         }
 
-        public async Task<IActionResult> ActivityPubTextPosts(
+        public async Task<IActionResult> TextPosts(
             string? next,
             int? count)
         {
             DateTimeOffset startTime = next is string s
-                ? await context.RemoteActivityPubPosts
-                    .Where(f => f.Id == s)
+                ? await GetInboxPostsByIds([s])
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var posts = await context.RemoteActivityPubPosts
-                .Where(f => f.Timestamp >= startTime)
-                .Where(f => f.DismissedAt == null)
-                .OrderBy(d => d.Timestamp)
-                .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == next || next == null)
-                .Where(f => f.Attachments.Count == 0)
+            var source1 = context.InboxTextDeviations
+                .Where(d => d.Timestamp >= startTime)
+                .Where(d => d.DismissedAt == null)
+                .OrderByDescending(d => d.Timestamp)
                 .OfType<IPost>()
+                .AsAsyncEnumerable();
+
+            var source2 = context.RemoteActivityPubPosts
+                .Where(a => a.Timestamp >= startTime)
+                .Where(a => a.DismissedAt == null)
+                .OrderByDescending(a => a.Timestamp)
+                .OfType<IPost>()
+                .AsAsyncEnumerable()
+                .Where(x => !x.Thumbnails.Any());
+
+            var posts = await new[] { source1, source2 }
+                .MergeNewest(x => x.Timestamp)
+                .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel<IPost>
             {
-                Title = "ActivityPub Inbox (Text Posts)",
+                Title = "Inbox (Text Posts)",
                 Items = posts
             });
         }
