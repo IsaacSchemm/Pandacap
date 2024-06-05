@@ -4,10 +4,10 @@
   "libraries": [
     {
       "library": "bootstrap@5.3.3",
-      "destination": "wwwroot/lib/bootstrap",
+      "destination": "Bootstrap",
       "files": [
-        "js/bootstrap.bundle.min.js",
-        "css/bootstrap.min.css"
+        "scss/*",
+        "scss/*/*"
       ]
     }
   ]
