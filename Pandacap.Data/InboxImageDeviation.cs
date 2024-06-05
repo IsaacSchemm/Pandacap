@@ -30,7 +30,7 @@
 
         string? IPost.DisplayTitle => Title ?? $"{Id}";
 
-        IEnumerable<IThumbnail> IPost.Thumbnails => [this];
+        IEnumerable<IThumbnail> IPost.Thumbnails => ThumbnailRenditions.Count > 0 ? [this] : [];
 
         string? IThumbnail.AltText => null;
 
