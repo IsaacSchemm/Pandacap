@@ -7,8 +7,8 @@ using System.Text;
 
 namespace Pandacap.Controllers
 {
-    [Route("Post")]
-    public class PostController(
+    [Route("BridgedPosts")]
+    public class BridgedPostsController(
         PandacapDbContext context,
         DeviantArtFeedReader feedReader,
         ActivityPubTranslator translator) : Controller
