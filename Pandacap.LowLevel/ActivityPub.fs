@@ -44,7 +44,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         && (Char.IsLetterOrDigit(c) || c = '_')
         && not (Char.IsUpper(c))
 
-    member _.PersonToObject(key: ActorKey, recentPost: IDeviation) = dict [
+    member _.PersonToObject(key: ActorKey, recentPost: IUserDeviation) = dict [
         pair "id" mapper.ActorId
         pair "type" "Person"
         pair "inbox" mapper.InboxId
@@ -86,13 +86,13 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.PersonToObject(actorKey, recentPosts))
     ]
 
-    member _.AsObject(post: IDeviation) = dict [
+    member _.AsObject(post: IUserDeviation) = dict [
         let id = mapper.GetObjectId(post.Id)
 
         pair "id" id
         pair "url" id
 
-        pair "type" (if not (String.IsNullOrEmpty post.Title) && isNull post.Image then "Article" else "Note")
+        pair "type" (if not (String.IsNullOrEmpty post.Title) && post :? UserTextDeviation then "Article" else "Note")
 
         if not (String.IsNullOrEmpty post.Title) then
             pair "name" post.Title
@@ -131,11 +131,11 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             pair "sensitive" true
 
         match post with
-        | :? DeviantArtArtworkDeviation as artworkPost ->
+        | :? UserArtworkDeviation as artworkPost ->
             pair "attachment" [
                 dict [
                     pair "type" "Document"
-                    pair "mediaType" artworkPost.Image.ContentType
+                    pair "mediaType" artworkPost.ImageContentType
                     pair "url" (mapper.GetImageUrl(artworkPost.Id))
                     if not (String.IsNullOrEmpty(artworkPost.AltText)) then
                         pair "name" artworkPost.AltText
@@ -144,7 +144,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         | _ -> ()
     ]
 
-    member this.ObjectToCreate(post: IDeviation, activityGuid: Guid) = dict [
+    member this.ObjectToCreate(post: IUserDeviation, activityGuid: Guid) = dict [
         pair "type" "Create"
         pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId
@@ -154,7 +154,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member this.ObjectToUpdate(post: IDeviation, activityGuid: Guid) = dict [
+    member this.ObjectToUpdate(post: IUserDeviation, activityGuid: Guid) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId
@@ -164,7 +164,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member _.ObjectToDelete(post: IDeviation, activityGuid: Guid) = dict [
+    member _.ObjectToDelete(post: IUserDeviation, activityGuid: Guid) = dict [
         pair "type" "Delete"
         pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId

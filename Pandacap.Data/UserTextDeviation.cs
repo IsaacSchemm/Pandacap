@@ -1,9 +1,9 @@
 ﻿namespace Pandacap.Data
 {
-    public class DeviantArtTextDeviation : IDeviation, IPost
+    public class UserTextDeviation : IUserDeviation, IPost
     {
         public Guid Id { get; set; }
-        public string? Url { get; set; }
+        public string? LinkUrl { get; set; }
         public string? Title { get; set; }
         public string? Username { get; set; }
         public string? Usericon { get; set; }
@@ -31,14 +31,10 @@
 
         DateTimeOffset IPost.Timestamp => PublishedTime;
 
-        string? IPost.LinkUrl => Url;
-
         DateTimeOffset? IPost.DismissedAt => null;
 
         IEnumerable<IThumbnail> IPost.Thumbnails => [];
 
-        IDeviationImage? IDeviation.Image => null;
-
-        IEnumerable<string> IDeviation.Tags => Tags;
+        IEnumerable<string> IUserDeviation.Tags => Tags;
     }
 }

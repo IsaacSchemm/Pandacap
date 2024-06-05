@@ -16,9 +16,9 @@ namespace Pandacap.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Index(Guid id)
         {
-            IDeviation? post = null;
-            post ??= await context.DeviantArtArtworkDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
-            post ??= await context.DeviantArtTextDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
+            IUserDeviation? post = null;
+            post ??= await context.UserArtworkDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
+            post ??= await context.UserTextDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
 
             if (post == null)
                 return NotFound();

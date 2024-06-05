@@ -12,13 +12,13 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Artwork(Guid? next, int? count)
         {
             DateTimeOffset startTime = next is Guid g
-                ? await context.DeviantArtArtworkDeviations
+                ? await context.UserArtworkDeviations
                     .Where(f => f.Id == g)
                     .Select(f => f.PublishedTime)
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var posts = await context.DeviantArtArtworkDeviations
+            var posts = await context.UserArtworkDeviations
                 .Where(d => d.PublishedTime <= startTime)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
@@ -36,13 +36,13 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> TextPosts(Guid? next, int? count)
         {
             DateTimeOffset startTime = next is Guid g
-                ? await context.DeviantArtTextDeviations
+                ? await context.UserTextDeviations
                     .Where(f => f.Id == g)
                     .Select(f => f.PublishedTime)
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var posts = await context.DeviantArtTextDeviations
+            var posts = await context.UserTextDeviations
                 .Where(d => d.PublishedTime <= startTime)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()

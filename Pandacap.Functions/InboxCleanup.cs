@@ -11,7 +11,7 @@ namespace Pandacap.Functions
         {
             DateTime dayAgo = DateTime.UtcNow.AddDays(-1);
 
-            await foreach (var inboxItem in context.InboxImageDeviations
+            await foreach (var inboxItem in context.InboxArtworkDeviations
                 .Where(item => item.DismissedAt < dayAgo)
                 .AsAsyncEnumerable())
             {

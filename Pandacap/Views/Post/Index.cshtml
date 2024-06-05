@@ -1,5 +1,5 @@
 ﻿@using Pandacap.Data
-@model IDeviation
+@model IUserDeviation
 
 @{
     ViewBag.Title = Model.Title;
@@ -7,9 +7,9 @@
 
 <h1>@Model.Title</h1>
 
-@if (Model is DeviantArtArtworkDeviation artwork) {
+@if (Model is UserArtworkDeviation artwork) {
     <p>
-        <img src="@artwork.Image.Url"
+        <img src="@artwork.ImageUrl"
              alt="@artwork.AltText"
              title="@artwork.AltText"
              style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
@@ -54,5 +54,5 @@
 }
 
 <p>
-    <a href="@Model.Url">View on DeviantArt</a>
+    <a href="@Model.LinkUrl">View on DeviantArt</a>
 </p>

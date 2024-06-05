@@ -40,11 +40,11 @@ namespace Pandacap.Controllers
 
             return View(new ProfileViewModel
             {
-                RecentArtwork = await context.DeviantArtArtworkDeviations
+                RecentArtwork = await context.UserArtworkDeviations
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
                     .ToListAsync(),
-                RecentTextPosts = await context.DeviantArtTextDeviations
+                RecentTextPosts = await context.UserTextDeviations
                     .Where(post => post.PublishedTime >= someTimeAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(3)

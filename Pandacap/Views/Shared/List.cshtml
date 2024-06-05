@@ -31,11 +31,11 @@ else
         <div class="row">
             @foreach (var item in Model.Items.DisplayList)
             {
-                string? url = item is IDeviation deviation
+                string? url = item is IUserDeviation deviation
                     ? $"/Post/{deviation.Id}"
                     : item.LinkUrl;
                 <div class="@(item.Thumbnails.Any() ? "col-sm-4 col-md-3 text-center my-4" : "")">
-                    @if (item is not IDeviation)
+                    @if (item is not IUserDeviation)
                     {
                         <div class="mb-3">
                             <img height="50" src="@item.Usericon" alt="" />

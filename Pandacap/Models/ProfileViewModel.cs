@@ -4,13 +4,13 @@ namespace Pandacap.Models
 {
     public class ProfileViewModel
     {
-        public IEnumerable<DeviantArtArtworkDeviation> RecentArtwork { get; set; } = [];
-        public IEnumerable<DeviantArtTextDeviation> RecentTextPosts { get; set; } = [];
+        public IEnumerable<UserArtworkDeviation> RecentArtwork { get; set; } = [];
+        public IEnumerable<UserTextDeviation> RecentTextPosts { get; set; } = [];
 
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
 
-        public IDeviation? MostRecentPost => Enumerable.Empty<IDeviation>()
+        public IUserDeviation? MostRecentPost => Enumerable.Empty<IUserDeviation>()
             .Concat(RecentArtwork)
             .Concat(RecentTextPosts)
             .OrderByDescending(x => x.PublishedTime)

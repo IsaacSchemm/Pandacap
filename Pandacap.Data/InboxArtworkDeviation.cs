@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public class InboxImageDeviation : IPost, IThumbnail
+    public class InboxArtworkDeviation : IPost, IThumbnail
     {
         public Guid Id { get; set; }
 

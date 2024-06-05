@@ -16,13 +16,13 @@ namespace Pandacap.Controllers
             int? count)
         {
             DateTimeOffset startTime = next is Guid g
-                ? await context.InboxImageDeviations
+                ? await context.InboxArtworkDeviations
                     .Where(f => f.Id == g)
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var posts = await context.InboxImageDeviations
+            var posts = await context.InboxArtworkDeviations
                 .Where(f => f.Timestamp >= startTime)
                 .Where(f => f.DismissedAt == null)
                 .OrderBy(d => d.Timestamp)
@@ -134,7 +134,7 @@ namespace Pandacap.Controllers
             var guids = new HashSet<Guid>(getGuids());
 
             await foreach (var item in context
-                .InboxImageDeviations
+                .InboxArtworkDeviations
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -166,7 +166,7 @@ namespace Pandacap.Controllers
                 if (item is RemoteActivityPubPost ap)
                     ap.DismissedAt = DateTimeOffset.UtcNow;
 
-                if (item is InboxImageDeviation iid)
+                if (item is InboxArtworkDeviation iid)
                     iid.DismissedAt = DateTimeOffset.UtcNow;
 
                 if (item is InboxTextDeviation itd)

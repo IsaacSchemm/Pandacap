@@ -78,7 +78,7 @@ namespace Pandacap.HighLevel
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
             var mostRecentLocalItemIds = new HashSet<Guid>(
-                await context.InboxImageDeviations
+                await context.InboxArtworkDeviations
                     .Where(item => item.Timestamp >= someTimeAgo)
                     .Select(item => item.Id)
                     .ToListAsync());
@@ -107,7 +107,7 @@ namespace Pandacap.HighLevel
                 if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                     continue;
 
-                context.InboxImageDeviations.Add(new()
+                context.InboxArtworkDeviations.Add(new()
                 {
                     Id = deviation.deviationid,
                     Timestamp = publishedTime,
@@ -116,7 +116,7 @@ namespace Pandacap.HighLevel
                     Username = author.username,
                     MatureContent = deviation.is_mature.OrNull() ?? false,
                     Title = deviation.title?.OrNull(),
-                    ThumbnailRenditions = deviation.thumbs.OrEmpty().Select(thumb => new InboxImageDeviation.DeviantArtThumbnailRendition
+                    ThumbnailRenditions = deviation.thumbs.OrEmpty().Select(thumb => new InboxArtworkDeviation.DeviantArtThumbnailRendition
                     {
                         Url = thumb.src,
                         Height = thumb.height,
@@ -190,7 +190,7 @@ namespace Pandacap.HighLevel
 
         private enum ActivityType { Create, Update, Delete };
 
-        private async Task AddActivityAsync(IDeviation post, ActivityType activityType)
+        private async Task AddActivityAsync(IUserDeviation post, ActivityType activityType)
         {
             var followers = await context.Followers
                 .Select(follower => new
@@ -232,7 +232,7 @@ namespace Pandacap.HighLevel
             DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
             int cutoffCount = max ?? int.MaxValue;
 
-            var queuedForDeletionCheck = await context.DeviantArtArtworkDeviations
+            var queuedForDeletionCheck = await context.UserArtworkDeviations
                 .Where(post => post.PublishedTime >= cutoffDate)
                 .OrderByDescending(post => post.PublishedTime)
                 .Take(cutoffCount)
@@ -252,7 +252,7 @@ namespace Pandacap.HighLevel
             {
                 var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
 
-                var existingPosts = await context.DeviantArtArtworkDeviations
+                var existingPosts = await context.UserArtworkDeviations
                     .Where(p => deviationIds.Contains(p.Id))
                     .ToListAsync();
 
@@ -281,7 +281,7 @@ namespace Pandacap.HighLevel
 
                     if (post == null)
                     {
-                        post = new DeviantArtArtworkDeviation
+                        post = new()
                         {
                             Id = deviation.deviationid
                         };
@@ -291,7 +291,7 @@ namespace Pandacap.HighLevel
                     var metadata = metadataResponse.metadata
                         .FirstOrDefault(m => m.deviationid == deviation.deviationid);
 
-                    post.Url = deviation.url.OrNull();
+                    post.LinkUrl = deviation.url.OrNull();
                     post.Title = deviation.title.OrNull();
                     post.Username = deviation.author.OrNull()?.username;
                     post.Usericon = deviation.author.OrNull()?.usericon;
@@ -303,13 +303,11 @@ namespace Pandacap.HighLevel
                     post.Tags.Clear();
                     post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
-                    post.Image.Url = content.src;
-                    post.Image.ContentType = !Uri.TryCreate(content.src, UriKind.Absolute, out Uri? uri) ? "application/octet-stream"
+                    post.ImageUrl = content.src;
+                    post.ImageContentType = !Uri.TryCreate(content.src, UriKind.Absolute, out Uri? uri) ? "application/octet-stream"
                         : uri.AbsolutePath.EndsWith(".png") ? "image/png"
                         : uri.AbsolutePath.EndsWith(".jpg") ? "image/jpeg"
                         : "application/octet-stream";
-                    post.Image.Width = content.width;
-                    post.Image.Height = content.height;
 
                     post.ThumbnailRenditions.Clear();
                     foreach (var thumbnail in deviation.thumbs.OrEmpty())
@@ -369,7 +367,7 @@ namespace Pandacap.HighLevel
             DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
             int cutoffCount = max ?? int.MaxValue;
 
-            var queuedForDeletionCheck = await context.DeviantArtTextDeviations
+            var queuedForDeletionCheck = await context.UserTextDeviations
                 .Where(post => post.PublishedTime >= cutoffDate)
                 .OrderByDescending(post => post.PublishedTime)
                 .Take(cutoffCount)
@@ -390,7 +388,7 @@ namespace Pandacap.HighLevel
             {
                 var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
 
-                var existingPosts = await context.DeviantArtTextDeviations
+                var existingPosts = await context.UserTextDeviations
                     .Where(p => deviationIds.Contains(p.Id))
                     .ToListAsync();
 
@@ -420,7 +418,7 @@ namespace Pandacap.HighLevel
 
                     if (post == null)
                     {
-                        post = new DeviantArtTextDeviation
+                        post = new()
                         {
                             Id = deviation.deviationid
                         };
@@ -430,7 +428,7 @@ namespace Pandacap.HighLevel
                     var metadata = metadataResponse.metadata
                         .FirstOrDefault(m => m.deviationid == deviation.deviationid);
 
-                    post.Url = deviation.url.OrNull();
+                    post.LinkUrl = deviation.url.OrNull();
                     post.Title = deviation.category_path.OrNull() == "status"
                         ? null
                         : deviation.title.OrNull();
@@ -487,7 +485,7 @@ namespace Pandacap.HighLevel
 
         public async Task UpdateAltTextAsync(Guid deviationId, string altText)
         {
-            var post = await context.DeviantArtArtworkDeviations
+            var post = await context.UserArtworkDeviations
                 .Where(p => p.Id == deviationId)
                 .SingleOrDefaultAsync();
             if (post == null)

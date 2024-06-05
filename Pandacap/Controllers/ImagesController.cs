@@ -25,9 +25,9 @@ namespace Pandacap.Controllers
                 return File(cachedData, cachedMediaType);
             }
 
-            string? imageUrl = await context.DeviantArtArtworkDeviations
+            string? imageUrl = await context.UserArtworkDeviations
                 .Where(p => p.Id == id)
-                .Select(p => p.Image.Url)
+                .Select(p => p.ImageUrl)
                 .SingleOrDefaultAsync();
 
             if (imageUrl == null)

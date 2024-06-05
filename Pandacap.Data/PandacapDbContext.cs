@@ -10,19 +10,19 @@ namespace Pandacap.Data
 
         public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
 
-        public DbSet<DeviantArtArtworkDeviation> DeviantArtArtworkDeviations { get; set; }
-
-        public DbSet<DeviantArtTextDeviation> DeviantArtTextDeviations { get; set; }
-
         public DbSet<Follower> Followers { get; set; }
 
         public DbSet<Follow> Follows { get; set; }
 
-        public DbSet<InboxImageDeviation> InboxImageDeviations { get; set; }
+        public DbSet<InboxArtworkDeviation> InboxArtworkDeviations { get; set; }
 
         public DbSet<InboxTextDeviation> InboxTextDeviations { get; set; }
 
         public DbSet<RemoteActivityPubPost> RemoteActivityPubPosts { get; set; }
+
+        public DbSet<UserArtworkDeviation> UserArtworkDeviations { get; set; }
+
+        public DbSet<UserTextDeviation> UserTextDeviations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

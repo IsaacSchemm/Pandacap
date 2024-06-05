@@ -5,19 +5,19 @@ namespace Pandacap.HighLevel
 {
     public class FeedAggregator(IDbContextFactory<PandacapDbContext> contextFactory)
     {
-        public async IAsyncEnumerable<IDeviation> GetDeviationsAsync()
+        public async IAsyncEnumerable<IUserDeviation> GetDeviationsAsync()
         {
             using var context1 = await contextFactory.CreateDbContextAsync();
             using var context2 = await contextFactory.CreateDbContextAsync();
 
-            var query1 = context1.DeviantArtArtworkDeviations
+            var query1 = context1.UserArtworkDeviations
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable();
-            var query2 = context2.DeviantArtTextDeviations
+            var query2 = context2.UserTextDeviations
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable();
 
-            var combinedQuery = new IAsyncEnumerable<IDeviation>[]
+            var combinedQuery = new IAsyncEnumerable<IUserDeviation>[]
             {
                 query1,
                 query2
