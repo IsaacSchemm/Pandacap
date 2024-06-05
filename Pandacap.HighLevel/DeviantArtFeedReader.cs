@@ -78,7 +78,7 @@ namespace Pandacap.HighLevel
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
             var mostRecentLocalItemIds = new HashSet<Guid>(
-                await context.DeviantArtInboxArtworkPosts
+                await context.InboxImageDeviations
                     .Where(item => item.Timestamp >= someTimeAgo)
                     .Select(item => item.Id)
                     .ToListAsync());
@@ -107,7 +107,7 @@ namespace Pandacap.HighLevel
                 if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                     continue;
 
-                context.DeviantArtInboxArtworkPosts.Add(new DeviantArtInboxArtworkPost
+                context.InboxImageDeviations.Add(new InboxImageDeviation
                 {
                     Id = deviation.deviationid,
                     Timestamp = publishedTime,
@@ -116,7 +116,7 @@ namespace Pandacap.HighLevel
                     Username = author.username,
                     MatureContent = deviation.is_mature.OrNull() ?? false,
                     Title = deviation.title?.OrNull(),
-                    ThumbnailRenditions = deviation.thumbs.OrEmpty().Select(thumb => new DeviantArtInboxThumbnail
+                    ThumbnailRenditions = deviation.thumbs.OrEmpty().Select(thumb => new DeviantArtThumbnailRendition
                     {
                         Url = thumb.src,
                         Height = thumb.height,
@@ -137,7 +137,7 @@ namespace Pandacap.HighLevel
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
             var mostRecentLocalItemIds = new HashSet<Guid>(
-                await context.DeviantArtInboxTextPosts
+                await context.InboxTextDeviations
                     .Where(item => item.Timestamp >= someTimeAgo)
                     .Select(item => item.Id)
                     .ToListAsync());
@@ -169,7 +169,7 @@ namespace Pandacap.HighLevel
                 if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                     continue;
 
-                context.DeviantArtInboxTextPosts.Add(new DeviantArtInboxTextPost
+                context.InboxTextDeviations.Add(new InboxTextDeviation
                 {
                     Id = deviation.deviationid,
                     Timestamp = publishedTime,
@@ -314,7 +314,7 @@ namespace Pandacap.HighLevel
                     post.ThumbnailRenditions.Clear();
                     foreach (var thumbnail in deviation.thumbs.OrEmpty())
                     {
-                        post.ThumbnailRenditions.Add(new DeviantArtOurThumbnail
+                        post.ThumbnailRenditions.Add(new DeviantArtThumbnailRendition
                         {
                             Url = thumbnail.src,
                             Width = thumbnail.width,

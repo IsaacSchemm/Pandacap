@@ -211,9 +211,9 @@ namespace Pandacap.Controllers
                     }
                     else
                     {
-                        var inboxPosts = Enumerable.Empty<ActivityPubInboxPost>()
-                            .Concat(await context.ActivityPubInboxImagePosts.Where(p => p.Id == postId).ToListAsync())
-                            .Concat(await context.ActivityPubInboxTextPosts.Where(p => p.Id == postId).ToListAsync());
+                        var inboxPosts = Enumerable.Empty<RemoteActivityPubPost>()
+                            .Concat(await context.RemoteActivityPubImagePosts.Where(p => p.Id == postId).ToListAsync())
+                            .Concat(await context.RemoteActivityPubTextPosts.Where(p => p.Id == postId).ToListAsync());
 
                         if (inboxPosts.Any())
                         {
@@ -231,9 +231,9 @@ namespace Pandacap.Controllers
                 {
                     string deletedObjectId = deletedObject["@id"]!.Value<string>()!;
 
-                    var inboxPosts = Enumerable.Empty<ActivityPubInboxPost>()
-                        .Concat(await context.ActivityPubInboxImagePosts.Where(p => p.Id == deletedObjectId).ToListAsync())
-                        .Concat(await context.ActivityPubInboxTextPosts.Where(p => p.Id == deletedObjectId).ToListAsync());
+                    var inboxPosts = Enumerable.Empty<RemoteActivityPubPost>()
+                        .Concat(await context.RemoteActivityPubImagePosts.Where(p => p.Id == deletedObjectId).ToListAsync())
+                        .Concat(await context.RemoteActivityPubTextPosts.Where(p => p.Id == deletedObjectId).ToListAsync());
 
                     context.RemoveRange(inboxPosts);
                     await context.SaveChangesAsync();
@@ -294,15 +294,15 @@ namespace Pandacap.Controllers
                 }
             }
 
-            ActivityPubInboxPost? existingPost = null;
-            existingPost ??= await context.ActivityPubInboxImagePosts.FirstOrDefaultAsync(item => item.Id == id);
-            existingPost ??= await context.ActivityPubInboxTextPosts.FirstOrDefaultAsync(item => item.Id == id);
+            RemoteActivityPubPost? existingPost = null;
+            existingPost ??= await context.RemoteActivityPubImagePosts.FirstOrDefaultAsync(item => item.Id == id);
+            existingPost ??= await context.RemoteActivityPubTextPosts.FirstOrDefaultAsync(item => item.Id == id);
 
             if (existingPost == null)
             {
                 existingPost = findAttachments().Any()
-                    ? new ActivityPubInboxImagePost()
-                    : new ActivityPubInboxTextPost();
+                    ? new RemoteActivityPubImagePost()
+                    : new RemoteActivityPubTextPost();
                 existingPost.Id = id;
                 existingPost.CreatedBy = sendingActor.Id;
                 context.Add(existingPost);
@@ -333,7 +333,7 @@ namespace Pandacap.Controllers
                 .Select(token => token["@value"]!.Value<string>())
                 .FirstOrDefault();
 
-            if (existingPost is ActivityPubInboxImagePost imagePost)
+            if (existingPost is RemoteActivityPubImagePost imagePost)
             {
                 imagePost.Attachments.Clear();
                 imagePost.Attachments.AddRange(findAttachments());

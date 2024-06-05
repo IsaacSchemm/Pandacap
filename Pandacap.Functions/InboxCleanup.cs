@@ -11,14 +11,14 @@ namespace Pandacap.Functions
         {
             DateTime weekAgo = DateTime.UtcNow.AddDays(-7);
 
-            await foreach (var inboxItem in context.DeviantArtInboxArtworkPosts
+            await foreach (var inboxItem in context.InboxImageDeviations
                 .Where(item => item.DismissedAt < weekAgo)
                 .AsAsyncEnumerable())
             {
                 context.Remove(inboxItem);
             }
 
-            await foreach (var inboxItem in context.DeviantArtInboxTextPosts
+            await foreach (var inboxItem in context.InboxTextDeviations
                 .Where(item => item.DismissedAt < weekAgo)
                 .AsAsyncEnumerable())
             {

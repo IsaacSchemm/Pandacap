@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public abstract class DeviantArtInboxPost : IPost
+    public abstract class InboxDeviation : IPost
     {
         public Guid Id { get; set; }
 
@@ -23,7 +23,7 @@
         {
             get
             {
-                string? excerpt = (this as DeviantArtInboxTextPost)?.Excerpt;
+                string? excerpt = (this as InboxTextDeviation)?.Excerpt;
                 if (excerpt != null && excerpt.Length > 40)
                     excerpt = excerpt[..40] + "...";
 

@@ -15,13 +15,13 @@ namespace Pandacap.Controllers
             int? count)
         {
             DateTimeOffset startTime = next is Guid g
-                ? await context.DeviantArtInboxArtworkPosts
+                ? await context.InboxImageDeviations
                     .Where(f => f.Id == g)
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var posts = await context.DeviantArtInboxArtworkPosts
+            var posts = await context.InboxImageDeviations
                 .Where(f => f.Timestamp >= startTime)
                 .Where(f => f.DismissedAt == null)
                 .OrderBy(d => d.Timestamp)
@@ -43,13 +43,13 @@ namespace Pandacap.Controllers
             int? count)
         {
             DateTimeOffset startTime = next is Guid g
-                ? await context.DeviantArtInboxTextPosts
+                ? await context.InboxTextDeviations
                     .Where(f => f.Id == g)
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var posts = await context.DeviantArtInboxTextPosts
+            var posts = await context.InboxTextDeviations
                 .Where(f => f.Timestamp >= startTime)
                 .Where(f => f.DismissedAt == null)
                 .OrderBy(d => d.Timestamp)
@@ -70,13 +70,13 @@ namespace Pandacap.Controllers
             int? count)
         {
             DateTimeOffset startTime = next is string s
-                ? await context.ActivityPubInboxImagePosts
+                ? await context.RemoteActivityPubImagePosts
                     .Where(f => f.Id == s)
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var posts = await context.ActivityPubInboxImagePosts
+            var posts = await context.RemoteActivityPubImagePosts
                 .Where(f => f.Timestamp >= startTime)
                 .Where(f => f.DismissedAt == null)
                 .OrderBy(d => d.Timestamp)
@@ -97,13 +97,13 @@ namespace Pandacap.Controllers
             int? count)
         {
             DateTimeOffset startTime = next is string s
-                ? await context.ActivityPubInboxTextPosts
+                ? await context.RemoteActivityPubTextPosts
                     .Where(f => f.Id == s)
                     .Select(f => f.Timestamp)
                     .SingleAsync()
                 : DateTimeOffset.MinValue;
 
-            var posts = await context.ActivityPubInboxTextPosts
+            var posts = await context.RemoteActivityPubTextPosts
                 .Where(f => f.Timestamp >= startTime)
                 .Where(f => f.DismissedAt == null)
                 .OrderBy(d => d.Timestamp)
@@ -131,7 +131,7 @@ namespace Pandacap.Controllers
             var guids = new HashSet<Guid>(getGuids());
 
             await foreach (var item in context
-                .DeviantArtInboxArtworkPosts
+                .InboxImageDeviations
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -139,7 +139,7 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .DeviantArtInboxTextPosts
+                .InboxTextDeviations
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -147,7 +147,7 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .ActivityPubInboxImagePosts
+                .RemoteActivityPubImagePosts
                 .Where(item => ids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -155,7 +155,7 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .ActivityPubInboxTextPosts
+                .RemoteActivityPubTextPosts
                 .Where(item => ids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -168,10 +168,10 @@ namespace Pandacap.Controllers
         {
             await foreach (var item in GetInboxPostsByIds(id))
             {
-                if (item is ActivityPubInboxPost ap)
+                if (item is RemoteActivityPubPost ap)
                     ap.DismissedAt = DateTimeOffset.UtcNow;
 
-                if (item is DeviantArtInboxPost dp)
+                if (item is InboxDeviation dp)
                     dp.DismissedAt = DateTimeOffset.UtcNow;
             }
 
@@ -185,7 +185,7 @@ namespace Pandacap.Controllers
         {
             await foreach (var item in GetInboxPostsByIds(id))
             {
-                if (item is ActivityPubInboxPost ap)
+                if (item is RemoteActivityPubPost ap)
                     ap.FavoritedAt = DateTimeOffset.UtcNow;
             }
 
@@ -199,7 +199,7 @@ namespace Pandacap.Controllers
         {
             await foreach (var item in GetInboxPostsByIds(id))
             {
-                if (item is ActivityPubInboxPost ap)
+                if (item is RemoteActivityPubPost ap)
                     ap.FavoritedAt = null;
             }
 

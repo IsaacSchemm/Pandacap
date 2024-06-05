@@ -6,17 +6,9 @@ namespace Pandacap.Data
 {
     public class PandacapDbContext(DbContextOptions<PandacapDbContext> options) : IdentityDbContext(options)
     {
-        public DbSet<ActivityPubInboxImagePost> ActivityPubInboxImagePosts { get; set; }
-
-        public DbSet<ActivityPubInboxTextPost> ActivityPubInboxTextPosts { get; set; }
-
         public DbSet<ActivityPubOutboundActivity> ActivityPubOutboundActivities { get; set; }
 
         public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
-
-        public DbSet<DeviantArtInboxArtworkPost> DeviantArtInboxArtworkPosts { get; set; }
-
-        public DbSet<DeviantArtInboxTextPost> DeviantArtInboxTextPosts { get; set; }
 
         public DbSet<DeviantArtArtworkDeviation> DeviantArtArtworkDeviations { get; set; }
 
@@ -25,6 +17,14 @@ namespace Pandacap.Data
         public DbSet<Follower> Followers { get; set; }
 
         public DbSet<Follow> Follows { get; set; }
+
+        public DbSet<InboxImageDeviation> InboxImageDeviations { get; set; }
+
+        public DbSet<InboxTextDeviation> InboxTextDeviations { get; set; }
+
+        public DbSet<RemoteActivityPubImagePost> RemoteActivityPubImagePosts { get; set; }
+
+        public DbSet<RemoteActivityPubTextPost> RemoteActivityPubTextPosts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

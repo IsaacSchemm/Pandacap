@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public abstract class ActivityPubInboxPost : IPost
+    public abstract class RemoteActivityPubPost : IPost
     {
         private static readonly Textify.HtmlToTextConverter _converter = new();
 

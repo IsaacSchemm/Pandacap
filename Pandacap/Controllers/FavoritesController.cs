@@ -17,11 +17,11 @@ namespace Pandacap.Controllers
     {
         public async Task<IActionResult> Index(string? next, int? count)
         {
-            var activityPubImagePosts = context.ActivityPubInboxImagePosts
+            var activityPubImagePosts = context.RemoteActivityPubImagePosts
                 .Where(post => post.FavoritedAt != null)
                 .AsAsyncEnumerable();
 
-            var activityPubTextPosts = context.ActivityPubInboxTextPosts
+            var activityPubTextPosts = context.RemoteActivityPubTextPosts
                 .Where(post => post.FavoritedAt != null)
                 .AsAsyncEnumerable();
 
