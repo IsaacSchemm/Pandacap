@@ -9,17 +9,33 @@ namespace Pandacap.Functions
         [Function("InboxCleanup")]
         public async Task Run([TimerTrigger("0 10 */6 * * *")] TimerInfo myTimer)
         {
-            DateTime weekAgo = DateTime.UtcNow.AddDays(-7);
+            DateTime dayAgo = DateTime.UtcNow.AddDays(-1);
 
             await foreach (var inboxItem in context.InboxImageDeviations
-                .Where(item => item.DismissedAt < weekAgo)
+                .Where(item => item.DismissedAt < dayAgo)
                 .AsAsyncEnumerable())
             {
                 context.Remove(inboxItem);
             }
 
             await foreach (var inboxItem in context.InboxTextDeviations
-                .Where(item => item.DismissedAt < weekAgo)
+                .Where(item => item.DismissedAt < dayAgo)
+                .AsAsyncEnumerable())
+            {
+                context.Remove(inboxItem);
+            }
+
+            await foreach (var inboxItem in context.RemoteActivityPubImagePosts
+                .Where(item => item.DismissedAt < dayAgo)
+                .Where(item => item.FavoritedAt == null)
+                .AsAsyncEnumerable())
+            {
+                context.Remove(inboxItem);
+            }
+
+            await foreach (var inboxItem in context.RemoteActivityPubTextPosts
+                .Where(item => item.DismissedAt < dayAgo)
+                .Where(item => item.FavoritedAt == null)
                 .AsAsyncEnumerable())
             {
                 context.Remove(inboxItem);

@@ -116,7 +116,7 @@ namespace Pandacap.HighLevel
                     Username = author.username,
                     MatureContent = deviation.is_mature.OrNull() ?? false,
                     Title = deviation.title?.OrNull(),
-                    ThumbnailRenditions = deviation.thumbs.OrEmpty().Select(thumb => new DeviantArtThumbnailRendition
+                    ThumbnailRenditions = deviation.thumbs.OrEmpty().Select(thumb => new InboxImageDeviation.DeviantArtThumbnailRendition
                     {
                         Url = thumb.src,
                         Height = thumb.height,
@@ -314,7 +314,7 @@ namespace Pandacap.HighLevel
                     post.ThumbnailRenditions.Clear();
                     foreach (var thumbnail in deviation.thumbs.OrEmpty())
                     {
-                        post.ThumbnailRenditions.Add(new DeviantArtThumbnailRendition
+                        post.ThumbnailRenditions.Add(new()
                         {
                             Url = thumbnail.src,
                             Width = thumbnail.width,
