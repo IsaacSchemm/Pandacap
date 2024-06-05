@@ -1,5 +1,7 @@
 ﻿@page
+@using Pandacap.LowLevel
 @model LoginModel
+@inject ApplicationInformation appInfo
 
 @{
     ViewData["Title"] = "Log in";
@@ -9,8 +11,6 @@
 <div class="row">
     <div class="col-12">
         <section>
-            <p>To authenticate with Pandacap, log in with the account associated with this Pandacap instance in the application settings.</p>
-            <hr />
             @{
                 if ((Model.ExternalLogins?.Count ?? 0) == 0)
                 {
@@ -23,6 +23,15 @@
                 }
                 else
                 {
+                    <div>
+                        <p>
+                            Pandacap is a single-user application.
+                            Only the user <strong>@appInfo.DeviantArtUsername</strong> can log in.
+                        </p>
+                        <p>
+                            Select an authentication method:
+                        </p>
+                    </div>
                     <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
                         <div>
                             <p>
