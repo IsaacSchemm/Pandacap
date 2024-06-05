@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
@@ -9,9 +8,7 @@ using Pandacap.Models;
 namespace Pandacap.Controllers
 {
     [Authorize]
-    public class InboxController(
-        PandacapDbContext context,
-        UserManager<IdentityUser> userManager) : Controller
+    public class InboxController(PandacapDbContext context) : Controller
     {
         public async Task<IActionResult> DeviantArtImagePosts(
             Guid? next,
@@ -36,8 +33,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "DeviantArt Inbox (Artwork)",
-                Controller = "Inbox",
-                Action = nameof(DeviantArtImagePosts),
                 Items = posts
             });
         }
@@ -66,8 +61,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "DeviantArt Inbox (Journals and Status Updates)",
-                Controller = "Inbox",
-                Action = nameof(DeviantArtTextPosts),
                 Items = posts
             });
         }
@@ -95,8 +88,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "ActivityPub Inbox (Image Posts)",
-                Controller = "Inbox",
-                Action = nameof(ActivityPubImagePosts),
                 Items = posts
             });
         }
@@ -124,20 +115,15 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "ActivityPub Inbox (Text Posts)",
-                Controller = "Inbox",
-                Action = nameof(ActivityPubTextPosts),
                 Items = posts
             });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Dismiss([FromForm] IEnumerable<string> id)
+        private async IAsyncEnumerable<IPost> GetInboxPostsByIds(IEnumerable<string> ids)
         {
-            string? userId = userManager.GetUserId(User);
-
             IEnumerable<Guid> getGuids()
             {
-                foreach (string str in id)
+                foreach (string str in ids)
                     if (Guid.TryParse(str, out Guid g))
                         yield return g;
             }
@@ -149,7 +135,7 @@ namespace Pandacap.Controllers
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
-                item.DismissedAt = DateTimeOffset.UtcNow;
+                yield return item;
             }
 
             await foreach (var item in context
@@ -157,30 +143,69 @@ namespace Pandacap.Controllers
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
-                item.DismissedAt = DateTimeOffset.UtcNow;
+                yield return item;
             }
 
             await foreach (var item in context
                 .ActivityPubInboxImagePosts
-                //.Where(item => item.UserId == userId)
-                .Where(item => id.Contains(item.Id))
+                .Where(item => ids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
-                item.DismissedAt = DateTimeOffset.UtcNow;
+                yield return item;
             }
 
             await foreach (var item in context
                 .ActivityPubInboxTextPosts
-                //.Where(item => item.UserId == userId)
-                .Where(item => id.Contains(item.Id))
+                .Where(item => ids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
-                item.DismissedAt = DateTimeOffset.UtcNow;
+                yield return item;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Dismiss([FromForm] IEnumerable<string> id)
+        {
+            await foreach (var item in GetInboxPostsByIds(id))
+            {
+                if (item is ActivityPubInboxPost ap)
+                    ap.DismissedAt = DateTimeOffset.UtcNow;
+
+                if (item is DeviantArtInboxPost dp)
+                    dp.DismissedAt = DateTimeOffset.UtcNow;
             }
 
             await context.SaveChangesAsync();
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/Inbox");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Favorite([FromForm] IEnumerable<string> id)
+        {
+            await foreach (var item in GetInboxPostsByIds(id))
+            {
+                if (item is ActivityPubInboxPost ap)
+                    ap.FavoritedAt = DateTimeOffset.UtcNow;
+            }
+
+            await context.SaveChangesAsync();
+
+            return StatusCode(205);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Unfavorite([FromForm] IEnumerable<string> id)
+        {
+            await foreach (var item in GetInboxPostsByIds(id))
+            {
+                if (item is ActivityPubInboxPost ap)
+                    ap.FavoritedAt = null;
+            }
+
+            await context.SaveChangesAsync();
+
+            return StatusCode(205);
         }
     }
 }

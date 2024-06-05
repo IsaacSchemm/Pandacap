@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DeviantArtFs;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -28,8 +29,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Gallery",
-                Controller = "Gallery",
-                Action = nameof(Artwork),
                 Items = posts
             });
         }
@@ -54,8 +53,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Posts",
-                Controller = "Gallery",
-                Action = nameof(TextPosts),
                 Items = posts
             });
         }

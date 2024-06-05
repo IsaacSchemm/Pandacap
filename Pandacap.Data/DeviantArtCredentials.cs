@@ -17,7 +17,5 @@ namespace Pandacap.Data
 
         [Required]
         public string RefreshToken { get; set; } = "";
-
-        public DateTimeOffset? LastRead { get; set; }
     }
 }

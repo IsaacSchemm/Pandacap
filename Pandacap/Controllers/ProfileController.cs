@@ -83,8 +83,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Search",
-                Controller = "Profile",
-                Action = nameof(Search),
                 Q = q,
                 Items = posts
             });
@@ -121,8 +119,6 @@ namespace Pandacap.Controllers
                 return View("RelationshipList", new ListViewModel<IRemoteActorRelationship>
                 {
                     Title = "Followers",
-                    Controller = "Profile",
-                    Action = nameof(Followers),
                     Items = page
                 });
             }
@@ -160,8 +156,6 @@ namespace Pandacap.Controllers
                 return View("RelationshipList", new ListViewModel<IRemoteActorRelationship>
                 {
                     Title = "Following",
-                    Controller = "Profile",
-                    Action = nameof(Following),
                     Items = page
                 });
             }

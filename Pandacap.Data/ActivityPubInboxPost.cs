@@ -18,6 +18,7 @@
 
         public string? Name { get; set; }
 
+        public DateTimeOffset? FavoritedAt { get; set; }
         public DateTimeOffset? DismissedAt { get; set; }
 
         public string? Content { get; set; }

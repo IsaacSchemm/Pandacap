@@ -6,10 +6,6 @@ namespace Pandacap.Models
     {
         public string? Title { get; set; }
 
-        public string Controller { get; set; } = "";
-
-        public string Action { get; set; } = "";
-
         public string? Q { get; set; }
 
         public ListPage<T> Items { get; set; } = ListPage.Empty<T>();

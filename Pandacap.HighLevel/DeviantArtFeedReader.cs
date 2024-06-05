@@ -31,6 +31,45 @@ namespace Pandacap.HighLevel
             return null;
         });
 
+        private class ThumbnailWrapper(DeviantArtFs.ResponseTypes.Preview preview) : IThumbnailRendition
+        {
+            public string? Url => preview.src;
+            public int Width => preview.width;
+            public int Height => preview.height;
+        }
+
+        private class DeviationWrapper(DeviantArtFs.ResponseTypes.Deviation deviation) : IImagePost, IThumbnail
+        {
+            public string Id => $"{deviation.deviationid}";
+            public string? Username => deviation.author.OrNull()?.username;
+            public string? Usericon => deviation.author.OrNull()?.usericon;
+            public string? DisplayTitle => deviation.title?.OrNull();
+            public DateTimeOffset Timestamp => deviation.published_time?.OrNull() ?? DateTimeOffset.UtcNow;
+            public string? LinkUrl => deviation.url.OrNull();
+            public DateTimeOffset? DismissedAt => null;
+            public IEnumerable<IThumbnail> Thumbnails => [this];
+
+            public IEnumerable<IThumbnailRendition> Renditions => deviation.thumbs
+                .OrEmpty()
+                .Select(p => new ThumbnailWrapper(p));
+            public string? AltText => null;
+        }
+
+        public async IAsyncEnumerable<IPost> GetFavoriteDeviationsAsync()
+        {
+            if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
+                yield break;
+
+            await foreach (var deviation in DeviantArtFs.Api.Collections.GetAllAsync(
+                credentials,
+                UserScope.ForCurrentUser,
+                PagingLimit.DefaultPagingLimit,
+                PagingOffset.StartingOffset))
+            {
+                yield return new DeviationWrapper(deviation);
+            }
+        }
+
         public async Task ReadArtworkPostsByUsersWeWatchAsync()
         {
             if (await Credentials.Value is not DeviantArtTokenWrapper credentials)

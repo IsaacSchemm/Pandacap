@@ -19,10 +19,10 @@ else
     @foreach (var item in Model.Items.DisplayList)
     {
         <p>
-            <img height="50" src="@item?.IconUrl" alt="" />
+            <img height="50" src="@item.IconUrl" alt="" />
             <span style="display: inline-block; vertical-align: top">
                 <strong>
-                    @(item?.PreferredUsername ?? item.ActorId)
+                    @(item.PreferredUsername ?? item.ActorId)
                 </strong>
                 <br />
                 <a href="@item.ActorId">@item.ActorId</a>
@@ -38,7 +38,7 @@ else
             <p>
                 <form asp-action="Unfollow">
                     <input type="hidden" name="id" value="@item.ActorId" />
-                    <button type="submit" class="btn btn-primary">Unfollow @(item?.PreferredUsername ?? item.ActorId)</button>
+                    <button type="submit" class="btn btn-primary">Unfollow @(item.PreferredUsername ?? item.ActorId)</button>
                 </form>
             </p>
         }
@@ -48,9 +48,7 @@ else
     {
         <hr />
 
-        <a asp-controller="@Model.Controller"
-           asp-action="@Model.Action"
-           asp-route-q="@Model.Q"
+        <a asp-route-q="@Model.Q"
            asp-route-next="@nextActor.ActorId"
            asp-route-count="@Model.Items.DisplayList.Length"
            class="btn btn-primary">
