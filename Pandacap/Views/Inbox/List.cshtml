@@ -49,11 +49,11 @@ else
                         @foreach (var image in item.Thumbnails)
                         {
                             <a href="@url">
-                                <img src="@image.GetThumbnailSrc()"
-                                     srcset="@image.GetThumbnailSrcset()"
-                                     alt="@image.AltText"
-                                     referrerpolicy="no-referrer"
-                                     class="feed-image" />
+                                <img src="@(image.GetThumbnailSrc() ?? "/images/trgray.svg")"
+                                        srcset="@image.GetThumbnailSrcset()"
+                                        alt="@image.AltText"
+                                        referrerpolicy="no-referrer"
+                                        class="feed-image" />
                             </a>
                         }
                         <label>

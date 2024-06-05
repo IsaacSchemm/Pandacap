@@ -23,4 +23,8 @@
     <ProjectReference Include="..\Pandacap.LowLevel\Pandacap.LowLevel.fsproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
 </Project>
