@@ -1,0 +1,150 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model ListViewModel<IPost>
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+<form id="dismissForm" asp-action="Dismiss" method="post"></form>
+
+@if (!Model.Items.DisplayList.Any())
+{
+    <p>
+        Showing <strong>0</strong> items.
+    </p>
+}
+else
+{
+    var minDate = Model.Items.DisplayList.Select(item => item.Timestamp).Min().UtcDateTime;
+    var maxDate = Model.Items.DisplayList.Select(item => item.Timestamp).Max().UtcDateTime;
+
+    <p>
+        Showing
+        <strong>@Model.Items.DisplayList.Count()</strong>
+        item(s) posted between
+        <strong>@minDate.ToLongDateString()</strong> (@minDate.ToShortTimeString())
+        and
+        <strong>@maxDate.ToLongDateString()</strong> (@maxDate.ToShortTimeString()).
+    </p>
+
+    @foreach (var group in Model.Items.DisplayList.GroupBy(item => (item.Username,item.Usericon)))
+    {
+        <h1>
+            <img height="50" src="@group.Key.Usericon" alt="" />
+            <span style="display: inline-block; vertical-align: top">
+                <strong>
+                    @group.Key.Username
+                </strong>
+            </span>
+        </h1>
+
+        <div class="container-fluid">
+            <div class="row">
+                @foreach (var item in group)
+                {
+                    string? url = item.LinkUrl;
+                    var thumbnails = item is IImagePost imagePost
+                        ? imagePost.Thumbnails
+                        : [];
+                    <div class="@(thumbnails.Any() ? "col-sm-4 col-md-3 text-center my-4" : "")">
+                        @foreach (var image in thumbnails)
+                        {
+                            <a href="@url">
+                                <img src="@image.GetThumbnailSrc()"
+                                     srcset="@image.GetThumbnailSrcset()"
+                                     alt="@image.AltText"
+                                     referrerpolicy="no-referrer"
+                                     class="feed-image" />
+                            </a>
+                        }
+                        <label>
+                            @if (item is ActivityPubInboxPost || item is DeviantArtInboxPost)
+                            {
+                                <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                            }
+                            <a href="@url">@item.DisplayTitle</a>
+                        </label>
+                        <div class="mt-3">
+                            @if (item is ActivityPubInboxPost activityPubInboxPost)
+                            {
+                                if (activityPubInboxPost.FavoritedAt == null)
+                                {
+                                    <form asp-action="Favorite">
+                                        <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
+                                        <button class="btn btn-outline-primary">Add to Favorites</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Unfavorite">
+                                        <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
+                                        <button class="btn btn-primary">Remove from Favorites</button>
+                                    </form>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <hr />
+
+    <button type="button" id="selectAll" class="btn btn-secondary">
+        Select / deselect all
+    </button>
+
+    <button form="dismissForm" type="submit" class="btn btn-secondary">
+        Remove selected items from inbox
+    </button>
+
+    @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IPost nextPost)
+    {
+        <hr />
+
+        <a asp-route-q="@Model.Q"
+           asp-route-next="@nextPost.Id"
+           asp-route-count="@Model.Items.DisplayList.Length"
+           class="btn btn-primary">
+            Next @Model.Items.DisplayList.Length items &raquo;
+        </a>
+    }
+}
+
+<script type="text/javascript">
+    document.getElementById("selectAll").addEventListener("click", e => {
+        e.preventDefault();
+
+        const checkboxes = document.getElementsByClassName("inboxItemCheckbox");
+        let anyUnchecked = false;
+        for (let i = 0; i < checkboxes.length; i++) {
+            if (!checkboxes[i].checked) {
+                anyUnchecked = true;
+                break;
+            }
+        }
+        for (let i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = anyUnchecked ? true : false;
+        }
+    });
+</script>
+
+<style type="text/css">
+    h1 {
+        margin-bottom: 1rem;
+    }
+
+    img.feed-image {
+        height: 150px;
+    }
+
+    @@supports (object-fit: contain) {
+        img.feed-image {
+            width: 100%;
+            object-fit: contain;
+        }
+    }
+</style>

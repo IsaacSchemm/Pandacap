@@ -5,13 +5,6 @@
 
 @{
     ViewBag.Title = Model.Title;
-
-    bool canDismiss = Model.Items.DisplayList.Any(o => o is ActivityPubInboxPost || o is DeviantArtInboxPost);
-}
-
-@if (canDismiss)
-{
-    <form id="dismissForm" asp-action="Dismiss" method="post"></form>
 }
 
 @if (!Model.Items.DisplayList.Any())
@@ -34,91 +27,44 @@ else
         <strong>@maxDate.ToLongDateString()</strong> (@maxDate.ToShortTimeString()).
     </p>
 
-    @foreach (var group in Model.Items.DisplayList.GroupBy(item => (
-       item.Username,
-       item.Usericon,
-       item is IImagePost
-    )))
-    {
-        <h1>
-            <img height="50" src="@group.Key.Usericon" alt="" />
-            <span style="display: inline-block; vertical-align: top">
-                <strong>
-                    @group.Key.Username
-                </strong>
-            </span>
-        </h1>
-
-        <div class="container-fluid">
-            <div class="row">
-                @foreach (var item in group)
-                {
-                    string? url = item is DeviantArtDeviation deviation
-                        ? $"/Post/{deviation.Id}"
-                        : item.LinkUrl;
-                    var thumbnails = item is IImagePost imagePost
-                        ? imagePost.Thumbnails
-                        : [];
-                    <div class="@(thumbnails.Any() ? "col-sm-4 col-md-3 text-center my-4" : "")">
-                        @foreach (var image in thumbnails)
-                        {
-                            <a href="@url">
-                                <img src="@image.GetThumbnailSrc()"
-                                     srcset="@image.GetThumbnailSrcset()"
-                                     alt="@image.AltText"
-                                     referrerpolicy="no-referrer"
-                                     class="feed-image" />
-                            </a>
-                        }
-                        <label>
-                            @if (item is ActivityPubInboxPost || item is DeviantArtInboxPost)
-                            {
-                                <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                            }
-                            <a href="@url">@item.DisplayTitle</a>
-                            @if (item is DeviantArtDeviation)
-                            {
-                                <br />
-                                <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
-                            }
-                        </label>
-                        <div class="mt-3">
-                            @if (item is ActivityPubInboxPost activityPubInboxPost)
-                            {
-                                if (activityPubInboxPost.FavoritedAt == null)
-                                {
-                                    <form asp-action="Favorite">
-                                        <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
-                                        <button class="btn btn-outline-primary">Add to Favorites</button>
-                                    </form>
-                                }
-                                else
-                                {
-                                    <form asp-action="Unfavorite">
-                                        <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
-                                        <button class="btn btn-primary">Remove from Favorites</button>
-                                    </form>
-                                }
-                            }
-                        </div>
+    <div class="container-fluid">
+        <div class="row">
+            @foreach (var item in Model.Items.DisplayList)
+            {
+                string? url = item is DeviantArtDeviation deviation
+                    ? $"/Post/{deviation.Id}"
+                    : item.LinkUrl;
+                var thumbnails = item is IImagePost imagePost
+                    ? imagePost.Thumbnails
+                    : [];
+                <div class="@(thumbnails.Any() ? "col-sm-4 col-md-3 text-center my-4" : "")">
+                    <div class="mb-3">
+                        <img height="50" src="@item.Usericon" alt="" />
+                        <span style="display: inline-block; vertical-align: middle">
+                            <strong>
+                                @item.Username
+                            </strong>
+                        </span>
                     </div>
-                }
-            </div>
+                    @foreach (var image in thumbnails)
+                    {
+                        <a href="@url">
+                            <img src="@image.GetThumbnailSrc()"
+                                    srcset="@image.GetThumbnailSrcset()"
+                                    alt="@image.AltText"
+                                    referrerpolicy="no-referrer"
+                                    class="feed-image" />
+                        </a>
+                    }
+                    <label>
+                        <a href="@url">@item.DisplayTitle</a>
+                        <br />
+                        <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
+                    </label>
+                </div>
+            }
         </div>
-    }
-
-    @if (canDismiss)
-    {
-        <hr />
-
-        <button type="button" id="selectAll" class="btn btn-secondary">
-            Select / deselect all
-        </button>
-
-        <button form="dismissForm" type="submit" class="btn btn-secondary">
-            Remove selected items from inbox
-        </button>
-    }
+    </div>
 
     @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IPost nextPost)
     {
@@ -152,10 +98,6 @@ else
 </script>
 
 <style type="text/css">
-    h1 {
-        margin-bottom: 1rem;
-    }
-
     img.feed-image {
         height: 150px;
     }
