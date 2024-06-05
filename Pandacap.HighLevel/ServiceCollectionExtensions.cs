@@ -19,6 +19,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<IdMapper>()
                 .AddSingleton(new KeyProvider($"https://{applicationInformation.KeyVaultHostname}"))
                 .AddScoped<MastodonVerifier>()
+                .AddScoped<RemoteActivityPubPostHandler>()
                 .AddScoped<RemoteActorFetcher>();
         }
     }

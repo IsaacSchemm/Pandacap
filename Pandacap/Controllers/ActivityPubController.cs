@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.HighLevel.ActivityPub;
 using Pandacap.HighLevel.Signatures;
 using Pandacap.LowLevel;
@@ -16,6 +17,7 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         IdMapper mapper,
         MastodonVerifier mastodonVerifier,
+        RemoteActivityPubPostHandler remoteActivityPubPostHandler,
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
     {
@@ -173,9 +175,7 @@ namespace Pandacap.Controllers
                         .CountAsync() > 0;
 
                     if (mentionsThisActor || isFromFollow)
-                    {
-                        await AddToInboxAsync(actor, obj);
-                    }
+                        await remoteActivityPubPostHandler.AddRemotePostAsync(actor, obj, addToInbox: true);
                 }
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Update")
@@ -211,15 +211,10 @@ namespace Pandacap.Controllers
                     }
                     else
                     {
-                        var inboxPosts = await context.RemoteActivityPubPosts.Where(p => p.Id == postId).ToListAsync();
+                        int inboxPosts = await context.RemoteActivityPubPosts.Where(p => p.Id == postId).CountAsync();
 
-                        if (inboxPosts.Any())
-                        {
-                            context.RemoveRange(inboxPosts);
-                            await context.SaveChangesAsync();
-
-                            await AddToInboxAsync(actor, obj);
-                        }
+                        if (inboxPosts > 0)
+                            await remoteActivityPubPostHandler.AddRemotePostAsync(actor, obj);
                     }
                 }
             }
@@ -245,88 +240,6 @@ namespace Pandacap.Controllers
                     translator.Outbox),
                 "application/activity+json",
                 Encoding.UTF8);
-        }
-
-        private async Task AddToInboxAsync(RemoteActor sendingActor, JToken post)
-        {
-            string attributedTo = (post["https://www.w3.org/ns/activitystreams#attributedTo"] ?? Empty).Single()["@id"]!.Value<string>()!;
-            if (attributedTo != sendingActor.Id)
-                return;
-
-            string id = post["@id"]!.Value<string>()!;
-            IEnumerable<string> types = (post["@type"] ?? Empty).Select(token => token.Value<string>()!);
-
-            RemoteActivityPubPost? existingPost = await context.RemoteActivityPubPosts.FirstOrDefaultAsync(item => item.Id == id);
-
-            if (existingPost == null)
-            {
-                existingPost = new RemoteActivityPubPost
-                {
-                    Id = id,
-                    CreatedBy = sendingActor.Id
-                };
-                context.Add(existingPost);
-            }
-
-            if (existingPost.CreatedBy != sendingActor.Id)
-                return;
-
-            existingPost.Username = sendingActor.PreferredUsername ?? sendingActor.Id;
-            existingPost.Usericon = sendingActor.IconUrl;
-
-            existingPost.Timestamp = (post["https://www.w3.org/ns/activitystreams#published"] ?? Empty)
-                .Select(token => token["@value"]!.Value<DateTime>())
-                .FirstOrDefault();
-
-            existingPost.Summary = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
-                .Select(token => token["@value"]!.Value<string>())
-                .FirstOrDefault();
-            existingPost.Sensitive = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
-                .Select(token => token["@value"]!.Value<bool>())
-                .Contains(true);
-
-            existingPost.Name = (post["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
-                .Select(token => token["@value"]!.Value<string>())
-                .FirstOrDefault();
-
-            existingPost.Content = (post["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
-                .Select(token => token["@value"]!.Value<string>())
-                .FirstOrDefault();
-
-            existingPost.Attachments.Clear();
-
-            foreach (var attachment in post["https://www.w3.org/ns/activitystreams#attachment"] ?? Empty)
-            {
-                string? mediaType = (attachment["https://www.w3.org/ns/activitystreams#mediaType"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault();
-                string? url = (attachment["https://www.w3.org/ns/activitystreams#url"] ?? Empty)
-                    .Select(token => token["@id"]!.Value<string>())
-                    .FirstOrDefault();
-                string? name = (attachment["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault();
-
-                if (url == null)
-                    continue;
-
-                switch (mediaType)
-                {
-                    case "image/jpeg":
-                    case "image/png":
-                    case "image/gif":
-                    case "image/webp":
-                    case "image/heif":
-                        existingPost.Attachments.Add(new()
-                        {
-                            Name = name,
-                            Url = url
-                        });
-                        break;
-                }
-            }
-
-            await context.SaveChangesAsync();
         }
 
         private async Task AddFollowAsync(string objectId, RemoteActor actor)

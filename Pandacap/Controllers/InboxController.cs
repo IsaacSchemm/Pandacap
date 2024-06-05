@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Models;
-using System.Runtime.Intrinsics.Arm;
 
 namespace Pandacap.Controllers
 {
