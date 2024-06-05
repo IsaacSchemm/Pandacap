@@ -1,5 +1,5 @@
 ﻿@using Pandacap.Data
-@model DeviantArtDeviation
+@model IDeviation
 
 @{
     ViewBag.Title = Model.Title;
@@ -43,7 +43,7 @@
     @Html.Raw(Model.Description)
 </p>
 
-@if (Model.Tags.Count > 0)
+@if (Model.Tags.Any())
 {
     <p>
         @foreach (string tag in Model.Tags)

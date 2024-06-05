@@ -10,7 +10,7 @@ namespace Pandacap.Models
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
 
-        public DeviantArtDeviation? MostRecentPost => Enumerable.Empty<DeviantArtDeviation>()
+        public IDeviation? MostRecentPost => Enumerable.Empty<IDeviation>()
             .Concat(RecentArtwork)
             .Concat(RecentTextPosts)
             .OrderByDescending(x => x.PublishedTime)

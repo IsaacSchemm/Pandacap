@@ -44,7 +44,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         && (Char.IsLetterOrDigit(c) || c = '_')
         && not (Char.IsUpper(c))
 
-    member _.PersonToObject(key: ActorKey, recentPosts: IPost seq) = dict [
+    member _.PersonToObject(key: ActorKey, recentPost: IDeviation) = dict [
         pair "id" mapper.ActorId
         pair "type" "Person"
         pair "inbox" mapper.InboxId
@@ -61,7 +61,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             owner = mapper.ActorId
             publicKeyPem = key.Pem
         |}
-        match Seq.tryHead recentPosts with
+        match Option.ofObj recentPost with
         | None -> ()
         | Some recentPost ->
             pair "icon" {|
@@ -86,13 +86,13 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.PersonToObject(actorKey, recentPosts))
     ]
 
-    member _.AsObject(post: DeviantArtDeviation) = dict [
+    member _.AsObject(post: IDeviation) = dict [
         let id = mapper.GetObjectId(post.Id)
 
         pair "id" id
         pair "url" id
 
-        pair "type" (if post.RenderAsArticle then "Article" else "Note")
+        pair "type" (if not (String.IsNullOrEmpty post.Title) && isNull post.Image then "Article" else "Note")
 
         if not (String.IsNullOrEmpty post.Title) then
             pair "name" post.Title
@@ -105,7 +105,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
                 post.Description
                 "</p>"
 
-            if post.Tags.Count > 0 then
+            if not (Seq.isEmpty post.Tags) then
                 "<p>"
                 for tag in post.Tags do
                     $"<a href='https://www.deviantart.com/tag/{Uri.EscapeDataString(tag)}'>#{WebUtility.HtmlEncode(tag)}</a> "
@@ -144,7 +144,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         | _ -> ()
     ]
 
-    member this.ObjectToCreate(post: DeviantArtDeviation, activityGuid: Guid) = dict [
+    member this.ObjectToCreate(post: IDeviation, activityGuid: Guid) = dict [
         pair "type" "Create"
         pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId
@@ -154,7 +154,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member this.ObjectToUpdate(post: DeviantArtDeviation, activityGuid: Guid) = dict [
+    member this.ObjectToUpdate(post: IDeviation, activityGuid: Guid) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId
@@ -164,7 +164,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member _.ObjectToDelete(post: DeviantArtDeviation, activityGuid: Guid) = dict [
+    member _.ObjectToDelete(post: IDeviation, activityGuid: Guid) = dict [
         pair "type" "Delete"
         pair "id" (mapper.GetActivityId(activityGuid))
         pair "actor" mapper.ActorId

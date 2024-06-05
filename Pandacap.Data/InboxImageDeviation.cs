@@ -1,7 +1,20 @@
 ﻿namespace Pandacap.Data
 {
-    public class InboxImageDeviation : InboxDeviation, IThumbnail
+    public class InboxImageDeviation : IPost, IThumbnail
     {
+        public Guid Id { get; set; }
+
+        public Guid CreatedBy { get; set; }
+
+        public string? Username { get; set; }
+        public string? Usericon { get; set; }
+
+        public DateTimeOffset Timestamp { get; set; }
+        public bool MatureContent { get; set; }
+
+        public string? Title { get; set; }
+        public string? LinkUrl { get; set; }
+
         public class DeviantArtThumbnailRendition : IThumbnailRendition
         {
             public string Url { get; set; } = "";
@@ -11,7 +24,13 @@
 
         public List<DeviantArtThumbnailRendition> ThumbnailRenditions { get; set; } = [];
 
-        public override IEnumerable<IThumbnail> Thumbnails => [this];
+        public DateTimeOffset? DismissedAt { get; set; }
+
+        string IPost.Id => $"{Id}";
+
+        string? IPost.DisplayTitle => Title ?? $"{Id}";
+
+        IEnumerable<IThumbnail> IPost.Thumbnails => [this];
 
         string? IThumbnail.AltText => null;
 

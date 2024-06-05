@@ -57,10 +57,7 @@ else
                             </a>
                         }
                         <label>
-                            @if (item is RemoteActivityPubPost || item is InboxDeviation)
-                            {
-                                <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                            }
+                            <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                             <a href="@url">@item.DisplayTitle</a>
                         </label>
                         <div class="mt-3">

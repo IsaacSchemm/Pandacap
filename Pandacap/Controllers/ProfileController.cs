@@ -26,15 +26,14 @@ namespace Pandacap.Controllers
             {
                 var key = await keyProvider.GetPublicKeyAsync();
 
-                var recentPosts = await feedAggregator.GetDeviationsAsync()
-                    .Take(1)
-                    .ToListAsync();
+                var recentPost = await feedAggregator.GetDeviationsAsync()
+                    .FirstOrDefaultAsync();
 
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToObject(
                             key,
-                            recentPosts)),
+                            recentPost)),
                     "application/activity+json",
                     Encoding.UTF8);
             }

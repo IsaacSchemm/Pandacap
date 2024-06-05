@@ -107,7 +107,7 @@ namespace Pandacap.HighLevel
                 if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                     continue;
 
-                context.InboxImageDeviations.Add(new InboxImageDeviation
+                context.InboxImageDeviations.Add(new()
                 {
                     Id = deviation.deviationid,
                     Timestamp = publishedTime,
@@ -190,7 +190,7 @@ namespace Pandacap.HighLevel
 
         private enum ActivityType { Create, Update, Delete };
 
-        private async Task AddActivityAsync(DeviantArtDeviation post, ActivityType activityType)
+        private async Task AddActivityAsync(IDeviation post, ActivityType activityType)
         {
             var followers = await context.Followers
                 .Select(follower => new

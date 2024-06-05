@@ -1,10 +1,19 @@
-﻿using System.Net.Mail;
-
-namespace Pandacap.Data
+﻿namespace Pandacap.Data
 {
-    public class DeviantArtArtworkDeviation : DeviantArtDeviation, IThumbnail
+    public class DeviantArtArtworkDeviation : IDeviation, IPost, IThumbnail
     {
-        public class DeviantArtImage
+        public Guid Id { get; set; }
+        public string? Url { get; set; }
+        public string? Title { get; set; }
+        public string? Username { get; set; }
+        public string? Usericon { get; set; }
+        public DateTimeOffset PublishedTime { get; set; }
+        public bool IsMature { get; set; }
+
+        public string? Description { get; set; }
+        public List<string> Tags { get; set; } = [];
+
+        public class DeviantArtImage : IDeviationImage
         {
             public string Url { get; set; } = "";
             public string ContentType { get; set; } = "";
@@ -25,10 +34,22 @@ namespace Pandacap.Data
 
         public string? AltText { get; set; }
 
-        public override IEnumerable<IThumbnail> Thumbnails => [this];
+        string IPost.Id => $"{Id}";
 
-        public override bool RenderAsArticle => false;
+        string? IPost.DisplayTitle => Title ?? $"{Id}";
+
+        DateTimeOffset IPost.Timestamp => PublishedTime;
+
+        string? IPost.LinkUrl => Url;
+
+        DateTimeOffset? IPost.DismissedAt => null;
+
+        IEnumerable<IThumbnail> IPost.Thumbnails => [this];
 
         IEnumerable<IThumbnailRendition> IThumbnail.Renditions => ThumbnailRenditions;
+
+        IDeviationImage? IDeviation.Image => Image;
+
+        IEnumerable<string> IDeviation.Tags => Tags;
     }
 }

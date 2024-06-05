@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Models;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Pandacap.Controllers
 {
@@ -165,8 +166,11 @@ namespace Pandacap.Controllers
                 if (item is RemoteActivityPubPost ap)
                     ap.DismissedAt = DateTimeOffset.UtcNow;
 
-                if (item is InboxDeviation dp)
-                    dp.DismissedAt = DateTimeOffset.UtcNow;
+                if (item is InboxImageDeviation iid)
+                    iid.DismissedAt = DateTimeOffset.UtcNow;
+
+                if (item is InboxTextDeviation itd)
+                    itd.DismissedAt = DateTimeOffset.UtcNow;
             }
 
             await context.SaveChangesAsync();
