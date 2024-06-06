@@ -18,17 +18,17 @@ namespace Pandacap.Controllers
                 ? await GetInboxPostsByIds([s])
                     .Select(f => f.Timestamp)
                     .SingleAsync()
-                : DateTimeOffset.MinValue;
+                : DateTimeOffset.MaxValue;
 
             var source1 = context.InboxArtworkDeviations
-                .Where(d => d.Timestamp >= startTime)
+                .Where(d => d.Timestamp <= startTime)
                 .Where(d => d.DismissedAt == null)
                 .OrderByDescending(d => d.Timestamp)
                 .OfType<IPost>()
                 .AsAsyncEnumerable();
 
             var source2 = context.RemoteActivityPubPosts
-                .Where(a => a.Timestamp >= startTime)
+                .Where(a => a.Timestamp <= startTime)
                 .Where(a => a.DismissedAt == null)
                 .OrderByDescending(a => a.Timestamp)
                 .OfType<IPost>()
@@ -43,6 +43,8 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Inbox (Image Posts)",
+                GroupByUser = true,
+                ShowThumbnails = true,
                 Items = posts
             });
         }
@@ -55,17 +57,17 @@ namespace Pandacap.Controllers
                 ? await GetInboxPostsByIds([s])
                     .Select(f => f.Timestamp)
                     .SingleAsync()
-                : DateTimeOffset.MinValue;
+                : DateTimeOffset.MaxValue;
 
             var source1 = context.InboxTextDeviations
-                .Where(d => d.Timestamp >= startTime)
+                .Where(d => d.Timestamp <= startTime)
                 .Where(d => d.DismissedAt == null)
                 .OrderByDescending(d => d.Timestamp)
                 .OfType<IPost>()
                 .AsAsyncEnumerable();
 
             var source2 = context.RemoteActivityPubPosts
-                .Where(a => a.Timestamp >= startTime)
+                .Where(a => a.Timestamp <= startTime)
                 .Where(a => a.DismissedAt == null)
                 .OrderByDescending(a => a.Timestamp)
                 .OfType<IPost>()
@@ -80,6 +82,7 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Inbox (Text Posts)",
+                GroupByUser = true,
                 Items = posts
             });
         }

@@ -33,7 +33,7 @@
 
         DateTimeOffset IPost.Timestamp => PublishedTime;
 
-        DateTimeOffset? IPost.DismissedAt => null;
+        DateTimeOffset? IPost.DismissedAt => DateTimeOffset.MinValue;
 
         IEnumerable<IThumbnail> IPost.Thumbnails => ThumbnailRenditions.Count > 0 ? [this] : [];
 

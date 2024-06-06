@@ -29,6 +29,7 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Gallery",
+                ShowThumbnails = true,
                 Items = posts
             });
         }

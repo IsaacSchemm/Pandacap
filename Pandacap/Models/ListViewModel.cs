@@ -6,6 +6,10 @@ namespace Pandacap.Models
     {
         public string? Title { get; set; }
 
+        public bool ShowThumbnails { get; set; }
+
+        public bool GroupByUser { get; set; }
+
         public string? Q { get; set; }
 
         public ListPage<T> Items { get; set; } = ListPage.Empty<T>();
