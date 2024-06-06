@@ -108,7 +108,7 @@
 
     <div class="container mb-3">
         <div class="row">
-            <div class="col col-md-6">
+            <div class="col col-xl-6">
                 <div class="card mt-3">
                     <div class="card-header">
                         Follow ActivityPub actor
@@ -128,8 +128,6 @@
                         </form>
                     </div>
                 </div>
-            </div>
-            <div class="col col-md-6">
                 <div class="card mt-3">
                     <div class="card-header">
                         Add remote ActivityPub post to Favorites
@@ -146,6 +144,24 @@
                                 Add to Favorites
                             </button>
                         </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col col-xl-6">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Recent activities
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            @foreach (var activity in Model.RecentActivities)
+                            {
+                                <li>
+                                    <a href="/BridgedPosts/@activity.DeviationId">@activity.DeviationId</a>
+                                    <span class="text-muted">(@activity.AddedAt)</span>
+                                </li>
+                            }
+                        </ul>
                     </div>
                 </div>
             </div>

@@ -52,6 +52,11 @@ namespace Pandacap.Controllers
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(3)
                     .ToListAsync(),
+                RecentActivities = await context.RemoteActivities
+                    .Where(activity => activity.AddedAt >= someTimeAgo)
+                    .OrderByDescending(activity => activity.AddedAt)
+                    .Take(10)
+                    .ToListAsync(),
                 FollowerCount = await context.Followers.CountAsync(),
                 FollowingCount = await context.Follows.CountAsync()
             });
