@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using JsonLD.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ActivityPub;
@@ -11,6 +13,7 @@ namespace Pandacap.Controllers
 {
     public class FavoritesController(
         PandacapDbContext context,
+        RemoteActivityPubPostHandler remoteActivityPubPostHandler,
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
     {
@@ -39,29 +42,22 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add([FromForm] IEnumerable<string> id)
         {
-            await foreach (var item in context.RemoteActivityPubPosts.Where(a => id.Contains(a.Id)).AsAsyncEnumerable())
+            foreach (string idStr in id)
             {
-                if (item.FavoritedAt != null)
-                    continue;
+                string json = await remoteActorFetcher.GetJsonAsync(new Uri(idStr));
 
-                Guid likeGuid = Guid.NewGuid();
+                JObject document = JObject.Parse(json);
+                JArray expansionArray = JsonLdProcessor.Expand(document);
 
-                item.FavoritedAt = DateTimeOffset.UtcNow;
-                item.LikeGuid = likeGuid;
+                var expansionObj = expansionArray.Single();
 
-                var actor = await remoteActorFetcher.FetchActorAsync(item.CreatedBy);
+                string actorId = expansionObj["https://www.w3.org/ns/activitystreams#attributedTo"]![0]!["@id"]!.Value<string>()!;
+                var actor = await remoteActorFetcher.FetchActorAsync(actorId);
 
-                context.ActivityPubOutboundActivities.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    Inbox = actor.Inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(translator.Like(likeGuid, item.Id))
-                });
+                await remoteActivityPubPostHandler.AddRemotePostAsync(actor, expansionObj, addToFavorites: true);
             }
 
-            await context.SaveChangesAsync();
-
-            return StatusCode(205);
+            return RedirectToAction(nameof(Index));
         }
 
         [Authorize]
@@ -92,7 +88,7 @@ namespace Pandacap.Controllers
 
             await context.SaveChangesAsync();
 
-            return StatusCode(205);
+            return RedirectToAction("Index");
         }
     }
 }

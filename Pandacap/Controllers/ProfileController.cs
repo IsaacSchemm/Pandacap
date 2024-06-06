@@ -17,7 +17,6 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         FeedAggregator feedAggregator,
         KeyProvider keyProvider,
-        RemoteActivityPubPostHandler remoteActivityPubPostHandler,
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
     {
@@ -227,25 +226,6 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Following));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddFavorite(string id)
-        {
-            string json = await remoteActorFetcher.GetJsonAsync(new Uri(id));
-
-            JObject document = JObject.Parse(json);
-            JArray expansionArray = JsonLdProcessor.Expand(document);
-
-            var expansionObj = expansionArray.Single();
-
-            string actorId = expansionObj["https://www.w3.org/ns/activitystreams#attributedTo"]![0]!["@id"]!.Value<string>()!;
-            var actor = await remoteActorFetcher.FetchActorAsync(actorId);
-
-            await remoteActivityPubPostHandler.AddRemotePostAsync(actor, expansionObj, addToFavorites: true);
-
-            return RedirectToAction("Index", "Favorites");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
