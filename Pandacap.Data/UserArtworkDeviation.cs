@@ -35,7 +35,7 @@
 
         DateTimeOffset? IPost.DismissedAt => null;
 
-        IEnumerable<IThumbnail> IPost.Thumbnails => [this];
+        IEnumerable<IThumbnail> IPost.Thumbnails => ThumbnailRenditions.Count > 0 ? [this] : [];
 
         IEnumerable<IThumbnailRendition> IThumbnail.Renditions => ThumbnailRenditions;
 

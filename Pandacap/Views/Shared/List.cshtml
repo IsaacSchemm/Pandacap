@@ -5,6 +5,8 @@
 
 @{
     ViewBag.Title = Model.Title;
+
+    bool hasThumbnails = Model.Items.DisplayList.SelectMany(x => x.Thumbnails).Any();
 }
 
 @if (!Model.Items.DisplayList.Any())
@@ -34,15 +36,16 @@ else
                 string? url = item is IUserDeviation deviation
                     ? $"/BridgedPosts/{deviation.Id}"
                     : item.LinkUrl;
-                <div class="@(item.Thumbnails.Any() ? "col-sm-4 col-md-3 text-center my-4" : "")">
-                    @foreach (var image in item.Thumbnails)
+                <div class="@(hasThumbnails ? "col-sm-4 col-md-3 text-center" : "") mb-3">
+                    @if (hasThumbnails)
                     {
+                        var image = item.Thumbnails.FirstOrDefault();
                         <a href="@url">
-                            <img src="@(image.GetThumbnailSrc() ?? "/images/trgray.svg")"
-                                    srcset="@image.GetThumbnailSrcset()"
-                                    alt="@image.AltText"
-                                    referrerpolicy="no-referrer"
-                                    class="feed-image" />
+                            <img src="@(image?.GetThumbnailSrc() ?? "/images/trgray.svg")"
+                                 srcset="@image?.GetThumbnailSrcset()"
+                                 alt="@image?.AltText"
+                                 referrerpolicy="no-referrer"
+                                 class="feed-image" />
                         </a>
                     }
                     <label>
@@ -50,6 +53,18 @@ else
                         <br />
                         <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
                     </label>
+                    @if (item is RemoteActivityPubPost activityPubInboxPost)
+                    {
+                        <div class="mt-3">
+                            @if (activityPubInboxPost.FavoritedAt != null)
+                            {
+                                <form asp-action="Unfavorite">
+                                    <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
+                                    <button class="btn btn-primary">Remove from Favorites</button>
+                                </form>
+                            }
+                        </div>
+                    }
                 </div>
             }
         </div>
