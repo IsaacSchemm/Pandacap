@@ -47,8 +47,8 @@
                         .Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                         .FirstOrDefault();
 
-                if (excerpt != null && excerpt.Length > 40)
-                    excerpt = excerpt[..40] + "...";
+                if (excerpt != null && excerpt.Length > 60)
+                    excerpt = excerpt[..60] + "...";
 
                 return Name ?? excerpt ?? $"{Id}";
             }

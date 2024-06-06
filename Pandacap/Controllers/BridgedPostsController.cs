@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.LowLevel;
+using Pandacap.Models;
 using System.Text;
 
 namespace Pandacap.Controllers
@@ -29,7 +30,13 @@ namespace Pandacap.Controllers
                     "application/activity+json",
                     Encoding.UTF8);
 
-            return View(post);
+            return View(new BridgedPostViewModel
+            {
+                Deviation = post,
+                RemoteActivities = await context.RemoteActivities
+                    .Where(a => a.DeviationId == post.Id)
+                    .ToListAsync()
+            });
         }
 
         [HttpPost]

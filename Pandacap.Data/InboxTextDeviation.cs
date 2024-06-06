@@ -26,8 +26,8 @@
             get
             {
                 string? excerpt = this.Excerpt;
-                if (excerpt != null && excerpt.Length > 40)
-                    excerpt = excerpt[..40] + "...";
+                if (excerpt != null && excerpt.Length > 60)
+                    excerpt = excerpt[..60] + "...";
 
                 return Title ?? excerpt ?? $"{Id}";
             }

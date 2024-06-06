@@ -120,6 +120,14 @@ namespace Pandacap.Controllers
                         }
                     }
 
+                    var ids = objectToUndo["@id"].Select(token => token.Value<string>());
+
+                    var activities = await context.RemoteActivities
+                        .Where(a => ids.Contains(a.ActivityId))
+                        .ToListAsync();
+
+                    context.RemoveRange(activities);
+
                     await context.SaveChangesAsync();
                 }
             }
@@ -147,6 +155,44 @@ namespace Pandacap.Controllers
 
                     foreach (var follow in follows)
                         follow.Accepted = false;
+                }
+
+                await context.SaveChangesAsync();
+            }
+            else if (type == "https://www.w3.org/ns/activitystreams#Like"
+                || type == "https://www.w3.org/ns/activitystreams#Dislike"
+                || type == "https://www.w3.org/ns/activitystreams#Flag"
+                || type == "https://www.w3.org/ns/activitystreams#Listen"
+                || type == "https://www.w3.org/ns/activitystreams#Read"
+                || type == "https://www.w3.org/ns/activitystreams#View"
+                || type == "https://www.w3.org/ns/activitystreams#Announce")
+            {
+                foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
+                {
+                    string interactedWithId = obj["@id"]!.Value<string>()!;
+
+                    if (Uri.TryCreate(obj["@id"]!.Value<string>(), UriKind.Absolute, out Uri? uri) && uri != null)
+                    {
+                        if (!Guid.TryParse(uri.Segments.Last(), out Guid id))
+                            continue;
+
+                        IUserDeviation? post = null;
+                        post ??= await context.UserArtworkDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
+                        post ??= await context.UserTextDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
+
+                        if (post != null && mapper.GetObjectId(post.Id) == uri.GetLeftPart(UriPartial.Path))
+                        {
+                            context.RemoteActivities.Add(new RemoteActivity
+                            {
+                                Id = Guid.NewGuid(),
+                                ActivityId = expansionObj["@id"]!.Value<string>()!,
+                                ActivityType = type.Replace("https://www.w3.org/ns/activitystreams#", ""),
+                                DeviationId = id,
+                                AddedAt = DateTimeOffset.UtcNow,
+                                ActorId = actor.Id
+                            });
+                        }
+                    }
                 }
 
                 await context.SaveChangesAsync();

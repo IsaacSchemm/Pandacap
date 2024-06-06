@@ -18,6 +18,8 @@ namespace Pandacap.Data
 
         public DbSet<InboxTextDeviation> InboxTextDeviations { get; set; }
 
+        public DbSet<RemoteActivity> RemoteActivities { get; set; }
+
         public DbSet<RemoteActivityPubPost> RemoteActivityPubPosts { get; set; }
 
         public DbSet<UserArtworkDeviation> UserArtworkDeviations { get; set; }

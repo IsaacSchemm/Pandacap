@@ -1,13 +1,14 @@
 ﻿@using Pandacap.Data
-@model IUserDeviation
+@model BridgedPostViewModel
 
 @{
-    ViewBag.Title = Model.Title;
+    ViewBag.Title = Model.Deviation.Title;
 }
 
-<h1>@Model.Title</h1>
+<h1>@Model.Deviation.Title</h1>
 
-@if (Model is UserArtworkDeviation artwork) {
+@if (Model.Deviation is UserArtworkDeviation artwork)
+{
     <p>
         <img src="@artwork.ImageUrl"
              alt="@artwork.AltText"
@@ -40,13 +41,13 @@
 }
 
 <p>
-    @Html.Raw(Model.Description)
+    @Html.Raw(Model.Deviation.Description)
 </p>
 
-@if (Model.Tags.Any())
+@if (Model.Deviation.Tags.Any())
 {
     <p>
-        @foreach (string tag in Model.Tags)
+        @foreach (string tag in Model.Deviation.Tags)
         {
             <a href="https://www.deviantart.com/tag/@Uri.EscapeDataString(tag)">#@tag</a>
         }
@@ -54,5 +55,26 @@
 }
 
 <p>
-    <a href="@Model.LinkUrl">View on DeviantArt</a>
+    <a href="@Model.Deviation.LinkUrl">View on DeviantArt</a>
 </p>
+
+@if (Model.RemoteActivities.Any())
+{
+    foreach (var group in Model.RemoteActivities.GroupBy(a => a.ActivityType))
+    {
+        <details>
+            <summary>
+                @(group.Key)s: <strong>@group.Count()</strong>
+            </summary>
+            <ul>
+                @foreach (var activity in group)
+                {
+                    <li>
+                        <a href="@activity.ActorId" target="_blank">@activity.ActorId</a>
+                        <span class="text-muted">(@activity.AddedAt)</span>
+                    </li>
+                }
+            </ul>
+        </details>
+    }
+}
