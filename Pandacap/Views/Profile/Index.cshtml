@@ -71,9 +71,11 @@
         </div>
     </div>
 
-    <a asp-controller="Gallery" asp-action="Artwork">
-        View more &raquo;
-    </a>
+    <p>
+        <a asp-controller="Gallery" asp-action="Artwork">
+            View more &raquo;
+        </a>
+    </p>
 }
 
 @if (Model.RecentTextPosts.Any()) {
@@ -81,17 +83,21 @@
         Recent posts
     </h2>
 
-    @foreach (IPost post in Model.RecentTextPosts)
-    {
-        <div>
-            <a href="/BridgedPosts/@post.Id">@post.DisplayTitle</a>
-            <span class="text-muted">(@post.Timestamp.UtcDateTime.ToLongDateString())</span>
-        </div>
-    }
+    <p>
+        @foreach (IPost post in Model.RecentTextPosts)
+        {
+            <div>
+                <a href="/BridgedPosts/@post.Id">@post.DisplayTitle</a>
+                <span class="text-muted">(@post.Timestamp.UtcDateTime.ToLongDateString())</span>
+            </div>
+        }
+    </p>
 
-    <a asp-controller="Gallery" asp-action="TextPosts">
-        View more &raquo;
-    </a>
+    <p>
+        <a asp-controller="Gallery" asp-action="TextPosts">
+            View more &raquo;
+        </a>
+    </p>
 }
 
 @if (User.Identity?.IsAuthenticated == true)
