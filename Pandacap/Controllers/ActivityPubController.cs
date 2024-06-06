@@ -120,7 +120,7 @@ namespace Pandacap.Controllers
                         }
                     }
 
-                    var ids = objectToUndo["@id"].Select(token => token.Value<string>());
+                    var ids = (objectToUndo["@id"] ?? Empty).Select(token => token.Value<string>());
 
                     var activities = await context.RemoteActivities
                         .Where(a => ids.Contains(a.ActivityId))
@@ -278,16 +278,6 @@ namespace Pandacap.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult Outbox()
-        {
-            return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    translator.Outbox),
-                "application/activity+json",
-                Encoding.UTF8);
-        }
-
         private async Task AddFollowAsync(string objectId, RemoteActor actor)
         {
             var existing = await context.Followers
@@ -306,19 +296,46 @@ namespace Pandacap.Controllers
                     IconUrl = actor.IconUrl
                 });
 
-                Guid acceptGuid = Guid.NewGuid();
-
                 context.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
                 {
-                    Id = acceptGuid,
+                    Id = Guid.NewGuid(),
                     Inbox = actor.Inbox,
                     JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.AcceptFollow(objectId, acceptGuid)),
+                        translator.AcceptFollow(objectId)),
                     StoredAt = DateTimeOffset.UtcNow
                 });
             }
 
             await context.SaveChangesAsync();
+        }
+
+        [HttpGet]
+        public IActionResult Outbox()
+        {
+            return Content(
+                ActivityPubSerializer.SerializeWithContext(
+                    translator.Outbox),
+                "application/activity+json",
+                Encoding.UTF8);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Follow(Guid id)
+        {
+            var follow = await context.Follows
+                .Where(f => f.FollowGuid == id)
+                .SingleOrDefaultAsync();
+
+            if (follow == null)
+                return NotFound();
+
+            return Content(
+                ActivityPubSerializer.SerializeWithContext(
+                    translator.Follow(
+                        follow.FollowGuid,
+                        follow.ActorId)),
+                "application/activity+json",
+                Encoding.UTF8);
         }
     }
 }

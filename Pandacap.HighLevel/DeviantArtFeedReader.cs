@@ -209,9 +209,9 @@ namespace Pandacap.HighLevel
                 Guid activityGuid = Guid.NewGuid();
 
                 string activityJson = ActivityPubSerializer.SerializeWithContext(
-                    activityType == ActivityType.Create ? translator.ObjectToCreate(post, activityGuid)
-                        : activityType == ActivityType.Update ? translator.ObjectToUpdate(post, activityGuid)
-                        : activityType == ActivityType.Delete ? translator.ObjectToDelete(post, activityGuid)
+                    activityType == ActivityType.Create ? translator.ObjectToCreate(post)
+                        : activityType == ActivityType.Update ? translator.ObjectToUpdate(post)
+                        : activityType == ActivityType.Delete ? translator.ObjectToDelete(post)
                         : throw new NotImplementedException());
 
                 context.ActivityPubOutboundActivities.Add(new()

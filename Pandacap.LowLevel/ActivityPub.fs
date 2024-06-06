@@ -78,9 +78,9 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         ]
     ]
 
-    member this.PersonToUpdate(activityGuid, actorKey, recentPosts) = dict [
+    member this.PersonToUpdate(actorKey, recentPosts) = dict [
         pair "type" "Update"
-        pair "id" (mapper.GetActivityId(activityGuid))
+        pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "object" (this.PersonToObject(actorKey, recentPosts))
@@ -144,9 +144,9 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         | _ -> ()
     ]
 
-    member this.ObjectToCreate(post: IUserDeviation, activityGuid: Guid) = dict [
+    member this.ObjectToCreate(post: IUserDeviation) = dict [
         pair "type" "Create"
-        pair "id" (mapper.GetActivityId(activityGuid))
+        pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
@@ -154,9 +154,9 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member this.ObjectToUpdate(post: IUserDeviation, activityGuid: Guid) = dict [
+    member this.ObjectToUpdate(post: IUserDeviation) = dict [
         pair "type" "Update"
-        pair "id" (mapper.GetActivityId(activityGuid))
+        pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
@@ -164,9 +164,9 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member _.ObjectToDelete(post: IUserDeviation, activityGuid: Guid) = dict [
+    member _.ObjectToDelete(post: IUserDeviation) = dict [
         pair "type" "Delete"
-        pair "id" (mapper.GetActivityId(activityGuid))
+        pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
@@ -174,9 +174,9 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (mapper.GetObjectId(post.Id))
     ]
 
-    member _.AcceptFollow(followId: string, activityGuid: Guid) = dict [
+    member _.AcceptFollow(followId: string) = dict [
         pair "type" "Accept"
-        pair "id" (mapper.GetActivityId(activityGuid))
+        pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "object" followId
     ]
@@ -227,14 +227,14 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     ]
 
     member _.Follow(followGuid: Guid, remoteActorId: string) = dict [
-        pair "id" (mapper.GetActivityId(followGuid))
+        pair "id" (mapper.GetFollowId(followGuid))
         pair "type" "Follow"
         pair "actor" mapper.ActorId
         pair "object" remoteActorId
     ]
 
-    member this.UndoFollow(undoGuid: Guid, followGuid: Guid, remoteActorId: string) = dict [
-        pair "id" (mapper.GetActivityId(undoGuid))
+    member this.UndoFollow(followGuid: Guid, remoteActorId: string) = dict [
+        pair "id" (mapper.GetTransientId())
         pair "type" "Undo"
         pair "actor" mapper.ActorId
         pair "object" (this.Follow(followGuid, remoteActorId))

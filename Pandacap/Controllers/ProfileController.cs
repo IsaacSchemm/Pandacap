@@ -210,15 +210,12 @@ namespace Pandacap.Controllers
         {
             await foreach (var follow in context.Follows.Where(f => f.ActorId == id).AsAsyncEnumerable())
             {
-                Guid undoGuid = Guid.NewGuid();
-
                 context.ActivityPubOutboundActivities.Add(new()
                 {
-                    Id = undoGuid,
+                    Id = Guid.NewGuid(),
                     Inbox = follow.Inbox,
                     JsonBody = ActivityPubSerializer.SerializeWithContext(
                         translator.UndoFollow(
-                            undoGuid,
                             follow.FollowGuid,
                             follow.ActorId)),
                     StoredAt = DateTimeOffset.UtcNow

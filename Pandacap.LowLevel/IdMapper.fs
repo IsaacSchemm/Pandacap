@@ -31,5 +31,8 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.GetObjectId(deviationid: Guid) =
         $"https://{appInfo.ApplicationHostname}/BridgedPosts/{deviationid}"
 
-    member _.GetActivityId(activityGuid: Guid) =
-        $"https://{appInfo.ApplicationHostname}/ActivityPub/Activity/{activityGuid}"
+    member _.GetFollowId(followGuid: Guid) =
+        $"https://{appInfo.ApplicationHostname}/ActivityPub/Follow/{followGuid}"
+
+    member _.GetTransientId() =
+        $"https://{appInfo.ApplicationHostname}/#transient-{Guid.NewGuid()}"
