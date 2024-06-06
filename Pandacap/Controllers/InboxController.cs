@@ -142,33 +142,5 @@ namespace Pandacap.Controllers
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/Inbox");
         }
-
-        [HttpPost]
-        public async Task<IActionResult> Favorite([FromForm] IEnumerable<string> id)
-        {
-            await foreach (var item in GetInboxPostsByIds(id))
-            {
-                if (item is RemoteActivityPubPost ap)
-                    ap.FavoritedAt = DateTimeOffset.UtcNow;
-            }
-
-            await context.SaveChangesAsync();
-
-            return StatusCode(205);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Unfavorite([FromForm] IEnumerable<string> id)
-        {
-            await foreach (var item in GetInboxPostsByIds(id))
-            {
-                if (item is RemoteActivityPubPost ap)
-                    ap.FavoritedAt = null;
-            }
-
-            await context.SaveChangesAsync();
-
-            return StatusCode(205);
-        }
     }
 }

@@ -33,6 +33,8 @@
         public List<ActivityPubImageAttachment> Attachments { get; set; } = [];
 
         public DateTimeOffset? FavoritedAt { get; set; }
+        public Guid? LikeGuid { get; set; }
+
         public DateTimeOffset? DismissedAt { get; set; }
 
         public string? Content { get; set; }

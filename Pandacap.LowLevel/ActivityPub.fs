@@ -239,3 +239,17 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "actor" mapper.ActorId
         pair "object" (this.Follow(followGuid, remoteActorId))
     ]
+
+    member _.Like(likeGuid: Guid, remoteActorId: string) = dict [
+        pair "id" (mapper.GetLikeId(likeGuid))
+        pair "type" "Like"
+        pair "actor" mapper.ActorId
+        pair "object" remoteActorId
+    ]
+
+    member this.UndoLike(likeGuid: Guid, remoteActorId: string) = dict [
+        pair "id" (mapper.GetTransientId())
+        pair "type" "Undo"
+        pair "actor" mapper.ActorId
+        pair "object" (this.Like(likeGuid, remoteActorId))
+    ]

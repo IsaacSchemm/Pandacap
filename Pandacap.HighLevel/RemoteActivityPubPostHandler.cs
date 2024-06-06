@@ -2,10 +2,11 @@
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
 using Pandacap.HighLevel.ActivityPub;
+using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
 {
-    public class RemoteActivityPubPostHandler(PandacapDbContext context)
+    public class RemoteActivityPubPostHandler(PandacapDbContext context, ActivityPubTranslator translator)
     {
         private static readonly IEnumerable<JToken> Empty = [];
 
@@ -46,7 +47,19 @@ namespace Pandacap.HighLevel
                 existingPost.DismissedAt = null;
 
             if (addToFavorites)
+            {
+                Guid likeGuid = Guid.NewGuid();
+
                 existingPost.FavoritedAt = DateTimeOffset.UtcNow;
+                existingPost.LikeGuid = likeGuid;
+
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    Inbox = sendingActor.Inbox,
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(translator.Like(likeGuid, id))
+                });
+            }
 
             existingPost.Username = sendingActor.PreferredUsername ?? sendingActor.Id;
             existingPost.Usericon = sendingActor.IconUrl;

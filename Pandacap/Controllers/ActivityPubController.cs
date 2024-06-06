@@ -337,5 +337,24 @@ namespace Pandacap.Controllers
                 "application/activity+json",
                 Encoding.UTF8);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Like(Guid id)
+        {
+            var post = await context.RemoteActivityPubPosts
+                .Where(a => a.LikeGuid == id)
+                .SingleOrDefaultAsync();
+
+            if (post == null)
+                return NotFound();
+
+            return Content(
+                ActivityPubSerializer.SerializeWithContext(
+                    translator.Like(
+                        id,
+                        post.Id)),
+                "application/activity+json",
+                Encoding.UTF8);
+        }
     }
 }

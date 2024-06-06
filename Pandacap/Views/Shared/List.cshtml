@@ -93,14 +93,14 @@ else
                                 <div class="mt-3">
                                     @if (activityPubInboxPost.FavoritedAt == null)
                                     {
-                                        <form asp-controller="Inbox" asp-action="Favorite">
+                                        <form asp-controller="Favorites" asp-action="Add">
                                             <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
                                             <button class="btn btn-outline-primary">Add to Favorites</button>
                                         </form>
                                     }
                                     else if (activityPubInboxPost.FavoritedAt != null)
                                     {
-                                        <form asp-controller="Inbox" asp-action="Unfavorite">
+                                        <form asp-controller="Favorites" asp-action="Remove">
                                             <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
                                             <button class="btn btn-primary">Remove from Favorites</button>
                                         </form>

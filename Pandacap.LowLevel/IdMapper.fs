@@ -34,5 +34,8 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.GetFollowId(followGuid: Guid) =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Follow/{followGuid}"
 
+    member _.GetLikeId(likeId: Guid) =
+        $"https://{appInfo.ApplicationHostname}/ActivityPub/Like/{likeId}"
+
     member _.GetTransientId() =
         $"https://{appInfo.ApplicationHostname}/#transient-{Guid.NewGuid()}"
