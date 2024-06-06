@@ -60,50 +60,55 @@ else
                     string? url = item is IUserDeviation deviation
                         ? $"/BridgedPosts/{deviation.Id}"
                         : item.LinkUrl;
-                    <div class="col-12 mb-3 @(Model.ShowThumbnails ? "col-sm-4 col-md-3 text-center" : "")">
-                        @if (Model.ShowThumbnails)
-                        {
-                            var image = item.Thumbnails.FirstOrDefault();
-                            <a href="@url">
-                                <img src="@(image?.GetThumbnailSrc() ?? "/images/trgray.svg")"
-                                     srcset="@image?.GetThumbnailSrcset()"
-                                     alt="@image?.AltText"
-                                     referrerpolicy="no-referrer"
-                                     class="feed-image" />
-                            </a>
-                        }
-                        <label>
-                            @if (item.DismissedAt == null)
+                    var thumbs = Model.ShowThumbnails
+                        ? item.Thumbnails.DefaultIfEmpty(null)
+                        : [null];
+                    @foreach (var thumb in thumbs)
+                    {
+                        <div class="col-12 mb-3 @(Model.ShowThumbnails ? "col-sm-4 col-md-3 text-center" : "")">
+                            @if (Model.ShowThumbnails)
                             {
-                                <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                                <a href="@url">
+                                    <img src="@(thumb?.GetThumbnailSrc() ?? "/images/trgray.svg")"
+                                         srcset="@thumb?.GetThumbnailSrcset()"
+                                         alt="@thumb?.AltText"
+                                         referrerpolicy="no-referrer"
+                                         class="feed-image" />
+                                </a>
                             }
-                            <a href="@url">@item.DisplayTitle</a>
-                            @if (item is IUserDeviation dev)
+                            <label>
+                                @if (item.DismissedAt == null)
+                                {
+                                    <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                                }
+                                <a href="@url">@item.DisplayTitle</a>
+                                @if (item is IUserDeviation dev)
+                                {
+                                    <br />
+                                    <span class="text-muted">(@dev.PublishedTime.UtcDateTime.ToLongDateString())</span>
+                                }
+                            </label>
+                            @if (item is RemoteActivityPubPost activityPubInboxPost)
                             {
-                                <br />
-                                <span class="text-muted">(@dev.PublishedTime.UtcDateTime.ToLongDateString())</span>
+                                <div class="mt-3">
+                                    @if (activityPubInboxPost.FavoritedAt == null)
+                                    {
+                                        <form asp-controller="Inbox" asp-action="Favorite">
+                                            <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
+                                            <button class="btn btn-outline-primary">Add to Favorites</button>
+                                        </form>
+                                    }
+                                    else if (activityPubInboxPost.FavoritedAt != null)
+                                    {
+                                        <form asp-controller="Inbox" asp-action="Unfavorite">
+                                            <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
+                                            <button class="btn btn-primary">Remove from Favorites</button>
+                                        </form>
+                                    }
+                                </div>
                             }
-                        </label>
-                        @if (item is RemoteActivityPubPost activityPubInboxPost)
-                        {
-                            <div class="mt-3">
-                                @if (activityPubInboxPost.FavoritedAt == null)
-                                {
-                                    <form asp-controller="Inbox" asp-action="Favorite">
-                                        <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
-                                        <button class="btn btn-outline-primary">Add to Favorites</button>
-                                    </form>
-                                }
-                                else if (activityPubInboxPost.FavoritedAt != null)
-                                {
-                                    <form asp-controller="Inbox" asp-action="Unfavorite">
-                                        <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
-                                        <button class="btn btn-primary">Remove from Favorites</button>
-                                    </form>
-                                }
-                            </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 }
             </div>
         </div>
