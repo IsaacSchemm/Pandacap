@@ -49,13 +49,13 @@ This application runs on the following Azure resources:
 Application settings (for both the function app and the web app):
 
 | Name                    | Purpose                        
-| ----------------------- | -------------------------------
+| ----------------------- | -------------------------------------
 | ApplicationHostname     | Public hostname of the app
 | CosmosDBAccountEndpoint | URL of the database
 | CosmosDBAccountKey      | Database key
 | DeviantArtClientId      | OAuth client ID from DeviantArt
 | DeviantArtClientSecret  | OAuth secret from DeviantArt
-| DeviantArtUsername      | Instance owner's DA username
+| DeviantArtUsername      | Instance owner's DeviantArt username
 | KeyVaultHostname        | Key vault hostname
 
 The CosmosDBAccountKey is optional; without it, Pandacap will try to connect
@@ -78,6 +78,18 @@ Function app `local.settings.json` example:
         "DeviantArtUsername": "example",
         "KeyVaultHostname": "example-kv.vault.azure.net"
       }
+    }
+
+Web app `local.settings.json` example:
+
+    {
+      "ApplicationHostname": "example.azurewebsites.net",
+      "CosmosDBAccountEndpoint": "https://example-cosmos.documents.azure.com:443/",
+      "CosmosDBAccountKey": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000==",
+      "DeviantArtClientId": "12345",
+      "DeviantArtClientSecret": "00000000000000000000000000000000",
+      "DeviantArtUsername": "example",
+      "KeyVaultHostname": "example-kv.vault.azure.net"
     }
 
 The key vault is for a single encryption key called `activitypub` that is used
