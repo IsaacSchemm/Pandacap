@@ -98,6 +98,12 @@ namespace Pandacap.Controllers
                 .SkipUntil(d => d.Id == next || next == null)
                 .Where(d =>
                 {
+                    if (q == null)
+                        return true;
+
+                    if (q.StartsWith('#'))
+                        return d.Tags.Contains(q[1..], StringComparer.InvariantCultureIgnoreCase);
+
                     IEnumerable<string> getKeywords()
                     {
                         yield return $"{d.Id}";
@@ -110,7 +116,7 @@ namespace Pandacap.Controllers
                             yield return tag;
                     }
 
-                    return q == null || getKeywords().Contains(q, StringComparer.InvariantCultureIgnoreCase);
+                    return getKeywords().Contains(q, StringComparer.InvariantCultureIgnoreCase);
                 })
                 .OfType<IPost>()
                 .AsListPage(count ?? 20);
@@ -118,6 +124,7 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Search",
+                ShowThumbnails = true,
                 Q = q,
                 Items = posts
             });

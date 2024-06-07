@@ -49,14 +49,10 @@
     <p>
         @foreach (string tag in Model.Deviation.Tags)
         {
-            <a href="https://www.deviantart.com/tag/@Uri.EscapeDataString(tag)">#@tag</a>
+            <a href="/Profile/Search?q=%23@(Uri.EscapeDataString(tag))">#@tag</a>
         }
     </p>
 }
-
-<p>
-    <a href="@Model.Deviation.LinkUrl">View on DeviantArt</a>
-</p>
 
 @if (Model.RemoteActivities.Any())
 {

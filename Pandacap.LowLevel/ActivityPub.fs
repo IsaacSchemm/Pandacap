@@ -99,17 +99,14 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             pair "name" post.Title
 
         pair "content" (String.concat "" [
-            if post.Description.StartsWith("<p>", StringComparison.InvariantCultureIgnoreCase) then
-                post.Description
-            else
-                "<p>"
-                post.Description
-                "</p>"
+            "<p>"
+            post.Description
+            "</p>"
 
             if not (Seq.isEmpty post.Tags) then
                 "<p>"
                 for tag in post.Tags do
-                    $"<a href='https://www.deviantart.com/tag/{Uri.EscapeDataString(tag)}'>#{WebUtility.HtmlEncode(tag)}</a> "
+                    $"<a href='https://{appInfo.ApplicationHostname}/Profile/Search?q=%%23{Uri.EscapeDataString(tag)}'>#{WebUtility.HtmlEncode(tag)}</a> "
                 "</p>"
         ])
 
@@ -121,7 +118,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
                     dict [
                         pair "type" "Hashtag"
                         pair "name" $"#{tag}"
-                        pair "href" $"https://www.deviantart.com/tag/{Uri.EscapeDataString(tag)}"
+                        pair "href" $"https://{appInfo.ApplicationHostname}/Profile/Search?q=%%23{Uri.EscapeDataString(tag)}"
                     ]
         ]
         pair "published" post.PublishedTime
