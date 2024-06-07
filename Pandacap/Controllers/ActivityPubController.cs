@@ -56,7 +56,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Likes()
+        public async Task<IActionResult> Liked()
         {
             int posts = await context.RemoteActivityPubPosts
                 .Where(a => a.LikeGuid != null)
@@ -64,7 +64,7 @@ namespace Pandacap.Controllers
 
             return Content(
                 ActivityPubSerializer.SerializeWithContext(
-                    translator.AsLikesCollection(
+                    translator.AsLikedCollection(
                         posts)),
                 "application/activity+json",
                 Encoding.UTF8);

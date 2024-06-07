@@ -28,10 +28,10 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.OutboxPageId =
         $"https://{appInfo.ApplicationHostname}/Gallery/Composite"
 
-    member _.LikesRootId =
-        $"https://{appInfo.ApplicationHostname}/ActivityPub/Likes"
+    member _.LikedRootId =
+        $"https://{appInfo.ApplicationHostname}/ActivityPub/Liked"
 
-    member _.LikesPageId =
+    member _.LikedPageId =
         $"https://{appInfo.ApplicationHostname}/Favorites"
 
     member _.GetImageUrl(deviationid: Guid) =

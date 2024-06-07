@@ -31,7 +31,7 @@ namespace Pandacap.Controllers
             {
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
-                        translator.AsLikesCollectionPage(
+                        translator.AsLikedCollectionPage(
                             Request.GetEncodedUrl(),
                             await activityPubPosts.AsListPage(count ?? 20))),
                     "application/activity+json",
