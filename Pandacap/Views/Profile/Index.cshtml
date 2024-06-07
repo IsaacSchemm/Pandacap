@@ -152,17 +152,25 @@
                     <div class="card-header">
                         Recent activities
                     </div>
-                    <div class="card-body">
-                        <ul>
-                            @foreach (var activity in Model.RecentActivities)
-                            {
-                                <li>
-                                    <a href="/BridgedPosts/@activity.DeviationId">@activity.DeviationId</a>
-                                    <span class="text-muted">(@activity.AddedAt)</span>
-                                </li>
-                            }
-                        </ul>
-                    </div>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var activity in Model.RecentActivities)
+                        {
+                            <li class="list-group-item">
+                                <strong>
+                                    <a href="@activity.RemoteActivity.ActorId">@activity.RemoteActivity.ActorId</a>
+                                </strong>
+                                <br />
+                                @activity.RemoteActivity.ActivityType for
+                                <a href="/BridgedPosts/@activity.RemoteActivity.DeviationId">
+                                    @(activity.Post?.Title ?? activity.RemoteActivity.DeviationId.ToString())
+                                </a>
+                                <br />
+                                <span class="small text-muted">
+                                    (@activity.RemoteActivity.AddedAt)
+                                </span>
+                            </li>
+                        }
+                    </ul>
                 </div>
             </div>
         </div>

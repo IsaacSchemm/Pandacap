@@ -43,6 +43,25 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
+            Lazy<Task<IEnumerable<ActivityInfo>>> activityInfo = new(async () =>
+            {
+                var activites = await context.RemoteActivities
+                   .Where(activity => activity.AddedAt >= someTimeAgo)
+                   .OrderByDescending(activity => activity.AddedAt)
+                   .Take(4)
+                   .ToListAsync();
+
+                var affectedIds = activites.Select(a => a.DeviationId);
+                var affectedDeviations =
+                    Enumerable.Empty<IUserDeviation>()
+                    .Concat(await context.UserArtworkDeviations.Where(d => affectedIds.Contains(d.Id)).ToListAsync())
+                    .Concat(await context.UserTextDeviations.Where(d => affectedIds.Contains(d.Id)).ToListAsync());
+
+                return activites.Select(activity => new ActivityInfo(
+                    activity,
+                    affectedDeviations.FirstOrDefault(d => d.Id == activity.DeviationId)));
+            });
+
             return View(new ProfileViewModel
             {
                 AvatarUrl = avatarUrl,
@@ -53,13 +72,11 @@ namespace Pandacap.Controllers
                 RecentTextPosts = await context.UserTextDeviations
                     .Where(post => post.PublishedTime >= someTimeAgo)
                     .OrderByDescending(post => post.PublishedTime)
-                    .Take(3)
+                    .Take(4)
                     .ToListAsync(),
-                RecentActivities = await context.RemoteActivities
-                    .Where(activity => activity.AddedAt >= someTimeAgo)
-                    .OrderByDescending(activity => activity.AddedAt)
-                    .Take(10)
-                    .ToListAsync(),
+                RecentActivities = User.Identity?.IsAuthenticated == true
+                    ? await activityInfo.Value
+                    : [],
                 FollowerCount = await context.Followers.CountAsync(),
                 FollowingCount = await context.Follows.CountAsync()
             });

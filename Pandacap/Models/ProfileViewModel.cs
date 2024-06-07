@@ -8,7 +8,7 @@ namespace Pandacap.Models
 
         public IEnumerable<UserArtworkDeviation> RecentArtwork { get; set; } = [];
         public IEnumerable<UserTextDeviation> RecentTextPosts { get; set; } = [];
-        public IEnumerable<RemoteActivity> RecentActivities { get; set; } = [];
+        public IEnumerable<ActivityInfo> RecentActivities { get; set; } = [];
 
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
