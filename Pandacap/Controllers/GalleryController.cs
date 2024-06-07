@@ -73,13 +73,13 @@ namespace Pandacap.Controllers
             var posts1 = context.UserArtworkDeviations
                 .Where(d => d.PublishedTime <= startTime)
                 .OrderByDescending(d => d.PublishedTime)
-                .OfType<IUserDeviation>()
-                .AsAsyncEnumerable();
+                .AsAsyncEnumerable()
+                .OfType<IUserDeviation>();
             var posts2 = context.UserTextDeviations
                 .Where(d => d.PublishedTime <= startTime)
                 .OrderByDescending(d => d.PublishedTime)
-                .OfType<IUserDeviation>()
-                .AsAsyncEnumerable();
+                .AsAsyncEnumerable()
+                .OfType<IUserDeviation>();
             var posts = new[] { posts1, posts2 }
                 .MergeNewest(d => d.PublishedTime)
                 .SkipUntil(f => f.Id == next || next == null);

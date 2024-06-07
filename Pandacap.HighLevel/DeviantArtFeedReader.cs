@@ -3,6 +3,7 @@ using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.HighLevel.ActivityPub;
 using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
@@ -11,6 +12,7 @@ namespace Pandacap.HighLevel
         ApplicationInformation applicationInformation,
         PandacapDbContext context,
         DeviantArtApp deviantArtApp,
+        KeyProvider keyProvider,
         ActivityPubTranslator translator)
     {
         private readonly Lazy<Task<IDeviantArtRefreshableAccessToken?>> Credentials = new(async () =>
@@ -20,7 +22,12 @@ namespace Pandacap.HighLevel
 
             foreach (var credentials in allCredentials)
             {
-                var tokenWrapper = new DeviantArtTokenWrapper(deviantArtApp, context, credentials);
+                var tokenWrapper = new DeviantArtTokenWrapper(
+                    deviantArtApp,
+                    context,
+                    credentials,
+                    keyProvider,
+                    translator);
                 var whoami = await DeviantArtFs.Api.User.WhoamiAsync(tokenWrapper);
                 if (whoami.username == applicationInformation.Username)
                 {
@@ -270,6 +277,8 @@ namespace Pandacap.HighLevel
                     if (deviation.content?.OrNull() is not DeviantArtFs.ResponseTypes.Content content)
                         continue;
 
+                    await credentials.UpdateUserIconAsync(deviation.author.OrNull()?.usericon);
+
                     var post = existingPosts
                         .FirstOrDefault(p => p.Id == deviation.deviationid);
 
@@ -402,6 +411,8 @@ namespace Pandacap.HighLevel
 
                     if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                         continue;
+
+                    await credentials.UpdateUserIconAsync(deviation.author.OrNull()?.usericon);
 
                     var content = await DeviantArtFs.Api.Deviation.GetContentAsync(
                         credentials,

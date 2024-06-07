@@ -17,5 +17,7 @@ namespace Pandacap.Data
 
         [Required]
         public string RefreshToken { get; set; } = "";
+
+        public string? UserIcon { get; set; }
     }
 }

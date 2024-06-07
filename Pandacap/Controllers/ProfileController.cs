@@ -1,8 +1,7 @@
-using JsonLD.Core;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ActivityPub;
@@ -15,33 +14,38 @@ namespace Pandacap.Controllers
 {
     public class ProfileController(
         PandacapDbContext context,
-        FeedAggregator feedAggregator,
         KeyProvider keyProvider,
         RemoteActorFetcher remoteActorFetcher,
-        ActivityPubTranslator translator) : Controller
+        ActivityPubTranslator translator,
+        UserManager<IdentityUser> userManager) : Controller
     {
         public async Task<IActionResult> Index()
         {
             var someTimeAgo = DateTime.UtcNow.AddMonths(-6);
 
+            string? userId = userManager.GetUserId(User);
+
+            string? avatarUrl = await context.DeviantArtCredentials
+                .Where(c => c.UserId == userId)
+                .Select(c => c.UserIcon)
+                .FirstOrDefaultAsync();
+
             if (Request.IsActivityPub())
             {
                 var key = await keyProvider.GetPublicKeyAsync();
-
-                var recentPost = await feedAggregator.GetDeviationsAsync()
-                    .FirstOrDefaultAsync();
 
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToObject(
                             key,
-                            recentPost)),
+                            avatarUrl)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
 
             return View(new ProfileViewModel
             {
+                AvatarUrl = avatarUrl,
                 RecentArtwork = await context.UserArtworkDeviations
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
@@ -63,9 +67,17 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> Search(string? q, Guid? next, int? count)
         {
-            var posts = await feedAggregator.GetDeviationsAsync()
+            var posts1 = context.UserArtworkDeviations
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
+                .OfType<IUserDeviation>();
+            var posts2 = context.UserTextDeviations
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .OfType<IUserDeviation>();
+
+            var posts = await new[] { posts1, posts2 }
+                .MergeNewest(d => d.PublishedTime)
                 .SkipUntil(d => d.Id == next || next == null)
                 .Where(d =>
                 {

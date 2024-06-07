@@ -4,6 +4,8 @@ namespace Pandacap.Models
 {
     public class ProfileViewModel
     {
+        public string? AvatarUrl { get; set; }
+
         public IEnumerable<UserArtworkDeviation> RecentArtwork { get; set; } = [];
         public IEnumerable<UserTextDeviation> RecentTextPosts { get; set; } = [];
         public IEnumerable<RemoteActivity> RecentActivities { get; set; } = [];
