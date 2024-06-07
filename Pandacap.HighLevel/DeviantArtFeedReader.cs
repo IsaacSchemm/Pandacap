@@ -15,17 +15,17 @@ namespace Pandacap.HighLevel
         KeyProvider keyProvider,
         ActivityPubTranslator translator)
     {
-        private readonly Lazy<Task<IDeviantArtRefreshableAccessToken?>> Credentials = new(async () =>
+        private readonly Lazy<Task<RefreshableCredentials?>> Credentials = new(async () =>
         {
             var allCredentials = await context.DeviantArtCredentials
                 .ToListAsync();
 
             foreach (var credentials in allCredentials)
             {
-                var tokenWrapper = new DeviantArtTokenWrapper(
-                    deviantArtApp,
+                var tokenWrapper = new RefreshableCredentials(
                     context,
                     credentials,
+                    deviantArtApp,
                     keyProvider,
                     translator);
                 var whoami = await DeviantArtFs.Api.User.WhoamiAsync(tokenWrapper);
@@ -38,48 +38,9 @@ namespace Pandacap.HighLevel
             return null;
         });
 
-        private class DeviationWrapper(DeviantArtFs.ResponseTypes.Deviation deviation) : IPost, IThumbnail
-        {
-            public string Id => $"{deviation.deviationid}";
-            public string? Username => deviation.author.OrNull()?.username;
-            public string? Usericon => deviation.author.OrNull()?.usericon;
-            public string? DisplayTitle => deviation.title?.OrNull();
-            public DateTimeOffset Timestamp => deviation.published_time?.OrNull() ?? DateTimeOffset.UtcNow;
-            public string? LinkUrl => deviation.url.OrNull();
-            public DateTimeOffset? DismissedAt => null;
-            public IEnumerable<IThumbnail> Thumbnails => [this];
-
-            private class ThumbnailWrapper(DeviantArtFs.ResponseTypes.Preview preview) : IThumbnailRendition
-            {
-                public string? Url => preview.src;
-                public int Width => preview.width;
-                public int Height => preview.height;
-            }
-
-            public IEnumerable<IThumbnailRendition> Renditions => deviation.thumbs
-                .OrEmpty()
-                .Select(p => new ThumbnailWrapper(p));
-            public string? AltText => null;
-        }
-
-        public async IAsyncEnumerable<IPost> GetFavoriteDeviationsAsync()
-        {
-            if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
-                yield break;
-
-            await foreach (var deviation in DeviantArtFs.Api.Collections.GetAllAsync(
-                credentials,
-                UserScope.ForCurrentUser,
-                PagingLimit.DefaultPagingLimit,
-                PagingOffset.StartingOffset))
-            {
-                yield return new DeviationWrapper(deviation);
-            }
-        }
-
         public async Task ReadArtworkPostsByUsersWeWatchAsync()
         {
-            if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
+            if (await Credentials.Value is not RefreshableCredentials credentials)
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
@@ -138,7 +99,7 @@ namespace Pandacap.HighLevel
 
         public async Task ReadTextPostsByUsersWeWatchAsync()
         {
-            if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
+            if (await Credentials.Value is not RefreshableCredentials credentials)
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
@@ -233,7 +194,7 @@ namespace Pandacap.HighLevel
 
         public async Task ReadOurGalleryAsync(DateTimeOffset? since = null, int? max = null)
         {
-            if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
+            if (await Credentials.Value is not RefreshableCredentials credentials)
                 return;
 
             DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
@@ -370,7 +331,7 @@ namespace Pandacap.HighLevel
 
         public async Task ReadOurPostsAsync(DateTimeOffset? since = null, int? max = null)
         {
-            if (await Credentials.Value is not DeviantArtTokenWrapper credentials)
+            if (await Credentials.Value is not RefreshableCredentials credentials)
                 return;
 
             DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
@@ -505,6 +466,67 @@ namespace Pandacap.HighLevel
             post.AltText = altText;
             await AddActivityAsync(post, ActivityType.Update);
             await context.SaveChangesAsync();
+        }
+
+        private class RefreshableCredentials(
+            PandacapDbContext context,
+            DeviantArtCredentials credentials,
+            DeviantArtApp deviantArtApp,
+            KeyProvider keyProvider,
+            ActivityPubTranslator translator) : IDeviantArtRefreshableAccessToken
+        {
+            public string RefreshToken => credentials.RefreshToken;
+            public string AccessToken => credentials.AccessToken;
+
+            public async Task RefreshAccessTokenAsync()
+            {
+                var resp = await DeviantArtAuth.RefreshAsync(deviantArtApp, credentials.RefreshToken);
+                credentials.RefreshToken = resp.refresh_token;
+                credentials.AccessToken = resp.access_token;
+                await context.SaveChangesAsync();
+            }
+
+            public async Task UpdateUserIconAsync(string? usericon)
+            {
+                if (credentials.UserIcon != usericon)
+                {
+                    credentials.UserIcon = usericon;
+
+                    var key = await keyProvider.GetPublicKeyAsync();
+
+                    var followers = await context.Followers
+                        .Select(follower => new
+                        {
+                            follower.Inbox,
+                            follower.SharedInbox
+                        })
+                        .ToListAsync();
+
+                    var inboxes = followers
+                        .Select(follower => follower.SharedInbox ?? follower.Inbox)
+                        .Distinct();
+
+                    string activityJson = ActivityPubSerializer.SerializeWithContext(
+                        translator.PersonToUpdate(
+                            key,
+                            usericon));
+
+                    foreach (string inbox in inboxes)
+                    {
+                        Guid activityGuid = Guid.NewGuid();
+
+                        context.ActivityPubOutboundActivities.Add(new()
+                        {
+                            Id = activityGuid,
+                            JsonBody = activityJson,
+                            Inbox = inbox,
+                            StoredAt = DateTimeOffset.UtcNow
+                        });
+                    }
+
+                    await context.SaveChangesAsync();
+                }
+            }
         }
     }
 }
