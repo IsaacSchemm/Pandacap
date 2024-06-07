@@ -10,9 +10,6 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.InboxId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Inbox"
 
-    member _.OutboxId =
-        $"https://{appInfo.ApplicationHostname}/ActivityPub/Outbox"
-
     member _.FollowersRootId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Followers"
 
@@ -24,6 +21,12 @@ type IdMapper(appInfo: ApplicationInformation) =
 
     member _.FollowingPageId =
         $"https://{appInfo.ApplicationHostname}/Profile/Following"
+
+    member _.OutboxRootId =
+        $"https://{appInfo.ApplicationHostname}/ActivityPub/Outbox"
+
+    member _.OutboxPageId =
+        $"https://{appInfo.ApplicationHostname}/Gallery/Composite"
 
     member _.GetImageUrl(deviationid: Guid) =
         $"https://{appInfo.ApplicationHostname}/Images/{deviationid}"

@@ -48,7 +48,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "id" mapper.ActorId
         pair "type" "Person"
         pair "inbox" mapper.InboxId
-        pair "outbox" mapper.OutboxId
+        pair "outbox" mapper.OutboxRootId
         pair "followers" mapper.FollowersRootId
         pair "following" mapper.FollowingRootId
         pair "preferredUsername" appInfo.Username
@@ -202,7 +202,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
 
     member _.AsFollowingCollection(following: int) = dict [
         pair "id" mapper.FollowingRootId
-        pair "type" "Collection"
+        pair "type" "OrderedCollection"
         pair "totalItems" following
         pair "first" mapper.FollowingPageId
     ]
@@ -219,11 +219,23 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             pair "next" $"{mapper.FollowingPageId}?next={next.ActorId}&count={Seq.length following.DisplayList}"
     ]
 
-    member _.Outbox = dict [
-        pair "id" mapper.OutboxId
+    member _.AsOutboxCollection(posts: int) = dict [
+        pair "id" mapper.OutboxRootId
         pair "type" "Collection"
-        pair "totalItems" 0
-        pair "items" []
+        pair "totalItems" posts
+        pair "first" mapper.OutboxPageId
+    ]
+
+    member _.AsOutboxCollectionPage(currentPage: string, posts: ListPage<IUserDeviation>) = dict [
+        pair "id" currentPage
+        pair "type" "OrderedCollectionPage"
+        pair "partOf" mapper.OutboxRootId
+
+        pair "orderedItems" [for p in posts.DisplayList do mapper.GetObjectId(p.Id)]
+        match posts.Next with
+        | None -> ()
+        | Some next ->
+            pair "next" $"{mapper.OutboxPageId}?next={next.Id}&count={Seq.length posts.DisplayList}"
     ]
 
     member _.Follow(followGuid: Guid, remoteActorId: string) = dict [

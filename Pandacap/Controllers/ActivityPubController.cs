@@ -310,11 +310,14 @@ namespace Pandacap.Controllers
         }
 
         [HttpGet]
-        public IActionResult Outbox()
+        public async Task<IActionResult> Outbox()
         {
+            int count = await context.UserArtworkDeviations.CountAsync()
+                + await context.UserTextDeviations.CountAsync();
             return Content(
                 ActivityPubSerializer.SerializeWithContext(
-                    translator.Outbox),
+                    translator.AsOutboxCollection(
+                        count)),
                 "application/activity+json",
                 Encoding.UTF8);
         }
