@@ -101,7 +101,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "content" (String.concat "" [
             if not (isNull post.Description) then
                 "<p>"
-                post.Description.Replace("https://www.deviantart.com/users/outgoing?", "")
+                post.Description
                 "</p>"
 
             if not (Seq.isEmpty post.Tags) then

@@ -268,7 +268,7 @@ namespace Pandacap.HighLevel
                     post.PublishedTime = publishedTime;
                     post.IsMature = deviation.is_mature.OrNull() ?? false;
 
-                    post.Description = metadata?.description;
+                    post.Description = metadata?.description?.Replace("https://www.deviantart.com/users/outgoing?", "");
 
                     post.Tags.Clear();
                     post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
@@ -409,7 +409,7 @@ namespace Pandacap.HighLevel
                     post.PublishedTime = publishedTime;
                     post.IsMature = deviation.is_mature.OrNull() ?? false;
 
-                    post.Description = content.html.OrNull() ?? metadata?.description;
+                    post.Description = content.html.OrNull()?.Replace("https://www.deviantart.com/users/outgoing?", "");
 
                     post.Tags.Clear();
                     post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
