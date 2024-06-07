@@ -23,9 +23,9 @@ Things it does:
 Things it does not do, but which could be added:
 
 * Allow the owner to follow RSS/Atom feeds
+* Allow the owner to see posts boosted by their ActivityPub follows (on a separate page)
 * Allow the owner to create ActivityPub posts that do not map to a DeviantArt post
 * Allow the owner to reply to an ActivityPub post, or mention an ActivityPub user in a post (you can reply from another ActivityPub account instead)
-* Allow the owner to see posts which their ActivityPub follows have boosted
 * Expose ActivityFed "comments" (replies) to other users
 * Present a single public page that includes the owner's ActivityPub favorites alongside their DeviantArt favorites
 
@@ -48,15 +48,15 @@ This application runs on the following Azure resources:
 
 Application settings (for both the function app and the web app):
 
-| Name                    | Purpose                         | Example
-| ----------------------- | ------------------------------- | -------
-| ApplicationHostname     | Public hostname of the app      | example.azurewebsites.net
-| CosmosDBAccountEndpoint | URL of the database             | https://example-cosmos.documents.azure.com:443/
-| CosmosDBAccountKey      | Database key                    | 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000==
-| DeviantArtClientId      | OAuth client ID from DeviantArt | 12345
-| DeviantArtClientSecret  | OAuth secret from DeviantArt    | 00000000000000000000000000000000
-| DeviantArtUsername      | Instance owner's DA username    | example
-| KeyVaultHostname        | Key vault hostname              | example-kv.vault.azure.net
+| Name                    | Purpose                        
+| ----------------------- | -------------------------------
+| ApplicationHostname     | Public hostname of the app
+| CosmosDBAccountEndpoint | URL of the database
+| CosmosDBAccountKey      | Database key
+| DeviantArtClientId      | OAuth client ID from DeviantArt
+| DeviantArtClientSecret  | OAuth secret from DeviantArt
+| DeviantArtUsername      | Instance owner's DA username
+| KeyVaultHostname        | Key vault hostname
 
 The CosmosDBAccountKey is optional; without it, Pandacap will try to connect
 to Cosmos DB using Entra authentication, which can lead ot slower performance.
