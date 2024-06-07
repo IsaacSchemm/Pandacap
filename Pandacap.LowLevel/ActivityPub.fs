@@ -51,6 +51,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "outbox" mapper.OutboxRootId
         pair "followers" mapper.FollowersRootId
         pair "following" mapper.FollowingRootId
+        pair "likes" mapper.LikesRootId
         pair "preferredUsername" appInfo.Username
         pair "name" appInfo.DeviantArtUsername
         pair "url" mapper.ActorId
@@ -252,16 +253,40 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.Follow(followGuid, remoteActorId))
     ]
 
-    member _.Like(likeGuid: Guid, remoteActorId: string) = dict [
+    member _.Like(likeGuid: Guid, remoteObjectId: string) = dict [
         pair "id" (mapper.GetLikeId(likeGuid))
         pair "type" "Like"
         pair "actor" mapper.ActorId
-        pair "object" remoteActorId
+        pair "object" remoteObjectId
     ]
 
-    member this.UndoLike(likeGuid: Guid, remoteActorId: string) = dict [
+    member this.UndoLike(likeGuid: Guid, remoteObjectId: string) = dict [
         pair "id" (mapper.GetTransientId())
         pair "type" "Undo"
         pair "actor" mapper.ActorId
-        pair "object" (this.Like(likeGuid, remoteActorId))
+        pair "object" (this.Like(likeGuid, remoteObjectId))
+    ]
+
+    member _.AsLikesCollection(posts: int) = dict [
+        pair "id" mapper.LikesRootId
+        pair "type" "Collection"
+        pair "totalItems" posts
+        pair "first" mapper.LikesPageId
+    ]
+
+    member this.AsLikesCollectionPage(currentPage: string, posts: ListPage<RemoteActivityPubPost>) = dict [
+        pair "id" currentPage
+        pair "type" "OrderedCollectionPage"
+        pair "partOf" mapper.LikesRootId
+
+        pair "orderedItems" [
+            for p in posts.DisplayList do
+                if p.LikeGuid.HasValue then
+                    this.Like(p.LikeGuid.Value, p.Id)
+        ]
+
+        match posts.Next with
+        | None -> ()
+        | Some next ->
+            pair "next" $"{mapper.LikesPageId}?next={next.Id}&count={Seq.length posts.DisplayList}"
     ]

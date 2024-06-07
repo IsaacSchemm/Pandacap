@@ -1,5 +1,6 @@
 ﻿using JsonLD.Core;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
@@ -8,6 +9,7 @@ using Pandacap.HighLevel;
 using Pandacap.HighLevel.ActivityPub;
 using Pandacap.LowLevel;
 using Pandacap.Models;
+using System.Text;
 
 namespace Pandacap.Controllers
 {
@@ -23,17 +25,26 @@ namespace Pandacap.Controllers
                 .Where(post => post.FavoritedAt != null)
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
-                .OfType<IPost>();
+                .SkipUntil(post => post.Id == next || next == null);
 
-            var posts = await activityPubPosts
-                .SkipUntil(post => post.Id == next || next == null)
-                .AsListPage(count ?? 20);
+            if (Request.IsActivityPub())
+            {
+                return Content(
+                    ActivityPubSerializer.SerializeWithContext(
+                        translator.AsLikesCollectionPage(
+                            Request.GetEncodedUrl(),
+                            await activityPubPosts.AsListPage(count ?? 20))),
+                    "application/activity+json",
+                    Encoding.UTF8);
+            }
 
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Favorites",
                 ShowThumbnails = true,
-                Items = posts
+                Items = await activityPubPosts
+                    .OfType<IPost>()
+                    .AsListPage(count ?? 20)
             });
         }
 

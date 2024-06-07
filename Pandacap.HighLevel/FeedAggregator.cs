@@ -3,6 +3,7 @@ using Pandacap.Data;
 
 namespace Pandacap.HighLevel
 {
+    [Obsolete]
     public class FeedAggregator(IDbContextFactory<PandacapDbContext> contextFactory)
     {
         public async IAsyncEnumerable<IUserDeviation> GetDeviationsAsync()

@@ -55,6 +55,21 @@ namespace Pandacap.Controllers
                 Encoding.UTF8);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Likes()
+        {
+            int posts = await context.RemoteActivityPubPosts
+                .Where(a => a.LikeGuid != null)
+                .CountAsync();
+
+            return Content(
+                ActivityPubSerializer.SerializeWithContext(
+                    translator.AsLikesCollection(
+                        posts)),
+                "application/activity+json",
+                Encoding.UTF8);
+        }
+
         private class Wrapper(HttpRequest Request) : IRequest
         {
             HttpMethod IRequest.Method => new(Request.Method);
