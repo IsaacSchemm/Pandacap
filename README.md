@@ -7,10 +7,11 @@ An Azure-hosted, **single-user** ActivityPub bridge and inbox reader for Deviant
 Things it does:
 
 * Allow the owner to log in with their DeviantArt account and:
-    * View new DeviantArt submissions (from follows)
-    * View new DeviantArt journals and status updates (from follows)
-    * View new ActivityPub image posts (from follows + mentions and replies)
-    * View new ActivityPub text posts (from follows + mentions and replies)
+    * View DeviantArt submissions from followed users
+    * View DeviantArt journals and status updates from followed users
+    * View ActivityPub image posts from followed users
+    * View ActivityPub text posts from followed users
+    * View ActivityPub mentions and replies
     * Mark ActivityPub posts as favorites
     * See which other ActivityPub users have liked or boosted a post
     * Follow and unfollow ActivityPub users

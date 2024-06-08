@@ -17,6 +17,7 @@
         public bool Sensitive { get; set; }
 
         public string? Name { get; set; }
+        public string? Content { get; set; }
 
         public class ActivityPubImageAttachment : IThumbnail, IThumbnailRendition
         {
@@ -32,12 +33,13 @@
 
         public List<ActivityPubImageAttachment> Attachments { get; set; } = [];
 
+        public bool? IsMention { get; set; }
+        public bool? IsReply { get; set; }
+
         public DateTimeOffset? FavoritedAt { get; set; }
         public Guid? LikeGuid { get; set; }
 
         public DateTimeOffset? DismissedAt { get; set; }
-
-        public string? Content { get; set; }
 
         string? IPost.DisplayTitle
         {

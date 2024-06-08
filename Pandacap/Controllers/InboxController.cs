@@ -30,6 +30,7 @@ namespace Pandacap.Controllers
             var source2 = context.RemoteActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
                 .Where(a => a.DismissedAt == null)
+                .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.Timestamp)
                 .OfType<IPost>()
                 .AsAsyncEnumerable()
@@ -69,6 +70,7 @@ namespace Pandacap.Controllers
             var source2 = context.RemoteActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
                 .Where(a => a.DismissedAt == null)
+                .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.Timestamp)
                 .OfType<IPost>()
                 .AsAsyncEnumerable()
@@ -82,6 +84,34 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Inbox (Text Posts)",
+                GroupByUser = true,
+                Items = posts
+            });
+        }
+
+        public async Task<IActionResult> MentionsAndReplies(
+            string? next,
+            int? count)
+        {
+            DateTimeOffset startTime = next is string s
+                ? await GetInboxPostsByIds([s])
+                    .Select(f => f.Timestamp)
+                    .SingleAsync()
+                : DateTimeOffset.MaxValue;
+
+            var posts = await context.RemoteActivityPubPosts
+                .Where(a => a.Timestamp <= startTime)
+                .Where(a => a.DismissedAt == null)
+                .Where(a => a.IsMention == true || a.IsReply == true)
+                .OrderByDescending(a => a.Timestamp)
+                .AsAsyncEnumerable()
+                .OfType<IPost>()
+                .SkipWhile(x => next != null && x.Id != next)
+                .AsListPage(count ?? 100);
+
+            return View("List", new ListViewModel<IPost>
+            {
+                Title = "Inbox (Mentions & Replies)",
                 GroupByUser = true,
                 Items = posts
             });

@@ -14,7 +14,9 @@ namespace Pandacap.HighLevel
             RemoteActor sendingActor,
             JToken expandedLdJson,
             bool addToInbox = false,
-            bool addToFavorites = false)
+            bool addToFavorites = false,
+            bool isMention = false,
+            bool isReply = false)
         {
             var post = expandedLdJson;
 
@@ -60,6 +62,12 @@ namespace Pandacap.HighLevel
                     JsonBody = ActivityPubSerializer.SerializeWithContext(translator.Like(likeGuid, id))
                 });
             }
+
+            if (isMention)
+                existingPost.IsMention = true;
+
+            if (isReply)
+                existingPost.IsReply = true;
 
             existingPost.Username = sendingActor.PreferredUsername ?? sendingActor.Id;
             existingPost.Usericon = sendingActor.IconUrl;

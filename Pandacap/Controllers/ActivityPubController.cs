@@ -78,6 +78,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported on Cosmos DB provider for EF Core")]
         public async Task Inbox()
         {
             using var sr = new StreamReader(Request.Body);
@@ -221,22 +222,31 @@ namespace Pandacap.Controllers
                     string replyJson = await remoteActorFetcher.GetJsonAsync(new Uri(postId));
                     JArray replyExpansion = JsonLdProcessor.Expand(JObject.Parse(replyJson));
 
-                    var relevantIds = Empty
+                    bool isMention = Empty
                         .Concat(replyExpansion[0]["https://www.w3.org/ns/activitystreams#to"] ?? Empty)
                         .Concat(replyExpansion[0]["https://www.w3.org/ns/activitystreams#cc"] ?? Empty)
-                        .Concat(replyExpansion[0]["https://www.w3.org/ns/activitystreams#inReplyTo"] ?? Empty)
-                        .Select(token => token["@id"]!.Value<string>());
+                        .Select(token => token["@id"]!.Value<string>())
+                        .Any(id =>
+                            Uri.TryCreate(id, UriKind.Absolute, out Uri? uri)
+                            && uri.Host == appInfo.ApplicationHostname);
 
-                    bool mentionsThisActor = relevantIds.Any(id =>
-                        Uri.TryCreate(id, UriKind.Absolute, out Uri? uri)
-                        && uri.Host == appInfo.ApplicationHostname);
+                    bool isReply = (replyExpansion[0]["https://www.w3.org/ns/activitystreams#inReplyTo"] ?? Empty)
+                        .Select(token => token["@id"]!.Value<string>())
+                        .Any(id =>
+                            Uri.TryCreate(id, UriKind.Absolute, out Uri? uri)
+                            && uri.Host == appInfo.ApplicationHostname);
 
                     bool isFromFollow = await context.Follows
                         .Where(f => f.ActorId == actor.Id)
                         .CountAsync() > 0;
 
-                    if (mentionsThisActor || isFromFollow)
-                        await remoteActivityPubPostHandler.AddRemotePostAsync(actor, obj, addToInbox: true);
+                    if (isMention || isReply || isFromFollow)
+                        await remoteActivityPubPostHandler.AddRemotePostAsync(
+                            actor,
+                            obj,
+                            addToInbox: true,
+                            isMention: isMention,
+                            isReply: isReply);
                 }
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Update")
