@@ -98,18 +98,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         if not (String.IsNullOrEmpty post.Title) then
             pair "name" post.Title
 
-        pair "content" (String.concat "" [
-            if not (isNull post.Description) then
-                "<p>"
-                post.Description
-                "</p>"
-
-            if not (Seq.isEmpty post.Tags) then
-                "<p>"
-                for tag in post.Tags do
-                    $"<a href='https://{appInfo.ApplicationHostname}/Profile/Search?q=%%23{Uri.EscapeDataString(tag)}'>#{WebUtility.HtmlEncode(tag)}</a> "
-                "</p>"
-        ])
+        if not (isNull post.Description) then
+            pair "content" $"<p>{post.Description}</p>"
 
         pair "attributedTo" mapper.ActorId
         pair "tag" [
