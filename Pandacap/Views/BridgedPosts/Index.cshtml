@@ -5,6 +5,15 @@
     ViewBag.Title = Model.Deviation.Title;
 }
 
+@if (Model.Deviation is UserTextDeviation text && DateTimeOffset.UtcNow - text.PublishedTime > TimeSpan.FromDays(366))
+{
+    <div class="card text-bg-warning mb-3" style="max-width: 18rem;">
+        <div class="card-body">
+            <p class="card-text">This post is more than one year old.</p>
+        </div>
+    </div>
+}
+
 <h1>@Model.Deviation.Title</h1>
 
 @if (Model.Deviation is UserArtworkDeviation artwork)

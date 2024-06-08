@@ -7,10 +7,8 @@ An Azure-hosted, **single-user** ActivityPub bridge and inbox reader for Deviant
 Things it does:
 
 * Allow the owner to log in with their DeviantArt account and:
-    * View DeviantArt submissions from followed users
-    * View DeviantArt journals and status updates from followed users
-    * View ActivityPub image posts from followed users
-    * View ActivityPub text posts from followed users
+    * View image posts from users they follow on DeviantArt or ActivityPub
+    * View text posts from users they follow on DeviantArt or ActivityPub
     * View ActivityPub mentions and replies
     * Mark ActivityPub posts as favorites
     * See which other ActivityPub users have liked or boosted a post
@@ -21,14 +19,17 @@ Things it does:
     * See the owner's ActivityPub follows, followers, and favorites
 * Make the owner's DeviantArt submissions, journals, and status updates available to ActivityPub servers such as Pixelfed and Mastodon
 
-Things it does not do, but which could be added:
+Things which might be added:
 
 * Allow the owner to follow RSS/Atom feeds
 * Allow the owner to see posts boosted by their ActivityPub follows (on a separate page)
+
+Things which will probably not be added:
+
 * Allow the owner to create ActivityPub posts that do not map to a DeviantArt post
-* Allow the owner to reply to an ActivityPub post, or mention an ActivityPub user in a post (you can reply from another ActivityPub account instead)
+* Allow the owner to reply to an ActivityPub post, or mention an ActivityPub user in a post
+* Expose ActivityPub likes and boosts to other users
 * Expose ActivityFed "comments" (replies) to other users
-* Present a single public page that includes the owner's ActivityPub favorites alongside their DeviantArt favorites
 
 Things it does not do, **by design**:
 

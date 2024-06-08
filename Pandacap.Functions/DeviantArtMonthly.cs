@@ -6,7 +6,7 @@ namespace Pandacap.Functions
     public class DeviantArtMonthly(DeviantArtFeedReader deviantArtFeedReader)
     {
         [Function("DeviantArtMonthly")]
-        public async Task Run([TimerTrigger("0 45 12 2 * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 45 0 2 * *")] TimerInfo myTimer)
         {
             await deviantArtFeedReader.ReadOurGalleryAsync();
             await deviantArtFeedReader.ReadOurPostsAsync();
