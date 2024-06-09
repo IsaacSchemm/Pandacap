@@ -10,6 +10,7 @@ Things it does:
     * View image posts from users they follow on DeviantArt or ActivityPub
     * View text posts from users they follow on DeviantArt or ActivityPub
     * View ActivityPub mentions and replies
+    * View shared (boosted) ActivityPub image posts
     * Mark ActivityPub posts as favorites
     * See which other ActivityPub users have liked or boosted a post
     * Follow and unfollow ActivityPub users
@@ -26,6 +27,7 @@ Things which might be added:
 
 Things which will probably not be added:
 
+* View shared (boosted) ActivityPub text posts
 * Allow the owner to create ActivityPub posts that do not map to a DeviantArt post
 * Allow the owner to reply to an ActivityPub post, or mention an ActivityPub user in a post
 * Expose ActivityPub likes and boosts to other users

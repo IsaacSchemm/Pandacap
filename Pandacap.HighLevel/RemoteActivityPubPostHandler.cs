@@ -149,6 +149,9 @@ namespace Pandacap.HighLevel
             string originalPostJson = await remoteActorFetcher.GetJsonAsync(new Uri(objectId));
             JToken originalPost = JsonLdProcessor.Expand(JObject.Parse(originalPostJson))[0];
 
+            if (!GetAttachments(originalPost).Any())
+                return;
+
             string? originalActorId = (originalPost["https://www.w3.org/ns/activitystreams#attributedTo"] ?? Empty)
                 .Select(token => token["@id"]!.Value<string>())
                 .FirstOrDefault();
