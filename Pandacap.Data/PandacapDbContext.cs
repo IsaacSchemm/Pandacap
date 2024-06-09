@@ -20,6 +20,8 @@ namespace Pandacap.Data
 
         public DbSet<RemoteActivity> RemoteActivities { get; set; }
 
+        public DbSet<RemoteActivityPubAnnouncement> RemoteActivityPubAnnouncements { get; set; }
+
         public DbSet<RemoteActivityPubPost> RemoteActivityPubPosts { get; set; }
 
         public DbSet<UserArtworkDeviation> UserArtworkDeviations { get; set; }

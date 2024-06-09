@@ -136,13 +136,19 @@ namespace Pandacap.Controllers
                         }
                     }
 
-                    var ids = (objectToUndo["@id"] ?? Empty).Select(token => token.Value<string>());
+                    string id = objectToUndo["@id"]!.Value<string>()!;
 
                     var activities = await context.RemoteActivities
-                        .Where(a => ids.Contains(a.ActivityId))
+                        .Where(a => a.ActivityId == id)
                         .ToListAsync();
 
                     context.RemoveRange(activities);
+
+                    var announcements = await context.RemoteActivityPubAnnouncements
+                        .Where(a => a.AnnounceActivityId == id)
+                        .ToListAsync();
+
+                    context.RemoveRange(announcements);
 
                     await context.SaveChangesAsync();
                 }
@@ -187,7 +193,22 @@ namespace Pandacap.Controllers
                 {
                     string interactedWithId = obj["@id"]!.Value<string>()!;
 
-                    if (Uri.TryCreate(obj["@id"]!.Value<string>(), UriKind.Absolute, out Uri? uri) && uri != null)
+                    if (type == "https://www.w3.org/ns/activitystreams#Announce")
+                    {
+                        bool isFromFollow = await context.Follows
+                            .Where(f => f.ActorId == actor.Id)
+                            .CountAsync() > 0;
+
+                        if (isFromFollow)
+                        {
+                            await remoteActivityPubPostHandler.AddRemoteAnnouncementAsync(
+                                actor,
+                                expansionObj["@id"]!.Value<string>()!,
+                                interactedWithId);
+                        }
+                    }
+
+                    if (Uri.TryCreate(interactedWithId, UriKind.Absolute, out Uri? uri) && uri != null)
                     {
                         if (!Guid.TryParse(uri.Segments.Last(), out Guid id))
                             continue;
