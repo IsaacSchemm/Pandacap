@@ -117,7 +117,7 @@ namespace Pandacap.Controllers
             });
         }
 
-        public async Task<IActionResult> Shares(
+        public async Task<IActionResult> ImageShares(
             string? next,
             int? count)
         {
@@ -133,12 +133,42 @@ namespace Pandacap.Controllers
                 .OrderByDescending(a => a.SharedAt)
                 .AsAsyncEnumerable()
                 .OfType<IPost>()
+                .Where(x => x.Thumbnails.Any())
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel<IPost>
             {
-                Title = "Inbox (Shares)",
+                Title = "Shares (Image Posts)",
+                ShowThumbnails = true,
+                GroupByUser = true,
+                Items = posts
+            });
+        }
+
+        public async Task<IActionResult> TextShares(
+            string? next,
+            int? count)
+        {
+            DateTimeOffset startTime = next is string s
+                ? await GetInboxPostsByIds([s])
+                    .Select(f => f.Timestamp)
+                    .SingleAsync()
+                : DateTimeOffset.MaxValue;
+
+            var posts = await context.RemoteActivityPubAnnouncements
+                .Where(a => a.SharedAt <= startTime)
+                .Where(a => a.DismissedAt == null)
+                .OrderByDescending(a => a.SharedAt)
+                .AsAsyncEnumerable()
+                .OfType<IPost>()
+                .Where(x => !x.Thumbnails.Any())
+                .SkipWhile(x => next != null && x.Id != next)
+                .AsListPage(count ?? 100);
+
+            return View("List", new ListViewModel<IPost>
+            {
+                Title = "Shares (Text Posts)",
                 ShowThumbnails = true,
                 GroupByUser = true,
                 Items = posts
