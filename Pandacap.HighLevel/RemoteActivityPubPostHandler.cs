@@ -4,9 +4,6 @@ using Newtonsoft.Json.Linq;
 using Pandacap.Data;
 using Pandacap.HighLevel.ActivityPub;
 using Pandacap.LowLevel;
-using System.Collections.Generic;
-using System.Net.Mail;
-using static DeviantArtFs.ParameterTypes.FolderUpdateType;
 
 namespace Pandacap.HighLevel
 {
@@ -50,8 +47,6 @@ namespace Pandacap.HighLevel
         public async Task AddRemotePostAsync(
             RemoteActor sendingActor,
             JToken expandedLdJson,
-            bool addToInbox = false,
-            bool addToFavorites = false,
             bool isMention = false,
             bool isReply = false)
         {
@@ -64,80 +59,41 @@ namespace Pandacap.HighLevel
             string id = post["@id"]!.Value<string>()!;
             IEnumerable<string> types = (post["@type"] ?? Empty).Select(token => token.Value<string>()!);
 
-            RemoteActivityPubPost? existingPost = await context.RemoteActivityPubPosts.FirstOrDefaultAsync(item => item.Id == id);
+            int existing = await context.RemoteActivityPubPosts.Where(p => p.Id == id).CountAsync();
+            if (existing > 0)
+                return;
 
-            if (existingPost == null)
+            context.Add(new RemoteActivityPubPost
             {
-                existingPost = new RemoteActivityPubPost
-                {
-                    Id = id,
-                    CreatedBy = sendingActor.Id,
-                    DismissedAt = DateTimeOffset.UtcNow
-                };
-                context.Add(existingPost);
-            }
-            else
-            {
-                if (existingPost.CreatedBy != sendingActor.Id)
-                    return;
-            }
-
-            if (addToInbox)
-                existingPost.DismissedAt = null;
-
-            if (addToFavorites)
-            {
-                Guid likeGuid = Guid.NewGuid();
-
-                existingPost.FavoritedAt = DateTimeOffset.UtcNow;
-                existingPost.LikeGuid = likeGuid;
-
-                context.ActivityPubOutboundActivities.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    Inbox = sendingActor.Inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(translator.Like(likeGuid, id))
-                });
-            }
-
-            if (isMention)
-                existingPost.IsMention = true;
-
-            if (isReply)
-                existingPost.IsReply = true;
-
-            existingPost.Username = sendingActor.PreferredUsername ?? sendingActor.Id;
-            existingPost.Usericon = sendingActor.IconUrl;
-
-            existingPost.Timestamp = (post["https://www.w3.org/ns/activitystreams#published"] ?? Empty)
-                .Select(token => token["@value"]!.Value<DateTime>())
-                .FirstOrDefault();
-
-            existingPost.Summary = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
-                .Select(token => token["@value"]!.Value<string>())
-                .FirstOrDefault();
-            existingPost.Sensitive = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
-                .Select(token => token["@value"]!.Value<bool>())
-                .Contains(true);
-
-            existingPost.Name = (post["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
-                .Select(token => token["@value"]!.Value<string>())
-                .FirstOrDefault();
-
-            existingPost.Content = (post["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
-                .Select(token => token["@value"]!.Value<string>())
-                .FirstOrDefault();
-
-            existingPost.Attachments.Clear();
-            foreach (var (name, url) in GetAttachments(post))
-            {
-                existingPost.Attachments.Add(new()
-                {
-                    Name = name,
-                    Url = url
-                });
-            }
-
+                Id = id,
+                CreatedBy = sendingActor.Id,
+                IsMention = isMention,
+                IsReply = isReply,
+                Username = sendingActor.PreferredUsername,
+                Usericon = sendingActor.IconUrl,
+                Timestamp = (post["https://www.w3.org/ns/activitystreams#published"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<DateTime>())
+                    .FirstOrDefault(),
+                Summary = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<string>())
+                    .FirstOrDefault(),
+                Sensitive = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<bool>())
+                    .Contains(true),
+                Name = (post["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<string>())
+                    .FirstOrDefault(),
+                Content = (post["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<string>())
+                    .FirstOrDefault(),
+                Attachments = GetAttachments(post)
+                    .Select(attachment => new RemoteActivityPubPost.ImageAttachment
+                    {
+                        Name = attachment.name,
+                        Url = attachment.url
+                    })
+                    .ToList()
+            });
             await context.SaveChangesAsync();
         }
 
@@ -207,6 +163,62 @@ namespace Pandacap.HighLevel
                     .ToList()
             });
 
+            await context.SaveChangesAsync();
+        }
+
+        public async Task AddRemoteFavoriteAsync(
+            string objectId)
+        {
+            string postJson = await remoteActorFetcher.GetJsonAsync(new Uri(objectId));
+            JToken post = JsonLdProcessor.Expand(JObject.Parse(postJson))[0];
+
+            string? originalActorId = (post["https://www.w3.org/ns/activitystreams#attributedTo"] ?? Empty)
+                .Select(token => token["@id"]!.Value<string>())
+                .FirstOrDefault();
+            if (originalActorId == null)
+                return;
+
+            var originalActor = await remoteActorFetcher.FetchActorAsync(originalActorId);
+
+            Guid likeGuid = Guid.NewGuid();
+
+            context.Add(new RemoteActivityPubFavorite
+            {
+                LikeGuid = likeGuid,
+                ObjectId = objectId,
+                CreatedBy = originalActor.Id,
+                Username = originalActor.PreferredUsername,
+                Usericon = originalActor.IconUrl,
+                CreatedAt = (post["https://www.w3.org/ns/activitystreams#published"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<DateTime>())
+                    .FirstOrDefault(),
+                FavoritedAt = DateTimeOffset.UtcNow,
+                Summary = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<string>())
+                    .FirstOrDefault(),
+                Sensitive = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<bool>())
+                    .Contains(true),
+                Name = (post["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<string>())
+                    .FirstOrDefault(),
+                Content = (post["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
+                    .Select(token => token["@value"]!.Value<string>())
+                    .FirstOrDefault(),
+                Attachments = GetAttachments(post)
+                    .Select(attachment => new RemoteActivityPubFavorite.ImageAttachment
+                    {
+                        Name = attachment.name,
+                        Url = attachment.url
+                    })
+                    .ToList()
+            });
+            context.ActivityPubOutboundActivities.Add(new()
+            {
+                Id = Guid.NewGuid(),
+                Inbox = originalActor.Inbox,
+                JsonBody = ActivityPubSerializer.SerializeWithContext(translator.Like(likeGuid, objectId))
+            });
             await context.SaveChangesAsync();
         }
     }

@@ -2,29 +2,24 @@
 
 namespace Pandacap.Data
 {
-    public class RemoteActivityPubAnnouncement : IPost
+    public class RemoteActivityPubFavorite : IPost
     {
         private static readonly Textify.HtmlToTextConverter _converter = new();
 
         [Key]
-        public string AnnounceActivityId { get; set; } = "";
+        public Guid LikeGuid { get; set; }
 
         [Required]
         public string ObjectId { get; set; } = "";
 
-        public class User
-        {
-            [Required]
-            public string Id { get; set; } = "";
+        [Required]
+        public string CreatedBy { get; set; } = "";
 
-            public string? Username { get; set; }
-            public string? Usericon { get; set; }
-        }
+        public string? Username { get; set; }
+        public string? Usericon { get; set; }
 
-        public User CreatedBy { get; set; } = new();
-        public User SharedBy { get; set; } = new();
-
-        public DateTimeOffset SharedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset FavoritedAt { get; set; }
 
         public string? Summary { get; set; }
         public bool Sensitive { get; set; }
@@ -48,6 +43,8 @@ namespace Pandacap.Data
 
         public List<ImageAttachment> Attachments { get; set; } = [];
 
+        string IPost.Id => $"{LikeGuid}";
+
         string? IPost.DisplayTitle
         {
             get
@@ -61,19 +58,13 @@ namespace Pandacap.Data
                 if (excerpt != null && excerpt.Length > 60)
                     excerpt = excerpt[..60] + "...";
 
-                return Name ?? excerpt ?? $"{AnnounceActivityId}";
+                return Name ?? excerpt ?? $"{LikeGuid}";
             }
         }
 
-        string IPost.Id => AnnounceActivityId;
-
-        string? IPost.Username => SharedBy.Username;
-
-        string? IPost.Usericon => SharedBy.Usericon;
-
-        DateTimeOffset IPost.Timestamp => SharedAt;
-
         string? IPost.LinkUrl => ObjectId;
+
+        DateTimeOffset IPost.Timestamp => FavoritedAt;
 
         IEnumerable<IThumbnail> IPost.Thumbnails => Attachments;
 

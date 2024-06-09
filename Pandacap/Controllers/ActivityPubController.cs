@@ -265,7 +265,6 @@ namespace Pandacap.Controllers
                         await remoteActivityPubPostHandler.AddRemotePostAsync(
                             actor,
                             obj,
-                            addToInbox: true,
                             isMention: isMention,
                             isReply: isReply);
                 }
@@ -317,8 +316,14 @@ namespace Pandacap.Controllers
                     string deletedObjectId = deletedObject["@id"]!.Value<string>()!;
 
                     var inboxPosts = await context.RemoteActivityPubPosts.Where(p => p.Id == deletedObjectId).ToListAsync();
-
                     context.RemoveRange(inboxPosts);
+
+                    var announcements = await context.RemoteActivityPubAnnouncements.Where(p => p.ObjectId == deletedObjectId).ToListAsync();
+                    context.RemoveRange(announcements);
+
+                    var favorites = await context.RemoteActivityPubFavorites.Where(p => p.ObjectId == deletedObjectId).ToListAsync();
+                    context.RemoveRange(favorites);
+
                     await context.SaveChangesAsync();
                 }
             }
@@ -390,7 +395,7 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Like(Guid id)
         {
-            var post = await context.RemoteActivityPubPosts
+            var post = await context.RemoteActivityPubFavorites
                 .Where(a => a.LikeGuid == id)
                 .SingleOrDefaultAsync();
 
@@ -401,7 +406,7 @@ namespace Pandacap.Controllers
                 ActivityPubSerializer.SerializeWithContext(
                     translator.Like(
                         id,
-                        post.Id)),
+                        post.ObjectId)),
                 "application/activity+json",
                 Encoding.UTF8);
         }

@@ -1,11 +1,15 @@
-﻿namespace Pandacap.Data
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Pandacap.Data
 {
     public class RemoteActivityPubPost : IPost
     {
         private static readonly Textify.HtmlToTextConverter _converter = new();
 
+        [Key]
         public string Id { get; set; } = "";
 
+        [Required]
         public string CreatedBy { get; set; } = "";
 
         public string? Username { get; set; }
@@ -19,9 +23,11 @@
         public string? Name { get; set; }
         public string? Content { get; set; }
 
-        public class ActivityPubImageAttachment : IThumbnail, IThumbnailRendition
+        public class ImageAttachment : IThumbnail, IThumbnailRendition
         {
+            [Required]
             public string Url { get; set; } = "";
+
             public string? Name { get; set; }
 
             int IThumbnailRendition.Width => 0;
@@ -31,14 +37,18 @@
             IEnumerable<IThumbnailRendition> IThumbnail.Renditions => [this];
         }
 
-        public List<ActivityPubImageAttachment> Attachments { get; set; } = [];
+        public List<ImageAttachment> Attachments { get; set; } = [];
 
         public bool? IsMention { get; set; }
         public bool? IsReply { get; set; }
 
+        [Obsolete]
         public DateTimeOffset? FavoritedAt { get; set; }
+
+        [Obsolete]
         public Guid? LikeGuid { get; set; }
 
+        [Obsolete]
         public DateTimeOffset? DismissedAt { get; set; }
 
         string? IPost.DisplayTitle

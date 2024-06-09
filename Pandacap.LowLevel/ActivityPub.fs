@@ -234,17 +234,17 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "first" mapper.LikedPageId
     ]
 
-    member _.AsLikedCollectionPage(currentPage: string, posts: ListPage<RemoteActivityPubPost>) = dict [
+    member _.AsLikedCollectionPage(currentPage: string, posts: ListPage<RemoteActivityPubFavorite>) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" mapper.LikedRootId
 
-        pair "orderedItems" [for p in posts.DisplayList do p.Id]
+        pair "orderedItems" [for p in posts.DisplayList do p.ObjectId]
 
         match posts.Next with
         | None -> ()
         | Some next ->
-            pair "next" $"{mapper.LikedPageId}?next={next.Id}&count={Seq.length posts.DisplayList}"
+            pair "next" $"{mapper.LikedPageId}?next={next.LikeGuid}&count={Seq.length posts.DisplayList}"
     ]
 
     member _.Follow(followGuid: Guid, remoteActorId: string) = dict [

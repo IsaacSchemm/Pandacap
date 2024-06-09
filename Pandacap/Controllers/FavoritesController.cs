@@ -19,13 +19,12 @@ namespace Pandacap.Controllers
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
     {
-        public async Task<IActionResult> Index(string? next, int? count)
+        public async Task<IActionResult> Index(Guid? next, int? count)
         {
-            var activityPubPosts = context.RemoteActivityPubPosts
-                .Where(post => post.FavoritedAt != null)
+            var activityPubPosts = context.RemoteActivityPubFavorites
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
-                .SkipUntil(post => post.Id == next || next == null);
+                .SkipUntil(post => post.LikeGuid == next || next == null);
 
             if (Request.IsActivityPub())
             {
@@ -55,17 +54,7 @@ namespace Pandacap.Controllers
         {
             foreach (string idStr in id)
             {
-                string json = await remoteActorFetcher.GetJsonAsync(new Uri(idStr));
-
-                JObject document = JObject.Parse(json);
-                JArray expansionArray = JsonLdProcessor.Expand(document);
-
-                var expansionObj = expansionArray.Single();
-
-                string actorId = expansionObj["https://www.w3.org/ns/activitystreams#attributedTo"]![0]!["@id"]!.Value<string>()!;
-                var actor = await remoteActorFetcher.FetchActorAsync(actorId);
-
-                await remoteActivityPubPostHandler.AddRemotePostAsync(actor, expansionObj, addToFavorites: true);
+                await remoteActivityPubPostHandler.AddRemoteFavoriteAsync(idStr);
             }
 
             return RedirectToAction(nameof(Index));
