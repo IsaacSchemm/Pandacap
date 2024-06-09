@@ -43,8 +43,8 @@ namespace Pandacap.Controllers
             byte[] data = ms.ToArray();
             string mediaType = resp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
 
-            memoryCache.Set(CACHE_PREFIX_DATA + id, data, DateTimeOffset.UtcNow.AddMinutes(5));
-            memoryCache.Set(CACHE_PREFIX_TYPE + id, mediaType, DateTimeOffset.UtcNow.AddMinutes(5));
+            memoryCache.Set(CACHE_PREFIX_DATA + id, data, DateTimeOffset.UtcNow.AddHours(3));
+            memoryCache.Set(CACHE_PREFIX_TYPE + id, mediaType, DateTimeOffset.UtcNow.AddHours(3));
 
             return File(data, mediaType);
         }

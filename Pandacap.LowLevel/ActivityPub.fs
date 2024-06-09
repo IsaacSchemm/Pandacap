@@ -44,7 +44,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         && (Char.IsLetterOrDigit(c) || c = '_')
         && not (Char.IsUpper(c))
 
-    member _.PersonToObject(key: ActorKey, usericon: string) = dict [
+    member _.PersonToObject(key: ActorKey) = dict [
         pair "id" mapper.ActorId
         pair "type" "Person"
         pair "inbox" mapper.InboxId
@@ -62,14 +62,11 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             owner = mapper.ActorId
             publicKeyPem = key.Pem
         |}
-        match Option.ofObj usericon with
-        | None -> ()
-        | Some url ->
-            pair "icon" {|
-                mediaType = "image/jpeg"
-                ``type`` = "Image"
-                url = url
-            |}
+        pair "icon" {|
+            mediaType = "image/jpeg"
+            ``type`` = "Image"
+            url = mapper.AvatarUrl
+        |}
         pair "attachment" [
             {|
                 ``type`` = "PropertyValue"
@@ -79,12 +76,12 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         ]
     ]
 
-    member this.PersonToUpdate(actorKey, usericon) = dict [
+    member this.PersonToUpdate(actorKey) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
-        pair "object" (this.PersonToObject(actorKey, usericon))
+        pair "object" (this.PersonToObject(actorKey))
     ]
 
     member _.AsObject(post: IUserDeviation) = dict [

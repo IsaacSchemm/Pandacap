@@ -5,8 +5,6 @@
         public Guid Id { get; set; }
         public string? LinkUrl { get; set; }
         public string? Title { get; set; }
-        public string? Username { get; set; }
-        public string? Usericon { get; set; }
         public DateTimeOffset PublishedTime { get; set; }
         public bool IsMature { get; set; }
 
@@ -38,5 +36,9 @@
         IEnumerable<IThumbnailRendition> IThumbnail.Renditions => ThumbnailRenditions;
 
         IEnumerable<string> IUserDeviation.Tags => Tags;
+
+        string? IPost.Username => null;
+
+        string? IPost.Usericon => null;
     }
 }

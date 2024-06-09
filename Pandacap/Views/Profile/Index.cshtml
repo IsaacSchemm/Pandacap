@@ -3,20 +3,21 @@
 @using Pandacap.HighLevel
 @model ProfileViewModel
 @inject ApplicationInformation appInfo
+@inject IdMapper mapper
 
 @{
     ViewData["Title"] = "Profile";
 }
 
 <img
-    src="@Model.MostRecentPost?.Usericon"
+    src="@mapper.AvatarUrl"
     alt="Avatar"
     float="left"
     style="vertical-align: top" />
 
 <div style="display: inline-block">
     <h1>
-        @Model.MostRecentPost?.Username
+        @appInfo.DeviantArtUsername
     </h1>
 
     <p>

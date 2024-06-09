@@ -25,11 +25,6 @@ namespace Pandacap.Controllers
 
             string? userId = userManager.GetUserId(User);
 
-            string? avatarUrl = await context.DeviantArtCredentials
-                .Where(c => c.UserId == userId)
-                .Select(c => c.UserIcon)
-                .FirstOrDefaultAsync();
-
             if (Request.IsActivityPub())
             {
                 var key = await keyProvider.GetPublicKeyAsync();
@@ -37,8 +32,7 @@ namespace Pandacap.Controllers
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToObject(
-                            key,
-                            avatarUrl)),
+                            key)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -64,7 +58,6 @@ namespace Pandacap.Controllers
 
             return View(new ProfileViewModel
             {
-                AvatarUrl = avatarUrl,
                 RecentArtwork = await context.UserArtworkDeviations
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)

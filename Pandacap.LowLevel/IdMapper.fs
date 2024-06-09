@@ -7,6 +7,9 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.ActorId =
         $"https://{appInfo.ApplicationHostname}"
 
+    member _.AvatarUrl =
+        $"https://{appInfo.ApplicationHostname}/Avatar"
+
     member _.InboxId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Inbox"
 
