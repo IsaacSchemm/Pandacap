@@ -10,6 +10,8 @@ namespace Pandacap.Models
 
         public bool GroupByUser { get; set; }
 
+        public bool AllowDismiss { get; set; }
+
         public string? Q { get; set; }
 
         public ListPage<T> Items { get; set; } = ListPage.Empty<T>();

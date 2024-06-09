@@ -58,8 +58,7 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Liked()
         {
-            int posts = await context.RemoteActivityPubPosts
-                .Where(a => a.LikeGuid != null)
+            int posts = await context.RemoteActivityPubFavorites
                 .CountAsync();
 
             return Content(

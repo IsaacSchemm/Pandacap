@@ -67,7 +67,5 @@ namespace Pandacap.Data
         DateTimeOffset IPost.Timestamp => FavoritedAt;
 
         IEnumerable<IThumbnail> IPost.Thumbnails => Attachments;
-
-        DateTimeOffset? IPost.DismissedAt => null;
     }
 }

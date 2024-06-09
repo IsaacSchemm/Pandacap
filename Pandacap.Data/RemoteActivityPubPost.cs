@@ -42,15 +42,6 @@ namespace Pandacap.Data
         public bool? IsMention { get; set; }
         public bool? IsReply { get; set; }
 
-        [Obsolete]
-        public DateTimeOffset? FavoritedAt { get; set; }
-
-        [Obsolete]
-        public Guid? LikeGuid { get; set; }
-
-        [Obsolete]
-        public DateTimeOffset? DismissedAt { get; set; }
-
         string? IPost.DisplayTitle
         {
             get

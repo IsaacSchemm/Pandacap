@@ -63,14 +63,11 @@ namespace Pandacap.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Remove([FromForm] IEnumerable<string> id)
+        public async Task<IActionResult> Remove([FromForm] IEnumerable<Guid> id)
         {
-            await foreach (var item in context.RemoteActivityPubPosts.Where(a => id.Contains(a.Id)).AsAsyncEnumerable())
+            await foreach (var item in context.RemoteActivityPubFavorites.Where(a => id.Contains(a.LikeGuid)).AsAsyncEnumerable())
             {
-                if (item.FavoritedAt == null)
-                    continue;
-
-                if (item.LikeGuid is Guid likeGuid)
+                try
                 {
                     var actor = await remoteActorFetcher.FetchActorAsync(item.CreatedBy);
 
@@ -78,12 +75,12 @@ namespace Pandacap.Controllers
                     {
                         Id = Guid.NewGuid(),
                         Inbox = actor.Inbox,
-                        JsonBody = ActivityPubSerializer.SerializeWithContext(translator.UndoLike(likeGuid, item.Id))
+                        JsonBody = ActivityPubSerializer.SerializeWithContext(translator.UndoLike(item.LikeGuid, item.ObjectId))
                     });
                 }
+                catch (Exception) { }
 
-                item.FavoritedAt = null;
-                item.LikeGuid = null;
+                context.Remove(item);
             }
 
             await context.SaveChangesAsync();

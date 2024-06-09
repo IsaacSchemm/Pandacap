@@ -5,12 +5,9 @@
 
 @{
     ViewBag.Title = Model.Title;
-
-    bool allowDismiss = User.Identity?.IsAuthenticated == true
-        && Model.Items.DisplayList.Any(item => item.DismissedAt == null);
 }
 
-@if (allowDismiss)
+@if (Model.AllowDismiss)
 {
     <form id="dismissForm" asp-controller="Inbox" asp-action="Dismiss" method="post"></form>
 }
@@ -77,7 +74,7 @@ else
                                 </a>
                             }
                             <label>
-                                @if (item.DismissedAt == null)
+                                @if (Model.AllowDismiss)
                                 {
                                     <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                                 }
@@ -91,20 +88,19 @@ else
                             @if (item is RemoteActivityPubPost activityPubInboxPost)
                             {
                                 <div class="mt-3">
-                                    @if (activityPubInboxPost.FavoritedAt == null)
-                                    {
-                                        <form asp-controller="Favorites" asp-action="Add">
-                                            <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
-                                            <button class="btn btn-outline-primary">Add to Favorites</button>
-                                        </form>
-                                    }
-                                    else if (activityPubInboxPost.FavoritedAt != null)
-                                    {
-                                        <form asp-controller="Favorites" asp-action="Remove">
-                                            <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
-                                            <button class="btn btn-primary">Remove from Favorites</button>
-                                        </form>
-                                    }
+                                    <form asp-controller="Favorites" asp-action="Add">
+                                        <input type="hidden" name="id" value="@activityPubInboxPost.Id" />
+                                        <button class="btn btn-outline-primary">Add to Favorites</button>
+                                    </form>
+                                </div>
+                            }
+                            @if (item is RemoteActivityPubFavorite activityPubFavorite)
+                            {
+                                <div class="mt-3">
+                                    <form asp-controller="Favorites" asp-action="Remove">
+                                        <input type="hidden" name="id" value="@activityPubFavorite.LikeGuid" />
+                                        <button class="btn btn-outline-primary">Remove from Favorites</button>
+                                    </form>
                                 </div>
                             }
                         </div>
@@ -114,7 +110,7 @@ else
         </div>
     }
 
-    @if (allowDismiss)
+    @if (Model.AllowDismiss)
     {
         <hr />
 

@@ -29,7 +29,6 @@ namespace Pandacap.Controllers
 
             var source2 = context.RemoteActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
-                .Where(a => a.DismissedAt == null)
                 .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.Timestamp)
                 .OfType<IPost>()
@@ -46,6 +45,7 @@ namespace Pandacap.Controllers
                 Title = "Inbox (Image Posts)",
                 GroupByUser = true,
                 ShowThumbnails = true,
+                AllowDismiss = true,
                 Items = posts
             });
         }
@@ -69,7 +69,6 @@ namespace Pandacap.Controllers
 
             var source2 = context.RemoteActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
-                .Where(a => a.DismissedAt == null)
                 .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.Timestamp)
                 .OfType<IPost>()
@@ -85,6 +84,7 @@ namespace Pandacap.Controllers
             {
                 Title = "Inbox (Text Posts)",
                 GroupByUser = true,
+                AllowDismiss = true,
                 Items = posts
             });
         }
@@ -101,7 +101,6 @@ namespace Pandacap.Controllers
 
             var posts = await context.RemoteActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
-                .Where(a => a.DismissedAt == null)
                 .Where(a => a.IsMention == true || a.IsReply == true)
                 .OrderByDescending(a => a.Timestamp)
                 .AsAsyncEnumerable()
@@ -113,6 +112,7 @@ namespace Pandacap.Controllers
             {
                 Title = "Inbox (Mentions & Replies)",
                 GroupByUser = true,
+                AllowDismiss = true,
                 Items = posts
             });
         }
@@ -141,6 +141,7 @@ namespace Pandacap.Controllers
                 Title = "Shares (Image Posts)",
                 ShowThumbnails = true,
                 GroupByUser = true,
+                AllowDismiss = true,
                 Items = posts
             });
         }
@@ -169,6 +170,7 @@ namespace Pandacap.Controllers
                 Title = "Shares (Text Posts)",
                 ShowThumbnails = true,
                 GroupByUser = true,
+                AllowDismiss = true,
                 Items = posts
             });
         }
@@ -223,7 +225,7 @@ namespace Pandacap.Controllers
             await foreach (var item in GetInboxPostsByIds(id))
             {
                 if (item is RemoteActivityPubPost ap)
-                    ap.DismissedAt = DateTimeOffset.UtcNow;
+                    context.Remove(ap);
 
                 if (item is RemoteActivityPubAnnouncement aa)
                     context.Remove(aa);

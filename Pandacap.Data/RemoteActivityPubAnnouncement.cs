@@ -76,7 +76,5 @@ namespace Pandacap.Data
         string? IPost.LinkUrl => ObjectId;
 
         IEnumerable<IThumbnail> IPost.Thumbnails => Attachments;
-
-        DateTimeOffset? IPost.DismissedAt => null;
     }
 }

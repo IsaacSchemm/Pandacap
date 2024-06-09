@@ -31,8 +31,6 @@
 
         DateTimeOffset IPost.Timestamp => PublishedTime;
 
-        DateTimeOffset? IPost.DismissedAt => DateTimeOffset.MinValue;
-
         IEnumerable<IThumbnail> IPost.Thumbnails => [];
 
         IEnumerable<string> IUserDeviation.Tags => Tags;
