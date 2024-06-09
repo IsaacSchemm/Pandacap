@@ -129,7 +129,6 @@ namespace Pandacap.Controllers
 
             var posts = await context.RemoteActivityPubAnnouncements
                 .Where(a => a.SharedAt <= startTime)
-                .Where(a => a.DismissedAt == null)
                 .OrderByDescending(a => a.SharedAt)
                 .AsAsyncEnumerable()
                 .OfType<IPost>()
@@ -158,7 +157,6 @@ namespace Pandacap.Controllers
 
             var posts = await context.RemoteActivityPubAnnouncements
                 .Where(a => a.SharedAt <= startTime)
-                .Where(a => a.DismissedAt == null)
                 .OrderByDescending(a => a.SharedAt)
                 .AsAsyncEnumerable()
                 .OfType<IPost>()
@@ -228,7 +226,7 @@ namespace Pandacap.Controllers
                     ap.DismissedAt = DateTimeOffset.UtcNow;
 
                 if (item is RemoteActivityPubAnnouncement aa)
-                    aa.DismissedAt = DateTimeOffset.UtcNow;
+                    context.Remove(aa);
 
                 if (item is InboxArtworkDeviation iid)
                     iid.DismissedAt = DateTimeOffset.UtcNow;

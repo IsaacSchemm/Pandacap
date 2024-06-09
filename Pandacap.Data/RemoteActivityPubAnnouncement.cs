@@ -43,8 +43,6 @@ namespace Pandacap.Data
 
         public List<ImageAttachment> Attachments { get; set; } = [];
 
-        public DateTimeOffset? DismissedAt { get; set; }
-
         string? IPost.DisplayTitle
         {
             get

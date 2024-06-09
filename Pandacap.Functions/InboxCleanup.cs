@@ -33,13 +33,6 @@ namespace Pandacap.Functions
                 context.Remove(inboxItem);
             }
 
-            await foreach (var inboxItem in context.RemoteActivityPubAnnouncements
-                .Where(item => item.DismissedAt < dayAgo)
-                .AsAsyncEnumerable())
-            {
-                context.Remove(inboxItem);
-            }
-
             await context.SaveChangesAsync();
         }
     }
