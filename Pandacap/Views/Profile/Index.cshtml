@@ -33,6 +33,15 @@
             @Model.FollowingCount
         </a>
     </p>
+
+    @if (Model.BridgyFed)
+    {
+        <p>
+            Mirrored on atproto:
+            <br />
+            <tt>@@@(appInfo.Username).@(appInfo.HandleHostname).ap.brid.gy</tt>
+        </p>
+    }
 </div>
 
 <form asp-action="Search" method="get">

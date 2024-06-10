@@ -20,6 +20,7 @@ namespace Pandacap.Controllers
         ActivityPubTranslator translator,
         UserManager<IdentityUser> userManager) : Controller
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported by Cosmos DB backend for EF Core")]
         public async Task<IActionResult> Index()
         {
             var someTimeAgo = DateTime.UtcNow.AddMonths(-6);
@@ -57,6 +58,13 @@ namespace Pandacap.Controllers
                     affectedDeviations.FirstOrDefault(d => d.Id == activity.DeviationId)));
             });
 
+            bool bridgyFedRequested = await context.Follows
+                .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
+                .CountAsync() > 0;
+            bool bridgyFedActive = await context.Followers
+                .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
+                .CountAsync() > 0;
+
             return View(new ProfileViewModel
             {
                 RecentArtwork = await context.UserArtworkDeviations
@@ -72,7 +80,8 @@ namespace Pandacap.Controllers
                     ? await activityInfo.Value
                     : [],
                 FollowerCount = await context.Followers.CountAsync(),
-                FollowingCount = await context.Follows.CountAsync()
+                FollowingCount = await context.Follows.CountAsync(),
+                BridgyFed = bridgyFedRequested && bridgyFedActive
             });
         }
 
