@@ -13,6 +13,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ProfileController(
+        AtomRssFeedReader atomRssFeedReader,
         PandacapDbContext context,
         KeyProvider keyProvider,
         RemoteActorFetcher remoteActorFetcher,
@@ -275,6 +276,23 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Following));
+        }
+
+        public async Task<IActionResult> AddFeed(string url)
+        {
+            await atomRssFeedReader.AddFeedAsync(url);
+            return RedirectToAction(nameof(Feeds));
+        }
+
+        public async Task<IActionResult> Feeds()
+        {
+            var feeds = await context.Feeds.ToListAsync();
+            var feedItems = await context.FeedItems.ToListAsync();
+            return Json(new
+            {
+                feeds,
+                feedItems
+            });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

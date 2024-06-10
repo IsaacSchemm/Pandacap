@@ -13,6 +13,7 @@ namespace Pandacap.HighLevel
         {
             return services
                 .AddSingleton(applicationInformation)
+                .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ActivityPubTranslator>()
                 .AddScoped<DeviantArtFeedReader>()
                 .AddScoped<IdMapper>()

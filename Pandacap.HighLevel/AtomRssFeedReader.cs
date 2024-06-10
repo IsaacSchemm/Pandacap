@@ -1,0 +1,79 @@
+﻿using CodeHollow.FeedReader;
+using Microsoft.EntityFrameworkCore;
+using Pandacap.Data;
+
+namespace Pandacap.HighLevel
+{
+    public class AtomRssFeedReader(PandacapDbContext context)
+    {
+        public async Task ReadFeedAsync(Guid id)
+        {
+            var feed = await context.Feeds
+                .Where(f => f.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (feed == null)
+                return;
+
+            var results = await FeedReader.ReadAsync(feed.FeedUrl);
+
+            feed.FeedTitle = results.Title;
+            feed.FeedWebsiteUrl = results.Link;
+            feed.FeedIconUrl = results.ImageUrl;
+
+            List<Data.FeedItem> newFeedItems = [];
+
+            foreach (var item in results.Items)
+            {
+                DateTimeOffset ts = item.PublishingDate ?? DateTimeOffset.UtcNow;
+                if (ts < feed.LastCheckedAt)
+                    continue;
+
+                newFeedItems.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    FeedTitle = results.Title,
+                    FeedWebsiteUrl = results.Link,
+                    FeedIconUrl = results.ImageUrl,
+                    Title = item.Title,
+                    Url = item.Link,
+                    HtmlDescription = item.Description,
+                    Timestamp = item.PublishingDate ?? DateTimeOffset.UtcNow
+                });
+            }
+
+            context.FeedItems.AddRange(newFeedItems);
+
+            feed.LastCheckedAt = newFeedItems
+                .Select(f => f.Timestamp)
+                .Concat([feed.LastCheckedAt])
+                .Max();
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task AddFeedAsync(string url)
+        {
+            var results = await FeedReader.ReadAsync(url);
+
+            var existing = await context.Feeds.Where(f => f.FeedUrl == url).ToListAsync();
+            context.RemoveRange(existing);
+
+            Guid id = Guid.NewGuid();
+
+            context.Feeds.Add(new()
+            {
+                Id = id,
+                FeedUrl = url,
+                FeedTitle = results.Title,
+                FeedWebsiteUrl = results.Link,
+                FeedIconUrl = results.ImageUrl,
+                LastCheckedAt = DateTime.MinValue
+            });
+
+            await context.SaveChangesAsync();
+
+            await ReadFeedAsync(id);
+        }
+    }
+}

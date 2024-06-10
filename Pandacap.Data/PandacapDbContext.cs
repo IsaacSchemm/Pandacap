@@ -10,6 +10,10 @@ namespace Pandacap.Data
 
         public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
 
+        public DbSet<Feed> Feeds { get; set; }
+
+        public DbSet<FeedItem> FeedItems { get; set; }
+
         public DbSet<Follower> Followers { get; set; }
 
         public DbSet<Follow> Follows { get; set; }

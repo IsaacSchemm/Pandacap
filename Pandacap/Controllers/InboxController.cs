@@ -35,7 +35,14 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .Where(x => x.Thumbnails.Any());
 
-            var posts = await new[] { source1, source2 }
+            var source3 = context.FeedItems
+                .Where(a => a.Timestamp <= startTime)
+                .OrderByDescending(a => a.Timestamp)
+                .OfType<IPost>()
+                .AsAsyncEnumerable()
+                .Where(x => x.Thumbnails.Any());
+
+            var posts = await new[] { source1, source2, source3 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -75,7 +82,14 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .Where(x => !x.Thumbnails.Any());
 
-            var posts = await new[] { source1, source2 }
+            var source3 = context.FeedItems
+                .Where(a => a.Timestamp <= startTime)
+                .OrderByDescending(a => a.Timestamp)
+                .OfType<IPost>()
+                .AsAsyncEnumerable()
+                .Where(x => !x.Thumbnails.Any());
+
+            var posts = await new[] { source1, source2, source3 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
