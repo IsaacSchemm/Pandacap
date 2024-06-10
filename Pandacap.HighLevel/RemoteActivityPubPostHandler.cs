@@ -99,13 +99,18 @@ namespace Pandacap.HighLevel
 
         public async Task AddRemoteAnnouncementAsync(
             RemoteActor announcingActor,
+            Follow follow,
             string announceActivityId,
             string objectId)
         {
             string originalPostJson = await remoteActorFetcher.GetJsonAsync(new Uri(objectId));
             JToken originalPost = JsonLdProcessor.Expand(JObject.Parse(originalPostJson))[0];
 
-            if (!GetAttachments(originalPost).Any())
+            bool include = GetAttachments(originalPost).Any()
+                ? follow.IncludeImageShares == true
+                : follow.IncludeTextShares == true;
+
+            if (!include)
                 return;
 
             string? originalActorId = (originalPost["https://www.w3.org/ns/activitystreams#attributedTo"] ?? Empty)

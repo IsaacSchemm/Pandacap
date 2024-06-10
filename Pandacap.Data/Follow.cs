@@ -51,6 +51,16 @@ namespace Pandacap.Data
         /// </summary>
         public string? IconUrl { get; set; }
 
+        /// <summary>
+        /// Whether to include image posts from other users shared (boosted) by this user.
+        /// </summary>
+        public bool? IncludeImageShares { get; set; }
+
+        /// <summary>
+        /// Whether to include text posts from other users shared (boosted) by this user.
+        /// </summary>
+        public bool? IncludeTextShares { get; set; }
+
         bool IRemoteActorRelationship.Pending => !Accepted;
     }
 }

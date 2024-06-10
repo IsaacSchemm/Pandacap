@@ -18,30 +18,63 @@ else
 {
     @foreach (var item in Model.Items.DisplayList)
     {
-        <p>
-            <img height="50" src="@item.IconUrl" alt="" />
-            <span style="display: inline-block; vertical-align: top">
-                <strong>
-                    @(item.PreferredUsername ?? item.ActorId)
-                </strong>
-                <br />
-                <a href="@item.ActorId">@item.ActorId</a>
-                @if (item.Pending)
-                {
-                    @:(pending)
-                }
-            </span>
-        </p>
+        <div class="mb-3">
+            <div>
+                <img height="50" src="@item.IconUrl" alt="" />
+                <span style="display: inline-block; vertical-align: top">
+                    <strong>
+                        @(item.PreferredUsername ?? item.ActorId)
+                    </strong>
+                    <br />
+                    <a href="@item.ActorId">@item.ActorId</a>
+                    @if (item.Pending)
+                    {
+                        @:(pending)
+                    }
+                </span>
+            </div>
 
-        if (User.Identity?.IsAuthenticated == true && item is Follow)
-        {
-            <p>
-                <form asp-action="Unfollow">
-                    <input type="hidden" name="id" value="@item.ActorId" />
-                    <button type="submit" class="btn btn-primary">Unfollow @(item.PreferredUsername ?? item.ActorId)</button>
-                </form>
-            </p>
-        }
+            @if (User.Identity?.IsAuthenticated == true && item is Follow follow)
+            {
+                <details>
+                    <summary>Options</summary>
+                    <form asp-action="UpdateFollow">
+                        <input type="hidden" name="id" value="@item.ActorId" />
+                        <div class="mb-3 form-check">
+                            <input
+                                type="checkbox"
+                                class="form-check-input"
+                                id="includeImageShares"
+                                name="includeImageShares"
+                                value="true"
+                                @(follow.IncludeImageShares == true ? "checked" : "")>
+                            <label class="form-check-label" for="includeImageShares">
+                                Include shares (boosts) of image posts
+                            </label>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   id="includeTextShares"
+                                   name="includeTextShares"
+                                   value="true"
+                                   @(follow.IncludeTextShares == true ? "checked" : "")>
+                            <label class="form-check-label" for="includeTextShares">
+                                Include shares (boosts) of text posts
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary">Save changes</button>
+                    </form>
+
+                    <hr />
+
+                    <form asp-action="Unfollow">
+                        <input type="hidden" name="id" value="@item.ActorId" />
+                        <button type="submit" class="btn btn-outline-danger">Unfollow @(item.PreferredUsername ?? item.ActorId)</button>
+                    </form>
+                </details>
+            }
+        </div>
     }
 
     @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IRemoteActorRelationship nextActor)

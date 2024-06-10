@@ -195,14 +195,15 @@ namespace Pandacap.Controllers
 
                     if (type == "https://www.w3.org/ns/activitystreams#Announce")
                     {
-                        bool isFromFollow = await context.Follows
+                        var follow = await context.Follows
                             .Where(f => f.ActorId == actor.Id)
-                            .CountAsync() > 0;
+                            .FirstOrDefaultAsync();
 
-                        if (isFromFollow)
+                        if (follow != null)
                         {
                             await remoteActivityPubPostHandler.AddRemoteAnnouncementAsync(
                                 actor,
+                                follow,
                                 expansionObj["@id"]!.Value<string>()!,
                                 interactedWithId);
                         }

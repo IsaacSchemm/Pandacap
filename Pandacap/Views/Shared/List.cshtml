@@ -85,7 +85,7 @@ else
                                     <span class="text-muted">(@dev.PublishedTime.UtcDateTime.ToLongDateString())</span>
                                 }
                             </label>
-                            @if (item is RemoteActivityPubPost activityPubInboxPost)
+                            @if (User.Identity?.IsAuthenticated == true && item is RemoteActivityPubPost activityPubInboxPost)
                             {
                                 <div class="mt-3">
                                     <form asp-controller="Favorites" asp-action="Add">
@@ -94,7 +94,7 @@ else
                                     </form>
                                 </div>
                             }
-                            @if (item is RemoteActivityPubFavorite activityPubFavorite)
+                            @if (User.Identity?.IsAuthenticated == true && item is RemoteActivityPubFavorite activityPubFavorite)
                             {
                                 <div class="mt-3">
                                     <form asp-controller="Favorites" asp-action="Remove" onsubmit="confirm('Are you sure you want to remove this post from your favorites?')">

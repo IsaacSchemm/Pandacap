@@ -198,6 +198,26 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateFollow(
+            string id,
+            bool? includeImageShares,
+            bool? includeTextShares)
+        {
+            await foreach (var follow in context.Follows
+                .Where(f => f.ActorId == id)
+                .AsAsyncEnumerable())
+            {
+                follow.IncludeImageShares = includeImageShares;
+                follow.IncludeTextShares = includeTextShares;
+            }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Following));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Follow(string id)
         {
             var actor = await remoteActorFetcher.FetchActorAsync(id);
