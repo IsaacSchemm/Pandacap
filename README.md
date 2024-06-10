@@ -2,7 +2,12 @@
 
 "Posts (Articles and Notes) from DeviantArt Copied to ActivityPub"
 
-An Azure-hosted, **single-user** ActivityPub bridge and inbox reader for DeviantArt.
+An Azure-hosted, **single-user** bridge and inbox reader for DeviantArt.
+
+This is **not**:
+* a general-purpose bridge between DeviantArt and ActivityPub (only the instance owner's posts are broadcast)
+* a general-purpose art website (only the instance owner can log in, and there are no upload or discoverability features)
+* a general-purpose social media platform like Mastodon (image posts, text posts, replies/mentions, and shares are in separate feeds)
 
 Things it does:
 
@@ -20,21 +25,20 @@ Things it does:
     * See the owner's ActivityPub follows, followers, and favorites
 * Make the owner's DeviantArt submissions, journals, and status updates available to ActivityPub servers such as Pixelfed and Mastodon
 
-Things which might be added:
+Things which will probably be added:
 
 * Allow the owner to follow RSS/Atom feeds
-* Allow the owner to see posts boosted by their ActivityPub follows (on a separate page)
 
 Things which will probably not be added:
 
-* View shared (boosted) ActivityPub text posts
-* Allow the owner to create ActivityPub posts that do not map to a DeviantArt post
+* Allow the owner to view shared (boosted) ActivityPub text posts
 * Allow the owner to reply to an ActivityPub post, or mention an ActivityPub user in a post
 * Expose ActivityPub likes and boosts to other users
 * Expose ActivityFed "comments" (replies) to other users
 
 Things it does not do, **by design**:
 
+* Allow the owner to create ActivityPub posts that do not map to a DeviantArt post
 * Mirror any actual image data from DeviantArt in its own database
 * Expose any other user's DeviantArt posts or activity over ActivityPub
 * Allow any user other than the instance owner to log in

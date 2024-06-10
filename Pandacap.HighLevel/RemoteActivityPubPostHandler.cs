@@ -116,15 +116,6 @@ namespace Pandacap.HighLevel
 
             var originalActor = await remoteActorFetcher.FetchActorAsync(originalActorId);
 
-            var olderAnnouncements = context.RemoteActivityPubAnnouncements
-                .Where(a => a.SharedBy.Id == announcingActor.Id)
-                .OrderByDescending(a => a.SharedAt)
-                .Skip(11)
-                .AsAsyncEnumerable();
-
-            await foreach (var olderAnnouncement in olderAnnouncements)
-                context.Remove(olderAnnouncement);
-
             context.Add(new RemoteActivityPubAnnouncement
             {
                 AnnounceActivityId = announceActivityId,
