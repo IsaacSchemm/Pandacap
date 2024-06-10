@@ -36,14 +36,6 @@ namespace Pandacap.HighLevel
             return null;
         });
 
-        public async Task<string?> GetUserIconUrlAsync()
-        {
-            if (await Credentials.Value is not (_, DeviantArtFs.ResponseTypes.User user))
-                return null;
-
-            return user.usericon;
-        }
-
         public async Task ReadArtworkPostsByUsersWeWatchAsync()
         {
             if (await Credentials.Value is not (var credentials, _))
