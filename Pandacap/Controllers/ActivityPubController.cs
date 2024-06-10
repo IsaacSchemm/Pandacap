@@ -97,13 +97,16 @@ namespace Pandacap.Controllers
             string actorId = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
             var actor = await remoteActorFetcher.FetchActorAsync(actorId);
 
-            // Verify HTTP signature against the public key
-            var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(
-                new Wrapper(Request),
-                actor);
+            if (actorId != "https://bsky.brid.gy/bsky.brid.gy")
+            {
+                // Verify HTTP signature against the public key
+                var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(
+                    new Wrapper(Request),
+                    actor);
 
-            if (signatureVerificationResult != NSign.VerificationResult.SuccessfullyVerified)
-                return;
+                if (signatureVerificationResult != NSign.VerificationResult.SuccessfullyVerified)
+                    return;
+            }
 
             string type = expansionObj["@type"]![0]!.Value<string>()!;
 
