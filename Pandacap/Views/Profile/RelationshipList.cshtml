@@ -40,6 +40,8 @@ else
 
             @if (User.Identity?.IsAuthenticated == true && item is Follow follow)
             {
+                Guid r1 = Guid.NewGuid();
+                Guid r2 = Guid.NewGuid();
                 <details>
                     <summary>Options</summary>
                     <form asp-action="UpdateFollow">
@@ -48,22 +50,22 @@ else
                             <input
                                 type="checkbox"
                                 class="form-check-input"
-                                id="includeImageShares"
+                                id="@r1"
                                 name="includeImageShares"
                                 value="true"
                                 @(follow.IncludeImageShares == true ? "checked" : "")>
-                            <label class="form-check-label" for="includeImageShares">
+                            <label class="form-check-label" for="@r1">
                                 Include shares (boosts) of image posts
                             </label>
                         </div>
                         <div class="mb-3 form-check">
                             <input type="checkbox"
                                    class="form-check-input"
-                                   id="includeTextShares"
+                                   id="@r2"
                                    name="includeTextShares"
                                    value="true"
                                    @(follow.IncludeTextShares == true ? "checked" : "")>
-                            <label class="form-check-label" for="includeTextShares">
+                            <label class="form-check-label" for="@r2">
                                 Include shares (boosts) of text posts
                             </label>
                         </div>
