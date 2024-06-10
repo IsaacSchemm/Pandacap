@@ -3,30 +3,27 @@
 An Azure-hosted, **single-user** bridge and inbox reader for DeviantArt.
 
 This is **not**:
-* a general-purpose bridge between DeviantArt and ActivityPub (only the instance owner's posts are broadcast)
+* a full bridge between DeviantArt and ActivityPub (only the instance owner's posts are broadcast)
 * a general-purpose art website (only the instance owner can log in, and there are no upload or discoverability features)
-* a general-purpose social media platform (different post types are in separate feeds; shares are ignored by default and can be filtered based on post type)
+* a microblogging platform (different post types are in separate feeds; shares are ignored by default and can be filtered based on post type)
 
 Things it does:
 
 * Allow the owner to log in with their DeviantArt account and:
-    * View image posts from users they follow on DeviantArt or ActivityPub
-    * View text posts from users they follow on DeviantArt or ActivityPub
+    * Follow and unfollow ActivityPub users
+    * Follow and unfollow Atom and RSS feeds
+    * View image posts from DeviantArt accounts, ActivityPub actors, or Atom/RSS feeds they follow
+    * View text posts from DeviantArt accounts, ActivityPub actors, or Atom/RSS feeds they follow
     * View ActivityPub mentions and replies
-    * View shared (boosted) ActivityPub image posts
     * Mark ActivityPub posts as favorites
     * See which other ActivityPub users have liked or boosted a post
-    * Follow and unfollow ActivityPub users
 * Allow visitors to:
     * See the owner's DeviantArt submissions
     * See the owner's DeviantArt journals and status updates
+    * See the owner's ActivityPub handle
+    * See the owner's AT Protocol handle, if Bridgy Fed is connected
     * See the owner's ActivityPub follows, followers, and favorites
 * Make the owner's DeviantArt submissions, journals, and status updates available to ActivityPub servers such as Pixelfed and Mastodon
-
-Things which will probably be added:
-
-* Allow the owner to follow RSS/Atom feeds
-* Some kind of Bluesky integration
 
 Things which will probably not be added:
 
