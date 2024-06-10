@@ -201,6 +201,14 @@ namespace Pandacap.Controllers
             {
                 yield return item;
             }
+
+            await foreach (var item in context
+                .FeedItems
+                .Where(item => guids.Contains(item.Id))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
         }
 
         [HttpPost]
@@ -219,6 +227,9 @@ namespace Pandacap.Controllers
 
                 if (item is InboxTextDeviation itd)
                     itd.DismissedAt = DateTimeOffset.UtcNow;
+
+                if (item is FeedItem fi)
+                    context.Remove(fi);
             }
 
             await context.SaveChangesAsync();

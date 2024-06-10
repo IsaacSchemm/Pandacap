@@ -10,7 +10,7 @@ namespace Pandacap.HighLevel
             await foreach (var item in asyncSeq)
             {
                 accumulator.Add(item);
-                if (accumulator.Count >= count + 1)
+                if (accumulator.Count >= count + 1L)
                     break;
             }
             return ListPage.Create(accumulator, count);

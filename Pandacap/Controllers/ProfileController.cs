@@ -278,20 +278,34 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(Following));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddFeed(string url)
         {
             await atomRssFeedReader.AddFeedAsync(url);
             return RedirectToAction(nameof(Feeds));
         }
 
-        public async Task<IActionResult> Feeds()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveFeed(Guid id)
         {
-            var feeds = await context.Feeds.ToListAsync();
-            var feedItems = await context.FeedItems.ToListAsync();
-            return Json(new
+            await foreach (var feed in context.Feeds.Where(f => f.Id == id).AsAsyncEnumerable())
+                context.Feeds.Remove(feed);
+
+            return RedirectToAction(nameof(Feeds));
+        }
+
+        public async Task<IActionResult> Feeds(Guid? next, int? count)
+        {
+            var page = await context.Feeds
+                .AsAsyncEnumerable()
+                .AsListPage(int.MaxValue);
+
+            return View(new ListViewModel<Feed>
             {
-                feeds,
-                feedItems
+                Title = "Feeds",
+                Items = page
             });
         }
 

@@ -43,4 +43,11 @@
     <UpToDateCheckInput Remove="wwwroot\lib\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Views\Profile\Feeds.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

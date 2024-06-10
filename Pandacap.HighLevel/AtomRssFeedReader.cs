@@ -68,7 +68,7 @@ namespace Pandacap.HighLevel
                 FeedTitle = results.Title,
                 FeedWebsiteUrl = results.Link,
                 FeedIconUrl = results.ImageUrl,
-                LastCheckedAt = DateTime.MinValue
+                LastCheckedAt = DateTimeOffset.MinValue
             });
 
             await context.SaveChangesAsync();
