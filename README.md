@@ -26,6 +26,7 @@ Things it does:
 Things which will probably be added:
 
 * Allow the owner to follow RSS/Atom feeds
+* Some kind of Bluesky integration
 
 Things which will probably not be added:
 

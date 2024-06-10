@@ -97,18 +97,31 @@ namespace Pandacap.Controllers
             string actorId = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
             var actor = await remoteActorFetcher.FetchActorAsync(actorId);
 
-            if (actorId != "https://bsky.brid.gy/bsky.brid.gy")
-            {
-                // Verify HTTP signature against the public key
-                var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(
-                    new Wrapper(Request),
-                    actor);
+            string type = expansionObj["@type"]![0]!.Value<string>()!;
 
-                if (signatureVerificationResult != NSign.VerificationResult.SuccessfullyVerified)
+            // Verify HTTP signature against the public key
+            var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(
+                new Wrapper(Request),
+                actor);
+
+            if (signatureVerificationResult != NSign.VerificationResult.SuccessfullyVerified)
+            {
+                var follow = await context.Follows
+                    .Where(f => f.ActorId == actor.Id)
+                    .SingleOrDefaultAsync();
+
+                if (follow == null)
+                    return;
+
+                if (type == "https://www.w3.org/ns/activitystreams#Accept" && !follow.Accepted)
+                {
+                    follow.IgnoreInvalidSignature = true;
+                    await context.SaveChangesAsync();
+                }
+
+                if (follow.IgnoreInvalidSignature != true)
                     return;
             }
-
-            string type = expansionObj["@type"]![0]!.Value<string>()!;
 
             if (type == "https://www.w3.org/ns/activitystreams#Follow")
             {
@@ -164,8 +177,11 @@ namespace Pandacap.Controllers
                         .Where(f => f.ActorId == actor.Id)
                         .ToListAsync();
 
+                    string followId = obj["@id"]!.Value<string>()!;
+
                     foreach (var follow in follows)
-                        follow.Accepted = true;
+                        if (mapper.GetFollowId(follow.FollowGuid) == followId)
+                            follow.Accepted = true;
                 }
 
                 await context.SaveChangesAsync();
@@ -178,8 +194,11 @@ namespace Pandacap.Controllers
                         .Where(f => f.ActorId == actor.Id)
                         .ToListAsync();
 
+                    string followId = obj["@id"]!.Value<string>()!;
+
                     foreach (var follow in follows)
-                        follow.Accepted = false;
+                        if (mapper.GetFollowId(follow.FollowGuid) == followId)
+                            follow.Accepted = false;
                 }
 
                 await context.SaveChangesAsync();
