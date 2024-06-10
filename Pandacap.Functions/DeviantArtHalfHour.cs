@@ -3,7 +3,7 @@ using Pandacap.HighLevel;
 
 namespace Pandacap.Functions
 {
-    public class DeviantArtCheck(DeviantArtFeedReader deviantArtFeedReader)
+    public class DeviantArtHalfHour(DeviantArtFeedReader deviantArtFeedReader)
     {
         [Function("DeviantArtRefresh")]
         public async Task Run([TimerTrigger("0 */30 * * * *")] TimerInfo myTimer)

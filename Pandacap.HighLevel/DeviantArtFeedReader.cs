@@ -25,9 +25,7 @@ namespace Pandacap.HighLevel
                 var tokenWrapper = new RefreshableCredentials(
                     context,
                     credentials,
-                    deviantArtApp,
-                    keyProvider,
-                    translator);
+                    deviantArtApp);
                 var whoami = await DeviantArtFs.Api.User.WhoamiAsync(tokenWrapper);
                 if (whoami.username == applicationInformation.Username)
                 {
@@ -466,15 +464,47 @@ namespace Pandacap.HighLevel
             await context.SaveChangesAsync();
         }
 
+        public async Task UpdateAvatarAsync()
+        {
+            if (await Credentials.Value is not (var credentials, var whoami))
+                return;
+
+            if (credentials.UnderlyingDataObject.IconUrl != whoami.usericon)
+            {
+                credentials.UnderlyingDataObject.IconUrl = whoami.usericon;
+
+                var key = await keyProvider.GetPublicKeyAsync();
+
+                HashSet<string> inboxes = [];
+                await foreach (var f in context.Follows)
+                    inboxes.Add(f.SharedInbox ?? f.Inbox);
+                await foreach (var f in context.Followers)
+                    inboxes.Add(f.SharedInbox ?? f.Inbox);
+
+                foreach (string inbox in inboxes) {
+                    context.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
+                    {
+                        Id = Guid.NewGuid(),
+                        Inbox = inbox,
+                        JsonBody = ActivityPubSerializer.SerializeWithContext(
+                            translator.PersonToUpdate(key)),
+                        StoredAt = DateTimeOffset.UtcNow
+                    });
+                }
+
+                await context.SaveChangesAsync();
+            }
+        }
+
         private class RefreshableCredentials(
             PandacapDbContext context,
             DeviantArtCredentials credentials,
-            DeviantArtApp deviantArtApp,
-            KeyProvider keyProvider,
-            ActivityPubTranslator translator) : IDeviantArtRefreshableAccessToken
+            DeviantArtApp deviantArtApp) : IDeviantArtRefreshableAccessToken
         {
             public string RefreshToken => credentials.RefreshToken;
             public string AccessToken => credentials.AccessToken;
+
+            public DeviantArtCredentials UnderlyingDataObject => credentials;
 
             public async Task RefreshAccessTokenAsync()
             {

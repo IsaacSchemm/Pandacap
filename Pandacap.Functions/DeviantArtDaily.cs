@@ -10,6 +10,7 @@ namespace Pandacap.Functions
         {
             await deviantArtFeedReader.ReadOurGalleryAsync(DateTimeOffset.UtcNow.AddDays(-7));
             await deviantArtFeedReader.ReadOurPostsAsync(DateTimeOffset.UtcNow.AddDays(-7));
+            await deviantArtFeedReader.UpdateAvatarAsync();
         }
     }
 }
