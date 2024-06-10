@@ -12,8 +12,8 @@ namespace Pandacap.Functions
             await foreach (var inboxItem in context.InboxArtworkDeviations
                 .Where(d => d.DismissedAt == null)
                 .OrderByDescending(d => d.Timestamp)
-                .Skip(5)
-                .AsAsyncEnumerable())
+                .AsAsyncEnumerable()
+                .Skip(5))
             {
                 context.Remove(inboxItem);
             }
@@ -21,8 +21,8 @@ namespace Pandacap.Functions
             await foreach (var inboxItem in context.InboxTextDeviations
                 .Where(d => d.DismissedAt == null)
                 .OrderByDescending(d => d.Timestamp)
-                .Skip(5)
-                .AsAsyncEnumerable())
+                .AsAsyncEnumerable()
+                .Skip(5))
             {
                 context.Remove(inboxItem);
             }

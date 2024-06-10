@@ -42,9 +42,9 @@ namespace Pandacap.Functions
                     }
                     catch (HttpRequestException)
                     {
-                        // Don't send this activity again for four hours
+                        // Don't send this activity again for one hour
                         // This will also skip later activities to that inbox (see above)
-                        activity.DelayUntil = DateTimeOffset.UtcNow.AddHours(4);
+                        activity.DelayUntil = DateTimeOffset.UtcNow.AddHours(1);
                         inboxesToSkip.Add(activity.Inbox);
                     }
 

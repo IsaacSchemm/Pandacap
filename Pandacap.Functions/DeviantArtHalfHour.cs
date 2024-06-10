@@ -11,8 +11,10 @@ namespace Pandacap.Functions
             await deviantArtFeedReader.ReadArtworkPostsByUsersWeWatchAsync();
             await deviantArtFeedReader.ReadTextPostsByUsersWeWatchAsync();
 
-            await deviantArtFeedReader.ReadOurGalleryAsync(max: 5);
-            await deviantArtFeedReader.ReadOurPostsAsync(max: 5);
+            await deviantArtFeedReader.ReadOurGalleryAsync(since: DateTimeOffset.UtcNow.AddHours(-24));
+            await deviantArtFeedReader.ReadOurPostsAsync(since: DateTimeOffset.UtcNow.AddHours(-24));
+
+            await deviantArtFeedReader.UpdateAvatarAsync();
         }
     }
 }

@@ -51,6 +51,22 @@ This application runs on the following Azure resources:
 * A web app
 * A Key Vault
 
+Function app responsibilities:
+
+* Every minute:
+    * Try sending any unsent ActivityPub activities (any inbox that fails won't be retried for another hour)
+* Every 30 minutes:
+    * Find new DeviantArt posts by other users (may not catch further updates to posts)
+    * Find recemt DeviantArt posts by the instance owner (includes all posts in the past 24 hours)
+    * Keep the avatar up to date
+* Every hour:
+    * Remove any unsent ActivityPub activities that are more than a week old
+* Every six hours:
+    * Remove dismissed DeviantArt inbox notifications from the Pandacap database
+        * The five most recent submissions of each type are kept, as a way to track Pandacap's position in the DeviantArt API feed
+* Every month:
+    * Scan through all DeviantArt posts by the instance owner, to check for updates or deletions of older posts
+
 Application settings (for both the function app and the web app):
 
 | Name                    | Purpose                        

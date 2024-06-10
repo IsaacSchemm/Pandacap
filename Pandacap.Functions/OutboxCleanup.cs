@@ -7,7 +7,7 @@ namespace Pandacap.Functions
     public class OutboxCleanup(PandacapDbContext context)
     {
         [Function("OutboxCleanup")]
-        public async Task Run([TimerTrigger("0 2 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("30 2 * * * *")] TimerInfo myTimer)
         {
             var cutoff = DateTime.UtcNow - TimeSpan.FromDays(7);
 
