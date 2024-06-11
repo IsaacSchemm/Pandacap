@@ -30,11 +30,13 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 var key = await keyProvider.GetPublicKeyAsync();
+                var properties = await context.ProfileProperties.ToListAsync();
 
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToObject(
-                            key)),
+                            key,
+                            properties)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -67,6 +69,7 @@ namespace Pandacap.Controllers
 
             return View(new ProfileViewModel
             {
+                ProfileProperties = await context.ProfileProperties.ToListAsync(),
                 RecentArtwork = await context.UserArtworkDeviations
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)

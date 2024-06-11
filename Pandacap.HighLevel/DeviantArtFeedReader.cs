@@ -466,6 +466,7 @@ namespace Pandacap.HighLevel
                 credentials.UnderlyingDataObject.IconUrl = whoami.usericon;
 
                 var key = await keyProvider.GetPublicKeyAsync();
+                var properties = await context.ProfileProperties.ToListAsync();
 
                 HashSet<string> inboxes = [];
                 await foreach (var f in context.Follows)
@@ -479,7 +480,9 @@ namespace Pandacap.HighLevel
                         Id = Guid.NewGuid(),
                         Inbox = inbox,
                         JsonBody = ActivityPubSerializer.SerializeWithContext(
-                            translator.PersonToUpdate(key)),
+                            translator.PersonToUpdate(
+                                key,
+                                properties)),
                         StoredAt = DateTimeOffset.UtcNow
                     });
                 }

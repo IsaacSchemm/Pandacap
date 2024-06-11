@@ -42,6 +42,22 @@
             <tt>@@@(appInfo.Username).@(appInfo.HandleHostname).ap.brid.gy</tt>
         </p>
     }
+
+    <p>
+        DeviantArt:
+        <a href="https://www.deviantart.com/@appInfo.DeviantArtUsername" target="_blank">
+            @appInfo.DeviantArtUsername
+        </a>
+        <br />
+        @foreach (var property in Model.ProfileProperties)
+        {
+            @:@property.Name:
+            <a href="@property.Link" target="_blank">
+                @property.Value
+            </a>
+            <br />
+        }
+    </p>
 </div>
 
 <form asp-action="Search" method="get">
