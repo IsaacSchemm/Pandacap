@@ -6,6 +6,11 @@ namespace Pandacap.Data
 {
     public class PandacapDbContext(DbContextOptions<PandacapDbContext> options) : IdentityDbContext(options)
     {
+        //public PandacapDbContext() : this(
+        //    new DbContextOptionsBuilder<PandacapDbContext>()
+        //    .UseInMemoryDatabase($"{Guid.NewGuid()}")
+        //    .Options) { }
+
         public DbSet<ActivityPubOutboundActivity> ActivityPubOutboundActivities { get; set; }
 
         public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
