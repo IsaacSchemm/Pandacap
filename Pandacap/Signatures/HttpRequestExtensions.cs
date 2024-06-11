@@ -3,35 +3,38 @@
 // Adapted from NSign, used under the terms of the MIT license
 // https://github.com/Unisys/NSign/commit/660b2412cd523ed175d387cf32f549065b3cc56f
 
+using Microsoft.AspNetCore.Http.Extensions;
 using NSign.Signatures;
 using static NSign.Constants;
 
-namespace Pandacap.HighLevel.Signatures;
+namespace Pandacap.Signatures;
 
-internal static class IHttpRequestExtensions
+internal static class HttpRequestExtensions
 {
-    public static string GetDerivedComponentValue(this IRequest request, DerivedComponent derivedComponent)
+    public static string GetDerivedComponentValue(this HttpRequest request, DerivedComponent derivedComponent)
     {
+        Lazy<Uri> uri = new(() => new(request.GetEncodedUrl()));
+
         return derivedComponent.ComponentName switch
         {
             DerivedComponents.SignatureParams =>
                 throw new NotSupportedException("The '@signature-params' component cannot be included explicitly."),
             DerivedComponents.Method =>
-                request.Method.Method,
+                request.Method,
             DerivedComponents.TargetUri =>
-                request.RequestUri.OriginalString,
+                uri.Value.OriginalString,
             DerivedComponents.Authority =>
-                request.RequestUri.Authority.ToLower(),
+                uri.Value.Authority.ToLower(),
             DerivedComponents.Scheme =>
-                request.RequestUri.Scheme.ToLower(),
+                uri.Value.Scheme.ToLower(),
             DerivedComponents.RequestTarget =>
-                request.RequestUri.PathAndQuery,
+                uri.Value.PathAndQuery,
             DerivedComponents.Path =>
-                request.RequestUri.AbsolutePath,
+                uri.Value.AbsolutePath,
             DerivedComponents.Query =>
-                string.IsNullOrWhiteSpace(request.RequestUri.Query)
+                string.IsNullOrWhiteSpace(uri.Value.Query)
                     ? "?"
-                    : request.RequestUri.Query,
+                    : uri.Value.Query,
             DerivedComponents.QueryParam =>
                 throw new NotSupportedException("The '@query-param' component must have the 'name' parameter set."),
             DerivedComponents.Status =>

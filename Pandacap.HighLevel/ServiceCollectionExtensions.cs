@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pandacap.HighLevel.ActivityPub;
-using Pandacap.HighLevel.Signatures;
 using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
@@ -19,7 +18,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<IdMapper>()
                 .AddScoped<ImageProxy>()
                 .AddSingleton(new KeyProvider($"https://{applicationInformation.KeyVaultHostname}"))
-                .AddScoped<MastodonVerifier>()
                 .AddScoped<RemoteActivityPubPostHandler>()
                 .AddScoped<RemoteActorFetcher>();
         }

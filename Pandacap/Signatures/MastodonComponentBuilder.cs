@@ -6,9 +6,9 @@ using static NSign.Constants;
 using NSign.Signatures;
 using Microsoft.Extensions.Primitives;
 
-namespace Pandacap.HighLevel.Signatures;
+namespace Pandacap.Signatures;
 
-public class MastodonComponentBuilder(IRequest _message) : ISignatureComponentVisitor
+public class MastodonComponentBuilder(HttpRequest _message) : ISignatureComponentVisitor
 {
     private readonly List<string> _derivedParamsValues = [];
     private readonly List<string> _headerParamsValues = [];

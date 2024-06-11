@@ -1,14 +1,12 @@
-﻿using DeviantArtFs;
-using JsonLD.Core;
-using Microsoft.AspNetCore.Http.Extensions;
+﻿using JsonLD.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ActivityPub;
-using Pandacap.HighLevel.Signatures;
 using Pandacap.LowLevel;
+using Pandacap.Signatures;
 using System.Text;
 
 namespace Pandacap.Controllers
@@ -70,13 +68,6 @@ namespace Pandacap.Controllers
                 Encoding.UTF8);
         }
 
-        private class Wrapper(HttpRequest Request) : IRequest
-        {
-            HttpMethod IRequest.Method => new(Request.Method);
-            Uri IRequest.RequestUri => new(Request.GetEncodedUrl());
-            IHeaderDictionary IRequest.Headers => Request.Headers;
-        }
-
         [HttpPost]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported on Cosmos DB provider for EF Core")]
         public async Task Inbox()
@@ -100,9 +91,7 @@ namespace Pandacap.Controllers
             string type = expansionObj["@type"]![0]!.Value<string>()!;
 
             // Verify HTTP signature against the public key
-            var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(
-                new Wrapper(Request),
-                actor);
+            var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(Request, actor);
 
             if (signatureVerificationResult != NSign.VerificationResult.SuccessfullyVerified)
             {

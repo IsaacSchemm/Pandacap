@@ -6,6 +6,7 @@ using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.HighLevel;
+using Pandacap.Signatures;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,8 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
         deviantArtClientId,
         deviantArtClientSecret));
 }
+
+builder.Services.AddScoped<MastodonVerifier>();
 
 builder.Services.AddPandacapServices(new ApplicationInformation(
     applicationHostname: builder.Configuration["ApplicationHostname"],

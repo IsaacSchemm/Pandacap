@@ -22,6 +22,8 @@ namespace Pandacap.Data
 
         public DbSet<InboxTextDeviation> InboxTextDeviations { get; set; }
 
+        public DbSet<ProfileProperty> ProfileProperties { get; set; }
+
         public DbSet<RemoteActivity> RemoteActivities { get; set; }
 
         public DbSet<RemoteActivityPubAnnouncement> RemoteActivityPubAnnouncements { get; set; }
