@@ -302,6 +302,8 @@ namespace Pandacap.Controllers
             await foreach (var feed in context.Feeds.Where(f => f.Id == id).AsAsyncEnumerable())
                 context.Feeds.Remove(feed);
 
+            await context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Feeds));
         }
 
