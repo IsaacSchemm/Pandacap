@@ -45,7 +45,17 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SetAltText(Guid id, string alt)
         {
-            await deviantArtHandler.UpdateAltTextAsync(id, alt);
+            var post = await context.UserArtworkDeviations
+                .Where(p => p.Id == id)
+                .SingleOrDefaultAsync();
+            if (post == null)
+                return NotFound();
+
+            post.AltText = alt;
+            await context.SaveChangesAsync();
+
+            await deviantArtHandler.BroadcastUpdateAsync(id);
+
             return RedirectToAction(nameof(Index), new { id });
         }
     }

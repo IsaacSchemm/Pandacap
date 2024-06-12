@@ -418,7 +418,7 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public async Task UpdateAltTextAsync(Guid deviationId, string altText)
+        public async Task BroadcastUpdateAsync(Guid deviationId)
         {
             var post = await context.UserArtworkDeviations
                 .Where(p => p.Id == deviationId)
@@ -426,7 +426,6 @@ namespace Pandacap.HighLevel
             if (post == null)
                 return;
 
-            post.AltText = altText;
             await AddActivityAsync(post, ActivityType.Update);
             await context.SaveChangesAsync();
         }
