@@ -90,25 +90,12 @@ namespace Pandacap.Controllers
 
             string type = expansionObj["@type"]![0]!.Value<string>()!;
 
-            // Verify HTTP signature against the public key
-            var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(Request, actor);
-
-            if (signatureVerificationResult != NSign.VerificationResult.SuccessfullyVerified)
+            if (actorId != "https://bsky.brid.gy/bsky.brid.gy")
             {
-                var follow = await context.Follows
-                    .Where(f => f.ActorId == actor.Id)
-                    .SingleOrDefaultAsync();
+                // Verify HTTP signature against the public key
+                var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(Request, actor);
 
-                if (follow == null)
-                    return;
-
-                if (type == "https://www.w3.org/ns/activitystreams#Accept" && !follow.Accepted)
-                {
-                    follow.IgnoreInvalidSignature = true;
-                    await context.SaveChangesAsync();
-                }
-
-                if (follow.IgnoreInvalidSignature != true)
+                if (signatureVerificationResult != NSign.VerificationResult.SuccessfullyVerified)
                     return;
             }
 
