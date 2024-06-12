@@ -10,11 +10,11 @@ namespace Pandacap.Functions
         [Function("DeviantArtRefresh")]
         public async Task Run([TimerTrigger("0 */30 * * * *")] TimerInfo myTimer)
         {
-            await deviantArtHandler.ReadArtworkPostsByUsersWeWatchAsync();
-            await deviantArtHandler.ReadTextPostsByUsersWeWatchAsync();
+            await deviantArtHandler.ImportArtworkPostsByUsersWeWatchAsync();
+            await deviantArtHandler.ImportTextPostsByUsersWeWatchAsync();
 
-            await deviantArtHandler.ReadOurGalleryAsync(since: DateTimeOffset.UtcNow.AddHours(-24));
-            await deviantArtHandler.ReadOurPostsAsync(since: DateTimeOffset.UtcNow.AddHours(-24));
+            await deviantArtHandler.ImportOurGalleryAsync(since: DateTimeOffset.UtcNow.AddHours(-24));
+            await deviantArtHandler.ImportOurTextPostsAsync(since: DateTimeOffset.UtcNow.AddHours(-24));
 
             await credentialProvider.UpdateAvatarAsync();
         }

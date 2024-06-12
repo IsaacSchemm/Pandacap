@@ -3,6 +3,7 @@ using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
+using static DeviantArtFs.Api.Browse;
 
 namespace Pandacap.HighLevel
 {
@@ -11,7 +12,7 @@ namespace Pandacap.HighLevel
         DeviantArtCredentialProvider credentialProvider,
         ActivityPubTranslator translator)
     {
-        public async Task ReadArtworkPostsByUsersWeWatchAsync()
+        public async Task ImportArtworkPostsByUsersWeWatchAsync()
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
                 return;
@@ -70,7 +71,7 @@ namespace Pandacap.HighLevel
             await context.SaveChangesAsync();
         }
 
-        public async Task ReadTextPostsByUsersWeWatchAsync()
+        public async Task ImportTextPostsByUsersWeWatchAsync()
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
                 return;
@@ -165,19 +166,14 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public async Task ReadOurGalleryAsync(DateTimeOffset? since = null, int? max = null)
+        public record UpstreamArtworkDeviation(
+            DeviantArtFs.ResponseTypes.Deviation Deviation,
+            DeviantArtFs.Api.Deviation.Metadata? Metadata);
+
+        public async IAsyncEnumerable<UpstreamArtworkDeviation> GetOurGalleryAsync()
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
-                return;
-
-            DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
-            int cutoffCount = max ?? int.MaxValue;
-
-            var queuedForDeletionCheck = await context.UserArtworkDeviations
-                .Where(post => post.PublishedTime >= cutoffDate)
-                .OrderByDescending(post => post.PublishedTime)
-                .Take(cutoffCount)
-                .ToListAsync();
+                yield break;
 
             var asyncSeq =
                 DeviantArtFs.Api.Gallery.GetAllViewAsync(
@@ -185,17 +181,11 @@ namespace Pandacap.HighLevel
                     UserScope.ForCurrentUser,
                     PagingLimit.DefaultPagingLimit,
                     PagingOffset.StartingOffset)
-                .TakeWhile(post => post.published_time.OrNull() is not DateTimeOffset dt || dt >= cutoffDate)
-                .Take(cutoffCount)
-                .Chunk(50);
+                .Chunk(24);
 
             await foreach (var chunk in asyncSeq)
             {
                 var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
-
-                var existingPosts = await context.UserArtworkDeviations
-                    .Where(p => deviationIds.Contains(p.Id))
-                    .ToListAsync();
 
                 var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
                     credentials,
@@ -203,79 +193,108 @@ namespace Pandacap.HighLevel
 
                 foreach (var deviation in chunk)
                 {
-                    queuedForDeletionCheck.RemoveAll(dbObject => dbObject.Id == deviation.deviationid);
+                    yield return new UpstreamArtworkDeviation(
+                        deviation,
+                        metadataResponse.metadata.SingleOrDefault(m => m.deviationid == deviation.deviationid));
+                }
+            }
+        }
 
-                    if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
-                        continue;
+        public async Task ImportOurGalleryAsync(DateTimeOffset? since = null, Dictionary<Guid, string>? altTextMap = null)
+        {
+            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
+                return;
 
-                    if (deviation.content?.OrNull() is not DeviantArtFs.ResponseTypes.Content content)
-                        continue;
+            DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
 
-                    var post = existingPosts
-                        .FirstOrDefault(p => p.Id == deviation.deviationid);
+            var queuedForDeletionCheck = await context.UserArtworkDeviations
+                .Where(post => post.PublishedTime >= cutoffDate)
+                .OrderByDescending(post => post.PublishedTime)
+                .ToListAsync();
 
-                    string? oldObjectJson = post == null
-                        ? null
-                        : ActivityPubSerializer.SerializeWithContext(
-                            translator.AsObject(
-                                post));
+            await foreach (var upstream in GetOurGalleryAsync())
+            {
+                var deviation = upstream.Deviation;
+                var metadata = upstream.Metadata;
 
-                    if (post == null)
+                if (upstream.Deviation.published_time.OrNull() is DateTimeOffset dt && dt < cutoffDate)
+                    break;
+
+                queuedForDeletionCheck.RemoveAll(dbObject => dbObject.Id == deviation.deviationid);
+
+                if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
+                    continue;
+
+                if (deviation.content?.OrNull() is not DeviantArtFs.ResponseTypes.Content content)
+                    continue;
+
+                var post = await context.UserArtworkDeviations
+                    .Where(p => p.Id == deviation.deviationid)
+                    .FirstOrDefaultAsync();
+
+                string? oldObjectJson = post == null
+                    ? null
+                    : ActivityPubSerializer.SerializeWithContext(
+                        translator.AsObject(
+                            post));
+
+                if (post == null)
+                {
+                    post = new()
                     {
-                        post = new()
-                        {
-                            Id = deviation.deviationid
-                        };
-                        context.Add(post);
-                    }
+                        Id = deviation.deviationid
+                    };
+                    context.Add(post);
+                }
 
-                    var metadata = metadataResponse.metadata
-                        .FirstOrDefault(m => m.deviationid == deviation.deviationid);
+                post.LinkUrl = deviation.url.OrNull();
+                post.Title = deviation.title.OrNull();
+                post.FederateTitle = true;
+                post.PublishedTime = publishedTime;
+                post.IsMature = deviation.is_mature.OrNull() ?? false;
 
-                    post.LinkUrl = deviation.url.OrNull();
-                    post.Title = deviation.title.OrNull();
-                    post.FederateTitle = true;
-                    post.PublishedTime = publishedTime;
-                    post.IsMature = deviation.is_mature.OrNull() ?? false;
+                post.Description = metadata?.description?.Replace("https://www.deviantart.com/users/outgoing?", "");
 
-                    post.Description = metadata?.description?.Replace("https://www.deviantart.com/users/outgoing?", "");
+                post.Tags.Clear();
+                post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
-                    post.Tags.Clear();
-                    post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
+                post.ImageUrl = content.src;
+                post.ImageContentType = !Uri.TryCreate(content.src, UriKind.Absolute, out Uri? uri) ? "application/octet-stream"
+                    : uri.AbsolutePath.EndsWith(".png") ? "image/png"
+                    : uri.AbsolutePath.EndsWith(".jpg") ? "image/jpeg"
+                    : "application/octet-stream";
 
-                    post.ImageUrl = content.src;
-                    post.ImageContentType = !Uri.TryCreate(content.src, UriKind.Absolute, out Uri? uri) ? "application/octet-stream"
-                        : uri.AbsolutePath.EndsWith(".png") ? "image/png"
-                        : uri.AbsolutePath.EndsWith(".jpg") ? "image/jpeg"
-                        : "application/octet-stream";
+                if (altTextMap?.TryGetValue(deviation.deviationid, out string? altText) == true)
+                {
+                    post.AltText = altText;
+                }
 
-                    post.ThumbnailRenditions.Clear();
-                    foreach (var thumbnail in deviation.thumbs.OrEmpty())
+                post.ThumbnailRenditions.Clear();
+                foreach (var thumbnail in deviation.thumbs.OrEmpty())
+                {
+                    post.ThumbnailRenditions.Add(new()
                     {
-                        post.ThumbnailRenditions.Add(new()
-                        {
-                            Url = thumbnail.src,
-                            Width = thumbnail.width,
-                            Height = thumbnail.height
-                        });
-                    }
+                        Url = thumbnail.src,
+                        Width = thumbnail.width,
+                        Height = thumbnail.height
+                    });
+                }
 
-                    string newObjectJson =
-                        ActivityPubSerializer.SerializeWithContext(
-                            translator.AsObject(
-                                post));
+                string newObjectJson =
+                    ActivityPubSerializer.SerializeWithContext(
+                        translator.AsObject(
+                            post));
 
-                    if (oldObjectJson == null)
+                if (oldObjectJson == null)
+                {
+                    if (DateTimeOffset.UtcNow - publishedTime < TimeSpan.FromDays(1))
                     {
-                        if (DateTimeOffset.UtcNow - publishedTime < TimeSpan.FromDays(1))
-                        {
-                            await AddActivityAsync(post, ActivityType.Create);
-                        }
+                        await AddActivityAsync(post, ActivityType.Create);
                     }
-                    else if (oldObjectJson != newObjectJson)
-                    {
-                        await AddActivityAsync(post, ActivityType.Update);
-                    }
+                }
+                else if (oldObjectJson != newObjectJson)
+                {
+                    await AddActivityAsync(post, ActivityType.Update);
                 }
 
                 await context.SaveChangesAsync();
@@ -299,18 +318,56 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public async Task ReadOurPostsAsync(DateTimeOffset? since = null, int? max = null)
+        public record UpstreamTextDeviation(
+            DeviantArtFs.ResponseTypes.Deviation Deviation,
+            DeviantArtFs.Api.Deviation.Metadata? Metadata,
+            DeviantArtFs.Api.Deviation.TextContent TextContent);
+
+        public async IAsyncEnumerable<UpstreamTextDeviation> GetOurTextPostsAsync()
+        {
+            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
+                yield break;
+
+            var asyncSeq =
+                DeviantArtFs.Api.Gallery.GetAllViewAsync(
+                    credentials,
+                    UserScope.ForCurrentUser,
+                    PagingLimit.DefaultPagingLimit,
+                    PagingOffset.StartingOffset)
+                .Chunk(24);
+
+            await foreach (var chunk in asyncSeq)
+            {
+                var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
+
+                var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
+                    credentials,
+                    deviationIds);
+
+                foreach (var deviation in chunk)
+                {
+                    var content = await DeviantArtFs.Api.Deviation.GetContentAsync(
+                        credentials,
+                        deviation.deviationid);
+
+                    yield return new UpstreamTextDeviation(
+                        deviation,
+                        metadataResponse.metadata.SingleOrDefault(m => m.deviationid == deviation.deviationid),
+                        content);
+                }
+            }
+        }
+
+        public async Task ImportOurTextPostsAsync(DateTimeOffset? since = null)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
                 return;
 
             DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
-            int cutoffCount = max ?? int.MaxValue;
 
             var queuedForDeletionCheck = await context.UserTextDeviations
                 .Where(post => post.PublishedTime >= cutoffDate)
                 .OrderByDescending(post => post.PublishedTime)
-                .Take(cutoffCount)
                 .ToListAsync();
 
             var asyncSeq =
@@ -319,82 +376,69 @@ namespace Pandacap.HighLevel
                     whoami.username,
                     DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning)
                 .TakeWhile(post => post.published_time.OrNull() is not DateTimeOffset dt || dt >= cutoffDate)
-                .Take(cutoffCount)
                 .Chunk(50);
 
-            await foreach (var chunk in asyncSeq)
+            await foreach (var upstream in GetOurTextPostsAsync())
             {
-                var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
+                var deviation = upstream.Deviation;
+                var metadata = upstream.Metadata;
+                var content = upstream.TextContent;
 
-                var existingPosts = await context.UserTextDeviations
-                    .Where(p => deviationIds.Contains(p.Id))
-                    .ToListAsync();
+                if (deviation.published_time.OrNull() is DateTimeOffset dt && dt < cutoffDate)
+                    break;
 
-                var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
-                    credentials,
-                    deviationIds);
+                queuedForDeletionCheck.RemoveAll(dbObject => dbObject.Id == deviation.deviationid);
 
-                foreach (var deviation in chunk)
+                if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
+                    continue;
+
+                var post = await context.UserTextDeviations
+                    .Where(p => p.Id == deviation.deviationid)
+                    .FirstOrDefaultAsync();
+
+                string? oldObjectJson = post == null
+                    ? null
+                    : ActivityPubSerializer.SerializeWithContext(
+                        translator.AsObject(
+                            post));
+
+                if (post == null)
                 {
-                    queuedForDeletionCheck.RemoveAll(dbObject => dbObject.Id == deviation.deviationid);
-
-                    if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
-                        continue;
-
-                    var content = await DeviantArtFs.Api.Deviation.GetContentAsync(
-                        credentials,
-                        deviation.deviationid);
-
-                    var post = existingPosts
-                        .FirstOrDefault(p => p.Id == deviation.deviationid);
-
-                    string? oldObjectJson = post == null
-                        ? null
-                        : ActivityPubSerializer.SerializeWithContext(
-                            translator.AsObject(
-                                post));
-
-                    if (post == null)
+                    post = new()
                     {
-                        post = new()
-                        {
-                            Id = deviation.deviationid
-                        };
-                        context.Add(post);
-                    }
+                        Id = deviation.deviationid
+                    };
+                    context.Add(post);
+                }
 
-                    var metadata = metadataResponse.metadata
-                        .FirstOrDefault(m => m.deviationid == deviation.deviationid);
+                post.LinkUrl = deviation.url.OrNull();
+                post.Title = deviation.title.OrNull();
+                post.FederateTitle = deviation.category_path.OrNull() != "status";
+                post.PublishedTime = publishedTime;
+                post.IsMature = deviation.is_mature.OrNull() ?? false;
 
-                    post.LinkUrl = deviation.url.OrNull();
-                    post.Title = deviation.title.OrNull();
-                    post.FederateTitle = deviation.category_path.OrNull() != "status";
-                    post.PublishedTime = publishedTime;
-                    post.IsMature = deviation.is_mature.OrNull() ?? false;
+                post.Description = content.html.OrNull()?.Replace("https://www.deviantart.com/users/outgoing?", "");
 
-                    post.Description = content.html.OrNull()?.Replace("https://www.deviantart.com/users/outgoing?", "");
+                post.Tags.Clear();
+                post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
-                    post.Tags.Clear();
-                    post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
+                post.Excerpt = deviation.excerpt.OrNull();
 
-                    post.Excerpt = deviation.excerpt.OrNull();
+                string newObjectJson =
+                    ActivityPubSerializer.SerializeWithContext(
+                        translator.AsObject(
+                            post));
 
-                    string newObjectJson =
-                        ActivityPubSerializer.SerializeWithContext(
-                            translator.AsObject(
-                                post));
-
-                    if (oldObjectJson == null)
+                if (oldObjectJson == null)
+                {
+                    if (DateTimeOffset.UtcNow - publishedTime < TimeSpan.FromDays(1))
                     {
-                        if (DateTimeOffset.UtcNow - publishedTime < TimeSpan.FromDays(1))
-                        {
-                            await AddActivityAsync(post, ActivityType.Create);
-                        }
+                        await AddActivityAsync(post, ActivityType.Create);
                     }
-                    else if (oldObjectJson != newObjectJson)
-                    {
-                        await AddActivityAsync(post, ActivityType.Update);
-                    }
+                }
+                else if (oldObjectJson != newObjectJson)
+                {
+                    await AddActivityAsync(post, ActivityType.Update);
                 }
 
                 await context.SaveChangesAsync();

@@ -8,8 +8,8 @@ namespace Pandacap.Functions
         [Function("DeviantArtMonthly")]
         public async Task Run([TimerTrigger("0 45 0 2 * *")] TimerInfo myTimer)
         {
-            await deviantArtHandler.ReadOurGalleryAsync();
-            await deviantArtHandler.ReadOurPostsAsync();
+            await deviantArtHandler.ImportOurGalleryAsync();
+            await deviantArtHandler.ImportOurTextPostsAsync();
         }
     }
 }
