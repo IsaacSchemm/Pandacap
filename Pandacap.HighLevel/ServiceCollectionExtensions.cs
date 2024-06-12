@@ -14,6 +14,7 @@ namespace Pandacap.HighLevel
                 .AddSingleton(applicationInformation)
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ActivityPubTranslator>()
+                .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtHandler>()
                 .AddScoped<IdMapper>()
                 .AddScoped<ImageProxy>()

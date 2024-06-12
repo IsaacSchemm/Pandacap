@@ -1,44 +1,19 @@
-﻿using DeviantArtFs;
-using DeviantArtFs.Extensions;
+﻿using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.HighLevel.ActivityPub;
 using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
 {
     public class DeviantArtHandler(
-        ApplicationInformation applicationInformation,
         PandacapDbContext context,
-        DeviantArtApp deviantArtApp,
-        KeyProvider keyProvider,
+        DeviantArtCredentialProvider credentialProvider,
         ActivityPubTranslator translator)
     {
-        private readonly Lazy<Task<(RefreshableCredentials, DeviantArtFs.ResponseTypes.User)?>> Credentials = new(async () =>
-        {
-            var allCredentials = await context.DeviantArtCredentials
-                .ToListAsync();
-
-            foreach (var credentials in allCredentials)
-            {
-                var tokenWrapper = new RefreshableCredentials(
-                    context,
-                    credentials,
-                    deviantArtApp);
-                var whoami = await DeviantArtFs.Api.User.WhoamiAsync(tokenWrapper);
-                if (whoami.username == applicationInformation.Username)
-                {
-                    return (tokenWrapper, whoami);
-                }
-            }
-
-            return null;
-        });
-
         public async Task ReadArtworkPostsByUsersWeWatchAsync()
         {
-            if (await Credentials.Value is not (var credentials, _))
+            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
@@ -97,7 +72,7 @@ namespace Pandacap.HighLevel
 
         public async Task ReadTextPostsByUsersWeWatchAsync()
         {
-            if (await Credentials.Value is not (var credentials, _))
+            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
@@ -192,7 +167,7 @@ namespace Pandacap.HighLevel
 
         public async Task ReadOurGalleryAsync(DateTimeOffset? since = null, int? max = null)
         {
-            if (await Credentials.Value is not (var credentials, _))
+            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
                 return;
 
             DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
@@ -326,7 +301,7 @@ namespace Pandacap.HighLevel
 
         public async Task ReadOurPostsAsync(DateTimeOffset? since = null, int? max = null)
         {
-            if (await Credentials.Value is not (var credentials, var whoami))
+            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
                 return;
 
             DateTimeOffset cutoffDate = since ?? DateTimeOffset.MinValue;
@@ -454,60 +429,6 @@ namespace Pandacap.HighLevel
             post.AltText = altText;
             await AddActivityAsync(post, ActivityType.Update);
             await context.SaveChangesAsync();
-        }
-
-        public async Task UpdateAvatarAsync()
-        {
-            if (await Credentials.Value is not (var credentials, var whoami))
-                return;
-
-            if (credentials.UnderlyingDataObject.IconUrl != whoami.usericon)
-            {
-                credentials.UnderlyingDataObject.IconUrl = whoami.usericon;
-
-                var key = await keyProvider.GetPublicKeyAsync();
-                var properties = await context.ProfileProperties.ToListAsync();
-
-                HashSet<string> inboxes = [];
-                await foreach (var f in context.Follows)
-                    inboxes.Add(f.SharedInbox ?? f.Inbox);
-                await foreach (var f in context.Followers)
-                    inboxes.Add(f.SharedInbox ?? f.Inbox);
-
-                foreach (string inbox in inboxes) {
-                    context.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
-                    {
-                        Id = Guid.NewGuid(),
-                        Inbox = inbox,
-                        JsonBody = ActivityPubSerializer.SerializeWithContext(
-                            translator.PersonToUpdate(
-                                key,
-                                properties)),
-                        StoredAt = DateTimeOffset.UtcNow
-                    });
-                }
-
-                await context.SaveChangesAsync();
-            }
-        }
-
-        private class RefreshableCredentials(
-            PandacapDbContext context,
-            DeviantArtCredentials credentials,
-            DeviantArtApp deviantArtApp) : IDeviantArtRefreshableAccessToken
-        {
-            public string RefreshToken => credentials.RefreshToken;
-            public string AccessToken => credentials.AccessToken;
-
-            public DeviantArtCredentials UnderlyingDataObject => credentials;
-
-            public async Task RefreshAccessTokenAsync()
-            {
-                var resp = await DeviantArtAuth.RefreshAsync(deviantArtApp, credentials.RefreshToken);
-                credentials.RefreshToken = resp.refresh_token;
-                credentials.AccessToken = resp.access_token;
-                await context.SaveChangesAsync();
-            }
         }
     }
 }
