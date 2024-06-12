@@ -33,9 +33,11 @@ namespace Pandacap.Controllers
             return View(new BridgedPostViewModel
             {
                 Deviation = post,
-                RemoteActivities = await context.RemoteActivities
-                    .Where(a => a.DeviationId == post.Id)
-                    .ToListAsync()
+                RemoteActivities = User.Identity?.IsAuthenticated == true
+                    ? await context.RemoteActivities
+                        .Where(a => a.DeviationId == post.Id)
+                        .ToListAsync()
+                    : []
             });
         }
 
