@@ -259,6 +259,7 @@ namespace Pandacap.HighLevel
 
                     post.LinkUrl = deviation.url.OrNull();
                     post.Title = deviation.title.OrNull();
+                    post.FederateTitle = true;
                     post.PublishedTime = publishedTime;
                     post.IsMature = deviation.is_mature.OrNull() ?? false;
 
@@ -391,9 +392,8 @@ namespace Pandacap.HighLevel
                         .FirstOrDefault(m => m.deviationid == deviation.deviationid);
 
                     post.LinkUrl = deviation.url.OrNull();
-                    post.Title = deviation.category_path.OrNull() == "status"
-                        ? null
-                        : deviation.title.OrNull();
+                    post.Title = deviation.title.OrNull();
+                    post.FederateTitle = deviation.category_path.OrNull() != "status";
                     post.PublishedTime = publishedTime;
                     post.IsMature = deviation.is_mature.OrNull() ?? false;
 

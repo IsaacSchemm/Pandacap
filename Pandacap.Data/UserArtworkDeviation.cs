@@ -5,6 +5,7 @@
         public Guid Id { get; set; }
         public string? LinkUrl { get; set; }
         public string? Title { get; set; }
+        public bool FederateTitle { get; set; }
         public DateTimeOffset PublishedTime { get; set; }
         public bool IsMature { get; set; }
 
@@ -27,7 +28,7 @@
 
         string IPost.Id => $"{Id}";
 
-        string? IPost.DisplayTitle => Title ?? $"{Id}";
+        string IPost.DisplayTitle => Title ?? $"{Id}";
 
         DateTimeOffset IPost.Timestamp => PublishedTime;
 

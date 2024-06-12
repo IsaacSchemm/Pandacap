@@ -42,7 +42,7 @@ namespace Pandacap.Data
         public bool? IsMention { get; set; }
         public bool? IsReply { get; set; }
 
-        string? IPost.DisplayTitle
+        string IPost.DisplayTitle
         {
             get
             {

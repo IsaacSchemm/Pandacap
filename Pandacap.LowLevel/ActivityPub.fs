@@ -100,9 +100,9 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "id" id
         pair "url" id
 
-        pair "type" (if not (String.IsNullOrEmpty post.Title) && post :? UserTextDeviation then "Article" else "Note")
+        pair "type" (if post.FederateTitle && post :? UserTextDeviation then "Article" else "Note")
 
-        if not (String.IsNullOrEmpty post.Title) then
+        if post.FederateTitle then
             pair "name" post.Title
 
         if not (isNull post.Description) then

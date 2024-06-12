@@ -48,7 +48,7 @@ namespace Pandacap.Data
 
         public List<ImageAttachment> Attachments { get; set; } = [];
 
-        string? IPost.DisplayTitle
+        string IPost.DisplayTitle
         {
             get
             {

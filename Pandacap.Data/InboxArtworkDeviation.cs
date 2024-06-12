@@ -28,7 +28,7 @@
 
         string IPost.Id => $"{Id}";
 
-        string? IPost.DisplayTitle => Title ?? $"{Id}";
+        string IPost.DisplayTitle => Title ?? $"{Id}";
 
         IEnumerable<IThumbnail> IPost.Thumbnails => ThumbnailRenditions.Count > 0 ? [this] : [];
 

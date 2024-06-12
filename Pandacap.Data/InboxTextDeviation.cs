@@ -21,17 +21,7 @@
 
         string IPost.Id => $"{Id}";
 
-        string? IPost.DisplayTitle
-        {
-            get
-            {
-                string? excerpt = this.Excerpt;
-                if (excerpt != null && excerpt.Length > 60)
-                    excerpt = excerpt[..60] + "...";
-
-                return Title ?? excerpt ?? $"{Id}";
-            }
-        }
+        string IPost.DisplayTitle => Title ?? $"{Id}";
 
         IEnumerable<IThumbnail> IPost.Thumbnails => [];
     }

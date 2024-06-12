@@ -7,7 +7,7 @@
         string? Username { get; }
         string? Usericon { get; }
 
-        string? DisplayTitle { get; }
+        string DisplayTitle { get; }
         DateTimeOffset Timestamp { get; }
         string? LinkUrl { get; }
 

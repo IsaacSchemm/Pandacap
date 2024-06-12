@@ -45,7 +45,7 @@ namespace Pandacap.Data
 
         string IPost.Id => $"{LikeGuid}";
 
-        string? IPost.DisplayTitle
+        string IPost.DisplayTitle
         {
             get
             {
