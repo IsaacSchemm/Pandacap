@@ -26,7 +26,7 @@ namespace Pandacap.HighLevel
             foreach (var item in results.Items)
             {
                 DateTimeOffset ts = item.PublishingDate ?? DateTimeOffset.UtcNow;
-                if (ts < feed.LastCheckedAt)
+                if (ts <= feed.LastCheckedAt)
                     continue;
 
                 newFeedItems.Add(new()
