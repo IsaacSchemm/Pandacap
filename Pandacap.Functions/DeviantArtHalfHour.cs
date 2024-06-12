@@ -3,18 +3,18 @@ using Pandacap.HighLevel;
 
 namespace Pandacap.Functions
 {
-    public class DeviantArtHalfHour(DeviantArtFeedReader deviantArtFeedReader)
+    public class DeviantArtHalfHour(DeviantArtHandler deviantArtHandler)
     {
         [Function("DeviantArtRefresh")]
         public async Task Run([TimerTrigger("0 */30 * * * *")] TimerInfo myTimer)
         {
-            await deviantArtFeedReader.ReadArtworkPostsByUsersWeWatchAsync();
-            await deviantArtFeedReader.ReadTextPostsByUsersWeWatchAsync();
+            await deviantArtHandler.ReadArtworkPostsByUsersWeWatchAsync();
+            await deviantArtHandler.ReadTextPostsByUsersWeWatchAsync();
 
-            await deviantArtFeedReader.ReadOurGalleryAsync(since: DateTimeOffset.UtcNow.AddHours(-24));
-            await deviantArtFeedReader.ReadOurPostsAsync(since: DateTimeOffset.UtcNow.AddHours(-24));
+            await deviantArtHandler.ReadOurGalleryAsync(since: DateTimeOffset.UtcNow.AddHours(-24));
+            await deviantArtHandler.ReadOurPostsAsync(since: DateTimeOffset.UtcNow.AddHours(-24));
 
-            await deviantArtFeedReader.UpdateAvatarAsync();
+            await deviantArtHandler.UpdateAvatarAsync();
         }
     }
 }

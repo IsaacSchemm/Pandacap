@@ -8,7 +8,7 @@ using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
 {
-    public class DeviantArtFeedReader(
+    public class DeviantArtHandler(
         ApplicationInformation applicationInformation,
         PandacapDbContext context,
         DeviantArtApp deviantArtApp,

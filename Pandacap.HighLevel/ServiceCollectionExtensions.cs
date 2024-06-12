@@ -14,7 +14,7 @@ namespace Pandacap.HighLevel
                 .AddSingleton(applicationInformation)
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ActivityPubTranslator>()
-                .AddScoped<DeviantArtFeedReader>()
+                .AddScoped<DeviantArtHandler>()
                 .AddScoped<IdMapper>()
                 .AddScoped<ImageProxy>()
                 .AddSingleton(new KeyProvider($"https://{applicationInformation.KeyVaultHostname}"))

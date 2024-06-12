@@ -11,7 +11,7 @@ namespace Pandacap.Controllers
     [Route("BridgedPosts")]
     public class BridgedPostsController(
         PandacapDbContext context,
-        DeviantArtFeedReader feedReader,
+        DeviantArtHandler deviantArtHandler,
         ActivityPubTranslator translator) : Controller
     {
         [Route("{id}")]
@@ -45,7 +45,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SetAltText(Guid id, string alt)
         {
-            await feedReader.UpdateAltTextAsync(id, alt);
+            await deviantArtHandler.UpdateAltTextAsync(id, alt);
             return RedirectToAction(nameof(Index), new { id });
         }
     }
