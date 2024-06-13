@@ -8,14 +8,15 @@ namespace Pandacap.Functions
         DeviantArtCredentialProvider credentialProvider,
         DeviantArtHandler deviantArtHandler)
     {
-        [Function("DeviantArtRefresh")]
-        public async Task Run([TimerTrigger("20 19 * * * *")] TimerInfo myTimer)
+        [Function("DeviantArtHalfHour")]
+        public async Task Run([TimerTrigger("10 48 * * * *")] TimerInfo myTimer)
         {
             await deviantArtHandler.ImportArtworkPostsByUsersWeWatchAsync();
             await deviantArtHandler.ImportTextPostsByUsersWeWatchAsync();
 
-            await deviantArtHandler.ImportOurGalleryAsync(DeviantArtImportScope.NewRecent(DateTimeOffset.UtcNow.AddHours(-24)));
-            await deviantArtHandler.ImportOurTextPostsAsync(DeviantArtImportScope.NewRecent(DateTimeOffset.UtcNow.AddHours(-24)));
+            var scope = DeviantArtImportScope.NewRecent(DateTimeOffset.UtcNow.AddDays(-24));
+            await deviantArtHandler.ImportOurGalleryAsync(scope);
+            await deviantArtHandler.ImportOurTextPostsAsync(scope);
 
             await credentialProvider.UpdateAvatarAsync();
         }
