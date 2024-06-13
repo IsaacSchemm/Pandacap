@@ -92,6 +92,8 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> Search(string? q, Guid? next, int? count)
         {
+            var query = q?.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+
             var posts1 = context.UserArtworkDeviations
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
@@ -124,7 +126,7 @@ namespace Pandacap.Controllers
                             yield return tag;
                     }
 
-                    return getKeywords().Contains(q, StringComparer.InvariantCultureIgnoreCase);
+                    return query.All(q => getKeywords().Contains(q, StringComparer.InvariantCultureIgnoreCase));
                 })
                 .OfType<IPost>()
                 .AsListPage(count ?? 20);
