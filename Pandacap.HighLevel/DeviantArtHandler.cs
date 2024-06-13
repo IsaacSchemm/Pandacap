@@ -175,110 +175,6 @@ namespace Pandacap.HighLevel
                 yield return await DeviantArtFs.Api.Deviation.GetAsync(credentials, id);
         }
 
-        private record UpstreamDeviation(
-            DeviantArtFs.ResponseTypes.Deviation Deviation,
-            DeviantArtFs.Api.Deviation.Metadata? Metadata,
-            DeviantArtFs.Api.Deviation.TextContent? TextContent);
-
-        private async IAsyncEnumerable<UpstreamDeviation> GetUpstreamTextPostsAsync(DeviantArtImportScope scope)
-        {
-            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
-                yield break;
-
-            var asyncSeq =
-                DeviantArtFs.Api.User.GetProfilePostsAsync(
-                    credentials,
-                    whoami.username,
-                    DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning);
-
-            if (scope is DeviantArtImportScope.Recent recent)
-                asyncSeq = asyncSeq.TakeWhile(d => d.published_time.OrNull() is not DateTimeOffset dt || dt >= recent.cutoff);
-
-            if (scope is DeviantArtImportScope.Subset subset)
-                asyncSeq = GetDeviationsByIdsAsync(subset.ids);
-
-            await foreach (var chunk in asyncSeq.Chunk(24))
-            {
-                var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
-
-                var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
-                    credentials,
-                    deviationIds);
-
-                foreach (var deviation in chunk)
-                {
-                    var content = await DeviantArtFs.Api.Deviation.GetContentAsync(
-                        credentials,
-                        deviation.deviationid);
-
-                    yield return new UpstreamDeviation(
-                        deviation,
-                        metadataResponse.metadata.SingleOrDefault(m => m.deviationid == deviation.deviationid),
-                        content);
-                }
-            }
-        }
-
-        private async IAsyncEnumerable<UpstreamDeviation> GetUpstreamGalleryAsync(DeviantArtImportScope scope)
-        {
-            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
-                yield break;
-
-            var asyncSeq =
-                DeviantArtFs.Api.Gallery.GetAllViewAsync(
-                    credentials,
-                    UserScope.ForCurrentUser,
-                    PagingLimit.DefaultPagingLimit,
-                    PagingOffset.StartingOffset);
-
-            if (scope is DeviantArtImportScope.Recent recent)
-                asyncSeq = asyncSeq.TakeWhile(d => d.published_time.OrNull() is not DateTimeOffset dt || dt >= recent.cutoff);
-
-            if (scope is DeviantArtImportScope.Subset subset)
-                asyncSeq = GetDeviationsByIdsAsync(subset.ids);
-
-            await foreach (var chunk in asyncSeq.Chunk(24))
-            {
-                var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
-
-                var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
-                    credentials,
-                    deviationIds);
-
-                foreach (var deviation in chunk)
-                {
-                    yield return new UpstreamDeviation(
-                        deviation,
-                        metadataResponse.metadata.SingleOrDefault(m => m.deviationid == deviation.deviationid),
-                        null);
-                }
-            }
-        }
-
-        private IAsyncEnumerable<IUserDeviation> GetLocalGalleryAsync(DeviantArtImportScope scope)
-        {
-            if (scope.IsAll)
-                return context.UserArtworkDeviations.AsAsyncEnumerable();
-            if (scope is DeviantArtImportScope.Recent recent)
-                return context.UserArtworkDeviations.Where(d => d.PublishedTime >= recent.cutoff).AsAsyncEnumerable();
-            if (scope is DeviantArtImportScope.Subset subset)
-                return context.UserArtworkDeviations.Where(d => subset.ids.Contains(d.Id)).AsAsyncEnumerable();
-
-            return AsyncEnumerable.Empty<IUserDeviation>();
-        }
-
-        private IAsyncEnumerable<IUserDeviation> GetLocalTextPostsAsync(DeviantArtImportScope scope)
-        {
-            if (scope.IsAll)
-                return context.UserTextDeviations.AsAsyncEnumerable();
-            if (scope is DeviantArtImportScope.Recent recent)
-                return context.UserTextDeviations.Where(d => d.PublishedTime >= recent.cutoff).AsAsyncEnumerable();
-            if (scope is DeviantArtImportScope.Subset subset)
-                return context.UserTextDeviations.Where(d => subset.ids.Contains(d.Id)).AsAsyncEnumerable();
-
-            return AsyncEnumerable.Empty<IUserDeviation>();
-        }
-
         private async Task CheckForDeletionAsync(IAsyncEnumerable<IUserDeviation> deletionCandidates, IReadOnlySet<Guid> exclude)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
@@ -308,9 +204,22 @@ namespace Pandacap.HighLevel
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
                 return;
 
+            var asyncSeq =
+                DeviantArtFs.Api.Gallery.GetAllViewAsync(
+                    credentials,
+                    UserScope.ForCurrentUser,
+                    PagingLimit.DefaultPagingLimit,
+                    PagingOffset.StartingOffset);
+
+            if (scope is DeviantArtImportScope.Recent recent)
+                asyncSeq = asyncSeq.TakeWhile(d => d.published_time.OrNull() is not DateTimeOffset dt || dt >= recent.cutoff);
+
+            if (scope is DeviantArtImportScope.Subset subset)
+                asyncSeq = GetDeviationsByIdsAsync(subset.ids);
+
             HashSet<Guid> found = [];
 
-            await foreach (var upstream in GetUpstreamGalleryAsync(scope))
+            await foreach (var upstream in asyncSeq.AttachMetadataAsync(credentials))
             {
                 var deviation = upstream.Deviation;
                 var metadata = upstream.Metadata;
@@ -393,7 +302,12 @@ namespace Pandacap.HighLevel
                 await context.SaveChangesAsync();
             }
 
-            await CheckForDeletionAsync(GetLocalGalleryAsync(scope), exclude: found);
+            var localPosts = scope.IsAll  ? context.UserArtworkDeviations.AsAsyncEnumerable()
+                : scope is DeviantArtImportScope.Recent recentD ? context.UserArtworkDeviations.Where(d => d.PublishedTime >= recentD.cutoff).AsAsyncEnumerable()
+                : scope is DeviantArtImportScope.Subset subsetD ? context.UserArtworkDeviations.Where(d => subsetD.ids.Contains(d.Id)).AsAsyncEnumerable()
+                : AsyncEnumerable.Empty<IUserDeviation>();
+
+            await CheckForDeletionAsync(localPosts, exclude: found);
         }
 
         public async Task ImportOurTextPostsAsync(DeviantArtImportScope scope)
@@ -401,18 +315,33 @@ namespace Pandacap.HighLevel
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
                 return;
 
+            var asyncSeq =
+                DeviantArtFs.Api.User.GetProfilePostsAsync(
+                    credentials,
+                    whoami.username,
+                    DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning);
+
+            if (scope is DeviantArtImportScope.Recent recent)
+                asyncSeq = asyncSeq.TakeWhile(d => d.published_time.OrNull() is not DateTimeOffset dt || dt >= recent.cutoff);
+
+            if (scope is DeviantArtImportScope.Subset subset)
+                asyncSeq = GetDeviationsByIdsAsync(subset.ids);
+
             HashSet<Guid> found = [];
 
-            await foreach (var upstream in GetUpstreamTextPostsAsync(scope))
+            await foreach (var upstream in asyncSeq.AttachMetadataAsync(credentials))
             {
                 var deviation = upstream.Deviation;
                 var metadata = upstream.Metadata;
-                var content = upstream.TextContent;
-
-                if (content == null)
-                    continue;
 
                 if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
+                    continue;
+
+                var content = await DeviantArtFs.Api.Deviation.GetContentAsync(
+                    credentials,
+                    deviation.deviationid);
+
+                if (content == null)
                     continue;
 
                 found.Add(deviation.deviationid);
@@ -469,19 +398,12 @@ namespace Pandacap.HighLevel
                 await context.SaveChangesAsync();
             }
 
-            await CheckForDeletionAsync(GetLocalTextPostsAsync(scope), exclude: found);
-        }
+            var localPosts = scope.IsAll ? context.UserTextDeviations.AsAsyncEnumerable()
+                : scope is DeviantArtImportScope.Recent recentD ? context.UserTextDeviations.Where(d => d.PublishedTime >= recentD.cutoff).AsAsyncEnumerable()
+                : scope is DeviantArtImportScope.Subset subsetD ? context.UserTextDeviations.Where(d => subsetD.ids.Contains(d.Id)).AsAsyncEnumerable()
+                : AsyncEnumerable.Empty<IUserDeviation>();
 
-        public async Task BroadcastUpdateAsync(Guid deviationId)
-        {
-            var post = await context.UserArtworkDeviations
-                .Where(p => p.Id == deviationId)
-                .SingleOrDefaultAsync();
-            if (post == null)
-                return;
-
-            await AddActivityAsync(post, ActivityType.Update);
-            await context.SaveChangesAsync();
+            await CheckForDeletionAsync(localPosts, exclude: found);
         }
     }
 }
