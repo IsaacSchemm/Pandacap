@@ -1,0 +1,70 @@
+﻿@using DeviantArtFs.Extensions
+@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model AltTextPageViewModel
+
+@{
+    ViewBag.Title = "Edit Alt Text";
+}
+
+<h1>Edit Alt Text</h1>
+
+<form asp-action="SaveAltText">
+    <div class="container">
+        @foreach (var item in Model.Items)
+        {
+            Guid guid = item.Deviation.deviationid;
+
+            <div class="row mb-3">
+                <div class="col col-sm-3">
+                    <img src="@(item.GetThumbnailSrc() ?? "/images/trgray.svg")"
+                            srcset="@item.GetThumbnailSrcset()"
+                            alt=""
+                            referrerpolicy="no-referrer"
+                            style="float: left; width: 100%; height: 150px; object-fit: contain" />
+                </div>
+
+                <div class="col col-sm-9">
+                    <h2>@item.Deviation.title.OrNull()</h2>
+                    <label for="alt@(guid)" class="form-label">
+                        Alt text
+                    </label>
+                    <input type="text"
+                            class="form-control"
+                            id="alt@(guid)"
+                            name="alt@(guid)"
+                            value="@item.AltText" />
+                </div>
+            </div>
+        }
+
+        <div class="row">
+            <div class="col">
+                <button type="submit" class="btn btn-primary">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<hr />
+
+@if (Model.PrevOffset is int prevOffset)
+{
+    <a asp-route-offset="@prevOffset"
+       asp-route-count="@Model.Items.Count"
+       class="btn btn-primary">
+        &laquo; Previous
+    </a>
+}
+
+@if (Model.NextOffset is int nextOffset)
+{
+    <a asp-route-offset="@nextOffset"
+       asp-route-count="@Model.Items.Count"
+       class="btn btn-primary">
+        Next &raquo;
+    </a>
+}
