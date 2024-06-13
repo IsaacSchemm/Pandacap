@@ -211,33 +211,6 @@ namespace Pandacap.HighLevel
                         content);
                 }
             }
-
-            var deletionCandidates = AsyncEnumerable.Empty<UserTextDeviation>();
-
-            if (scope.IsAll)
-                deletionCandidates = context.UserTextDeviations.AsAsyncEnumerable();
-            if (scope is DeviantArtImportScope.Recent recent1)
-                deletionCandidates = context.UserTextDeviations.Where(d => d.PublishedTime >= recent1.cutoff).AsAsyncEnumerable();
-            if (scope is DeviantArtImportScope.Single single1)
-                deletionCandidates = context.UserTextDeviations.Where(d => d.Id == single1.parameters.id).AsAsyncEnumerable();
-
-            await foreach (var chunk in deletionCandidates.Chunk(50))
-            {
-                var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
-                    credentials,
-                    chunk.Select(c => c.Id));
-
-                foreach (var candidate in chunk)
-                {
-                    if (metadataResponse.metadata.Any(m => m.deviationid == candidate.Id))
-                        continue;
-
-                    context.Remove(candidate);
-                    await AddActivityAsync(candidate, ActivityType.Delete);
-                }
-            }
-
-            await context.SaveChangesAsync();
         }
 
         public async IAsyncEnumerable<UpstreamArtworkDeviation> GetUpstreamGalleryAsync(DeviantArtImportScope scope)
