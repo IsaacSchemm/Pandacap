@@ -56,7 +56,6 @@ Function app responsibilities:
 * Every hour:
     * Find new DeviantArt posts by other users
     * Find and refresh DeviantArt posts made by the instance owner in the past 7 days (unless they are less than an hour old)
-    * Keep the avatar up to date
 * Every day:
     * Remove any unsent ActivityPub activities that are more than a week old
 * Every day:
@@ -64,6 +63,7 @@ Function app responsibilities:
         * The five most recent submissions of each type are kept, as a way to track Pandacap's position in the DeviantArt API feed
 * Every month:
     * Find and refresh all DeviantArt posts by the instance owner (unless they are less than an hour old)
+    * Refresh the instance owner's avatar
 
 Application settings (for both the function app and the web app):
 

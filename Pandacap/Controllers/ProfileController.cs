@@ -1,4 +1,3 @@
-using DeviantArtFs.Extensions;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +15,7 @@ namespace Pandacap.Controllers
     public class ProfileController(
         AtomRssFeedReader atomRssFeedReader,
         PandacapDbContext context,
+        DeviantArtCredentialProvider credentialProvider,
         DeviantArtHandler deviantArtHandler,
         KeyProvider keyProvider,
         RemoteActorFetcher remoteActorFetcher,
@@ -319,6 +319,14 @@ namespace Pandacap.Controllers
             await deviantArtHandler.ImportOurGalleryAsync(scope);
             await deviantArtHandler.ImportOurTextPostsAsync(scope);
 
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RefreshAvatar()
+        {
+            await credentialProvider.UpdateAvatarAsync();
             return RedirectToAction(nameof(Index));
         }
 

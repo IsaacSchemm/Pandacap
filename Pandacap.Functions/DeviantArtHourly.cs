@@ -4,9 +4,7 @@ using Pandacap.LowLevel;
 
 namespace Pandacap.Functions
 {
-    public class DeviantArtHourly(
-        DeviantArtCredentialProvider credentialProvider,
-        DeviantArtHandler deviantArtHandler)
+    public class DeviantArtHourly(DeviantArtHandler deviantArtHandler)
     {
         [Function("DeviantArtHourly")]
         public async Task Run([TimerTrigger("0 5 * * * *")] TimerInfo myTimer)
@@ -19,8 +17,6 @@ namespace Pandacap.Functions
                 _newest: DateTimeOffset.UtcNow.AddHours(-1));
             await deviantArtHandler.ImportOurGalleryAsync(scope);
             await deviantArtHandler.ImportOurTextPostsAsync(scope);
-
-            await credentialProvider.UpdateAvatarAsync();
         }
     }
 }
