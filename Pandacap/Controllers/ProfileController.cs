@@ -294,24 +294,6 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ImportNewestArtwork(string? altText = null)
-        {
-            var newestPost = await deviantArtHandler
-                .GetUpstreamGalleryAsync(DeviantArtImportScope.All)
-                .Select(x => x.Deviation)
-                .FirstAsync();
-
-            await deviantArtHandler.ImportOurGalleryAsync(
-                DeviantArtImportScope.NewSingle(
-                    new DeviantArtImportParameters(
-                        newestPost.deviationid,
-                        altText)));
-
-            return RedirectToAction("Index", "BridgedPosts", new { id = newestPost.deviationid });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportPastWeek()
         {
             var scope = DeviantArtImportScope.NewRecent(DateTimeOffset.UtcNow.AddDays(-7));

@@ -9,11 +9,10 @@
     ViewData["Title"] = "Main Page";
 }
 
-<img
-    src="@mapper.AvatarUrl"
-    alt="Avatar"
-    float="left"
-    style="vertical-align: top" />
+<img src="@mapper.AvatarUrl"
+     alt="Avatar"
+     float="left"
+     style="vertical-align: top" />
 
 <div style="display: inline-block">
     <h1>
@@ -61,20 +60,20 @@
 </div>
 
 <form asp-action="Search" method="get">
-<div class="input-group mb-3">
-        <input
-            name="q"
-            type="text"
-            class="form-control"
-            placeholder="Search (ID / Title / Tag)"
-            aria-label="ID, title, or tag to search for">
+    <div class="input-group mb-3">
+        <input name="q"
+               type="text"
+               class="form-control"
+               placeholder="Search (ID / Title / Tag)"
+               aria-label="ID, title, or tag to search for">
         <button class="btn btn-primary" type="button">
             Search
         </button>
     </div>
 </form>
 
-@if (Model.RecentArtwork.Any()) {
+@if (Model.RecentArtwork.Any())
+{
     <h2>
         Newest artwork
     </h2>
@@ -104,7 +103,8 @@
     </p>
 }
 
-@if (Model.RecentTextPosts.Any()) {
+@if (Model.RecentTextPosts.Any())
+{
     <h2>
         Recent posts
     </h2>
@@ -134,35 +134,31 @@
 
     <div class="container mb-3">
         <div class="row">
-            <div class="col col-xl-6">
+            <div class="col">
                 <div class="card mt-3">
                     <div class="card-header">
-                        Import from DeviantArt
+                        DeviantArt
                     </div>
-                    <div class="card-body">
-                        <form asp-action="ImportNewestArtwork">
-                            <div class="mb-3">
-                                <label for="altText" class="form-label">
-                                    Alt text
-                                </label>
-                                <input type="text" class="form-control" id="altText" name="altText" />
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                Import most recent artwork post
-                            </button>
-                        </form>
-                        <hr />
-                        <form asp-action="ImportPastWeek">
-                            <button type="submit" class="btn btn-primary">
-                                Import all posts from the past 7 days
-                            </button>
-                        </form>
-                        <hr />
-                        <form asp-action="ImportAll" onconfirm="confirm('Are you sure you want to import and refresh all posts?')">
-                            <button type="submit" class="btn btn-primary">
-                                Import all posts
-                            </button>
-                        </form>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <a asp-controller="AltText" asp-action="Index" class="btn btn-primary">
+                                Manage alt text
+                            </a>
+                        </div>
+                        <div class="mb-3">
+                            <form asp-action="ImportPastWeek">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    Import and refresh recent posts (from the past 7 days)
+                                </button>
+                            </form>
+                        </div>
+                        <div>
+                            <form asp-action="ImportAll" onconfirm="confirm('Are you sure you want to import and refresh all posts?')">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    Import and refresh all posts
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

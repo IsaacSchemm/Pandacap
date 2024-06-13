@@ -3,14 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using Pandacap.LowLevel;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class AltTextController(
+        AltTextSentinel altTextSentinel,
         PandacapDbContext context,
-        DeviantArtCredentialProvider deviantArtCredentialProvider) : Controller
+        DeviantArtCredentialProvider deviantArtCredentialProvider,
+        DeviantArtHandler deviantArtHandler) : Controller
     {
         public async Task<IActionResult> Index(int offset = 0, int count = 10)
         {
@@ -59,15 +62,22 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async IAsyncEnumerable<string> SaveAltText()
+        public async Task<IActionResult> SaveAltText()
         {
+            HashSet<Guid> ids = [];
+
             foreach (string key in Request.Form.Keys)
             {
                 if (key.StartsWith("alt") && Guid.TryParse(key[3..], out Guid guid))
                 {
-                    yield return $"{guid}: {Request.Form[key]}";
+                    ids.Add(guid);
+                    altTextSentinel.Add(guid, Request.Form[key]);
                 }
             }
+
+            await deviantArtHandler.ImportOurGalleryAsync(DeviantArtImportScope.FromIds(ids));
+
+            return NoContent();
         }
     }
 }

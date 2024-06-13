@@ -5,10 +5,10 @@
 @model AltTextPageViewModel
 
 @{
-    ViewBag.Title = "Edit Alt Text";
+    ViewBag.Title = "Manage Alt Text";
 }
 
-<h1>Edit Alt Text</h1>
+<h1>Manage Alt Text</h1>
 
 <form asp-action="SaveAltText">
     <div class="container">
@@ -27,14 +27,13 @@
 
                 <div class="col col-sm-9">
                     <h2>@item.Deviation.title.OrNull()</h2>
-                    <label for="alt@(guid)" class="form-label">
-                        Alt text
-                    </label>
+                    <p>@item.Deviation.published_time.OrNull()</p>
                     <input type="text"
-                            class="form-control"
-                            id="alt@(guid)"
-                            name="alt@(guid)"
-                            value="@item.AltText" />
+                           aria-label="Alt text"
+                           class="form-control"
+                           id="alt@(guid)"
+                           name="alt@(guid)"
+                           value="@item.AltText" />
                 </div>
             </div>
         }

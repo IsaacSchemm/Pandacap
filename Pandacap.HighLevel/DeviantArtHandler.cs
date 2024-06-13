@@ -7,6 +7,7 @@ using Pandacap.LowLevel;
 namespace Pandacap.HighLevel
 {
     public class DeviantArtHandler(
+        AltTextSentinel altTextSentinel,
         PandacapDbContext context,
         DeviantArtCredentialProvider credentialProvider,
         ActivityPubTranslator translator)
@@ -165,12 +166,21 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public record UpstreamDeviation(
+        private async IAsyncEnumerable<DeviantArtFs.ResponseTypes.Deviation> GetDeviationsByIdsAsync(IEnumerable<Guid> ids)
+        {
+            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
+                yield break;
+
+            foreach (Guid id in ids)
+                yield return await DeviantArtFs.Api.Deviation.GetAsync(credentials, id);
+        }
+
+        private record UpstreamDeviation(
             DeviantArtFs.ResponseTypes.Deviation Deviation,
             DeviantArtFs.Api.Deviation.Metadata? Metadata,
             DeviantArtFs.Api.Deviation.TextContent? TextContent);
 
-        public async IAsyncEnumerable<UpstreamDeviation> GetUpstreamTextPostsAsync(DeviantArtImportScope scope)
+        private async IAsyncEnumerable<UpstreamDeviation> GetUpstreamTextPostsAsync(DeviantArtImportScope scope)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
                 yield break;
@@ -184,8 +194,8 @@ namespace Pandacap.HighLevel
             if (scope is DeviantArtImportScope.Recent recent)
                 asyncSeq = asyncSeq.TakeWhile(d => d.published_time.OrNull() is not DateTimeOffset dt || dt >= recent.cutoff);
 
-            if (scope is DeviantArtImportScope.Single single)
-                asyncSeq = DeviantArtFs.Api.Deviation.GetAsync(credentials, single.parameters.id).ToAsyncEnumerable();
+            if (scope is DeviantArtImportScope.Subset subset)
+                asyncSeq = GetDeviationsByIdsAsync(subset.ids);
 
             await foreach (var chunk in asyncSeq.Chunk(24))
             {
@@ -209,7 +219,7 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public async IAsyncEnumerable<UpstreamDeviation> GetUpstreamGalleryAsync(DeviantArtImportScope scope)
+        private async IAsyncEnumerable<UpstreamDeviation> GetUpstreamGalleryAsync(DeviantArtImportScope scope)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
                 yield break;
@@ -224,8 +234,8 @@ namespace Pandacap.HighLevel
             if (scope is DeviantArtImportScope.Recent recent)
                 asyncSeq = asyncSeq.TakeWhile(d => d.published_time.OrNull() is not DateTimeOffset dt || dt >= recent.cutoff);
 
-            if (scope is DeviantArtImportScope.Single single)
-                asyncSeq = DeviantArtFs.Api.Deviation.GetAsync(credentials, single.parameters.id).ToAsyncEnumerable();
+            if (scope is DeviantArtImportScope.Subset subset)
+                asyncSeq = GetDeviationsByIdsAsync(subset.ids);
 
             await foreach (var chunk in asyncSeq.Chunk(24))
             {
@@ -249,10 +259,10 @@ namespace Pandacap.HighLevel
         {
             if (scope.IsAll)
                 return context.UserArtworkDeviations.AsAsyncEnumerable();
-            if (scope is DeviantArtImportScope.Recent recent1)
-                return context.UserArtworkDeviations.Where(d => d.PublishedTime >= recent1.cutoff).AsAsyncEnumerable();
-            if (scope is DeviantArtImportScope.Single single1)
-                return context.UserArtworkDeviations.Where(d => d.Id == single1.parameters.id).AsAsyncEnumerable();
+            if (scope is DeviantArtImportScope.Recent recent)
+                return context.UserArtworkDeviations.Where(d => d.PublishedTime >= recent.cutoff).AsAsyncEnumerable();
+            if (scope is DeviantArtImportScope.Subset subset)
+                return context.UserArtworkDeviations.Where(d => subset.ids.Contains(d.Id)).AsAsyncEnumerable();
 
             return AsyncEnumerable.Empty<IUserDeviation>();
         }
@@ -261,10 +271,10 @@ namespace Pandacap.HighLevel
         {
             if (scope.IsAll)
                 return context.UserTextDeviations.AsAsyncEnumerable();
-            if (scope is DeviantArtImportScope.Recent recent1)
-                return context.UserTextDeviations.Where(d => d.PublishedTime >= recent1.cutoff).AsAsyncEnumerable();
-            if (scope is DeviantArtImportScope.Single single1)
-                return context.UserTextDeviations.Where(d => d.Id == single1.parameters.id).AsAsyncEnumerable();
+            if (scope is DeviantArtImportScope.Recent recent)
+                return context.UserTextDeviations.Where(d => d.PublishedTime >= recent.cutoff).AsAsyncEnumerable();
+            if (scope is DeviantArtImportScope.Subset subset)
+                return context.UserTextDeviations.Where(d => subset.ids.Contains(d.Id)).AsAsyncEnumerable();
 
             return AsyncEnumerable.Empty<IUserDeviation>();
         }
@@ -349,8 +359,8 @@ namespace Pandacap.HighLevel
                     : uri.AbsolutePath.EndsWith(".jpg") ? "image/jpeg"
                     : "application/octet-stream";
 
-                if (scope is DeviantArtImportScope.Single single && single.parameters.id == deviation.deviationid)
-                    post.AltText = single.parameters.altText;
+                if (altTextSentinel.TryGetAltText(deviation.deviationid, out string? altText))
+                    post.AltText = altText;
 
                 post.ThumbnailRenditions.Clear();
                 foreach (var thumbnail in deviation.thumbs.OrEmpty())
@@ -398,6 +408,9 @@ namespace Pandacap.HighLevel
                 var deviation = upstream.Deviation;
                 var metadata = upstream.Metadata;
                 var content = upstream.TextContent;
+
+                if (content == null)
+                    continue;
 
                 if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                     continue;
