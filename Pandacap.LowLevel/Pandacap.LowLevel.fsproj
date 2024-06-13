@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <Compile Include="ApplicationInformation.fs" />
+    <Compile Include="DeviantArtImportScope.fs" />
     <Compile Include="ListPage.fs" />
     <Compile Include="IdMapper.fs" />
     <Compile Include="ActorKey.fs" />
