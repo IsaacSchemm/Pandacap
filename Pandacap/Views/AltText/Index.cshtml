@@ -10,6 +10,10 @@
 
 <h1>Manage Alt Text</h1>
 
+<p>
+    Listing @Model.Items.Count submissions from your DeviantArt gallery.
+</p>
+
 <form asp-action="SaveAltText">
     <div class="container">
         @foreach (var item in Model.Items)
@@ -26,7 +30,11 @@
                 </div>
 
                 <div class="col col-sm-9">
-                    <h2>@item.Deviation.title.OrNull()</h2>
+                    <h2>
+                        <a href="@item.Deviation.url.OrNull()" target="_blank">
+                            @item.Deviation.title.OrNull()
+                        </a>
+                    </h2>
                     <p>@item.Deviation.published_time.OrNull()</p>
                     <input type="text"
                            aria-label="Alt text"
@@ -41,7 +49,7 @@
         <div class="row">
             <div class="col">
                 <button type="submit" class="btn btn-primary">
-                    Save
+                    Import/refresh with new alt text
                 </button>
             </div>
         </div>

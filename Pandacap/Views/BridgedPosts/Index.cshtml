@@ -16,6 +16,11 @@
 
 <h1>@Model.Deviation.Title</h1>
 
+<p>
+    @Model.Deviation.PublishedTime.UtcDateTime.ToLongDateString()
+    @Model.Deviation.PublishedTime.UtcDateTime.ToShortTimeString()
+</p>
+
 @if (Model.Deviation is UserArtworkDeviation artwork)
 {
     <p>

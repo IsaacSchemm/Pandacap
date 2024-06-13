@@ -134,46 +134,47 @@
 
     <div class="container mb-3">
         <div class="row">
-            <div class="col">
+            <div class="col col-xl-4">
                 <div class="card mt-3">
                     <div class="card-header">
                         DeviantArt
                     </div>
                     <div class="card-body text-center">
-                        <div class="mb-3">
-                            <a asp-controller="AltText" asp-action="Index" class="btn btn-primary">
-                                Manage alt text
-                            </a>
-                        </div>
-                        <div class="mb-3">
-                            <form asp-action="ImportPastWeek">
-                                <button type="submit" class="btn btn-outline-primary">
-                                    Import and refresh recent posts (from the past 7 days)
-                                </button>
-                            </form>
-                        </div>
-                        <div>
-                            <form asp-action="ImportAll" onconfirm="confirm('Are you sure you want to import and refresh all posts?')">
-                                <button type="submit" class="btn btn-outline-primary">
-                                    Import and refresh all posts
-                                </button>
-                            </form>
-                        </div>
+                        <form asp-action="ImportPast24H">
+                            <button type="submit" class="btn btn-primary">
+                                Import and refresh recent posts
+                            </button>
+                            <div class="form-text">Past 24 hours</div>
+                        </form>
+                        <hr />
+                        <form asp-action="ImportAll" onconfirm="confirm('Are you sure you want to import and refresh all posts?')">
+                            <button type="submit" class="btn btn-primary">
+                                Import and refresh all posts
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Properties
+                    </div>
+                    <div class="card-body text-center">
+                        <a asp-controller="AltText" asp-action="Index" class="btn btn-outline-primary">
+                            Manage alt text
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
             <div class="col col-xl-4">
                 <div class="card mt-3">
                     <div class="card-header">
-                        Follow an ActivityPub actor
+                        ActivityPub
                     </div>
                     <div class="card-body">
                         <form asp-action="Follow">
                             <div class="mb-3">
                                 <label for="id" class="form-label">
-                                    ActivityPub ID / URL
+                                    ActivityPub actor ID / URL
                                 </label>
                                 <input type="text" class="form-control" id="id" name="id" />
                                 <div class="form-text">Mastodon-style handles (of the form <tt>@@user@@hostname</tt>) are not supported.</div>
@@ -182,17 +183,11 @@
                                 Send follow request
                             </button>
                         </form>
-                    </div>
-                </div>
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Add a remote ActivityPub post to Favorites
-                    </div>
-                    <div class="card-body">
+                        <hr />
                         <form asp-controller="Favorites" asp-action="Add">
                             <div class="mb-3">
                                 <label for="id" class="form-label">
-                                    ActivityPub ID / URL
+                                    ActivityPub object ID / URL
                                 </label>
                                 <input type="text" class="form-control" id="id" name="id" />
                             </div>
@@ -202,11 +197,9 @@
                         </form>
                     </div>
                 </div>
-            </div>
-            <div class="col col-xl-4">
                 <div class="card mt-3">
                     <div class="card-header">
-                        Follow an Atom/RSS feed
+                        Atom/RSS
                     </div>
                     <div class="card-body">
                         <form asp-action="AddFeed">
@@ -217,10 +210,10 @@
                                 <input type="text" class="form-control" id="url" name="url" />
                             </div>
                             <button type="submit" class="btn btn-primary">
-                                Add feed
+                                Follow
                             </button>
                             <hr />
-                            <a asp-action="Feeds" class="btn btn-outline-secondary">
+                            <a asp-action="Feeds" class="btn btn-outline-primary">
                                 Manage feeds
                             </a>
                         </form>
