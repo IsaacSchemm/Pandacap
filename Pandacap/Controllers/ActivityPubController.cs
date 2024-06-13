@@ -90,7 +90,7 @@ namespace Pandacap.Controllers
 
             string type = expansionObj["@type"]![0]!.Value<string>()!;
 
-            if (actorId != "https://bsky.brid.gy/bsky.brid.gy")
+            if (!actorId.StartsWith("https://bsky.brid.gy/"))
             {
                 // Verify HTTP signature against the public key
                 var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(Request, actor);
