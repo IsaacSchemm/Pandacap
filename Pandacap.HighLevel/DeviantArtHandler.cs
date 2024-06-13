@@ -119,9 +119,7 @@ namespace Pandacap.HighLevel
                     Usericon = author.usericon,
                     Username = author.username,
                     MatureContent = deviation.is_mature.OrNull() ?? false,
-                    Title = deviation.category_path.OrNull() == "status"
-                        ? null
-                        : deviation.title?.OrNull(),
+                    Title = deviation.title?.OrNull(),
                     LinkUrl = deviation.url?.OrNull(),
                     Excerpt = deviation.excerpt?.OrNull()
                 });
