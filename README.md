@@ -16,7 +16,7 @@ Things it does:
     * View text posts from DeviantArt accounts, ActivityPub actors, or Atom/RSS feeds they follow
     * View ActivityPub mentions and replies
     * Mark ActivityPub posts as favorites
-    * See which other ActivityPub users have liked or boosted a post
+    * See which other ActivityPub users have liked or boosted the owner's posts
 * Allow visitors to:
     * See the owner's DeviantArt submissions
     * See the owner's DeviantArt journals and status updates
@@ -78,7 +78,7 @@ Application settings (for both the function app and the web app):
 | KeyVaultHostname        | Key vault hostname
 
 The CosmosDBAccountKey is optional; without it, Pandacap will try to connect
-to Cosmos DB using Entra authentication, which can lead ot slower performance.
+to Cosmos DB using Entra authentication, which can lead to slower performance.
 See [Crowmask](https://github.com/IsaacSchemm/Crowmask/) for an example of how
 to set that up.
 
