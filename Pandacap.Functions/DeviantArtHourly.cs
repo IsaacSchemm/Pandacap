@@ -4,17 +4,19 @@ using Pandacap.LowLevel;
 
 namespace Pandacap.Functions
 {
-    public class DeviantArtHalfHour(
+    public class DeviantArtHourly(
         DeviantArtCredentialProvider credentialProvider,
         DeviantArtHandler deviantArtHandler)
     {
-        [Function("DeviantArtHalfHour")]
-        public async Task Run([TimerTrigger("10 */30 * * * *")] TimerInfo myTimer)
+        [Function("DeviantArtHourly")]
+        public async Task Run([TimerTrigger("0 5 * * * *")] TimerInfo myTimer)
         {
             await deviantArtHandler.ImportArtworkPostsByUsersWeWatchAsync();
             await deviantArtHandler.ImportTextPostsByUsersWeWatchAsync();
 
-            var scope = DeviantArtImportScope.NewRecent(DateTimeOffset.UtcNow.AddDays(-24));
+            var scope = DeviantArtImportScope.NewWindow(
+                _oldest: DateTimeOffset.UtcNow.AddDays(-7),
+                _newest: DateTimeOffset.UtcNow.AddHours(-1));
             await deviantArtHandler.ImportOurGalleryAsync(scope);
             await deviantArtHandler.ImportOurTextPostsAsync(scope);
 

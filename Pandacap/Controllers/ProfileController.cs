@@ -298,7 +298,10 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportPastWeek()
         {
-            var scope = DeviantArtImportScope.NewRecent(DateTimeOffset.UtcNow.AddDays(-7));
+            var scope = DeviantArtImportScope.NewWindow(
+                _oldest: DateTimeOffset.UtcNow.AddDays(-7),
+                _newest: DateTimeOffset.MaxValue);
+
             await deviantArtHandler.ImportOurGalleryAsync(scope);
             await deviantArtHandler.ImportOurTextPostsAsync(scope);
 
@@ -309,8 +312,12 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportAll()
         {
-            await deviantArtHandler.ImportOurGalleryAsync(DeviantArtImportScope.All);
-            await deviantArtHandler.ImportOurTextPostsAsync(DeviantArtImportScope.All);
+            var scope = DeviantArtImportScope.NewWindow(
+                _oldest: DateTimeOffset.MinValue,
+                _newest: DateTimeOffset.MaxValue);
+
+            await deviantArtHandler.ImportOurGalleryAsync(scope);
+            await deviantArtHandler.ImportOurTextPostsAsync(scope);
 
             return RedirectToAction(nameof(Index));
         }

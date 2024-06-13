@@ -7,10 +7,13 @@ namespace Pandacap.Functions
     public class DeviantArtMonthly(DeviantArtHandler deviantArtHandler)
     {
         [Function("DeviantArtMonthly")]
-        public async Task Run([TimerTrigger("0 45 0 2 * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 0 10 14 * *")] TimerInfo myTimer)
         {
-            await deviantArtHandler.ImportOurGalleryAsync(DeviantArtImportScope.All);
-            await deviantArtHandler.ImportOurTextPostsAsync(DeviantArtImportScope.All);
+            var scope = DeviantArtImportScope.NewWindow(
+                _oldest: DateTimeOffset.MinValue,
+                _newest: DateTimeOffset.UtcNow.AddHours(-1));
+            await deviantArtHandler.ImportOurGalleryAsync(scope);
+            await deviantArtHandler.ImportOurTextPostsAsync(scope);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Pandacap.Functions
     public class InboxCleanup(PandacapDbContext context)
     {
         [Function("InboxCleanup")]
-        public async Task Run([TimerTrigger("0 10 */6 * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 0 9 * * *")] TimerInfo myTimer)
         {
             await foreach (var inboxItem in context.InboxArtworkDeviations
                 .Where(d => d.DismissedAt == null)

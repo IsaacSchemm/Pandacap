@@ -11,7 +11,6 @@ namespace Pandacap.Controllers
     [Route("BridgedPosts")]
     public class BridgedPostsController(
         PandacapDbContext context,
-        DeviantArtHandler deviantArtHandler,
         ActivityPubTranslator translator) : Controller
     {
         [Route("{id}")]

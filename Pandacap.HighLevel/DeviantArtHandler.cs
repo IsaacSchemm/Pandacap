@@ -205,17 +205,19 @@ namespace Pandacap.HighLevel
                 return;
 
             var asyncSeq =
-                DeviantArtFs.Api.Gallery.GetAllViewAsync(
-                    credentials,
-                    UserScope.ForCurrentUser,
-                    PagingLimit.DefaultPagingLimit,
-                    PagingOffset.StartingOffset);
-
-            if (scope is DeviantArtImportScope.Recent recent)
-                asyncSeq = asyncSeq.TakeWhile(d => d.published_time.OrNull() is not DateTimeOffset dt || dt >= recent.cutoff);
-
-            if (scope is DeviantArtImportScope.Subset subset)
-                asyncSeq = GetDeviationsByIdsAsync(subset.ids);
+                scope is DeviantArtImportScope.Window window
+                    ? DeviantArtFs.Api.Gallery
+                        .GetAllViewAsync(
+                            credentials,
+                            UserScope.ForCurrentUser,
+                            PagingLimit.DefaultPagingLimit,
+                            PagingOffset.StartingOffset)
+                        .Where(d => d.published_time.OrNull() != null)
+                        .SkipWhile(d => d.published_time.Value > window.newest)
+                        .TakeWhile(d => d.published_time.Value >= window.oldest)
+                : scope is DeviantArtImportScope.Subset subset
+                    ? GetDeviationsByIdsAsync(subset.ids)
+                    : throw new NotImplementedException();
 
             HashSet<Guid> found = [];
 
@@ -302,9 +304,15 @@ namespace Pandacap.HighLevel
                 await context.SaveChangesAsync();
             }
 
-            var localPosts = scope.IsAll  ? context.UserArtworkDeviations.AsAsyncEnumerable()
-                : scope is DeviantArtImportScope.Recent recentD ? context.UserArtworkDeviations.Where(d => d.PublishedTime >= recentD.cutoff).AsAsyncEnumerable()
-                : scope is DeviantArtImportScope.Subset subsetD ? context.UserArtworkDeviations.Where(d => subsetD.ids.Contains(d.Id)).AsAsyncEnumerable()
+            var localPosts = scope is DeviantArtImportScope.Window windowD
+                    ? context.UserArtworkDeviations
+                        .Where(d => d.PublishedTime <= windowD.newest)
+                        .Where(d => d.PublishedTime >= windowD.oldest)
+                        .AsAsyncEnumerable()
+                : scope is DeviantArtImportScope.Subset subsetD
+                    ? context.UserArtworkDeviations
+                        .Where(d => subsetD.ids.Contains(d.Id))
+                        .AsAsyncEnumerable()
                 : AsyncEnumerable.Empty<IUserDeviation>();
 
             await CheckForDeletionAsync(localPosts, exclude: found);
@@ -316,16 +324,18 @@ namespace Pandacap.HighLevel
                 return;
 
             var asyncSeq =
-                DeviantArtFs.Api.User.GetProfilePostsAsync(
-                    credentials,
-                    whoami.username,
-                    DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning);
-
-            if (scope is DeviantArtImportScope.Recent recent)
-                asyncSeq = asyncSeq.TakeWhile(d => d.published_time.OrNull() is not DateTimeOffset dt || dt >= recent.cutoff);
-
-            if (scope is DeviantArtImportScope.Subset subset)
-                asyncSeq = GetDeviationsByIdsAsync(subset.ids);
+                scope is DeviantArtImportScope.Window window
+                    ? DeviantArtFs.Api.User
+                        .GetProfilePostsAsync(
+                            credentials,
+                            whoami.username,
+                            DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning)
+                        .Where(d => d.published_time.OrNull() != null)
+                        .SkipWhile(d => d.published_time.Value > window.newest)
+                        .TakeWhile(d => d.published_time.Value >= window.oldest)
+                : scope is DeviantArtImportScope.Subset subset
+                    ? GetDeviationsByIdsAsync(subset.ids)
+                : throw new NotImplementedException();
 
             HashSet<Guid> found = [];
 
@@ -398,9 +408,15 @@ namespace Pandacap.HighLevel
                 await context.SaveChangesAsync();
             }
 
-            var localPosts = scope.IsAll ? context.UserTextDeviations.AsAsyncEnumerable()
-                : scope is DeviantArtImportScope.Recent recentD ? context.UserTextDeviations.Where(d => d.PublishedTime >= recentD.cutoff).AsAsyncEnumerable()
-                : scope is DeviantArtImportScope.Subset subsetD ? context.UserTextDeviations.Where(d => subsetD.ids.Contains(d.Id)).AsAsyncEnumerable()
+            var localPosts = scope is DeviantArtImportScope.Window windowD
+                    ? context.UserTextDeviations
+                        .Where(d => d.PublishedTime <= windowD.newest)
+                        .Where(d => d.PublishedTime >= windowD.oldest)
+                        .AsAsyncEnumerable()
+                : scope is DeviantArtImportScope.Subset subsetD
+                    ? context.UserTextDeviations
+                        .Where(d => subsetD.ids.Contains(d.Id))
+                        .AsAsyncEnumerable()
                 : AsyncEnumerable.Empty<IUserDeviation>();
 
             await CheckForDeletionAsync(localPosts, exclude: found);

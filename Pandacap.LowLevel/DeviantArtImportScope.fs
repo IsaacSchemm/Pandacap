@@ -3,8 +3,7 @@
 open System
 
 type DeviantArtImportScope =
-| All
-| Recent of cutoff: DateTimeOffset
+| Window of oldest: DateTimeOffset * newest: DateTimeOffset
 | Subset of ids: Set<Guid>
 with
     static member FromIds seq = Subset (set seq)

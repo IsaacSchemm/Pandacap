@@ -53,17 +53,17 @@ Function app responsibilities:
 
 * Every minute:
     * Try sending any unsent ActivityPub activities (any inbox that fails won't be retried for another hour)
-* Every 30 minutes:
-    * Find new DeviantArt posts by other users (may not catch further updates to posts)
-    * Find recemt DeviantArt posts by the instance owner (includes all posts in the past 24 hours)
-    * Keep the avatar up to date
 * Every hour:
+    * Find new DeviantArt posts by other users
+    * Find and refresh DeviantArt posts made by the instance owner in the past 7 days (unless they are less than an hour old)
+    * Keep the avatar up to date
+* Every day:
     * Remove any unsent ActivityPub activities that are more than a week old
-* Every six hours:
+* Every day:
     * Remove dismissed DeviantArt inbox notifications from the Pandacap database
         * The five most recent submissions of each type are kept, as a way to track Pandacap's position in the DeviantArt API feed
 * Every month:
-    * Scan through all DeviantArt posts by the instance owner, to check for updates or deletions of older posts
+    * Find and refresh all DeviantArt posts by the instance owner (unless they are less than an hour old)
 
 Application settings (for both the function app and the web app):
 

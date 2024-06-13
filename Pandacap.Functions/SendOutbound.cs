@@ -10,7 +10,7 @@ namespace Pandacap.Functions
         RemoteActorFetcher remoteActorFetcher)
     {
         [Function("SendOutbound")]
-        public async Task Run([TimerTrigger("0 */1 3 * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 * * * * *")] TimerInfo myTimer)
         {
             HashSet<string> inboxesToSkip = [];
 
