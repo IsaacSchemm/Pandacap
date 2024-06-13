@@ -1,3 +1,4 @@
+using DeviantArtFs.Extensions;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace Pandacap.Controllers
     public class ProfileController(
         AtomRssFeedReader atomRssFeedReader,
         PandacapDbContext context,
+        DeviantArtHandler deviantArtHandler,
         KeyProvider keyProvider,
         RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator,
@@ -288,6 +290,52 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Following));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportNewestArtwork(string? altText = null)
+        {
+            var newestPost = await deviantArtHandler
+                .GetUpstreamGalleryAsync(DeviantArtImportScope.All)
+                .Select(x => x.Deviation)
+                .FirstAsync();
+
+            await deviantArtHandler.ImportOurGalleryAsync(
+                DeviantArtImportScope.NewSingle(
+                    new DeviantArtImportParameters(
+                        newestPost.deviationid,
+                        altText)));
+
+            return RedirectToAction("Index", "BridgedPosts", newestPost.deviationid);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportNewestTextPost()
+        {
+            var newestPost = await deviantArtHandler
+                .GetUpstreamTextPostsAsync(DeviantArtImportScope.All)
+                .Select(x => x.Deviation)
+                .FirstAsync();
+
+            await deviantArtHandler.ImportOurTextPostsAsync(
+                DeviantArtImportScope.NewSingle(
+                    new DeviantArtImportParameters(
+                        newestPost.deviationid,
+                        null)));
+
+            return RedirectToAction("Index", "BridgedPosts", newestPost.deviationid);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportAll()
+        {
+            await deviantArtHandler.ImportOurGalleryAsync(DeviantArtImportScope.All);
+            await deviantArtHandler.ImportOurTextPostsAsync(DeviantArtImportScope.All);
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]

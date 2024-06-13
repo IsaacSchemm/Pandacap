@@ -9,7 +9,7 @@ namespace Pandacap.Functions
         DeviantArtHandler deviantArtHandler)
     {
         [Function("DeviantArtHalfHour")]
-        public async Task Run([TimerTrigger("10 48 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("10 */30 * * * *")] TimerInfo myTimer)
         {
             await deviantArtHandler.ImportArtworkPostsByUsersWeWatchAsync();
             await deviantArtHandler.ImportTextPostsByUsersWeWatchAsync();

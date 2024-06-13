@@ -165,16 +165,12 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public record UpstreamArtworkDeviation(
-            DeviantArtFs.ResponseTypes.Deviation Deviation,
-            DeviantArtFs.Api.Deviation.Metadata? Metadata);
-
-        public record UpstreamTextDeviation(
+        public record UpstreamDeviation(
             DeviantArtFs.ResponseTypes.Deviation Deviation,
             DeviantArtFs.Api.Deviation.Metadata? Metadata,
-            DeviantArtFs.Api.Deviation.TextContent TextContent);
+            DeviantArtFs.Api.Deviation.TextContent? TextContent);
 
-        public async IAsyncEnumerable<UpstreamTextDeviation> GetUpstreamTextPostsAsync(DeviantArtImportScope scope)
+        public async IAsyncEnumerable<UpstreamDeviation> GetUpstreamTextPostsAsync(DeviantArtImportScope scope)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
                 yield break;
@@ -205,7 +201,7 @@ namespace Pandacap.HighLevel
                         credentials,
                         deviation.deviationid);
 
-                    yield return new UpstreamTextDeviation(
+                    yield return new UpstreamDeviation(
                         deviation,
                         metadataResponse.metadata.SingleOrDefault(m => m.deviationid == deviation.deviationid),
                         content);
@@ -213,7 +209,7 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public async IAsyncEnumerable<UpstreamArtworkDeviation> GetUpstreamGalleryAsync(DeviantArtImportScope scope)
+        public async IAsyncEnumerable<UpstreamDeviation> GetUpstreamGalleryAsync(DeviantArtImportScope scope)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
                 yield break;
@@ -241,9 +237,10 @@ namespace Pandacap.HighLevel
 
                 foreach (var deviation in chunk)
                 {
-                    yield return new UpstreamArtworkDeviation(
+                    yield return new UpstreamDeviation(
                         deviation,
-                        metadataResponse.metadata.SingleOrDefault(m => m.deviationid == deviation.deviationid));
+                        metadataResponse.metadata.SingleOrDefault(m => m.deviationid == deviation.deviationid),
+                        null);
                 }
             }
         }

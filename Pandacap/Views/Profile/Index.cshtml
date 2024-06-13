@@ -134,6 +134,40 @@
 
     <div class="container mb-3">
         <div class="row">
+            <div class="col col-xl-6">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Import from DeviantArt
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="ImportNewestArtwork">
+                            <div class="mb-3">
+                                <label for="altText" class="form-label">
+                                    Alt text
+                                </label>
+                                <input type="text" class="form-control" id="altText" name="altText" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Import most recent artwork post
+                            </button>
+                        </form>
+                        <hr />
+                        <form asp-action="ImportNewestTextPost">
+                            <button type="submit" class="btn btn-primary">
+                                Import most recent journal or status update
+                            </button>
+                        </form>
+                        <hr />
+                        <form asp-action="ImportAll" onconfirm="confirm('Are you sure you want to import and refresh all posts?')">
+                            <button type="submit" class="btn btn-primary">
+                                Import all posts
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
             <div class="col col-xl-4">
                 <div class="card mt-3">
                     <div class="card-header">
