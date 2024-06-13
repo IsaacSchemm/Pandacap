@@ -307,15 +307,14 @@ namespace Pandacap.HighLevel
 
         public async IAsyncEnumerable<UpstreamTextDeviation> GetUpstreamTextPostsAsync(DeviantArtImportScope scope)
         {
-            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
+            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
                 yield break;
 
             var asyncSeq =
-                DeviantArtFs.Api.Gallery.GetAllViewAsync(
+                DeviantArtFs.Api.User.GetProfilePostsAsync(
                     credentials,
-                    UserScope.ForCurrentUser,
-                    PagingLimit.DefaultPagingLimit,
-                    PagingOffset.StartingOffset);
+                    whoami.username,
+                    DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning);
 
             if (scope is DeviantArtImportScope.Recent recent)
                 asyncSeq = asyncSeq.TakeWhile(d => d.published_time.OrNull() is not DateTimeOffset dt || dt >= recent.cutoff);
