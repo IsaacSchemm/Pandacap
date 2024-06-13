@@ -307,25 +307,18 @@ namespace Pandacap.Controllers
                         newestPost.deviationid,
                         altText)));
 
-            return RedirectToAction("Index", "BridgedPosts", newestPost.deviationid);
+            return RedirectToAction("Index", "BridgedPosts", new { id = newestPost.deviationid });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ImportNewestTextPost()
+        public async Task<IActionResult> ImportPastWeek()
         {
-            var newestPost = await deviantArtHandler
-                .GetUpstreamTextPostsAsync(DeviantArtImportScope.All)
-                .Select(x => x.Deviation)
-                .FirstAsync();
+            var scope = DeviantArtImportScope.NewRecent(DateTimeOffset.UtcNow.AddDays(-7));
+            await deviantArtHandler.ImportOurGalleryAsync(scope);
+            await deviantArtHandler.ImportOurTextPostsAsync(scope);
 
-            await deviantArtHandler.ImportOurTextPostsAsync(
-                DeviantArtImportScope.NewSingle(
-                    new DeviantArtImportParameters(
-                        newestPost.deviationid,
-                        null)));
-
-            return RedirectToAction("Index", "BridgedPosts", newestPost.deviationid);
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
