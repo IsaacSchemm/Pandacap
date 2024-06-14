@@ -419,5 +419,22 @@ namespace Pandacap.HighLevel
 
             await CheckForDeletionAsync(localPosts, exclude: found);
         }
+
+        public async Task RefreshOurPostsAsync(IEnumerable<Guid> ids)
+        {
+            var artworkIds = await context.UserArtworkDeviations
+                .Where(p => ids.Contains(p.Id))
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            await ImportOurGalleryAsync(DeviantArtImportScope.FromIds(artworkIds));
+
+            var textPostIds = await context.UserTextDeviations
+                .Where(p => ids.Contains(p.Id))
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            await ImportOurTextPostsAsync(DeviantArtImportScope.FromIds(textPostIds));
+        }
     }
 }

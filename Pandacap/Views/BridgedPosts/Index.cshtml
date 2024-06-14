@@ -65,3 +65,13 @@
         </details>
     }
 }
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <form asp-action="Refresh">
+        <input type="hidden" name="id" value="@Model.Deviation.Id" />
+        <button type="submit" class="btn btn-primary">
+            Refresh from DeviantArt
+        </button>
+    </form>
+}

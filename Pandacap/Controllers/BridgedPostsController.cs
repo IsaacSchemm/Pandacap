@@ -11,6 +11,7 @@ namespace Pandacap.Controllers
     [Route("BridgedPosts")]
     public class BridgedPostsController(
         PandacapDbContext context,
+        DeviantArtHandler deviantArtHandler,
         ActivityPubTranslator translator) : Controller
     {
         [Route("{id}")]
@@ -38,6 +39,22 @@ namespace Pandacap.Controllers
                         .ToListAsync()
                     : []
             });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Refresh(Guid id)
+        {
+            await deviantArtHandler.RefreshOurPostsAsync([id]);
+
+            IUserDeviation? post = null;
+            post ??= await context.UserArtworkDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
+            post ??= await context.UserTextDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
+
+            if (post != null)
+                return RedirectToAction(nameof(Index), new { id });
+            else
+                return NotFound();
         }
     }
 }
