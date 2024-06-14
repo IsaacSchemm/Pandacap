@@ -68,7 +68,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             url = mapper.AvatarUrl
         |}
         pair "attachment" [
-            for property in properties do
+            for property in properties |> Seq.sortBy (fun p -> p.Name) do
                 {|
                     ``type`` = "PropertyValue"
                     name = property.Name

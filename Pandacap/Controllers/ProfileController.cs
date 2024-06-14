@@ -71,7 +71,9 @@ namespace Pandacap.Controllers
 
             return View(new ProfileViewModel
             {
-                ProfileProperties = await context.ProfileProperties.ToListAsync(),
+                ProfileProperties = await context.ProfileProperties
+                    .OrderBy(p => p.Name)
+                    .ToListAsync(),
                 RecentArtwork = await context.UserArtworkDeviations
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
