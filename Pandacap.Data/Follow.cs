@@ -61,11 +61,6 @@ namespace Pandacap.Data
         /// </summary>
         public bool? IncludeTextShares { get; set; }
 
-        /// <summary>
-        /// Whether to ignore invalid HTTP signatures for ActivityPub messages that claim to be from this user.
-        /// </summary>
-        public bool? IgnoreInvalidSignature { get; set; }
-
         bool IRemoteActorRelationship.Pending => !Accepted;
     }
 }
