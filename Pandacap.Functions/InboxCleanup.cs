@@ -10,7 +10,7 @@ namespace Pandacap.Functions
         public async Task Run([TimerTrigger("0 0 9 * * *")] TimerInfo myTimer)
         {
             await foreach (var inboxItem in context.InboxArtworkDeviations
-                .Where(d => d.DismissedAt == null)
+                .Where(d => d.DismissedAt != null)
                 .OrderByDescending(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .Skip(5))
@@ -19,7 +19,7 @@ namespace Pandacap.Functions
             }
 
             await foreach (var inboxItem in context.InboxTextDeviations
-                .Where(d => d.DismissedAt == null)
+                .Where(d => d.DismissedAt != null)
                 .OrderByDescending(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .Skip(5))
