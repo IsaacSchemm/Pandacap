@@ -68,12 +68,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             url = mapper.AvatarUrl
         |}
         pair "attachment" [
-            {|
-                ``type`` = "PropertyValue"
-                name = "DeviantArt"
-                value = $"<a href='https://www.deviantart.com/{appInfo.DeviantArtUsername}'>{WebUtility.HtmlEncode(appInfo.DeviantArtUsername)}</a>"
-            |}
-
             for property in properties do
                 {|
                     ``type`` = "PropertyValue"
