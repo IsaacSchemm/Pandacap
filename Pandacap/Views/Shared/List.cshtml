@@ -65,10 +65,10 @@ else
                         <div class="col-12 mb-3 @(Model.ShowThumbnails ? "col-sm-4 col-md-3 text-center" : "")">
                             @if (Model.ShowThumbnails)
                             {
-                                <a href="@url">
+                                <a href="@url" aria-hidden="true">
                                     <img src="@(thumb?.GetThumbnailSrc() ?? "/images/trgray.svg")"
                                          srcset="@thumb?.GetThumbnailSrcset()"
-                                         alt="@thumb?.AltText"
+                                         alt=""
                                          referrerpolicy="no-referrer"
                                          class="feed-image" />
                                 </a>

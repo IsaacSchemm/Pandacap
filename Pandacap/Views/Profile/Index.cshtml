@@ -60,7 +60,7 @@
                type="text"
                class="form-control"
                placeholder="Search (ID / Title / Tag)"
-               aria-label="ID, title, or tag to search for">
+               aria-label="Search by ID, title, or tag">
         <button class="btn btn-primary" type="button">
             Search
         </button>
@@ -81,7 +81,7 @@
                     <a href="/BridgedPosts/@post.Id">
                         <img src="@post.GetThumbnailSrc()"
                              srcset="@post.GetThumbnailSrcset()"
-                             alt="@post.AltText"
+                             alt=""
                              referrerpolicy="no-referrer"
                              class="feed-image" />
                         @post.Title
