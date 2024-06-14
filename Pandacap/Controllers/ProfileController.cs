@@ -298,10 +298,10 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ImportPast24H()
+        public async Task<IActionResult> ImportPastHour()
         {
             var scope = DeviantArtImportScope.NewWindow(
-                _oldest: DateTimeOffset.UtcNow.AddHours(-24),
+                _oldest: DateTimeOffset.UtcNow.AddHours(-1),
                 _newest: DateTimeOffset.MaxValue);
 
             await deviantArtHandler.ImportOurGalleryAsync(scope);
