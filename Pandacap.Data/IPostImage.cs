@@ -2,8 +2,7 @@
 {
     public interface IPostImage
     {
-        string? Url { get; }
+        string? ThumbnailUrl { get; }
         string? AltText { get; }
-        IEnumerable<IThumbnailRendition> Thumbnails { get; }
     }
 }

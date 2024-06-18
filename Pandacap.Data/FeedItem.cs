@@ -20,7 +20,7 @@
 
         private record Image(string Url) : IPostImage
         {
-            IEnumerable<IThumbnailRendition> IPostImage.Thumbnails => [];
+            string? IPostImage.ThumbnailUrl => Url;
 
             string? IPostImage.AltText => null;
         }

@@ -63,8 +63,7 @@ else
                             @if (Model.ShowThumbnails)
                             {
                                 <a href="@item.LinkUrl" aria-hidden="true">
-                                    <img src="@(thumb?.Url ?? "/images/trgray.svg")"
-                                         srcset="@thumb?.GetThumbnailSrcset(height: 150)"
+                                    <img src="@(thumb?.ThumbnailUrl ?? "/images/trgray.svg")"
                                          alt=""
                                          referrerpolicy="no-referrer"
                                          class="feed-image" />

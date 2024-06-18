@@ -5,8 +5,8 @@ using Pandacap.Data;
 
 namespace Pandacap.Controllers
 {
-    [Route("Images")]
-    public class ImagesController(
+    [Route("Thumbnails")]
+    public class ThumbnailsController(
         BlobServiceClient blobServiceClient,
         PandacapDbContext context) : Controller
     {
@@ -15,17 +15,20 @@ namespace Pandacap.Controllers
         {
             var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
 
-            if (post == null || post.ImageContentType == null)
+            if (post == null)
                 return NotFound();
 
+            if (post.ThumbnailContentType == null)
+                return RedirectToAction("Index", "Images", new { id });
+
             var blob = await blobServiceClient
-                .GetBlobContainerClient("images")
+                .GetBlobContainerClient("thumbnails")
                 .GetBlobClient($"{post.Id}")
                 .DownloadStreamingAsync();
 
             return File(
                 blob.Value.Content,
-                post.ImageContentType);
+                post.ThumbnailContentType);
         }
     }
 }

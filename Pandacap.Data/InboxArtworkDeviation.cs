@@ -15,14 +15,17 @@
         public string? Title { get; set; }
         public string? LinkUrl { get; set; }
 
-        public class DeviantArtThumbnailRendition : IThumbnailRendition
+        public class DeviantArtThumbnailRendition
         {
             public string Url { get; set; } = "";
             public int Width { get; set; }
             public int Height { get; set; }
         }
 
+        [Obsolete]
         public List<DeviantArtThumbnailRendition> ThumbnailRenditions { get; set; } = [];
+
+        public string? ThumbnailUrl { get; set; }
 
         public DateTimeOffset? DismissedAt { get; set; }
 
@@ -32,13 +35,13 @@
 
         IEnumerable<IPostImage> IPost.Images => [this];
 
-        string? IPostImage.Url => ThumbnailRenditions
-            .OrderBy(x => Math.Abs(x.Height - 150))
+        string? IPostImage.ThumbnailUrl => ThumbnailRenditions
+            .OrderBy(x => x.Height >= 200 ? 1 : 2)
+            .OrderByDescending(x => x.Height)
             .Select(x => x.Url)
+            .DefaultIfEmpty(ThumbnailUrl)
             .FirstOrDefault();
 
         string? IPostImage.AltText => null;
-
-        IEnumerable<IThumbnailRendition> IPostImage.Thumbnails => ThumbnailRenditions;
     }
 }

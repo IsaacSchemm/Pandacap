@@ -25,6 +25,11 @@
         public string? ImageContentType { get; set; }
 
         /// <summary>
+        /// The expected media type of the thumbnail (such as image/png).
+        /// </summary>
+        public string? ThumbnailContentType { get; set; }
+
+        /// <summary>
         /// Descriptive text for the contents of the image, if any.
         /// </summary>
         public string? AltText { get; set; }
@@ -59,19 +64,6 @@
         /// </summary>
         public bool IsArticle { get; set; }
 
-        public class DeviantArtThumbnailRendition : IThumbnailRendition
-        {
-            public string Url { get; set; } = "";
-            public int Width { get; set; }
-            public int Height { get; set; }
-        }
-
-        /// <summary>
-        /// A list of thumbnail renditions, of different qualities, for this post.
-        /// Unlike the image itself, these links point at the DeviantArt servers.
-        /// </summary>
-        public List<DeviantArtThumbnailRendition> ThumbnailRenditions { get; set; } = [];
-
         string IPost.Id => $"{Id}";
 
         string IPost.DisplayTitle => Title ?? $"{Id}";
@@ -86,8 +78,6 @@
 
         IEnumerable<IPostImage> IPost.Images => HasImage ? [this] : [];
 
-        string? IPostImage.Url => $"/Images/{Id}";
-
-        IEnumerable<IThumbnailRendition> IPostImage.Thumbnails => ThumbnailRenditions;
+        string? IPostImage.ThumbnailUrl => $"/Thumbnails/{Id}";
     }
 }

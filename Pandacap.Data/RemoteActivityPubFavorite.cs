@@ -34,9 +34,9 @@ namespace Pandacap.Data
 
             public string? Name { get; set; }
 
-            string? IPostImage.AltText => Name;
+            string? IPostImage.ThumbnailUrl => Url;
 
-            IEnumerable<IThumbnailRendition> IPostImage.Thumbnails => [];
+            string? IPostImage.AltText => Name;
         }
 
         public List<ImageAttachment> Attachments { get; set; } = [];

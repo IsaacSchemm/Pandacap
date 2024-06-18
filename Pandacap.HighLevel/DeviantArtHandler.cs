@@ -61,12 +61,10 @@ namespace Pandacap.HighLevel
                     Username = author.username,
                     MatureContent = deviation.is_mature.OrNull() ?? false,
                     Title = deviation.title?.OrNull(),
-                    ThumbnailRenditions = deviation.thumbs.OrEmpty().Select(thumb => new InboxArtworkDeviation.DeviantArtThumbnailRendition
-                    {
-                        Url = thumb.src,
-                        Height = thumb.height,
-                        Width = thumb.width
-                    }).ToList(),
+                    ThumbnailUrl = deviation.thumbs.OrEmpty()
+                        .OrderByDescending(t => t.height)
+                        .Select(t => t.src)
+                        .FirstOrDefault(),
                     LinkUrl = deviation.url?.OrNull()
                 });
             }
@@ -135,6 +133,8 @@ namespace Pandacap.HighLevel
 
         private async Task AddActivityAsync(UserPost post, ActivityType activityType)
         {
+            return;
+
             var followers = await context.Followers
                 .Select(follower => new
                 {
@@ -199,6 +199,9 @@ namespace Pandacap.HighLevel
 
             HashSet<Guid> found = [];
 
+            var imageContainerClient = blobServiceClient.GetBlobContainerClient("images");
+            var thumbContainerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
+
             await foreach (var upstream in asyncSeq.AttachMetadataAsync(credentials))
             {
                 var deviation = upstream.Deviation;
@@ -213,20 +216,43 @@ namespace Pandacap.HighLevel
                 found.Add(deviation.deviationid);
 
                 using var client = httpClientFactory.CreateClient();
-                using var resp = await client.GetAsync(content.src);
 
-                resp.EnsureSuccessStatusCode();
+                using var imageResp = await client.GetAsync(content.src);
+                imageResp.EnsureSuccessStatusCode();
 
-                var containerClient = blobServiceClient.GetBlobContainerClient("images");
-                await containerClient
+                byte[] imageData = await imageResp.Content.ReadAsByteArrayAsync();
+
+                await imageContainerClient
                     .GetBlobClient($"{deviation.deviationid}")
                     .DeleteIfExistsAsync();
 
-                using (var stream = await resp.Content.ReadAsStreamAsync())
+                await imageContainerClient.UploadBlobAsync(
+                    $"{deviation.deviationid}",
+                    BinaryData.FromBytes(imageData));
+
+                string thumbSrc = deviation.thumbs.OrEmpty()
+                    .Where(x => x.height >= 150)
+                    .OrderBy(x => x.height)
+                    .Select(x => x.src)
+                    .DefaultIfEmpty(content.src)
+                    .First();
+
+                using var thumbResp = await client.GetAsync(thumbSrc);
+                thumbResp.EnsureSuccessStatusCode();
+
+                byte[] thumbData = await thumbResp.Content.ReadAsByteArrayAsync();
+
+                await thumbContainerClient
+                    .GetBlobClient($"{deviation.deviationid}")
+                    .DeleteIfExistsAsync();
+
+                bool useThumb = thumbData.Length < imageData.Length;
+
+                if (useThumb)
                 {
-                    await containerClient.UploadBlobAsync(
+                    await thumbContainerClient.UploadBlobAsync(
                         $"{deviation.deviationid}",
-                        stream);
+                        BinaryData.FromBytes(thumbData));
                 }
 
                 var post = await context.UserPosts
@@ -250,7 +276,10 @@ namespace Pandacap.HighLevel
 
                 post.Title = deviation.title.OrNull();
                 post.HasImage = true;
-                post.ImageContentType = resp.Content.Headers.ContentType?.MediaType;
+                post.ImageContentType = imageResp.Content.Headers.ContentType?.MediaType;
+                post.ThumbnailContentType = useThumb
+                    ? thumbResp.Content.Headers.ContentType?.MediaType
+                    : null;
 
                 if (altTextSentinel.TryGetAltText(deviation.deviationid, out string? altText))
                     post.AltText = altText;
@@ -263,17 +292,6 @@ namespace Pandacap.HighLevel
                 post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
                 post.PublishedTime = publishedTime;
-
-                post.ThumbnailRenditions.Clear();
-                foreach (var thumbnail in deviation.thumbs.OrEmpty())
-                {
-                    post.ThumbnailRenditions.Add(new()
-                    {
-                        Url = thumbnail.src,
-                        Width = thumbnail.width,
-                        Height = thumbnail.height
-                    });
-                }
 
                 post.HideTitle = false;
                 post.IsArticle = false;
