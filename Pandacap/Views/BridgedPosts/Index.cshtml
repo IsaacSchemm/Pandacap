@@ -2,10 +2,10 @@
 @model BridgedPostViewModel
 
 @{
-    ViewBag.Title = Model.Deviation.Title;
+    ViewBag.Title = Model.Post.Title;
 }
 
-@if (Model.Deviation is UserTextDeviation text && DateTimeOffset.UtcNow - text.PublishedTime > TimeSpan.FromDays(366))
+@if (Model.Post.Image == null && DateTimeOffset.UtcNow.AddYears(-1) > Model.Post.Timestamp)
 {
     <div class="card text-bg-warning mb-3" style="max-width: 18rem;">
         <div class="card-body">
@@ -14,31 +14,31 @@
     </div>
 }
 
-<h1>@Model.Deviation.Title</h1>
+<h1>@Model.Post.Title</h1>
 
 <p>
-    @Model.Deviation.PublishedTime.UtcDateTime.ToLongDateString()
-    @Model.Deviation.PublishedTime.UtcDateTime.ToShortTimeString()
+    @Model.Post.Timestamp.UtcDateTime.ToLongDateString()
+    @Model.Post.Timestamp.UtcDateTime.ToShortTimeString()
 </p>
 
-@if (Model.Deviation is UserArtworkDeviation artwork)
+@if (Model.Post.Image != null)
 {
     <p>
-        <img src="@artwork.ImageUrl"
-             alt="@artwork.AltText"
-             title="@artwork.AltText"
+        <img src="@Model.Post.Image.ImageUrl"
+             alt="@Model.Post.Image.AltText"
+             title="@Model.Post.Image.AltText"
              style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
     </p>
 }
 
 <p>
-    @Html.Raw(Model.Deviation.Description)
+    @Html.Raw(Model.Post.Description)
 </p>
 
-@if (Model.Deviation.Tags.Any())
+@if (Model.Post.Tags.Any())
 {
     <p>
-        @foreach (string tag in Model.Deviation.Tags)
+        @foreach (string tag in Model.Post.Tags)
         {
             <a href="/Profile/Search?q=%23@(Uri.EscapeDataString(tag))">#@tag</a>
         }
@@ -69,7 +69,7 @@
 @if (User.Identity?.IsAuthenticated == true)
 {
     <form asp-action="Refresh">
-        <input type="hidden" name="id" value="@Model.Deviation.Id" />
+        <input type="hidden" name="id" value="@Model.Post.Id" />
         <button type="submit" class="btn btn-primary">
             Refresh from DeviantArt
         </button>

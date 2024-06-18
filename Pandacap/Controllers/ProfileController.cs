@@ -53,7 +53,7 @@ namespace Pandacap.Controllers
 
                 var affectedIds = activites.Select(a => a.DeviationId);
                 var affectedDeviations =
-                    Enumerable.Empty<IUserDeviation>()
+                    Enumerable.Empty<IUserPost>()
                     .Concat(await context.UserArtworkDeviations.Where(d => affectedIds.Contains(d.Id)).ToListAsync())
                     .Concat(await context.UserTextDeviations.Where(d => affectedIds.Contains(d.Id)).ToListAsync());
 
@@ -99,14 +99,14 @@ namespace Pandacap.Controllers
             var posts1 = context.UserArtworkDeviations
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
-                .OfType<IUserDeviation>();
+                .OfType<IUserPost>();
             var posts2 = context.UserTextDeviations
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
-                .OfType<IUserDeviation>();
+                .OfType<IUserPost>();
 
             var posts = await new[] { posts1, posts2 }
-                .MergeNewest(d => d.PublishedTime)
+                .MergeNewest(d => d.Timestamp)
                 .SkipUntil(d => d.Id == next || next == null)
                 .Where(d =>
                 {

@@ -15,10 +15,10 @@ namespace Pandacap.Models
 
         public bool BridgyFed { get; set; }
 
-        public IUserDeviation? MostRecentPost => Enumerable.Empty<IUserDeviation>()
+        public IUserPost? MostRecentPost => Enumerable.Empty<IUserPost>()
             .Concat(RecentArtwork)
             .Concat(RecentTextPosts)
-            .OrderByDescending(x => x.PublishedTime)
+            .OrderByDescending(x => x.Timestamp)
             .FirstOrDefault();
     }
 }

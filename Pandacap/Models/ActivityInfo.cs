@@ -4,5 +4,5 @@ namespace Pandacap.Models
 {
     public record ActivityInfo(
         RemoteActivity RemoteActivity,
-        IUserDeviation? Post);
+        IUserPost? Post);
 }

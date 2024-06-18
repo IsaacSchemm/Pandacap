@@ -130,7 +130,7 @@ namespace Pandacap.HighLevel
 
         private enum ActivityType { Create, Update, Delete };
 
-        private async Task AddActivityAsync(IUserDeviation post, ActivityType activityType)
+        private async Task AddActivityAsync(IUserPost post, ActivityType activityType)
         {
             var followers = await context.Followers
                 .Select(follower => new
@@ -173,7 +173,7 @@ namespace Pandacap.HighLevel
                 yield return await DeviantArtFs.Api.Deviation.GetAsync(credentials, id);
         }
 
-        private async Task CheckForDeletionAsync(IAsyncEnumerable<IUserDeviation> deletionCandidates, IReadOnlySet<Guid> exclude)
+        private async Task CheckForDeletionAsync(IAsyncEnumerable<IUserPost> deletionCandidates, IReadOnlySet<Guid> exclude)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
                 return;
@@ -311,7 +311,7 @@ namespace Pandacap.HighLevel
                     ? context.UserArtworkDeviations
                         .Where(d => subsetD.ids.Contains(d.Id))
                         .AsAsyncEnumerable()
-                : AsyncEnumerable.Empty<IUserDeviation>();
+                : AsyncEnumerable.Empty<IUserPost>();
 
             await CheckForDeletionAsync(localPosts, exclude: found);
         }
@@ -384,8 +384,6 @@ namespace Pandacap.HighLevel
                 post.Tags.Clear();
                 post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
-                post.Excerpt = deviation.excerpt.OrNull();
-
                 string newObjectJson =
                     ActivityPubSerializer.SerializeWithContext(
                         translator.AsObject(
@@ -415,7 +413,7 @@ namespace Pandacap.HighLevel
                     ? context.UserTextDeviations
                         .Where(d => subsetD.ids.Contains(d.Id))
                         .AsAsyncEnumerable()
-                : AsyncEnumerable.Empty<IUserDeviation>();
+                : AsyncEnumerable.Empty<IUserPost>();
 
             await CheckForDeletionAsync(localPosts, exclude: found);
         }

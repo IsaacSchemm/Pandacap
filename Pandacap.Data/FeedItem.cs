@@ -61,7 +61,7 @@
 
         string? IPost.Usericon => FeedIconUrl;
 
-        string? IPost.DisplayTitle => Title;
+        string IPost.DisplayTitle => Title ?? $"{Id}";
 
         DateTimeOffset IPost.Timestamp => Timestamp;
 

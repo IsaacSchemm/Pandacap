@@ -74,14 +74,14 @@ namespace Pandacap.Controllers
                 .Where(d => d.PublishedTime <= startTime)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
-                .OfType<IUserDeviation>();
+                .OfType<IUserPost>();
             var posts2 = context.UserTextDeviations
                 .Where(d => d.PublishedTime <= startTime)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
-                .OfType<IUserDeviation>();
+                .OfType<IUserPost>();
             var posts = new[] { posts1, posts2 }
-                .MergeNewest(d => d.PublishedTime)
+                .MergeNewest(d => d.Timestamp)
                 .SkipUntil(f => f.Id == next || next == null);
 
             if (Request.IsActivityPub())

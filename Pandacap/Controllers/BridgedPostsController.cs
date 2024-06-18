@@ -17,7 +17,7 @@ namespace Pandacap.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Index(Guid id)
         {
-            IUserDeviation? post = null;
+            IUserPost? post = null;
             post ??= await context.UserArtworkDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
             post ??= await context.UserTextDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
 
@@ -32,7 +32,7 @@ namespace Pandacap.Controllers
 
             return View(new BridgedPostViewModel
             {
-                Deviation = post,
+                Post = post,
                 RemoteActivities = User.Identity?.IsAuthenticated == true
                     ? await context.RemoteActivities
                         .Where(a => a.DeviationId == post.Id)
@@ -47,7 +47,7 @@ namespace Pandacap.Controllers
         {
             await deviantArtHandler.RefreshOurPostsAsync([id]);
 
-            IUserDeviation? post = null;
+            IUserPost? post = null;
             post ??= await context.UserArtworkDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
             post ??= await context.UserTextDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
 

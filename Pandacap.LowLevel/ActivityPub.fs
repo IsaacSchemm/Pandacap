@@ -88,15 +88,15 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.PersonToObject(actorKey, properties))
     ]
 
-    member _.AsObject(post: IUserDeviation) = dict [
+    member _.AsObject(post: IUserPost) = dict [
         let id = mapper.GetObjectId(post.Id)
 
         pair "id" id
         pair "url" id
 
-        pair "type" (if post.FederateTitle && post :? UserTextDeviation then "Article" else "Note")
+        pair "type" (if post.IsArticle then "Article" else "Note")
 
-        if post.FederateTitle then
+        if not post.HideTitle then
             pair "name" post.Title
 
         if not (isNull post.Description) then
@@ -113,38 +113,36 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
                         pair "href" $"https://{appInfo.ApplicationHostname}/Profile/Search?q=%%23{Uri.EscapeDataString(tag)}"
                     ]
         ]
-        pair "published" post.PublishedTime
+        pair "published" post.Timestamp
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
         pair "cc" [mapper.FollowersRootId]
         if post.IsMature then
             pair "summary" "Mature Content (DeviantArt)"
             pair "sensitive" true
 
-        match post with
-        | :? UserArtworkDeviation as artworkPost ->
+        if not (isNull post.Image) then
             pair "attachment" [
                 dict [
                     pair "type" "Document"
-                    pair "mediaType" artworkPost.ImageContentType
-                    pair "url" (mapper.GetImageUrl(artworkPost.Id))
-                    if not (String.IsNullOrEmpty(artworkPost.AltText)) then
-                        pair "name" artworkPost.AltText
+                    pair "mediaType" post.Image.ImageContentType
+                    pair "url" (mapper.GetImageUrl(post.Id))
+                    if not (String.IsNullOrEmpty(post.Image.AltText)) then
+                        pair "name" post.Image.AltText
                 ]
             ]
-        | _ -> ()
     ]
 
-    member this.ObjectToCreate(post: IUserDeviation) = dict [
+    member this.ObjectToCreate(post: IUserPost) = dict [
         pair "type" "Create"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
-        pair "published" post.PublishedTime
+        pair "published" post.Timestamp
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
         pair "cc" [mapper.FollowersRootId]
         pair "object" (this.AsObject post)
     ]
 
-    member this.ObjectToUpdate(post: IUserDeviation) = dict [
+    member this.ObjectToUpdate(post: IUserPost) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
@@ -154,7 +152,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member _.ObjectToDelete(post: IUserDeviation) = dict [
+    member _.ObjectToDelete(post: IUserPost) = dict [
         pair "type" "Delete"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
@@ -216,7 +214,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "first" mapper.OutboxPageId
     ]
 
-    member _.AsOutboxCollectionPage(currentPage: string, posts: ListPage<IUserDeviation>) = dict [
+    member _.AsOutboxCollectionPage(currentPage: string, posts: ListPage<IUserPost>) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" mapper.OutboxRootId
