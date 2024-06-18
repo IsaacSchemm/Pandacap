@@ -76,7 +76,7 @@
 
         DateTimeOffset IPost.Timestamp => PublishedTime;
 
-        string IPost.LinkUrl => $"/UserPost/{Id}";
+        string IPost.LinkUrl => $"/UserPosts/{Id}";
 
         IEnumerable<IThumbnail> IPost.Thumbnails => ThumbnailRenditions.Count > 0 ? [this] : [];
 

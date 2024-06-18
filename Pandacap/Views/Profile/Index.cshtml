@@ -78,7 +78,7 @@
             @foreach (var post in Model.RecentArtwork)
             {
                 <div class="col-sm-4 col-md-3 text-center my-4">
-                    <a href="/BridgedPosts/@post.Id">
+                    <a href="/UserPosts/@post.Id">
                         <img src="@post.GetThumbnailSrc()"
                              srcset="@post.GetThumbnailSrcset()"
                              alt=""
@@ -105,11 +105,11 @@
     </h2>
 
     <p>
-        @foreach (IPost post in Model.RecentTextPosts)
+        @foreach (var post in Model.RecentTextPosts)
         {
             <div>
-                <a href="/BridgedPosts/@post.Id">@post.DisplayTitle</a>
-                <span class="text-muted">(@post.Timestamp.UtcDateTime.ToLongDateString())</span>
+                <a href="/UserPosts/@post.Id">@post.Title</a>
+                <span class="text-muted">(@post.PublishedTime.UtcDateTime.ToLongDateString())</span>
             </div>
         }
     </p>
@@ -238,7 +238,7 @@
                                 </strong>
                                 <br />
                                 @activity.RemoteActivity.ActivityType for
-                                <a href="/BridgedPosts/@activity.RemoteActivity.DeviationId">
+                                <a href="/UserPosts/@activity.RemoteActivity.DeviationId">
                                     @(activity.Post?.Title ?? activity.RemoteActivity.DeviationId.ToString())
                                 </a>
                                 <br />

@@ -68,7 +68,6 @@ builder.Services.AddPandacapServices(new ApplicationInformation(
     deviantArtUsername: builder.Configuration["DeviantArtUsername"],
     keyVaultHostname: builder.Configuration["KeyVaultHostname"],
     handleHostname: builder.Configuration["ApplicationHostname"],
-    storageAccountHostname: builder.Configuration["StorageAccountHostname"],
     webFingerDomains: SetModule.Empty<string>()));
 
 builder.Services.AddHttpClient();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -10,6 +11,7 @@ namespace Pandacap.Controllers
 {
     [Route("UserPosts")]
     public class UserPostsController(
+        BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
         ActivityPubTranslator translator) : Controller
@@ -40,6 +42,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Route("Refresh")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Refresh(Guid id)
         {
@@ -54,6 +57,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Route("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -63,6 +67,11 @@ namespace Pandacap.Controllers
             {
                 context.UserPosts.Remove(post);
                 await context.SaveChangesAsync();
+
+                await blobServiceClient
+                    .GetBlobContainerClient("images")
+                    .GetBlobClient($"{post.Id}")
+                    .DeleteIfExistsAsync();
             }
 
             return RedirectToAction("Index", "Profile");
