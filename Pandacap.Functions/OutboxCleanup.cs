@@ -22,8 +22,6 @@ namespace Pandacap.Functions
                 if (activities.Count == 0)
                     break;
 
-                var inboxes = activities.Select(a => a.Inbox).ToHashSet();
-
                 context.ActivityPubOutboundActivities.RemoveRange(activities);
 
                 await context.SaveChangesAsync();

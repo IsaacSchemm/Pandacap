@@ -52,13 +52,13 @@ namespace Pandacap.Controllers
                    .ToListAsync();
 
                 var affectedIds = activites.Select(a => a.DeviationId);
-                var affectedDeviation = await context.UserPosts
+                var affectedDeviations = await context.UserPosts
                     .Where(d => affectedIds.Contains(d.Id))
-                    .SingleOrDefaultAsync();
+                    .ToListAsync();
 
                 return activites.Select(activity => new ActivityInfo(
                     activity,
-                    affectedDeviation));
+                    affectedDeviations.SingleOrDefault(p => p.Id == activity.DeviationId)));
             });
 
             bool bridgyFedRequested = await context.Follows
@@ -297,8 +297,26 @@ namespace Pandacap.Controllers
                 _oldest: DateTimeOffset.UtcNow.AddHours(-1),
                 _newest: DateTimeOffset.MaxValue);
 
+            await credentialProvider.UpdateAvatarAsync();
             await deviantArtHandler.ImportOurGalleryAsync(scope);
             await deviantArtHandler.ImportOurTextPostsAsync(scope);
+            await deviantArtHandler.CheckForDeletionAsync(scope);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportPastMonth()
+        {
+            var scope = DeviantArtImportScope.NewWindow(
+                _oldest: DateTimeOffset.UtcNow.AddMonths(-1),
+                _newest: DateTimeOffset.MaxValue);
+
+            await credentialProvider.UpdateAvatarAsync();
+            await deviantArtHandler.ImportOurGalleryAsync(scope);
+            await deviantArtHandler.ImportOurTextPostsAsync(scope);
+            await deviantArtHandler.CheckForDeletionAsync(scope);
 
             return RedirectToAction(nameof(Index));
         }
@@ -311,17 +329,11 @@ namespace Pandacap.Controllers
                 _oldest: DateTimeOffset.MinValue,
                 _newest: DateTimeOffset.MaxValue);
 
+            await credentialProvider.UpdateAvatarAsync();
             await deviantArtHandler.ImportOurGalleryAsync(scope);
             await deviantArtHandler.ImportOurTextPostsAsync(scope);
+            await deviantArtHandler.CheckForDeletionAsync(scope);
 
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RefreshAvatar()
-        {
-            await credentialProvider.UpdateAvatarAsync();
             return RedirectToAction(nameof(Index));
         }
 

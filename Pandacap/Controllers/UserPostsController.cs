@@ -11,7 +11,6 @@ namespace Pandacap.Controllers
 {
     [Route("UserPosts")]
     public class UserPostsController(
-        BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
         ActivityPubTranslator translator) : Controller
@@ -46,7 +45,9 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Refresh(Guid id)
         {
-            await deviantArtHandler.RefreshOurPostsAsync([id]);
+            var scope = DeviantArtImportScope.FromIds([id]);
+            await deviantArtHandler.ImportOurGalleryAsync(scope);
+            await deviantArtHandler.ImportOurTextPostsAsync(scope);
 
             var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
 
@@ -61,18 +62,8 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
-
-            if (post != null)
-            {
-                context.UserPosts.Remove(post);
-                await context.SaveChangesAsync();
-
-                await blobServiceClient
-                    .GetBlobContainerClient("images")
-                    .GetBlobClient($"{post.Id}")
-                    .DeleteIfExistsAsync();
-            }
+            var scope = DeviantArtImportScope.FromIds([id]);
+            await deviantArtHandler.CheckForDeletionAsync(scope, forceDelete: true);
 
             return RedirectToAction("Index", "Profile");
         }

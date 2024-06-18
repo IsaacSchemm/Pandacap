@@ -15,6 +15,7 @@
 
         /// <summary>
         /// Whether this post has an image attached.
+        /// If there is an image, it will be stored in an Azure Storage account, and proxied through ImagesController.
         /// </summary>
         public bool HasImage { get; set; }
 
@@ -67,6 +68,7 @@
 
         /// <summary>
         /// A list of thumbnail renditions, of different qualities, for this post.
+        /// Unlike the image itself, these links point at the DeviantArt servers.
         /// </summary>
         public List<DeviantArtThumbnailRendition> ThumbnailRenditions { get; set; } = [];
 

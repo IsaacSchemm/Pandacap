@@ -194,6 +194,7 @@ namespace Pandacap.HighLevel
                         .TakeWhile(d => d.published_time.Value >= window.oldest)
                 : scope is DeviantArtImportScope.Subset subset
                     ? GetDeviationsByIdsAsync(subset.ids)
+                        .Where(d => d.content.OrNull() != null)
                     : throw new NotImplementedException();
 
             HashSet<Guid> found = [];
@@ -284,7 +285,7 @@ namespace Pandacap.HighLevel
 
                 if (oldObjectJson == null)
                 {
-                    if (DateTimeOffset.UtcNow - post.PublishedTime < TimeSpan.FromDays(1))
+                    if (DateTimeOffset.UtcNow - post.PublishedTime < TimeSpan.FromDays(60))
                         await AddActivityAsync(post, ActivityType.Create);
                 }
                 else if (oldObjectJson != newObjectJson)
@@ -313,6 +314,7 @@ namespace Pandacap.HighLevel
                         .TakeWhile(d => d.published_time.Value >= window.oldest)
                 : scope is DeviantArtImportScope.Subset subset
                     ? GetDeviationsByIdsAsync(subset.ids)
+                        .Where(d => d.content.OrNull() == null)
                 : throw new NotImplementedException();
 
             HashSet<Guid> found = [];
@@ -375,7 +377,7 @@ namespace Pandacap.HighLevel
 
                 if (oldObjectJson == null)
                 {
-                    if (DateTimeOffset.UtcNow - post.PublishedTime < TimeSpan.FromDays(1))
+                    if (DateTimeOffset.UtcNow - post.PublishedTime < TimeSpan.FromDays(60))
                         await AddActivityAsync(post, ActivityType.Create);
                 }
                 else if (oldObjectJson != newObjectJson)
@@ -387,20 +389,56 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public async Task RefreshOurPostsAsync(IEnumerable<Guid> ids)
+        public async Task CheckForDeletionAsync(DeviantArtImportScope scope, bool forceDelete = false)
         {
-            var posts = await context.UserPosts
-                .Where(p => ids.Contains(p.Id))
-                .Select(p => new { p.Id, p.HasImage })
-                .ToListAsync();
+            var posts =
+                scope is DeviantArtImportScope.Window window
+                    ? context.UserPosts
+                        .Where(p => p.PublishedTime >= window.oldest)
+                        .Where(p => p.PublishedTime <= window.newest)
+                        .AsAsyncEnumerable()
+                : scope is DeviantArtImportScope.Subset subset
+                    ? context.UserPosts
+                        .Where(p => subset.ids.Contains(p.Id))
+                        .AsAsyncEnumerable()
+                : throw new NotImplementedException();
 
-            await ImportOurGalleryAsync(
-                DeviantArtImportScope.FromIds(
-                    posts.Where(p => p.HasImage).Select(p => p.Id)));
+            await foreach (var chunk in posts.Chunk(50))
+            {
+                IEnumerable<Guid> avoidDeleting = [];
 
-            await ImportOurTextPostsAsync(
-                DeviantArtImportScope.FromIds(
-                    posts.Where(p => !p.HasImage).Select(p => p.Id)));
+                if (!forceDelete)
+                {
+                    if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
+                        break;
+
+                    var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
+                        credentials,
+                        chunk.Select(p => p.Id));
+
+                    avoidDeleting = metadataResponse.metadata.Select(m => m.deviationid);
+                }
+
+                foreach (var post in chunk)
+                {
+                    if (!avoidDeleting.Contains(post.Id))
+                    {
+                        context.UserPosts.Remove(post);
+                        await AddActivityAsync(post, ActivityType.Delete);
+
+                        try
+                        {
+                            await blobServiceClient
+                                .GetBlobContainerClient("images")
+                                .GetBlobClient($"{post.Id}")
+                                .DeleteIfExistsAsync();
+                        }
+                        catch (Exception) { }
+                    }
+                }
+            }
+
+            await context.SaveChangesAsync();
         }
     }
 }

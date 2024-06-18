@@ -132,24 +132,24 @@
             <div class="col col-xl-4">
                 <div class="card mt-3">
                     <div class="card-header">
-                        DeviantArt import/refresh
+                        Sync with DeviantArt
                     </div>
                     <div class="card-body text-center">
                         <form asp-action="ImportPastHour">
                             <button type="submit" class="btn btn-primary">
-                                Posts within past hour
+                                Past hour
+                            </button>
+                        </form>
+                        <hr />
+                        <form asp-action="ImportPastMonth">
+                            <button type="submit" class="btn btn-primary">
+                                Past month
                             </button>
                         </form>
                         <hr />
                         <form asp-action="ImportAll" onsubmit="return confirm('Are you sure you want to import and refresh all posts?')">
                             <button type="submit" class="btn btn-primary">
-                                All older posts
-                            </button>
-                        </form>
-                        <hr />
-                        <form asp-action="RefreshAvatar">
-                            <button type="submit" class="btn btn-primary">
-                                Avatar
+                                All posts
                             </button>
                         </form>
                     </div>

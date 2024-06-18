@@ -41,7 +41,7 @@ type IdMapper(appInfo: ApplicationInformation) =
         $"https://{appInfo.ApplicationHostname}/Images/{deviationid}"
 
     member _.GetObjectId(deviationid: Guid) =
-        $"https://{appInfo.ApplicationHostname}/UserPosts/{deviationid}#20240617a"
+        $"https://{appInfo.ApplicationHostname}/UserPosts/{deviationid}"
 
     member _.GetFollowId(followGuid: Guid) =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Follow/{followGuid}"
