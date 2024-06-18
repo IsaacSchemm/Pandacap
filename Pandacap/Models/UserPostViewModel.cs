@@ -2,7 +2,7 @@
 
 namespace Pandacap.Models
 {
-    public class BridgedPostViewModel
+    public class UserPostViewModel
     {
         public required UserPost Post { get; set; }
 

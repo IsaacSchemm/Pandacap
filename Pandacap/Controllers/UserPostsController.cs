@@ -8,8 +8,8 @@ using System.Text;
 
 namespace Pandacap.Controllers
 {
-    [Route("BridgedPosts")]
-    public class BridgedPostsController(
+    [Route("UserPosts")]
+    public class UserPostsController(
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
         ActivityPubTranslator translator) : Controller
@@ -28,7 +28,7 @@ namespace Pandacap.Controllers
                     "application/activity+json",
                     Encoding.UTF8);
 
-            return View(new BridgedPostViewModel
+            return View(new UserPostViewModel
             {
                 Post = post,
                 RemoteActivities = User.Identity?.IsAuthenticated == true
@@ -51,6 +51,21 @@ namespace Pandacap.Controllers
                 return RedirectToAction(nameof(Index), new { id });
             else
                 return NotFound();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
+
+            if (post != null)
+            {
+                context.UserPosts.Remove(post);
+                await context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Index", "Profile");
         }
     }
 }
