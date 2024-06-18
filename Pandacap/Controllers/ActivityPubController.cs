@@ -212,9 +212,9 @@ namespace Pandacap.Controllers
                         if (!Guid.TryParse(uri.Segments.Last(), out Guid id))
                             continue;
 
-                        IUserPost? post = null;
-                        post ??= await context.UserArtworkDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
-                        post ??= await context.UserTextDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
+                        var post = await context.UserPosts
+                            .Where(p => p.Id == id)
+                            .SingleOrDefaultAsync();
 
                         if (post != null && mapper.GetObjectId(post.Id) == uri.GetLeftPart(UriPartial.Path))
                         {
@@ -362,8 +362,7 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Outbox()
         {
-            int count = await context.UserArtworkDeviations.CountAsync()
-                + await context.UserTextDeviations.CountAsync();
+            int count = await context.UserPosts.CountAsync();
             return Content(
                 ActivityPubSerializer.SerializeWithContext(
                     translator.AsOutboxCollection(

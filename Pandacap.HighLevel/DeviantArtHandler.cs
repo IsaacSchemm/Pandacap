@@ -1,4 +1,5 @@
-﻿using DeviantArtFs.Extensions;
+﻿using Azure.Storage.Blobs;
+using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
@@ -8,8 +9,10 @@ namespace Pandacap.HighLevel
 {
     public class DeviantArtHandler(
         AltTextSentinel altTextSentinel,
+        BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeviantArtCredentialProvider credentialProvider,
+        IHttpClientFactory httpClientFactory,
         ActivityPubTranslator translator)
     {
         public async Task ImportArtworkPostsByUsersWeWatchAsync()
@@ -130,7 +133,7 @@ namespace Pandacap.HighLevel
 
         private enum ActivityType { Create, Update, Delete };
 
-        private async Task AddActivityAsync(IUserPost post, ActivityType activityType)
+        private async Task AddActivityAsync(UserPost post, ActivityType activityType)
         {
             var followers = await context.Followers
                 .Select(follower => new
@@ -173,30 +176,6 @@ namespace Pandacap.HighLevel
                 yield return await DeviantArtFs.Api.Deviation.GetAsync(credentials, id);
         }
 
-        private async Task CheckForDeletionAsync(IAsyncEnumerable<IUserPost> deletionCandidates, IReadOnlySet<Guid> exclude)
-        {
-            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
-                return;
-
-            await foreach (var chunk in deletionCandidates.Where(d => !exclude.Contains(d.Id)).Chunk(50))
-            {
-                var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
-                    credentials,
-                    chunk.Select(c => c.Id));
-
-                foreach (var candidate in chunk)
-                {
-                    if (metadataResponse.metadata.Any(m => m.deviationid == candidate.Id))
-                        continue;
-
-                    context.Remove(candidate);
-                    await AddActivityAsync(candidate, ActivityType.Delete);
-                }
-            }
-
-            await context.SaveChangesAsync();
-        }
-
         public async Task ImportOurGalleryAsync(DeviantArtImportScope scope)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
@@ -232,7 +211,24 @@ namespace Pandacap.HighLevel
 
                 found.Add(deviation.deviationid);
 
-                var post = await context.UserArtworkDeviations
+                using var client = httpClientFactory.CreateClient();
+                using var resp = await client.GetAsync(content.src);
+
+                resp.EnsureSuccessStatusCode();
+
+                var containerClient = blobServiceClient.GetBlobContainerClient("images");
+                await containerClient
+                    .GetBlobClient($"{deviation.deviationid}")
+                    .DeleteIfExistsAsync();
+
+                using (var stream = await resp.Content.ReadAsStreamAsync())
+                {
+                    await containerClient.UploadBlobAsync(
+                        $"{deviation.deviationid}",
+                        stream);
+                }
+
+                var post = await context.UserPosts
                     .Where(p => p.Id == deviation.deviationid)
                     .FirstOrDefaultAsync();
 
@@ -251,10 +247,13 @@ namespace Pandacap.HighLevel
                     context.Add(post);
                 }
 
-                post.LinkUrl = deviation.url.OrNull();
                 post.Title = deviation.title.OrNull();
-                post.FederateTitle = true;
-                post.PublishedTime = publishedTime;
+                post.HasImage = true;
+                post.ImageContentType = resp.Content.Headers.ContentType?.MediaType;
+
+                if (altTextSentinel.TryGetAltText(deviation.deviationid, out string? altText))
+                    post.AltText = altText;
+
                 post.IsMature = deviation.is_mature.OrNull() ?? false;
 
                 post.Description = metadata?.description?.Replace("https://www.deviantart.com/users/outgoing?", "");
@@ -262,14 +261,7 @@ namespace Pandacap.HighLevel
                 post.Tags.Clear();
                 post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
-                post.ImageUrl = content.src;
-                post.ImageContentType = !Uri.TryCreate(content.src, UriKind.Absolute, out Uri? uri) ? "application/octet-stream"
-                    : uri.AbsolutePath.EndsWith(".png") ? "image/png"
-                    : uri.AbsolutePath.EndsWith(".jpg") ? "image/jpeg"
-                    : "application/octet-stream";
-
-                if (altTextSentinel.TryGetAltText(deviation.deviationid, out string? altText))
-                    post.AltText = altText;
+                post.PublishedTime = publishedTime;
 
                 post.ThumbnailRenditions.Clear();
                 foreach (var thumbnail in deviation.thumbs.OrEmpty())
@@ -282,6 +274,9 @@ namespace Pandacap.HighLevel
                     });
                 }
 
+                post.HideTitle = false;
+                post.IsArticle = false;
+
                 string newObjectJson =
                     ActivityPubSerializer.SerializeWithContext(
                         translator.AsObject(
@@ -289,10 +284,8 @@ namespace Pandacap.HighLevel
 
                 if (oldObjectJson == null)
                 {
-                    if (DateTimeOffset.UtcNow - publishedTime < TimeSpan.FromDays(1))
-                    {
+                    if (DateTimeOffset.UtcNow - post.PublishedTime < TimeSpan.FromDays(1))
                         await AddActivityAsync(post, ActivityType.Create);
-                    }
                 }
                 else if (oldObjectJson != newObjectJson)
                 {
@@ -301,19 +294,6 @@ namespace Pandacap.HighLevel
 
                 await context.SaveChangesAsync();
             }
-
-            var localPosts = scope is DeviantArtImportScope.Window windowD
-                    ? context.UserArtworkDeviations
-                        .Where(d => d.PublishedTime <= windowD.newest)
-                        .Where(d => d.PublishedTime >= windowD.oldest)
-                        .AsAsyncEnumerable()
-                : scope is DeviantArtImportScope.Subset subsetD
-                    ? context.UserArtworkDeviations
-                        .Where(d => subsetD.ids.Contains(d.Id))
-                        .AsAsyncEnumerable()
-                : AsyncEnumerable.Empty<IUserPost>();
-
-            await CheckForDeletionAsync(localPosts, exclude: found);
         }
 
         public async Task ImportOurTextPostsAsync(DeviantArtImportScope scope)
@@ -354,7 +334,7 @@ namespace Pandacap.HighLevel
 
                 found.Add(deviation.deviationid);
 
-                var post = await context.UserTextDeviations
+                var post = await context.UserPosts
                     .Where(p => p.Id == deviation.deviationid)
                     .FirstOrDefaultAsync();
 
@@ -373,16 +353,20 @@ namespace Pandacap.HighLevel
                     context.Add(post);
                 }
 
-                post.LinkUrl = deviation.url.OrNull();
                 post.Title = deviation.title.OrNull();
-                post.FederateTitle = deviation.category_path.OrNull() != "status";
-                post.PublishedTime = publishedTime;
+                post.HasImage = false;
                 post.IsMature = deviation.is_mature.OrNull() ?? false;
 
                 post.Description = content.html.OrNull()?.Replace("https://www.deviantart.com/users/outgoing?", "");
 
                 post.Tags.Clear();
                 post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
+
+                post.PublishedTime = publishedTime;
+
+                bool isStatus = deviation.category_path.OrNull() == "status";
+                post.HideTitle = isStatus;
+                post.IsArticle = !isStatus;
 
                 string newObjectJson =
                     ActivityPubSerializer.SerializeWithContext(
@@ -391,10 +375,8 @@ namespace Pandacap.HighLevel
 
                 if (oldObjectJson == null)
                 {
-                    if (DateTimeOffset.UtcNow - publishedTime < TimeSpan.FromDays(1))
-                    {
+                    if (DateTimeOffset.UtcNow - post.PublishedTime < TimeSpan.FromDays(1))
                         await AddActivityAsync(post, ActivityType.Create);
-                    }
                 }
                 else if (oldObjectJson != newObjectJson)
                 {
@@ -403,36 +385,22 @@ namespace Pandacap.HighLevel
 
                 await context.SaveChangesAsync();
             }
-
-            var localPosts = scope is DeviantArtImportScope.Window windowD
-                    ? context.UserTextDeviations
-                        .Where(d => d.PublishedTime <= windowD.newest)
-                        .Where(d => d.PublishedTime >= windowD.oldest)
-                        .AsAsyncEnumerable()
-                : scope is DeviantArtImportScope.Subset subsetD
-                    ? context.UserTextDeviations
-                        .Where(d => subsetD.ids.Contains(d.Id))
-                        .AsAsyncEnumerable()
-                : AsyncEnumerable.Empty<IUserPost>();
-
-            await CheckForDeletionAsync(localPosts, exclude: found);
         }
 
         public async Task RefreshOurPostsAsync(IEnumerable<Guid> ids)
         {
-            var artworkIds = await context.UserArtworkDeviations
+            var posts = await context.UserPosts
                 .Where(p => ids.Contains(p.Id))
-                .Select(p => p.Id)
+                .Select(p => new { p.Id, p.HasImage })
                 .ToListAsync();
 
-            await ImportOurGalleryAsync(DeviantArtImportScope.FromIds(artworkIds));
+            await ImportOurGalleryAsync(
+                DeviantArtImportScope.FromIds(
+                    posts.Where(p => p.HasImage).Select(p => p.Id)));
 
-            var textPostIds = await context.UserTextDeviations
-                .Where(p => ids.Contains(p.Id))
-                .Select(p => p.Id)
-                .ToListAsync();
-
-            await ImportOurTextPostsAsync(DeviantArtImportScope.FromIds(textPostIds));
+            await ImportOurTextPostsAsync(
+                DeviantArtImportScope.FromIds(
+                    posts.Where(p => !p.HasImage).Select(p => p.Id)));
         }
     }
 }

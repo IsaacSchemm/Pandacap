@@ -15,24 +15,21 @@ namespace Pandacap.Controllers
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
         {
-            if (id is Guid g)
-            {
-                await foreach (var post in context.UserArtworkDeviations.Where(d => d.Id == g).AsAsyncEnumerable())
-                    return post.PublishedTime;
+            var post = await context.UserPosts
+                .Where(p => p.Id == id)
+                .Select(p => new { p.PublishedTime })
+                .SingleOrDefaultAsync();
 
-                await foreach (var post in context.UserTextDeviations.Where(d => d.Id == g).AsAsyncEnumerable())
-                    return post.PublishedTime;
-            }
-
-            return null;
+            return post?.PublishedTime;
         }
 
         public async Task<IActionResult> Artwork(Guid? next, int? count)
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
 
-            var posts = await context.UserArtworkDeviations
+            var posts = await context.UserPosts
                 .Where(d => d.PublishedTime <= startTime)
+                .Where(d => d.HasImage)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
@@ -51,8 +48,9 @@ namespace Pandacap.Controllers
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
 
-            var posts = await context.UserTextDeviations
+            var posts = await context.UserPosts
                 .Where(d => d.PublishedTime <= startTime)
+                .Where(d => !d.HasImage)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
@@ -70,18 +68,10 @@ namespace Pandacap.Controllers
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
 
-            var posts1 = context.UserArtworkDeviations
+            var posts = context.UserPosts
                 .Where(d => d.PublishedTime <= startTime)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
-                .OfType<IUserPost>();
-            var posts2 = context.UserTextDeviations
-                .Where(d => d.PublishedTime <= startTime)
-                .OrderByDescending(d => d.PublishedTime)
-                .AsAsyncEnumerable()
-                .OfType<IUserPost>();
-            var posts = new[] { posts1, posts2 }
-                .MergeNewest(d => d.Timestamp)
                 .SkipUntil(f => f.Id == next || next == null);
 
             if (Request.IsActivityPub())

@@ -37,9 +37,7 @@ namespace Pandacap.Data
 
         public DbSet<RemoteActivityPubPost> RemoteActivityPubPosts { get; set; }
 
-        public DbSet<UserArtworkDeviation> UserArtworkDeviations { get; set; }
-
-        public DbSet<UserTextDeviation> UserTextDeviations { get; set; }
+        public DbSet<UserPost> UserPosts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

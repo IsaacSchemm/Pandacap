@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public class UserArtworkDeviation : IUserPost, IUserPostImage, IPost, IThumbnail
+    public class UserArtworkDeviation : IPost, IThumbnail
     {
         public Guid Id { get; set; }
         public string? LinkUrl { get; set; }
@@ -35,16 +35,6 @@
         IEnumerable<IThumbnail> IPost.Thumbnails => ThumbnailRenditions.Count > 0 ? [this] : [];
 
         IEnumerable<IThumbnailRendition> IThumbnail.Renditions => ThumbnailRenditions;
-
-        IUserPostImage? IUserPost.Image => this;
-
-        DateTimeOffset IUserPost.Timestamp => PublishedTime;
-
-        bool IUserPost.HideTitle => false;
-
-        bool IUserPost.IsArticle => false;
-
-        IEnumerable<string> IUserPost.Tags => Tags;
 
         string? IPost.Username => null;
 

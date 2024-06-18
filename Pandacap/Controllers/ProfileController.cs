@@ -52,14 +52,13 @@ namespace Pandacap.Controllers
                    .ToListAsync();
 
                 var affectedIds = activites.Select(a => a.DeviationId);
-                var affectedDeviations =
-                    Enumerable.Empty<IUserPost>()
-                    .Concat(await context.UserArtworkDeviations.Where(d => affectedIds.Contains(d.Id)).ToListAsync())
-                    .Concat(await context.UserTextDeviations.Where(d => affectedIds.Contains(d.Id)).ToListAsync());
+                var affectedDeviation = await context.UserPosts
+                    .Where(d => affectedIds.Contains(d.Id))
+                    .SingleOrDefaultAsync();
 
                 return activites.Select(activity => new ActivityInfo(
                     activity,
-                    affectedDeviations.FirstOrDefault(d => d.Id == activity.DeviationId)));
+                    affectedDeviation));
             });
 
             bool bridgyFedRequested = await context.Follows
@@ -74,11 +73,13 @@ namespace Pandacap.Controllers
                 ProfileProperties = await context.ProfileProperties
                     .OrderBy(p => p.Name)
                     .ToListAsync(),
-                RecentArtwork = await context.UserArtworkDeviations
+                RecentArtwork = await context.UserPosts
+                    .Where(post => post.HasImage)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
                     .ToListAsync(),
-                RecentTextPosts = await context.UserTextDeviations
+                RecentTextPosts = await context.UserPosts
+                    .Where(post => !post.HasImage)
                     .Where(post => post.PublishedTime >= someTimeAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(4)
@@ -96,17 +97,9 @@ namespace Pandacap.Controllers
         {
             var query = q?.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
-            var posts1 = context.UserArtworkDeviations
+            var posts = await context.UserPosts
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
-                .OfType<IUserPost>();
-            var posts2 = context.UserTextDeviations
-                .OrderByDescending(d => d.PublishedTime)
-                .AsAsyncEnumerable()
-                .OfType<IUserPost>();
-
-            var posts = await new[] { posts1, posts2 }
-                .MergeNewest(d => d.Timestamp)
                 .SkipUntil(d => d.Id == next || next == null)
                 .Where(d =>
                 {

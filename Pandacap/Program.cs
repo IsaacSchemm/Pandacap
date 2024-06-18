@@ -7,6 +7,7 @@ using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.HighLevel;
 using Pandacap.Signatures;
+using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,12 @@ if (builder.Configuration["CosmosDBAccountEndpoint"] is string cosmosDBAccountEn
     }
 }
 
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.AddBlobServiceClient(new Uri($"https://{builder.Configuration["StorageAccountHostname"]}"));
+    clientBuilder.UseCredential(new DefaultAzureCredential());
+});
+
 if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
     && builder.Configuration["DeviantArtClientSecret"] is string deviantArtClientSecret)
 {
@@ -61,6 +68,7 @@ builder.Services.AddPandacapServices(new ApplicationInformation(
     deviantArtUsername: builder.Configuration["DeviantArtUsername"],
     keyVaultHostname: builder.Configuration["KeyVaultHostname"],
     handleHostname: builder.Configuration["ApplicationHostname"],
+    storageAccountHostname: builder.Configuration["StorageAccountHostname"],
     webFingerDomains: SetModule.Empty<string>()));
 
 builder.Services.AddHttpClient();

@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public class UserTextDeviation : IUserPost, IPost
+    public class UserTextDeviation : IPost
     {
         public Guid Id { get; set; }
         public string? LinkUrl { get; set; }
@@ -19,16 +19,6 @@
         DateTimeOffset IPost.Timestamp => PublishedTime;
 
         IEnumerable<IThumbnail> IPost.Thumbnails => [];
-
-        IUserPostImage? IUserPost.Image => null;
-
-        DateTimeOffset IUserPost.Timestamp => PublishedTime;
-
-        bool IUserPost.HideTitle => !FederateTitle;
-
-        bool IUserPost.IsArticle => FederateTitle;
-
-        IEnumerable<string> IUserPost.Tags => Tags;
 
         string? IPost.Username => null;
 

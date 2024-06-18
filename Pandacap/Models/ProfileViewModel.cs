@@ -6,8 +6,8 @@ namespace Pandacap.Models
     {
         public IEnumerable<ProfileProperty> ProfileProperties { get; set; } = [];
 
-        public IEnumerable<UserArtworkDeviation> RecentArtwork { get; set; } = [];
-        public IEnumerable<UserTextDeviation> RecentTextPosts { get; set; } = [];
+        public IEnumerable<UserPost> RecentArtwork { get; set; } = [];
+        public IEnumerable<UserPost> RecentTextPosts { get; set; } = [];
         public IEnumerable<ActivityInfo> RecentActivities { get; set; } = [];
 
         public int FollowerCount { get; set; }
@@ -15,10 +15,10 @@ namespace Pandacap.Models
 
         public bool BridgyFed { get; set; }
 
-        public IUserPost? MostRecentPost => Enumerable.Empty<IUserPost>()
+        public UserPost? MostRecentPost => Enumerable.Empty<UserPost>()
             .Concat(RecentArtwork)
             .Concat(RecentTextPosts)
-            .OrderByDescending(x => x.Timestamp)
+            .OrderByDescending(x => x.PublishedTime)
             .FirstOrDefault();
     }
 }

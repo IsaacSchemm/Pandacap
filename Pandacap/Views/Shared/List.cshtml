@@ -54,9 +54,6 @@ else
             <div class="row">
                 @foreach (var item in group)
                 {
-                    string? url = item is IUserPost deviation
-                        ? $"/BridgedPosts/{deviation.Id}"
-                        : item.LinkUrl;
                     var thumbs = Model.ShowThumbnails
                         ? item.Thumbnails.DefaultIfEmpty(null)
                         : [null];
@@ -65,7 +62,7 @@ else
                         <div class="col-12 mb-3 @(Model.ShowThumbnails ? "col-sm-4 col-md-3 text-center" : "")">
                             @if (Model.ShowThumbnails)
                             {
-                                <a href="@url" aria-hidden="true">
+                                <a href="@item.LinkUrl" aria-hidden="true">
                                     <img src="@(thumb?.GetThumbnailSrc() ?? "/images/trgray.svg")"
                                          srcset="@thumb?.GetThumbnailSrcset()"
                                          alt=""
@@ -78,11 +75,11 @@ else
                                 {
                                     <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                                 }
-                                <a href="@url">@item.DisplayTitle</a>
-                                @if (item is IUserPost userPost)
+                                <a href="@item.LinkUrl">@item.DisplayTitle</a>
+                                @if (item is UserPost)
                                 {
                                     <br />
-                                    <span class="text-muted">(@userPost.Timestamp.UtcDateTime.ToLongDateString())</span>
+                                    <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
                                 }
                             </label>
                             @if (item is RemoteActivityPubPost remote)

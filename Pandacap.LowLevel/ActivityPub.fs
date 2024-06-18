@@ -88,7 +88,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.PersonToObject(actorKey, properties))
     ]
 
-    member _.AsObject(post: IUserPost) = dict [
+    member _.AsObject(post: UserPost) = dict [
         let id = mapper.GetObjectId(post.Id)
 
         pair "id" id
@@ -113,36 +113,37 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
                         pair "href" $"https://{appInfo.ApplicationHostname}/Profile/Search?q=%%23{Uri.EscapeDataString(tag)}"
                     ]
         ]
-        pair "published" post.Timestamp
+        pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
         pair "cc" [mapper.FollowersRootId]
         if post.IsMature then
             pair "summary" "Mature Content (DeviantArt)"
             pair "sensitive" true
 
-        if not (isNull post.Image) then
+        if post.HasImage then
             pair "attachment" [
                 dict [
                     pair "type" "Document"
-                    pair "mediaType" post.Image.ImageContentType
                     pair "url" (mapper.GetImageUrl(post.Id))
-                    if not (String.IsNullOrEmpty(post.Image.AltText)) then
-                        pair "name" post.Image.AltText
+                    if not (String.IsNullOrEmpty(post.ImageContentType)) then
+                        pair "mediaType" post.ImageContentType
+                    if not (String.IsNullOrEmpty(post.AltText)) then
+                        pair "name" post.AltText
                 ]
             ]
     ]
 
-    member this.ObjectToCreate(post: IUserPost) = dict [
+    member this.ObjectToCreate(post: UserPost) = dict [
         pair "type" "Create"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
-        pair "published" post.Timestamp
+        pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
         pair "cc" [mapper.FollowersRootId]
         pair "object" (this.AsObject post)
     ]
 
-    member this.ObjectToUpdate(post: IUserPost) = dict [
+    member this.ObjectToUpdate(post: UserPost) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
@@ -152,7 +153,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member _.ObjectToDelete(post: IUserPost) = dict [
+    member _.ObjectToDelete(post: UserPost) = dict [
         pair "type" "Delete"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
@@ -214,7 +215,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "first" mapper.OutboxPageId
     ]
 
-    member _.AsOutboxCollectionPage(currentPage: string, posts: ListPage<IUserPost>) = dict [
+    member _.AsOutboxCollectionPage(currentPage: string, posts: ListPage<UserPost>) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" mapper.OutboxRootId

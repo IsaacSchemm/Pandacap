@@ -55,6 +55,7 @@ var host = new HostBuilder()
             deviantArtUsername: Environment.GetEnvironmentVariable("DeviantArtUsername"),
             keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
             handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
+            storageAccountHostname: Environment.GetEnvironmentVariable("StorageAccountHostname"),
             webFingerDomains: SetModule.Empty<string>()));
 
         services.AddHttpClient();

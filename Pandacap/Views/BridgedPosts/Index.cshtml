@@ -1,11 +1,13 @@
 ﻿@using Pandacap.Data
+@using Pandacap.LowLevel
 @model BridgedPostViewModel
+@inject IdMapper idMapper
 
 @{
     ViewBag.Title = Model.Post.Title;
 }
 
-@if (Model.Post.Image == null && DateTimeOffset.UtcNow.AddYears(-1) > Model.Post.Timestamp)
+@if (!Model.Post.HasImage && DateTimeOffset.UtcNow.AddYears(-1) > Model.Post.PublishedTime)
 {
     <div class="card text-bg-warning mb-3" style="max-width: 18rem;">
         <div class="card-body">
@@ -17,16 +19,16 @@
 <h1>@Model.Post.Title</h1>
 
 <p>
-    @Model.Post.Timestamp.UtcDateTime.ToLongDateString()
-    @Model.Post.Timestamp.UtcDateTime.ToShortTimeString()
+    @Model.Post.PublishedTime.UtcDateTime.ToLongDateString()
+    @Model.Post.PublishedTime.UtcDateTime.ToShortTimeString()
 </p>
 
-@if (Model.Post.Image != null)
+@if (Model.Post.HasImage)
 {
     <p>
-        <img src="@Model.Post.Image.ImageUrl"
-             alt="@Model.Post.Image.AltText"
-             title="@Model.Post.Image.AltText"
+        <img src="@idMapper.GetImageUrl(Model.Post.Id)"
+             alt="@Model.Post.AltText"
+             title="@Model.Post.AltText"
              style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
     </p>
 }

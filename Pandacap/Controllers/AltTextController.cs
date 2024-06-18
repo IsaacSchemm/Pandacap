@@ -32,7 +32,7 @@ namespace Pandacap.Controllers
 
             var ids = posts.Select(x => x.deviationid).ToHashSet();
 
-            var altText = await context.UserArtworkDeviations
+            var altText = await context.UserPosts
                 .Where(d => ids.Contains(d.Id))
                 .Select(d => new
                 {

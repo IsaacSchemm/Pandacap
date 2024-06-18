@@ -17,9 +17,7 @@ namespace Pandacap.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Index(Guid id)
         {
-            IUserPost? post = null;
-            post ??= await context.UserArtworkDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
-            post ??= await context.UserTextDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
+            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
 
             if (post == null)
                 return NotFound();
@@ -47,9 +45,7 @@ namespace Pandacap.Controllers
         {
             await deviantArtHandler.RefreshOurPostsAsync([id]);
 
-            IUserPost? post = null;
-            post ??= await context.UserArtworkDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
-            post ??= await context.UserTextDeviations.Where(p => p.Id == id).SingleOrDefaultAsync();
+            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
 
             if (post != null)
                 return RedirectToAction(nameof(Index), new { id });

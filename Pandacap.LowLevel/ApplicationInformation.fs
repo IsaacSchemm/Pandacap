@@ -17,6 +17,10 @@ type ApplicationInformation = {
     /// ActivityPub.
     KeyVaultHostname: string
 
+    /// The host / domain name of the Azure blob storage account that stores
+    /// image data.
+    StorageAccountHostname: string
+
     /// Additional hostnames to make WebFinger requests to if an incoming
     /// WebFinger request doesn't match the admin actor.
     WebFingerDomains: Set<string>
