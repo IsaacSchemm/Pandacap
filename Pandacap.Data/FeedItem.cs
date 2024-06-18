@@ -18,16 +18,14 @@
 
         public DateTimeOffset Timestamp { get; set; }
 
-        private record Image(string Url) : IThumbnail, IThumbnailRendition
+        private record Image(string Url) : IPostImage
         {
-            IEnumerable<IThumbnailRendition> IThumbnail.Renditions => [this];
-            string? IThumbnail.AltText => null;
+            IEnumerable<IThumbnailRendition> IPostImage.Thumbnails => [];
 
-            int IThumbnailRendition.Width => 0;
-            int IThumbnailRendition.Height => 0;
+            string? IPostImage.AltText => null;
         }
 
-        public IEnumerable<IThumbnail> Thumbnails
+        public IEnumerable<IPostImage> Images
         {
             get
             {

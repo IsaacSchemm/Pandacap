@@ -11,6 +11,6 @@
         DateTimeOffset Timestamp { get; }
         string? LinkUrl { get; }
 
-        IEnumerable<IThumbnail> Thumbnails { get; }
+        IEnumerable<IPostImage> Images { get; }
     }
 }

@@ -55,7 +55,7 @@ else
                 @foreach (var item in group)
                 {
                     var thumbs = Model.ShowThumbnails
-                        ? item.Thumbnails.DefaultIfEmpty(null)
+                        ? item.Images.DefaultIfEmpty(null)
                         : [null];
                     @foreach (var thumb in thumbs)
                     {
@@ -63,8 +63,8 @@ else
                             @if (Model.ShowThumbnails)
                             {
                                 <a href="@item.LinkUrl" aria-hidden="true">
-                                    <img src="@(thumb?.GetThumbnailSrc() ?? "/images/trgray.svg")"
-                                         srcset="@thumb?.GetThumbnailSrcset()"
+                                    <img src="@(thumb?.Url ?? "/images/trgray.svg")"
+                                         srcset="@thumb?.GetThumbnailSrcset(height: 150)"
                                          alt=""
                                          referrerpolicy="no-referrer"
                                          class="feed-image" />

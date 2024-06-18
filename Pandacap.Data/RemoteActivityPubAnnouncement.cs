@@ -32,18 +32,16 @@ namespace Pandacap.Data
         public string? Name { get; set; }
         public string? Content { get; set; }
 
-        public class ImageAttachment : IThumbnail, IThumbnailRendition
+        public class ImageAttachment : IPostImage
         {
             [Required]
             public string Url { get; set; } = "";
 
             public string? Name { get; set; }
 
-            int IThumbnailRendition.Width => 0;
-            int IThumbnailRendition.Height => 0;
+            string? IPostImage.AltText => Name;
 
-            string? IThumbnail.AltText => Name;
-            IEnumerable<IThumbnailRendition> IThumbnail.Renditions => [this];
+            IEnumerable<IThumbnailRendition> IPostImage.Thumbnails => [];
         }
 
         public List<ImageAttachment> Attachments { get; set; } = [];
@@ -75,6 +73,6 @@ namespace Pandacap.Data
 
         string? IPost.LinkUrl => ObjectId;
 
-        IEnumerable<IThumbnail> IPost.Thumbnails => Attachments;
+        IEnumerable<IPostImage> IPost.Images => Attachments;
     }
 }

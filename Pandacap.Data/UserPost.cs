@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public class UserPost : IPost, IThumbnail
+    public class UserPost : IPost, IPostImage
     {
         /// <summary>
         /// A unique ID for this post.
@@ -80,12 +80,14 @@
 
         string IPost.LinkUrl => $"/UserPosts/{Id}";
 
-        IEnumerable<IThumbnail> IPost.Thumbnails => ThumbnailRenditions.Count > 0 ? [this] : [];
-
-        IEnumerable<IThumbnailRendition> IThumbnail.Renditions => ThumbnailRenditions;
-
         string? IPost.Username => null;
 
         string? IPost.Usericon => null;
+
+        IEnumerable<IPostImage> IPost.Images => HasImage ? [this] : [];
+
+        string? IPostImage.Url => $"/Images/{Id}";
+
+        IEnumerable<IThumbnailRendition> IPostImage.Thumbnails => ThumbnailRenditions;
     }
 }

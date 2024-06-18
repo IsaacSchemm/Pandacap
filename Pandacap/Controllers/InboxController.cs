@@ -33,14 +33,14 @@ namespace Pandacap.Controllers
                 .OrderByDescending(a => a.Timestamp)
                 .OfType<IPost>()
                 .AsAsyncEnumerable()
-                .Where(x => x.Thumbnails.Any());
+                .Where(x => x.Images.Any());
 
             var source3 = context.FeedItems
                 .Where(a => a.Timestamp <= startTime)
                 .OrderByDescending(a => a.Timestamp)
                 .OfType<IPost>()
                 .AsAsyncEnumerable()
-                .Where(x => x.Thumbnails.Any());
+                .Where(x => x.Images.Any());
 
             var posts = await new[] { source1, source2, source3 }
                 .MergeNewest(x => x.Timestamp)
@@ -80,14 +80,14 @@ namespace Pandacap.Controllers
                 .OrderByDescending(a => a.Timestamp)
                 .OfType<IPost>()
                 .AsAsyncEnumerable()
-                .Where(x => !x.Thumbnails.Any());
+                .Where(x => !x.Images.Any());
 
             var source3 = context.FeedItems
                 .Where(a => a.Timestamp <= startTime)
                 .OrderByDescending(a => a.Timestamp)
                 .OfType<IPost>()
                 .AsAsyncEnumerable()
-                .Where(x => !x.Thumbnails.Any());
+                .Where(x => !x.Images.Any());
 
             var posts = await new[] { source1, source2, source3 }
                 .MergeNewest(x => x.Timestamp)
@@ -152,7 +152,7 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Inbox (Shares)",
-                ShowThumbnails = posts.DisplayList.SelectMany(x => x.Thumbnails).Any(),
+                ShowThumbnails = posts.DisplayList.SelectMany(x => x.Images).Any(),
                 GroupByUser = true,
                 AllowDismiss = true,
                 Items = posts

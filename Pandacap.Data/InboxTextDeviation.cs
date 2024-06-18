@@ -23,6 +23,6 @@
 
         string IPost.DisplayTitle => Title ?? $"{Id}";
 
-        IEnumerable<IThumbnail> IPost.Thumbnails => [];
+        IEnumerable<IPostImage> IPost.Images => [];
     }
 }

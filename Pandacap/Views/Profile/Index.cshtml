@@ -75,18 +75,21 @@
 
     <div class="container-fluid">
         <div class="row">
-            @foreach (var post in Model.RecentArtwork)
+            @foreach (IPost post in Model.RecentArtwork)
             {
-                <div class="col-sm-4 col-md-3 text-center my-4">
-                    <a href="/UserPosts/@post.Id">
-                        <img src="@post.GetThumbnailSrc()"
-                             srcset="@post.GetThumbnailSrcset()"
+                foreach (var image in post.Images)
+                {
+                    <div class="col-sm-4 col-md-3 text-center my-4">
+                        <a href="/UserPosts/@post.Id">
+                        <img src="@image.Url"
+                             srcset="@image.GetThumbnailSrcset(height: 150)"
                              alt=""
                              referrerpolicy="no-referrer"
                              class="feed-image" />
-                        @post.Title
-                    </a>
-                </div>
+                            @post.DisplayTitle
+                        </a>
+                    </div>
+                }
             }
         </div>
     </div>

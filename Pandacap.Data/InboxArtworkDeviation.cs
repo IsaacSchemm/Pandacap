@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Data
 {
-    public class InboxArtworkDeviation : IPost, IThumbnail
+    public class InboxArtworkDeviation : IPost, IPostImage
     {
         public Guid Id { get; set; }
 
@@ -30,10 +30,15 @@
 
         string IPost.DisplayTitle => Title ?? $"{Id}";
 
-        IEnumerable<IThumbnail> IPost.Thumbnails => ThumbnailRenditions.Count > 0 ? [this] : [];
+        IEnumerable<IPostImage> IPost.Images => [this];
 
-        string? IThumbnail.AltText => null;
+        string? IPostImage.Url => ThumbnailRenditions
+            .OrderBy(x => Math.Abs(x.Height - 150))
+            .Select(x => x.Url)
+            .FirstOrDefault();
 
-        IEnumerable<IThumbnailRendition> IThumbnail.Renditions => ThumbnailRenditions;
+        string? IPostImage.AltText => null;
+
+        IEnumerable<IThumbnailRendition> IPostImage.Thumbnails => ThumbnailRenditions;
     }
 }

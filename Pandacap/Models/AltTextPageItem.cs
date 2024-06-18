@@ -6,7 +6,7 @@ namespace Pandacap.Models
 {
     public record AltTextPageItem(
         Deviation Deviation,
-        string? AltText) : IThumbnail
+        string? AltText) : IPostImage
     {
         private record Thumb(Preview Preview) : IThumbnailRendition
         {
@@ -15,7 +15,9 @@ namespace Pandacap.Models
             int IThumbnailRendition.Height => Preview.height;
         }
 
-        IEnumerable<IThumbnailRendition> IThumbnail.Renditions =>
+        public string? Url => Deviation.content.OrNull()?.src;
+
+        public IEnumerable<IThumbnailRendition> Thumbnails =>
             Deviation.thumbs.OrEmpty().Select(t => new Thumb(t));
     };
 }
