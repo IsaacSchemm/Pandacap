@@ -65,9 +65,14 @@
         public List<string> Tags { get; set; } = [];
 
         /// <summary>
-        /// The date and time at which this post was created on DeviantArt.
+        /// The date and time at which this post was created.
         /// </summary>
         public DateTimeOffset PublishedTime { get; set; }
+
+        /// <summary>
+        /// The date and time at which this post was most recently refreshed with information from DeviantArt.
+        /// </summary>
+        public DateTimeOffset? LastDeviantArtRefreshAt { get; set; }
 
         /// <summary>
         /// Whether to hide the title of this post when displaying the full contents.

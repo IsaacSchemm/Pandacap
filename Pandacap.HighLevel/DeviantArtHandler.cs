@@ -302,6 +302,7 @@ namespace Pandacap.HighLevel
                 post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
                 post.PublishedTime = publishedTime;
+                post.LastDeviantArtRefreshAt = DateTimeOffset.UtcNow;
 
                 post.HideTitle = false;
                 post.IsArticle = false;
@@ -395,6 +396,7 @@ namespace Pandacap.HighLevel
                 post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
                 post.PublishedTime = publishedTime;
+                post.LastDeviantArtRefreshAt = DateTimeOffset.UtcNow;
 
                 bool isStatus = deviation.category_path.OrNull() == "status";
                 post.HideTitle = isStatus;
