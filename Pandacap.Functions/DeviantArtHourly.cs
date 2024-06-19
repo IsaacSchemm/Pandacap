@@ -4,13 +4,13 @@ using Pandacap.HighLevel;
 
 namespace Pandacap.Functions
 {
-    public class DeviantArtHourly(DeviantArtHandler deviantArtHandler)
+    public class DeviantArtHourly(DeviantArtInboxHandler deviantArtInboxHandler)
     {
         [Function("DeviantArtHourly")]
-        public async Task Run([TimerTrigger("30 32 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 10 * * * *")] TimerInfo myTimer)
         {
-            await deviantArtHandler.ImportArtworkPostsByUsersWeWatchAsync();
-            await deviantArtHandler.ImportTextPostsByUsersWeWatchAsync();
+            await deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync();
+            await deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync();
         }
     }
 }

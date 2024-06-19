@@ -16,6 +16,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ActivityPubTranslator>()
                 .AddScoped<DeviantArtCredentialProvider>()
+                .AddScoped<DeviantArtInboxHandler>()
                 .AddScoped<DeviantArtHandler>()
                 .AddScoped<IdMapper>()
                 .AddScoped<ImageProxy>()
