@@ -211,7 +211,7 @@ namespace Pandacap.HighLevel
                 await TryDeleteBlobIfExistsAsync(blob);
         }
 
-        public async Task ImportUpstreamPostsAsync(DeviantArtImportScope scope)
+        public async Task ImportUpstreamPostsAsync(DeviantArtImportScope scope, Func<string, Task>? writeDebug = null)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
                 return;
@@ -250,6 +250,8 @@ namespace Pandacap.HighLevel
 
             await foreach (var upstream in asyncSeq.AttachMetadataAsync(credentials))
             {
+                if (writeDebug != null)
+                    await writeDebug($"{upstream.Deviation.deviationid} {upstream.Deviation.title.OrNull()}");
                 await ProcessUpstreamAsync(upstream.Deviation, upstream.Metadata);
                 found.Add(upstream.Deviation.deviationid);
             }

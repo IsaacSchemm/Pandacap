@@ -327,11 +327,21 @@ namespace Pandacap.Controllers
                 _oldest: DateTimeOffset.MinValue,
                 _newest: DateTimeOffset.MaxValue);
 
+            Response.StatusCode = 200;
+            Response.ContentType = "text/plain";
+
+            using var sw = new StreamWriter(Response.Body);
+
+            await sw.WriteLineAsync("Updating avatar");
             await credentialProvider.UpdateAvatarAsync();
-            await deviantArtHandler.ImportUpstreamPostsAsync(scope);
+            await sw.WriteLineAsync("");
+            await sw.WriteLineAsync("Updating posts");
+            await deviantArtHandler.ImportUpstreamPostsAsync(scope, sw.WriteLineAsync);
+            await sw.WriteLineAsync("");
+            await sw.WriteLineAsync("Checking for deleted posts");
             await deviantArtHandler.CheckForDeletionAsync(scope);
 
-            return RedirectToAction(nameof(Index));
+            return new EmptyResult();
         }
 
         [HttpPost]
