@@ -15,7 +15,6 @@ namespace Pandacap.Controllers
     public class ProfileController(
         AtomRssFeedReader atomRssFeedReader,
         PandacapDbContext context,
-        DeviantArtCredentialProvider credentialProvider,
         DeviantArtHandler deviantArtHandler,
         KeyProvider keyProvider,
         RemoteActorFetcher remoteActorFetcher,
@@ -297,7 +296,7 @@ namespace Pandacap.Controllers
                 _oldest: DateTimeOffset.UtcNow.AddHours(-1),
                 _newest: DateTimeOffset.MaxValue);
 
-            await credentialProvider.UpdateAvatarAsync();
+            await deviantArtHandler.UpdateAvatarAsync();
             await deviantArtHandler.ImportUpstreamPostsAsync(scope);
             await deviantArtHandler.CheckForDeletionAsync(scope);
 
@@ -312,7 +311,7 @@ namespace Pandacap.Controllers
                 _oldest: DateTimeOffset.UtcNow.AddMonths(-1),
                 _newest: DateTimeOffset.MaxValue);
 
-            await credentialProvider.UpdateAvatarAsync();
+            await deviantArtHandler.UpdateAvatarAsync();
             await deviantArtHandler.ImportUpstreamPostsAsync(scope);
             await deviantArtHandler.CheckForDeletionAsync(scope);
 
@@ -337,7 +336,7 @@ namespace Pandacap.Controllers
                 try
                 {
                     await sw.WriteLineAsync("Updating avatar");
-                    await credentialProvider.UpdateAvatarAsync();
+                    await deviantArtHandler.UpdateAvatarAsync();
                     await sw.WriteLineAsync("");
                     await sw.WriteLineAsync("Updating posts");
                     await deviantArtHandler.ImportUpstreamPostsAsync(scope, sw.WriteLineAsync);

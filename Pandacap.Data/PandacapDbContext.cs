@@ -13,6 +13,8 @@ namespace Pandacap.Data
 
         public DbSet<ActivityPubOutboundActivity> ActivityPubOutboundActivities { get; set; }
 
+        public DbSet<Avatar> Avatars { get; set; }
+
         public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
 
         public DbSet<Feed> Feeds { get; set; }

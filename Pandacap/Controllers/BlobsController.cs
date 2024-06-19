@@ -52,5 +52,22 @@ namespace Pandacap.Controllers
                 blob.Value.Content,
                 image.ContentType);
         }
+
+        public async Task<IActionResult> Avatar()
+        {
+            var avatar = await context.Avatars.SingleOrDefaultAsync();
+
+            if (avatar == null)
+                return NotFound();
+
+            var blob = await blobServiceClient
+                .GetBlobContainerClient("blobs")
+                .GetBlobClient(avatar.BlobName)
+                .DownloadStreamingAsync();
+
+            return File(
+                blob.Value.Content,
+                avatar.ContentType);
+        }
     }
 }

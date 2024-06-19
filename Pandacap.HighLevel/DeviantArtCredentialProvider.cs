@@ -9,9 +9,7 @@ namespace Pandacap.HighLevel
     public class DeviantArtCredentialProvider(
         ApplicationInformation applicationInformation,
         PandacapDbContext context,
-        DeviantArtApp deviantArtApp,
-        KeyProvider keyProvider,
-        ActivityPubTranslator translator)
+        DeviantArtApp deviantArtApp)
     {
         private class Token(
             PandacapDbContext context,
@@ -20,8 +18,6 @@ namespace Pandacap.HighLevel
         {
             public string RefreshToken => credentials.RefreshToken;
             public string AccessToken => credentials.AccessToken;
-
-            public DeviantArtCredentials UnderlyingDataObject => credentials;
 
             public async Task RefreshAccessTokenAsync()
             {
@@ -62,42 +58,6 @@ namespace Pandacap.HighLevel
                 return (result.Token, result.User);
 
             return null;
-        }
-
-        public async Task UpdateAvatarAsync()
-        {
-            if (await Credentials.Value is not (var credentials, var whoami))
-                return;
-
-            if (credentials.UnderlyingDataObject.IconUrl != whoami.usericon)
-            {
-                credentials.UnderlyingDataObject.IconUrl = whoami.usericon;
-
-                var key = await keyProvider.GetPublicKeyAsync();
-                var properties = await context.ProfileProperties.ToListAsync();
-
-                HashSet<string> inboxes = [];
-                await foreach (var f in context.Follows)
-                    inboxes.Add(f.SharedInbox ?? f.Inbox);
-                await foreach (var f in context.Followers)
-                    inboxes.Add(f.SharedInbox ?? f.Inbox);
-
-                foreach (string inbox in inboxes)
-                {
-                    context.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
-                    {
-                        Id = Guid.NewGuid(),
-                        Inbox = inbox,
-                        JsonBody = ActivityPubSerializer.SerializeWithContext(
-                            translator.PersonToUpdate(
-                                key,
-                                properties)),
-                        StoredAt = DateTimeOffset.UtcNow
-                    });
-                }
-
-                await context.SaveChangesAsync();
-            }
         }
     }
 }

@@ -3,8 +3,8 @@ using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.HighLevel.ActivityPub;
 using Pandacap.LowLevel;
-using System.IO;
 
 namespace Pandacap.HighLevel
 {
@@ -14,6 +14,7 @@ namespace Pandacap.HighLevel
         PandacapDbContext context,
         DeviantArtCredentialProvider credentialProvider,
         IHttpClientFactory httpClientFactory,
+        KeyProvider keyProvider,
         OutboxProcessor outboxProcessor,
         ActivityPubTranslator translator)
     {
@@ -53,16 +54,70 @@ namespace Pandacap.HighLevel
             }
         }
 
-        private async Task TryDeleteBlobIfExistsAsync(UserPost.BlobReference blobReference)
+        private async Task TryDeleteBlobIfExistsAsync(string blobName)
         {
             try
             {
                 await blobServiceClient
                     .GetBlobContainerClient("blobs")
-                    .GetBlobClient(blobReference.BlobName)
+                    .GetBlobClient(blobName)
                     .DeleteIfExistsAsync();
             }
             catch (Exception) { }
+        }
+
+        public async Task UpdateAvatarAsync()
+        {
+            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
+                return;
+
+            using var client = httpClientFactory.CreateClient();
+            using var resp = await client.GetAsync(whoami.usericon);
+            resp.EnsureSuccessStatusCode();
+
+            var existingAvatars = await context.Avatars.ToListAsync();
+
+            Guid newAvatarGuid = Guid.NewGuid();
+
+            context.Avatars.RemoveRange(existingAvatars);
+            context.Avatars.Add(new Avatar
+            {
+                Id = newAvatarGuid,
+                ContentType = resp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream"
+            });
+
+            using var stream = await resp.Content.ReadAsStreamAsync();
+            await blobServiceClient
+                .GetBlobContainerClient("blobs")
+                .UploadBlobAsync($"{newAvatarGuid}", stream);
+
+            var key = await keyProvider.GetPublicKeyAsync();
+            var properties = await context.ProfileProperties.ToListAsync();
+
+            HashSet<string> inboxes = [];
+            await foreach (var f in context.Follows)
+                inboxes.Add(f.SharedInbox ?? f.Inbox);
+            await foreach (var f in context.Followers)
+                inboxes.Add(f.SharedInbox ?? f.Inbox);
+
+            foreach (string inbox in inboxes)
+            {
+                context.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
+                {
+                    Id = Guid.NewGuid(),
+                    Inbox = inbox,
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.PersonToUpdate(
+                            key,
+                            properties)),
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
+
+            await context.SaveChangesAsync();
+
+            foreach (var oldAvatar in existingAvatars)
+                await TryDeleteBlobIfExistsAsync(oldAvatar.BlobName);
         }
 
         private async IAsyncEnumerable<DeviantArtFs.ResponseTypes.Deviation> GetDeviationsByIdsAsync(IEnumerable<Guid> ids)
@@ -208,7 +263,7 @@ namespace Pandacap.HighLevel
             await context.SaveChangesAsync();
 
             foreach (var blob in oldBlobs)
-                await TryDeleteBlobIfExistsAsync(blob);
+                await TryDeleteBlobIfExistsAsync(blob.BlobName);
         }
 
         public async Task ImportUpstreamPostsAsync(DeviantArtImportScope scope, Func<string, Task>? writeDebug = null)
@@ -301,7 +356,7 @@ namespace Pandacap.HighLevel
                     await AddActivityAsync(post, ActivityType.Delete);
 
                     foreach (var blob in post.GetBlobReferences())
-                        await TryDeleteBlobIfExistsAsync(blob);
+                        await TryDeleteBlobIfExistsAsync(blob.BlobName);
                 }
             }
 
