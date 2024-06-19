@@ -9,6 +9,7 @@ namespace Pandacap.HighLevel
         {
             List<T> accumulator = [];
             List<T> next = [];
+
             await foreach (var item in asyncSeq)
             {
                 if (accumulator.Count < count)
@@ -20,7 +21,7 @@ namespace Pandacap.HighLevel
             }
 
             return new ListPage<T>(
-                ListModule.OfSeq(accumulator),
+                SeqModule.ToList(accumulator),
                 SeqModule.TryExactlyOne(next));
         }
     }

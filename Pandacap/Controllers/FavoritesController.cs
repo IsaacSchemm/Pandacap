@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.ActivityPub;
 using Pandacap.LowLevel;
 using Pandacap.Models;
 using System.Text;
@@ -14,9 +13,9 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class FavoritesController(
+        ActivityPubRequestHandler activityPubRequestHandler,
         PandacapDbContext context,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
-        RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
     {
         public async Task<IActionResult> Index(Guid? next, int? count)
@@ -69,7 +68,7 @@ namespace Pandacap.Controllers
             {
                 try
                 {
-                    var actor = await remoteActorFetcher.FetchActorAsync(item.CreatedBy);
+                    var actor = await activityPubRequestHandler.FetchActorAsync(item.CreatedBy);
 
                     context.ActivityPubOutboundActivities.Add(new()
                     {

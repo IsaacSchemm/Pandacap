@@ -3,7 +3,6 @@ using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.HighLevel.ActivityPub;
 using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel

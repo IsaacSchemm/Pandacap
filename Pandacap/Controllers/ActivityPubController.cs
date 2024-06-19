@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.ActivityPub;
 using Pandacap.LowLevel;
 using Pandacap.Signatures;
 using System.Text;
@@ -12,12 +11,12 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ActivityPubController(
+        ActivityPubRequestHandler activityPubRequestHandler,
         ApplicationInformation appInfo,
         PandacapDbContext context,
         IdMapper mapper,
         MastodonVerifier mastodonVerifier,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
-        RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator) : Controller
     {
         private static new readonly IEnumerable<JToken> Empty = [];
@@ -86,7 +85,7 @@ namespace Pandacap.Controllers
 
             // Find out which ActivityPub actor they say they are, and grab that actor's information and public key
             string actorId = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
-            var actor = await remoteActorFetcher.FetchActorAsync(actorId);
+            var actor = await activityPubRequestHandler.FetchActorAsync(actorId);
 
             string type = expansionObj["@type"]![0]!.Value<string>()!;
 
@@ -239,7 +238,7 @@ namespace Pandacap.Controllers
                 {
                     string postId = obj["@id"]!.Value<string>()!;
 
-                    string replyJson = await remoteActorFetcher.GetJsonAsync(new Uri(postId));
+                    string replyJson = await activityPubRequestHandler.GetJsonAsync(new Uri(postId));
                     JArray replyExpansion = JsonLdProcessor.Expand(JObject.Parse(replyJson));
 
                     bool isMention = Empty

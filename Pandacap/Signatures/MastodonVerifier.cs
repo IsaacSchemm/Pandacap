@@ -5,9 +5,9 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using Pandacap.HighLevel.ActivityPub;
 using NSign;
 using NSign.Signatures;
+using Pandacap.HighLevel;
 
 namespace Pandacap.Signatures;
 

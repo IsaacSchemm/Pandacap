@@ -1,4 +1,4 @@
-﻿namespace Pandacap.HighLevel.ActivityPub
+﻿namespace Pandacap.HighLevel
 {
     /// <summary>
     /// Represents an actor on a remote ActivityPub server.

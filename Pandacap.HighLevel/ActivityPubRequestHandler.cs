@@ -1,17 +1,16 @@
 ﻿using JsonLD.Core;
-using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using Pandacap.LowLevel;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Pandacap.HighLevel.ActivityPub
+namespace Pandacap.HighLevel
 {
     /// <summary>
     /// Performs requests to other ActivityPub servers.
     /// </summary>
-    public class RemoteActorFetcher(
+    public class ActivityPubRequestHandler(
         ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory,
         KeyProvider keyProvider,

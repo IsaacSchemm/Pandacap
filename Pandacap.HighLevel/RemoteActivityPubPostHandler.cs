@@ -2,14 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
-using Pandacap.HighLevel.ActivityPub;
 using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
 {
     public class RemoteActivityPubPostHandler(
+        ActivityPubRequestHandler activityPubRequestHandler,
         PandacapDbContext context,
-        RemoteActorFetcher remoteActorFetcher,
         ActivityPubTranslator translator)
     {
         private static readonly IEnumerable<JToken> Empty = [];
@@ -103,7 +102,7 @@ namespace Pandacap.HighLevel
             string announceActivityId,
             string objectId)
         {
-            string originalPostJson = await remoteActorFetcher.GetJsonAsync(new Uri(objectId));
+            string originalPostJson = await activityPubRequestHandler.GetJsonAsync(new Uri(objectId));
             JToken originalPost = JsonLdProcessor.Expand(JObject.Parse(originalPostJson))[0];
 
             bool include = GetAttachments(originalPost).Any()
@@ -119,7 +118,7 @@ namespace Pandacap.HighLevel
             if (originalActorId == null)
                 return;
 
-            var originalActor = await remoteActorFetcher.FetchActorAsync(originalActorId);
+            var originalActor = await activityPubRequestHandler.FetchActorAsync(originalActorId);
 
             context.Add(new RemoteActivityPubAnnouncement
             {
@@ -165,7 +164,7 @@ namespace Pandacap.HighLevel
         public async Task AddRemoteFavoriteAsync(
             string objectId)
         {
-            string postJson = await remoteActorFetcher.GetJsonAsync(new Uri(objectId));
+            string postJson = await activityPubRequestHandler.GetJsonAsync(new Uri(objectId));
             JToken post = JsonLdProcessor.Expand(JObject.Parse(postJson))[0];
 
             string? originalActorId = (post["https://www.w3.org/ns/activitystreams#attributedTo"] ?? Empty)
@@ -174,7 +173,7 @@ namespace Pandacap.HighLevel
             if (originalActorId == null)
                 return;
 
-            var originalActor = await remoteActorFetcher.FetchActorAsync(originalActorId);
+            var originalActor = await activityPubRequestHandler.FetchActorAsync(originalActorId);
 
             Guid likeGuid = Guid.NewGuid();
 

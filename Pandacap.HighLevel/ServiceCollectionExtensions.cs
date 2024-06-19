@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Pandacap.HighLevel.ActivityPub;
 using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
@@ -14,16 +13,15 @@ namespace Pandacap.HighLevel
                 .AddSingleton(applicationInformation)
                 .AddScoped<AltTextSentinel>()
                 .AddScoped<AtomRssFeedReader>()
+                .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<ActivityPubTranslator>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtInboxHandler>()
                 .AddScoped<DeviantArtHandler>()
                 .AddScoped<IdMapper>()
-                .AddScoped<ImageProxy>()
                 .AddSingleton(new KeyProvider($"https://{applicationInformation.KeyVaultHostname}"))
                 .AddScoped<OutboxProcessor>()
-                .AddScoped<RemoteActivityPubPostHandler>()
-                .AddScoped<RemoteActorFetcher>();
+                .AddScoped<RemoteActivityPubPostHandler>();
         }
     }
 }

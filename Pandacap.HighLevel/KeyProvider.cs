@@ -3,7 +3,7 @@ using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Keys.Cryptography;
 using Pandacap.LowLevel;
 
-namespace Pandacap.HighLevel.ActivityPub
+namespace Pandacap.HighLevel
 {
     /// <summary>
     /// Provides access to an encryption key in Azure Key Vault. This key is

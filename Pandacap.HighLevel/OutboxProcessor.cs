@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.HighLevel.ActivityPub;
 
 namespace Pandacap.HighLevel
 {
     public class OutboxProcessor(
-        PandacapDbContext context,
-        RemoteActorFetcher remoteActorFetcher)
+        ActivityPubRequestHandler activityPubRequestHandler,
+        PandacapDbContext context)
     {
         public async Task SendPendingActivitiesAsync()
         {
@@ -35,7 +34,7 @@ namespace Pandacap.HighLevel
 
                     try
                     {
-                        await remoteActorFetcher.PostAsync(new Uri(activity.Inbox), activity.JsonBody);
+                        await activityPubRequestHandler.PostAsync(new Uri(activity.Inbox), activity.JsonBody);
                         context.ActivityPubOutboundActivities.Remove(activity);
                     }
                     catch (HttpRequestException)
