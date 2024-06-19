@@ -4,6 +4,7 @@ using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
+using System.Reflection.Metadata;
 
 namespace Pandacap.HighLevel
 {
@@ -167,6 +168,18 @@ namespace Pandacap.HighLevel
             }
         }
 
+        private async Task TryDeleteBlobIfExistsAsync(UserPost.BlobReference blobReference)
+        {
+            try
+            {
+                await blobServiceClient
+                    .GetBlobContainerClient("blobs")
+                    .GetBlobClient(blobReference.BlobName)
+                    .DeleteIfExistsAsync();
+            }
+            catch (Exception) { }
+        }
+
         private async IAsyncEnumerable<DeviantArtFs.ResponseTypes.Deviation> GetDeviationsByIdsAsync(IEnumerable<Guid> ids)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
@@ -271,7 +284,7 @@ namespace Pandacap.HighLevel
                     context.Add(post);
                 }
 
-                var oldBlobs = new[] { post.Image, post.Thumbnail };
+                var oldBlobs = post.GetBlobReferences().ToList();
 
                 post.Title = deviation.title.OrNull();
                 post.Artwork = true;
@@ -310,13 +323,8 @@ namespace Pandacap.HighLevel
 
                 await context.SaveChangesAsync();
 
-                try
-                {
-                    foreach (var blob in oldBlobs)
-                        if (blob != null)
-                            await containerClient.GetBlobClient(blob.BlobName).DeleteIfExistsAsync();
-                }
-                catch { }
+                foreach (var blob in oldBlobs)
+                    await TryDeleteBlobIfExistsAsync(blob);
             }
         }
 
@@ -448,20 +456,8 @@ namespace Pandacap.HighLevel
                         context.UserPosts.Remove(post);
                         await AddActivityAsync(post, ActivityType.Delete);
 
-                        foreach (var blob in new[] { post.Image, post.Thumbnail })
-                        {
-                            if (blob == null)
-                                continue;
-
-                            try
-                            {
-                                await blobServiceClient
-                                    .GetBlobContainerClient("blobs")
-                                    .GetBlobClient(blob.BlobName)
-                                    .DeleteIfExistsAsync();
-                            }
-                            catch (Exception) { }
-                        }
+                        foreach (var blob in post.GetBlobReferences())
+                            await TryDeleteBlobIfExistsAsync(blob);
                     }
                 }
             }

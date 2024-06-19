@@ -37,6 +37,13 @@
         /// </summary>
         public BlobReference? Thumbnail { get; set; }
 
+        public IEnumerable<BlobReference> GetBlobReferences()
+        {
+            foreach (var blob in new[] { Image, Thumbnail })
+                if (blob is BlobReference br)
+                    yield return br;
+        }
+
         /// <summary>
         /// Descriptive text for the contents of the image, if any.
         /// </summary>
