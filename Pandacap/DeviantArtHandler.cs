@@ -3,9 +3,10 @@ using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.LowLevel;
 
-namespace Pandacap.HighLevel
+namespace Pandacap
 {
     public class DeviantArtHandler(
         AltTextSentinel altTextSentinel,

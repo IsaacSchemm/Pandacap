@@ -2,12 +2,13 @@ using Azure.Identity;
 using DeviantArtFs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.FSharp.Collections;
-using Pandacap.Data;
-using Pandacap.LowLevel;
-using Pandacap.HighLevel;
-using Pandacap.Signatures;
 using Microsoft.Extensions.Azure;
+using Microsoft.FSharp.Collections;
+using Pandacap;
+using Pandacap.Data;
+using Pandacap.HighLevel;
+using Pandacap.LowLevel;
+using Pandacap.Signatures;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,7 +62,10 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
         deviantArtClientSecret));
 }
 
-builder.Services.AddScoped<MastodonVerifier>();
+builder.Services
+    .AddScoped<AltTextSentinel>()
+    .AddScoped<DeviantArtHandler>()
+    .AddScoped<MastodonVerifier>();
 
 builder.Services.AddPandacapServices(new ApplicationInformation(
     applicationHostname: builder.Configuration["ApplicationHostname"],

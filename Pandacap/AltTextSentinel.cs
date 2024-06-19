@@ -1,4 +1,4 @@
-﻿namespace Pandacap.HighLevel
+﻿namespace Pandacap
 {
     public class AltTextSentinel
     {

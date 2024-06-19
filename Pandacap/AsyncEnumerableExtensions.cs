@@ -1,8 +1,4 @@
-﻿using DeviantArtFs.Extensions;
-using DeviantArtFs.ResponseTypes;
-using System.Diagnostics;
-
-namespace Pandacap.HighLevel
+﻿namespace Pandacap
 {
     public static class AsyncEnumerableExtensions
     {

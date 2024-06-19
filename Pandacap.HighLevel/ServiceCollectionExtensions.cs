@@ -11,13 +11,11 @@ namespace Pandacap.HighLevel
         {
             return services
                 .AddSingleton(applicationInformation)
-                .AddScoped<AltTextSentinel>()
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<ActivityPubTranslator>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtInboxHandler>()
-                .AddScoped<DeviantArtHandler>()
                 .AddScoped<IdMapper>()
                 .AddSingleton(new KeyProvider($"https://{applicationInformation.KeyVaultHostname}"))
                 .AddScoped<OutboxProcessor>()

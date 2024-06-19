@@ -1,6 +1,6 @@
 ﻿using DeviantArtFs;
 
-namespace Pandacap.HighLevel
+namespace Pandacap
 {
     public static class DeviantArtAsyncEnumerableExtensions
     {

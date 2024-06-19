@@ -1,7 +1,7 @@
 ﻿using Microsoft.FSharp.Collections;
 using Pandacap.LowLevel;
 
-namespace Pandacap.HighLevel
+namespace Pandacap
 {
     public static class ListPageExtensions
     {
