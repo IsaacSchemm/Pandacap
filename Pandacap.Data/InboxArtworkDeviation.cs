@@ -22,9 +22,6 @@
             public int Height { get; set; }
         }
 
-        [Obsolete]
-        public List<DeviantArtThumbnailRendition> ThumbnailRenditions { get; set; } = [];
-
         public string? ThumbnailUrl { get; set; }
 
         public DateTimeOffset? DismissedAt { get; set; }
@@ -34,13 +31,6 @@
         string IPost.DisplayTitle => Title ?? $"{Id}";
 
         IEnumerable<IPostImage> IPost.Images => [this];
-
-        string? IPostImage.ThumbnailUrl => ThumbnailRenditions
-            .OrderBy(x => x.Height >= 200 ? 1 : 2)
-            .OrderByDescending(x => x.Height)
-            .Select(x => x.Url)
-            .DefaultIfEmpty(ThumbnailUrl)
-            .FirstOrDefault();
 
         string? IPostImage.AltText => null;
     }
