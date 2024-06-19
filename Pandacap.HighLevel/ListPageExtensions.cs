@@ -1,4 +1,5 @@
-﻿using Pandacap.LowLevel;
+﻿using Microsoft.FSharp.Collections;
+using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
 {
@@ -7,13 +8,20 @@ namespace Pandacap.HighLevel
         public static async Task<ListPage<T>> AsListPage<T>(this IAsyncEnumerable<T> asyncSeq, int count)
         {
             List<T> accumulator = [];
+            List<T> next = [];
             await foreach (var item in asyncSeq)
             {
-                accumulator.Add(item);
-                if (accumulator.Count >= count + 1L)
+                if (accumulator.Count < count)
+                    accumulator.Add(item);
+                else if (next.Count < 1)
+                    next.Add(item);
+                else
                     break;
             }
-            return ListPage.Create(accumulator, count);
+
+            return new ListPage<T>(
+                ListModule.OfSeq(accumulator),
+                SeqModule.TryExactlyOne(next));
         }
     }
 }

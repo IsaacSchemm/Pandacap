@@ -3,13 +3,12 @@
 @using Pandacap.HighLevel
 @model ProfileViewModel
 @inject ApplicationInformation appInfo
-@inject IdMapper mapper
 
 @{
     ViewData["Title"] = "Main Page";
 }
 
-<img src="@mapper.AvatarUrl"
+<img src="/Avatar"
      alt="Avatar"
      float="left"
      style="vertical-align: top" />
@@ -170,6 +169,16 @@
                         </a>
                     </div>
                 </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Profile
+                    </div>
+                    <div class="card-body text-center">
+                        <a asp-controller="ProfileProperties" asp-action="Index" asp-route-count="1" class="btn btn-outline-primary">
+                            Manage profile links
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="col col-xl-4">
                 <div class="card mt-3">
@@ -180,7 +189,7 @@
                         <form asp-action="Follow">
                             <div class="mb-3">
                                 <label for="id" class="form-label">
-                                    Actor ID / URL
+                                    Follow actor ID / URL
                                 </label>
                                 <input type="text" class="form-control" id="id" name="id" />
                                 <div class="form-text">Mastodon-style handles (of the form <tt>@@user@@hostname</tt>) are not supported.</div>
@@ -193,40 +202,16 @@
                         <form asp-controller="Favorites" asp-action="Add">
                             <div class="mb-3">
                                 <label for="id" class="form-label">
-                                    Object ID / URL
+                                    Add object ID / URL to Favorites
                                 </label>
                                 <input type="text" class="form-control" id="id" name="id" />
                             </div>
                             <button type="submit" class="btn btn-primary">
-                                Add to Favorites
+                                Add
                             </button>
                         </form>
                     </div>
                 </div>
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Atom/RSS
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="AddFeed">
-                            <div class="mb-3">
-                                <label for="url" class="form-label">
-                                    Feed URL
-                                </label>
-                                <input type="text" class="form-control" id="url" name="url" />
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                Follow
-                            </button>
-                            <hr />
-                            <a asp-action="Feeds" class="btn btn-outline-primary">
-                                Manage feeds
-                            </a>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col col-xl-4">
                 <div class="card mt-3">
                     <div class="card-header">
                         Recent activities
@@ -250,6 +235,30 @@
                             </li>
                         }
                     </ul>
+                </div>
+            </div>
+            <div class="col col-xl-4">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Atom/RSS
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="AddFeed">
+                            <div class="mb-3">
+                                <label for="url" class="form-label">
+                                    Follow Atom/RSS feed URL
+                                </label>
+                                <input type="text" class="form-control" id="url" name="url" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Follow
+                            </button>
+                            <hr />
+                            <a asp-action="Feeds" class="btn btn-outline-primary">
+                                Manage feeds
+                            </a>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

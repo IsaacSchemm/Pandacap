@@ -14,6 +14,6 @@ namespace Pandacap.Models
 
         public string? Q { get; set; }
 
-        public ListPage<T> Items { get; set; } = ListPage.Empty<T>();
+        public required ListPage<T> Items { get; set; }
     }
 }

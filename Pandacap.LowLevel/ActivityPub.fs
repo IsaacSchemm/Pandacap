@@ -37,13 +37,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     /// Creates a string/object pair (F# tuple) with the given key and value.
     let pair key value = (key, value :> obj)
 
-    /// Checks whether the character is in the set that Weasyl allows for
-    /// tags, which is a subset of what Mastodon allows.
-    let isRestrictedSet c =
-        Char.IsAscii(c)
-        && (Char.IsLetterOrDigit(c) || c = '_')
-        && not (Char.IsUpper(c))
-
     member _.PersonToObject(key: ActorKey, properties: ProfileProperty seq) = dict [
         pair "id" mapper.ActorId
         pair "type" "Person"
@@ -104,14 +97,11 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
 
         pair "attributedTo" mapper.ActorId
         pair "tag" [
-            for tag in post.Tags do
-                // Skip the tag if it doesn't meet our character set expectations.
-                if tag |> Seq.forall isRestrictedSet then
-                    dict [
-                        pair "type" "Hashtag"
-                        pair "name" $"#{tag}"
-                        pair "href" $"https://{appInfo.ApplicationHostname}/Profile/Search?q=%%23{Uri.EscapeDataString(tag)}"
-                    ]
+            for tag in post.Tags do dict [
+                pair "type" "Hashtag"
+                pair "name" $"#{tag}"
+                pair "href" $"https://{appInfo.ApplicationHostname}/Profile/Search?q=%%23{Uri.EscapeDataString(tag)}"
+            ]
         ]
         pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
