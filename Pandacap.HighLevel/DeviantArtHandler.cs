@@ -188,7 +188,7 @@ namespace Pandacap.HighLevel
             post.Tags.AddRange(metadata?.tags?.Select(tag => tag.tag_name) ?? []);
 
             post.PublishedTime = publishedTime;
-            post.LastDeviantArtRefreshAt = DateTimeOffset.UtcNow;
+            post.Url = deviation.url.OrNull();
 
             string newObjectJson =
                 ActivityPubSerializer.SerializeWithContext(
@@ -291,14 +291,17 @@ namespace Pandacap.HighLevel
 
                 foreach (var post in chunk)
                 {
-                    if (!avoidDeleting.Contains(post.Id))
-                    {
-                        context.UserPosts.Remove(post);
-                        await AddActivityAsync(post, ActivityType.Delete);
+                    if (!post.MirroredFromDeviantArt)
+                        continue;
 
-                        foreach (var blob in post.GetBlobReferences())
-                            await TryDeleteBlobIfExistsAsync(blob);
-                    }
+                    if (avoidDeleting.Contains(post.Id))
+                        continue;
+
+                    context.UserPosts.Remove(post);
+                    await AddActivityAsync(post, ActivityType.Delete);
+
+                    foreach (var blob in post.GetBlobReferences())
+                        await TryDeleteBlobIfExistsAsync(blob);
                 }
             }
 

@@ -3,8 +3,7 @@
     public class UserPost : IPost, IPostImage
     {
         /// <summary>
-        /// A unique ID for this post.
-        /// For posts imported from DeviantArt, this should match the ID in the DeviantArt API.
+        /// The DeviantArt ID for this post.
         /// </summary>
         public Guid Id { get; set; }
 
@@ -70,9 +69,9 @@
         public DateTimeOffset PublishedTime { get; set; }
 
         /// <summary>
-        /// The date and time at which this post was most recently refreshed with information from DeviantArt.
+        /// The URL to view this post on DeviantArt.
         /// </summary>
-        public DateTimeOffset? LastDeviantArtRefreshAt { get; set; }
+        public string? Url { get; set; }
 
         /// <summary>
         /// Whether to hide the title of this post when displaying the full contents.
@@ -83,6 +82,8 @@
         /// Whether this post should be rendered in ActivityStreams as an Article (instead of a Note).
         /// </summary>
         public bool IsArticle { get; set; }
+
+        public bool MirroredFromDeviantArt => true;
 
         string IPost.Id => $"{Id}";
 

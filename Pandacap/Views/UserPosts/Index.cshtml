@@ -67,8 +67,17 @@
     }
 }
 
-@if (User.Identity?.IsAuthenticated == true)
+@if (User.Identity?.IsAuthenticated == true && Model.Post.MirroredFromDeviantArt)
 {
+    if (Model.Post.Url is string url)
+    {
+        <div class="mb-3">
+            <a href="@url" class="btn btn-primary">
+                View on DeviantArt
+            </a>
+        </div>
+    }
+
     <form asp-action="Refresh" class="mb-3">
         <input type="hidden" name="id" value="@Model.Post.Id" />
         <button type="submit" class="btn btn-primary">

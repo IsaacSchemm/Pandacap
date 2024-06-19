@@ -1,5 +1,4 @@
-﻿using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
