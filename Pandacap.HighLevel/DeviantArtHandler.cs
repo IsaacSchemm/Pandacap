@@ -13,6 +13,7 @@ namespace Pandacap.HighLevel
         PandacapDbContext context,
         DeviantArtCredentialProvider credentialProvider,
         IHttpClientFactory httpClientFactory,
+        OutboxProcessor outboxProcessor,
         ActivityPubTranslator translator)
     {
         public async Task ImportArtworkPostsByUsersWeWatchAsync()
@@ -323,6 +324,8 @@ namespace Pandacap.HighLevel
                 foreach (var blob in oldBlobs)
                     await TryDeleteBlobIfExistsAsync(blob);
             }
+
+            await outboxProcessor.SendPendingActivitiesAsync();
         }
 
         public async Task ImportOurTextPostsAsync(DeviantArtImportScope scope)
@@ -417,6 +420,8 @@ namespace Pandacap.HighLevel
 
                 await context.SaveChangesAsync();
             }
+
+            await outboxProcessor.SendPendingActivitiesAsync();
         }
 
         public async Task CheckForDeletionAsync(DeviantArtImportScope scope, bool forceDelete = false)
