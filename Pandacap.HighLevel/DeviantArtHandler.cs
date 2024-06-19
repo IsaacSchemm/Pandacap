@@ -204,7 +204,6 @@ namespace Pandacap.HighLevel
                         .TakeWhile(d => d.published_time.Value >= window.oldest)
                 : scope is DeviantArtImportScope.Subset subset
                     ? GetDeviationsByIdsAsync(subset.ids)
-                        .Where(d => d.content.OrNull() != null)
                     : throw new NotImplementedException();
 
             HashSet<Guid> found = [];
@@ -343,8 +342,7 @@ namespace Pandacap.HighLevel
                         .TakeWhile(d => d.published_time.Value >= window.oldest)
                 : scope is DeviantArtImportScope.Subset subset
                     ? GetDeviationsByIdsAsync(subset.ids)
-                        .Where(d => d.content.OrNull() == null)
-                : throw new NotImplementedException();
+                    : throw new NotImplementedException();
 
             HashSet<Guid> found = [];
 
@@ -354,6 +352,9 @@ namespace Pandacap.HighLevel
                 var metadata = upstream.Metadata;
 
                 if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
+                    continue;
+
+                if (deviation.content.OrNull() != null)
                     continue;
 
                 var content = await DeviantArtFs.Api.Deviation.GetContentAsync(
