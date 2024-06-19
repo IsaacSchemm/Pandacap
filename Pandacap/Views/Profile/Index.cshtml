@@ -214,6 +214,30 @@
                 </div>
                 <div class="card mt-3">
                     <div class="card-header">
+                        Atom/RSS
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="AddFeed">
+                            <div class="mb-3">
+                                <label for="url" class="form-label">
+                                    Follow Atom/RSS feed URL
+                                </label>
+                                <input type="text" class="form-control" id="url" name="url" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Follow
+                            </button>
+                            <hr />
+                            <a asp-action="Feeds" class="btn btn-outline-primary">
+                                Manage feeds
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col col-xl-4">
+                <div class="card mt-3">
+                    <div class="card-header">
                         Recent activities
                     </div>
                     <ul class="list-group list-group-flush">
@@ -235,30 +259,6 @@
                             </li>
                         }
                     </ul>
-                </div>
-            </div>
-            <div class="col col-xl-4">
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Atom/RSS
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="AddFeed">
-                            <div class="mb-3">
-                                <label for="url" class="form-label">
-                                    Follow Atom/RSS feed URL
-                                </label>
-                                <input type="text" class="form-control" id="url" name="url" />
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                Follow
-                            </button>
-                            <hr />
-                            <a asp-action="Feeds" class="btn btn-outline-primary">
-                                Manage feeds
-                            </a>
-                        </form>
-                    </div>
                 </div>
             </div>
         </div>
