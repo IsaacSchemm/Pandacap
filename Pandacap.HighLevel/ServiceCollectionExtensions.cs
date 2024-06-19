@@ -20,6 +20,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<IdMapper>()
                 .AddScoped<ImageProxy>()
                 .AddSingleton(new KeyProvider($"https://{applicationInformation.KeyVaultHostname}"))
+                .AddScoped<OutboxProcessor>()
                 .AddScoped<RemoteActivityPubPostHandler>()
                 .AddScoped<RemoteActorFetcher>();
         }

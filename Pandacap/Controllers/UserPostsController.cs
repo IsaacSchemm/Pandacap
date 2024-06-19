@@ -46,8 +46,7 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Refresh(Guid id)
         {
             var scope = DeviantArtImportScope.FromIds([id]);
-            await deviantArtHandler.ImportOurGalleryAsync(scope);
-            await deviantArtHandler.ImportOurTextPostsAsync(scope);
+            await deviantArtHandler.ImportUpstreamPostsAsync(scope);
 
             var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
 

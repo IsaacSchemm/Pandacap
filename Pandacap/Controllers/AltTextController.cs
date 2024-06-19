@@ -75,8 +75,7 @@ namespace Pandacap.Controllers
                 }
             }
 
-            await deviantArtHandler.ImportOurGalleryAsync(DeviantArtImportScope.FromIds(ids));
-            await deviantArtHandler.ImportOurTextPostsAsync(DeviantArtImportScope.FromIds(ids));
+            await deviantArtHandler.ImportUpstreamPostsAsync(DeviantArtImportScope.FromIds(ids));
 
             return NoContent();
         }

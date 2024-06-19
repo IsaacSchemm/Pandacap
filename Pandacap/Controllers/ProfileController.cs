@@ -298,8 +298,7 @@ namespace Pandacap.Controllers
                 _newest: DateTimeOffset.MaxValue);
 
             await credentialProvider.UpdateAvatarAsync();
-            await deviantArtHandler.ImportOurGalleryAsync(scope);
-            await deviantArtHandler.ImportOurTextPostsAsync(scope);
+            await deviantArtHandler.ImportUpstreamPostsAsync(scope);
             await deviantArtHandler.CheckForDeletionAsync(scope);
 
             return RedirectToAction(nameof(Index));
@@ -314,8 +313,7 @@ namespace Pandacap.Controllers
                 _newest: DateTimeOffset.MaxValue);
 
             await credentialProvider.UpdateAvatarAsync();
-            await deviantArtHandler.ImportOurGalleryAsync(scope);
-            await deviantArtHandler.ImportOurTextPostsAsync(scope);
+            await deviantArtHandler.ImportUpstreamPostsAsync(scope);
             await deviantArtHandler.CheckForDeletionAsync(scope);
 
             return RedirectToAction(nameof(Index));
@@ -330,8 +328,7 @@ namespace Pandacap.Controllers
                 _newest: DateTimeOffset.MaxValue);
 
             await credentialProvider.UpdateAvatarAsync();
-            await deviantArtHandler.ImportOurGalleryAsync(scope);
-            await deviantArtHandler.ImportOurTextPostsAsync(scope);
+            await deviantArtHandler.ImportUpstreamPostsAsync(scope);
             await deviantArtHandler.CheckForDeletionAsync(scope);
 
             return RedirectToAction(nameof(Index));
