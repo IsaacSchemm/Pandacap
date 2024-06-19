@@ -330,16 +330,28 @@ namespace Pandacap.Controllers
             Response.StatusCode = 200;
             Response.ContentType = "text/plain";
 
-            using var sw = new StreamWriter(Response.Body);
+            using (var sw = new StreamWriter(Response.Body))
+            {
+                sw.AutoFlush = true;
 
-            await sw.WriteLineAsync("Updating avatar");
-            await credentialProvider.UpdateAvatarAsync();
-            await sw.WriteLineAsync("");
-            await sw.WriteLineAsync("Updating posts");
-            await deviantArtHandler.ImportUpstreamPostsAsync(scope, sw.WriteLineAsync);
-            await sw.WriteLineAsync("");
-            await sw.WriteLineAsync("Checking for deleted posts");
-            await deviantArtHandler.CheckForDeletionAsync(scope);
+                try
+                {
+                    await sw.WriteLineAsync("Updating avatar");
+                    await credentialProvider.UpdateAvatarAsync();
+                    await sw.WriteLineAsync("");
+                    await sw.WriteLineAsync("Updating posts");
+                    await deviantArtHandler.ImportUpstreamPostsAsync(scope, sw.WriteLineAsync);
+                    await sw.WriteLineAsync("");
+                    await sw.WriteLineAsync("Checking for deleted posts");
+                    await deviantArtHandler.CheckForDeletionAsync(scope);
+                    await sw.WriteLineAsync("");
+                    await sw.WriteLineAsync("Done");
+                }
+                catch (Exception ex)
+                {
+                    await sw.WriteLineAsync($"{ex}");
+                }
+            }
 
             return new EmptyResult();
         }
