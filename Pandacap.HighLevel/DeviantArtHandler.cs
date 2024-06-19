@@ -4,7 +4,6 @@ using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
-using System.Reflection.Metadata;
 
 namespace Pandacap.HighLevel
 {
@@ -134,8 +133,6 @@ namespace Pandacap.HighLevel
 
         private async Task AddActivityAsync(UserPost post, ActivityType activityType)
         {
-            return;
-
             var followers = await context.Followers
                 .Select(follower => new
                 {
