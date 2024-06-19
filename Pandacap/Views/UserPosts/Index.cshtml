@@ -6,7 +6,7 @@
     ViewBag.Title = Model.Post.Title;
 }
 
-@if (!Model.Post.HasImage && DateTimeOffset.UtcNow.AddYears(-1) > Model.Post.PublishedTime)
+@if (Model.Post.Image == null && DateTimeOffset.UtcNow.AddYears(-1) > Model.Post.PublishedTime)
 {
     <div class="card text-bg-warning mb-3" style="max-width: 18rem;">
         <div class="card-body">
@@ -22,10 +22,10 @@
     @Model.Post.PublishedTime.UtcDateTime.ToShortTimeString()
 </p>
 
-@if (Model.Post.HasImage)
+@if (Model.Post.Image != null)
 {
     <p>
-        <img src="/Images/@Model.Post.Id"
+        <img src="/Blobs/Images/@Model.Post.Id"
              alt="@Model.Post.AltText"
              title="@Model.Post.AltText"
              style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />

@@ -120,13 +120,13 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             pair "summary" "Mature Content (DeviantArt)"
             pair "sensitive" true
 
-        if post.HasImage then
+        if not (isNull post.Image) then
             pair "attachment" [
                 dict [
                     pair "type" "Document"
                     pair "url" (mapper.GetImageUrl(post.Id))
-                    if not (String.IsNullOrEmpty(post.ImageContentType)) then
-                        pair "mediaType" post.ImageContentType
+                    if not (String.IsNullOrEmpty(post.Image.ContentType)) then
+                        pair "mediaType" post.Image.ContentType
                     if not (String.IsNullOrEmpty(post.AltText)) then
                         pair "name" post.AltText
                 ]

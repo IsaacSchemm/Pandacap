@@ -38,7 +38,7 @@ type IdMapper(appInfo: ApplicationInformation) =
         $"https://{appInfo.ApplicationHostname}/Favorites"
 
     member _.GetImageUrl(deviationid: Guid) =
-        $"https://{appInfo.ApplicationHostname}/Images/{deviationid}"
+        $"https://{appInfo.ApplicationHostname}/Blobs/Images/{deviationid}"
 
     member _.GetObjectId(deviationid: Guid) =
         $"https://{appInfo.ApplicationHostname}/UserPosts/{deviationid}"

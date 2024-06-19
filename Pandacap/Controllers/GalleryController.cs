@@ -29,7 +29,7 @@ namespace Pandacap.Controllers
 
             var posts = await context.UserPosts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.HasImage)
+                .Where(d => d.Artwork)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
@@ -50,7 +50,7 @@ namespace Pandacap.Controllers
 
             var posts = await context.UserPosts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => !d.HasImage)
+                .Where(d => !d.Artwork)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)

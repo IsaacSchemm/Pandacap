@@ -74,12 +74,12 @@ namespace Pandacap.Controllers
                     .OrderBy(p => p.Name)
                     .ToListAsync(),
                 RecentArtwork = await context.UserPosts
-                    .Where(post => post.HasImage)
+                    .Where(post => post.Artwork)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
                     .ToListAsync(),
                 RecentTextPosts = await context.UserPosts
-                    .Where(post => !post.HasImage)
+                    .Where(post => !post.Artwork)
                     .Where(post => post.PublishedTime >= someTimeAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(4)

@@ -14,20 +14,28 @@
         public string? Title { get; set; }
 
         /// <summary>
-        /// Whether this post has an image attached.
+        /// Whether this post is considered an artwork post and included in the Gallery section.
+        /// </summary>
+        public bool Artwork { get; set; }
+
+        public class BlobReference
+        {
+            public Guid Id { get; set; }
+            public string ContentType { get; set; } = "application/octet-stream";
+
+            public string BlobName => $"{Id}";
+        };
+
+        /// <summary>
+        /// The attached image, if any.
         /// If there is an image, it will be stored in an Azure Storage account, and proxied through ImagesController.
         /// </summary>
-        public bool HasImage { get; set; }
+        public BlobReference? Image { get; set; }
 
         /// <summary>
-        /// The expected media type of the image (such as image/png).
+        /// A thumbnail for the attached image, if any.
         /// </summary>
-        public string? ImageContentType { get; set; }
-
-        /// <summary>
-        /// The expected media type of the thumbnail (such as image/png).
-        /// </summary>
-        public string? ThumbnailContentType { get; set; }
+        public BlobReference? Thumbnail { get; set; }
 
         /// <summary>
         /// Descriptive text for the contents of the image, if any.
@@ -76,8 +84,8 @@
 
         string? IPost.Usericon => null;
 
-        IEnumerable<IPostImage> IPost.Images => HasImage ? [this] : [];
+        IEnumerable<IPostImage> IPost.Images => Image != null ? [this] : [];
 
-        string? IPostImage.ThumbnailUrl => $"/Thumbnails/{Id}";
+        string? IPostImage.ThumbnailUrl => $"/Blobs/Thumbnails/{Id}";
     }
 }

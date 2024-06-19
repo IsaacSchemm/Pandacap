@@ -199,8 +199,20 @@ namespace Pandacap.HighLevel
 
             HashSet<Guid> found = [];
 
-            var imageContainerClient = blobServiceClient.GetBlobContainerClient("images");
-            var thumbContainerClient = blobServiceClient.GetBlobContainerClient("thumbnails");
+            var containerClient = blobServiceClient.GetBlobContainerClient("blobs");
+            await containerClient.CreateIfNotExistsAsync();
+
+            async Task<UserPost.BlobReference> uploadAsync(HttpResponseMessage resp)
+            {
+                Guid guid = Guid.NewGuid();
+                using var stream = await resp.Content.ReadAsStreamAsync();
+                await containerClient.UploadBlobAsync($"{guid}", stream);
+                return new UserPost.BlobReference
+                {
+                    Id = guid,
+                    ContentType = resp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream"
+                };
+            }
 
             await foreach (var upstream in asyncSeq.AttachMetadataAsync(credentials))
             {
@@ -220,15 +232,7 @@ namespace Pandacap.HighLevel
                 using var imageResp = await client.GetAsync(content.src);
                 imageResp.EnsureSuccessStatusCode();
 
-                byte[] imageData = await imageResp.Content.ReadAsByteArrayAsync();
-
-                await imageContainerClient
-                    .GetBlobClient($"{deviation.deviationid}")
-                    .DeleteIfExistsAsync();
-
-                await imageContainerClient.UploadBlobAsync(
-                    $"{deviation.deviationid}",
-                    BinaryData.FromBytes(imageData));
+                var imageBlobReference = await uploadAsync(imageResp);
 
                 string thumbSrc = deviation.thumbs.OrEmpty()
                     .Where(x => x.height >= 150)
@@ -240,20 +244,13 @@ namespace Pandacap.HighLevel
                 using var thumbResp = await client.GetAsync(thumbSrc);
                 thumbResp.EnsureSuccessStatusCode();
 
-                byte[] thumbData = await thumbResp.Content.ReadAsByteArrayAsync();
+                bool useThumb =
+                    thumbResp.Content.Headers.ContentLength
+                    < imageResp.Content.Headers.ContentLength;
 
-                await thumbContainerClient
-                    .GetBlobClient($"{deviation.deviationid}")
-                    .DeleteIfExistsAsync();
-
-                bool useThumb = thumbData.Length < imageData.Length;
-
-                if (useThumb)
-                {
-                    await thumbContainerClient.UploadBlobAsync(
-                        $"{deviation.deviationid}",
-                        BinaryData.FromBytes(thumbData));
-                }
+                var thumbBlobReference = useThumb
+                    ? await uploadAsync(thumbResp)
+                    : null;
 
                 var post = await context.UserPosts
                     .Where(p => p.Id == deviation.deviationid)
@@ -274,12 +271,12 @@ namespace Pandacap.HighLevel
                     context.Add(post);
                 }
 
+                var oldBlobs = new[] { post.Image, post.Thumbnail };
+
                 post.Title = deviation.title.OrNull();
-                post.HasImage = true;
-                post.ImageContentType = imageResp.Content.Headers.ContentType?.MediaType;
-                post.ThumbnailContentType = useThumb
-                    ? thumbResp.Content.Headers.ContentType?.MediaType
-                    : null;
+                post.Artwork = true;
+                post.Image = imageBlobReference;
+                post.Thumbnail = thumbBlobReference;
 
                 if (altTextSentinel.TryGetAltText(deviation.deviationid, out string? altText))
                     post.AltText = altText;
@@ -312,6 +309,14 @@ namespace Pandacap.HighLevel
                 }
 
                 await context.SaveChangesAsync();
+
+                try
+                {
+                    foreach (var blob in oldBlobs)
+                        if (blob != null)
+                            await containerClient.GetBlobClient(blob.BlobName).DeleteIfExistsAsync();
+                }
+                catch { }
             }
         }
 
@@ -374,7 +379,6 @@ namespace Pandacap.HighLevel
                 }
 
                 post.Title = deviation.title.OrNull();
-                post.HasImage = false;
                 post.IsMature = deviation.is_mature.OrNull() ?? false;
 
                 post.Description = content.html.OrNull()?.Replace("https://www.deviantart.com/users/outgoing?", "");
@@ -444,14 +448,20 @@ namespace Pandacap.HighLevel
                         context.UserPosts.Remove(post);
                         await AddActivityAsync(post, ActivityType.Delete);
 
-                        try
+                        foreach (var blob in new[] { post.Image, post.Thumbnail })
                         {
-                            await blobServiceClient
-                                .GetBlobContainerClient("images")
-                                .GetBlobClient($"{post.Id}")
-                                .DeleteIfExistsAsync();
+                            if (blob == null)
+                                continue;
+
+                            try
+                            {
+                                await blobServiceClient
+                                    .GetBlobContainerClient("blobs")
+                                    .GetBlobClient(blob.BlobName)
+                                    .DeleteIfExistsAsync();
+                            }
+                            catch (Exception) { }
                         }
-                        catch (Exception) { }
                     }
                 }
             }
