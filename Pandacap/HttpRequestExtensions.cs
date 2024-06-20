@@ -2,6 +2,9 @@
 
 namespace Pandacap
 {
+    /// <summary>
+    /// Extension methods for the ASP.NET Core HttpRequest type.
+    /// </summary>
     public static class HttpRequestExtensions
     {
         private static readonly IEnumerable<MediaTypeHeaderValue> ActivityJson = [
@@ -15,6 +18,11 @@ namespace Pandacap
             MediaTypeHeaderValue.Parse("text/html")
         ];
 
+        /// <summary>
+        /// Determines whether an ActivityPub response is preferred over an HTML one.
+        /// </summary>
+        /// <param name="request">The incoming HTTP request</param>
+        /// <returns></returns>
         public static bool IsActivityPub(this HttpRequest request)
         {
             var acceptedTypes = request.Headers.Accept

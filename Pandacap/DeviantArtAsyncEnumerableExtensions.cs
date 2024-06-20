@@ -2,6 +2,9 @@
 
 namespace Pandacap
 {
+    /// <summary>
+    /// Extension methods for asynchronous sequences of DeviantArt API objects.
+    /// </summary>
     public static class DeviantArtAsyncEnumerableExtensions
     {
         /// <summary>
