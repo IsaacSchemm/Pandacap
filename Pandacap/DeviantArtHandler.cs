@@ -8,6 +8,17 @@ using Pandacap.LowLevel;
 
 namespace Pandacap
 {
+    /// <summary>
+    /// An object responsible for importing and refreshing posts from DeviantArt.
+    /// </summary>
+    /// <param name="altTextSentinel">A request-scoped object that contains any user-provided image descriptions</param>
+    /// <param name="blobServiceClient">A client object for Azure Blob Storage</param>
+    /// <param name="context">The database context</param>
+    /// <param name="credentialProvider">An object that provides access to DeviantArt credentials from the Pandacap database</param>
+    /// <param name="httpClientFactory">An object that can create short-lived HttpClient objects</param>
+    /// <param name="keyProvider">An object that provides access to the ActivityPub encryption key</param>
+    /// <param name="outboxProcessor">An object that can send pending outbound ActivityPub messages</param>
+    /// <param name="translator">An object that translates Pandacap objects to an ActivityPub object or activity representation</param>
     public class DeviantArtHandler(
         AltTextSentinel altTextSentinel,
         BlobServiceClient blobServiceClient,
@@ -20,6 +31,12 @@ namespace Pandacap
     {
         private enum ActivityType { Create, Update, Delete };
 
+        /// <summary>
+        /// Adds a Create, Update, or Delete activity for a post to Pandacap's database, queueing it for the next send.
+        /// </summary>
+        /// <param name="post">The (added, updated, or deleted) post</param>
+        /// <param name="activityType">The type of activity to send</param>
+        /// <returns></returns>
         private async Task AddActivityAsync(UserPost post, ActivityType activityType)
         {
             var followers = await context.Followers
@@ -54,6 +71,11 @@ namespace Pandacap
             }
         }
 
+        /// <summary>
+        /// Delete a blob in the "blobs" Azure storage container, if it exists. Any errors will be supressed.
+        /// </summary>
+        /// <param name="blobName">The name of the blob to delete</param>
+        /// <returns></returns>
         private async Task TryDeleteBlobIfExistsAsync(string blobName)
         {
             try
@@ -66,6 +88,10 @@ namespace Pandacap
             catch (Exception) { }
         }
 
+        /// <summary>
+        /// Refresh the Pandacap avatar (user icon) from the attached DeviantArt account.
+        /// </summary>
+        /// <returns></returns>
         public async Task UpdateAvatarAsync()
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
@@ -120,6 +146,11 @@ namespace Pandacap
                 await TryDeleteBlobIfExistsAsync(oldAvatar.BlobName);
         }
 
+        /// <summary>
+        /// Given a sequence of post IDs, retrieves the corresponding DeviantArt API objects, one by one.
+        /// </summary>
+        /// <param name="ids">A sequence of DeviantArt API post IDs</param>
+        /// <returns>An asynchronous sequence of Deviation objects</returns>
         private async IAsyncEnumerable<DeviantArtFs.ResponseTypes.Deviation> GetDeviationsByIdsAsync(IEnumerable<Guid> ids)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
@@ -129,6 +160,12 @@ namespace Pandacap
                 yield return await DeviantArtFs.Api.Deviation.GetAsync(credentials, id);
         }
 
+        /// <summary>
+        /// Given information about a DeviantArt post, adds or refreshes a corresponding post in Pandacap.
+        /// </summary>
+        /// <param name="deviation">The Deviation object</param>
+        /// <param name="metadata">The Metadata object</param>
+        /// <returns></returns>
         private async Task ProcessUpstreamAsync(
             DeviantArtFs.ResponseTypes.Deviation deviation,
             DeviantArtFs.Api.Deviation.Metadata metadata)
@@ -266,6 +303,12 @@ namespace Pandacap
                 await TryDeleteBlobIfExistsAsync(blob.BlobName);
         }
 
+        /// <summary>
+        /// Imports or refreshes a set of DeviantArt posts.
+        /// </summary>
+        /// <param name="scope">The scope of the refresh operation; either a set of IDs or a window of time</param>
+        /// <param name="writeDebug">A function that recieves human-readable debug messages indicating progress (optional)</param>
+        /// <returns></returns>
         public async Task ImportUpstreamPostsAsync(DeviantArtImportScope scope, Func<string, Task>? writeDebug = null)
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
@@ -296,24 +339,31 @@ namespace Pandacap
                         .MergeNewest(d => d.published_time.Value)
                 : scope is DeviantArtImportScope.Subset subset
                     ? GetDeviationsByIdsAsync(subset.ids)
-                    : throw new NotImplementedException();
+                : throw new NotImplementedException();
 
             HashSet<Guid> found = [];
 
             var containerClient = blobServiceClient.GetBlobContainerClient("blobs");
             await containerClient.CreateIfNotExistsAsync();
 
-            await foreach (var upstream in asyncSeq.AttachMetadataAsync(credentials))
+            await foreach (var (deviation, metadata) in asyncSeq.AttachMetadataAsync(credentials))
             {
                 if (writeDebug != null)
-                    await writeDebug($"{upstream.Deviation.deviationid} {upstream.Deviation.title.OrNull()}");
-                await ProcessUpstreamAsync(upstream.Deviation, upstream.Metadata);
-                found.Add(upstream.Deviation.deviationid);
+                    await writeDebug($"{deviation.deviationid} {deviation.title.OrNull()}");
+
+                await ProcessUpstreamAsync(deviation, metadata);
+                found.Add(deviation.deviationid);
             }
 
             await outboxProcessor.SendPendingActivitiesAsync();
         }
 
+        /// <summary>
+        /// Checks posts from Pandacap to see if they should be deleted, and deletes posts when appropriate.
+        /// </summary>
+        /// <param name="scope">The scope of the refresh operation; either a set of IDs or a window of time</param>
+        /// <param name="forceDelete">If true, all posts in scope will be deleted, even if they still exist on DeviantArt</param>
+        /// <returns></returns>
         public async Task CheckForDeletionAsync(DeviantArtImportScope scope, bool forceDelete = false)
         {
             var posts =

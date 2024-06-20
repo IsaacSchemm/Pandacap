@@ -2,10 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.LowLevel;
 
-namespace Pandacap.HighLevel
+namespace Pandacap
 {
+    /// <summary>
+    /// Adds remote ActivityPub posts to the Pandacap inbox or to its Favorites collection (equivalent to ActivityPub "likes", but fully public).
+    /// </summary>
+    /// <param name="activityPubRequestHandler">An object that can make signed HTTP ActivityPub requests</param>
+    /// <param name="context">The database context</param>
+    /// <param name="translator">An object that builds the ActivityPub objects and activities associated with Pandacap objects</param>
     public class RemoteActivityPubPostHandler(
         ActivityPubRequestHandler activityPubRequestHandler,
         PandacapDbContext context,
@@ -43,6 +50,14 @@ namespace Pandacap.HighLevel
             }
         }
 
+        /// <summary>
+        /// Adds a remote ActivityPub post to the Pandacap inbox.
+        /// </summary>
+        /// <param name="sendingActor">The actor who created the post.</param>
+        /// <param name="expandedLdJson">An expanded representation of the LD-JSON that makes up the post.</param>
+        /// <param name="isMention">Whether this post mentions the Pandacap actor.</param>
+        /// <param name="isReply">Whether this post is a reply to a post made by the Pandacap actor.</param>
+        /// <returns></returns>
         public async Task AddRemotePostAsync(
             RemoteActor sendingActor,
             JToken expandedLdJson,
@@ -96,12 +111,25 @@ namespace Pandacap.HighLevel
             await context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Adds a remote ActivityPub announcement (share / boost) to the Pandacap inbox.
+        /// </summary>
+        /// <param name="announcingActor">The actor who boosted the post.</param>
+        /// <param name="announceActivityId">The ActivityPub ID of the Announce activity. Allows an Undo to be processed later.</param>
+        /// <param name="objectId">The ActivityPub ID of the post being boosted.</param>
+        /// <returns></returns>
         public async Task AddRemoteAnnouncementAsync(
             RemoteActor announcingActor,
-            Follow follow,
             string announceActivityId,
             string objectId)
         {
+            var follow = await context.Follows
+                .Where(f => f.ActorId == announcingActor.Id)
+                .FirstOrDefaultAsync();
+
+            if (follow == null)
+                return;
+
             string originalPostJson = await activityPubRequestHandler.GetJsonAsync(new Uri(objectId));
             JToken originalPost = JsonLdProcessor.Expand(JObject.Parse(originalPostJson))[0];
 
@@ -161,8 +189,12 @@ namespace Pandacap.HighLevel
             await context.SaveChangesAsync();
         }
 
-        public async Task AddRemoteFavoriteAsync(
-            string objectId)
+        /// <summary>
+        /// Add a remote ActivityPub post to the Favorites collection.
+        /// </summary>
+        /// <param name="objectId">The ActivityPub object ID (URL).</param>
+        /// <returns></returns>
+        public async Task AddRemoteFavoriteAsync(string objectId)
         {
             string postJson = await activityPubRequestHandler.GetJsonAsync(new Uri(objectId));
             JToken post = JsonLdProcessor.Expand(JObject.Parse(postJson))[0];

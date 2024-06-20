@@ -65,7 +65,8 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
 builder.Services
     .AddScoped<AltTextSentinel>()
     .AddScoped<DeviantArtHandler>()
-    .AddScoped<MastodonVerifier>();
+    .AddScoped<MastodonVerifier>()
+    .AddScoped<RemoteActivityPubPostHandler>();
 
 builder.Services.AddPandacapServices(new ApplicationInformation(
     applicationHostname: builder.Configuration["ApplicationHostname"],

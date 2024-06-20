@@ -3,10 +3,21 @@ using Pandacap.Data;
 
 namespace Pandacap.HighLevel
 {
+    /// <summary>
+    /// Handles pending outbound ActivityPub messages that have been stored in the database.
+    /// </summary>
+    /// <param name="activityPubRequestHandler">An object that can make signed HTTP ActivityPub requests</param>
+    /// <param name="context">The database context</param>
     public class OutboxProcessor(
         ActivityPubRequestHandler activityPubRequestHandler,
         PandacapDbContext context)
     {
+        /// <summary>
+        /// Attempts to send any pending ActivityPub messages. Messages that are successfully sent will be removed from Pandacap's database.
+        /// If a message cannot be sent, any further messages to that inbox will be skipped for the next hour.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public async Task SendPendingActivitiesAsync()
         {
             HashSet<string> inboxesToSkip = [];

@@ -1,5 +1,8 @@
 ﻿namespace Pandacap
 {
+    /// <summary>
+    /// A request-scoped object that tracks image descriptions entered by the user, so that they can be applied when refreshing artwork posts from DeviantArt.
+    /// </summary>
     public class AltTextSentinel
     {
         private readonly Dictionary<Guid, string?> _altText = [];

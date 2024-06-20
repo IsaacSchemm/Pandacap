@@ -5,10 +5,22 @@ using Pandacap.Data;
 
 namespace Pandacap.HighLevel
 {
+    /// <summary>
+    /// Connects to the DeviantArt API to retrieve new posts created by users
+    /// who the application's attached user follows on DeviantArt. These posts
+    /// will be added to the Pandacap inbox.
+    /// </summary>
+    /// <param name="context">The database context</param>
+    /// <param name="credentialProvider">An object that allows access to the DeviantArt credentials (access token, etc.)</param>
     public class DeviantArtInboxHandler(
         PandacapDbContext context,
         DeviantArtCredentialProvider credentialProvider)
     {
+        /// <summary>
+        /// Imports new artwork posts from the past 3 days that have not yet
+        /// been added to the Pandacap inbox.
+        /// </summary>
+        /// <returns></returns>
         public async Task ImportArtworkPostsByUsersWeWatchAsync()
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
@@ -66,6 +78,11 @@ namespace Pandacap.HighLevel
             await context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Imports new journals and status updates from the past 3 days that
+        /// have not yet been added to the Pandacap inbox.
+        /// </summary>
+        /// <returns></returns>
         public async Task ImportTextPostsByUsersWeWatchAsync()
         {
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))

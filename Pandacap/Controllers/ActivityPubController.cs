@@ -192,18 +192,10 @@ namespace Pandacap.Controllers
 
                     if (type == "https://www.w3.org/ns/activitystreams#Announce")
                     {
-                        var follow = await context.Follows
-                            .Where(f => f.ActorId == actor.Id)
-                            .FirstOrDefaultAsync();
-
-                        if (follow != null)
-                        {
-                            await remoteActivityPubPostHandler.AddRemoteAnnouncementAsync(
-                                actor,
-                                follow,
-                                expansionObj["@id"]!.Value<string>()!,
-                                interactedWithId);
-                        }
+                        await remoteActivityPubPostHandler.AddRemoteAnnouncementAsync(
+                            actor,
+                            expansionObj["@id"]!.Value<string>()!,
+                            interactedWithId);
                     }
 
                     if (Uri.TryCreate(interactedWithId, UriKind.Absolute, out Uri? uri) && uri != null)

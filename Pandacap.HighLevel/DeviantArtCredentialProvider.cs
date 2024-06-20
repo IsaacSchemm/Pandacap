@@ -5,6 +5,14 @@ using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
 {
+    /// <summary>
+    /// Allows the application to retrieve a DeviantArt credentials object that
+    /// pulls from and updates the database record corresponding to the OAuth
+    /// credentials of the connected DeviantArt user.
+    /// </summary>
+    /// <param name="applicationInformation">An object containing the username of the connected DeviantArt user</param>
+    /// <param name="context">The database context</param>
+    /// <param name="deviantArtApp">The application-level credentials for the DeviantArt API</param>
     public class DeviantArtCredentialProvider(
         ApplicationInformation applicationInformation,
         PandacapDbContext context,
@@ -44,13 +52,17 @@ namespace Pandacap.HighLevel
                     deviantArtApp);
 
                 var whoami = await DeviantArtFs.Api.User.WhoamiAsync(tokenWrapper);
-                if (whoami.username == applicationInformation.Username)
+                if (whoami.username == applicationInformation.DeviantArtUsername)
                     return new Result(tokenWrapper, whoami);
             }
 
             return null;
         });
 
+        /// <summary>
+        /// Retrieves a DeviantArt credentials object and information about the attached DeviantArt user.
+        /// </summary>
+        /// <returns>A tuple that contains the credentials and user objects</returns>
         public async Task<(IDeviantArtRefreshableAccessToken, DeviantArtFs.ResponseTypes.User)?> GetCredentialsAsync()
         {
             if (await Credentials.Value is Result result)
