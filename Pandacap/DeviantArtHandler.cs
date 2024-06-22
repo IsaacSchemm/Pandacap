@@ -192,20 +192,20 @@ namespace Pandacap
                 context.Add(post);
             }
 
-            var oldBlobs = post.GetBlobReferences().ToList();
+            var oldBlobs = post.BlobReferences.ToList();
 
             post.Title = deviation.title.OrNull();
 
             if (deviation.content?.OrNull() is DeviantArtFs.ResponseTypes.Content content)
             {
-                async Task<UserPost.BlobReference> uploadAsync(HttpResponseMessage resp)
+                async Task<BlobReference> uploadAsync(HttpResponseMessage resp)
                 {
                     Guid guid = Guid.NewGuid();
                     using var stream = await resp.Content.ReadAsStreamAsync();
                     await blobServiceClient
                         .GetBlobContainerClient("blobs")
                         .UploadBlobAsync($"{guid}", stream);
-                    return new UserPost.BlobReference
+                    return new BlobReference
                     {
                         Id = guid,
                         ContentType = resp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream"
@@ -405,7 +405,7 @@ namespace Pandacap
                     context.UserPosts.Remove(post);
                     await AddActivityAsync(post, ActivityType.Delete);
 
-                    foreach (var blob in post.GetBlobReferences())
+                    foreach (var blob in post.BlobReferences)
                         await TryDeleteBlobIfExistsAsync(blob.BlobName);
                 }
             }

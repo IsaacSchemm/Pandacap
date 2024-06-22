@@ -212,8 +212,8 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateFollow(
             string id,
-            bool? includeImageShares,
-            bool? includeTextShares)
+            bool includeImageShares,
+            bool includeTextShares)
         {
             await foreach (var follow in context.Follows
                 .Where(f => f.ActorId == id)

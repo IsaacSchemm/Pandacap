@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="NullValues.fs" />
+    <Compile Include="Excerpt.fs" />
+    <Compile Include="InnerTypes\SubImage.fs" />
+    <Compile Include="InnerTypes\SubUser.fs" />
+    <Compile Include="InnerTypes\BlobReference.fs" />
+    <Compile Include="IPostImage.fs" />
+    <Compile Include="IPost.fs" />
+    <Compile Include="ActivityPub\IRemoteActorRelationship.fs" />
+    <Compile Include="ActivityPub\Follow.fs" />
+    <Compile Include="ActivityPub\Follower.fs" />
+    <Compile Include="ActivityPub\InboxActivityPubPost.fs" />
+    <Compile Include="ActivityPub\InboxActivityPubAnnouncement.fs" />
+    <Compile Include="ActivityPub\ActivityPubInboundActivity.fs" />
+    <Compile Include="ActivityPub\ActivityPubOutboundActivity.fs" />
+    <Compile Include="ActivityPub\RemoteActivityPubFavorite.fs" />
+    <Compile Include="DeviantArt\DeviantArtCredentials.fs" />
+    <Compile Include="DeviantArt\Avatar.fs" />
+    <Compile Include="DeviantArt\InboxArtworkDeviation.fs" />
+    <Compile Include="DeviantArt\InboxTextDeviation.fs" />
+    <Compile Include="DeviantArt\UserPost.fs" />
+    <Compile Include="Feeds\Feed.fs" />
+    <Compile Include="Feeds\FeedItem.fs" />
+    <Compile Include="ProfileProperty.fs" />
+    <Compile Include="PandacapDbContext.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Data.Html.Core" Version="6.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="8.0.6" />
+    <PackageReference Include="Textify" Version="0.2.0-beta" />
+  </ItemGroup>
+
+</Project>

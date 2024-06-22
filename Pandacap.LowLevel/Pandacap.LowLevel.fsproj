@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.Data\Pandacap.Data.csproj" />
+    <ProjectReference Include="..\Pandacap.Data\Pandacap.Data.fsproj" />
   </ItemGroup>
 
 </Project>
