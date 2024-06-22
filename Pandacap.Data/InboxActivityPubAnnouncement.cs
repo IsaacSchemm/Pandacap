@@ -2,20 +2,29 @@
 
 namespace Pandacap.Data
 {
-    public class RemoteActivityPubPost : IPost
+    public class InboxActivityPubAnnouncement : IPost
     {
         private static readonly Textify.HtmlToTextConverter _converter = new();
 
         [Key]
-        public string Id { get; set; } = "";
+        public string AnnounceActivityId { get; set; } = "";
 
         [Required]
-        public string CreatedBy { get; set; } = "";
+        public string ObjectId { get; set; } = "";
 
-        public string? Username { get; set; }
-        public string? Usericon { get; set; }
+        public class User
+        {
+            [Required]
+            public string Id { get; set; } = "";
 
-        public DateTimeOffset Timestamp { get; set; }
+            public string? Username { get; set; }
+            public string? Usericon { get; set; }
+        }
+
+        public User CreatedBy { get; set; } = new();
+        public User SharedBy { get; set; } = new();
+
+        public DateTimeOffset SharedAt { get; set; }
 
         public string? Summary { get; set; }
         public bool Sensitive { get; set; }
@@ -37,9 +46,6 @@ namespace Pandacap.Data
 
         public List<ImageAttachment> Attachments { get; set; } = [];
 
-        public bool? IsMention { get; set; }
-        public bool? IsReply { get; set; }
-
         string IPost.DisplayTitle
         {
             get
@@ -53,11 +59,19 @@ namespace Pandacap.Data
                 if (excerpt != null && excerpt.Length > 60)
                     excerpt = excerpt[..60] + "...";
 
-                return Name ?? excerpt ?? $"{Id}";
+                return Name ?? excerpt ?? $"{AnnounceActivityId}";
             }
         }
 
-        string? IPost.LinkUrl => Id;
+        string IPost.Id => AnnounceActivityId;
+
+        string? IPost.Username => SharedBy.Username;
+
+        string? IPost.Usericon => SharedBy.Usericon;
+
+        DateTimeOffset IPost.Timestamp => SharedAt;
+
+        string? IPost.LinkUrl => ObjectId;
 
         IEnumerable<IPostImage> IPost.Images => Attachments;
     }

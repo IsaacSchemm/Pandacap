@@ -5,7 +5,7 @@ namespace Pandacap.Data
     /// <summary>
     /// Another ActivityPub actor's interaction with a Pandacap post.
     /// </summary>
-    public class RemoteActivity
+    public class ActivityPubInboundActivity
     {
         /// <summary>
         /// An internal ID.

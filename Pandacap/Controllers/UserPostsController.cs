@@ -32,7 +32,7 @@ namespace Pandacap.Controllers
             {
                 Post = post,
                 RemoteActivities = User.Identity?.IsAuthenticated == true
-                    ? await context.RemoteActivities
+                    ? await context.ActivityPubInboundActivities
                         .Where(a => a.DeviationId == post.Id)
                         .ToListAsync()
                     : []

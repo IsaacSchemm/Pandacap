@@ -43,7 +43,7 @@ namespace Pandacap.Controllers
 
             Lazy<Task<IEnumerable<ActivityInfo>>> activityInfo = new(async () =>
             {
-                var activites = await context.RemoteActivities
+                var activites = await context.ActivityPubInboundActivities
                    .Where(activity => activity.AddedAt >= someTimeAgo)
                    .OrderByDescending(activity => activity.AddedAt)
                    .Take(4)
@@ -54,9 +54,11 @@ namespace Pandacap.Controllers
                     .Where(d => affectedIds.Contains(d.Id))
                     .ToListAsync();
 
-                return activites.Select(activity => new ActivityInfo(
-                    activity,
-                    affectedDeviations.SingleOrDefault(p => p.Id == activity.DeviationId)));
+                return activites.Select(activity => new ActivityInfo
+                {
+                    RemoteActivity = activity,
+                    Post = affectedDeviations.SingleOrDefault(p => p.Id == activity.DeviationId)
+                });
             });
 
             bool bridgyFedRequested = await context.Follows

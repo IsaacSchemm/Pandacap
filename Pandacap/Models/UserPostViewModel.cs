@@ -6,6 +6,6 @@ namespace Pandacap.Models
     {
         public required UserPost Post { get; set; }
 
-        public required IEnumerable<RemoteActivity> RemoteActivities { get; set; }
+        public required IEnumerable<ActivityPubInboundActivity> RemoteActivities { get; set; }
     }
 }

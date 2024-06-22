@@ -27,7 +27,7 @@ namespace Pandacap.Controllers
                 .OfType<IPost>()
                 .AsAsyncEnumerable();
 
-            var source2 = context.RemoteActivityPubPosts
+            var source2 = context.InboxActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
                 .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.Timestamp)
@@ -74,7 +74,7 @@ namespace Pandacap.Controllers
                 .OfType<IPost>()
                 .AsAsyncEnumerable();
 
-            var source2 = context.RemoteActivityPubPosts
+            var source2 = context.InboxActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
                 .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.Timestamp)
@@ -113,7 +113,7 @@ namespace Pandacap.Controllers
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var posts = await context.RemoteActivityPubPosts
+            var posts = await context.InboxActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
                 .Where(a => a.IsMention == true || a.IsReply == true)
                 .OrderByDescending(a => a.Timestamp)
@@ -141,7 +141,7 @@ namespace Pandacap.Controllers
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var posts = await context.RemoteActivityPubAnnouncements
+            var posts = await context.InboxActivityPubAnnouncements
                 .Where(a => a.SharedAt <= startTime)
                 .OrderByDescending(a => a.SharedAt)
                 .AsAsyncEnumerable()
@@ -187,7 +187,7 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .RemoteActivityPubPosts
+                .InboxActivityPubPosts
                 .Where(item => ids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -195,7 +195,7 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .RemoteActivityPubAnnouncements
+                .InboxActivityPubAnnouncements
                 .Where(item => ids.Contains(item.AnnounceActivityId))
                 .AsAsyncEnumerable())
             {
@@ -216,10 +216,10 @@ namespace Pandacap.Controllers
         {
             await foreach (var item in GetInboxPostsByIds(id))
             {
-                if (item is RemoteActivityPubPost ap)
+                if (item is InboxActivityPubPost ap)
                     context.Remove(ap);
 
-                if (item is RemoteActivityPubAnnouncement aa)
+                if (item is InboxActivityPubAnnouncement aa)
                     context.Remove(aa);
 
                 if (item is InboxArtworkDeviation iid)

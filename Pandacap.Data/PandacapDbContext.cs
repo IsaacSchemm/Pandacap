@@ -11,6 +11,8 @@ namespace Pandacap.Data
         //    .UseInMemoryDatabase($"{Guid.NewGuid()}")
         //    .Options) { }
 
+        public DbSet<ActivityPubInboundActivity> ActivityPubInboundActivities { get; set; }
+
         public DbSet<ActivityPubOutboundActivity> ActivityPubOutboundActivities { get; set; }
 
         public DbSet<Avatar> Avatars { get; set; }
@@ -31,13 +33,11 @@ namespace Pandacap.Data
 
         public DbSet<ProfileProperty> ProfileProperties { get; set; }
 
-        public DbSet<RemoteActivity> RemoteActivities { get; set; }
-
-        public DbSet<RemoteActivityPubAnnouncement> RemoteActivityPubAnnouncements { get; set; }
+        public DbSet<InboxActivityPubAnnouncement> InboxActivityPubAnnouncements { get; set; }
 
         public DbSet<RemoteActivityPubFavorite> RemoteActivityPubFavorites { get; set; }
 
-        public DbSet<RemoteActivityPubPost> RemoteActivityPubPosts { get; set; }
+        public DbSet<InboxActivityPubPost> InboxActivityPubPosts { get; set; }
 
         public DbSet<UserPost> UserPosts { get; set; }
 

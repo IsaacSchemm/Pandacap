@@ -2,7 +2,8 @@
 
 namespace Pandacap.Models
 {
-    public record ActivityInfo(
-        RemoteActivity RemoteActivity,
-        UserPost? Post);
+    public class ActivityInfo {
+        public required ActivityPubInboundActivity RemoteActivity { get; set; }
+        public UserPost? Post { get; set; }
+    }
 }

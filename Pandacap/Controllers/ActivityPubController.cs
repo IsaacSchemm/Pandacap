@@ -129,13 +129,13 @@ namespace Pandacap.Controllers
 
                     string id = objectToUndo["@id"]!.Value<string>()!;
 
-                    var activities = await context.RemoteActivities
+                    var activities = await context.ActivityPubInboundActivities
                         .Where(a => a.ActivityId == id)
                         .ToListAsync();
 
                     context.RemoveRange(activities);
 
-                    var announcements = await context.RemoteActivityPubAnnouncements
+                    var announcements = await context.InboxActivityPubAnnouncements
                         .Where(a => a.AnnounceActivityId == id)
                         .ToListAsync();
 
@@ -209,7 +209,7 @@ namespace Pandacap.Controllers
 
                         if (post != null && mapper.GetObjectId(post.Id) == uri.GetLeftPart(UriPartial.Path))
                         {
-                            context.RemoteActivities.Add(new RemoteActivity
+                            context.ActivityPubInboundActivities.Add(new ActivityPubInboundActivity
                             {
                                 Id = Guid.NewGuid(),
                                 ActivityId = expansionObj["@id"]!.Value<string>()!,
@@ -292,7 +292,7 @@ namespace Pandacap.Controllers
                     }
                     else
                     {
-                        int inboxPosts = await context.RemoteActivityPubPosts.Where(p => p.Id == postId).CountAsync();
+                        int inboxPosts = await context.InboxActivityPubPosts.Where(p => p.Id == postId).CountAsync();
 
                         if (inboxPosts > 0)
                             await remoteActivityPubPostHandler.AddRemotePostAsync(actor, obj);
@@ -305,10 +305,10 @@ namespace Pandacap.Controllers
                 {
                     string deletedObjectId = deletedObject["@id"]!.Value<string>()!;
 
-                    var inboxPosts = await context.RemoteActivityPubPosts.Where(p => p.Id == deletedObjectId).ToListAsync();
+                    var inboxPosts = await context.InboxActivityPubPosts.Where(p => p.Id == deletedObjectId).ToListAsync();
                     context.RemoveRange(inboxPosts);
 
-                    var announcements = await context.RemoteActivityPubAnnouncements.Where(p => p.ObjectId == deletedObjectId).ToListAsync();
+                    var announcements = await context.InboxActivityPubAnnouncements.Where(p => p.ObjectId == deletedObjectId).ToListAsync();
                     context.RemoveRange(announcements);
 
                     var favorites = await context.RemoteActivityPubFavorites.Where(p => p.ObjectId == deletedObjectId).ToListAsync();

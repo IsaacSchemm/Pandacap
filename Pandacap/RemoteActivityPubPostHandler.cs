@@ -73,11 +73,11 @@ namespace Pandacap
             string id = post["@id"]!.Value<string>()!;
             IEnumerable<string> types = (post["@type"] ?? Empty).Select(token => token.Value<string>()!);
 
-            int existing = await context.RemoteActivityPubPosts.Where(p => p.Id == id).CountAsync();
+            int existing = await context.InboxActivityPubPosts.Where(p => p.Id == id).CountAsync();
             if (existing > 0)
                 return;
 
-            context.Add(new RemoteActivityPubPost
+            context.Add(new InboxActivityPubPost
             {
                 Id = id,
                 CreatedBy = sendingActor.Id,
@@ -101,7 +101,7 @@ namespace Pandacap
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
                 Attachments = GetAttachments(post)
-                    .Select(attachment => new RemoteActivityPubPost.ImageAttachment
+                    .Select(attachment => new InboxActivityPubPost.ImageAttachment
                     {
                         Name = attachment.name,
                         Url = attachment.url
@@ -148,7 +148,7 @@ namespace Pandacap
 
             var originalActor = await activityPubRequestHandler.FetchActorAsync(originalActorId);
 
-            context.Add(new RemoteActivityPubAnnouncement
+            context.Add(new InboxActivityPubAnnouncement
             {
                 AnnounceActivityId = announceActivityId,
                 ObjectId = objectId,
@@ -178,7 +178,7 @@ namespace Pandacap
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
                 Attachments = GetAttachments(originalPost)
-                    .Select(attachment => new RemoteActivityPubAnnouncement.ImageAttachment
+                    .Select(attachment => new InboxActivityPubAnnouncement.ImageAttachment
                     {
                         Name = attachment.name,
                         Url = attachment.url
