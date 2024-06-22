@@ -14,7 +14,6 @@ type Follower() =
     member val AddedAt = DateTimeOffset.MinValue with get, set
 
     /// This actor's personal ActivityPub inbox.
-    [<Required>]
     member val Inbox = "" with get, set
 
     /// The shared inbox of this actor's ActivityPub server, if any.

@@ -14,14 +14,12 @@ type Follow() =
     member val AddedAt = DateTimeOffset.MinValue with get, set
 
     /// The Pandacap-generated ID used for this activity when it was placed in the ActivityPubOutboundActivities table.
-    [<Required>]
     member val FollowGuid = Guid.Empty with get, set
 
     /// Whether the follow has been accepted.
     member val Accepted = false with get, set
 
     /// This actor's personal ActivityPub inbox.
-    [<Required>]
     member val Inbox = "" with get, set
 
     /// The shared inbox of this actor's ActivityPub server, if any.

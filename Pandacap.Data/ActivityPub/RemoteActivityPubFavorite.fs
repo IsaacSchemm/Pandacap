@@ -3,32 +3,21 @@
 open System
 open System.ComponentModel.DataAnnotations
 
+/// A remote ActivityPub post that this app's instance owner has added to their Favorites.
 type RemoteActivityPubFavorite() =
     [<Key>]
     member val LikeGuid = Guid.Empty with get, set
 
-    [<Required>]
     member val ObjectId = "" with get, set
-
-    [<Required>]
     member val CreatedBy = "" with get, set
-
     member val Username = nullString with get, set
-
     member val Usericon = nullString with get, set
-
     member val CreatedAt = DateTimeOffset.MinValue with get, set
-
     member val FavoritedAt = DateTimeOffset.MinValue with get, set
-
     member val Summary = nullString with get, set
-
     member val Sensitive = false with get, set
-
     member val Name = nullString with get, set
-
     member val Content = nullString with get, set
-
     member val Attachments = new ResizeArray<SubImage>() with get, set
 
     interface IPost with

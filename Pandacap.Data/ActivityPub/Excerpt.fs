@@ -2,6 +2,7 @@
 
 open System.IO
 
+/// Allows Pandacap to derive a plaintext excerpt from an HTML string.
 module internal Excerpt =
     let private converter = lazy new Textify.HtmlToTextConverter()
 
@@ -13,6 +14,7 @@ module internal Excerpt =
             line <- sr.ReadLine()
         }
 
+    /// Derives a plaintext excerpt from an HTML string.
     let compute (html: string) =
         html
         |> Option.ofObj

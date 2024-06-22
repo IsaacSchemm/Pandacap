@@ -396,9 +396,6 @@ namespace Pandacap
 
                 foreach (var post in chunk)
                 {
-                    if (!post.MirroredFromDeviantArt)
-                        continue;
-
                     if (avoidDeleting.Contains(post.Id))
                         continue;
 

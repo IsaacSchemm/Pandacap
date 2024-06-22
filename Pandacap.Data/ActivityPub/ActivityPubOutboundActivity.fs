@@ -1,16 +1,14 @@
 ﻿namespace Pandacap.Data
 
 open System
-open System.ComponentModel.DataAnnotations
 
-/// An ActivityPub activity that can be sent to a remote actor and/or included in the outbox.
+/// An ActivityPub activity that is queued to be sent to a remote actor.
 type ActivityPubOutboundActivity() =
 
     /// A Pandacap-generated ID for this activity.
     member val Id = Guid.Empty with get, set
 
     /// The inbox ID / URL to send to.
-    [<Required>]
     member val Inbox = "" with get, set
 
     /// The pre-serialized JSON-LD body of the activity.

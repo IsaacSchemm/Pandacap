@@ -2,6 +2,7 @@
 
 open System
 
+/// A journal or status update posted by a user who this instance's owner follows on DeviantArt.
 type InboxTextDeviation() =
     member val Id = Guid.Empty with get, set
     member val CreatedBy = Guid.Empty with get, set

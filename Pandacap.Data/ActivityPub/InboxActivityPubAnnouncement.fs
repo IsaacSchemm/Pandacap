@@ -3,27 +3,19 @@
 open System
 open System.ComponentModel.DataAnnotations
 
+/// An ActivityPub post shared by a user who this app follows.
 type InboxActivityPubAnnouncement() =
     [<Key>]
     member val AnnounceActivityId = "" with get, set
 
-    [<Required>]
     member val ObjectId = "" with get, set
-
     member val CreatedBy = new SubUser() with get, set
-
     member val SharedBy = new SubUser() with get, set
-
     member val SharedAt = DateTimeOffset.MinValue with get, set
-
     member val Summary = nullString with get, set
-
     member val Sensitive = false with get, set
-
     member val Name = nullString with get, set
-
     member val Content = nullString with get, set
-
     member val Attachments = new ResizeArray<SubImage>() with get, set
 
     interface IPost with

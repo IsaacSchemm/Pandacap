@@ -3,7 +3,7 @@
 open System
 open System.ComponentModel.DataAnnotations.Schema
 
-/// A Pandacap post imported from DeviantArt.
+/// A Pandacap post imported from this instance's owner's DeviantArt account.
 type UserPost() =
 
     /// The DeviantArt ID for this post.
@@ -48,8 +48,6 @@ type UserPost() =
 
     /// Whether this post should be rendered in ActivityPub as an Article (instead of a Note).
     member val IsArticle = false with get, set
-
-    member _.MirroredFromDeviantArt = true
 
     interface IPost with
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"

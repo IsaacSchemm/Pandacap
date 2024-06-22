@@ -67,7 +67,7 @@
     }
 }
 
-@if (User.Identity?.IsAuthenticated == true && Model.Post.MirroredFromDeviantArt)
+@if (User.Identity?.IsAuthenticated == true)
 {
     if (Model.Post.Url is string url)
     {

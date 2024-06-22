@@ -3,32 +3,21 @@
 open System
 open System.ComponentModel.DataAnnotations
 
+/// An ActivityPub post from a user who this app follows.
 type InboxActivityPubPost() =
-
     [<Key>]
     member val Id = "" with get, set
 
-    [<Required>]
     member val CreatedBy = "" with get, set
-
     member val Username = nullString with get, set
-
     member val Usericon = nullString with get, set
-
     member val Timestamp = DateTimeOffset.MinValue with get, set
-
     member val Summary = nullString with get, set
-
     member val Sensitive = false with get, set
-
     member val Name = nullString with get, set
-
     member val Content = nullString with get, set
-
     member val Attachments = new ResizeArray<SubImage>() with get, set
-
     member val IsMention = false with get, set
-
     member val IsReply = false with get, set
 
     interface IPost with

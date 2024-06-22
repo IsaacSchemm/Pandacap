@@ -3,6 +3,7 @@
 open System
 open FSharp.Data
 
+/// A post from an Atom or RSS feed followed by the instance owner.
 type FeedItem() =
     member val Id = Guid.Empty with get, set
     member val FeedTitle = nullString with get, set

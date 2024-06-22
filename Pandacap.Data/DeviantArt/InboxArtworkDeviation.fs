@@ -2,6 +2,7 @@
 
 open System
 
+/// An artwork submission posted by a user who this instance's owner follows on DeviantArt.
 type InboxArtworkDeviation() =
     member val Id = Guid.Empty with get, set
     member val CreatedBy = Guid.Empty with get, set
