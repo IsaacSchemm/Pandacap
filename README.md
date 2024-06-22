@@ -1,44 +1,46 @@
 # Pandacap
 
-An Azure-hosted, **single-user** bridge and inbox reader for DeviantArt.
+An Azure-hosted, ActivityPub-compatible art gallery and feed reader.
 
 This is **not**:
-* a full bridge between DeviantArt and ActivityPub (only the instance owner's posts are broadcast)
-* a general-purpose art website (only the instance owner can log in, and there are no upload or discoverability features)
-* a microblogging platform (different post types are in separate feeds; shares are ignored by default and can be filtered based on post type)
+* a bridge between DeviantArt and ActivityPub (only the instance owner's posts are exposed, and import is fully manual)
+* a fully self-contained application (DeviantArt is the only implemented method for authentication and importing posts)
+* a proper social media site (only the instance owner can log in, and there are no discoverability features)
 
-Things it does:
+Pandacap is a single-user application.
+To log in, the instance owner must use DeviantArt account that matches the Pandacap configuration.
 
-* Allow the owner to log in with their DeviantArt account and:
-    * Follow and unfollow ActivityPub users
-    * Follow and unfollow Atom and RSS feeds
-    * View image posts from DeviantArt accounts, ActivityPub actors, or Atom/RSS feeds they follow
-    * View text posts from DeviantArt accounts, ActivityPub actors, or Atom/RSS feeds they follow
-    * View ActivityPub mentions and replies
-    * Mark ActivityPub posts as favorites
-    * See which other ActivityPub users have liked or boosted the owner's posts
-* Allow visitors to:
-    * See the owner's DeviantArt submissions
-    * See the owner's DeviantArt journals and status updates
-    * See the owner's ActivityPub handle
-    * See the owner's AT Protocol handle, if Bridgy Fed is connected
-    * See the owner's ActivityPub follows, followers, and favorites
-* Make the owner's DeviantArt submissions, journals, and status updates available to ActivityPub servers such as Pixelfed and Mastodon
+Once logged in, the instance owner can:
 
-Things which will probably not be added:
+* Import posts (artwork, journals, and status updates) from their DeviantArt account
+* Refresh posts by checking DeviantArt for updates
+* Set artwork alt text
+* Remove imported posts
+* Follow and unfollow ActivityPub users
+* Follow and unfollow Atom and RSS feeds
+* View image posts from DeviantArt accounts, ActivityPub actors, or Atom/RSS feeds they follow
+* View text posts from DeviantArt accounts, ActivityPub actors, or Atom/RSS feeds they follow
+* View ActivityPub mentions and replies
+* View ActivityPub boosts
+* Mark ActivityPub posts as favorites
+* See which other ActivityPub users have liked or boosted the owner's posts
 
+Visitors can:
+
+* See the owner's DeviantArt submissions
+* See the owner's DeviantArt journals and status updates
+* See the owner's ActivityPub handle
+* See the owner's AT Protocol handle, if Bridgy Fed is connected
+* See the owner's ActivityPub follows, followers, and favorites
+
+Things it does not do:
+
+* Expose any other user's DeviantArt posts or activity over ActivityPub
+* Allow the owner to create or edit posts without going through DeviantArt
 * Allow the owner to reply to an ActivityPub post, or mention an ActivityPub user in a post
 * Expose ActivityPub likes and boosts to other users
 * Expose ActivityFed "comments" (replies) to other users
-
-Things it does not do, **by design**:
-
-* Allow the owner to create new posts
-* Mirror any actual image data from DeviantArt in its own database
-* Expose any other user's DeviantArt posts or activity over ActivityPub
 * Allow any user other than the instance owner to log in
-* Render text posts and image posts within the same feed
-* Render boosts and normal posts within the same feed
 
 ## Deployment
 
@@ -48,22 +50,17 @@ This application runs on the following Azure resources:
 * An Azure Functions app
 * A web app
 * A Key Vault
+* A storage account
+
+The web app and function app must have the appropriate IAM permissions to access the storage account (Storage Blob Data Contributor) and the key vault (Key Vault Crypto User).
 
 Function app responsibilities:
 
-* Every minute:
-    * Try sending any unsent ActivityPub activities (any inbox that fails won't be retried for another hour)
-* Every hour:
-    * Find new DeviantArt posts by other users
-    * Find and refresh DeviantArt posts made by the instance owner in the past 7 days (unless they are less than an hour old)
-* Every day:
-    * Remove any unsent ActivityPub activities that are more than a week old
-* Every day:
-    * Remove dismissed DeviantArt inbox notifications from the Pandacap database
-        * The five most recent submissions of each type are kept, as a way to track Pandacap's position in the DeviantArt API feed
-* Every month:
-    * Find and refresh all DeviantArt posts by the instance owner (unless they are less than an hour old)
-    * Refresh the instance owner's avatar
+* `DeviantArtHourly` (every hour at :10): check DeviantArt for new posts (artwork and text) from users we follow
+* `FeedHourly` (every hour at :50): check RSS/Atom feeds for new posts
+* `InboxCleanup` (every day at 9:00): clear dismissed DeviantArt inbox entries (beyond the 5 most recent, which are used internally to mark our place in the feed)
+* `OutboxCleanup` (every day at 8:00): remove unsent outbound ActivityPub messages that have been pending for more than 7 days
+* `SendOutbound` (every ten minutes): attempt to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
 
 Application settings (for both the function app and the web app):
 
