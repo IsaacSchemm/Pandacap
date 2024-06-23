@@ -101,7 +101,7 @@ namespace Pandacap
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
                 Attachments = GetAttachments(post)
-                    .Select(attachment => new SubImage
+                    .Select(attachment => new RemoteActivityPubPostImage
                     {
                         Name = attachment.name,
                         Url = attachment.url
@@ -178,7 +178,7 @@ namespace Pandacap
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
                 Attachments = GetAttachments(originalPost)
-                    .Select(attachment => new SubImage
+                    .Select(attachment => new InboxActivityPubAnnouncementImage
                     {
                         Name = attachment.name,
                         Url = attachment.url
@@ -233,7 +233,7 @@ namespace Pandacap
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
                 Attachments = GetAttachments(post)
-                    .Select(attachment => new SubImage
+                    .Select(attachment => new RemoteActivityPubFavoriteImage
                     {
                         Name = attachment.name,
                         Url = attachment.url

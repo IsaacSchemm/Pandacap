@@ -3,20 +3,31 @@
 open System
 open System.ComponentModel.DataAnnotations
 
+/// A remote ActivityPub user associated with a shared post.
+type InboxActivityPubAnnouncementUser() =
+    member val Id = "" with get, set
+    member val Username = nullString with get, set
+    member val Usericon = nullString with get, set
+
+/// An image attachment to a remote ActivityPub post shared by a follow.
+type InboxActivityPubAnnouncementImage() =
+    member val Url = "" with get, set
+    member val Name = nullString with get, set
+
 /// An ActivityPub post shared by a user who this app follows.
 type InboxActivityPubAnnouncement() =
     [<Key>]
     member val AnnounceActivityId = "" with get, set
 
     member val ObjectId = "" with get, set
-    member val CreatedBy = new SubUser() with get, set
-    member val SharedBy = new SubUser() with get, set
+    member val CreatedBy = new InboxActivityPubAnnouncementUser() with get, set
+    member val SharedBy = new InboxActivityPubAnnouncementUser() with get, set
     member val SharedAt = DateTimeOffset.MinValue with get, set
     member val Summary = nullString with get, set
     member val Sensitive = false with get, set
     member val Name = nullString with get, set
     member val Content = nullString with get, set
-    member val Attachments = new ResizeArray<SubImage>() with get, set
+    member val Attachments = new ResizeArray<InboxActivityPubAnnouncementImage>() with get, set
 
     interface IPost with
         member this.Id = this.AnnounceActivityId

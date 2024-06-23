@@ -7,12 +7,9 @@
 
   <ItemGroup>
     <Compile Include="NullValues.fs" />
-    <Compile Include="InnerTypes\SubImage.fs" />
-    <Compile Include="InnerTypes\SubUser.fs" />
-    <Compile Include="InnerTypes\BlobReference.fs" />
+    <Compile Include="Excerpt.fs" />
     <Compile Include="IPostImage.fs" />
     <Compile Include="IPost.fs" />
-    <Compile Include="ActivityPub\Excerpt.fs" />
     <Compile Include="ActivityPub\IRemoteActorRelationship.fs" />
     <Compile Include="ActivityPub\Follow.fs" />
     <Compile Include="ActivityPub\Follower.fs" />
@@ -36,7 +33,6 @@
     <PackageReference Include="FSharp.Data.Html.Core" Version="6.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="8.0.6" />
-    <PackageReference Include="Textify" Version="0.2.0-beta" />
   </ItemGroup>
 
 </Project>

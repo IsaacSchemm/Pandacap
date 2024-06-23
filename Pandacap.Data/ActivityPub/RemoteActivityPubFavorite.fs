@@ -3,6 +3,11 @@
 open System
 open System.ComponentModel.DataAnnotations
 
+/// An image attachment to a remote favorite ActivityPub post.
+type RemoteActivityPubFavoriteImage() =
+    member val Url = "" with get, set
+    member val Name = nullString with get, set
+
 /// A remote ActivityPub post that this app's instance owner has added to their Favorites.
 type RemoteActivityPubFavorite() =
     [<Key>]
@@ -18,7 +23,7 @@ type RemoteActivityPubFavorite() =
     member val Sensitive = false with get, set
     member val Name = nullString with get, set
     member val Content = nullString with get, set
-    member val Attachments = new ResizeArray<SubImage>() with get, set
+    member val Attachments = new ResizeArray<RemoteActivityPubFavoriteImage>() with get, set
 
     interface IPost with
         member this.Id = $"{this.LikeGuid}"

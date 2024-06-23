@@ -3,6 +3,11 @@
 open System
 open System.ComponentModel.DataAnnotations
 
+/// An image attachment to an ActivityPub post from a follow.
+type RemoteActivityPubPostImage() =
+    member val Url = "" with get, set
+    member val Name = nullString with get, set
+
 /// An ActivityPub post from a user who this app follows.
 type InboxActivityPubPost() =
     [<Key>]
@@ -16,7 +21,7 @@ type InboxActivityPubPost() =
     member val Sensitive = false with get, set
     member val Name = nullString with get, set
     member val Content = nullString with get, set
-    member val Attachments = new ResizeArray<SubImage>() with get, set
+    member val Attachments = new ResizeArray<RemoteActivityPubPostImage>() with get, set
     member val IsMention = false with get, set
     member val IsReply = false with get, set
 

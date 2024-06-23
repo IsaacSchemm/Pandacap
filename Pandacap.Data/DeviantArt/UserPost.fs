@@ -3,9 +3,22 @@
 open System
 open System.ComponentModel.DataAnnotations.Schema
 
+/// A reference to a blob in Azure Storage that may contain image or thumbnail data.
+[<AllowNullLiteral>]
+type UserPostBlobReference() =
+
+    /// A randomly-generated ID used to name the Azure Storage blob.
+    member val Id = Guid.Empty with get, set
+
+    /// The content type of the data (e.g. image/jpeg).
+    member val ContentType = "application/octet-stream" with get, set
+
+    /// The name of the blob in Azure Storage that contains the data.
+    [<NotMapped>]
+    member this.BlobName = $"{this.Id}"
+
 /// A Pandacap post imported from this instance's owner's DeviantArt account.
 type UserPost() =
-
     /// The DeviantArt ID for this post.
     member val Id = Guid.Empty with get, set
 
@@ -17,13 +30,10 @@ type UserPost() =
 
     /// The attached image, if any.
     /// If there is an image, it will be stored in an Azure Storage account, and proxied through ImagesController.
-    member val Image: BlobReference = null with get, set
+    member val Image: UserPostBlobReference = null with get, set
 
     /// A thumbnail for the attached image, if any.
-    member val Thumbnail: BlobReference = null with get, set
-
-    [<NotMapped>]
-    member this.BlobReferences = List.choose Option.ofObj [this.Image; this.Thumbnail]
+    member val Thumbnail: UserPostBlobReference = null with get, set
 
     /// Descriptive text for the contents of the image, if any.
     member val AltText = nullString with get, set
@@ -48,6 +58,9 @@ type UserPost() =
 
     /// Whether this post should be rendered in ActivityPub as an Article (instead of a Note).
     member val IsArticle = false with get, set
+
+    [<NotMapped>]
+    member this.BlobReferences = List.choose Option.ofObj [this.Image; this.Thumbnail]
 
     interface IPost with
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"

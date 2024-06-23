@@ -4,7 +4,6 @@ open System
 
 /// An ActivityPub activity that is queued to be sent to a remote actor.
 type ActivityPubOutboundActivity() =
-
     /// A Pandacap-generated ID for this activity.
     member val Id = Guid.Empty with get, set
 

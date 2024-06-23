@@ -5,7 +5,6 @@ open System.ComponentModel.DataAnnotations
 
 /// An ActivityPub actor who is following this Pandacap actor.
 type Follower() =
-
     /// The follower's actor ID.
     [<Key>]
     member val ActorId = "" with get, set

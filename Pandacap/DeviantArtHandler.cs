@@ -198,14 +198,14 @@ namespace Pandacap
 
             if (deviation.content?.OrNull() is DeviantArtFs.ResponseTypes.Content content)
             {
-                async Task<BlobReference> uploadAsync(HttpResponseMessage resp)
+                async Task<UserPostBlobReference> uploadAsync(HttpResponseMessage resp)
                 {
                     Guid guid = Guid.NewGuid();
                     using var stream = await resp.Content.ReadAsStreamAsync();
                     await blobServiceClient
                         .GetBlobContainerClient("blobs")
                         .UploadBlobAsync($"{guid}", stream);
-                    return new BlobReference
+                    return new UserPostBlobReference
                     {
                         Id = guid,
                         ContentType = resp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream"

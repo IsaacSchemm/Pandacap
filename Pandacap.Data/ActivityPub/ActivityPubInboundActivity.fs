@@ -4,7 +4,6 @@ open System
 
 /// Another ActivityPub actor's interaction with a Pandacap post.
 type ActivityPubInboundActivity() =
-
     /// An internal ID.
     member val Id = Guid.Empty with get, set
 
