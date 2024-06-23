@@ -36,7 +36,7 @@ type UserPost() =
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
         member this.Images = seq {
-            if not (isNull this.Thumbnail) then {
+            if not (Seq.isEmpty this.BlobReferences) then {
                 new IPostImage with
                     member _.AltText = this.AltText
                     member _.ThumbnailUrl = $"/Blobs/Thumbnails/{this.Id}"
