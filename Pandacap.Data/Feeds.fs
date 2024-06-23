@@ -3,6 +3,15 @@
 open System
 open FSharp.Data
 
+/// An Atom or RSS feed followed by the instance owner.
+type Feed() =
+    member val Id = Guid.Empty with get, set
+    member val FeedUrl = "" with get, set
+    member val FeedTitle = nullString with get, set
+    member val FeedWebsiteUrl = nullString with get, set
+    member val FeedIconUrl = nullString with get, set
+    member val LastCheckedAt = DateTimeOffset.MinValue with get, set
+
 /// A post from an Atom or RSS feed followed by the instance owner.
 type FeedItem() =
     member val Id = Guid.Empty with get, set
@@ -15,6 +24,11 @@ type FeedItem() =
     member val Timestamp = DateTimeOffset.MinValue with get, set
 
     interface IPost with
+        member this.CreatedBy = {
+            new IPostCreator with
+                member _.Usericon = this.FeedIconUrl
+                member _.Username = this.FeedTitle
+        }
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
         member this.Images =
@@ -30,5 +44,3 @@ type FeedItem() =
             })
         member this.LinkUrl = this.Url
         member this.Timestamp = this.Timestamp
-        member this.Usericon = this.FeedIconUrl
-        member this.Username = this.FeedTitle

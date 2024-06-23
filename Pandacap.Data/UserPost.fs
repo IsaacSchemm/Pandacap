@@ -33,6 +33,11 @@ type UserPost() =
     member this.BlobReferences = List.choose Option.ofObj [this.Image; this.Thumbnail]
 
     interface IPost with
+        member _.CreatedBy = {
+            new IPostCreator with
+                member _.Username = null
+                member _.Usericon = null
+        }
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
         member this.Images = seq {
@@ -44,5 +49,3 @@ type UserPost() =
         }
         member this.LinkUrl = $"/UserPosts/{this.Id}"
         member this.Timestamp = this.PublishedTime
-        member _.Usericon = null
-        member _.Username = null

@@ -33,7 +33,7 @@ else
     </p>
 
     var groups = Model.GroupByUser
-        ? Model.Items.DisplayList.GroupBy(item => new { item.Username, item.Usericon })
+        ? Model.Items.DisplayList.GroupBy(item => new { item.CreatedBy.Username, item.CreatedBy.Usericon })
         : Model.Items.DisplayList.GroupBy(item => new { Username = "", Usericon = "" });
 
     foreach (var group in groups)

@@ -3,7 +3,7 @@
 open FSharp.Data
 
 /// Allows Pandacap to derive a plaintext excerpt from an HTML string.
-module internal Excerpt =
+module internal ExcerptGenerator =
     /// Derives a plaintext excerpt from an HTML string.
     let compute (html: string) =
         (HtmlDocument.Parse html).Elements()

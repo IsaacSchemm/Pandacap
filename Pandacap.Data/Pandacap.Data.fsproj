@@ -6,26 +6,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="NullValues.fs" />
-    <Compile Include="Excerpt.fs" />
-    <Compile Include="IPostImage.fs" />
     <Compile Include="IPost.fs" />
-    <Compile Include="ActivityPub\IRemoteActorRelationship.fs" />
-    <Compile Include="ActivityPub\Follow.fs" />
-    <Compile Include="ActivityPub\Follower.fs" />
-    <Compile Include="ActivityPub\InboxActivityPubPost.fs" />
-    <Compile Include="ActivityPub\InboxActivityPubAnnouncement.fs" />
-    <Compile Include="ActivityPub\ActivityPubInboundActivity.fs" />
-    <Compile Include="ActivityPub\ActivityPubOutboundActivity.fs" />
-    <Compile Include="ActivityPub\RemoteActivityPubFavorite.fs" />
-    <Compile Include="DeviantArt\DeviantArtCredentials.fs" />
-    <Compile Include="DeviantArt\Avatar.fs" />
-    <Compile Include="DeviantArt\InboxArtworkDeviation.fs" />
-    <Compile Include="DeviantArt\InboxTextDeviation.fs" />
-    <Compile Include="DeviantArt\UserPost.fs" />
-    <Compile Include="Feeds\Feed.fs" />
-    <Compile Include="Feeds\FeedItem.fs" />
+    <Compile Include="NullValues.fs" />
+    <Compile Include="ExcerptGenerator.fs" />
+    <Compile Include="DeviantArtCredentials.fs" />
+    <Compile Include="Avatar.fs" />
     <Compile Include="ProfileProperty.fs" />
+    <Compile Include="UserPost.fs" />
+    <Compile Include="InboxDeviations.fs" />
+    <Compile Include="Feeds.fs" />
+    <Compile Include="RemoteActorRelationships.fs" />
+    <Compile Include="RemoteActivityPubPosts.fs" />
+    <Compile Include="ActivityPubActivities.fs" />
     <Compile Include="PandacapDbContext.fs" />
   </ItemGroup>
 
