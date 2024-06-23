@@ -30,22 +30,16 @@ type UserPost() =
     member val IsArticle = false with get, set
 
     [<NotMapped>]
-    member this.BlobReferences = List.choose Option.ofObj [this.Image; this.Thumbnail]
+    member this.ImageBlobs = List.choose Option.ofObj [this.Image; this.Thumbnail]
 
     interface IPost with
-        member _.CreatedBy = {
-            new IPostCreator with
-                member _.Username = null
-                member _.Usericon = null
-        }
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
-        member this.Images = seq {
-            if not (Seq.isEmpty this.BlobReferences) then {
-                new IPostImage with
-                    member _.AltText = this.AltText
-                    member _.ThumbnailUrl = $"/Blobs/Thumbnails/{this.Id}"
-            }
-        }
         member this.LinkUrl = $"/UserPosts/{this.Id}"
         member this.Timestamp = this.PublishedTime
+        member this.ThumbnailUrls = seq {
+            if not (List.isEmpty this.ImageBlobs) then
+                $"/Blobs/Thumbnails/{this.Id}"
+        }
+        member _.Usericon = null
+        member _.Username = null

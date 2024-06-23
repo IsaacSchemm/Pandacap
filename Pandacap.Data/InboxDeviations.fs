@@ -17,36 +17,27 @@ type InboxDeviation() =
     member val DismissedAt = nullDateTimeOffset with get, set
 
     [<NotMapped>]
-    abstract member Images: IPostImage seq
+    abstract member ThumbnailUrls: string seq
 
     interface IPost with
-        member this.CreatedBy = {
-            new IPostCreator with
-                member _.Usericon = this.Usericon
-                member _.Username = this.Username
-        }
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
-        member this.Images = this.Images
         member this.LinkUrl = this.LinkUrl
         member this.Timestamp = this.Timestamp
+        member this.ThumbnailUrls = this.ThumbnailUrls
+        member this.Usericon = this.Usericon
+        member this.Username = this.Username
 
 /// An artwork submission posted by a user who this instance's owner follows on DeviantArt.
 type InboxArtworkDeviation() =
     inherit InboxDeviation()
 
-    member val ThumbnailUrl = nullString with get, set
+    member val ThumbnailUrl = "" with get, set
 
-    override this.Images = Seq.singleton {
-        new IPostImage with
-            member _.AltText = null
-            member _.ThumbnailUrl = this.ThumbnailUrl
-    }
+    override this.ThumbnailUrls = List.choose Option.ofObj [this.ThumbnailUrl]
 
 /// A journal or status update posted by a user who this instance's owner follows on DeviantArt.
 type InboxTextDeviation() =
     inherit InboxDeviation()
 
-    member val Excerpt = nullString with get, set
-
-    override _.Images = Seq.empty
+    override _.ThumbnailUrls = Seq.empty

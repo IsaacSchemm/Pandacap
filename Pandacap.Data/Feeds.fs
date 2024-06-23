@@ -24,23 +24,15 @@ type FeedItem() =
     member val Timestamp = DateTimeOffset.MinValue with get, set
 
     interface IPost with
-        member this.CreatedBy = {
-            new IPostCreator with
-                member _.Usericon = this.FeedIconUrl
-                member _.Username = this.FeedTitle
-        }
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
-        member this.Images =
+        member this.Timestamp = this.Timestamp
+        member this.ThumbnailUrls =
             let html = HtmlDocument.Parse (this.HtmlDescription |> orString "")
 
             html.Descendants "img"
             |> Seq.choose (fun node -> node.TryGetAttribute "src")
             |> Seq.map (fun attr -> attr.Value())
-            |> Seq.map (fun src -> {
-                new IPostImage with
-                    member _.AltText = null
-                    member _.ThumbnailUrl = src
-            })
         member this.LinkUrl = this.Url
-        member this.Timestamp = this.Timestamp
+        member this.Usericon = this.FeedIconUrl
+        member this.Username = this.FeedWebsiteUrl

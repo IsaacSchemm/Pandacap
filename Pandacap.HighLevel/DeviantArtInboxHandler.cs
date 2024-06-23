@@ -132,8 +132,7 @@ namespace Pandacap.HighLevel
                     Username = author.username,
                     MatureContent = deviation.is_mature.OrNull() ?? false,
                     Title = deviation.title?.OrNull(),
-                    LinkUrl = deviation.url?.OrNull(),
-                    Excerpt = deviation.excerpt?.OrNull()
+                    LinkUrl = deviation.url?.OrNull()
                 });
             }
 

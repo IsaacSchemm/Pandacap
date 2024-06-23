@@ -76,11 +76,11 @@
         <div class="row">
             @foreach (IPost post in Model.RecentArtwork)
             {
-                foreach (var image in post.Images)
+                foreach (string thumbnailUrl in post.ThumbnailUrls)
                 {
                     <div class="col-sm-4 col-md-3 text-center my-4">
                         <a href="/UserPosts/@post.Id">
-                        <img src="@image.ThumbnailUrl"
+                        <img src="@thumbnailUrl"
                              alt=""
                              referrerpolicy="no-referrer"
                              class="feed-image" />

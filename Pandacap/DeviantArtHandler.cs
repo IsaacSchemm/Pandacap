@@ -192,7 +192,7 @@ namespace Pandacap
                 context.Add(post);
             }
 
-            var oldBlobs = post.BlobReferences.ToList();
+            var oldBlobs = post.ImageBlobs.ToList();
 
             post.Title = deviation.title.OrNull();
 
@@ -402,7 +402,7 @@ namespace Pandacap
                     context.UserPosts.Remove(post);
                     await AddActivityAsync(post, ActivityType.Delete);
 
-                    foreach (var blob in post.BlobReferences)
+                    foreach (var blob in post.ImageBlobs)
                         await TryDeleteBlobIfExistsAsync(blob.BlobName);
                 }
             }
