@@ -73,19 +73,32 @@ namespace Pandacap
             string id = post["@id"]!.Value<string>()!;
             IEnumerable<string> types = (post["@type"] ?? Empty).Select(token => token.Value<string>()!);
 
-            int existing = await context.InboxActivityPubPosts.Where(p => p.Id == id).CountAsync();
+            int existing = await context.InboxActivityStreamsPosts
+                .Where(p => p.ObjectId == id)
+                .Where(p => p.PostedBy.Id == sendingActor.Id)
+                .CountAsync();
             if (existing > 0)
                 return;
 
-            context.Add(new InboxActivityPubPost
+            context.InboxActivityStreamsPosts.Add(new InboxActivityStreamsPost
             {
-                Id = id,
-                CreatedBy = sendingActor.Id,
+                Id = Guid.NewGuid(),
+                ObjectId = id,
+                Author = new InboxActivityStreamsUser
+                {
+                    Id = sendingActor.Id,
+                    Username = sendingActor.PreferredUsername,
+                    Usericon = sendingActor.IconUrl
+                },
+                PostedBy = new InboxActivityStreamsUser
+                {
+                    Id = sendingActor.Id,
+                    Username = sendingActor.PreferredUsername,
+                    Usericon = sendingActor.IconUrl
+                },
                 IsMention = isMention,
                 IsReply = isReply,
-                Username = sendingActor.PreferredUsername,
-                Usericon = sendingActor.IconUrl,
-                Timestamp = (post["https://www.w3.org/ns/activitystreams#published"] ?? Empty)
+                PostedAt = (post["https://www.w3.org/ns/activitystreams#published"] ?? Empty)
                     .Select(token => token["@value"]!.Value<DateTime>())
                     .FirstOrDefault(),
                 Summary = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
@@ -101,7 +114,7 @@ namespace Pandacap
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
                 Attachments = GetAttachments(post)
-                    .Select(attachment => new ActivityPubPostImage
+                    .Select(attachment => new InboxActivityStreamsImage
                     {
                         Name = attachment.name,
                         Url = attachment.url
@@ -148,23 +161,24 @@ namespace Pandacap
 
             var originalActor = await activityPubRequestHandler.FetchActorAsync(originalActorId);
 
-            context.Add(new InboxActivityPubAnnouncement
+            context.InboxActivityStreamsPosts.Add(new InboxActivityStreamsPost
             {
-                AnnounceActivityId = announceActivityId,
+                Id = Guid.NewGuid(),
+                AnnounceId = announceActivityId,
                 ObjectId = objectId,
-                CreatedBy = new()
+                Author = new()
                 {
                     Id = originalActor.Id,
                     Username = originalActor.PreferredUsername,
                     Usericon = originalActor.IconUrl
                 },
-                SharedBy = new()
+                PostedBy = new()
                 {
                     Id = announcingActor.Id,
                     Username = announcingActor.PreferredUsername,
                     Usericon = announcingActor.IconUrl
                 },
-                SharedAt = DateTimeOffset.UtcNow,
+                PostedAt = DateTimeOffset.UtcNow,
                 Summary = (originalPost["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
@@ -178,7 +192,7 @@ namespace Pandacap
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
                 Attachments = GetAttachments(originalPost)
-                    .Select(attachment => new ActivityPubPostImage
+                    .Select(attachment => new InboxActivityStreamsImage
                     {
                         Name = attachment.name,
                         Url = attachment.url

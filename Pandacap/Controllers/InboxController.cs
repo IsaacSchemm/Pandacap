@@ -29,7 +29,6 @@ namespace Pandacap.Controllers
 
             var source2 = context.InboxActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
-                .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.Timestamp)
                 .AsAsyncEnumerable()
                 .OfType<IPost>()
@@ -46,11 +45,20 @@ namespace Pandacap.Controllers
                 .Where(a => a.IndexedAt <= startTime)
                 .OrderByDescending(a => a.IndexedAt)
                 .AsAsyncEnumerable()
-                .Where(a => !a.IsRepost)
+                .Where(a => a.Author.DID == a.PostedBy.DID)
                 .OfType<IPost>()
                 .Where(x => x.ThumbnailUrls.Any());
 
-            var posts = await new[] { source1, source2, source3, source4 }
+            var source5 = context.InboxActivityStreamsPosts
+                .Where(a => a.PostedAt <= startTime)
+                .Where(a => a.IsMention != true && a.IsReply != true)
+                .OrderByDescending(a => a.PostedAt)
+                .AsAsyncEnumerable()
+                .Where(a => a.Author.Id == a.PostedBy.Id)
+                .OfType<IPost>()
+                .Where(x => x.ThumbnailUrls.Any());
+
+            var posts = await new[] { source1, source2, source3, source4, source5 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -84,7 +92,6 @@ namespace Pandacap.Controllers
 
             var source2 = context.InboxActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
-                .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.Timestamp)
                 .AsAsyncEnumerable()
                 .OfType<IPost>()
@@ -101,11 +108,20 @@ namespace Pandacap.Controllers
                 .Where(a => a.IndexedAt <= startTime)
                 .OrderByDescending(a => a.IndexedAt)
                 .AsAsyncEnumerable()
-                .Where(a => !a.IsRepost)
+                .Where(a => a.Author.DID == a.PostedBy.DID)
                 .OfType<IPost>()
                 .Where(x => !x.ThumbnailUrls.Any());
 
-            var posts = await new[] { source1, source2, source3, source4 }
+            var source5 = context.InboxActivityStreamsPosts
+                .Where(a => a.PostedAt <= startTime)
+                .Where(a => a.IsMention != true && a.IsReply != true)
+                .OrderByDescending(a => a.PostedAt)
+                .AsAsyncEnumerable()
+                .Where(a => a.Author.Id == a.PostedBy.Id)
+                .OfType<IPost>()
+                .Where(x => !x.ThumbnailUrls.Any());
+
+            var posts = await new[] { source1, source2, source3, source4, source5 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -167,7 +183,14 @@ namespace Pandacap.Controllers
                 .Where(a => a.IndexedAt <= startTime)
                 .OrderByDescending(a => a.IndexedAt)
                 .AsAsyncEnumerable()
-                .Where(a => a.IsRepost)
+                .Where(a => a.Author.DID != a.PostedBy.DID)
+                .OfType<IPost>();
+
+            var activityStreams = context.InboxActivityStreamsPosts
+                .Where(a => a.PostedAt <= startTime)
+                .OrderByDescending(a => a.PostedAt)
+                .AsAsyncEnumerable()
+                .Where(a => a.Author.Id != a.PostedBy.Id)
                 .OfType<IPost>();
 
             var posts = await new[] { activityPub, atProto }

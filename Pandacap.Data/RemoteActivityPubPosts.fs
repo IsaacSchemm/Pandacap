@@ -8,6 +8,7 @@ type ActivityPubPostImage() =
     member val Url = "" with get, set
     member val Name = nullString with get, set
 
+[<Obsolete>]
 /// An ActivityPub post from a user who this app follows.
 type InboxActivityPubPost() =
     [<Key>]
@@ -28,7 +29,7 @@ type InboxActivityPubPost() =
     interface IPost with
         member this.Id = this.Id
         member this.Usericon = this.Usericon
-        member this.Username = this.Username
+        member this.Username = $"{this.Username} (*)"
         member this.DisplayTitle =
             Option.ofObj this.Name
             |> Option.orElse (ExcerptGenerator.fromHtml this.Content)
@@ -37,12 +38,14 @@ type InboxActivityPubPost() =
         member this.LinkUrl = this.Id
         member this.ThumbnailUrls = this.Attachments |> Seq.map (fun a -> a.Url)
 
+[<Obsolete>]
 /// A remote ActivityPub user associated with a shared post.
 type InboxActivityPubAnnouncementUser() =
     member val Id = "" with get, set
     member val Username = nullString with get, set
     member val Usericon = nullString with get, set
 
+[<Obsolete>]
 /// An ActivityPub post shared by a user who this app follows.
 type InboxActivityPubAnnouncement() =
     [<Key>]
@@ -61,7 +64,7 @@ type InboxActivityPubAnnouncement() =
     interface IPost with
         member this.Id = this.AnnounceActivityId
         member this.Usericon = this.SharedBy.Usericon
-        member this.Username = this.SharedBy.Username
+        member this.Username = $"{this.SharedBy.Username} (*)"
         member this.DisplayTitle =
             Option.ofObj this.Name
             |> Option.orElse (ExcerptGenerator.fromHtml this.Content)

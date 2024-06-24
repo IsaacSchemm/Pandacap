@@ -135,8 +135,8 @@ namespace Pandacap.Controllers
 
                     context.RemoveRange(activities);
 
-                    var announcements = await context.InboxActivityPubAnnouncements
-                        .Where(a => a.AnnounceActivityId == id)
+                    var announcements = await context.InboxActivityStreamsPosts
+                        .Where(a => a.AnnounceId == id)
                         .ToListAsync();
 
                     context.RemoveRange(announcements);
@@ -290,13 +290,6 @@ namespace Pandacap.Controllers
 
                         await context.SaveChangesAsync();
                     }
-                    else
-                    {
-                        int inboxPosts = await context.InboxActivityPubPosts.Where(p => p.Id == postId).CountAsync();
-
-                        if (inboxPosts > 0)
-                            await remoteActivityPubPostHandler.AddRemotePostAsync(actor, obj);
-                    }
                 }
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Delete")
@@ -305,11 +298,8 @@ namespace Pandacap.Controllers
                 {
                     string deletedObjectId = deletedObject["@id"]!.Value<string>()!;
 
-                    var inboxPosts = await context.InboxActivityPubPosts.Where(p => p.Id == deletedObjectId).ToListAsync();
+                    var inboxPosts = await context.InboxActivityStreamsPosts.Where(p => p.ObjectId == deletedObjectId).ToListAsync();
                     context.RemoveRange(inboxPosts);
-
-                    var announcements = await context.InboxActivityPubAnnouncements.Where(p => p.ObjectId == deletedObjectId).ToListAsync();
-                    context.RemoveRange(announcements);
 
                     var favorites = await context.RemoteActivityPubFavorites.Where(p => p.ObjectId == deletedObjectId).ToListAsync();
                     context.RemoveRange(favorites);

@@ -14,6 +14,7 @@
     <Compile Include="ProfileProperty.fs" />
     <Compile Include="UserPost.fs" />
     <Compile Include="InboxATProtoPost.fs" />
+    <Compile Include="InboxActivityStreamsPost.fs" />
     <Compile Include="InboxDeviations.fs" />
     <Compile Include="Feeds.fs" />
     <Compile Include="RemoteActorRelationships.fs" />

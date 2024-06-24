@@ -15,6 +15,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.InboxArtworkDeviations: DbSet<InboxArtworkDeviation> = this.Set()
     member this.InboxTextDeviations: DbSet<InboxTextDeviation> = this.Set()
     member this.InboxATProtoPosts: DbSet<InboxATProtoPost> = this.Set()
+    member this.InboxActivityStreamsPosts: DbSet<InboxActivityStreamsPost> = this.Set()
     member this.Feeds: DbSet<Feed> = this.Set()
     member this.FeedItems: DbSet<FeedItem> = this.Set()
     member this.Follows: DbSet<Follow> = this.Set()

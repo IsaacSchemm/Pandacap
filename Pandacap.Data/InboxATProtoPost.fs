@@ -29,9 +29,6 @@ type InboxATProtoPost() =
     member val Images = new ResizeArray<InboxATProtoImage>() with get, set
     member val DismissedAt = nullDateTimeOffset with get, set
 
-    [<NotMapped>]
-    member this.IsRepost = this.Author.DID <> this.PostedBy.DID
-
     interface IPost with
         member this.DisplayTitle = ExcerptGenerator.fromText this.Text
         member this.Id = $"{this.Id}"
