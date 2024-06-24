@@ -12,18 +12,27 @@ To log in, the instance owner must use DeviantArt account that matches the Panda
 
 Once logged in, the instance owner can:
 
-* Import posts (artwork, journals, and status updates) from their DeviantArt account
-* Refresh posts by checking DeviantArt for updates
-* Set artwork alt text
-* Remove imported posts
-* Follow and unfollow ActivityPub users
-* Follow and unfollow Atom and RSS feeds
-* View image posts from DeviantArt accounts, ActivityPub actors, or Atom/RSS feeds they follow
-* View text posts from DeviantArt accounts, ActivityPub actors, or Atom/RSS feeds they follow
+* Manage posts:
+    * Import posts (artwork, journals, and status updates) from their DeviantArt account
+    * Refresh posts by checking DeviantArt for updates
+    * Set artwork alt text
+    * Remove imported posts
+* Manage follows:
+    * Follow and unfollow ActivityPub users
+    * Follow and unfollow Atom and RSS feeds
+    * Attach an external Bluesky account
+* View image posts from DeviantArt accounts, ActivityPub actors, Bluesky accounts, or Atom/RSS feeds they follow
+* View text posts from DeviantArt accounts, ActivityPub actors, Bluesky accounts, or Atom/RSS feeds they follow
 * View ActivityPub mentions and replies
-* View ActivityPub boosts
+* View ActivityPub and Bluesky boosts
 * Mark ActivityPub posts as favorites
 * See which other ActivityPub users have liked or boosted the owner's posts
+
+They cannot:
+
+* Create or edit posts without going through DeviantArt
+* Reply to posts or @mention other users
+* Sync their DeviantArt posts to the attached Bluesky account (Bridgy Fed can be used for outbound Bluesky support), although this may be added in the future
 
 Visitors can:
 
@@ -32,15 +41,6 @@ Visitors can:
 * See the owner's ActivityPub handle
 * See the owner's AT Protocol handle, if Bridgy Fed is connected
 * See the owner's ActivityPub follows, followers, and favorites
-
-Things it does not do:
-
-* Expose any other user's DeviantArt posts or activity over ActivityPub
-* Allow the owner to create or edit posts without going through DeviantArt
-* Allow the owner to reply to an ActivityPub post, or mention an ActivityPub user in a post
-* Expose ActivityPub likes and boosts to other users
-* Expose ActivityFed "comments" (replies) to other users
-* Allow any user other than the instance owner to log in
 
 ## Deployment
 
@@ -56,9 +56,8 @@ The web app and function app must have the appropriate IAM permissions to access
 
 Function app responsibilities:
 
-* `DeviantArtHourly` (every hour at :10): check DeviantArt for new posts (artwork and text) from users we follow
-* `FeedHourly` (every hour at :50): check RSS/Atom feeds for new posts
-* `InboxCleanup` (every day at 9:00): clear dismissed DeviantArt inbox entries (beyond the 5 most recent, which are used internally to mark our place in the feed)
+* `InboxCleanup` (every day at 9:00): clear dismissed Bluesky and DeviantArt inbox entries more than 7 days old
+* `InboxIngest` (every hour at :10): check Bluesky and DeviantArt timelines for new posts within the last 3 days, and check RSS/Atom feeds for new posts
 * `OutboxCleanup` (every day at 8:00): remove unsent outbound ActivityPub messages that have been pending for more than 7 days
 * `SendOutbound` (every ten minutes): attempt to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
 
