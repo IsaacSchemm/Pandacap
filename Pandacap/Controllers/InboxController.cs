@@ -43,6 +43,7 @@ namespace Pandacap.Controllers
 
             var source4 = context.InboxATProtoPosts
                 .Where(a => a.IndexedAt <= startTime)
+                .Where(d => d.DismissedAt == null)
                 .OrderByDescending(a => a.IndexedAt)
                 .AsAsyncEnumerable()
                 .Where(a => a.Author.DID == a.PostedBy.DID)
@@ -106,6 +107,7 @@ namespace Pandacap.Controllers
 
             var source4 = context.InboxATProtoPosts
                 .Where(a => a.IndexedAt <= startTime)
+                .Where(d => d.DismissedAt == null)
                 .OrderByDescending(a => a.IndexedAt)
                 .AsAsyncEnumerable()
                 .Where(a => a.Author.DID == a.PostedBy.DID)
@@ -181,6 +183,7 @@ namespace Pandacap.Controllers
 
             var atProto = context.InboxATProtoPosts
                 .Where(a => a.IndexedAt <= startTime)
+                .Where(d => d.DismissedAt == null)
                 .OrderByDescending(a => a.IndexedAt)
                 .AsAsyncEnumerable()
                 .Where(a => a.Author.DID != a.PostedBy.DID)
