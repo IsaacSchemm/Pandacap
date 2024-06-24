@@ -7,6 +7,7 @@ open System.Net.Http.Headers
 open System.Net.Http.Json
 open System.Threading.Tasks
 open FSharp.Control
+open Pandacap.Data
 
 /// Any object that contains access and refresh tokens from Bluesky.
 type ITokenPair =
@@ -184,7 +185,81 @@ module Reader =
             return! finalResp.Content.ReadFromJsonAsync<'T>()
     }
 
-/// Lists notifications on the user's Bluesky account.
+module Feed =
+    type Page =
+    | FromStart
+    | FromCursor of string
+
+    type Author = {
+        did: string
+        handle: string
+        displayName: string option
+        avatar: string
+    }
+
+    type Image = {
+        thumb: string
+        fullsize: string
+        alt: string
+    }
+
+    type Embed = {
+        images: Image list option
+    }
+
+    type Record = {
+        createdAt: DateTimeOffset
+        text: string
+    }
+
+    type Post = {
+        uri: string
+        cid: string
+        author: Author
+        record: Record
+        embed: Embed option
+        indexedAt: DateTimeOffset
+    } with
+        interface IPost with
+            member this.DisplayTitle = this.record.text
+            member this.Id = this.cid
+            member this.LinkUrl =
+                match this.uri.Split('/') with
+                | [| "at:"; ""; author; "app.bsky.feed.post"; post |] ->
+                    $"https://bsky.app/profile/{author}/post/{post}"
+                | _ ->
+                    null
+            member this.ThumbnailUrls =
+                this.embed
+                |> Option.bind (fun e -> e.images)
+                |> Option.defaultValue []
+                |> Seq.map (fun i -> i.thumb)
+            member this.Timestamp = this.record.createdAt
+            member this.Usericon = this.author.avatar
+            member this.Username =
+                this.author.displayName
+                |> Option.defaultValue this.author.handle
+
+    type FeedItem = {
+        post: Post
+    }
+
+    type FeedResponse = {
+        cursor: string option
+        feed: FeedItem list
+    }
+
+    let GetTimelineAsync httpClient credentials page = task {
+        return!
+            Requester.build credentials HttpMethod.Get "app.bsky.feed.getTimeline"
+            |> Requester.addQueryParameters [
+                match page with
+                | FromCursor c -> "cursor", c
+                | FromStart -> ()
+            ]
+            |> Reader.readAsync<FeedResponse> httpClient credentials
+    }
+
 module Notifications =
     type Page =
     | FromStart

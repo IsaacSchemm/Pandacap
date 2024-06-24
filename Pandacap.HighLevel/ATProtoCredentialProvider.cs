@@ -4,7 +4,9 @@ using Pandacap.LowLevel.ATProto;
 
 namespace Pandacap.HighLevel
 {
-    public class ATProtoCredentialProvider(PandacapDbContext context, ATProtoCredentials credentials)
+    public class ATProtoCredentialProvider(
+        PandacapDbContext context,
+        ATProtoCredentials credentials) : IAutomaticRefreshCredentials
     {
         public string DID => credentials.DID;
 

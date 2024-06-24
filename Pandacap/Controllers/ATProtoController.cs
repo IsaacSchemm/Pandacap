@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.FSharp.Collections;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.LowLevel;
 using Pandacap.LowLevel.ATProto;
+using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
@@ -13,7 +16,28 @@ namespace Pandacap.Controllers
         IHttpClientFactory httpClientFactory,
         PandacapDbContext context) : Controller
     {
-        public async Task<IActionResult> SetAccount()
+        public async Task<IActionResult> Index()
+        {
+            var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
+
+            var account = await context.ATProtoCredentials.SingleAsync();
+
+            var page = await LowLevel.ATProto.Feed.GetTimelineAsync(
+                client,
+                new ATProtoCredentialProvider(context, account),
+                LowLevel.ATProto.Feed.Page.FromStart);
+
+            return View("List", new ListViewModel<IPost>
+            {
+                Items = new ListPage<IPost>(
+                    ListModule.OfSeq(page.feed.Select(x => (IPost)x.post)),
+                    Microsoft.FSharp.Core.FSharpOption<IPost>.None),
+                ShowThumbnails = true
+            });
+        }
+
+        public async Task<IActionResult> Setup()
         {
             var account = await context.ATProtoCredentials
                 .AsNoTracking()
@@ -31,7 +55,7 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetAccount(string pds, string did, string password)
+        public async Task<IActionResult> Setup(string pds, string did, string password)
         {
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
@@ -51,19 +75,19 @@ namespace Pandacap.Controllers
 
             await context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(SetAccount));
+            return RedirectToAction(nameof(Setup));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveAccount()
+        public async Task<IActionResult> Reset()
         {
             var accounts = await context.ATProtoCredentials.ToListAsync();
             context.RemoveRange(accounts);
 
             await context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(SetAccount));
+            return RedirectToAction(nameof(Setup));
         }
     }
 }
