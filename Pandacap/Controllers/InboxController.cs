@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.HighLevel;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
@@ -26,13 +25,6 @@ namespace Pandacap.Controllers
                 .OrderByDescending(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .OfType<IPost>();
-
-            var source2 = context.InboxActivityPubPosts
-                .Where(a => a.Timestamp <= startTime)
-                .OrderByDescending(a => a.Timestamp)
-                .AsAsyncEnumerable()
-                .OfType<IPost>()
-                .Where(x => x.ThumbnailUrls.Any());
 
             var source3 = context.FeedItems
                 .Where(a => a.Timestamp <= startTime)
@@ -59,7 +51,7 @@ namespace Pandacap.Controllers
                 .OfType<IPost>()
                 .Where(x => x.ThumbnailUrls.Any());
 
-            var posts = await new[] { source1, source2, source3, source4, source5 }
+            var posts = await new[] { source1, source3, source4, source5 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -91,13 +83,6 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IPost>();
 
-            var source2 = context.InboxActivityPubPosts
-                .Where(a => a.Timestamp <= startTime)
-                .OrderByDescending(a => a.Timestamp)
-                .AsAsyncEnumerable()
-                .OfType<IPost>()
-                .Where(x => !x.ThumbnailUrls.Any());
-
             var source3 = context.FeedItems
                 .Where(a => a.Timestamp <= startTime)
                 .OrderByDescending(a => a.Timestamp)
@@ -123,7 +108,7 @@ namespace Pandacap.Controllers
                 .OfType<IPost>()
                 .Where(x => !x.ThumbnailUrls.Any());
 
-            var posts = await new[] { source1, source2, source3, source4, source5 }
+            var posts = await new[] { source1, source3, source4, source5 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -147,10 +132,10 @@ namespace Pandacap.Controllers
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var posts = await context.InboxActivityPubPosts
-                .Where(a => a.Timestamp <= startTime)
+            var posts = await context.InboxActivityStreamsPosts
+                .Where(a => a.PostedAt <= startTime)
                 .Where(a => a.IsMention == true || a.IsReply == true)
-                .OrderByDescending(a => a.Timestamp)
+                .OrderByDescending(a => a.PostedAt)
                 .AsAsyncEnumerable()
                 .OfType<IPost>()
                 .SkipWhile(x => next != null && x.Id != next)
@@ -175,12 +160,6 @@ namespace Pandacap.Controllers
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var activityPub = context.InboxActivityPubAnnouncements
-                .Where(a => a.SharedAt <= startTime)
-                .OrderByDescending(a => a.SharedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
             var atProto = context.InboxATProtoPosts
                 .Where(a => a.IndexedAt <= startTime)
                 .Where(d => d.DismissedAt == null)
@@ -196,7 +175,7 @@ namespace Pandacap.Controllers
                 .Where(a => a.Author.Id != a.PostedBy.Id)
                 .OfType<IPost>();
 
-            var posts = await new[] { activityPub, atProto }
+            var posts = await new[] { atProto, activityStreams }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -239,22 +218,6 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .InboxActivityPubPosts
-                .Where(item => ids.Contains(item.Id))
-                .AsAsyncEnumerable())
-            {
-                yield return item;
-            }
-
-            await foreach (var item in context
-                .InboxActivityPubAnnouncements
-                .Where(item => ids.Contains(item.AnnounceActivityId))
-                .AsAsyncEnumerable())
-            {
-                yield return item;
-            }
-
-            await foreach (var item in context
                 .InboxATProtoPosts
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
@@ -284,12 +247,6 @@ namespace Pandacap.Controllers
         {
             await foreach (var item in GetInboxPostsByIds(id))
             {
-                if (item is InboxActivityPubPost ap)
-                    context.Remove(ap);
-
-                if (item is InboxActivityPubAnnouncement aa)
-                    context.Remove(aa);
-
                 if (item is InboxATProtoPost atp)
                     atp.DismissedAt = DateTimeOffset.UtcNow;
 

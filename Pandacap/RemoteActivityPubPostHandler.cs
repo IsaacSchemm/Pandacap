@@ -247,7 +247,7 @@ namespace Pandacap
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
                 Attachments = GetAttachments(post)
-                    .Select(attachment => new ActivityPubPostImage
+                    .Select(attachment => new RemoteActivityPubFavoriteImage
                     {
                         Name = attachment.name,
                         Url = attachment.url

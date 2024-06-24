@@ -18,7 +18,7 @@
     <Compile Include="InboxDeviations.fs" />
     <Compile Include="Feeds.fs" />
     <Compile Include="RemoteActorRelationships.fs" />
-    <Compile Include="RemoteActivityPubPosts.fs" />
+    <Compile Include="RemoteActivityPubFavorite.fs" />
     <Compile Include="ActivityPubActivities.fs" />
     <Compile Include="PandacapDbContext.fs" />
   </ItemGroup>
