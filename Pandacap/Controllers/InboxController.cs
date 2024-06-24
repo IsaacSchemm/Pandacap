@@ -255,6 +255,14 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
+                .InboxATProtoPosts
+                .Where(item => guids.Contains(item.Id))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
+
+            await foreach (var item in context
                 .InboxActivityStreamsPosts
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
