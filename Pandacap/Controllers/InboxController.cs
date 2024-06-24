@@ -252,6 +252,14 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
+                .InboxActivityStreamsPosts
+                .Where(item => guids.Contains(item.Id))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
+
+            await foreach (var item in context
                 .FeedItems
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
@@ -270,6 +278,12 @@ namespace Pandacap.Controllers
 
                 if (item is InboxActivityPubAnnouncement aa)
                     context.Remove(aa);
+
+                if (item is InboxATProtoPost atp)
+                    atp.DismissedAt = DateTimeOffset.UtcNow;
+
+                if (item is InboxActivityStreamsPost asp)
+                    context.Remove(asp);
 
                 if (item is InboxArtworkDeviation iid)
                     iid.DismissedAt = DateTimeOffset.UtcNow;
