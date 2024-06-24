@@ -2,7 +2,7 @@
     <div class="col-md-4">
         <form method="post" asp-action="Setup">
             <div class="form-floating mb-3">
-                <input id="pds" name="pds" class="form-control" value="@(ViewBag.PDS ?? "bsky.social")" />
+                <input id="pds" name="pds" class="form-control" value="@ViewBag.PDS" placeholder="bsky.social" />
                 <label for="pds" class="form-label">PDS</label>
             </div>
             <div class="form-floating mb-3">

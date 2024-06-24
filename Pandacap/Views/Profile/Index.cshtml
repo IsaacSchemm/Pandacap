@@ -130,7 +130,7 @@
 
     <div class="container mb-3">
         <div class="row">
-            <div class="col col-xl-4">
+            <div class="col col-12 col-lg-4">
                 <div class="card mt-3">
                     <div class="card-header">
                         Sync with DeviantArt
@@ -141,32 +141,67 @@
                                 Past hour
                             </button>
                         </form>
-                        <hr />
+
+                        <div class="mb-3"></div>
+
                         <form asp-action="ImportPastMonth">
                             <button type="submit" class="btn btn-primary">
                                 Past month
                             </button>
                         </form>
-                        <hr />
+
+                        <div class="mb-3"></div>
+
                         <form asp-action="ImportAll" onsubmit="return confirm('Are you sure you want to import and refresh all posts?')">
                             <button type="submit" class="btn btn-primary">
                                 All posts
                             </button>
                         </form>
-                    </div>
-                </div>
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Properties
-                    </div>
-                    <div class="card-body text-center">
+
+                        <hr />
+
                         <a asp-controller="AltText" asp-action="Index" asp-route-count="1" class="btn btn-outline-primary">
                             Manage alt text (1)
                         </a>
-                        <hr />
+
+                        <div class="mb-3"></div>
+
                         <a asp-controller="AltText" asp-action="Index" asp-route-count="10" class="btn btn-outline-primary">
                             Manage alt text (10)
                         </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col col-12 col-lg-4">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        ActivityPub
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Follow">
+                            <div class="mb-3">
+                                <label for="id" class="form-label">
+                                    Follow actor
+                                </label>
+                                <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
+                                <div class="form-text">Mastodon-style handles (of the form <tt>@@user@@hostname</tt>) are not supported.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Send follow request
+                            </button>
+                        </form>
+                        <hr />
+                        <form asp-controller="Favorites" asp-action="Add">
+                            <div class="mb-3">
+                                <label for="id" class="form-label">
+                                    Add to Favorites
+                                </label>
+                                <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Add
+                            </button>
+                        </form>
                     </div>
                 </div>
                 <div class="card mt-3">
@@ -179,63 +214,6 @@
                         </a>
                     </div>
                 </div>
-            </div>
-            <div class="col col-xl-4">
-                <div class="card mt-3">
-                    <div class="card-header">
-                        ActivityPub
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="Follow">
-                            <div class="mb-3">
-                                <label for="id" class="form-label">
-                                    Follow actor ID / URL
-                                </label>
-                                <input type="text" class="form-control" id="id" name="id" />
-                                <div class="form-text">Mastodon-style handles (of the form <tt>@@user@@hostname</tt>) are not supported.</div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                Send follow request
-                            </button>
-                        </form>
-                        <hr />
-                        <form asp-controller="Favorites" asp-action="Add">
-                            <div class="mb-3">
-                                <label for="id" class="form-label">
-                                    Add object ID / URL to Favorites
-                                </label>
-                                <input type="text" class="form-control" id="id" name="id" />
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                Add
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Atom/RSS
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="AddFeed">
-                            <div class="mb-3">
-                                <label for="url" class="form-label">
-                                    Follow Atom/RSS feed URL
-                                </label>
-                                <input type="text" class="form-control" id="url" name="url" />
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                Follow
-                            </button>
-                            <hr />
-                            <a asp-action="Feeds" class="btn btn-outline-primary">
-                                Manage feeds
-                            </a>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col col-xl-4">
                 <div class="card mt-3">
                     <div class="card-header">
                         Recent activities
@@ -259,6 +237,47 @@
                             </li>
                         }
                     </ul>
+                </div>
+            </div>
+            <div class="col col-12 col-lg-4">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Atom/RSS
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="AddFeed">
+                            <div class="mb-3">
+                                <label for="url" class="form-label">
+                                    Follow Atom/RSS feed URL
+                                </label>
+                                <input type="url" class="form-control" id="url" name="url" placeholder="https://" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Follow
+                            </button>
+                            <hr />
+                            <a asp-action="Feeds" class="btn btn-outline-primary">
+                                Manage feeds
+                            </a>
+                        </form>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        AT Protocol
+                    </div>
+                    <div class="card-body">
+                        <a asp-controller="ATProto" asp-action="Setup" class="btn btn-outline-primary">
+                            Configure external account
+                        </a>
+                        <div class="form-text">
+                            Posts that appear in the account's home timeline will be added to the inbox.
+                        </div>
+                        <hr />
+                        <div class="form-text">
+                            Outbound atproto support can be enabled by following Bridgy Fed.
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
