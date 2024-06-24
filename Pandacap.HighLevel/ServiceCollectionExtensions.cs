@@ -12,6 +12,8 @@ namespace Pandacap.HighLevel
             return services
                 .AddSingleton(applicationInformation)
                 .AddScoped<AtomRssFeedReader>()
+                .AddScoped<ATProtoCredentialProvider>()
+                .AddScoped<ATProtoInboxHandler>()
                 .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<ActivityPubTranslator>()
                 .AddScoped<DeviantArtCredentialProvider>()

@@ -16,27 +16,6 @@ namespace Pandacap.Controllers
         IHttpClientFactory httpClientFactory,
         PandacapDbContext context) : Controller
     {
-        public async Task<IActionResult> Index()
-        {
-            var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
-
-            var account = await context.ATProtoCredentials.SingleAsync();
-
-            var page = await LowLevel.ATProto.Feed.GetTimelineAsync(
-                client,
-                new ATProtoCredentialProvider(context, account),
-                LowLevel.ATProto.Feed.Page.FromStart);
-
-            return View("List", new ListViewModel<IPost>
-            {
-                Items = new ListPage<IPost>(
-                    ListModule.OfSeq(page.feed.Select(x => (IPost)x.post)),
-                    Microsoft.FSharp.Core.FSharpOption<IPost>.None),
-                ShowThumbnails = true
-            });
-        }
-
         public async Task<IActionResult> Setup()
         {
             var account = await context.ATProtoCredentials

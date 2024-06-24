@@ -31,7 +31,7 @@ type InboxActivityPubPost() =
         member this.Username = this.Username
         member this.DisplayTitle =
             Option.ofObj this.Name
-            |> Option.orElse (ExcerptGenerator.compute this.Content)
+            |> Option.orElse (ExcerptGenerator.fromHtml this.Content)
             |> Option.defaultValue $"{this.Id}"
         member this.Timestamp = this.Timestamp
         member this.LinkUrl = this.Id
@@ -64,7 +64,7 @@ type InboxActivityPubAnnouncement() =
         member this.Username = this.SharedBy.Username
         member this.DisplayTitle =
             Option.ofObj this.Name
-            |> Option.orElse (ExcerptGenerator.compute this.Content)
+            |> Option.orElse (ExcerptGenerator.fromHtml this.Content)
             |> Option.defaultValue $"{this.ObjectId}"
         member this.Timestamp = this.SharedAt
         member this.LinkUrl = this.ObjectId
@@ -93,7 +93,7 @@ type RemoteActivityPubFavorite() =
         member this.Username = this.Username
         member this.DisplayTitle =
             Option.ofObj this.Name
-            |> Option.orElse (ExcerptGenerator.compute this.Content)
+            |> Option.orElse (ExcerptGenerator.fromHtml this.Content)
             |> Option.defaultValue $"{this.ObjectId}"
         member this.Timestamp = this.CreatedAt
         member this.LinkUrl = this.ObjectId

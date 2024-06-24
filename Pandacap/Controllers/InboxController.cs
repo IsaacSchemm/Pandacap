@@ -24,25 +24,33 @@ namespace Pandacap.Controllers
                 .Where(d => d.Timestamp <= startTime)
                 .Where(d => d.DismissedAt == null)
                 .OrderByDescending(d => d.Timestamp)
-                .OfType<IPost>()
-                .AsAsyncEnumerable();
+                .AsAsyncEnumerable()
+                .OfType<IPost>();
 
             var source2 = context.InboxActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
                 .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.Timestamp)
-                .OfType<IPost>()
                 .AsAsyncEnumerable()
+                .OfType<IPost>()
                 .Where(x => x.ThumbnailUrls.Any());
 
             var source3 = context.FeedItems
                 .Where(a => a.Timestamp <= startTime)
                 .OrderByDescending(a => a.Timestamp)
-                .OfType<IPost>()
                 .AsAsyncEnumerable()
+                .OfType<IPost>()
                 .Where(x => x.ThumbnailUrls.Any());
 
-            var posts = await new[] { source1, source2, source3 }
+            var source4 = context.InboxATProtoPosts
+                .Where(a => a.IndexedAt <= startTime)
+                .OrderByDescending(a => a.IndexedAt)
+                .AsAsyncEnumerable()
+                .Where(a => !a.IsRepost)
+                .OfType<IPost>()
+                .Where(x => x.ThumbnailUrls.Any());
+
+            var posts = await new[] { source1, source2, source3, source4 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -71,25 +79,33 @@ namespace Pandacap.Controllers
                 .Where(d => d.Timestamp <= startTime)
                 .Where(d => d.DismissedAt == null)
                 .OrderByDescending(d => d.Timestamp)
-                .OfType<IPost>()
-                .AsAsyncEnumerable();
+                .AsAsyncEnumerable()
+                .OfType<IPost>();
 
             var source2 = context.InboxActivityPubPosts
                 .Where(a => a.Timestamp <= startTime)
                 .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.Timestamp)
-                .OfType<IPost>()
                 .AsAsyncEnumerable()
+                .OfType<IPost>()
                 .Where(x => !x.ThumbnailUrls.Any());
 
             var source3 = context.FeedItems
                 .Where(a => a.Timestamp <= startTime)
                 .OrderByDescending(a => a.Timestamp)
-                .OfType<IPost>()
                 .AsAsyncEnumerable()
+                .OfType<IPost>()
                 .Where(x => !x.ThumbnailUrls.Any());
 
-            var posts = await new[] { source1, source2, source3 }
+            var source4 = context.InboxATProtoPosts
+                .Where(a => a.IndexedAt <= startTime)
+                .OrderByDescending(a => a.IndexedAt)
+                .AsAsyncEnumerable()
+                .Where(a => !a.IsRepost)
+                .OfType<IPost>()
+                .Where(x => !x.ThumbnailUrls.Any());
+
+            var posts = await new[] { source1, source2, source3, source4 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -141,11 +157,21 @@ namespace Pandacap.Controllers
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var posts = await context.InboxActivityPubAnnouncements
+            var activityPub = context.InboxActivityPubAnnouncements
                 .Where(a => a.SharedAt <= startTime)
                 .OrderByDescending(a => a.SharedAt)
                 .AsAsyncEnumerable()
-                .OfType<IPost>()
+                .OfType<IPost>();
+
+            var atProto = context.InboxATProtoPosts
+                .Where(a => a.IndexedAt <= startTime)
+                .OrderByDescending(a => a.IndexedAt)
+                .AsAsyncEnumerable()
+                .Where(a => a.IsRepost)
+                .OfType<IPost>();
+
+            var posts = await new[] { activityPub, atProto }
+                .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
 
