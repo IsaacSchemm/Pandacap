@@ -35,7 +35,7 @@ type InboxATProtoPost() =
     interface IPost with
         member this.DisplayTitle = ExcerptGenerator.fromText this.Text
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"https://bsky.app/profile/{Uri.EscapeDataString(this.Author.DID)}/post/{Uri.EscapeDataString(this.RecordKey)}"
+        member this.LinkUrl = $"https://bsky.app/profile/{this.Author.DID}/post/{this.RecordKey}"
         member this.ThumbnailUrls = this.Images |> Seq.map (fun i -> i.Thumb)
         member this.Timestamp = this.IndexedAt
         member this.Usericon = this.PostedBy.Avatar

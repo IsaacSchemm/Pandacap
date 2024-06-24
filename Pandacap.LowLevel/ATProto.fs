@@ -251,10 +251,6 @@ module BlueskyFeed =
             match this.reason with
             | Some r when r.``$type`` = "app.bsky.feed.defs#reasonRepost" -> r.indexedAt
             | _ -> this.post.indexedAt
-        member this.IsRepost =
-            match this.reason with
-            | Some r when r.``$type`` = "app.bsky.feed.defs#reasonRepost" -> true
-            | _ -> false
 
     type FeedResponse = {
         cursor: string option
