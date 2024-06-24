@@ -42,6 +42,7 @@ namespace Pandacap.HighLevel
         private readonly Lazy<Task<Result?>> Credentials = new(async () =>
         {
             var allCredentials = await context.DeviantArtCredentials
+                .Where(c => c.Username == applicationInformation.DeviantArtUsername)
                 .ToListAsync();
 
             foreach (var credentials in allCredentials)

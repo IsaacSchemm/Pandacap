@@ -12,6 +12,7 @@
     <Compile Include="IdMapper.fs" />
     <Compile Include="ActorKey.fs" />
     <Compile Include="ActivityPub.fs" />
+    <Compile Include="ATProto.fs" />
   </ItemGroup>
 
   <ItemGroup>

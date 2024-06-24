@@ -237,15 +237,10 @@ namespace Pandacap.Areas.Identity.Pages.Account
         {
             if (info.LoginProvider == "DeviantArt")
             {
-                var credentials = await _context.DeviantArtCredentials
-                    .Where(t => t.UserId == user.Id)
-                    .SingleOrDefaultAsync();
+                var credentials = await _context.DeviantArtCredentials.FirstOrDefaultAsync();
                 if (credentials == null)
                 {
-                    credentials = new DeviantArtCredentials
-                    {
-                        UserId = user.Id
-                    };
+                    credentials = new DeviantArtCredentials();
                     _context.DeviantArtCredentials.Add(credentials);
                 }
                 credentials.AccessToken = info.AuthenticationTokens
