@@ -44,7 +44,6 @@ namespace Pandacap.Controllers
 
             var source5 = context.InboxActivityStreamsPosts
                 .Where(a => a.PostedAt <= startTime)
-                .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.PostedAt)
                 .AsAsyncEnumerable()
                 .Where(a => a.Author.Id == a.PostedBy.Id)
@@ -101,7 +100,6 @@ namespace Pandacap.Controllers
 
             var source5 = context.InboxActivityStreamsPosts
                 .Where(a => a.PostedAt <= startTime)
-                .Where(a => a.IsMention != true && a.IsReply != true)
                 .OrderByDescending(a => a.PostedAt)
                 .AsAsyncEnumerable()
                 .Where(a => a.Author.Id == a.PostedBy.Id)
@@ -116,34 +114,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Inbox (Text Posts)",
-                GroupByUser = true,
-                AllowDismiss = true,
-                Items = posts
-            });
-        }
-
-        public async Task<IActionResult> MentionsAndReplies(
-            string? next,
-            int? count)
-        {
-            DateTimeOffset startTime = next is string s
-                ? await GetInboxPostsByIds([s])
-                    .Select(f => f.Timestamp)
-                    .SingleAsync()
-                : DateTimeOffset.MaxValue;
-
-            var posts = await context.InboxActivityStreamsPosts
-                .Where(a => a.PostedAt <= startTime)
-                .Where(a => a.IsMention == true || a.IsReply == true)
-                .OrderByDescending(a => a.PostedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>()
-                .SkipWhile(x => next != null && x.Id != next)
-                .AsListPage(count ?? 100);
-
-            return View("List", new ListViewModel<IPost>
-            {
-                Title = "Inbox (Mentions & Replies)",
                 GroupByUser = true,
                 AllowDismiss = true,
                 Items = posts
