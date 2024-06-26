@@ -102,36 +102,38 @@ namespace Pandacap.HighLevel
         /// <returns></returns>
         public async Task FindAndRecordBridgedBlueskyUrls()
         {
-            if (await credentialProvider.GetCredentialsAsync() is not IAutomaticRefreshCredentials credentials)
+            var bridgyFedFollows = await context.Follows
+                .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
+                .ToListAsync();
+
+            if (bridgyFedFollows.Count == 0)
                 return;
 
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
 
-            var oldestBridged = await context.UserPosts
-                .Where(p => p.BridgedBlueskyUrl != null)
-                .OrderBy(p => p.PublishedTime)
-                .Select(p => new { p.PublishedTime })
-                .FirstOrDefaultAsync();
+            var newestPosts = await context.UserPosts
+                .OrderByDescending(p => p.PublishedTime)
+                .AsAsyncEnumerable()
+                .TakeWhile(p => p.BridgedBlueskyUrl == null)
+                .ToListAsync();
 
-            var cutoff = oldestBridged?.PublishedTime ?? DateTimeOffset.MinValue;
+            if (newestPosts.Count == 0)
+                return;
+
+            var cutoff = newestPosts.Select(p => p.PublishedTime).Min();
 
             string actor = $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy";
 
             var upstream =
                 await WrapAsync(page => BlueskyFeed.GetAuthorFeedAsync(
                     client,
-                    credentials,
                     actor,
                     page))
                 .TakeWhile(item => item.IndexedAt >= cutoff)
                 .ToListAsync();
 
-            var recent = context.UserPosts
-                .Where(p => p.PublishedTime >= cutoff)
-                .AsAsyncEnumerable();
-
-            await foreach (var post in recent)
+            foreach (var post in newestPosts)
             {
                 if (post.BridgedBlueskyUrl != null)
                     continue;

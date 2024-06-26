@@ -30,7 +30,6 @@ type IHost =
 /// Any object that can be used to authenticate with Bluesky.
 /// Contains the user's DID, the PDS to connect to, and the current access token.
 type ICredentials =
-    inherit IHost
     abstract member DID: string
     abstract member AccessToken: string
 
@@ -38,6 +37,7 @@ type ICredentials =
 /// When a request fails, this library will use the refresh token to get a new
 /// set of tokens, call UpdateTokensAsync to store them, and then retry.
 type IAutomaticRefreshCredentials =
+    inherit IHost
     inherit ICredentials
     inherit ITokenPair
     abstract member UpdateTokensAsync: newCredentials: ITokenPair -> Task
@@ -76,8 +76,8 @@ module Requester =
         req with body = RawBody (body, contentType)
     }
 
-    let addAccessToken (credentials: ICredentials) (req: Request) = {
-        req with bearerToken = Some credentials.AccessToken
+    let addAccessToken (credentials: ICredentials option) (req: Request) = {
+        req with bearerToken = credentials |> Option.map (fun c -> c.AccessToken)
     }
 
     let addRefreshToken (credentials: ITokenPair) (req: Request) = {
@@ -134,7 +134,7 @@ module Reader =
 
     exception ErrorException of Error
 
-    let readAsync<'T> (httpClient: HttpClient) (credentials: ICredentials) (req: Requester.Request) = task {
+    let readAsync<'T> (httpClient: HttpClient) (credentials: ICredentials option) (req: Requester.Request) = task {
         use! initialResp =
             req
             |> Requester.addAccessToken credentials
@@ -142,11 +142,11 @@ module Reader =
 
         use! finalResp = task {
             match credentials, initialResp.StatusCode with
-            | :? IAutomaticRefreshCredentials as auto, HttpStatusCode.BadRequest ->
+            | Some (:? IAutomaticRefreshCredentials as auto), HttpStatusCode.BadRequest ->
                 let! err = initialResp.Content.ReadFromJsonAsync<Error>()
                 if err.error = "ExpiredToken" then
                     use! tokenResponse =
-                        Requester.build HttpMethod.Post credentials "com.atproto.server.refreshSession" []
+                        Requester.build HttpMethod.Post { new IHost with member _.PDS = req.uri.Host } "com.atproto.server.refreshSession" []
                         |> Requester.addRefreshToken auto
                         |> Requester.sendAsync httpClient
 
@@ -157,7 +157,7 @@ module Reader =
 
                     return!
                         req
-                        |> Requester.addAccessToken auto
+                        |> Requester.addAccessToken credentials
                         |> Requester.sendAsync httpClient
                 else
                     return raise (ErrorException err)
@@ -249,15 +249,15 @@ module BlueskyFeed =
         feed: FeedItem list
     }
 
-    let GetAuthorFeedAsync httpClient credentials actor page =
-        Requester.build HttpMethod.Get credentials "app.bsky.feed.getAuthorFeed" [
+    let GetAuthorFeedAsync httpClient actor page =
+        Requester.build HttpMethod.Get { new IHost with member _.PDS = "public.api.bsky.app" } "app.bsky.feed.getAuthorFeed" [
             "actor", actor
 
             match page with
             | FromCursor c -> "cursor", c
             | FromStart -> ()
         ]
-        |> Reader.readAsync<FeedResponse> httpClient credentials
+        |> Reader.readAsync<FeedResponse> httpClient None
 
     let GetTimelineAsync httpClient credentials page =
         Requester.build HttpMethod.Get credentials "app.bsky.feed.getTimeline" [
@@ -265,4 +265,4 @@ module BlueskyFeed =
             | FromCursor c -> "cursor", c
             | FromStart -> ()
         ]
-        |> Reader.readAsync<FeedResponse> httpClient credentials
+        |> Reader.readAsync<FeedResponse> httpClient (Some credentials)

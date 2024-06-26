@@ -1,8 +1,6 @@
-﻿using DeviantArtFs;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel.ATProto;
-using StructuredFieldValues;
 
 namespace Pandacap.HighLevel
 {
