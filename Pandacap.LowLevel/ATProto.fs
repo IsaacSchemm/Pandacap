@@ -27,6 +27,9 @@ type Tokens = {
 type IHost =
     abstract member PDS: string
 
+module Host =
+    let Public = { new IHost with member _.PDS = "public.api.bsky.app" }
+
 /// Any object that can be used to authenticate with Bluesky.
 /// Contains the user's DID, the PDS to connect to, and the current access token.
 type ICredentials =
@@ -104,6 +107,23 @@ module Requester =
         return! httpClient.SendAsync(req)
     }
 
+    let refreshAuthAndSendAsync<'T> (httpClient: HttpClient) (auto: IAutomaticRefreshCredentials) (req: Request) = task {
+        use! tokenResponse =
+            build HttpMethod.Post { new IHost with member _.PDS = req.uri.Host } "com.atproto.server.refreshSession" []
+            |> addRefreshToken auto
+            |> sendAsync httpClient
+
+        tokenResponse.EnsureSuccessStatusCode() |> ignore
+
+        let! newCredentials = tokenResponse.Content.ReadFromJsonAsync<Tokens>()
+        do! auto.UpdateTokensAsync(newCredentials)
+
+        return!
+            req
+            |> addAccessToken (Some auto)
+            |> sendAsync httpClient
+    }
+
 /// Handles logging in and refreshing tokens.
 module Auth =
     let CreateSessionAsync httpClient hostname identifier password = task {
@@ -145,20 +165,7 @@ module Reader =
             | Some (:? IAutomaticRefreshCredentials as auto), HttpStatusCode.BadRequest ->
                 let! err = initialResp.Content.ReadFromJsonAsync<Error>()
                 if err.error = "ExpiredToken" then
-                    use! tokenResponse =
-                        Requester.build HttpMethod.Post { new IHost with member _.PDS = req.uri.Host } "com.atproto.server.refreshSession" []
-                        |> Requester.addRefreshToken auto
-                        |> Requester.sendAsync httpClient
-
-                    tokenResponse.EnsureSuccessStatusCode() |> ignore
-
-                    let! newCredentials = tokenResponse.Content.ReadFromJsonAsync<Tokens>()
-                    do! auto.UpdateTokensAsync(newCredentials)
-
-                    return!
-                        req
-                        |> Requester.addAccessToken credentials
-                        |> Requester.sendAsync httpClient
+                    return! Requester.refreshAuthAndSendAsync httpClient auto req
                 else
                     return raise (ErrorException err)
             | _ ->
@@ -167,7 +174,7 @@ module Reader =
 
         finalResp.EnsureSuccessStatusCode() |> ignore
 
-        if typedefof<'T> = typedefof<unit> then
+        if typedefof<'T> <> typedefof<unit> then
             return () :> obj :?> 'T
         else
             return! finalResp.Content.ReadFromJsonAsync<'T>()
@@ -219,7 +226,6 @@ module BlueskyFeed =
                 Uri.UnescapeDataString(rkey)
             | _ ->
                 failwith "Cannot extract record key from URI"
-
         member this.Images =
             this.embed
             |> Option.bind (fun e -> e.images)
@@ -250,7 +256,7 @@ module BlueskyFeed =
     }
 
     let GetAuthorFeedAsync httpClient actor page =
-        Requester.build HttpMethod.Get { new IHost with member _.PDS = "public.api.bsky.app" } "app.bsky.feed.getAuthorFeed" [
+        Requester.build HttpMethod.Get Host.Public "app.bsky.feed.getAuthorFeed" [
             "actor", actor
 
             match page with
