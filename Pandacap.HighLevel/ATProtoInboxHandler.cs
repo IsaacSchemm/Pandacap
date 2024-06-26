@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DeviantArtFs.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.FSharp.Core;
 using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.LowLevel.ATProto;
@@ -9,8 +11,28 @@ namespace Pandacap.HighLevel
         ApplicationInformation appInfo,
         PandacapDbContext context,
         ATProtoCredentialProvider credentialProvider,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IdMapper idMapper)
     {
+        private static async IAsyncEnumerable<BlueskyFeed.FeedItem> WrapAsync(
+            Func<BlueskyFeed.Page, Task<BlueskyFeed.FeedResponse>> handler)
+        {
+            var page = BlueskyFeed.Page.FromStart;
+
+            while (true)
+            {
+                var results = await handler(page);
+
+                foreach (var item in results.feed)
+                    yield return item;
+
+                if (OptionModule.IsNone(results.cursor))
+                    break;
+
+                page = BlueskyFeed.Page.NewFromCursor(results.cursor.Value);
+            }
+        }
+
         /// <summary>
         /// Imports new posts from the past three days that have not yet been
         /// added to the Pandacap inbox.
@@ -30,7 +52,7 @@ namespace Pandacap.HighLevel
                 .Where(item => item.IndexedAt >= someTimeAgo)
                 .ToListAsync();
 
-            await foreach (var feedItem in BlueskyFeedProvider.WrapAsync(page => BlueskyFeed.GetTimelineAsync(client, credentials, page)))
+            await foreach (var feedItem in WrapAsync(page => BlueskyFeed.GetTimelineAsync(client, credentials, page)))
             {
                 if (feedItem.IndexedAt < someTimeAgo)
                     break;
@@ -69,6 +91,57 @@ namespace Pandacap.HighLevel
                         })
                         .ToList()
                 });
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Records the Bluesky app URLs of Pandacap posts that have been bridged by Bridgy Fed.
+        /// </summary>
+        /// <returns></returns>
+        public async Task FindAndRecordBridgedBlueskyUrls()
+        {
+            if (await credentialProvider.GetCredentialsAsync() is not IAutomaticRefreshCredentials credentials)
+                return;
+
+            var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
+
+            var oldestBridged = await context.UserPosts
+                .Where(p => p.BridgedBlueskyUrl != null)
+                .OrderBy(p => p.PublishedTime)
+                .Select(p => new { p.PublishedTime })
+                .FirstOrDefaultAsync();
+
+            var cutoff = oldestBridged?.PublishedTime ?? DateTimeOffset.MinValue;
+
+            string actor = $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy";
+
+            var upstream =
+                await WrapAsync(page => BlueskyFeed.GetAuthorFeedAsync(
+                    client,
+                    credentials,
+                    actor,
+                    page))
+                .TakeWhile(item => item.IndexedAt >= cutoff)
+                .ToListAsync();
+
+            var recent = context.UserPosts
+                .Where(p => p.PublishedTime >= cutoff)
+                .AsAsyncEnumerable();
+
+            await foreach (var post in recent)
+            {
+                if (post.BridgedBlueskyUrl != null)
+                    continue;
+
+                string activityPubUrl = idMapper.GetObjectId(post.Id);
+                var upstreamItem = upstream.FirstOrDefault(item => item.post.record.OtherUrls.Contains(activityPubUrl));
+                if (upstreamItem != null)
+                {
+                    post.BridgedBlueskyUrl = $"https://bsky.app/profile/{actor}/post/{upstreamItem.post.RecordKey}";
+                }
             }
 
             await context.SaveChangesAsync();

@@ -67,22 +67,24 @@
     }
 }
 
-@if (User.Identity?.IsAuthenticated == true)
-{
-    if (Model.Post.Url is string url)
+<div class="mb-3">
+    @if (Model.Post.Url is string url)
     {
-        <div class="mb-3">
-            <a href="@url" class="btn btn-primary">
-                View on DeviantArt
-            </a>
-        </div>
+        <a href="@url" class="btn btn-outline-primary" target="_blank">
+            View on DeviantArt
+        </a>
     }
 
-    <div class="mb-3">
-        <a asp-controller="BlueskyBridge" asp-action="Redirect" asp-route-id="@Model.Post.Id" class="btn btn-primary">
+    @if (Model.Post.BridgedBlueskyUrl is string blueskyUrl)
+    {
+        <a href="@blueskyUrl" class="btn btn-outline-primary" target="_blank">
             View on Bluesky
         </a>
-    </div>
+    }
+</div>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
 
     <form asp-action="Refresh" class="mb-3">
         <input type="hidden" name="id" value="@Model.Post.Id" />

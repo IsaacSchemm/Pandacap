@@ -202,7 +202,8 @@ module BlueskyFeed =
         createdAt: DateTimeOffset
         text: string
         bridgyOriginalUrl: string option
-    }
+    } with
+        member this.OtherUrls = Option.toList this.bridgyOriginalUrl
 
     type Post = {
         uri: string

@@ -11,10 +11,11 @@ namespace Pandacap.Functions
         PandacapDbContext context,
         DeviantArtInboxHandler deviantArtInboxHandler)
     {
-        [Function("DeviantArtInbox")]
+        [Function("InboxIngest")]
         public async Task Run([TimerTrigger("0 10 */3 * * *")] TimerInfo myTimer)
         {
             await atProtoInboxHandler.ImportPostsByUsersWeWatchAsync();
+            await atProtoInboxHandler.FindAndRecordBridgedBlueskyUrls();
 
             await deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync();
             await deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync();

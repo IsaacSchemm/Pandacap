@@ -29,6 +29,8 @@ type UserPost() =
     member val HideTitle = false with get, set
     member val IsArticle = false with get, set
 
+    member val BridgedBlueskyUrl = nullString with get, set
+
     [<NotMapped>]
     member this.ImageBlobs = List.choose Option.ofObj [this.Image; this.Thumbnail]
 
