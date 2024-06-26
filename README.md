@@ -56,10 +56,17 @@ The web app and function app must have the appropriate IAM permissions to access
 
 Function app responsibilities:
 
-* `InboxCleanup` (every day at 9:00): clear dismissed Bluesky and DeviantArt inbox entries more than 7 days old
-* `InboxIngest` (every hour at :10): check Bluesky and DeviantArt timelines for new posts within the last 3 days, and check RSS/Atom feeds for new posts
-* `OutboxCleanup` (every day at 8:00): remove unsent outbound ActivityPub messages that have been pending for more than 7 days
-* `SendOutbound` (every ten minutes): attempt to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
+* `InboxCleanup` (every day at 9:00)
+    * clear dismissed Bluesky and DeviantArt inbox entries more than 7 days old
+* `InboxIngest` (every hour at :10)
+    * check Bluesky feed for new posts (limited to the last 3 days)
+    * if Bridgy Fed is enabled, check bridged account for new posts and add a link from the original Pandacap post
+    * check DeviantArt feed for new posts (limited to the last 3 days)
+    * check RSS/Atom feeds for new posts
+* `OutboxCleanup` (every day at 8:00)
+    * remove unsent outbound ActivityPub messages that have been pending for more than 7 days
+* `SendOutbound` (every ten minutes)
+    * attempt to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
 
 Application settings (for both the function app and the web app):
 
