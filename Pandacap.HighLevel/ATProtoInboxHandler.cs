@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.FSharp.Core;
 using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.LowLevel.ATProto;
-using System.Linq;
 
 namespace Pandacap.HighLevel
 {
@@ -13,33 +11,6 @@ namespace Pandacap.HighLevel
         ATProtoCredentialProvider credentialProvider,
         IHttpClientFactory httpClientFactory)
     {
-        private async IAsyncEnumerable<BlueskyFeed.FeedItem> GetTimelineAsync()
-        {
-            if (await credentialProvider.GetCredentialsAsync() is not IAutomaticRefreshCredentials credentials)
-                yield break;
-
-            var page = BlueskyFeed.Page.FromStart;
-
-            var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
-
-            while (true)
-            {
-                var results = await BlueskyFeed.GetTimelineAsync(
-                    client,
-                    credentials,
-                    page);
-
-                foreach (var item in results.feed)
-                    yield return item;
-
-                if (OptionModule.IsNone(results.cursor))
-                    break;
-
-                page = BlueskyFeed.Page.NewFromCursor(results.cursor.Value);
-            }
-        }
-
         /// <summary>
         /// Imports new posts from the past three days that have not yet been
         /// added to the Pandacap inbox.
@@ -50,13 +21,16 @@ namespace Pandacap.HighLevel
             if (await credentialProvider.GetCredentialsAsync() is not IAutomaticRefreshCredentials credentials)
                 return;
 
+            var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
+
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
             var existingPosts = await context.InboxATProtoPosts
                 .Where(item => item.IndexedAt >= someTimeAgo)
                 .ToListAsync();
 
-            await foreach (var feedItem in GetTimelineAsync())
+            await foreach (var feedItem in BlueskyFeedProvider.WrapAsync(page => BlueskyFeed.GetTimelineAsync(client, credentials, page)))
             {
                 if (feedItem.IndexedAt < someTimeAgo)
                     break;

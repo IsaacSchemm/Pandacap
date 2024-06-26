@@ -56,20 +56,16 @@ module Requester =
         body: Body
     }
 
-    let build (host: IHost) (method: HttpMethod) (procedureName: string) = {
-        method = method
-        uri = new Uri($"https://{Uri.EscapeDataString(host.PDS)}/xrpc/{Uri.EscapeDataString(procedureName)}")
-        bearerToken = None
-        body = NoBody
-    }
-
     let buildQueryString (parameters: (string * string) seq) = String.concat "&" [
         for key, value in parameters do
             $"{Uri.EscapeDataString(key)}={Uri.EscapeDataString(value)}"
     ]
 
-    let addQueryParameters (parameters: (string * string) seq) (req: Request) = {
-        req with uri = new Uri($"{req.uri.GetLeftPart(UriPartial.Path)}?{buildQueryString parameters}")
+    let build (method: HttpMethod) (host: IHost) (procedureName: string) (parameters: (string * string) seq) = {
+        method = method
+        uri = new Uri($"https://{Uri.EscapeDataString(host.PDS)}/xrpc/{Uri.EscapeDataString(procedureName)}?{buildQueryString parameters}")
+        bearerToken = None
+        body = NoBody
     }
 
     let addJsonBody (body: (string * obj) list) (req: Request) = {
@@ -114,8 +110,7 @@ module Auth =
         let host = { new IHost with member _.PDS = hostname }
 
         use! resp =
-            Requester.build host HttpMethod.Post "com.atproto.server.createSession"
-            |> Requester.addJsonBody [
+            Requester.build HttpMethod.Post host "com.atproto.server.createSession" [
                 "identifier", identifier
                 "password", password
             ]
@@ -130,16 +125,6 @@ module Auth =
         return! resp.Content.ReadFromJsonAsync<Tokens>()
     }
 
-    let RefreshSessionAsync httpClient credentials = task {
-        use! resp =
-            Requester.build credentials HttpMethod.Post "com.atproto.server.refreshSession"
-            |> Requester.addRefreshToken credentials
-            |> Requester.sendAsync httpClient
-        resp.EnsureSuccessStatusCode() |> ignore
-
-        return! resp.Content.ReadFromJsonAsync<Tokens>()
-    }
-
 /// Sends HTTP requests, reads and parses responses, and handles automatic token refresh.
 module Reader =
     type Error = {
@@ -149,7 +134,7 @@ module Reader =
 
     exception ErrorException of Error
 
-    let readAsync<'T> httpClient (credentials: ICredentials) req = task {
+    let readAsync<'T> (httpClient: HttpClient) (credentials: ICredentials) (req: Requester.Request) = task {
         use! initialResp =
             req
             |> Requester.addAccessToken credentials
@@ -160,11 +145,19 @@ module Reader =
             | :? IAutomaticRefreshCredentials as auto, HttpStatusCode.BadRequest ->
                 let! err = initialResp.Content.ReadFromJsonAsync<Error>()
                 if err.error = "ExpiredToken" then
-                    let! newCredentials = Auth.RefreshSessionAsync httpClient auto
+                    use! tokenResponse =
+                        Requester.build HttpMethod.Post credentials "com.atproto.server.refreshSession" []
+                        |> Requester.addRefreshToken auto
+                        |> Requester.sendAsync httpClient
+
+                    tokenResponse.EnsureSuccessStatusCode() |> ignore
+
+                    let! newCredentials = tokenResponse.Content.ReadFromJsonAsync<Tokens>()
                     do! auto.UpdateTokensAsync(newCredentials)
+
                     return!
                         req
-                        |> Requester.addAccessToken credentials
+                        |> Requester.addAccessToken auto
                         |> Requester.sendAsync httpClient
                 else
                     return raise (ErrorException err)
@@ -173,9 +166,6 @@ module Reader =
         }
 
         finalResp.EnsureSuccessStatusCode() |> ignore
-
-        let! str = finalResp.Content.ReadAsStringAsync()
-        printfn "%s" str
 
         if typedefof<'T> = typedefof<unit> then
             return () :> obj :?> 'T
@@ -211,6 +201,7 @@ module BlueskyFeed =
     type Record = {
         createdAt: DateTimeOffset
         text: string
+        bridgyOriginalUrl: string option
     }
 
     type Post = {
@@ -257,13 +248,20 @@ module BlueskyFeed =
         feed: FeedItem list
     }
 
-    let GetTimelineAsync httpClient credentials page = task {
-        return!
-            Requester.build credentials HttpMethod.Get "app.bsky.feed.getTimeline"
-            |> Requester.addQueryParameters [
-                match page with
-                | FromCursor c -> "cursor", c
-                | FromStart -> ()
-            ]
-            |> Reader.readAsync<FeedResponse> httpClient credentials
-    }
+    let GetAuthorFeedAsync httpClient credentials actor page =
+        Requester.build HttpMethod.Get credentials "app.bsky.feed.getAuthorFeed" [
+            "actor", actor
+
+            match page with
+            | FromCursor c -> "cursor", c
+            | FromStart -> ()
+        ]
+        |> Reader.readAsync<FeedResponse> httpClient credentials
+
+    let GetTimelineAsync httpClient credentials page =
+        Requester.build HttpMethod.Get credentials "app.bsky.feed.getTimeline" [
+            match page with
+            | FromCursor c -> "cursor", c
+            | FromStart -> ()
+        ]
+        |> Reader.readAsync<FeedResponse> httpClient credentials
