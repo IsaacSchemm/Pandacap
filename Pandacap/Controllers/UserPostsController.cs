@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -40,6 +41,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [Route("Refresh")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Refresh(Guid id)
@@ -56,6 +58,30 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+        [Route("ForgetActivity")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgetActivity(IEnumerable<Guid> id)
+        {
+            var activities = await context.ActivityPubInboundActivities
+                .Where(a => id.Contains(a.Id))
+                .ToListAsync();
+
+            context.RemoveRange(activities);
+            await context.SaveChangesAsync();
+
+            var deviationIds = activities
+                .Select(a => a.DeviationId)
+                .Distinct()
+                .ToList();
+
+            return deviationIds.Count == 1
+                ? RedirectToAction(nameof(Index), new { id = deviationIds[0] })
+                : RedirectToAction("Index", "Profile");
+        }
+
+        [HttpPost]
+        [Authorize]
         [Route("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)

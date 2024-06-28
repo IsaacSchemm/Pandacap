@@ -50,7 +50,7 @@
 {
     foreach (var group in Model.RemoteActivities.GroupBy(a => a.ActivityType))
     {
-        <details>
+        <details class="mb-3">
             <summary>
                 @(group.Key)s: <strong>@group.Count()</strong>
             </summary>
@@ -60,6 +60,11 @@
                     <li>
                         <a href="@activity.ActorId" target="_blank">@activity.ActorId</a>
                         <span class="text-muted">(@activity.AddedAt)</span>
+                        <br />
+                        <form asp-action="ForgetActivity" onsubmit="return confirm('Are you sure you want Pandacap to forget about this activity?')">
+                            <input type="hidden" name="id" value="@activity.Id" />
+                            <button type="submit" class="btn btn-sm btn-primary">Forget</button>
+                        </form>
                     </li>
                 }
             </ul>
