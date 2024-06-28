@@ -28,11 +28,14 @@ type FeedItem() =
         member this.Id = $"{this.Id}"
         member this.Timestamp = this.Timestamp
         member this.ThumbnailUrls =
-            let html = HtmlDocument.Parse (this.HtmlDescription |> orString "")
+            try
+                let html = HtmlDocument.Parse (this.HtmlDescription |> orString "")
 
-            html.Descendants "img"
-            |> Seq.choose (fun node -> node.TryGetAttribute "src")
-            |> Seq.map (fun attr -> attr.Value())
+                html.Descendants "img"
+                |> Seq.choose (fun node -> node.TryGetAttribute "src")
+                |> Seq.map (fun attr -> attr.Value())
+            with _ ->
+                Seq.empty
         member this.LinkUrl = this.Url
         member this.Usericon = this.FeedIconUrl
         member this.Username = this.FeedWebsiteUrl
