@@ -72,7 +72,7 @@ public partial class MastodonVerifier
             yield return ParseSignatureValue(parts);
     }
 
-    private MastodonSignatureComponents ParseSignatureValue(IEnumerable<string> parts)
+    internal MastodonSignatureComponents ParseSignatureValue(IEnumerable<string> parts)
     {
         var components = new MastodonSignatureComponents();
 
@@ -132,7 +132,7 @@ public partial class MastodonVerifier
             RSASignaturePadding.Pkcs1);
     }
 
-    private struct MastodonSignatureComponents
+    internal struct MastodonSignatureComponents
     {
         internal SignatureInputSpec spec;
         internal string keyId;
