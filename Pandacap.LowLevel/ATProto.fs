@@ -174,7 +174,7 @@ module Reader =
 
         finalResp.EnsureSuccessStatusCode() |> ignore
 
-        if typedefof<'T> <> typedefof<unit> then
+        if typedefof<'T> = typedefof<unit> then
             return () :> obj :?> 'T
         else
             return! finalResp.Content.ReadFromJsonAsync<'T>()
