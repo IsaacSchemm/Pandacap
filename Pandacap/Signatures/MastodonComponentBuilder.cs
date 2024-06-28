@@ -10,10 +10,9 @@ namespace Pandacap.Signatures;
 
 public class MastodonComponentBuilder(HttpRequest _message) : ISignatureComponentVisitor
 {
-    private readonly List<string> _derivedParamsValues = [];
-    private readonly List<string> _headerParamsValues = [];
+    private readonly List<string> _paramsValues = [];
 
-    public string SigningDocument => string.Join('\n', _derivedParamsValues.Concat(_headerParamsValues));
+    public string SigningDocument => string.Join('\n', _paramsValues);
 
     void ISignatureComponentVisitor.Visit(SignatureComponent component) { }
 
@@ -27,13 +26,13 @@ public class MastodonComponentBuilder(HttpRequest _message) : ISignatureComponen
                 fieldName.Equals("content-digest", StringComparison.InvariantCultureIgnoreCase)
                     ? "digest"
                     : fieldName;
-            _headerParamsValues.Add($"{mastodonHeader}: {string.Join(", ", values!)}");
+            _paramsValues.Add($"{mastodonHeader}: {string.Join(", ", values!)}");
         }
         else
         {
             if (fieldName == "host")
             {
-                _headerParamsValues.Add($"host: {_message.GetDerivedComponentValue(SignatureComponent.Authority)}");
+                _paramsValues.Add($"host: {_message.GetDerivedComponentValue(SignatureComponent.Authority)}");
             }
         }
     }
@@ -48,10 +47,10 @@ public class MastodonComponentBuilder(HttpRequest _message) : ISignatureComponen
         switch (derived.ComponentName)
         {
             case DerivedComponents.RequestTarget:
-                _derivedParamsValues.Add($"(request-target): {_message.GetDerivedComponentValue(method).ToLowerInvariant()} {_message.GetDerivedComponentValue(derived)}");
+                _paramsValues.Add($"(request-target): {_message.GetDerivedComponentValue(method).ToLowerInvariant()} {_message.GetDerivedComponentValue(derived)}");
                 break;
             case DerivedComponents.Authority:
-                _headerParamsValues.Add($"host: {_message.GetDerivedComponentValue(derived)}");
+                _paramsValues.Add($"host: {_message.GetDerivedComponentValue(derived)}");
                 break;
         }
     }
