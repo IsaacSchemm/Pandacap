@@ -94,21 +94,16 @@ public partial class MastodonVerifier
                     string headersString = value;
 
                     var spec = new SignatureInputSpec("spec");
-                    var match = DerivedComponentsRegex().Match(headersString);
-                    if (match.Success)
+                    foreach (string str in headersString.Split(SpacesAndQuotes, RemoveEmpty | Trim))
                     {
-                        foreach (var token in match.Value.Split(SpacesAndParentheses, RemoveEmpty))
-                        {
-                            spec.SignatureParameters.AddComponent(new DerivedComponent("@" + token));
-                        }
-                    }
+                        string name = str.StartsWith('(') && str.EndsWith(')')
+                            ? str[1..^1]
+                            : str;
 
-                    foreach (string s in headersString[(match!.Length + 1)..].Split(SpacesAndQuotes, RemoveEmpty | Trim))
-                    {
                         spec.SignatureParameters.AddComponent(
-                            DerivedComponents.Contains(s) ? new DerivedComponent(s)
-                            : DerivedComponents.Contains("@" + s) ? new DerivedComponent("@" + s)
-                            : new HttpHeaderComponent(s));
+                            DerivedComponents.Contains(name) ? new DerivedComponent(name)
+                            : DerivedComponents.Contains("@" + name) ? new DerivedComponent("@" + name)
+                            : new HttpHeaderComponent(name));
                     }
 
                     components.spec = spec;
