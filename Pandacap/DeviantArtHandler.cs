@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using DeviantArtFs;
 using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
@@ -146,6 +147,21 @@ namespace Pandacap
                 await TryDeleteBlobIfExistsAsync(oldAvatar.BlobName);
         }
 
+        private async Task<DeviantArtFs.ResponseTypes.Deviation?> GetDeviationAsync(Guid id)
+        {
+            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
+                return null;
+
+            try
+            {
+                return await DeviantArtFs.Api.Deviation.GetAsync(credentials, id);
+            }
+            catch (DeviantArtException ex) when (ex.Message.Contains("Deviation not found"))
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         /// Given a sequence of post IDs, retrieves the corresponding DeviantArt API objects, one by one.
         /// </summary>
@@ -157,7 +173,8 @@ namespace Pandacap
                 yield break;
 
             foreach (Guid id in ids)
-                yield return await DeviantArtFs.Api.Deviation.GetAsync(credentials, id);
+                if (await GetDeviationAsync(id) is DeviantArtFs.ResponseTypes.Deviation dev)
+                    yield return dev;
         }
 
         /// <summary>
