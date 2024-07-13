@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ namespace Pandacap.Controllers
         AtomRssFeedReader atomRssFeedReader,
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
+        InboxIngestion inboxIngestion,
         KeyProvider keyProvider,
         ActivityPubTranslator translator,
         UserManager<IdentityUser> userManager) : Controller
@@ -209,6 +211,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateFollow(
             string id,
@@ -229,6 +232,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Follow(string id)
         {
@@ -265,6 +269,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unfollow(string id)
         {
@@ -290,6 +295,16 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> InboxIngest()
+        {
+            await inboxIngestion.RunAsync();
+            return RedirectToAction("ImagePosts", "Inbox");
+        }
+
+        [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportPastHour()
         {
@@ -305,6 +320,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportPastMonth()
         {
@@ -320,6 +336,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportAll()
         {
@@ -357,6 +374,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddFeed(string url)
         {
@@ -365,6 +383,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFeed(Guid id)
         {
@@ -376,6 +395,7 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(Feeds));
         }
 
+        [Authorize]
         public async Task<IActionResult> Feeds(Guid? next, int? count)
         {
             var page = await context.Feeds
