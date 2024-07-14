@@ -204,7 +204,8 @@ namespace Pandacap
             {
                 post = new()
                 {
-                    Id = deviation.deviationid
+                    Id = deviation.deviationid,
+                    Artwork = deviation.content?.OrNull() != null
                 };
                 context.Add(post);
             }
@@ -254,7 +255,6 @@ namespace Pandacap
                     ? await uploadAsync(thumbResp)
                     : null;
 
-                post.Artwork = true;
                 post.Image = imageBlobReference;
                 post.Thumbnail = thumbBlobReference;
 
@@ -278,7 +278,6 @@ namespace Pandacap
                 if (textContent == null)
                     return;
 
-                post.Artwork = false;
                 post.Image = null;
                 post.Thumbnail = null;
                 post.AltText = null;

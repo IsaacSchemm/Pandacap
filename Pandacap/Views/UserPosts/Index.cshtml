@@ -90,13 +90,31 @@
 
 @if (User.Identity?.IsAuthenticated == true)
 {
-
     <form asp-action="Refresh" class="mb-3">
         <input type="hidden" name="id" value="@Model.Post.Id" />
         <button type="submit" class="btn btn-primary">
             Refresh from DeviantArt
         </button>
     </form>
+
+    if (Model.Post.Artwork)
+    {
+        <form asp-action="UnmarkAsArtwork" class="mb-3">
+            <input type="hidden" name="id" value="@Model.Post.Id" />
+            <button type="submit" class="btn btn-primary">
+                Move to Journals &amp; Status Updates
+            </button>
+        </form>
+    }
+    else
+    {
+        <form asp-action="MarkAsArtwork" class="mb-3">
+            <input type="hidden" name="id" value="@Model.Post.Id" />
+            <button type="submit" class="btn btn-primary">
+                Move to Gallery
+            </button>
+        </form>
+    }
 
     <form asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this post from Pandacap? (This will not delete it from DeviantArt.)')">
         <input type="hidden" name="id" value="@Model.Post.Id" />

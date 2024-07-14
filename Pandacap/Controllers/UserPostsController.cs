@@ -59,6 +59,40 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [Authorize]
+        [Route("UnmarkAsArtwork")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnmarkAsArtwork(Guid id)
+        {
+            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
+
+            if (post == null)
+                return NotFound();
+
+            post.Artwork = false;
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index), new { id });
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("MarkAsArtwork")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAsArtwork(Guid id)
+        {
+            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
+
+            if (post == null)
+                return NotFound();
+
+            post.Artwork = true;
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index), new { id });
+        }
+
+        [HttpPost]
+        [Authorize]
         [Route("ForgetActivity")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgetActivity(IEnumerable<Guid> id)
