@@ -387,8 +387,8 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFeed(Guid id)
         {
-            await foreach (var feed in context.Feeds.Where(f => f.Id == id).AsAsyncEnumerable())
-                context.Feeds.Remove(feed);
+            await foreach (var feed in context.RssFeeds.Where(f => f.Id == id).AsAsyncEnumerable())
+                context.RssFeeds.Remove(feed);
 
             await context.SaveChangesAsync();
 
@@ -398,11 +398,11 @@ namespace Pandacap.Controllers
         [Authorize]
         public async Task<IActionResult> Feeds(Guid? next, int? count)
         {
-            var page = await context.Feeds
+            var page = await context.RssFeeds
                 .AsAsyncEnumerable()
                 .AsListPage(int.MaxValue);
 
-            return View(new ListViewModel<Feed>
+            return View(new ListViewModel<RssFeed>
             {
                 Title = "Feeds",
                 Items = page

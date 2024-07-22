@@ -17,7 +17,7 @@ namespace Pandacap.HighLevel
             await deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync();
             await deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync();
 
-            var feeds = await context.Feeds.Select(f => new { f.Id }).ToListAsync();
+            var feeds = await context.RssFeeds.Select(f => new { f.Id }).ToListAsync();
             foreach (var feed in feeds)
                 await atomRssFeedReader.ReadFeedAsync(feed.Id);
         }

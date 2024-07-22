@@ -1,6 +1,8 @@
 ﻿using CodeHollow.FeedReader;
+using CodeHollow.FeedReader.Feeds;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using System.Net.Mail;
 
 namespace Pandacap.HighLevel
 {
@@ -8,7 +10,7 @@ namespace Pandacap.HighLevel
     {
         public async Task ReadFeedAsync(Guid id)
         {
-            var feed = await context.Feeds
+            var feed = await context.RssFeeds
                 .Where(f => f.Id == id)
                 .FirstOrDefaultAsync();
 
@@ -21,13 +23,34 @@ namespace Pandacap.HighLevel
             feed.FeedWebsiteUrl = results.Link;
             feed.FeedIconUrl = results.ImageUrl;
 
-            List<Data.FeedItem> newFeedItems = [];
+            List<RssFeedItem> newFeedItems = [];
 
             foreach (var item in results.Items)
             {
                 DateTimeOffset ts = item.PublishingDate ?? DateTimeOffset.UtcNow;
                 if (ts <= feed.LastCheckedAt)
                     continue;
+
+                IEnumerable<RssFeedEnclosure> getAttachments()
+                {
+                    if (item.SpecificItem is not Rss20FeedItem rssItem)
+                        yield break;
+
+                    if (rssItem.Enclosure == null)
+                        yield break;
+
+                    if (rssItem.Enclosure.MediaType == null)
+                        yield break;
+
+                    if (rssItem.Enclosure.Url == null)
+                        yield break;
+
+                    yield return new RssFeedEnclosure
+                    {
+                        MediaType = rssItem.Enclosure.MediaType,
+                        Url = rssItem.Enclosure.Url
+                    };
+                }
 
                 newFeedItems.Add(new()
                 {
@@ -38,11 +61,12 @@ namespace Pandacap.HighLevel
                     Title = item.Title,
                     Url = item.Link,
                     HtmlDescription = item.Description,
-                    Timestamp = item.PublishingDate ?? DateTimeOffset.UtcNow
+                    Timestamp = item.PublishingDate ?? DateTimeOffset.UtcNow,
+                    Enclosures = getAttachments().ToList()
                 });
             }
 
-            context.FeedItems.AddRange(newFeedItems);
+            context.RssFeedItems.AddRange(newFeedItems);
 
             feed.LastCheckedAt = newFeedItems
                 .Select(f => f.Timestamp)
@@ -56,12 +80,12 @@ namespace Pandacap.HighLevel
         {
             var results = await FeedReader.ReadAsync(url);
 
-            var existing = await context.Feeds.Where(f => f.FeedUrl == url).ToListAsync();
+            var existing = await context.RssFeeds.Where(f => f.FeedUrl == url).ToListAsync();
             context.RemoveRange(existing);
 
             Guid id = Guid.NewGuid();
 
-            context.Feeds.Add(new()
+            context.RssFeeds.Add(new()
             {
                 Id = id,
                 FeedUrl = url,

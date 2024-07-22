@@ -26,7 +26,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IPost>();
 
-            var source3 = context.FeedItems
+            var source3 = context.RssFeedItems
                 .Where(a => a.Timestamp <= startTime)
                 .OrderByDescending(a => a.Timestamp)
                 .AsAsyncEnumerable()
@@ -82,7 +82,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IPost>();
 
-            var source3 = context.FeedItems
+            var source3 = context.RssFeedItems
                 .Where(a => a.Timestamp <= startTime)
                 .OrderByDescending(a => a.Timestamp)
                 .AsAsyncEnumerable()
@@ -204,7 +204,7 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .FeedItems
+                .RssFeedItems
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -229,7 +229,7 @@ namespace Pandacap.Controllers
                 if (item is InboxTextDeviation itd)
                     itd.DismissedAt = DateTimeOffset.UtcNow;
 
-                if (item is FeedItem fi)
+                if (item is RssFeedItem fi)
                     context.Remove(fi);
             }
 

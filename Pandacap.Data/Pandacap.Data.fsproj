@@ -16,7 +16,7 @@
     <Compile Include="InboxATProtoPost.fs" />
     <Compile Include="InboxActivityStreamsPost.fs" />
     <Compile Include="InboxDeviations.fs" />
-    <Compile Include="Feeds.fs" />
+    <Compile Include="RssFeeds.fs" />
     <Compile Include="RemoteActorRelationships.fs" />
     <Compile Include="RemoteActivityPubFavorite.fs" />
     <Compile Include="ActivityPubActivities.fs" />

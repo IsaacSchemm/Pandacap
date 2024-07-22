@@ -1,6 +1,5 @@
 ﻿namespace Pandacap.Data
 
-open System
 open Microsoft.AspNetCore.Identity
 open Microsoft.AspNetCore.Identity.EntityFrameworkCore
 open Microsoft.EntityFrameworkCore
@@ -17,8 +16,8 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.InboxTextDeviations: DbSet<InboxTextDeviation> = this.Set()
     member this.InboxATProtoPosts: DbSet<InboxATProtoPost> = this.Set()
     member this.InboxActivityStreamsPosts: DbSet<InboxActivityStreamsPost> = this.Set()
-    member this.Feeds: DbSet<Feed> = this.Set()
-    member this.FeedItems: DbSet<FeedItem> = this.Set()
+    member this.RssFeeds: DbSet<RssFeed> = this.Set()
+    member this.RssFeedItems: DbSet<RssFeedItem> = this.Set()
     member this.Follows: DbSet<Follow> = this.Set()
     member this.Followers: DbSet<Follower> = this.Set()
     member this.RemoteActivityPubFavorites: DbSet<RemoteActivityPubFavorite> = this.Set()
