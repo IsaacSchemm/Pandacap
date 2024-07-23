@@ -25,8 +25,8 @@
 
   <ItemGroup>
     <PackageReference Include="FSharp.Data.Html.Core" Version="6.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="8.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="8.0.7" />
   </ItemGroup>
 
 </Project>

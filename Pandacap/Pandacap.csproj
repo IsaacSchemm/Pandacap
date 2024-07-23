@@ -16,18 +16,18 @@
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.DeviantArt" Version="8.1.0" />
-    <PackageReference Include="AspNetCore.SassCompiler" Version="1.77.5" />
+    <PackageReference Include="AspNetCore.SassCompiler" Version="1.77.8" />
     <PackageReference Include="Azure.Identity" Version="1.12.0" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.6">
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.21.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.4" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.3" />
     <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>
 
