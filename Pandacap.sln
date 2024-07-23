@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pandacap.HighLevel", "Panda
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.Data", "Pandacap.Data\Pandacap.Data.fsproj", "{0F1B8765-B396-4FA1-8FAF-647ADA96A5AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Tests", "Pandacap.Tests\Pandacap.Tests.csproj", "{E6BCEBD7-BF66-4986-BA2B-65B129E23DC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pandacap.Tests", "Pandacap.Tests\Pandacap.Tests.csproj", "{E6BCEBD7-BF66-4986-BA2B-65B129E23DC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

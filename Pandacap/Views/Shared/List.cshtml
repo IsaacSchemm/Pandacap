@@ -105,13 +105,14 @@ else
                                 {
                                     <div class="mt-3">
                                         <a class="btn btn-outline-primary btn-sm" href="@enclosure.Url">
-                                            Download (.mp3)
+                                            Download
                                         </a>
-                                    </div>
-                                    <div class="mt-3">
-                                        <a class="btn btn-outline-primary btn-sm" asp-controller="Podcast" asp-action="FiveMinuteSegmentsZip" asp-route-url="@enclosure.Url">
-                                            Download (.wma, five-minute chunks)
-                                        </a>
+                                        @if (enclosure.MediaType == "audio/mpeg")
+                                        {
+                                            <a class="btn btn-outline-secondary btn-sm" asp-controller="Podcast" asp-action="SegmentZip" asp-route-url="@enclosure.Url" asp-route-seconds="300">
+                                                Split (.wma)
+                                            </a>
+                                        }
                                     </div>
                                 }
                             }
