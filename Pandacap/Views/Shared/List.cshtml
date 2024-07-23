@@ -101,11 +101,16 @@ else
                             }
                             @if (item is RssFeedItem feedItem)
                             {
-                                foreach (var enclosure in feedItem.Enclosures)
+                                foreach (var enclosure in feedItem.Enclosures.Where(e => e.MediaType == "audio/mpeg"))
                                 {
                                     <div class="mt-3">
                                         <a class="btn btn-outline-primary btn-sm" href="@enclosure.Url">
-                                            Download (@enclosure.MediaType)
+                                            Download (.mp3)
+                                        </a>
+                                    </div>
+                                    <div class="mt-3">
+                                        <a class="btn btn-outline-primary btn-sm" asp-controller="Podcast" asp-action="FiveMinuteSegmentsZip" asp-route-url="@enclosure.Url">
+                                            Download (.wma, five-minute chunks)
                                         </a>
                                     </div>
                                 }
