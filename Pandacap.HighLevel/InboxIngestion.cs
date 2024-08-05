@@ -11,15 +11,32 @@ namespace Pandacap.HighLevel
     {
         public async Task RunAsync()
         {
-            await atProtoInboxHandler.ImportPostsByUsersWeWatchAsync();
-            await atProtoInboxHandler.FindAndRecordBridgedBlueskyUrls();
+            List<Exception> exceptions = [];
 
-            await deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync();
-            await deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync();
+            async Task c(Task t)
+            {
+                try
+                {
+                    await t;
+                }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                }
+            }
+
+            await c(atProtoInboxHandler.ImportPostsByUsersWeWatchAsync());
+            await c(atProtoInboxHandler.FindAndRecordBridgedBlueskyUrls());
+
+            await c(deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync());
+            await c(deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync());
 
             var feeds = await context.RssFeeds.Select(f => new { f.Id }).ToListAsync();
             foreach (var feed in feeds)
-                await atomRssFeedReader.ReadFeedAsync(feed.Id);
+                await c(atomRssFeedReader.ReadFeedAsync(feed.Id));
+
+            if (exceptions.Count > 0)
+                throw new AggregateException(exceptions);
         }
     }
 }
