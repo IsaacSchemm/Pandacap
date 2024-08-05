@@ -33,22 +33,23 @@ namespace Pandacap.HighLevel
 
                 IEnumerable<RssFeedEnclosure> getAttachments()
                 {
-                    if (item.SpecificItem is not Rss20FeedItem rssItem)
+                    FeedItemEnclosure? enclosure =
+                        (item.SpecificItem as MediaRssFeedItem)?.Enclosure
+                        ?? (item.SpecificItem as Rss20FeedItem)?.Enclosure;
+
+                    if (enclosure == null)
                         yield break;
 
-                    if (rssItem.Enclosure == null)
+                    if (enclosure.MediaType == null)
                         yield break;
 
-                    if (rssItem.Enclosure.MediaType == null)
-                        yield break;
-
-                    if (rssItem.Enclosure.Url == null)
+                    if (enclosure.Url == null)
                         yield break;
 
                     yield return new RssFeedEnclosure
                     {
-                        MediaType = rssItem.Enclosure.MediaType,
-                        Url = rssItem.Enclosure.Url
+                        MediaType = enclosure.MediaType,
+                        Url = enclosure.Url
                     };
                 }
 
