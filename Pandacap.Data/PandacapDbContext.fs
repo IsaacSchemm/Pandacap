@@ -12,6 +12,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.Avatars: DbSet<Avatar> = this.Set()
     member this.ProfileProperties: DbSet<ProfileProperty> = this.Set()
     member this.UserPosts: DbSet<UserPost> = this.Set()
+    member this.DeviantArtTextPostCheckStatuses: DbSet<DeviantArtTextPostCheckStatus> = this.Set()
     member this.InboxArtworkDeviations: DbSet<InboxArtworkDeviation> = this.Set()
     member this.InboxTextDeviations: DbSet<InboxTextDeviation> = this.Set()
     member this.InboxATProtoPosts: DbSet<InboxATProtoPost> = this.Set()

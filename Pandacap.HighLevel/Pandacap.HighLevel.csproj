@@ -11,7 +11,7 @@
     <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.6.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.21.0" />
     <PackageReference Include="CodeHollow.FeedReader" Version="1.2.6" />
-    <PackageReference Include="DeviantArtFs" Version="9.2.0" />
+    <PackageReference Include="DeviantArtFs" Version="9.2.1-rc1" />
     <PackageReference Include="json-ld.net" Version="1.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.7" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
