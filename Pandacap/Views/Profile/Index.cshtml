@@ -53,6 +53,15 @@
             <br />
         }
     </p>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <p>
+            <a asp-controller="ProfileProperties" asp-action="Index">
+                Manage profile links
+            </a>
+        </p>
+    }
 </div>
 
 <form asp-action="Search" method="get">
@@ -126,15 +135,38 @@
 
 @if (User.Identity?.IsAuthenticated == true)
 {
+    <hr />
+
     <h2>
-        Tools
+        DeviantArt
     </h2>
+
+    <p>
+        The DeviantArt API allows you to:
+    </p>
+
+    <ul>
+        <li>
+            Log in to Pandacap
+        </li>
+        <li>
+            Import, refresh, and/or remove your artwork and text posts
+            <br />
+            <span class="small text-muted">Must be done manually</span>
+        </li>
+        <li>
+            Import artwork and text posts from users you follow into the Pandacap inbox
+            <br />
+            <span class="small text-muted">Runs automatically every 3 hours</span>
+        </li>
+    </ul>
+
     <div class="container mb-3">
         <div class="row">
-            <div class="col col-12 col-lg-4">
+            <div class="col col-12 col-lg-6">
                 <div class="card mt-3">
                     <div class="card-header">
-                        DeviantArt
+                        Gallery
                     </div>
                     <div class="card-body text-center">
                         <form asp-action="ImportPastHour">
@@ -170,35 +202,71 @@
                         <a asp-controller="AltText" asp-action="Index" asp-route-count="10" class="btn btn-outline-primary">
                             Manage alt text (10)
                         </a>
-
-                        <hr />
-
+                    </div>
+                </div>
+            </div>
+            <div class="col col-12 col-lg-6">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Inbox
+                    </div>
+                    <div class="card-body text-center">
                         <form asp-controller="InboxIngest" asp-action="DeviantArtArtworkPosts">
                             <button type="submit" class="btn btn-primary btn-warning">
-                                Sync inbox (artwork posts)
+                                Sync artwork posts now
                             </button>
                         </form>
 
-                        <div class="mb-3"></div>
+                        <hr />
 
                         <form asp-controller="InboxIngest" asp-action="DeviantArtTextPosts">
                             <button type="submit" class="btn btn-primary btn-warning">
-                                Sync inbox (text posts)
+                                Sync text posts now
                             </button>
+                            <div class="form-text">
+                                Looks for posts from users you follow whose last DeviantArt visit happened after the previous sync
+                            </div>
                         </form>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <h2>
+        ActivityPub
+    </h2>
+
+    <p>
+        Pandacap acts as an ActivityPub S2S server:
+    </p>
+
+    <ul>
+        <li>
+            Posts from your public gallery will be federated out.
+            Text posts with titles will have the type <code>Article</code>; all other posts will have the type <code>Note</code>.
+        </li>
+        <li>
+            Posts from users you follow will be added to the Pandacap inbox, based on whether or not they include at least one image attachment.
+            Boosted posts (<code>Announce</code>) will be ignored unless you enable boosts from the user in your Following list, in which case they will be added to the Shares section of the inbox.
+        </li>
+        <li>
+            ActivityPub posts can be added to your public Favorites gallery, which sends a <code>Like</code> to the originating server.
+        </li>
+    </ul>
+
+    <div class="container mb-3">
+        <div class="row">
             <div class="col col-12 col-lg-4">
                 <div class="card mt-3">
                     <div class="card-header">
-                        ActivityPub
+                        Follow
                     </div>
                     <div class="card-body">
                         <form asp-action="Follow">
                             <div class="mb-3">
                                 <label for="id" class="form-label">
-                                    Follow actor
+                                    Actor ID (URL)
                                 </label>
                                 <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
                                 <div class="form-text">Mastodon-style handles (of the form <tt>@@user@@hostname</tt>) are not supported.</div>
@@ -207,11 +275,19 @@
                                 Send follow request
                             </button>
                         </form>
-                        <hr />
+                    </div>
+                </div>
+            </div>
+            <div class="col col-12 col-lg-4">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Add to Favorites
+                    </div>
+                    <div class="card-body">
                         <form asp-controller="Favorites" asp-action="Add">
                             <div class="mb-3">
                                 <label for="id" class="form-label">
-                                    Add to Favorites
+                                    Object ID (URL)
                                 </label>
                                 <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
                             </div>
@@ -221,19 +297,11 @@
                         </form>
                     </div>
                 </div>
+            </div>
+            <div class="col col-12 col-lg-4">
                 <div class="card mt-3">
                     <div class="card-header">
-                        Profile
-                    </div>
-                    <div class="card-body text-center">
-                        <a asp-controller="ProfileProperties" asp-action="Index" asp-route-count="1" class="btn btn-outline-primary">
-                            Manage profile links
-                        </a>
-                    </div>
-                </div>
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Recent activities
+                        Recent inbound activities
                     </div>
                     <ul class="list-group list-group-flush">
                         @foreach (var activity in Model.RecentActivities)
@@ -256,7 +324,81 @@
                     </ul>
                 </div>
             </div>
-            <div class="col col-12 col-lg-4">
+        </div>
+    </div>
+
+    <h2>
+        atproto
+    </h2>
+
+    <p>
+        Pandacap implements an atproto client, which lets it import posts from users you follow to the Pandacap inbox.
+        <br />
+        <span class="small text-muted">If an atproto account is attached, your home timeline will be checked for new posts every 3 hours.</span>
+    </p>
+
+    <p>
+        Pandacap does not currently support cross-posting to an attached atproto account.
+        Follow Bridgy Fed if you want to make your Pandacap gallery posts available on atproto.
+    </p>
+
+    <div class="container mb-3">
+        <div class="row">
+            <div class="col col-12 col-lg-6">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Inbound
+                    </div>
+                    <div class="card-body">
+                        <a asp-controller="ATProto" asp-action="Setup" class="btn btn-outline-primary">
+                            Configure external account
+                        </a>
+                        <div class="form-text">
+                            Posts that appear in the account's home timeline will be added to the inbox.
+                        </div>
+                        <hr />
+                        <form asp-controller="InboxIngest" asp-action="BlueskyTimeline">
+                            <button type="submit" class="btn btn-primary btn-warning">
+                                Sync now
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col col-12 col-lg-6">
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Outbound
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="CheckBridgyFed">
+                            <button type="submit" class="btn btn-primary btn-warning">
+                                Update Bluesky URLs for bridged posts
+                            </button>
+                        </form>
+                        <div class="form-text">
+                            This adds a "View on Bluesky" link to the post page in your Pandacap gallery.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>
+        Atom/RSS
+    </h2>
+
+    <p>
+        Pandacap allows you to follow RSS and Atom feeds.
+        New posts will be addd to the appropriate section of the Pandacap inbox based on whether or not an image is included.
+        <br />
+        <span class="small text-muted">Each feed will be checked for new posts every 3 hours.</span>
+    </p>
+
+    <div class="container mb-3">
+        <div class="row">
+            <div class="col col-12">
                 <div class="card mt-3">
                     <div class="card-header">
                         Atom/RSS
@@ -286,41 +428,6 @@
                                     Sync inbox (Atom/RSS)
                                 </button>
                             </form>
-                        </form>
-                    </div>
-                </div>
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Bluesky
-                    </div>
-                    <div class="card-body">
-                        <a asp-controller="ATProto" asp-action="Setup" class="btn btn-outline-primary">
-                            Configure external account
-                        </a>
-                        <div class="form-text">
-                            Posts that appear in the account's home timeline will be added to the inbox.
-                        </div>
-                        <hr />
-                        <form asp-controller="InboxIngest" asp-action="BlueskyTimeline">
-                            <button type="submit" class="btn btn-primary btn-warning">
-                                Sync inbox (Bluesky timeline)
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <div class="card mt-3">
-                    <div class="card-header">
-                        atproto
-                    </div>
-                    <div class="card-body">
-                        <div class="form-text">
-                            Outbound atproto support can be enabled by following Bridgy Fed.
-                        </div>
-
-                        <form asp-action="CheckBridgyFed">
-                            <button type="submit" class="btn btn-primary btn-warning">
-                                Update Bluesky URLs for bridged posts
-                            </button>
                         </form>
                     </div>
                 </div>
