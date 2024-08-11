@@ -15,9 +15,9 @@ namespace Pandacap.Controllers
     public class ProfileController(
         ActivityPubRequestHandler activityPubRequestHandler,
         AtomRssFeedReader atomRssFeedReader,
+        ATProtoInboxHandler atProtoInboxHandler,
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
-        InboxIngestion inboxIngestion,
         KeyProvider keyProvider,
         ActivityPubTranslator translator,
         UserManager<IdentityUser> userManager) : Controller
@@ -297,15 +297,6 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> InboxIngest()
-        {
-            await inboxIngestion.RunAsync();
-            return RedirectToAction("ImagePosts", "Inbox");
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportPastHour()
         {
             var scope = DeviantArtImportScope.NewWindow(
@@ -407,6 +398,14 @@ namespace Pandacap.Controllers
                 Title = "Feeds",
                 Items = page
             });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CheckBridgyFed()
+        {
+            await atProtoInboxHandler.FindAndRecordBridgedBlueskyUrls();
+            return NoContent();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
