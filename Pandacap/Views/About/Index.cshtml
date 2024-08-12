@@ -1,0 +1,132 @@
+﻿<h1>
+    About
+</h1>
+
+<p>
+    Pandacap is a personal art gallery and follower application, built on
+    ASP.NET Core and Azure.
+</p>
+
+<p>
+    Pandacap is a single-user application. Each Pandacap instance hosts:
+</p>
+
+<ol>
+    <li>
+        A public art gallery of the main user's posts (split between image
+        posts on one hand, and text posts - journals and status updates - on
+        the other)
+    </li>
+    <li>
+        A private "inbox" of posts created or shared by users who the main
+        user follows, accessible only to the main user after logging in (split
+        between image posts, text posts, and shares)
+    </li>
+</ol>
+
+<h1>
+    Connections
+</h1>
+
+<h2>
+    DeviantArt
+</h2>
+
+<p>
+    Public posts on Pandacap are created by manually importing them from the
+    user's DeviantArt account. The user's DeviantArt follows are also a source
+    of posts for the Pandacap private inbox; these are populated periodically
+    (on a timer).
+</p>
+
+<p class="small text-muted">
+    Polling for journals and status updates is accomplished by checking the
+    "last visited" timestamp of each user in the DeviantArt user's "friends"
+    list, and checking profile posts by users who have visited DeviantArt since
+    the last Pandacap inbox refresh.
+</p>
+
+<p class="small text-muted">
+    Pandacap does not currently allow the user to create posts that are not
+    tied back to a public DeviantArt post.
+</p>
+
+<p>
+    DeviantArt is also used for authentication. Only the user specified in the
+    Pandacap app settings can log in.
+</p>
+
+<h2>
+    ActivityPub
+</h2>
+
+<p>
+    Pandacap acts as an ActivityPub S2S server, hosting a single actor. This
+    allows users of Mastodon, Pixelfed, <i>et al</i> to follow the Pandacap
+    user and see image and text posts in their inbox.
+</p>
+
+<p class="small text-muted">
+    Journal entries will be federated using the <code>Article</code> type;
+    artwork posts and status updates will use <code>Note</code>.
+</p>
+
+<p>
+    It also allows the Pandacap user to follow ActivityPub actors; image posts,
+    text posts, and shares from these users are added to the appropriate
+    section of the Pandacap inbox.
+</p>
+
+<p class="small text-muted">
+    Shares are disabled by default for followed ActivityPub actors, but can be
+    enabled on an actor-by-actor basis. Shares will appear in the inbox under
+    the name of the user who shared the post, not the original poster's name.
+</p>
+
+<p>
+    Interactions with ActivityPub posts (likes, shares, etc.) are shown in the
+    "recent inbound activities" card on the home page, while ActivityPub
+    replies are added to the Pandacap inbox.
+</p>
+
+<p>
+    The Pandacap user can add ActivityPub posts to a public "Favorites" page,
+    which is treated as a <code>Like</code> in ActivityPub.
+</p>
+
+<h2>
+    Atom/RSS
+</h2>
+
+<p>
+    The Pandacap user can add RSS and Atom feeds to their follow list. Pandacap
+    will check each feed periodically, and new posts in these feeds will be
+    added to the appropriate section of the Pandacap inbox.
+</p>
+
+<h2>
+    atproto
+</h2>
+
+<p>
+    Pandacap implements a small atproto client. If the Pandacap user attaches
+    an atproto (e.g. Bluesky) account, posts from the account's home timeline
+    (e.g. posts from users they follow) will be added to the Pandacap inbox.
+</p>
+
+<p class="small text-muted">
+    Reposts are included in the Pandacap inbox in the "Shares" section, under
+    the name of the sharing user.
+</p>
+
+<p>
+    Pandacap does not currently support cross-posting to an attached atproto
+    account. Bridgy Fed can be used to make a Pandacap gallery available on
+    atproto; in this situation, Pandacap will add a "View on Bluesky" link to
+    the post's public page once the post appears there.
+</p>
+
+<p class="small text-muted">
+    Interactions and replies from atproto users will not appear in Pandacap
+    unless the atproto user is also using Bridgy Fed.
+</p>
