@@ -213,6 +213,40 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Ghost(string id)
+        {
+            await foreach (var follower in context.Followers
+                .Where(f => f.ActorId == id)
+                .AsAsyncEnumerable())
+            {
+                follower.GhostedSince ??= DateTimeOffset.UtcNow;
+            }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Followers));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unghost(string id)
+        {
+            await foreach (var follower in context.Followers
+                .Where(f => f.ActorId == id)
+                .AsAsyncEnumerable())
+            {
+                follower.GhostedSince = null;
+            }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Followers));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateFollow(
             string id,
             bool includeImageShares,

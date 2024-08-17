@@ -47,4 +47,6 @@ type Follow() =
 type Follower() =
     inherit RemoteActorRelationship()
 
+    member val GhostedSince = nullDateTimeOffset with get, set
+
     override _.Pending = false

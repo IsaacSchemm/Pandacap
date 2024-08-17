@@ -44,9 +44,17 @@ namespace Pandacap
                 .Select(follower => new
                 {
                     follower.Inbox,
-                    follower.SharedInbox
+                    follower.SharedInbox,
+                    follower.GhostedSince
                 })
                 .ToListAsync();
+
+            if (activityType == ActivityType.Create)
+            {
+                followers = followers
+                    .Where(follower => follower.GhostedSince == null)
+                    .ToList();
+            }
 
             var inboxes = followers
                 .Select(follower => follower.SharedInbox ?? follower.Inbox)
