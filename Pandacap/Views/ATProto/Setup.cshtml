@@ -13,6 +13,12 @@
                 <input id="password" name="password" class="form-control" type="password" />
                 <label for="password" class="form-label">Password</label>
             </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" value="true" id="crosspost" name="crosspost" @(ViewBag.Crosspost ? "checked" : "")>
+                <label class="form-check-label" for="crosspost">
+                    Crosspost to this account
+                </label>
+            </div>
             <button type="submit" class="btn btn-primary">Connect</button>
         </form>
         <hr />

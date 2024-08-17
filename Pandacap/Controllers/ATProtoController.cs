@@ -23,35 +23,48 @@ namespace Pandacap.Controllers
                 .Select(account => new
                 {
                     account.PDS,
-                    account.DID
+                    account.DID,
+                    account.Crosspost
                 })
                 .FirstOrDefaultAsync();
 
             ViewBag.PDS = account?.PDS;
             ViewBag.DID = account?.DID;
+            ViewBag.Crosspost = account?.Crosspost == true;
 
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Setup(string pds, string did, string password)
+        public async Task<IActionResult> Setup(string pds, string did, string password, bool crosspost = false)
         {
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
 
-            var session = await Auth.CreateSessionAsync(client, pds, did, password);
+            var credentials = await context.ATProtoCredentials
+                .Where(c => c.PDS == pds)
+                .Where(c => c.DID == did)
+                .FirstOrDefaultAsync();
 
-            var accounts = await context.ATProtoCredentials.ToListAsync();
-            context.RemoveRange(accounts);
-
-            context.ATProtoCredentials.Add(new()
+            if (credentials == null)
             {
-                PDS = pds,
-                DID = session.did,
-                AccessToken = session.accessJwt,
-                RefreshToken = session.refreshJwt
-            });
+                var session = await Auth.CreateSessionAsync(client, pds, did, password);
+
+                var accounts = await context.ATProtoCredentials.ToListAsync();
+                context.RemoveRange(accounts);
+
+                credentials = new()
+                {
+                    PDS = pds,
+                    DID = session.did,
+                    AccessToken = session.accessJwt,
+                    RefreshToken = session.refreshJwt
+                };
+                context.ATProtoCredentials.Add(credentials);
+            }
+
+            credentials.Crosspost = crosspost;
 
             await context.SaveChangesAsync();
 
