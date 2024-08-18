@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.LowLevel;
+using Pandacap.LowLevel.ATProto;
 using Pandacap.Models;
 using System.Diagnostics;
 using System.Text;
@@ -16,6 +17,7 @@ namespace Pandacap.Controllers
         ActivityPubRequestHandler activityPubRequestHandler,
         AtomRssFeedReader atomRssFeedReader,
         ATProtoInboxHandler atProtoInboxHandler,
+        ATProtoNotificationHandler atProtoNotificationHandler,
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
         KeyProvider keyProvider,
@@ -88,6 +90,12 @@ namespace Pandacap.Controllers
                     .ToListAsync(),
                 RecentActivities = User.Identity?.IsAuthenticated == true
                     ? await activityInfo.Value
+                    : [],
+                RecentATProtoNotifications = User.Identity?.IsAuthenticated == true
+                    ? await atProtoNotificationHandler
+                        .GetNotificationsAsync()
+                        .Take(5)
+                        .ToListAsync()
                     : [],
                 FollowerCount = await context.Followers.CountAsync(),
                 FollowingCount = await context.Follows.CountAsync(),

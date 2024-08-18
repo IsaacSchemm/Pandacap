@@ -64,7 +64,6 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
 
 builder.Services
     .AddScoped<AltTextSentinel>()
-    .AddScoped<BlueskyAgent>()
     .AddScoped<DeviantArtHandler>()
     .AddScoped<MastodonVerifier>()
     .AddScoped<RemoteActivityPubPostHandler>();

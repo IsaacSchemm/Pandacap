@@ -316,6 +316,27 @@
                         </div>
                     </div>
                 </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Recent notifications
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var activity in Model.RecentATProtoNotifications)
+                        {
+                            <li class="list-group-item">
+                                <strong>
+                                    <a href="@activity.uri">@activity.author.displayName.Value</a>
+                                </strong>
+                                <br />
+                                @activity.reason for @activity.reasonSubject
+                                <br />
+                                <span class="small text-muted">
+                                    (@activity.indexedAt)
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
 
             <div class="col col-12 col-lg-4">
