@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations.Schema
+open FSharp.Data
 
 [<AllowNullLiteral>]
 type UserPostBlobReference() =
@@ -11,6 +12,10 @@ type UserPostBlobReference() =
     /// The name of the blob in Azure Storage that contains the data.
     [<NotMapped>]
     member this.BlobName = $"{this.Id}"
+
+type BlueskyCrosspost() =
+    member val DID = "" with get, set
+    member val RecordKey = "" with get, set
 
 /// A Pandacap post imported from this instance's owner's DeviantArt account.
 type UserPost() =
@@ -29,10 +34,18 @@ type UserPost() =
     member val HideTitle = false with get, set
     member val IsArticle = false with get, set
 
+    member val BlueskyCrossposts = new ResizeArray<BlueskyCrosspost>() with get, set
+
     member val BridgedBlueskyUrl = nullString with get, set
 
     [<NotMapped>]
     member this.ImageBlobs = List.choose Option.ofObj [this.Image; this.Thumbnail]
+
+    [<NotMapped>]
+    member this.DescriptionText =
+        match (HtmlDocument.Parse this.Description).Elements() with
+        | node::_ -> node.InnerText()
+        | [] -> ""
 
     interface IPost with
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"

@@ -11,8 +11,8 @@ namespace Pandacap.HighLevel
             ATProtoCredentials credentials) : IAutomaticRefreshCredentials
         {
             public string DID => credentials.DID;
-
             public string PDS => credentials.PDS;
+            public bool Crosspost => credentials.Crosspost;
 
             public string AccessToken { get; private set; } = credentials.AccessToken;
 
@@ -32,7 +32,7 @@ namespace Pandacap.HighLevel
             }
         }
 
-        private readonly Lazy<Task<IAutomaticRefreshCredentials?>> Credentials = new(async () =>
+        private readonly Lazy<Task<AutomaticRefreshCredentials?>> Credentials = new(async () =>
         {
             var credentials = await context.ATProtoCredentials.FirstOrDefaultAsync();
             return credentials == null
@@ -42,7 +42,7 @@ namespace Pandacap.HighLevel
                     credentials);
         });
 
-        public async Task<IAutomaticRefreshCredentials?> GetCredentialsAsync() =>
+        public async Task<AutomaticRefreshCredentials?> GetCredentialsAsync() =>
             await Credentials.Value;
     }
 }

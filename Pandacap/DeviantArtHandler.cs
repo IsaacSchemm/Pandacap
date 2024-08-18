@@ -12,17 +12,10 @@ namespace Pandacap
     /// <summary>
     /// An object responsible for importing and refreshing posts from DeviantArt.
     /// </summary>
-    /// <param name="altTextSentinel">A request-scoped object that contains any user-provided image descriptions</param>
-    /// <param name="blobServiceClient">A client object for Azure Blob Storage</param>
-    /// <param name="context">The database context</param>
-    /// <param name="credentialProvider">An object that provides access to DeviantArt credentials from the Pandacap database</param>
-    /// <param name="httpClientFactory">An object that can create short-lived HttpClient objects</param>
-    /// <param name="keyProvider">An object that provides access to the ActivityPub encryption key</param>
-    /// <param name="outboxProcessor">An object that can send pending outbound ActivityPub messages</param>
-    /// <param name="translator">An object that translates Pandacap objects to an ActivityPub object or activity representation</param>
     public class DeviantArtHandler(
         AltTextSentinel altTextSentinel,
         BlobServiceClient blobServiceClient,
+        BlueskyAgent blueskyAgent,
         PandacapDbContext context,
         DeviantArtCredentialProvider credentialProvider,
         IHttpClientFactory httpClientFactory,
@@ -315,10 +308,15 @@ namespace Pandacap
             {
                 if (DateTimeOffset.UtcNow - post.PublishedTime < TimeSpan.FromDays(60))
                     await AddActivityAsync(post, ActivityType.Create);
+
+                await blueskyAgent.CreateBlueskyPostsAsync(post);
             }
             else if (oldObjectJson != newObjectJson)
             {
                 await AddActivityAsync(post, ActivityType.Update);
+
+                await blueskyAgent.DeleteBlueskyPostsAsync(post);
+                await blueskyAgent.CreateBlueskyPostsAsync(post);
             }
 
             await context.SaveChangesAsync();
@@ -428,6 +426,8 @@ namespace Pandacap
 
                     foreach (var blob in post.ImageBlobs)
                         await TryDeleteBlobIfExistsAsync(blob.BlobName);
+
+                    await blueskyAgent.DeleteBlueskyPostsAsync(post);
                 }
             }
 

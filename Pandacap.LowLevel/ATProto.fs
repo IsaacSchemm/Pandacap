@@ -33,6 +33,7 @@ module Host =
 /// Any object that can be used to authenticate with Bluesky.
 /// Contains the user's DID, the PDS to connect to, and the current access token.
 type ICredentials =
+    inherit IHost
     abstract member DID: string
     abstract member AccessToken: string
 
@@ -178,6 +179,127 @@ module Reader =
             return () :> obj :?> 'T
         else
             return! finalResp.Content.ReadFromJsonAsync<'T>()
+    }
+
+/// Lists notifications on the user's Bluesky account.
+module Notifications =
+    type Page =
+    | FromStart
+    | FromCursor of string
+
+    type Author = {
+        did: string
+        handle: string
+        displayName: string option
+    }
+
+    type Notification = {
+        uri: string
+        cid: string
+        author: Author
+        reason: string
+        reasonSubject: string
+        isRead: bool
+        indexedAt: DateTimeOffset
+    }
+
+    type NotificationList = {
+        cursor: string option
+        notifications: Notification list
+    }
+
+    let ListNotificationsAsync httpClient credentials page = task {
+        return!
+            Requester.build HttpMethod.Get credentials "app.bsky.notification.listNotifications" [
+                match page with
+                | FromCursor c -> "cursor", c
+                | FromStart -> ()
+            ]
+            |> Reader.readAsync<NotificationList> httpClient (Some credentials)
+    }
+
+    //let ListAllNotificationsAsync httpClient credentials = taskSeq {
+    //    let mutable page = FromStart
+    //    let mutable finished = false
+
+    //    while not finished do
+    //        let! result = ListNotificationsAsync httpClient credentials page
+    //        yield! result.notifications
+
+    //        match result.cursor with
+    //        | Some nextCursor ->
+    //            page <- FromCursor nextCursor
+    //        | None ->
+    //            finished <- true
+    //}
+
+/// Handles creating and deleting Bluesky posts.
+module Repo =
+    type BlobResponse = {
+        blob: obj
+    }
+
+    type BlobWithAltText = {
+        blob: obj
+        alt: string
+    }
+
+    let UploadBlobAsync httpClient (credentials: ICredentials) (data: byte[]) (contentType: string) (alt: string) = task {
+        let! blobResponse =
+            Requester.build HttpMethod.Post credentials "com.atproto.repo.uploadBlob" []
+            |> Requester.addBody data contentType
+            |> Reader.readAsync<BlobResponse> httpClient (Some credentials)
+        return { blob = blobResponse.blob; alt = alt }
+    }
+
+    type Post = {
+        text: string
+        createdAt: DateTimeOffset
+        images: BlobWithAltText seq
+    }
+
+    type NewRecord = {
+        uri: string
+        cid: string
+    } with
+        member this.RecordKey =
+            this.uri.Split('/')
+            |> Seq.last
+
+    let CreateRecordAsync httpClient (credentials: ICredentials) (post: Post) = task {
+        return!
+            Requester.build HttpMethod.Post credentials "com.atproto.repo.createRecord" []
+            |> Requester.addJsonBody [
+                "repo", credentials.DID
+                "collection", "app.bsky.feed.post"
+                "record", dict [
+                    "$type", "app.bsky.feed.post" :> obj
+                    "text", post.text
+                    "createdAt", post.createdAt.ToString("o")
+
+                    if not (Seq.isEmpty post.images) then
+                        "embed", dict [
+                            "$type", "app.bsky.embed.images" :> obj
+                            "images", [
+                                for i in post.images do dict [
+                                    "image", i.blob
+                                    "alt", i.alt
+                                ]
+                            ]
+                        ]
+                ]
+            ]
+            |> Reader.readAsync<NewRecord> httpClient (Some credentials)
+    }
+
+    let DeleteRecordAsync httpClient (credentials: ICredentials) (rkey: string) = task {
+        do!
+            Requester.build HttpMethod.Post credentials "com.atproto.repo.deleteRecord" [
+                "repo", credentials.DID
+                "collection", "app.bsky.feed.post"
+                "rkey", rkey
+            ]
+            |> Reader.readAsync<unit> httpClient (Some credentials)
     }
 
 /// Handles requests within app.bsky.feed.
