@@ -441,14 +441,6 @@ namespace Pandacap.Controllers
             });
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CheckBridgyFed()
-        {
-            await atProtoInboxHandler.FindAndRecordBridgedBlueskyUrls();
-            return NoContent();
-        }
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

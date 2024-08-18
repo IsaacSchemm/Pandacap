@@ -139,7 +139,7 @@
 
     <div class="container mb-3">
         <div class="row">
-            <div class="col col-12 col-lg-4">
+            <div class="col col-12 col-md-6 col-xl-3 mb-3">
                 <h2>
                     DeviantArt
                 </h2>
@@ -209,7 +209,7 @@
                 </div>
             </div>
 
-            <div class="col col-12 col-lg-4">
+            <div class="col col-12 col-md-6 col-xl-3 mb-3">
                 <h2>
                     ActivityPub
                 </h2>
@@ -273,14 +273,14 @@
                 </div>
             </div>
 
-            <div class="col col-12 col-lg-4">
+            <div class="col col-12 col-md-6 col-xl-3 mb-3">
                 <h2>
                     atproto
                 </h2>
 
                 <div class="card mt-3">
                     <div class="card-header">
-                        Inbound
+                        Configuration
                     </div>
                     <div class="card-body">
                         <a asp-controller="ATProto" asp-action="Setup" class="btn btn-outline-primary">
@@ -290,25 +290,12 @@
                             Posts that appear in the account's home timeline will be added to the inbox.
                         </div>
                         <hr />
-                        <form asp-controller="InboxIngest" asp-action="BlueskyTimeline">
-                            <button type="submit" class="btn btn-primary btn-warning">
-                                Sync now
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Outbound
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="CheckBridgyFed">
-                            <button type="submit" class="btn btn-primary btn-warning">
-                                Update Bluesky URLs for bridged posts
-                            </button>
-                        </form>
-                        <div class="form-text">
-                            This adds a "View on Bluesky" link to the post page in your Pandacap gallery.
+                        <div class="text-center">
+                            <form asp-controller="InboxIngest" asp-action="BlueskyTimeline">
+                                <button type="submit" class="btn btn-primary btn-warning">
+                                    Sync now
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -339,7 +326,7 @@
                 </div>
             </div>
 
-            <div class="col col-12 col-lg-4">
+            <div class="col col-12 col-md-6 col-xl-3 mb-3">
                 <h2>
                     Atom/RSS
                 </h2>
@@ -362,17 +349,21 @@
 
                             <hr />
 
-                            <a asp-action="Feeds" class="btn btn-outline-primary">
-                                Manage feeds
-                            </a>
+                            <div class="text-center">
+                                <a asp-action="Feeds" class="btn btn-outline-primary">
+                                    Manage feeds
+                                </a>
+                            </div>
 
                             <hr />
 
-                            <form asp-controller="InboxIngest" asp-action="Feed">
-                                <button type="submit" class="btn btn-primary btn-warning">
-                                    Sync inbox (Atom/RSS)
-                                </button>
-                            </form>
+                            <div class="text-center">
+                                <form asp-controller="InboxIngest" asp-action="Feed">
+                                    <button type="submit" class="btn btn-primary btn-warning">
+                                        Sync inbox (Atom/RSS)
+                                    </button>
+                                </form>
+                            </div>
                         </form>
                     </div>
                 </div>
