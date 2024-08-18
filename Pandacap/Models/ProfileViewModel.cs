@@ -1,5 +1,5 @@
 ﻿using Pandacap.Data;
-using Pandacap.LowLevel.ATProto;
+using Pandacap.HighLevel;
 
 namespace Pandacap.Models
 {
@@ -11,7 +11,7 @@ namespace Pandacap.Models
         public IEnumerable<UserPost> RecentTextPosts { get; set; } = [];
         public IEnumerable<ActivityInfo> RecentActivities { get; set; } = [];
 
-        public IEnumerable<Notifications.Notification> RecentATProtoNotifications { get; set; } = [];
+        public IEnumerable<ATProtoNotificationHandler.Notification> RecentATProtoNotifications { get; set; } = [];
 
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }

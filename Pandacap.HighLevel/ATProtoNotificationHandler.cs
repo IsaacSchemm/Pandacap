@@ -9,7 +9,13 @@ namespace Pandacap.HighLevel
         ATProtoCredentialProvider atProtoCredentialProvider,
         IHttpClientFactory httpClientFactory)
     {
-        public async IAsyncEnumerable<Notifications.Notification> GetNotificationsAsync()
+        public record Notification(
+            string AuthorDisplayName,
+            string AuthorUri,
+            string Reason,
+            DateTimeOffset IndexedAt);
+
+        public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
             var credentials = await atProtoCredentialProvider.GetCredentialsAsync();
             if (credentials == null)
@@ -28,7 +34,13 @@ namespace Pandacap.HighLevel
                     page);
 
                 foreach (var item in result.notifications)
-                    yield return item;
+                {
+                    yield return new Notification(
+                        OptionModule.ToObj(item.author.displayName) ?? item.author.handle,
+                        $"https://bsky.app/profile/{item.author.handle}",
+                        item.reason,
+                        item.indexedAt);
+                }
 
                 if (OptionModule.ToObj(result.cursor) is string next)
                     page = Notifications.Page.NewFromCursor(next);

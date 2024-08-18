@@ -259,17 +259,13 @@
                         @foreach (var activity in Model.RecentActivities)
                         {
                             <li class="list-group-item">
-                                <strong>
+                                <div style="white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis">
+                                    <strong>@activity.RemoteActivity.ActivityType</strong>
+                                    from
                                     <a href="@activity.RemoteActivity.ActorId">@activity.RemoteActivity.ActorId</a>
-                                </strong>
-                                <br />
-                                @activity.RemoteActivity.ActivityType for
-                                <a href="/UserPosts/@activity.RemoteActivity.DeviationId">
-                                    @(activity.Post?.Title ?? activity.RemoteActivity.DeviationId.ToString())
-                                </a>
-                                <br />
+                                </div>
                                 <span class="small text-muted">
-                                    (@activity.RemoteActivity.AddedAt)
+                                    (@activity.RemoteActivity.AddedAt.ToString("MMMM d, yyyy h:mm tt"))
                                 </span>
                             </li>
                         }
@@ -324,17 +320,21 @@
                         @foreach (var activity in Model.RecentATProtoNotifications)
                         {
                             <li class="list-group-item">
-                                <strong>
-                                    <a href="@activity.uri">@activity.author.displayName.Value</a>
-                                </strong>
-                                <br />
-                                @activity.reason for @activity.reasonSubject
-                                <br />
+                                <div style="white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis">
+                                    <strong>@activity.Reason</strong>
+                                    from
+                                    <a href="@activity.AuthorUri">@activity.AuthorDisplayName</a>
+                                </div>
                                 <span class="small text-muted">
-                                    (@activity.indexedAt)
+                                    (@activity.IndexedAt.ToString("MMMM d, yyyy h:mm tt"))
                                 </span>
                             </li>
                         }
+                        <li class="list-group-item">
+                            <a href="https://bsky.app/notifications" target="_blank">
+                                View more &raquo;
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
