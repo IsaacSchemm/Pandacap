@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Models;
 
@@ -9,6 +11,7 @@ namespace Pandacap.Controllers
     public class NotificationsController(
         ActivityPubNotificationHandler activityPubNotificationHandler,
         ATProtoNotificationHandler atProtoNotificationHandler,
+        PandacapDbContext context,
         DeviantArtNotificationsHandler deviantArtNotificationsHandler) : Controller
     {
         public async Task<IActionResult> Index()
@@ -39,6 +42,18 @@ namespace Pandacap.Controllers
                 RecentATProtoNotifications = atProto,
                 RecentMessages = deviantArt
             });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkActivityPubActivitiesAsRead()
+        {
+            await foreach (var activity in context.ActivityPubInboundActivities)
+                activity.AcknowledgedAt ??= DateTimeOffset.UtcNow;
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }
