@@ -86,13 +86,6 @@
             View on Bluesky
         </a>
     }
-
-    @if (Model.Post.BridgedBlueskyUrl is string blueskyUrl)
-    {
-        <a href="@blueskyUrl" class="btn btn-outline-primary" target="_blank">
-            View on Bluesky
-        </a>
-    }
 </div>
 
 @if (User.Identity?.IsAuthenticated == true)

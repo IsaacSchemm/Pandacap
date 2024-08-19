@@ -30,7 +30,6 @@ Function app responsibilities:
     * clear dismissed Bluesky and DeviantArt inbox entries more than 7 days old
 * `InboxIngest` (every hour at :10)
     * check Bluesky feed for new posts
-    * if Bridgy Fed is enabled, check bridged account for new posts and add a link from the original Pandacap post
     * check DeviantArt feed for new posts
     * check users followed on DeviantArt for new journals and status updates
     * check RSS/Atom feeds for new posts

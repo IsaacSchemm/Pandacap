@@ -42,12 +42,10 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
-            bool bridgyFedRequested = await context.Follows
-                .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
-                .CountAsync() > 0;
-            bool bridgyFedActive = await context.Followers
-                .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
-                .CountAsync() > 0;
+            string? did = await context.ATProtoCredentials
+                .Where(c => c.Crosspost)
+                .Select(c => c.DID)
+                .FirstOrDefaultAsync();
 
             return View(new ProfileViewModel
             {
@@ -67,7 +65,7 @@ namespace Pandacap.Controllers
                     .ToListAsync(),
                 FollowerCount = await context.Followers.CountAsync(),
                 FollowingCount = await context.Follows.CountAsync(),
-                BridgyFed = bridgyFedRequested && bridgyFedActive
+                ATProtoDID = did
             });
         }
 

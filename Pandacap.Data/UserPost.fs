@@ -33,8 +33,6 @@ type UserPost() =
     member val BlueskyDID = nullString with get, set
     member val BlueskyRecordKey = nullString with get, set
 
-    member val BridgedBlueskyUrl = nullString with get, set
-
     [<NotMapped>]
     member this.ImageBlobs = List.choose Option.ofObj [this.Image; this.Thumbnail]
 

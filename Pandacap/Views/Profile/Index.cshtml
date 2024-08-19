@@ -32,13 +32,13 @@
         </a>
     </p>
 
-    @if (Model.BridgyFed)
+    @if (Model.ATProtoDID != null)
     {
         <p>
-            Mirrored on atproto:
+            Mirrored on Bluesky:
             <br />
-            <a href="https://bsky.app/profile/@(appInfo.Username).@(appInfo.HandleHostname).ap.brid.gy">
-                <tt>@@@(appInfo.Username).@(appInfo.HandleHostname).ap.brid.gy</tt>
+            <a href="https://bsky.app/profile/@(Model.ATProtoDID)">
+                <tt>@Model.ATProtoDID</tt>
             </a>
         </p>
     }

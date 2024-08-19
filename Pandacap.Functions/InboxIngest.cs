@@ -29,7 +29,6 @@ namespace Pandacap.Functions
             }
 
             await c(atProtoInboxHandler.ImportPostsByUsersWeWatchAsync());
-            await c(atProtoInboxHandler.FindAndRecordBridgedBlueskyUrls());
 
             await c(deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync());
             await c(deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync());

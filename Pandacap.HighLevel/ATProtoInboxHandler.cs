@@ -10,8 +10,7 @@ namespace Pandacap.HighLevel
         ApplicationInformation appInfo,
         PandacapDbContext context,
         ATProtoCredentialProvider credentialProvider,
-        IHttpClientFactory httpClientFactory,
-        IdMapper idMapper)
+        IHttpClientFactory httpClientFactory)
     {
         private static async IAsyncEnumerable<BlueskyFeed.FeedItem> WrapAsync(
             Func<BlueskyFeed.Page, Task<BlueskyFeed.FeedResponse>> handler)
@@ -90,59 +89,6 @@ namespace Pandacap.HighLevel
                         })
                         .ToList()
                 });
-            }
-
-            await context.SaveChangesAsync();
-        }
-
-        /// <summary>
-        /// Records the Bluesky app URLs of Pandacap posts that have been bridged by Bridgy Fed.
-        /// </summary>
-        /// <returns></returns>
-        public async Task FindAndRecordBridgedBlueskyUrls()
-        {
-            var bridgyFedFollows = await context.Follows
-                .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
-                .ToListAsync();
-
-            if (bridgyFedFollows.Count == 0)
-                return;
-
-            var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
-
-            var newestPosts = await context.UserPosts
-                .OrderByDescending(p => p.PublishedTime)
-                .AsAsyncEnumerable()
-                .TakeWhile(p => p.BridgedBlueskyUrl == null)
-                .ToListAsync();
-
-            if (newestPosts.Count == 0)
-                return;
-
-            var cutoff = newestPosts.Select(p => p.PublishedTime).Min();
-
-            string actor = $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy";
-
-            var upstream =
-                await WrapAsync(page => BlueskyFeed.GetAuthorFeedAsync(
-                    client,
-                    actor,
-                    page))
-                .TakeWhile(item => item.IndexedAt >= cutoff)
-                .ToListAsync();
-
-            foreach (var post in newestPosts)
-            {
-                if (post.BridgedBlueskyUrl != null)
-                    continue;
-
-                string activityPubUrl = idMapper.GetObjectId(post.Id);
-                var upstreamItem = upstream.FirstOrDefault(item => item.post.record.OtherUrls.Contains(activityPubUrl));
-                if (upstreamItem != null)
-                {
-                    post.BridgedBlueskyUrl = $"https://bsky.app/profile/{actor}/post/{upstreamItem.post.RecordKey}";
-                }
             }
 
             await context.SaveChangesAsync();
