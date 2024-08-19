@@ -18,6 +18,8 @@ namespace Pandacap.HighLevel
     {
         private static readonly IEnumerable<JToken> Empty = [];
 
+        private readonly Dictionary<Uri, RemoteActor> _cache = [];
+
         /// <summary>
         /// Fetches and returns an actor.
         /// </summary>
@@ -25,7 +27,12 @@ namespace Pandacap.HighLevel
         /// <returns>An actor record</returns>
         public async Task<RemoteActor> FetchActorAsync(string url)
         {
-            string json = await GetJsonAsync(new Uri(url));
+            Uri uri = new(url);
+
+            if (_cache.TryGetValue(uri, out RemoteActor? cached))
+                return cached;
+
+            string json = await GetJsonAsync(uri);
 
             JObject document = JObject.Parse(json);
             JArray expansion = JsonLdProcessor.Expand(document);
@@ -63,7 +70,7 @@ namespace Pandacap.HighLevel
                 KeyId: keyId,
                 KeyPem: keyPem);
 
-            return actor;
+            return _cache[uri] = actor;
         }
 
         /// <summary>

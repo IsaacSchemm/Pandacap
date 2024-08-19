@@ -11,13 +11,14 @@ namespace Pandacap.HighLevel
         {
             return services
                 .AddSingleton(applicationInformation)
+                .AddScoped<ActivityPubNotificationHandler>()
+                .AddScoped<ActivityPubRequestHandler>()
+                .AddScoped<ActivityPubTranslator>()
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoCredentialProvider>()
                 .AddScoped<ATProtoInboxHandler>()
                 .AddScoped<ATProtoNotificationHandler>()
                 .AddScoped<BlueskyAgent>()
-                .AddScoped<ActivityPubRequestHandler>()
-                .AddScoped<ActivityPubTranslator>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtInboxHandler>()
                 .AddScoped<IdMapper>()

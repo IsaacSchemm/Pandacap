@@ -251,26 +251,6 @@
                         </form>
                     </div>
                 </div>
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Recent inbound activities
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        @foreach (var activity in Model.RecentActivities)
-                        {
-                            <li class="list-group-item">
-                                <div style="white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis">
-                                    <strong>@activity.RemoteActivity.ActivityType</strong>
-                                    from
-                                    <a href="@activity.RemoteActivity.ActorId">@activity.RemoteActivity.ActorId</a>
-                                </div>
-                                <span class="small text-muted">
-                                    (@activity.RemoteActivity.AddedAt.ToString("MMMM d, yyyy h:mm tt"))
-                                </span>
-                            </li>
-                        }
-                    </ul>
-                </div>
             </div>
 
             <div class="col col-12 col-md-6 col-xl-3 mb-3">
@@ -298,31 +278,6 @@
                             </form>
                         </div>
                     </div>
-                </div>
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Recent notifications
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        @foreach (var activity in Model.RecentATProtoNotifications)
-                        {
-                            <li class="list-group-item">
-                                <div style="white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis">
-                                    <strong>@activity.Reason</strong>
-                                    from
-                                    <a href="@activity.AuthorUri">@activity.AuthorDisplayName</a>
-                                </div>
-                                <span class="small text-muted">
-                                    (@activity.IndexedAt.ToString("MMMM d, yyyy h:mm tt"))
-                                </span>
-                            </li>
-                        }
-                        <li class="list-group-item">
-                            <a href="https://bsky.app/notifications" target="_blank">
-                                View more &raquo;
-                            </a>
-                        </li>
-                    </ul>
                 </div>
             </div>
 

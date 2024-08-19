@@ -15,7 +15,6 @@ namespace Pandacap.Controllers
     public class ProfileController(
         ActivityPubRequestHandler activityPubRequestHandler,
         AtomRssFeedReader atomRssFeedReader,
-        ATProtoInboxHandler atProtoInboxHandler,
         ATProtoNotificationHandler atProtoNotificationHandler,
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
@@ -44,26 +43,6 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
-            Lazy<Task<IEnumerable<ActivityInfo>>> activityInfo = new(async () =>
-            {
-                var activites = await context.ActivityPubInboundActivities
-                   .Where(activity => activity.AddedAt >= someTimeAgo)
-                   .OrderByDescending(activity => activity.AddedAt)
-                   .Take(4)
-                   .ToListAsync();
-
-                var affectedIds = activites.Select(a => a.DeviationId);
-                var affectedDeviations = await context.UserPosts
-                    .Where(d => affectedIds.Contains(d.Id))
-                    .ToListAsync();
-
-                return activites.Select(activity => new ActivityInfo
-                {
-                    RemoteActivity = activity,
-                    Post = affectedDeviations.SingleOrDefault(p => p.Id == activity.DeviationId)
-                });
-            });
-
             bool bridgyFedRequested = await context.Follows
                 .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
                 .CountAsync() > 0;
@@ -87,15 +66,6 @@ namespace Pandacap.Controllers
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(4)
                     .ToListAsync(),
-                RecentActivities = User.Identity?.IsAuthenticated == true
-                    ? await activityInfo.Value
-                    : [],
-                RecentATProtoNotifications = User.Identity?.IsAuthenticated == true
-                    ? await atProtoNotificationHandler
-                        .GetNotificationsAsync()
-                        .Take(5)
-                        .ToListAsync()
-                    : [],
                 FollowerCount = await context.Followers.CountAsync(),
                 FollowingCount = await context.Follows.CountAsync(),
                 BridgyFed = bridgyFedRequested && bridgyFedActive
@@ -428,6 +398,7 @@ namespace Pandacap.Controllers
         }
 
         [Authorize]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Feeds is not paginated, but its view is shared with pages that are")]
         public async Task<IActionResult> Feeds(Guid? next, int? count)
         {
             var page = await context.RssFeeds
