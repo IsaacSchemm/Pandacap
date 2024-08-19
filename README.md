@@ -8,39 +8,9 @@ This is **not**:
 * a proper social media site (only the instance owner can log in, and there are no discoverability features)
 
 Pandacap is a single-user application.
-To log in, the instance owner must use DeviantArt account that matches the Pandacap configuration.
+To log in, the instance owner must use the DeviantArt account that matches the Pandacap configuration.
 
-Once logged in, the instance owner can:
-
-* Manage posts:
-    * Import posts (artwork, journals, and status updates) from their DeviantArt account
-    * Refresh posts by checking DeviantArt for updates
-    * Set artwork alt text
-    * Remove imported posts
-* Manage follows:
-    * Follow and unfollow ActivityPub users
-    * Follow and unfollow Atom and RSS feeds
-    * Attach an external Bluesky account
-* View image posts from DeviantArt accounts, ActivityPub actors, Bluesky accounts, or Atom/RSS feeds they follow
-* View text posts from DeviantArt accounts, ActivityPub actors, Bluesky accounts, or Atom/RSS feeds they follow
-* View ActivityPub mentions and replies
-* View ActivityPub and Bluesky boosts
-* Mark ActivityPub posts as favorites
-* See which other ActivityPub users have liked or boosted the owner's posts
-
-They cannot:
-
-* Create or edit posts without going through DeviantArt
-* Reply to posts or @mention other users
-* Sync their DeviantArt posts to the attached Bluesky account (Bridgy Fed can be used for outbound Bluesky support), although this may be added in the future
-
-Visitors can:
-
-* See the owner's DeviantArt submissions
-* See the owner's DeviantArt journals and status updates
-* See the owner's ActivityPub handle
-* See the owner's AT Protocol handle, if Bridgy Fed is connected
-* See the owner's ActivityPub follows, followers, and favorites
+For more information, see Views/About/Index.cshtml.
 
 ## Deployment
 
@@ -59,9 +29,10 @@ Function app responsibilities:
 * `InboxCleanup` (every day at 9:00)
     * clear dismissed Bluesky and DeviantArt inbox entries more than 7 days old
 * `InboxIngest` (every hour at :10)
-    * check Bluesky feed for new posts (limited to the last 3 days)
+    * check Bluesky feed for new posts
     * if Bridgy Fed is enabled, check bridged account for new posts and add a link from the original Pandacap post
-    * check DeviantArt feed for new posts (limited to the last 3 days)
+    * check DeviantArt feed for new posts
+    * check users followed on DeviantArt for new journals and status updates
     * check RSS/Atom feeds for new posts
 * `OutboxCleanup` (every day at 8:00)
     * remove unsent outbound ActivityPub messages that have been pending for more than 7 days
