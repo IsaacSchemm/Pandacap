@@ -1,13 +1,13 @@
 ﻿@using Pandacap.Data
 @using Pandacap.HighLevel
 @using Pandacap.Models
-@model ListViewModel<RssFeed>
+@model IEnumerable<RssFeed>
 
 @{
-    ViewBag.Title = Model.Title;
+    ViewBag.Title = "Feeds";
 }
 
-@if (!Model.Items.DisplayList.Any())
+@if (!Model.Any())
 {
     <p>
         This user does not currently follow any Atom or RSS feeds.
@@ -15,7 +15,7 @@
 }
 else
 {
-    @foreach (var item in Model.Items.DisplayList)
+    @foreach (var item in Model)
     {
         <div class="mb-3">
             <div>
@@ -43,17 +43,5 @@ else
                 </details>
             }
         </div>
-    }
-
-    @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IRemoteActorRelationship nextActor)
-    {
-        <hr />
-
-        <a asp-route-q="@Model.Q"
-           asp-route-next="@nextActor.ActorId"
-           asp-route-count="@Model.Items.DisplayList.Length"
-           class="btn btn-primary">
-            Next @Model.Items.DisplayList.Length items &raquo;
-        </a>
     }
 }

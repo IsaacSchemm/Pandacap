@@ -395,18 +395,10 @@ namespace Pandacap.Controllers
         }
 
         [Authorize]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Feeds is not paginated, but its view is shared with pages that are")]
-        public async Task<IActionResult> Feeds(Guid? next, int? count)
+        public async Task<IActionResult> Feeds()
         {
-            var page = await context.RssFeeds
-                .AsAsyncEnumerable()
-                .AsListPage(int.MaxValue);
-
-            return View(new ListViewModel<RssFeed>
-            {
-                Title = "Feeds",
-                Items = page
-            });
+            var page = await context.RssFeeds.ToListAsync();
+            return View(page);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
