@@ -23,7 +23,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<DeviantArtInboxHandler>()
                 .AddScoped<DeviantArtNotificationsHandler>()
                 .AddScoped<IdMapper>()
-                .AddSingleton(new KeyProvider($"https://{applicationInformation.KeyVaultHostname}"))
+                .AddScoped<KeyProvider>()
                 .AddScoped<OutboxProcessor>();
         }
     }
