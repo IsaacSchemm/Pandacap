@@ -22,17 +22,20 @@
                 <ul class="list-group list-group-flush">
                     @foreach (var message in Model.RecentMessages)
                     {
-                        <li class="list-group-item" class="@(message.IsNew ? "" : "text-muted")">
-                            <div style="overflow-x: hidden; text-overflow: ellipsis">
+                        <li class="list-group-item">
+                            <div class="@(message.IsNew ? "" : "low-opacity")">
                                 <strong>@message.Type</strong>
                                 from
                                 <a href="https://www.deviantart.com/@(message.Username)">@message.Username</a>
-                                on
-                                <a href="/UserPosts/@(message.DeviationId)">
-                                    @message.Title
-                                </a>
+                                @if (message.DeviationId != null)
+                                {
+                                    @:on
+                                    <a href="/UserPosts/@(message.DeviationId)">
+                                        @message.Title
+                                    </a>
+                                }
                             </div>
-                            <span class="small text-muted">
+                            <span class="small low-opacity">
                                 (@message.Timestamp.ToString("MMMM d, yyyy h:mm tt"))
                             </span>
                         </li>
@@ -59,7 +62,7 @@
                     @foreach (var activity in Model.RecentActivities)
                     {
                         <li class="list-group-item">
-                            <div style="overflow-x: hidden; text-overflow: ellipsis">
+                            <div class="@(activity.IsNew ? "" : "low-opacity")">
                                 <strong>@activity.RemoteActivity.ActivityType</strong>
                                 from
                                 <a href="@activity.RemoteActivity.ActorId">@(activity.Actor?.PreferredUsername ?? activity.RemoteActivity.ActorId)</a>
@@ -68,7 +71,7 @@
                                     @activity.Post?.Title
                                 </a>
                             </div>
-                            <span class="small text-muted">
+                            <span class="small low-opacity">
                                 (@activity.RemoteActivity.AddedAt.ToString("MMMM d, yyyy h:mm tt"))
                             </span>
                         </li>
@@ -89,13 +92,20 @@
                 <ul class="list-group list-group-flush">
                     @foreach (var notification in Model.RecentATProtoNotifications)
                     {
-                        <li class="list-group-item" class="@(notification.IsRead ? "text-muted" : "")">
-                            <div style="overflow-x: hidden; text-overflow: ellipsis">
+                        <li class="list-group-item">
+                            <div class="@(notification.IsRead ? "low-opacity" : "")">
                                 <strong>@notification.Reason</strong>
                                 from
                                 <a href="@notification.AuthorUri">@notification.AuthorDisplayName</a>
+                                @if (notification.UserPostId != null)
+                                {
+                                    @:on
+                                    <a href="/UserPosts/@notification.UserPostId">
+                                        @notification.UserPostTitle
+                                    </a>
+                                }
                             </div>
-                            <span class="small text-muted">
+                            <span class="small low-opacity">
                                 (@notification.IndexedAt.ToString("MMMM d, yyyy h:mm tt"))
                             </span>
                         </li>
@@ -110,3 +120,9 @@
         </div>
     </div>
 </div>
+
+<style type="text/css">
+    .low-opacity {
+        opacity: 0.25;
+    }
+</style>

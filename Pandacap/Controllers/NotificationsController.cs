@@ -14,7 +14,7 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Index()
         {
             int max = 10;
-            var cutoff = DateTimeOffset.UtcNow.AddDays(-90);
+            var cutoff = DateTimeOffset.MinValue;
 
             var activityPub = await activityPubNotificationHandler
                 .GetNotificationsAsync()

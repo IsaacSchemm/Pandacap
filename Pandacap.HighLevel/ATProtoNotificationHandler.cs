@@ -1,4 +1,6 @@
-﻿using Microsoft.FSharp.Core;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.FSharp.Core;
+using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.LowLevel.ATProto;
 
@@ -7,6 +9,7 @@ namespace Pandacap.HighLevel
     public class ATProtoNotificationHandler(
         ApplicationInformation appInfo,
         ATProtoCredentialProvider atProtoCredentialProvider,
+        PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
         public record Notification(
@@ -14,7 +17,9 @@ namespace Pandacap.HighLevel
             string AuthorUri,
             string Reason,
             DateTimeOffset IndexedAt,
-            bool IsRead);
+            bool IsRead,
+            Guid? UserPostId,
+            string? UserPostTitle);
 
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
@@ -36,12 +41,24 @@ namespace Pandacap.HighLevel
 
                 foreach (var item in result.notifications)
                 {
+                    UserPost? userPost = null;
+
+                    if (item.reasonSubject != null)
+                    {
+                        string rkey = item.reasonSubject.Split('/').Last();
+                        userPost = await context.UserPosts
+                            .Where(d => d.BlueskyRecordKey == rkey)
+                            .FirstOrDefaultAsync();
+                    }
+
                     yield return new Notification(
                         OptionModule.ToObj(item.author.displayName) ?? item.author.handle,
                         $"https://bsky.app/profile/{item.author.handle}",
                         item.reason,
                         item.indexedAt,
-                        item.isRead);
+                        item.isRead,
+                        userPost?.Id,
+                        userPost?.Title);
                 }
 
                 if (OptionModule.ToObj(result.cursor) is string next)

@@ -12,7 +12,8 @@ namespace Pandacap.HighLevel
         public record Notification(
             ActivityPubInboundActivity RemoteActivity,
             UserPost? Post,
-            RemoteActor? Actor);
+            RemoteActor? Actor,
+            bool IsNew);
 
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
@@ -55,7 +56,9 @@ namespace Pandacap.HighLevel
                     logger.LogWarning(ex, "{message}", ex.Message);
                 }
 
-                yield return new(activity, userPost, actor);
+                bool isNew = activity.AddedAt > DateTimeOffset.UtcNow.AddDays(-7);
+
+                yield return new(activity, userPost, actor, isNew);
             }
         }
     }

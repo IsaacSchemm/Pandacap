@@ -15,7 +15,6 @@ namespace Pandacap.Controllers
     public class ProfileController(
         ActivityPubRequestHandler activityPubRequestHandler,
         AtomRssFeedReader atomRssFeedReader,
-        ATProtoNotificationHandler atProtoNotificationHandler,
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
         KeyProvider keyProvider,

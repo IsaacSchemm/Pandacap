@@ -13,30 +13,24 @@ namespace Pandacap.HighLevel
     {
         public async Task DeleteBlueskyPostsAsync(UserPost submission)
         {
-            if (submission.BlueskyCrossposts.Count == 0)
+            if (submission.BlueskyRecordKey != null)
                 return;
 
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
 
-            foreach (var mirrorPost in submission.BlueskyCrossposts)
-            {
-                try
-                {
-                    var wrapper = await atProtoCredentialProvider.GetCredentialsAsync();
+            var wrapper = await atProtoCredentialProvider.GetCredentialsAsync();
 
-                    if (wrapper?.DID != mirrorPost.DID)
-                        continue;
+            if (wrapper?.DID != submission.BlueskyDID)
+                throw new Exception("Cannot delete post from a non-connected atproto account");
 
-                    await Repo.DeleteRecordAsync(
-                        httpClient,
-                        wrapper,
-                        mirrorPost.RecordKey);
+            await Repo.DeleteRecordAsync(
+                httpClient,
+                wrapper,
+                submission.BlueskyRecordKey);
 
-                    submission.BlueskyCrossposts.Remove(mirrorPost);
-                }
-                catch (Exception) { }
-            }
+            submission.BlueskyDID = null;
+            submission.BlueskyRecordKey = null;
         }
 
         public async Task CreateBlueskyPostsAsync(UserPost submission)
@@ -51,7 +45,7 @@ namespace Pandacap.HighLevel
             if (!wrapper.Crosspost)
                 return;
 
-            if (submission.BlueskyCrossposts.Any(m => m.DID == wrapper.DID))
+            if (wrapper.DID == submission.BlueskyDID)
                 return;
 
             async IAsyncEnumerable<Repo.BlobWithAltText> downloadImagesAsync()
@@ -80,11 +74,8 @@ namespace Pandacap.HighLevel
                     createdAt: submission.PublishedTime,
                     images: await downloadImagesAsync().ToListAsync()));
 
-            submission.BlueskyCrossposts.Add(new()
-            {
-                DID = wrapper.DID,
-                RecordKey = post.RecordKey
-            });
+            submission.BlueskyDID = wrapper.DID;
+            submission.BlueskyRecordKey = post.RecordKey;
         }
     }
 }

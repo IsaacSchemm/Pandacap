@@ -13,10 +13,6 @@ type UserPostBlobReference() =
     [<NotMapped>]
     member this.BlobName = $"{this.Id}"
 
-type BlueskyCrosspost() =
-    member val DID = "" with get, set
-    member val RecordKey = "" with get, set
-
 /// A Pandacap post imported from this instance's owner's DeviantArt account.
 type UserPost() =
     member val Id = Guid.Empty with get, set
@@ -34,7 +30,8 @@ type UserPost() =
     member val HideTitle = false with get, set
     member val IsArticle = false with get, set
 
-    member val BlueskyCrossposts = new ResizeArray<BlueskyCrosspost>() with get, set
+    member val BlueskyDID = nullString with get, set
+    member val BlueskyRecordKey = nullString with get, set
 
     member val BridgedBlueskyUrl = nullString with get, set
 
