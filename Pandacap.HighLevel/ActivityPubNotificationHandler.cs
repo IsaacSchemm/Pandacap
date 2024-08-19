@@ -24,18 +24,31 @@ namespace Pandacap.HighLevel
                 .OrderByDescending(activity => activity.AddedAt)
                 .AsAsyncEnumerable();
 
+            CancellationTokenSource actorFetchCancellation = new();
+            actorFetchCancellation.CancelAfter(TimeSpan.FromSeconds(10));
+
             await foreach (var activity in activites)
             {
                 UserPost? userPost = null;
-                RemoteActor? actor = null;
 
                 try
                 {
                     userPost = await lookupContext.UserPosts
-                        .Where(d => d.Id == activity.Id)
-                        .DefaultIfEmpty(null)
-                        .SingleAsync();
-                    actor = await activityPubRequestHandler.FetchActorAsync(activity.ActorId);
+                        .Where(d => d.Id == activity.DeviationId)
+                        .SingleOrDefaultAsync();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "{message}", ex.Message);
+                }
+
+                RemoteActor? actor = null;
+
+                try
+                {
+                    actor = await activityPubRequestHandler.FetchActorAsync(
+                        activity.ActorId,
+                        actorFetchCancellation.Token);
                 }
                 catch (Exception ex)
                 {

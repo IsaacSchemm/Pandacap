@@ -13,7 +13,8 @@ namespace Pandacap.HighLevel
             string AuthorDisplayName,
             string AuthorUri,
             string Reason,
-            DateTimeOffset IndexedAt);
+            DateTimeOffset IndexedAt,
+            bool IsRead);
 
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
@@ -39,7 +40,8 @@ namespace Pandacap.HighLevel
                         OptionModule.ToObj(item.author.displayName) ?? item.author.handle,
                         $"https://bsky.app/profile/{item.author.handle}",
                         item.reason,
-                        item.indexedAt);
+                        item.indexedAt,
+                        item.isRead);
                 }
 
                 if (OptionModule.ToObj(result.cursor) is string next)

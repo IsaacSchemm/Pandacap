@@ -8,26 +8,36 @@ namespace Pandacap.Controllers
     [Authorize]
     public class NotificationsController(
         ActivityPubNotificationHandler activityPubNotificationHandler,
-        ATProtoNotificationHandler atProtoNotificationHandler) : Controller
+        ATProtoNotificationHandler atProtoNotificationHandler,
+        DeviantArtNotificationsHandler deviantArtNotificationsHandler) : Controller
     {
         public async Task<IActionResult> Index()
         {
-            int max = 5;
+            int max = 10;
+            var cutoff = DateTimeOffset.UtcNow.AddDays(-90);
 
-            var activityPubTask = activityPubNotificationHandler
+            var activityPub = await activityPubNotificationHandler
                 .GetNotificationsAsync()
+                .TakeWhile(n => n.RemoteActivity.AddedAt > cutoff)
                 .Take(max)
                 .ToListAsync();
 
-            var atProtoTask = atProtoNotificationHandler
+            var atProto = await atProtoNotificationHandler
+                .GetNotificationsAsync()
+                .TakeWhile(n => n.IndexedAt > cutoff)
+                .Take(max)
+                .ToListAsync();
+
+            var deviantArt = await deviantArtNotificationsHandler
                 .GetNotificationsAsync()
                 .Take(max)
                 .ToListAsync();
 
             return View(new NotificationsViewModel
             {
-                RecentActivities = await activityPubTask,
-                RecentATProtoNotifications = await atProtoTask
+                RecentActivities = activityPub,
+                RecentATProtoNotifications = atProto,
+                RecentMessages = deviantArt
             });
         }
     }

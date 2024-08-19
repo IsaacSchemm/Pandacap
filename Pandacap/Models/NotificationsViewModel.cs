@@ -6,5 +6,6 @@ namespace Pandacap.Models
     {
         public IEnumerable<ActivityPubNotificationHandler.Notification> RecentActivities { get; set; } = [];
         public IEnumerable<ATProtoNotificationHandler.Notification> RecentATProtoNotifications { get; set; } = [];
+        public IEnumerable<DeviantArtNotificationsHandler.Message> RecentMessages { get; set; } = [];
     }
 }

@@ -14,6 +14,36 @@
             <h2>
                 DeviantArt
             </h2>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    Recent messages
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var message in Model.RecentMessages)
+                    {
+                        <li class="list-group-item" class="@(message.IsNew ? "" : "text-muted")">
+                            <div style="overflow-x: hidden; text-overflow: ellipsis">
+                                <strong>@message.Type</strong>
+                                from
+                                <a href="https://www.deviantart.com/@(message.Username)">@message.Username</a>
+                                on
+                                <a href="/UserPosts/@(message.DeviationId)">
+                                    @message.Title
+                                </a>
+                            </div>
+                            <span class="small text-muted">
+                                (@message.Timestamp.ToString("MMMM d, yyyy h:mm tt"))
+                            </span>
+                        </li>
+                    }
+                    <li class="list-group-item">
+                        <a href="https://www.deviantart.com/notifications/" target="_blank">
+                            View all &raquo;
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <div class="col col-12 col-md-6 col-xl-4 mb-3">
@@ -29,11 +59,13 @@
                     @foreach (var activity in Model.RecentActivities)
                     {
                         <li class="list-group-item">
-                            <div style="white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis">
+                            <div style="overflow-x: hidden; text-overflow: ellipsis">
                                 <strong>@activity.RemoteActivity.ActivityType</strong>
                                 from
-                                <a href="@activity.RemoteActivity.ActorId">
-                                    @(activity.Actor?.PreferredUsername ?? activity.RemoteActivity.ActorId)
+                                <a href="@activity.RemoteActivity.ActorId">@(activity.Actor?.PreferredUsername ?? activity.RemoteActivity.ActorId)</a>
+                                on
+                                <a href="/UserPosts/@activity.Post?.Id">
+                                    @activity.Post?.Title
                                 </a>
                             </div>
                             <span class="small text-muted">
@@ -55,16 +87,16 @@
                     Recent notifications
                 </div>
                 <ul class="list-group list-group-flush">
-                    @foreach (var activity in Model.RecentATProtoNotifications)
+                    @foreach (var notification in Model.RecentATProtoNotifications)
                     {
-                        <li class="list-group-item">
-                            <div style="white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis">
-                                <strong>@activity.Reason</strong>
+                        <li class="list-group-item" class="@(notification.IsRead ? "text-muted" : "")">
+                            <div style="overflow-x: hidden; text-overflow: ellipsis">
+                                <strong>@notification.Reason</strong>
                                 from
-                                <a href="@activity.AuthorUri">@activity.AuthorDisplayName</a>
+                                <a href="@notification.AuthorUri">@notification.AuthorDisplayName</a>
                             </div>
                             <span class="small text-muted">
-                                (@activity.IndexedAt.ToString("MMMM d, yyyy h:mm tt"))
+                                (@notification.IndexedAt.ToString("MMMM d, yyyy h:mm tt"))
                             </span>
                         </li>
                     }

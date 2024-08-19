@@ -21,6 +21,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<BlueskyAgent>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtInboxHandler>()
+                .AddScoped<DeviantArtNotificationsHandler>()
                 .AddScoped<IdMapper>()
                 .AddSingleton(new KeyProvider($"https://{applicationInformation.KeyVaultHostname}"))
                 .AddScoped<OutboxProcessor>();

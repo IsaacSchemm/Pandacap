@@ -24,15 +24,16 @@ namespace Pandacap.HighLevel
         /// Fetches and returns an actor.
         /// </summary>
         /// <param name="url">The actor ID / URL</param>
+        /// <param name="cancellationToken">A cancellation token (optional)</param>
         /// <returns>An actor record</returns>
-        public async Task<RemoteActor> FetchActorAsync(string url)
+        public async Task<RemoteActor> FetchActorAsync(string url, CancellationToken cancellationToken = default)
         {
             Uri uri = new(url);
 
             if (_cache.TryGetValue(uri, out RemoteActor? cached))
                 return cached;
 
-            string json = await GetJsonAsync(uri);
+            string json = await GetJsonAsync(uri, cancellationToken);
 
             JObject document = JObject.Parse(json);
             JArray expansion = JsonLdProcessor.Expand(document);
@@ -133,8 +134,9 @@ namespace Pandacap.HighLevel
         /// Makes a signed HTTP GET request to a remote ActivityPub server.
         /// </summary>
         /// <param name="url">The URL to request</param>
+        /// <param name="cancellationToken">A cancellation token (optional)</param>
         /// <returns>The raw JSON-LD response</returns>
-        public async Task<string> GetJsonAsync(Uri url)
+        public async Task<string> GetJsonAsync(Uri url, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -150,10 +152,10 @@ namespace Pandacap.HighLevel
 
                 using var httpClient = httpClientFactory.CreateClient();
 
-                using var res = await httpClient.SendAsync(req);
+                using var res = await httpClient.SendAsync(req, cancellationToken);
                 res.EnsureSuccessStatusCode();
 
-                return await res.Content.ReadAsStringAsync();
+                return await res.Content.ReadAsStringAsync(cancellationToken);
             }
             catch (Exception)
             {
@@ -167,10 +169,10 @@ namespace Pandacap.HighLevel
 
                 using var httpClient = httpClientFactory.CreateClient();
 
-                using var res = await httpClient.SendAsync(req);
+                using var res = await httpClient.SendAsync(req, cancellationToken);
                 res.EnsureSuccessStatusCode();
 
-                return await res.Content.ReadAsStringAsync();
+                return await res.Content.ReadAsStringAsync(cancellationToken);
             }
         }
     }
