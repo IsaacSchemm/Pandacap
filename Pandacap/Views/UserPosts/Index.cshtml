@@ -80,6 +80,13 @@
         </a>
     }
 
+    @if (Model.Post.BlueskyDID is string did && Model.Post.BlueskyRecordKey is string rkey)
+    {
+        <a href="https://bsky.app/profile/@(did)/post/@(rkey)" class="btn btn-outline-primary" target="_blank">
+            View on Bluesky
+        </a>
+    }
+
     @if (Model.Post.BridgedBlueskyUrl is string blueskyUrl)
     {
         <a href="@blueskyUrl" class="btn btn-outline-primary" target="_blank">
