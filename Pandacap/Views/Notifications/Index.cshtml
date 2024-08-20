@@ -24,20 +24,22 @@
                     {
                         <li class="list-group-item">
                             <div class="@(message.IsNew ? "" : "low-opacity")">
-                                <strong>@message.Type</strong>
-                                from
-                                <a href="https://www.deviantart.com/@(message.Username)">@message.Username</a>
-                                @if (message.DeviationId != null)
-                                {
-                                    @:on
-                                    <a href="/UserPosts/@(message.DeviationId)">
-                                        @message.Title
-                                    </a>
-                                }
+                                <div>
+                                    <strong>@message.Type</strong>
+                                    from
+                                    <a href="https://www.deviantart.com/@(message.Username)">@message.Username</a>
+                                    @if (message.DeviationId != null)
+                                    {
+                                        @:on
+                                        <a href="/UserPosts/@(message.DeviationId)">
+                                            @message.Title
+                                        </a>
+                                    }
+                                </div>
+                                <span class="small text-secondary">
+                                    (@message.Timestamp.ToString("MMMM d, yyyy h:mm tt"))
+                                </span>
                             </div>
-                            <span class="@(message.IsNew ? "" : "low-opacity") small text-secondary">
-                                (@message.Timestamp.ToString("MMMM d, yyyy h:mm tt"))
-                            </span>
                         </li>
                     }
                     <li class="list-group-item">
@@ -81,6 +83,12 @@
                                     Dismiss
                                 </button>
                             </form>
+                        </li>
+                    }
+                    @if (!Model.RecentActivityPubActivities.Any())
+                    {
+                        <li class="list-group-item">
+                            No new activities.
                         </li>
                     }
                 </ul>
@@ -127,6 +135,12 @@
                             </form>
                         </li>
                     }
+                    @if (!Model.RecentActivityPubPosts.Any())
+                    {
+                        <li class="list-group-item">
+                            No new posts.
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
@@ -145,20 +159,22 @@
                     {
                         <li class="list-group-item">
                             <div class="@(notification.IsRead ? "low-opacity" : "")">
-                                <strong>@notification.Reason</strong>
-                                from
-                                <a href="@notification.AuthorUri">@notification.AuthorDisplayName</a>
-                                @if (notification.UserPostId != null)
-                                {
-                                    @:on
-                                    <a href="/UserPosts/@notification.UserPostId">
-                                        @notification.UserPostTitle
-                                    </a>
-                                }
+                                <div>
+                                    <strong>@notification.Reason</strong>
+                                    from
+                                    <a href="@notification.AuthorUri">@notification.AuthorDisplayName</a>
+                                    @if (notification.UserPostId != null)
+                                    {
+                                        @:on
+                                        <a href="/UserPosts/@notification.UserPostId">
+                                            @notification.UserPostTitle
+                                        </a>
+                                    }
+                                </div>
+                                <span class="small text-secondary">
+                                    (@notification.IndexedAt.ToString("MMMM d, yyyy h:mm tt"))
+                                </span>
                             </div>
-                            <span class="@(notification.IsRead ? "low-opacity" : "") small text-secondary">
-                                (@notification.IndexedAt.ToString("MMMM d, yyyy h:mm tt"))
-                            </span>
                         </li>
                     }
                     <li class="list-group-item">

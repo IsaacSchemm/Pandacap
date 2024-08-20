@@ -5,16 +5,12 @@ using Pandacap.Data;
 namespace Pandacap.HighLevel
 {
     public class ActivityPubNotificationHandler(
-        ActivityPubRequestHandler activityPubRequestHandler,
         IDbContextFactory<PandacapDbContext> contextFactory,
         ILogger<ActivityPubNotificationHandler> logger)
     {
         public record Notification(
             ActivityPubInboundActivity RemoteActivity,
-            UserPost? Post)
-        {
-            public bool IsNew => RemoteActivity.AcknowledgedAt == null;
-        }
+            UserPost? Post);
 
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
