@@ -75,7 +75,7 @@
                             <span class="small text-secondary">
                                 (@activity.AddedAt.ToString("MMMM d, yyyy h:mm tt"))
                             </span>
-                            <form asp-action="DismissActivityPubActivity" class="mt-3 text-end">
+                            <form asp-action="Dismiss" class="mt-3 text-end">
                                 <input type="hidden" name="id" value="@activity.Id" />
                                 <button type="submit" class="btn btn-sm btn-outline-primary">
                                     Dismiss
@@ -119,10 +119,10 @@
                                     view
                                 </a>
                             </span>
-                            <form asp-action="RemoveActivityPubPost" class="mt-3 text-end">
+                            <form asp-action="Dismiss" class="mt-3 text-end">
                                 <input type="hidden" name="id" value="@post.Id" />
                                 <button type="submit" class="btn btn-sm btn-outline-primary">
-                                    Remove
+                                    Dismiss
                                 </button>
                             </form>
                         </li>

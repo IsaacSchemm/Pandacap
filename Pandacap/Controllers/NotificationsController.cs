@@ -18,8 +18,15 @@ namespace Pandacap.Controllers
         {
             int max = 10;
 
-            var activityPub = await activityPubNotificationHandler
+            var activityPubActivities = await activityPubNotificationHandler
                 .GetNotificationsAsync()
+                .Take(max)
+                .ToListAsync();
+
+            var activityPubPosts = await context.InboxActivityStreamsPosts
+                .Where(post => post.DismissedAt == null)
+                .Where(post => post.IsMention || post.IsReply)
+                .OrderBy(post => post.PostedAt)
                 .Take(max)
                 .ToListAsync();
 
@@ -33,16 +40,10 @@ namespace Pandacap.Controllers
                 .Take(max)
                 .ToListAsync();
 
-            var posts = await context.InboxActivityStreamsPosts
-                .Where(post => post.IsMention || post.IsReply)
-                .OrderBy(post => post.PostedAt)
-                .Take(max)
-                .ToListAsync();
-
             return View(new NotificationsViewModel
             {
-                RecentActivityPubActivities = activityPub,
-                RecentActivityPubPosts = posts,
+                RecentActivityPubActivities = activityPubActivities,
+                RecentActivityPubPosts = activityPubPosts,
                 RecentATProtoNotifications = atProto,
                 RecentDeviantArtMessages = deviantArt
             });
@@ -50,22 +51,13 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DismissActivityPubActivity(IEnumerable<Guid> id)
+        public async Task<IActionResult> Dismiss(IEnumerable<Guid> id)
         {
             await foreach (var activity in context.ActivityPubInboundActivities.Where(a => id.Contains(a.Id)).AsAsyncEnumerable())
                 activity.AcknowledgedAt ??= DateTimeOffset.UtcNow;
 
-            await context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveActivityPubPost(IEnumerable<Guid> id)
-        {
             await foreach (var activity in context.InboxActivityStreamsPosts.Where(a => id.Contains(a.Id)).AsAsyncEnumerable())
-                context.Remove(activity);
+                activity.DismissedAt ??= DateTimeOffset.UtcNow;
 
             await context.SaveChangesAsync();
 

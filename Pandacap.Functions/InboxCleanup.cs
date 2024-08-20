@@ -27,6 +27,14 @@ namespace Pandacap.Functions
                 context.Remove(inboxItem);
             }
 
+            await foreach (var inboxItem in context.InboxActivityStreamsPosts
+                .Where(d => d.DismissedAt != null)
+                .Where(d => d.PostedAt < weekAgo)
+                .AsAsyncEnumerable())
+            {
+                context.Remove(inboxItem);
+            }
+
             await foreach (var inboxItem in context.InboxATProtoPosts
                 .Where(d => d.DismissedAt != null)
                 .Where(d => d.IndexedAt < weekAgo)

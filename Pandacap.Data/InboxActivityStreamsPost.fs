@@ -29,6 +29,7 @@ type InboxActivityStreamsPost() =
     member val Name = nullString with get, set
     member val Content = nullString with get, set
     member val Attachments = new ResizeArray<InboxActivityStreamsImage>() with get, set
+    member val DismissedAt = nullDateTimeOffset with get, set
 
     member this.TextContent =
         (HtmlDocument.Parse this.Content).Elements()

@@ -224,7 +224,7 @@ namespace Pandacap.Controllers
                     atp.DismissedAt = DateTimeOffset.UtcNow;
 
                 if (item is InboxActivityStreamsPost asp)
-                    context.Remove(asp);
+                    asp.DismissedAt = DateTimeOffset.UtcNow;
 
                 if (item is InboxArtworkDeviation iid)
                     iid.DismissedAt = DateTimeOffset.UtcNow;
