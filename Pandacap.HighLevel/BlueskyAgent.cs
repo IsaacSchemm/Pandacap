@@ -66,11 +66,18 @@ namespace Pandacap.HighLevel
                     submission.AltText);
             }
 
+            string text = submission.DescriptionText;
+            int codepoints = text.Where(c => !char.IsLowSurrogate(c)).Count();
+            if (codepoints >= 300)
+            {
+                text = submission.Title + "\n\n" + submission.Url;
+            }
+
             var post = await Repo.CreateRecordAsync(
                 httpClient,
                 wrapper,
                 new Repo.Post(
-                    text: submission.DescriptionText,
+                    text: text,
                     createdAt: submission.PublishedTime,
                     images: await downloadImagesAsync().ToListAsync()));
 
