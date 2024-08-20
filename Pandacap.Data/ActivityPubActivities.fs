@@ -9,7 +9,6 @@ type ActivityPubInboundActivity() =
     member val ActivityType = "" with get, set
     member val DeviationId = Guid.Empty with get, set
     member val AddedAt = DateTimeOffset.MinValue with get, set
-    member val AcknowledgedAt = nullDateTimeOffset with get, set
     member val ActorId = "" with get, set
 
 /// An ActivityPub activity that is queued to be sent to a remote actor.

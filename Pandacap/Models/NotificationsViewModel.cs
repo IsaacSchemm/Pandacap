@@ -1,11 +1,13 @@
-﻿using Pandacap.HighLevel;
+﻿using Pandacap.Data;
+using Pandacap.HighLevel;
 
 namespace Pandacap.Models
 {
     public class NotificationsViewModel
     {
-        public IEnumerable<ActivityPubNotificationHandler.Notification> RecentActivities { get; set; } = [];
+        public IEnumerable<ActivityPubNotificationHandler.Notification> RecentActivityPubActivities { get; set; } = [];
+        public IEnumerable<InboxActivityStreamsPost> RecentActivityPubPosts { get; set; } = [];
         public IEnumerable<ATProtoNotificationHandler.Notification> RecentATProtoNotifications { get; set; } = [];
-        public IEnumerable<DeviantArtNotificationsHandler.Message> RecentMessages { get; set; } = [];
+        public IEnumerable<DeviantArtNotificationsHandler.Message> RecentDeviantArtMessages { get; set; } = [];
     }
 }

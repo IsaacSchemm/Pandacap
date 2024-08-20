@@ -20,7 +20,7 @@
                     Recent messages
                 </div>
                 <ul class="list-group list-group-flush">
-                    @foreach (var message in Model.RecentMessages)
+                    @foreach (var message in Model.RecentDeviantArtMessages)
                     {
                         <li class="list-group-item">
                             <div class="@(message.IsNew ? "" : "low-opacity")">
@@ -35,7 +35,7 @@
                                     </a>
                                 }
                             </div>
-                            <span class="small low-opacity">
+                            <span class="@(message.IsNew ? "" : "low-opacity") small text-secondary">
                                 (@message.Timestamp.ToString("MMMM d, yyyy h:mm tt"))
                             </span>
                         </li>
@@ -59,10 +59,10 @@
                     Recent inbound activities
                 </div>
                 <ul class="list-group list-group-flush">
-                    @foreach (var activity in Model.RecentActivities)
+                    @foreach (var activity in Model.RecentActivityPubActivities)
                     {
                         <li class="list-group-item">
-                            <div class="@(activity.IsNew ? "" : "low-opacity")">
+                            <div>
                                 <strong>@activity.RemoteActivity.ActivityType</strong>
                                 from
                                 <a href="@activity.RemoteActivity.ActorId">@(activity.Actor?.PreferredUsername ?? activity.RemoteActivity.ActorId)</a>
@@ -71,22 +71,64 @@
                                     @activity.Post?.Title
                                 </a>
                             </div>
-                            <span class="small low-opacity">
+                            <span class="small text-secondary">
                                 (@activity.RemoteActivity.AddedAt.ToString("MMMM d, yyyy h:mm tt"))
                             </span>
+                            <form asp-action="DismissActivityPubActivity" class="mt-3 text-end">
+                                <input type="hidden" name="id" value="@activity.RemoteActivity.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                    Remove
+                                </button>
+                            </form>
                         </li>
                     }
                 </ul>
             </div>
 
-            @if (Model.RecentActivities.Any(a => a.IsNew))
-            {
-                <form asp-action="MarkActivityPubActivitiesAsRead" class="mt-3 text-end">
-                    <button type="submit" class="btn btn-sm btn-outline-primary">
-                        Mark all as read
-                    </button>
-                </form>
-            }
+            <div class="card mt-3">
+                <div class="card-header">
+                    Recent mentions and replies
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var post in Model.RecentActivityPubPosts)
+                    {
+                        <li class="list-group-item">
+                            <div>
+                                <strong>
+                                    @post.Name
+                                </strong>
+                            </div>
+                            <details>
+                                <summary>
+                                    <strong>Reply</strong>
+                                    from
+                                    <a href="@post.PostedBy.Id" target="_blank">@post.PostedBy.Username</a>
+                                    @if (post.Summary != null)
+                                    {
+                                        @:(@post.Summary)
+                                    }
+                                </summary>
+                                <div>
+                                    @post.TextContent
+                                </div>
+                            </details>
+                            <span class="small text-secondary">
+                                (@post.PostedAt.ToString("MMMM d, yyyy h:mm tt"))
+                                -
+                                <a href="@post.ObjectId" target="_blank">
+                                    view
+                                </a>
+                            </span>
+                            <form asp-controller="Inbox" asp-action="Dismiss" class="mt-3 text-end">
+                                <input type="hidden" name="id" value="@post.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                    Remove
+                                </button>
+                            </form>
+                        </li>
+                    }
+                </ul>
+            </div>
         </div>
 
         <div class="col col-12 col-md-6 col-xl-4 mb-3">
@@ -114,7 +156,7 @@
                                     </a>
                                 }
                             </div>
-                            <span class="small low-opacity">
+                            <span class="@(notification.IsRead ? "low-opacity" : "") small text-secondary">
                                 (@notification.IndexedAt.ToString("MMMM d, yyyy h:mm tt"))
                             </span>
                         </li>

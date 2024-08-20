@@ -17,17 +17,14 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Index()
         {
             int max = 10;
-            var cutoff = DateTimeOffset.MinValue;
 
             var activityPub = await activityPubNotificationHandler
                 .GetNotificationsAsync()
-                .TakeWhile(n => n.RemoteActivity.AddedAt > cutoff)
                 .Take(max)
                 .ToListAsync();
 
             var atProto = await atProtoNotificationHandler
                 .GetNotificationsAsync()
-                .TakeWhile(n => n.IndexedAt > cutoff)
                 .Take(max)
                 .ToListAsync();
 
@@ -36,20 +33,30 @@ namespace Pandacap.Controllers
                 .Take(max)
                 .ToListAsync();
 
+            var posts = await context.InboxActivityStreamsPosts
+                .Where(post => post.IsMention || post.IsReply)
+                .OrderBy(post => post.PostedAt)
+                .Take(max)
+                .ToListAsync();
+
             return View(new NotificationsViewModel
             {
-                RecentActivities = activityPub,
+                RecentActivityPubActivities = activityPub,
+                RecentActivityPubPosts = posts,
                 RecentATProtoNotifications = atProto,
-                RecentMessages = deviantArt
+                RecentDeviantArtMessages = deviantArt
             });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MarkActivityPubActivitiesAsRead()
+        public async Task<IActionResult> DismissActivityPubActivity(IEnumerable<Guid> id)
         {
-            await foreach (var activity in context.ActivityPubInboundActivities)
-                activity.AcknowledgedAt ??= DateTimeOffset.UtcNow;
+            var activities = await context.ActivityPubInboundActivities
+                .Where(a => id.Contains(a.Id))
+                .ToListAsync();
+
+            context.RemoveRange(activities);
 
             await context.SaveChangesAsync();
 

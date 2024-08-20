@@ -38,9 +38,9 @@ type UserPost() =
 
     [<NotMapped>]
     member this.DescriptionText =
-        match (HtmlDocument.Parse this.Description).Elements() with
-        | node::_ -> node.InnerText()
-        | [] -> ""
+        (HtmlDocument.Parse this.Description).Elements()
+        |> List.map (fun node -> node.InnerText())
+        |> String.concat "\n"
 
     interface IPost with
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"

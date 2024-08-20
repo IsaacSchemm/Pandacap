@@ -12,10 +12,7 @@ namespace Pandacap.HighLevel
         public record Notification(
             ActivityPubInboundActivity RemoteActivity,
             UserPost? Post,
-            RemoteActor? Actor)
-        {
-            public bool IsNew => RemoteActivity.AcknowledgedAt == null;
-        }
+            RemoteActor? Actor);
 
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {

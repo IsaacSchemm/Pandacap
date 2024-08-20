@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations
+open FSharp.Data
 
 type InboxActivityStreamsUser() =
     member val Id = "" with get, set
@@ -28,6 +29,11 @@ type InboxActivityStreamsPost() =
     member val Name = nullString with get, set
     member val Content = nullString with get, set
     member val Attachments = new ResizeArray<InboxActivityStreamsImage>() with get, set
+
+    member this.TextContent =
+        (HtmlDocument.Parse this.Content).Elements()
+        |> List.map (fun node -> node.InnerText())
+        |> String.concat "\n"
 
     interface IPost with
         member this.Id = $"{this.Id}"
