@@ -52,11 +52,20 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DismissActivityPubActivity(IEnumerable<Guid> id)
         {
-            var activities = await context.ActivityPubInboundActivities
-                .Where(a => id.Contains(a.Id))
-                .ToListAsync();
+            await foreach (var activity in context.ActivityPubInboundActivities.Where(a => id.Contains(a.Id)).AsAsyncEnumerable())
+                activity.AcknowledgedAt ??= DateTimeOffset.UtcNow;
 
-            context.RemoveRange(activities);
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveActivityPubPost(IEnumerable<Guid> id)
+        {
+            await foreach (var activity in context.InboxActivityStreamsPosts.Where(a => id.Contains(a.Id)).AsAsyncEnumerable())
+                context.Remove(activity);
 
             await context.SaveChangesAsync();
 

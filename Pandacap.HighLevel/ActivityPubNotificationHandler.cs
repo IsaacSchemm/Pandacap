@@ -11,8 +11,10 @@ namespace Pandacap.HighLevel
     {
         public record Notification(
             ActivityPubInboundActivity RemoteActivity,
-            UserPost? Post,
-            RemoteActor? Actor);
+            UserPost? Post)
+        {
+            public bool IsNew => RemoteActivity.AcknowledgedAt == null;
+        }
 
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
@@ -21,6 +23,7 @@ namespace Pandacap.HighLevel
 
             var activites = activityContext.ActivityPubInboundActivities
                 .AsNoTracking()
+                .Where(activity => activity.AcknowledgedAt == null)
                 .OrderByDescending(activity => activity.AddedAt)
                 .AsAsyncEnumerable();
 
@@ -42,20 +45,7 @@ namespace Pandacap.HighLevel
                     logger.LogWarning(ex, "{message}", ex.Message);
                 }
 
-                RemoteActor? actor = null;
-
-                try
-                {
-                    actor = await activityPubRequestHandler.FetchActorAsync(
-                        activity.ActorId,
-                        actorFetchCancellation.Token);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogWarning(ex, "{message}", ex.Message);
-                }
-
-                yield return new(activity, userPost, actor);
+                yield return new(activity, userPost);
             }
         }
     }

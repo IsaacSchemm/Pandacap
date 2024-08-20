@@ -213,7 +213,9 @@ namespace Pandacap.Controllers
                                 ActivityType = type.Replace("https://www.w3.org/ns/activitystreams#", ""),
                                 DeviationId = id,
                                 AddedAt = DateTimeOffset.UtcNow,
-                                ActorId = actor.Id
+                                ActorId = actor.Id,
+                                Username = actor.PreferredUsername,
+                                Usericon = actor.IconUrl
                             });
                         }
                     }
