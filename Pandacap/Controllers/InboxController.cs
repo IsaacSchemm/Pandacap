@@ -44,6 +44,7 @@ namespace Pandacap.Controllers
 
             var source5 = context.InboxActivityStreamsPosts
                 .Where(a => a.PostedAt <= startTime)
+                .Where(d => d.DismissedAt == null)
                 .Where(a => !a.IsMention && !a.IsReply)
                 .OrderByDescending(a => a.PostedAt)
                 .AsAsyncEnumerable()
@@ -101,6 +102,7 @@ namespace Pandacap.Controllers
 
             var source5 = context.InboxActivityStreamsPosts
                 .Where(a => a.PostedAt <= startTime)
+                .Where(d => d.DismissedAt == null)
                 .Where(a => !a.IsMention && !a.IsReply)
                 .OrderByDescending(a => a.PostedAt)
                 .AsAsyncEnumerable()
@@ -142,6 +144,7 @@ namespace Pandacap.Controllers
 
             var activityStreams = context.InboxActivityStreamsPosts
                 .Where(a => a.PostedAt <= startTime)
+                .Where(d => d.DismissedAt == null)
                 .Where(a => !a.IsMention && !a.IsReply)
                 .OrderByDescending(a => a.PostedAt)
                 .AsAsyncEnumerable()
