@@ -16,7 +16,7 @@ namespace Pandacap.Controllers
     {
         public async Task<IActionResult> Index()
         {
-            int max = 10;
+            int max = 20;
 
             var activityPubActivities = await activityPubNotificationHandler
                 .GetNotificationsAsync()
