@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="IPost.fs" />
     <Compile Include="NullValues.fs" />
+    <Compile Include="TextConverter.fs" />
     <Compile Include="ExcerptGenerator.fs" />
     <Compile Include="DeviantArtCredentials.fs" />
     <Compile Include="ATProtoCredentials.fs" />

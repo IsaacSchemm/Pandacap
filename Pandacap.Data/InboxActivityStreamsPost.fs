@@ -31,10 +31,7 @@ type InboxActivityStreamsPost() =
     member val Attachments = new ResizeArray<InboxActivityStreamsImage>() with get, set
     member val DismissedAt = nullDateTimeOffset with get, set
 
-    member this.TextContent =
-        (HtmlDocument.Parse this.Content).Elements()
-        |> List.map (fun node -> node.InnerText())
-        |> String.concat "\n"
+    member this.TextContent = TextConverter.FromHtml this.Content
 
     interface IPost with
         member this.Id = $"{this.Id}"

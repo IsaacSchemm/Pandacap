@@ -37,10 +37,7 @@ type UserPost() =
     member this.ImageBlobs = List.choose Option.ofObj [this.Image; this.Thumbnail]
 
     [<NotMapped>]
-    member this.DescriptionText =
-        (HtmlDocument.Parse this.Description).Elements()
-        |> List.map (fun node -> node.InnerText())
-        |> String.concat "\n"
+    member this.DescriptionText = TextConverter.FromHtml this.Description
 
     interface IPost with
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"

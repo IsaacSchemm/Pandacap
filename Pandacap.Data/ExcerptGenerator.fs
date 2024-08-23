@@ -12,7 +12,10 @@ module internal ExcerptGenerator =
 
     /// Derives a plaintext excerpt from an HTML string.
     let fromHtml (html: string) =
-        (HtmlDocument.Parse html).Elements()
-        |> Seq.map (fun h -> h.InnerText())
-        |> Seq.tryHead
-        |> Option.map fromText
+        try
+            (HtmlDocument.Parse html).Elements()
+            |> Seq.map (fun h -> h.InnerText())
+            |> Seq.tryHead
+            |> Option.map fromText
+        with _ ->
+            None
