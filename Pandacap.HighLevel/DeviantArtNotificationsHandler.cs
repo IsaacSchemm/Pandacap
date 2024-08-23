@@ -20,7 +20,7 @@ namespace Pandacap.HighLevel
 
         public async IAsyncEnumerable<Message> GetNotificationsAsync()
         {
-            if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var credentials, var user))
+            if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var credentials, _))
                 yield break;
 
             DateTimeOffset lastvisit = await deviantArtLastVisitFinder.FindMyLastVisitAsync()
