@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.LowLevel;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
@@ -166,6 +167,23 @@ namespace Pandacap.Controllers
             });
         }
 
+        public async Task<IActionResult> Single(string id)
+        {
+            var posts = await GetInboxPostsByIds([id]).AsListPage(int.MaxValue);
+
+            if (posts.DisplayList.Length == 0)
+                return Redirect("/");
+
+            return View("List", new ListViewModel<IPost>
+            {
+                Title = "View Post",
+                ShowThumbnails = posts.DisplayList.SelectMany(x => x.ThumbnailUrls).Any(),
+                GroupByUser = true,
+                AllowDismiss = true,
+                Items = posts
+            });
+        }
+
         private async IAsyncEnumerable<IPost> GetInboxPostsByIds(IEnumerable<string> ids)
         {
             IEnumerable<Guid> getGuids()
@@ -179,6 +197,7 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .InboxArtworkDeviations
+                .Where(item => item.DismissedAt == null)
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -187,6 +206,7 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .InboxTextDeviations
+                .Where(item => item.DismissedAt == null)
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -195,6 +215,7 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .InboxATProtoPosts
+                .Where(item => item.DismissedAt == null)
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -203,6 +224,7 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .InboxActivityStreamsPosts
+                .Where(item => item.DismissedAt == null)
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
