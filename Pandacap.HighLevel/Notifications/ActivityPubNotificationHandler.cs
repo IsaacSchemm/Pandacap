@@ -2,16 +2,10 @@
 using Microsoft.Extensions.Logging;
 using Pandacap.Data;
 
-namespace Pandacap.HighLevel
+namespace Pandacap.HighLevel.Notifications
 {
-    public class ActivityPubNotificationHandler(
-        IDbContextFactory<PandacapDbContext> contextFactory,
-        ILogger<ActivityPubNotificationHandler> logger)
+    public class ActivityPubNotificationHandler(IDbContextFactory<PandacapDbContext> contextFactory)
     {
-        public record Notification(
-            ActivityPubInboundActivity RemoteActivity,
-            UserPost? Post);
-
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
             var activityContext = await contextFactory.CreateDbContextAsync();
@@ -28,20 +22,20 @@ namespace Pandacap.HighLevel
 
             await foreach (var activity in activites)
             {
-                UserPost? userPost = null;
+                var userPost = await lookupContext.UserPosts
+                    .Where(d => d.Id == activity.DeviationId)
+                    .SingleOrDefaultAsync();
 
-                try
+                yield return new()
                 {
-                    userPost = await lookupContext.UserPosts
-                        .Where(d => d.Id == activity.DeviationId)
-                        .SingleOrDefaultAsync();
-                }
-                catch (Exception ex)
-                {
-                    logger.LogWarning(ex, "{message}", ex.Message);
-                }
-
-                yield return new(activity, userPost);
+                    Platform = "ActivityPub",
+                    ActivityName = activity.ActivityType,
+                    UserName = activity.Username,
+                    UserUrl = activity.ActorId,
+                    UserPostId = userPost?.Id,
+                    UserPostTitle = userPost?.Title,
+                    Timestamp = activity.AddedAt
+                };
             }
         }
     }

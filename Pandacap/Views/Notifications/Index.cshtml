@@ -1,195 +1,52 @@
-﻿@using Pandacap.Data
-@using Pandacap.LowLevel
-@using Pandacap.HighLevel
-@model NotificationsViewModel
-@inject ApplicationInformation appInfo
+﻿@using Pandacap.HighLevel.Notifications
+@model IEnumerable<Notification>
 
 @{
     ViewData["Title"] = "Notifications";
 }
 
-<div class="container mb-3">
+<div class="container">
     <div class="row">
-        <div class="col col-12 col-md-6 col-xl-4 mb-3">
-            <h2>
-                DeviantArt
-            </h2>
+        <div class="col col-12">
+            @foreach (var group in Model.GroupBy(x => x.Timestamp.Date))
+            {
+                <h2>
+                    @group.Key.ToLongDateString()
+                </h2>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    Recent messages
-                </div>
-                <ul class="list-group list-group-flush">
-                    @foreach (var message in Model.RecentDeviantArtMessages)
-                    {
-                        <li class="list-group-item">
-                            <div class="@(message.IsNew ? "" : "low-opacity")">
+                <div class="card my-3">
+                    <div class="card-header">
+                        Notifications
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var notification in group)
+                        {
+                            <li class="list-group-item">
                                 <div>
-                                    <strong>@message.Type</strong>
-                                    from
-                                    <a href="https://www.deviantart.com/@(message.Username)">@message.Username</a>
-                                    @if (message.DeviationId != null)
+                                    <strong>
+                                        <a href="@notification.Url">@notification.ActivityName</a>
+                                    </strong>
+                                    @if (notification.UserName != null)
                                     {
-                                        @:on
-                                        <a href="/UserPosts/@(message.DeviationId)">
-                                            @message.Title
-                                        </a>
+                                        @:from
+                                        <a href="@notification.UserUrl">@notification.UserName</a>
                                     }
-                                </div>
-                                <span class="small text-secondary">
-                                    (@message.Timestamp.ToString("MMMM d, yyyy h:mm tt"))
-                                </span>
-                            </div>
-                        </li>
-                    }
-                    <li class="list-group-item">
-                        <a href="https://www.deviantart.com/notifications/" target="_blank">
-                            View all &raquo;
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="col col-12 col-md-6 col-xl-4 mb-3">
-            <h2>
-                ActivityPub
-            </h2>
-
-            <div class="card mt-3">
-                <div class="card-header">
-                    Recent inbound activities
-                </div>
-                <ul class="list-group list-group-flush">
-                    @foreach (var item in Model.RecentActivityPubActivities)
-                    {
-                        var activity = item.RemoteActivity;
-                        <li class="list-group-item">
-                            <div>
-                                <strong>@activity.ActivityType</strong>
-                                from
-                                <a href="@activity.ActorId">@(activity.Username ?? activity.ActorId)</a>
-                                on
-                                <a href="/UserPosts/@item.Post?.Id">
-                                    @item.Post?.Title
-                                </a>
-                            </div>
-                            <span class="small text-secondary">
-                                (@activity.AddedAt.ToString("MMMM d, yyyy h:mm tt"))
-                            </span>
-                            <form asp-action="Dismiss" class="mt-3 text-end">
-                                <input type="hidden" name="id" value="@activity.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-primary">
-                                    Dismiss
-                                </button>
-                            </form>
-                        </li>
-                    }
-                    @if (!Model.RecentActivityPubActivities.Any())
-                    {
-                        <li class="list-group-item">
-                            No new activities.
-                        </li>
-                    }
-                </ul>
-            </div>
-
-            <div class="card mt-3">
-                <div class="card-header">
-                    Recent mentions and replies
-                </div>
-                <ul class="list-group list-group-flush">
-                    @foreach (var post in Model.RecentActivityPubPosts)
-                    {
-                        <li class="list-group-item">
-                            <div>
-                                <strong>
-                                    @post.Name
-                                </strong>
-                            </div>
-                            <details>
-                                <summary>
-                                    from
-                                    <a href="@post.PostedBy.Id" target="_blank">@post.PostedBy.Username</a>
-                                    @if (post.Summary != null)
-                                    {
-                                        @:(@post.Summary)
-                                    }
-                                </summary>
-                                <div>
-                                    @post.TextContent
-                                </div>
-                            </details>
-                            <span class="small text-secondary">
-                                (@post.PostedAt.ToString("MMMM d, yyyy h:mm tt"))
-                                -
-                                <a href="@post.ObjectId" target="_blank">
-                                    view
-                                </a>
-                            </span>
-                            <form asp-action="Dismiss" class="mt-3 text-end">
-                                <input type="hidden" name="id" value="@post.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-primary">
-                                    Dismiss
-                                </button>
-                            </form>
-                        </li>
-                    }
-                    @if (!Model.RecentActivityPubPosts.Any())
-                    {
-                        <li class="list-group-item">
-                            No new posts.
-                        </li>
-                    }
-                </ul>
-            </div>
-        </div>
-
-        <div class="col col-12 col-md-6 col-xl-4 mb-3">
-            <h2>
-                atproto
-            </h2>
-
-            <div class="card mt-3">
-                <div class="card-header">
-                    Recent notifications
-                </div>
-                <ul class="list-group list-group-flush">
-                    @foreach (var notification in Model.RecentATProtoNotifications)
-                    {
-                        <li class="list-group-item">
-                            <div class="@(notification.IsRead ? "low-opacity" : "")">
-                                <div>
-                                    <strong>@notification.Reason</strong>
-                                    from
-                                    <a href="@notification.AuthorUri">@notification.AuthorDisplayName</a>
                                     @if (notification.UserPostId != null)
                                     {
                                         @:on
-                                        <a href="/UserPosts/@notification.UserPostId">
+                                        <a href="/UserPosts/@(notification.UserPostId)">
                                             @notification.UserPostTitle
                                         </a>
                                     }
                                 </div>
                                 <span class="small text-secondary">
-                                    (@notification.IndexedAt.ToString("MMMM d, yyyy h:mm tt"))
+                                    (@notification.Timestamp.ToString("MMMM d, yyyy h:mm tt"))
                                 </span>
-                            </div>
-                        </li>
-                    }
-                    <li class="list-group-item">
-                        <a href="https://bsky.app/notifications" target="_blank">
-                            View all &raquo;
-                        </a>
-                    </li>
-                </ul>
-            </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
         </div>
     </div>
 </div>
-
-<style type="text/css">
-    .low-opacity {
-        opacity: 0.25;
-    }
-</style>

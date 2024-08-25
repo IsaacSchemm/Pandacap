@@ -27,7 +27,7 @@ The web app and function app must have the appropriate IAM permissions to access
 Function app responsibilities:
 
 * `InboxCleanup` (every day at 9:00)
-    * clear dismissed Bluesky and DeviantArt inbox entries more than 7 days old
+    * clear dismissed inbox entries more than 7 days old
 * `InboxIngest` (every hour at :10)
     * check Bluesky feed for new posts
     * check DeviantArt feed for new posts

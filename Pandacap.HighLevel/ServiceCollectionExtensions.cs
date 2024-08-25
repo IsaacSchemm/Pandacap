@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pandacap.HighLevel.Notifications;
 using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
@@ -13,6 +14,7 @@ namespace Pandacap.HighLevel
                 .AddSingleton(applicationInformation)
                 .AddScoped<ActivityPubNotificationHandler>()
                 .AddScoped<ActivityPubRequestHandler>()
+                .AddScoped<ActivityPubReplyHandler>()
                 .AddScoped<ActivityPubTranslator>()
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoCredentialProvider>()
@@ -22,7 +24,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtLastVisitFinder>()
                 .AddScoped<DeviantArtInboxHandler>()
-                .AddScoped<DeviantArtNotificationsHandler>()
+                .AddScoped<DeviantArtNotificationHandler>()
                 .AddScoped<IdMapper>()
                 .AddScoped<KeyProvider>()
                 .AddScoped<OutboxProcessor>();

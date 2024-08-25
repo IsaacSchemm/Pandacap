@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DeviantArtFs.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Core;
 using Pandacap.Data;
 using Pandacap.LowLevel;
-using Pandacap.LowLevel.ATProto;
+using static DeviantArtFs.Api.Messages;
 
-namespace Pandacap.HighLevel
+namespace Pandacap.HighLevel.Notifications
 {
     public class ATProtoNotificationHandler(
         ApplicationInformation appInfo,
@@ -12,15 +13,6 @@ namespace Pandacap.HighLevel
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
-        public record Notification(
-            string AuthorDisplayName,
-            string AuthorUri,
-            string Reason,
-            DateTimeOffset IndexedAt,
-            bool IsRead,
-            Guid? UserPostId,
-            string? UserPostTitle);
-
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
             var credentials = await atProtoCredentialProvider.GetCredentialsAsync();
@@ -30,11 +22,11 @@ namespace Pandacap.HighLevel
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
 
-            var page = Notifications.Page.FromStart;
+            var page = LowLevel.ATProto.Notifications.Page.FromStart;
 
             while (true)
             {
-                var result = await Notifications.ListNotificationsAsync(
+                var result = await LowLevel.ATProto.Notifications.ListNotificationsAsync(
                     client,
                     credentials,
                     page);
@@ -51,18 +43,20 @@ namespace Pandacap.HighLevel
                             .FirstOrDefaultAsync();
                     }
 
-                    yield return new Notification(
-                        OptionModule.ToObj(item.author.displayName) ?? item.author.handle,
-                        $"https://bsky.app/profile/{item.author.handle}",
-                        item.reason,
-                        item.indexedAt,
-                        item.isRead,
-                        userPost?.Id,
-                        userPost?.Title);
+                    yield return new()
+                    {
+                        Platform = "atproto",
+                        ActivityName = item.reason,
+                        UserName = item.author.displayName.OrNull() ?? item.author.handle,
+                        UserUrl = $"https://bsky.app/profile/{Uri.EscapeDataString(item.author.did)}",
+                        UserPostId = userPost?.Id,
+                        UserPostTitle = userPost?.Title,
+                        Timestamp = item.indexedAt
+                    };
                 }
 
                 if (OptionModule.ToObj(result.cursor) is string next)
-                    page = Notifications.Page.NewFromCursor(next);
+                    page = LowLevel.ATProto.Notifications.Page.NewFromCursor(next);
                 else
                     yield break;
             }
