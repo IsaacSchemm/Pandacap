@@ -285,7 +285,9 @@ namespace Pandacap
 
                 post.Description = textContent.html.OrNull()?.Replace("https://www.deviantart.com/users/outgoing?", "");
 
-                bool isStatus = deviation.category_path.OrNull() == "status";
+                bool isStatus = deviation.excerpt.OrNull() is string excerpt
+                    && deviation.title.OrNull() is string title
+                    && excerpt.StartsWith(title);
                 post.HideTitle = isStatus;
                 post.IsArticle = !isStatus;
             }
