@@ -1,0 +1,66 @@
+﻿@using Pandacap.HighLevel.Notifications
+@model IEnumerable<Notification>
+
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col col-12">
+            @foreach (var group in Model.GroupBy(x => x.Platform))
+            {
+                <h2>
+                    @group.Key.DisplayName
+                </h2>
+
+                <div class="card my-3">
+                    <div class="card-header">
+                        Notifications
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var notification in group)
+                        {
+                            <li class="list-group-item">
+                                <div>
+                                    <strong>
+                                        <a href="@notification.Url">@notification.ActivityName</a>
+                                    </strong>
+                                    @if (notification.UserName != null)
+                                    {
+                                        @:from
+                                        <a href="@notification.UserUrl">@notification.UserName</a>
+                                    }
+                                    @if (notification.UserPostId != null)
+                                    {
+                                        @:on
+                                        <a href="/UserPosts/@(notification.UserPostId)">
+                                            @notification.UserPostTitle
+                                        </a>
+                                    }
+                                </div>
+                                <span class="small text-secondary">
+                                    (@notification.Timestamp.ToString("MMMM d, yyyy h:mm tt"))
+                                </span>
+                            </li>
+                        }
+                        @if (!group.Any())
+                        {
+                            <li class="list-group-item">
+                                No recent items found.
+                            </li>
+                        }
+                        @if (group.Key.ViewAllUrl is string url)
+                        {
+                            <li class="list-group-item">
+                                <a href="@url" target="_blank">
+                                    View all »
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -12,37 +12,24 @@ namespace Pandacap.Controllers
         ATProtoNotificationHandler atProtoNotificationHandler,
         DeviantArtNotificationHandler deviantArtNotificationsHandler) : Controller
     {
-        public async Task<IActionResult> Index()
-        {
-            DateTimeOffset cutoff = DateTimeOffset.UtcNow.AddDays(-30);
+        private static readonly DateTimeOffset Cutoff = DateTimeOffset.UtcNow.AddDays(-30);
 
-            var activityPubPosts = await activityPubReplyHandler
-                .GetNotificationsAsync()
-                .TakeWhile(post => post.Timestamp > cutoff)
-                .ToListAsync();
+        private async Task<IReadOnlyList<Notification>> CollectNotificationsAsync() =>
+            await new[]
+            {
+                activityPubReplyHandler.GetNotificationsAsync(),
+                activityPubNotificationHandler.GetNotificationsAsync(),
+                atProtoNotificationHandler.GetNotificationsAsync(),
+                deviantArtNotificationsHandler.GetNotificationsAsync(),
+            }
+            .MergeNewest(post => post.Timestamp)
+            .TakeWhile(post => post.Timestamp > Cutoff)
+            .ToListAsync();
 
-            var activityPubActivities = await activityPubNotificationHandler
-                .GetNotificationsAsync()
-                .TakeWhile(post => post.Timestamp > cutoff)
-                .ToListAsync();
+        public async Task<IActionResult> ByDate() =>
+            View(await CollectNotificationsAsync());
 
-            var atProto = await atProtoNotificationHandler
-                .GetNotificationsAsync()
-                .TakeWhile(post => post.Timestamp > cutoff)
-                .ToListAsync();
-
-            var deviantArt = await deviantArtNotificationsHandler
-                .GetNotificationsAsync()
-                .TakeWhile(post => post.Timestamp > cutoff)
-                .ToListAsync();
-
-            var all = Enumerable.Empty<Notification>()
-                .Concat(activityPubPosts)
-                .Concat(activityPubActivities)
-                .Concat(atProto)
-                .Concat(deviantArt);
-
-            return View(all);
-        }
+        public async Task<IActionResult> ByPlatform() =>
+            View(await CollectNotificationsAsync());
     }
 }

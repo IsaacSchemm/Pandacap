@@ -1,8 +1,10 @@
-﻿namespace Pandacap.HighLevel.Notifications
+﻿using Pandacap.LowLevel;
+
+namespace Pandacap.HighLevel.Notifications
 {
     public class Notification
     {
-        public required string Platform { get; init; }
+        public required NotificationPlatform Platform { get; init; }
         public required string ActivityName { get; init; }
         public string? UserName { get; init; }
         public string? UserUrl { get; init; }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel.Notifications
 {
@@ -13,12 +14,12 @@ namespace Pandacap.HighLevel.Notifications
                 .OrderByDescending(post => post.PostedAt)
                 .Select(post => new Notification
                 {
-                    Platform = "ActivityPub (mentions & replies)",
+                    Platform = NotificationPlatform.ActivityPubPost,
                     ActivityName = "New post",
                     UserName = post.Author.Username,
                     UserUrl = post.Author.Id,
                     Timestamp = post.PostedAt,
-                    Url = $"/Inbox/Single?id={post.Id}"
+                    Url = post.ObjectId
                 })
                 .AsAsyncEnumerable();
         }

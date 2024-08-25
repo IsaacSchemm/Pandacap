@@ -32,17 +32,23 @@
                             <a class="nav-link" asp-area="" asp-controller="Favorites" asp-action="Index">Favorites</a>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="inboxDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Inbox
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <ul class="dropdown-menu" aria-labelledby="inboxDropdown">
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="ImagePosts">Image posts</a></li>
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="TextPosts">Text posts</a></li>
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="Shares">Shares</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Notifications
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="notificationsDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Notifications" asp-action="ByDate">By date</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Notifications" asp-action="ByPlatform">By platform</a></li>
+                            </ul>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />

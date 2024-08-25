@@ -45,7 +45,7 @@ namespace Pandacap.HighLevel.Notifications
 
                     yield return new()
                     {
-                        Platform = "atproto",
+                        Platform = NotificationPlatform.ATProto,
                         ActivityName = item.reason,
                         UserName = item.author.displayName.OrNull() ?? item.author.handle,
                         UserUrl = $"https://bsky.app/profile/{Uri.EscapeDataString(item.author.did)}",

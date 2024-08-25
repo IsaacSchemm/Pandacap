@@ -167,17 +167,29 @@ namespace Pandacap.Controllers
             });
         }
 
-        public async Task<IActionResult> Single(string id)
+        public async Task<IActionResult> ActivityPubMentionsAndReplies(
+            string? next,
+            int? count)
         {
-            var posts = await GetInboxPostsByIds([id]).AsListPage(int.MaxValue);
+            DateTimeOffset startTime = next is string s
+                ? await GetInboxPostsByIds([s])
+                    .Select(f => f.Timestamp)
+                    .SingleAsync()
+                : DateTimeOffset.MaxValue;
 
-            if (posts.DisplayList.Length == 0)
-                return Redirect("/");
+            var posts = await context.InboxActivityStreamsPosts
+                .Where(a => a.PostedAt <= startTime)
+                .Where(d => d.DismissedAt == null)
+                .Where(a => a.IsMention || a.IsReply)
+                .OrderByDescending(a => a.PostedAt)
+                .AsAsyncEnumerable()
+                .OfType<IPost>()
+                .SkipWhile(x => next != null && x.Id != next)
+                .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel<IPost>
             {
-                Title = "View Post",
-                ShowThumbnails = posts.DisplayList.SelectMany(x => x.ThumbnailUrls).Any(),
+                Title = "Inbox (ActivityPub Mentions & Replies)",
                 GroupByUser = true,
                 AllowDismiss = true,
                 Items = posts
@@ -197,7 +209,6 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .InboxArtworkDeviations
-                .Where(item => item.DismissedAt == null)
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -206,7 +217,6 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .InboxTextDeviations
-                .Where(item => item.DismissedAt == null)
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -215,7 +225,6 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .InboxATProtoPosts
-                .Where(item => item.DismissedAt == null)
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -224,7 +233,6 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .InboxActivityStreamsPosts
-                .Where(item => item.DismissedAt == null)
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -246,16 +254,16 @@ namespace Pandacap.Controllers
             await foreach (var item in GetInboxPostsByIds(id))
             {
                 if (item is InboxATProtoPost atp)
-                    atp.DismissedAt = DateTimeOffset.UtcNow;
+                    atp.DismissedAt ??= DateTimeOffset.UtcNow;
 
                 if (item is InboxActivityStreamsPost asp)
-                    asp.DismissedAt = DateTimeOffset.UtcNow;
+                    asp.DismissedAt ??= DateTimeOffset.UtcNow;
 
                 if (item is InboxArtworkDeviation iid)
-                    iid.DismissedAt = DateTimeOffset.UtcNow;
+                    iid.DismissedAt ??= DateTimeOffset.UtcNow;
 
                 if (item is InboxTextDeviation itd)
-                    itd.DismissedAt = DateTimeOffset.UtcNow;
+                    itd.DismissedAt ??= DateTimeOffset.UtcNow;
 
                 if (item is RssFeedItem fi)
                     context.Remove(fi);

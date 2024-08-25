@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Pandacap.Data;
+using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel.Notifications
 {
@@ -28,7 +29,7 @@ namespace Pandacap.HighLevel.Notifications
 
                 yield return new()
                 {
-                    Platform = "ActivityPub",
+                    Platform = NotificationPlatform.ActivityPubActivity,
                     ActivityName = activity.ActivityType,
                     UserName = activity.Username,
                     UserUrl = activity.ActorId,
