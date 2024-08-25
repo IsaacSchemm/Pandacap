@@ -1,6 +1,10 @@
 ﻿namespace Pandacap.LowLevel
 
-open System
+type Badge = {
+    Text: string
+    Background: string
+    Color: string
+}
 
 type NotificationPlatform =
 | ActivityPubActivity
@@ -8,6 +12,22 @@ type NotificationPlatform =
 | ATProto
 | DeviantArt
 with
+    member this.IsActivityPub =
+        this = ActivityPubActivity || this = ActivityPubPost
+    member this.Badge =
+        match this with
+        | ActivityPubActivity | ActivityPubPost ->
+            { Text = "ActivityPub"
+              Background = "#f1007e"
+              Color = "white" }
+        | ATProto ->
+            { Text = "atproto"
+              Background = "#397EF6"
+              Color = "white" }
+        | DeviantArt ->
+            { Text = "DeviantArt"
+              Background = "#00e59b"
+              Color = "black" }
     member this.DisplayName =
         match this with
         | ActivityPubActivity -> "ActivityPub (activities)"

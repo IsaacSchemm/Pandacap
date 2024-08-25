@@ -41,6 +41,13 @@
                                 </div>
                                 <span class="small text-secondary">
                                     (@notification.Timestamp.ToString("MMMM d, yyyy h:mm tt"))
+
+                                    @{
+                                        var badge = notification.Platform.Badge;
+                                        <span class="badge" style="background-color: @badge.Background; color: @badge.Color">
+                                            @badge.Text
+                                        </span>
+                                    }
                                 </span>
                             </li>
                         }
