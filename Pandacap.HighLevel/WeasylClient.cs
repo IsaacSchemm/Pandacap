@@ -111,6 +111,18 @@ namespace Pandacap.HighLevel
             }
         }
 
+        public async Task<Submission?> GetSubmissionAsync(int submitid)
+        {
+            using var client = CreateClient();
+            using var resp = await client.GetAsync($"https://www.weasyl.com/api/submissions/{submitid}/view");
+            if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
+                return null;
+
+            resp.EnsureSuccessStatusCode();
+            return await resp.Content.ReadFromJsonAsync<Submission>()
+                ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
+        }
+
         public record Folder(int FolderId, string Name)
         {
             public override string ToString()

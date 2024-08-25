@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using static Pandacap.HighLevel.WeasylClient;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class WeasylController(
+        BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         WeasylClientFactory weasylClientFactory) : Controller
     {
@@ -86,6 +89,58 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Setup));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Crosspost(Guid id)
+        {
+            var post = await context.UserPosts
+                .Where(p => p.Id == id)
+                .SingleAsync();
+
+            var client = await weasylClientFactory.CreateWeasylClientAsync()
+                ?? throw new Exception("Weasyl connection not available");
+
+            if (post.WeasylSubmitId is int oldId)
+            {
+                var whoami = await client.WhoamiAsync();
+                var oldSubmission = await client.GetSubmissionAsync(oldId);
+
+                if (oldSubmission != null && oldSubmission.owner_login == whoami.login)
+                {
+                    throw new Exception("Weasyl submission already exists");
+                }
+            }
+
+            if (post.IsArticle || post.Image == null)
+            {
+                post.WeasylJournalId = await client.UploadJournalAsync(
+                    post.Title,
+                    post.IsMature ? Rating.Mature : Rating.General,
+                    post.DescriptionText,
+                    post.Tags);
+            }
+            else
+            {
+                var blob = await blobServiceClient
+                    .GetBlobContainerClient("blobs")
+                    .GetBlobClient(post.Image.BlobName)
+                    .DownloadContentAsync();
+
+                post.WeasylSubmitId = await client.UploadVisualAsync(
+                    blob.Value.Content.ToMemory(),
+                    post.Title,
+                    SubmissionType.Other,
+                    null,
+                    post.IsMature ? Rating.Mature : Rating.General,
+                    post.DescriptionText,
+                    post.Tags);
+            }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "UserPosts", new { id });
         }
     }
 }

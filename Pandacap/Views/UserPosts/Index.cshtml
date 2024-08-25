@@ -86,13 +86,27 @@
             View on Bluesky
         </a>
     }
+
+    @if (Model.Post.WeasylSubmitId is int submitid)
+    {
+        <a href="https://www.weasyl.com/~x/submissions/@(submitid)" class="btn btn-outline-primary" target="_blank">
+            View on Weasyl
+        </a>
+    }
+
+    @if (Model.Post.WeasylJournalId is int journalid)
+    {
+        <a href="https://www.weasyl.com/journal/@(journalid)" class="btn btn-outline-primary" target="_blank">
+            View on Weasyl
+        </a>
+    }
 </div>
 
 @if (User.Identity?.IsAuthenticated == true)
 {
     <form asp-action="Refresh" class="mb-3">
         <input type="hidden" name="id" value="@Model.Post.Id" />
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-outline-primary">
             Refresh from DeviantArt
         </button>
     </form>
@@ -101,7 +115,7 @@
     {
         <form asp-action="UnmarkAsArtwork" class="mb-3">
             <input type="hidden" name="id" value="@Model.Post.Id" />
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-outline-secondary">
                 Move to Journals &amp; Status Updates
             </button>
         </form>
@@ -110,10 +124,22 @@
     {
         <form asp-action="MarkAsArtwork" class="mb-3">
             <input type="hidden" name="id" value="@Model.Post.Id" />
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-outline-secondary">
                 Move to Gallery
             </button>
         </form>
+    }
+
+    @if (Model.Post.WeasylJournalId == null && Model.Post.WeasylSubmitId == null)
+    {
+        <form asp-action="Crosspost" asp-controller="Weasyl" class="mb-3">
+            <input type="hidden" name="id" value="@Model.Post.Id" />
+            <button type="submit" class="btn btn-success">
+                Crosspost to Weasyl
+            </button>
+        </form>
+
+        @:(Weasyl posts are not automatically updated or deleted.)
     }
 
     <form asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this post from Pandacap? (This will not delete it from DeviantArt.)')">
