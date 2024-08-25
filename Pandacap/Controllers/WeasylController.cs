@@ -26,10 +26,12 @@ namespace Pandacap.Controllers
 
             if (account != null)
             {
-                var client = await weasylClientFactory.CreateWeasylClientAsync();
-                var avatarResponse = await client.GetAvatarAsync(account.Login);
+                if (await weasylClientFactory.CreateWeasylClientAsync() is WeasylClient client)
+                {
+                    var avatarResponse = await client.GetAvatarAsync(account.Login);
+                    ViewBag.Avatar = avatarResponse.avatar;
+                }
 
-                ViewBag.Avatar = avatarResponse.avatar;
                 ViewBag.Crosspost = account.Crosspost;
             }
 
@@ -46,7 +48,7 @@ namespace Pandacap.Controllers
 
             if (apiKey != null)
             {
-                var weasylClient = await weasylClientFactory.CreateWeasylClientAsync(apiKey);
+                var weasylClient = weasylClientFactory.CreateWeasylClient(apiKey);
 
                 var user = await weasylClient.WhoamiAsync();
 

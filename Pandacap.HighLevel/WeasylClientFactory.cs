@@ -9,9 +9,16 @@ namespace Pandacap.HighLevel
         IHttpClientFactory httpClientFactory,
         PandacapDbContext context)
     {
-        public async Task<WeasylClient> CreateWeasylClientAsync(string? apiKey = null)
+        public async Task<WeasylClient?> CreateWeasylClientAsync()
         {
-            apiKey ??= await context.WeasylCredentials.Select(w => w.ApiKey).SingleAsync();
+            string? apiKey = await context.WeasylCredentials.Select(w => w.ApiKey).SingleOrDefaultAsync();
+            return apiKey == null
+                ? null
+                : new(appInfo, httpClientFactory, apiKey);
+        }
+
+        public WeasylClient CreateWeasylClient(string apiKey)
+        {
             return new(appInfo, httpClientFactory, apiKey);
         }
     }

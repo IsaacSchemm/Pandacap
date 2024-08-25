@@ -27,6 +27,13 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IPost>();
 
+            var source2 = context.InboxWeasylSubmissions
+                .Where(a => a.PostedAt <= startTime)
+                .Where(d => d.DismissedAt == null)
+                .OrderByDescending(a => a.PostedAt)
+                .AsAsyncEnumerable()
+                .OfType<IPost>();
+
             var source3 = context.RssFeedItems
                 .Where(a => a.Timestamp <= startTime)
                 .OrderByDescending(a => a.Timestamp)
@@ -53,7 +60,7 @@ namespace Pandacap.Controllers
                 .OfType<IPost>()
                 .Where(x => x.ThumbnailUrls.Any());
 
-            var posts = await new[] { source1, source3, source4, source5 }
+            var posts = await new[] { source1, source2, source3, source4, source5 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -240,6 +247,14 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
+                .InboxWeasylSubmissions
+                .Where(x => guids.Contains(x.Id))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
+
+            await foreach (var item in context
                 .RssFeedItems
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
@@ -264,6 +279,9 @@ namespace Pandacap.Controllers
 
                 if (item is InboxTextDeviation itd)
                     itd.DismissedAt ??= DateTimeOffset.UtcNow;
+
+                if (item is InboxWeasylSubmission iws)
+                    iws.DismissedAt ??= DateTimeOffset.UtcNow;
 
                 if (item is RssFeedItem fi)
                     context.Remove(fi);

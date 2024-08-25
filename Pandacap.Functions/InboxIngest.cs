@@ -9,7 +9,8 @@ namespace Pandacap.Functions
         AtomRssFeedReader atomRssFeedReader,
         ATProtoInboxHandler atProtoInboxHandler,
         PandacapDbContext context,
-        DeviantArtInboxHandler deviantArtInboxHandler)
+        DeviantArtInboxHandler deviantArtInboxHandler,
+        WeasylInboxHandler weasylInboxHandler)
     {
         [Function("InboxIngest")]
         public async Task Run([TimerTrigger("0 10 */3 * * *")] TimerInfo myTimer)
@@ -32,6 +33,8 @@ namespace Pandacap.Functions
 
             await c(deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync());
             await c(deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync());
+
+            await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync());
 
             var feeds = await context.RssFeeds.Select(f => new { f.Id }).ToListAsync();
             foreach (var feed in feeds)

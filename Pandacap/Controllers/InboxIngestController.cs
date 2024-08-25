@@ -9,7 +9,8 @@ namespace Pandacap.Controllers
         AtomRssFeedReader atomRssFeedReader,
         ATProtoInboxHandler atProtoInboxHandler,
         PandacapDbContext context,
-        DeviantArtInboxHandler deviantArtInboxHandler) : Controller
+        DeviantArtInboxHandler deviantArtInboxHandler,
+        WeasylInboxHandler weasylInboxHandler) : Controller
     {
         public async Task<IActionResult> DeviantArtArtworkPosts()
         {
@@ -38,7 +39,8 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> WeasylTimeline()
         {
-            throw new NotImplementedException();
+            await weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync();
+            return NoContent();
         }
     }
 }

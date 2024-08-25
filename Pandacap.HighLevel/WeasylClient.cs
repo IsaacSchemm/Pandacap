@@ -1,10 +1,12 @@
-﻿using Pandacap.LowLevel;
+﻿using Microsoft.FSharp.Collections;
+using Pandacap.LowLevel;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 
 namespace Pandacap.HighLevel
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Matching response JSON from Weasyl")]
     public partial class WeasylClient(
         ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory,
@@ -32,31 +34,81 @@ namespace Pandacap.HighLevel
         [GeneratedRegex(@"^/journal/([0-9]+)/")]
         private static partial Regex JournalUri();
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Matching response JSON from Weasyl")]
-        public record WeasylUser(
+        public record WhoamiResponse(
             string login,
             int userid);
 
-        public async Task<WeasylUser> WhoamiAsync()
+        public async Task<WhoamiResponse> WhoamiAsync()
         {
             using var client = CreateClient();
             using var resp = await client.GetAsync("https://www.weasyl.com/api/whoami");
             resp.EnsureSuccessStatusCode();
-            return await resp.Content.ReadFromJsonAsync<WeasylUser>()
+            return await resp.Content.ReadFromJsonAsync<WhoamiResponse>()
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Matching response JSON from Weasyl")]
-        public record WeasylAvatar(
+        public record AvatarResponse(
             string avatar);
 
-        public async Task<WeasylAvatar> GetAvatarAsync(string username)
+        public async Task<AvatarResponse> GetAvatarAsync(string username)
         {
             using var client = CreateClient();
             using var resp = await client.GetAsync($"https://www.weasyl.com/api/useravatar?username={Uri.EscapeDataString(username)}");
             resp.EnsureSuccessStatusCode();
-            return await resp.Content.ReadFromJsonAsync<WeasylAvatar>()
+            return await resp.Content.ReadFromJsonAsync<AvatarResponse>()
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
+        }
+
+        private record SubmissionsResponse(
+            string? backtime,
+            string? nexttime,
+            FSharpList<Submission> submissions);
+
+        public record Submission(
+            int submitid,
+            string title,
+            string rating,
+            DateTimeOffset posted_at,
+            string type,
+            string owner,
+            string owner_login,
+            SubmissionMedia media,
+            string link);
+
+        public record SubmissionMedia(
+            FSharpList<Media> thumbnail);
+
+        public record Media(
+            string url,
+            int mediaid);
+
+        private async Task<SubmissionsResponse> PageMessagesSubmissionsAsync(string? nexttime = null)
+        {
+            string qs = nexttime == null
+                ? ""
+                : $"nexttime={Uri.EscapeDataString(nexttime)}";
+
+            using var client = CreateClient();
+            using var resp = await client.GetAsync($"https://www.weasyl.com/api/messages/submissions?{qs}");
+            resp.EnsureSuccessStatusCode();
+            return await resp.Content.ReadFromJsonAsync<SubmissionsResponse>()
+                ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
+        }
+
+        public async IAsyncEnumerable<Submission> GetMessagesSubmissionsAsync()
+        {
+            var resp = await PageMessagesSubmissionsAsync();
+
+            while (true)
+            {
+                foreach (var submission in resp.submissions)
+                    yield return submission;
+
+                if (resp.nexttime is string nexttime)
+                    resp = await PageMessagesSubmissionsAsync(nexttime: nexttime);
+                else
+                    break;
+            }
         }
 
         public record Folder(int FolderId, string Name)

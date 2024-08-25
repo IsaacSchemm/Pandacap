@@ -20,6 +20,7 @@
     <Compile Include="InboxATProtoPost.fs" />
     <Compile Include="InboxActivityStreamsPost.fs" />
     <Compile Include="InboxDeviations.fs" />
+    <Compile Include="InboxWeasylSubmission.fs" />
     <Compile Include="RssFeeds.fs" />
     <Compile Include="RemoteActorRelationships.fs" />
     <Compile Include="RemoteActivityPubFavorite.fs" />
