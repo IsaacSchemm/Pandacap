@@ -33,6 +33,9 @@ type UserPost() =
     member val BlueskyDID = nullString with get, set
     member val BlueskyRecordKey = nullString with get, set
 
+    member val WeasylSubmitId = Nullable<int>() with get, set
+    member val WeasylJournalId = Nullable<int>() with get, set
+
     [<NotMapped>]
     member this.ImageBlobs = List.choose Option.ofObj [this.Image; this.Thumbnail]
 

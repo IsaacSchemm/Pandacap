@@ -35,5 +35,10 @@ namespace Pandacap.Controllers
             await atProtoInboxHandler.ImportPostsByUsersWeWatchAsync();
             return NoContent();
         }
+
+        public async Task<IActionResult> WeasylTimeline()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -9,6 +9,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     
     member this.DeviantArtCredentials: DbSet<DeviantArtCredentials> = this.Set()
     member this.ATProtoCredentials: DbSet<ATProtoCredentials> = this.Set()
+    member this.WeasylCredentials: DbSet<WeasylCredentials> = this.Set()
     member this.Avatars: DbSet<Avatar> = this.Set()
     member this.ProfileProperties: DbSet<ProfileProperty> = this.Set()
     member this.UserPosts: DbSet<UserPost> = this.Set()

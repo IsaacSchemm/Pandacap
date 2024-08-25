@@ -283,6 +283,34 @@
 
             <div class="col col-12 col-md-6 col-xl-3 mb-3">
                 <h2>
+                    Weasyl
+                </h2>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Configuration
+                    </div>
+                    <div class="card-body">
+                        <a asp-controller="Weasyl" asp-action="Setup" class="btn btn-outline-primary">
+                            Configure external account
+                        </a>
+                        <div class="form-text">
+                            Submissions from watched users will be added to the inbox.
+                        </div>
+                        <hr />
+                        <div class="text-center">
+                            <form asp-controller="InboxIngest" asp-action="WeasylTimeline">
+                                <button type="submit" class="btn btn-primary btn-warning">
+                                    Sync now
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col col-12 col-md-6 col-xl-3 mb-3">
+                <h2>
                     Atom/RSS
                 </h2>
 

@@ -26,7 +26,8 @@ namespace Pandacap.HighLevel
                 .AddScoped<DeviantArtNotificationHandler>()
                 .AddScoped<IdMapper>()
                 .AddScoped<KeyProvider>()
-                .AddScoped<OutboxProcessor>();
+                .AddScoped<OutboxProcessor>()
+                .AddScoped<WeasylClientFactory>();
         }
     }
 }
