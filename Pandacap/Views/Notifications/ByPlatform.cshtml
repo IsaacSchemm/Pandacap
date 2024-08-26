@@ -19,7 +19,7 @@
                         Notifications
                     </div>
                     <ul class="list-group list-group-flush">
-                        @foreach (var notification in group)
+                        @foreach (var notification in group.Take(5))
                         {
                             <li class="list-group-item">
                                 <div>

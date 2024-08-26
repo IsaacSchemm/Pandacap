@@ -19,7 +19,7 @@ namespace Pandacap.HighLevel.Notifications
                     UserName = post.Author.Username,
                     UserUrl = post.Author.Id,
                     Timestamp = post.PostedAt,
-                    Url = post.ObjectId
+                    Url = NotificationPlatform.ActivityPubPost.ViewAllUrl
                 })
                 .AsAsyncEnumerable();
         }

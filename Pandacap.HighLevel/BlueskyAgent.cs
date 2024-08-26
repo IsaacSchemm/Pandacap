@@ -13,7 +13,7 @@ namespace Pandacap.HighLevel
     {
         public async Task DeleteBlueskyPostsAsync(UserPost submission)
         {
-            if (submission.BlueskyRecordKey != null)
+            if (submission.BlueskyRecordKey == null)
                 return;
 
             using var httpClient = httpClientFactory.CreateClient();
