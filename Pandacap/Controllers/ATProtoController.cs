@@ -1,18 +1,18 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.LowLevel;
 using Pandacap.LowLevel.ATProto;
-using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
         ApplicationInformation appInfo,
+        BlueskyAgent blueskyAgent,
         IHttpClientFactory httpClientFactory,
         PandacapDbContext context) : Controller
     {
@@ -81,6 +81,24 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Setup));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Crosspost(Guid id)
+        {
+            var post = await context.UserPosts
+                .Where(p => p.Id == id)
+                .SingleAsync();
+
+            if (post.BlueskyRecordKey != null)
+                await blueskyAgent.DeleteBlueskyPostsAsync(post);
+
+            await blueskyAgent.CreateBlueskyPostsAsync(post);
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "UserPosts", new { id });
         }
     }
 }

@@ -310,15 +310,10 @@ namespace Pandacap
             {
                 if (DateTimeOffset.UtcNow - post.PublishedTime < TimeSpan.FromDays(60))
                     await AddActivityAsync(post, ActivityType.Create);
-
-                await blueskyAgent.CreateBlueskyPostsAsync(post);
             }
             else if (oldObjectJson != newObjectJson)
             {
                 await AddActivityAsync(post, ActivityType.Update);
-
-                await blueskyAgent.DeleteBlueskyPostsAsync(post);
-                await blueskyAgent.CreateBlueskyPostsAsync(post);
             }
 
             await context.SaveChangesAsync();
