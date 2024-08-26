@@ -92,9 +92,25 @@ namespace Pandacap.Controllers
                 .SingleAsync();
 
             if (post.BlueskyRecordKey != null)
-                await blueskyAgent.DeleteBlueskyPostsAsync(post);
+                throw new Exception("Already posted to atproto");
 
             await blueskyAgent.CreateBlueskyPostsAsync(post);
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "UserPosts", new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Detach(Guid id)
+        {
+            var post = await context.UserPosts
+                .Where(p => p.Id == id)
+                .SingleAsync();
+
+            post.BlueskyDID = null;
+            post.BlueskyRecordKey = null;
 
             await context.SaveChangesAsync();
 

@@ -1,8 +1,11 @@
-﻿using Microsoft.FSharp.Collections;
+﻿using DeviantArtFs.ResponseTypes;
+using Microsoft.FSharp.Collections;
 using Pandacap.LowLevel;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
+using static DeviantArtFs.Api.Deviation;
+using static Pandacap.HighLevel.WeasylClient;
 
 namespace Pandacap.HighLevel
 {
@@ -111,18 +114,6 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public async Task<Submission?> GetSubmissionAsync(int submitid)
-        {
-            using var client = CreateClient();
-            using var resp = await client.GetAsync($"https://www.weasyl.com/api/submissions/{submitid}/view");
-            if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
-                return null;
-
-            resp.EnsureSuccessStatusCode();
-            return await resp.Content.ReadFromJsonAsync<Submission>()
-                ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
-        }
-
         public record Folder(int FolderId, string Name)
         {
             public override string ToString()
@@ -229,6 +220,36 @@ namespace Pandacap.HighLevel
             return match.Success && int.TryParse(match.Groups[1].Value, out int journalid)
                 ? journalid
                 : null;
+        }
+
+        public async Task DeleteSubmissionAsync(int submitid)
+        {
+            using var req = new HttpRequestMessage(HttpMethod.Post, "https://www.weasyl.com/remove/submission");
+
+            req.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["submitid"] = $"{submitid}",
+                ["confirmed"] = ""
+            });
+
+            using var client = CreateClient();
+            using var resp = await client.SendAsync(req);
+            resp.EnsureSuccessStatusCode();
+        }
+
+        public async Task DeleteJournalAsync(int journalid)
+        {
+            using var req = new HttpRequestMessage(HttpMethod.Post, "https://www.weasyl.com/remove/journal");
+
+            req.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["journalid"] = $"{journalid}",
+                ["confirmed"] = ""
+            });
+
+            using var client = CreateClient();
+            using var resp = await client.SendAsync(req);
+            resp.EnsureSuccessStatusCode();
         }
     }
 }

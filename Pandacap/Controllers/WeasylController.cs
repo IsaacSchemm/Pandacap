@@ -102,16 +102,14 @@ namespace Pandacap.Controllers
             var client = await weasylClientFactory.CreateWeasylClientAsync()
                 ?? throw new Exception("Weasyl connection not available");
 
-            if (post.WeasylSubmitId is int oldId)
-            {
-                var whoami = await client.WhoamiAsync();
-                var oldSubmission = await client.GetSubmissionAsync(oldId);
+            if (post.WeasylSubmitId != null || post.WeasylJournalId != null)
+                throw new Exception("Already posted to Weasyl");
 
-                if (oldSubmission != null && oldSubmission.owner_login == whoami.login)
-                {
-                    throw new Exception("Weasyl submission already exists");
-                }
-            }
+            //if (post.WeasylSubmitId is int oldSubmitId)
+            //    await client.DeleteSubmissionAsync(oldSubmitId);
+
+            //if (post.WeasylJournalId is int oldJournalId)
+            //    await client.DeleteJournalAsync(oldJournalId);
 
             if (post.IsArticle || post.Image == null)
             {
@@ -137,6 +135,22 @@ namespace Pandacap.Controllers
                     post.DescriptionText,
                     post.Tags);
             }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "UserPosts", new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Detach(Guid id)
+        {
+            var post = await context.UserPosts
+                .Where(p => p.Id == id)
+                .SingleAsync();
+
+            post.WeasylJournalId = null;
+            post.WeasylSubmitId = null;
 
             await context.SaveChangesAsync();
 

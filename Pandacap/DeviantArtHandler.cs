@@ -21,7 +21,8 @@ namespace Pandacap
         IHttpClientFactory httpClientFactory,
         KeyProvider keyProvider,
         OutboxProcessor outboxProcessor,
-        ActivityPubTranslator translator)
+        ActivityPubTranslator translator,
+        WeasylClientFactory weasylClientFactory)
     {
         private enum ActivityType { Create, Update, Delete };
 
@@ -425,6 +426,14 @@ namespace Pandacap
                         await TryDeleteBlobIfExistsAsync(blob.BlobName);
 
                     await blueskyAgent.DeleteBlueskyPostsAsync(post);
+
+                    if (post.WeasylSubmitId is int submitid)
+                        if (await weasylClientFactory.CreateWeasylClientAsync() is WeasylClient client)
+                            await client.DeleteSubmissionAsync(submitid);
+
+                    if (post.WeasylJournalId is int journalid)
+                        if (await weasylClientFactory.CreateWeasylClientAsync() is WeasylClient client)
+                            await client.DeleteJournalAsync(journalid);
                 }
             }
 
