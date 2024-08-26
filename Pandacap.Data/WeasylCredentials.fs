@@ -7,4 +7,3 @@ type WeasylCredentials() =
     [<Key>]
     member val Login = "" with get, set
     member val ApiKey = "" with get, set
-    member val Crosspost = false with get, set

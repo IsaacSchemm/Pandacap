@@ -43,7 +43,6 @@ namespace Pandacap.Controllers
             }
 
             string? did = await context.ATProtoCredentials
-                .Where(c => c.Crosspost)
                 .Select(c => c.DID)
                 .FirstOrDefaultAsync();
 

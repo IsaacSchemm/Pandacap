@@ -10,5 +10,3 @@ type ATProtoCredentials() =
     member val PDS = "" with get, set
     member val AccessToken = "" with get, set
     member val RefreshToken = "" with get, set
-
-    member val Crosspost = false with get, set

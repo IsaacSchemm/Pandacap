@@ -23,21 +23,19 @@ namespace Pandacap.Controllers
                 .Select(account => new
                 {
                     account.PDS,
-                    account.DID,
-                    account.Crosspost
+                    account.DID
                 })
                 .FirstOrDefaultAsync();
 
             ViewBag.PDS = account?.PDS;
             ViewBag.DID = account?.DID;
-            ViewBag.Crosspost = account?.Crosspost == true;
 
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Setup(string pds, string did, string password, bool crosspost = false)
+        public async Task<IActionResult> Setup(string pds, string did, string password)
         {
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
@@ -63,8 +61,6 @@ namespace Pandacap.Controllers
                 };
                 context.ATProtoCredentials.Add(credentials);
             }
-
-            credentials.Crosspost = crosspost;
 
             await context.SaveChangesAsync();
 

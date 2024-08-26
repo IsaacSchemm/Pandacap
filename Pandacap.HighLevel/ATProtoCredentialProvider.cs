@@ -12,7 +12,6 @@ namespace Pandacap.HighLevel
         {
             public string DID => credentials.DID;
             public string PDS => credentials.PDS;
-            public bool Crosspost => credentials.Crosspost;
 
             public string AccessToken { get; private set; } = credentials.AccessToken;
 

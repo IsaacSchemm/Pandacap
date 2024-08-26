@@ -20,8 +20,7 @@ namespace Pandacap.Controllers
                 .AsNoTracking()
                 .Select(account => new
                 {
-                    account.Login,
-                    account.Crosspost
+                    account.Login
                 })
                 .FirstOrDefaultAsync();
 
@@ -34,8 +33,6 @@ namespace Pandacap.Controllers
                     var avatarResponse = await client.GetAvatarAsync(account.Login);
                     ViewBag.Avatar = avatarResponse.avatar;
                 }
-
-                ViewBag.Crosspost = account.Crosspost;
             }
 
             return View();
@@ -68,19 +65,6 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(bool? crosspost)
-        {
-            await foreach (var credentials in context.WeasylCredentials)
-            {
-                credentials.Crosspost = crosspost == true;
-                await context.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Setup));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reset()
         {
             var accounts = await context.WeasylCredentials.ToListAsync();
@@ -105,13 +89,7 @@ namespace Pandacap.Controllers
             if (post.WeasylSubmitId != null || post.WeasylJournalId != null)
                 throw new Exception("Already posted to Weasyl");
 
-            //if (post.WeasylSubmitId is int oldSubmitId)
-            //    await client.DeleteSubmissionAsync(oldSubmitId);
-
-            //if (post.WeasylJournalId is int oldJournalId)
-            //    await client.DeleteJournalAsync(oldJournalId);
-
-            if (post.IsArticle || post.Image == null)
+            if (post.Image == null)
             {
                 post.WeasylJournalId = await client.UploadJournalAsync(
                     post.Title,

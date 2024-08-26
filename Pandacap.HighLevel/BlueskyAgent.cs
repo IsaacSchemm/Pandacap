@@ -42,9 +42,6 @@ namespace Pandacap.HighLevel
             if (wrapper == null)
                 return;
 
-            if (!wrapper.Crosspost)
-                return;
-
             if (wrapper.DID == submission.BlueskyDID)
                 return;
 
