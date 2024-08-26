@@ -24,12 +24,12 @@
                             <li class="list-group-item">
                                 <div>
                                     <strong>
-                                        <a href="@notification.Url">@notification.ActivityName</a>
+                                        <a href="@notification.Url" target="_blank">@notification.ActivityName</a>
                                     </strong>
                                     @if (notification.UserName != null)
                                     {
                                         @:from
-                                        <a href="@notification.UserUrl">@notification.UserName</a>
+                                        <a href="@notification.UserUrl" target="_blank">@notification.UserName</a>
                                     }
                                     @if (notification.UserPostId != null)
                                     {

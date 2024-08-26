@@ -6,37 +6,57 @@ type Badge = {
     Color: string
 }
 
-type NotificationPlatform =
-| ActivityPubActivity
-| ActivityPubPost
-| ATProto
-| DeviantArt
-with
-    member this.IsActivityPub =
-        this = ActivityPubActivity || this = ActivityPubPost
-    member this.Badge =
-        match this with
-        | ActivityPubActivity | ActivityPubPost ->
-            { Text = "ActivityPub"
-              Background = "#f1007e"
-              Color = "white" }
-        | ATProto ->
-            { Text = "atproto"
-              Background = "#397EF6"
-              Color = "white" }
-        | DeviantArt ->
-            { Text = "DeviantArt"
-              Background = "#00e59b"
-              Color = "black" }
-    member this.DisplayName =
-        match this with
-        | ActivityPubActivity -> "ActivityPub (activities)"
-        | ActivityPubPost -> "ActivityPub (posts)"
-        | ATProto -> "atproto"
-        | DeviantArt -> "DeviantArt"
-    member this.ViewAllUrl =
-        match this with
-        | ActivityPubActivity -> null
-        | ActivityPubPost -> "/Inbox/ActivityPubMentionsAndReplies"
-        | ATProto -> "https://bsky.app/notifications"
-        | DeviantArt -> "https://www.deviantart.com/notifications/"
+type NotificationPlatform = {
+    DisplayName: string
+    Badge: Badge
+    ViewAllUrl: string
+} with
+    static member ActivityPubActivity = {
+        DisplayName = "ActivityPub (activities)"
+        Badge = {
+            Text = "ActivityPub"
+            Background = "#f1007e"
+            Color = "white"
+        }
+        ViewAllUrl = null
+    }
+
+    static member ActivityPubPost = {
+        DisplayName = "ActivityPub (posts)"
+        Badge = {
+            Text = "ActivityPub"
+            Background = "#f1007e"
+            Color = "white"
+        }
+        ViewAllUrl = "/Inbox/ActivityPubMentionsAndReplies"
+    }
+
+    static member ATProto = {
+        DisplayName = "atproto"
+        Badge = {
+            Text = "atproto"
+            Background = "#397EF6"
+            Color = "white"
+        }
+        ViewAllUrl = "https://bsky.app/notifications"
+    }
+
+    static member DeviantArt = {
+        DisplayName = "DeviantArt"
+        Badge = {
+            Text = "DeviantArt"
+            Background = "#00e59b"
+            Color = "black"
+        }
+        ViewAllUrl = "https://www.deviantart.com/notifications"
+    }
+
+    static member Weasyl = {
+        DisplayName = "Weasyl"
+        Badge = {
+            Text = "Weasyl"
+            Background = "#990000"
+            Color = "white"
+        }
+        ViewAllUrl = "https://www.weasyl.com/messages/notifications"
+    }

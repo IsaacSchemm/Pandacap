@@ -114,6 +114,22 @@ namespace Pandacap.HighLevel
             }
         }
 
+        public record MessagesSummary(
+            int comments,
+            int journals,
+            int notifications,
+            int submissions,
+            int unread_notes);
+
+        public async Task<MessagesSummary> GetMessagesSummaryAsync(string? nexttime = null)
+        {
+            using var client = CreateClient();
+            using var resp = await client.GetAsync("https://www.weasyl.com/api/messages/summary");
+            resp.EnsureSuccessStatusCode();
+            return await resp.Content.ReadFromJsonAsync<MessagesSummary>()
+                ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
+        }
+
         public record Folder(int FolderId, string Name)
         {
             public override string ToString()
