@@ -13,7 +13,7 @@ namespace Pandacap.HighLevel.Notifications
 
             var feed = DeviantArtFs.Api.Messages.GetFeedAsync(
                 credentials,
-                DeviantArtFs.Api.Messages.StackMessages.Default,
+                DeviantArtFs.Api.Messages.StackMessages.NewStackMessages(false),
                 DeviantArtFs.Api.Messages.MessageFolder.Inbox,
                 DeviantArtFs.Api.Messages.MessageCursor.Default);
 
