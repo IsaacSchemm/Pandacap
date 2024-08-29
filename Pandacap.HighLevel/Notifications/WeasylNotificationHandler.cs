@@ -18,8 +18,7 @@ namespace Pandacap.HighLevel.Notifications
                 {
                     ActivityName = $"{summary.comments} comment(s)",
                     Platform = NotificationPlatform.Weasyl,
-                    Timestamp = now,
-                    Url = NotificationPlatform.Weasyl.ViewAllUrl
+                    Timestamp = now
                 };
 
             if (summary.journals > 0)
@@ -27,8 +26,7 @@ namespace Pandacap.HighLevel.Notifications
                 {
                     ActivityName = $"{summary.journals} journal(s)",
                     Platform = NotificationPlatform.Weasyl,
-                    Timestamp = now,
-                    Url = NotificationPlatform.Weasyl.ViewAllUrl
+                    Timestamp = now
                 };
 
             if (summary.notifications > 0)
@@ -36,8 +34,7 @@ namespace Pandacap.HighLevel.Notifications
                 {
                     ActivityName = $"{summary.notifications} notification(s)",
                     Platform = NotificationPlatform.Weasyl,
-                    Timestamp = now,
-                    Url = NotificationPlatform.Weasyl.ViewAllUrl
+                    Timestamp = now
                 };
 
             if (summary.unread_notes > 0)
@@ -45,8 +42,7 @@ namespace Pandacap.HighLevel.Notifications
                 {
                     ActivityName = $"{summary.unread_notes} unread note(s)",
                     Platform = NotificationPlatform.Weasyl,
-                    Timestamp = now,
-                    Url = NotificationPlatform.Weasyl.ViewAllUrl
+                    Timestamp = now
                 };
         }
     }

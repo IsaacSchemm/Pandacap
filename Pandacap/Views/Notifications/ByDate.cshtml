@@ -24,7 +24,7 @@
                             <li class="list-group-item">
                                 <div>
                                     <strong>
-                                        <a href="@notification.Url" target="_blank">@notification.ActivityName</a>
+                                        @notification.ActivityName
                                     </strong>
                                     @if (notification.UserName != null)
                                     {
@@ -44,9 +44,11 @@
 
                                     @{
                                         var badge = notification.Platform.Badge;
-                                        <span class="badge" style="background-color: @badge.Background; color: @badge.Color">
-                                            @badge.Text
-                                        </span>
+                                        <a href="@notification.Platform.ViewAllUrl" target="_blank">
+                                            <span class="badge" style="background-color: @badge.Background; color: @badge.Color">
+                                                @badge.Text
+                                            </span>
+                                        </a>
                                     }
                                 </span>
                             </li>

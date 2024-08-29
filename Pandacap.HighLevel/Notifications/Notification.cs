@@ -11,6 +11,5 @@ namespace Pandacap.HighLevel.Notifications
         public Guid? UserPostId { get; init; }
         public string? UserPostTitle { get; init; }
         public required DateTimeOffset Timestamp { get; init; }
-        public string? Url { get; init; }
     }
 }
