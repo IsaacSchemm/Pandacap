@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Signatures;
 using System.Text;
@@ -11,6 +12,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ActivityPubController(
+        ActivityPubRemoteObjectService activityPubRemoteObjectService,
         ActivityPubRequestHandler activityPubRequestHandler,
         ApplicationInformation appInfo,
         PandacapDbContext context,
@@ -85,7 +87,7 @@ namespace Pandacap.Controllers
 
             // Find out which ActivityPub actor they say they are, and grab that actor's information and public key
             string actorId = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
-            var actor = await activityPubRequestHandler.FetchActorAsync(actorId);
+            var actor = await activityPubRemoteObjectService.FetchActorAsync(actorId);
 
             string type = expansionObj["@type"]![0]!.Value<string>()!;
 

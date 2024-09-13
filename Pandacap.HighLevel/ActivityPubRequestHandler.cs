@@ -21,60 +21,6 @@ namespace Pandacap.HighLevel
         private readonly Dictionary<Uri, RemoteActor> _cache = [];
 
         /// <summary>
-        /// Fetches and returns an actor.
-        /// </summary>
-        /// <param name="url">The actor ID / URL</param>
-        /// <param name="cancellationToken">A cancellation token (optional)</param>
-        /// <returns>An actor record</returns>
-        public async Task<RemoteActor> FetchActorAsync(string url, CancellationToken cancellationToken = default)
-        {
-            Uri uri = new(url);
-
-            if (_cache.TryGetValue(uri, out RemoteActor? cached))
-                return cached;
-
-            string json = await GetJsonAsync(uri, cancellationToken);
-
-            JObject document = JObject.Parse(json);
-            JArray expansion = JsonLdProcessor.Expand(document);
-
-            string id = expansion[0]["@id"].Value<string>();
-
-            string inbox = expansion[0]["http://www.w3.org/ns/ldp#inbox"][0]["@id"].Value<string>();
-
-            string? sharedInbox = null;
-            foreach (var endpoint in expansion[0]["https://www.w3.org/ns/activitystreams#endpoints"] ?? Empty)
-            {
-                foreach (var si in endpoint["https://www.w3.org/ns/activitystreams#sharedInbox"])
-                {
-                    sharedInbox = si["@id"].Value<string>();
-                }
-            }
-
-            string? preferredUsername = (expansion[0]["https://www.w3.org/ns/activitystreams#preferredUsername"] ?? Empty)
-                .Select(token => token["@value"].Value<string>())
-                .FirstOrDefault();
-            string? iconUrl = (expansion[0]["https://www.w3.org/ns/activitystreams#icon"] ?? Empty)
-                .SelectMany(token => token["https://www.w3.org/ns/activitystreams#url"])
-                .Select(token => token["@id"].Value<string>())
-                .FirstOrDefault();
-
-            string keyId = expansion[0]["https://w3id.org/security#publicKey"][0]["@id"].Value<string>();
-            string keyPem = expansion[0]["https://w3id.org/security#publicKey"][0]["https://w3id.org/security#publicKeyPem"][0]["@value"].Value<string>();
-
-            var actor = new RemoteActor(
-                Id: id,
-                Inbox: inbox,
-                SharedInbox: sharedInbox,
-                PreferredUsername: preferredUsername,
-                IconUrl: iconUrl,
-                KeyId: keyId,
-                KeyPem: keyPem);
-
-            return _cache[uri] = actor;
-        }
-
-        /// <summary>
         /// Adds an HTTP signature to the request.
         /// </summary>
         /// <param name="req">The request message to be sent</param>

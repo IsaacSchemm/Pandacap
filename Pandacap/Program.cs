@@ -7,6 +7,7 @@ using Microsoft.FSharp.Collections;
 using Pandacap;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Signatures;
 
@@ -63,6 +64,7 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
 }
 
 builder.Services
+    .AddScoped<ActivityPubRemoteObjectService>()
     .AddScoped<AltTextSentinel>()
     .AddScoped<DeviantArtHandler>()
     .AddScoped<MastodonVerifier>()

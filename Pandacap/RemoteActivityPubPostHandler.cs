@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 
 namespace Pandacap
@@ -10,10 +11,12 @@ namespace Pandacap
     /// <summary>
     /// Adds remote ActivityPub posts to the Pandacap inbox or to its Favorites collection (equivalent to ActivityPub "likes", but fully public).
     /// </summary>
+    /// <param name="activityPubRemoteObjectService">An object that can retrieve remote ActivityPub actor information</param>
     /// <param name="activityPubRequestHandler">An object that can make signed HTTP ActivityPub requests</param>
     /// <param name="context">The database context</param>
     /// <param name="translator">An object that builds the ActivityPub objects and activities associated with Pandacap objects</param>
     public class RemoteActivityPubPostHandler(
+        ActivityPubRemoteObjectService activityPubRemoteObjectService,
         ActivityPubRequestHandler activityPubRequestHandler,
         PandacapDbContext context,
         ActivityPubTranslator translator)
@@ -159,7 +162,7 @@ namespace Pandacap
             if (originalActorId == null)
                 return;
 
-            var originalActor = await activityPubRequestHandler.FetchActorAsync(originalActorId);
+            var originalActor = await activityPubRemoteObjectService.FetchActorAsync(originalActorId);
 
             context.InboxActivityStreamsPosts.Add(new InboxActivityStreamsPost
             {
@@ -219,7 +222,7 @@ namespace Pandacap
             if (originalActorId == null)
                 return;
 
-            var originalActor = await activityPubRequestHandler.FetchActorAsync(originalActorId);
+            var originalActor = await activityPubRemoteObjectService.FetchActorAsync(originalActorId);
 
             Guid likeGuid = Guid.NewGuid();
 

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Models;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ProfileController(
-        ActivityPubRequestHandler activityPubRequestHandler,
+        ActivityPubRemoteObjectService activityPubRemoteObjectService,
         AtomRssFeedReader atomRssFeedReader,
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
@@ -243,7 +244,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Follow(string id)
         {
-            var actor = await activityPubRequestHandler.FetchActorAsync(id);
+            var actor = await activityPubRemoteObjectService.FetchActorAsync(id);
 
             Guid followGuid = Guid.NewGuid();
 
