@@ -69,12 +69,17 @@ namespace Pandacap.Controllers
                 Encoding.UTF8);
         }
 
-        [HttpPost]
+        [HttpPost, HttpGet]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported on Cosmos DB provider for EF Core")]
-        public async Task Inbox()
+        public async Task Inbox(CancellationToken cancellationToken)
         {
+            await Task.Delay(4000, cancellationToken);
+            await Task.Delay(4000, cancellationToken);
+            await Task.Delay(4000, cancellationToken);
+            await Task.Delay(4000, cancellationToken);
+
             using var sr = new StreamReader(Request.Body);
-            string json = await sr.ReadToEndAsync();
+            string json = await sr.ReadToEndAsync(cancellationToken);
 
             // Expand JSON-LD
             // This is important to do, because objects can be replaced with IDs, pretty much anything can be an array, etc.
@@ -87,7 +92,7 @@ namespace Pandacap.Controllers
 
             // Find out which ActivityPub actor they say they are, and grab that actor's information and public key
             string actorId = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
-            var actor = await activityPubRemoteObjectService.FetchActorAsync(actorId);
+            var actor = await activityPubRemoteObjectService.FetchActorAsync(actorId, cancellationToken);
 
             string type = expansionObj["@type"]![0]!.Value<string>()!;
 
@@ -130,17 +135,17 @@ namespace Pandacap.Controllers
 
                     var activities = await context.ActivityPubInboundActivities
                         .Where(a => a.ActivityId == id)
-                        .ToListAsync();
+                        .ToListAsync(cancellationToken);
 
                     context.RemoveRange(activities);
 
                     var announcements = await context.InboxActivityStreamsPosts
                         .Where(a => a.AnnounceId == id)
-                        .ToListAsync();
+                        .ToListAsync(cancellationToken);
 
                     context.RemoveRange(announcements);
 
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(cancellationToken);
                 }
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Accept")
@@ -149,7 +154,7 @@ namespace Pandacap.Controllers
                 {
                     var follows = await context.Follows
                         .Where(f => f.ActorId == actor.Id)
-                        .ToListAsync();
+                        .ToListAsync(cancellationToken);
 
                     string followId = obj["@id"]!.Value<string>()!;
 
@@ -158,7 +163,7 @@ namespace Pandacap.Controllers
                             follow.Accepted = true;
                 }
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(cancellationToken);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Reject")
             {
@@ -166,7 +171,7 @@ namespace Pandacap.Controllers
                 {
                     var follows = await context.Follows
                         .Where(f => f.ActorId == actor.Id)
-                        .ToListAsync();
+                        .ToListAsync(cancellationToken);
 
                     string followId = obj["@id"]!.Value<string>()!;
 
@@ -175,7 +180,7 @@ namespace Pandacap.Controllers
                             follow.Accepted = false;
                 }
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(cancellationToken);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Like"
                 || type == "https://www.w3.org/ns/activitystreams#Dislike"
@@ -204,7 +209,7 @@ namespace Pandacap.Controllers
 
                         var post = await context.UserPosts
                             .Where(p => p.Id == id)
-                            .SingleOrDefaultAsync();
+                            .SingleOrDefaultAsync(cancellationToken);
 
                         if (post != null && mapper.GetObjectId(post.Id) == uri.GetLeftPart(UriPartial.Path))
                         {
@@ -223,7 +228,7 @@ namespace Pandacap.Controllers
                     }
                 }
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(cancellationToken);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Create")
             {
@@ -231,7 +236,7 @@ namespace Pandacap.Controllers
                 {
                     string postId = obj["@id"]!.Value<string>()!;
 
-                    string replyJson = await activityPubRequestHandler.GetJsonAsync(new Uri(postId));
+                    string replyJson = await activityPubRequestHandler.GetJsonAsync(new Uri(postId), cancellationToken);
                     JArray replyExpansion = JsonLdProcessor.Expand(JObject.Parse(replyJson));
 
                     bool isMention = Empty
@@ -250,7 +255,7 @@ namespace Pandacap.Controllers
 
                     bool isFromFollow = await context.Follows
                         .Where(f => f.ActorId == actor.Id)
-                        .CountAsync() > 0;
+                        .CountAsync(cancellationToken) > 0;
 
                     if (isMention || isReply || isFromFollow)
                         await remoteActivityPubPostHandler.AddRemotePostAsync(
@@ -289,7 +294,7 @@ namespace Pandacap.Controllers
                             follow.IconUrl = actor.IconUrl;
                         }
 
-                        await context.SaveChangesAsync();
+                        await context.SaveChangesAsync(cancellationToken);
                     }
                 }
             }
@@ -299,13 +304,13 @@ namespace Pandacap.Controllers
                 {
                     string deletedObjectId = deletedObject["@id"]!.Value<string>()!;
 
-                    var inboxPosts = await context.InboxActivityStreamsPosts.Where(p => p.ObjectId == deletedObjectId).ToListAsync();
+                    var inboxPosts = await context.InboxActivityStreamsPosts.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
                     context.RemoveRange(inboxPosts);
 
-                    var favorites = await context.RemoteActivityPubFavorites.Where(p => p.ObjectId == deletedObjectId).ToListAsync();
+                    var favorites = await context.RemoteActivityPubFavorites.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
                     context.RemoveRange(favorites);
 
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(cancellationToken);
                 }
             }
         }
