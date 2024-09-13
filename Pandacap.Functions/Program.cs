@@ -50,7 +50,7 @@ var host = new HostBuilder()
                 deviantArtClientSecret));
         }
 
-        services.AddPandacapServices(new ApplicationInformation(
+        services.AddSharedServices(new ApplicationInformation(
             applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
             deviantArtUsername: Environment.GetEnvironmentVariable("DeviantArtUsername"),
             keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),

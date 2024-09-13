@@ -6,7 +6,7 @@ namespace Pandacap.HighLevel
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddPandacapServices(
+        public static IServiceCollection AddSharedServices(
             this IServiceCollection services,
             ApplicationInformation applicationInformation)
         {

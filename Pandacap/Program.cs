@@ -70,7 +70,7 @@ builder.Services
     .AddScoped<MastodonVerifier>()
     .AddScoped<RemoteActivityPubPostHandler>();
 
-builder.Services.AddPandacapServices(new ApplicationInformation(
+builder.Services.AddSharedServices(new ApplicationInformation(
     applicationHostname: builder.Configuration["ApplicationHostname"],
     deviantArtUsername: builder.Configuration["DeviantArtUsername"],
     keyVaultHostname: builder.Configuration["KeyVaultHostname"],
