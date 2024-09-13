@@ -55,6 +55,18 @@ namespace Pandacap.HighLevel
                 if (feedItem.IndexedAt < someTimeAgo)
                     break;
 
+                if (feedItem.post.record.InReplyTo.Length > 0)
+                {
+                    var inReplyToDIDs =
+                        feedItem.post.record.InReplyTo
+                        .SelectMany(r => new[] { r.parent, r.root })
+                        .Select(r => r.UriComponents.did)
+                        .Distinct();
+
+                    if (!inReplyToDIDs.Contains(credentials.DID))
+                        continue;
+                }
+
                 if (existingPosts.Any(e => e.CID == feedItem.post.cid && e.PostedBy.DID == feedItem.By.did))
                     continue;
 

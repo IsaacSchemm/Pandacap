@@ -327,11 +327,32 @@ module BlueskyFeed =
         images: Image list option
     }
 
+    type ReplyReference = {
+        uri: string
+        cid: string
+    } with
+        member this.UriComponents =
+            match this.uri.Split('/') with
+            | [| "at:"; ""; did; "app.bsky.feed.post"; rkey |] ->
+                {|
+                    did = Uri.UnescapeDataString(did)
+                    rkey = Uri.UnescapeDataString(rkey)
+                |}
+            | _ ->
+                failwith "Cannot extract record key from URI"
+
+    type Reply = {
+        parent: ReplyReference
+        root: ReplyReference
+    }
+
     type Record = {
         createdAt: DateTimeOffset
         text: string
+        reply: Reply option
         bridgyOriginalUrl: string option
     } with
+        member this.InReplyTo = Option.toList this.reply
         member this.OtherUrls = Option.toList this.bridgyOriginalUrl
 
     type Post = {
