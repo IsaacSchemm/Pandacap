@@ -20,7 +20,7 @@ namespace Pandacap
     {
         private static readonly IEnumerable<JToken> Empty = [];
 
-        private static IEnumerable<(string? name, string url)> GetAttachments(JToken post)
+        public static IEnumerable<(string? name, string url)> GetAttachments(JToken post)
         {
             foreach (var attachment in post["https://www.w3.org/ns/activitystreams#attachment"] ?? Empty)
             {
@@ -104,7 +104,7 @@ namespace Pandacap
                 Summary = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
-                Sensitive = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
+                Sensitive = (post["https://www.w3.org/ns/activitystreams#sensitive"] ?? Empty)
                     .Select(token => token["@value"]!.Value<bool>())
                     .Contains(true),
                 Name = (post["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
