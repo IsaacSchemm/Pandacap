@@ -16,10 +16,6 @@ namespace Pandacap.HighLevel
         KeyProvider keyProvider,
         IdMapper mapper)
     {
-        private static readonly IEnumerable<JToken> Empty = [];
-
-        private readonly Dictionary<Uri, RemoteActor> _cache = [];
-
         /// <summary>
         /// Adds an HTTP signature to the request.
         /// </summary>

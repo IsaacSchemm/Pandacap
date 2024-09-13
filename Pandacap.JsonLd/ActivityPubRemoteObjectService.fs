@@ -44,29 +44,36 @@ type ActivityPubRemoteObjectService(requestHandler: ActivityPubRequestHandler) =
                 |> JsonLdProcessor.Expand
                 |> Seq.exactlyOne
 
-            return new RemoteActor(
-                node_id object,
-                object
+            return {
+                Id = node_id object
+                Inbox =
+                    object
                     |> list "http://www.w3.org/ns/ldp#inbox"
-                    |> first node_id,
-                object
+                    |> first node_id
+                SharedInbox =
+                    object
                     |> list "https://www.w3.org/ns/activitystreams#endpoints"
                     |> combine "https://www.w3.org/ns/activitystreams#sharedInbox"
-                    |> first node_id,
-                object
+                    |> first node_id
+                PreferredUsername =
+                    object
                     |> list "https://www.w3.org/ns/activitystreams#preferredUsername"
-                    |> first node_value,
-                object
+                    |> first node_value
+                IconUrl =
+                    object
                     |> list "https://www.w3.org/ns/activitystreams#icon"
                     |> combine "https://www.w3.org/ns/activitystreams#url"
-                    |> first node_id,
-                object
+                    |> first node_id
+                KeyId =
+                    object
                     |> list "https://w3id.org/security#publicKey"
-                    |> first node_id,
-                object
+                    |> first node_id
+                KeyPem =
+                    object
                     |> list "https://w3id.org/security#publicKey"
                     |> combine "https://w3id.org/security#publicKeyPem"
-                    |> first node_value)
+                    |> first node_value
+            }
     }
 
     member this.FetchActorAsync(url) =

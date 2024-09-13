@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using NSign;
 using NSign.Signatures;
-using Pandacap.HighLevel;
+using Pandacap.JsonLd;
 
 namespace Pandacap.Signatures;
 

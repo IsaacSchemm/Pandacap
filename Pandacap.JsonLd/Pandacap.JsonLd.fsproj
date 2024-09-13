@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="RemoteActor.fs" />
     <Compile Include="ActivityPubRemoteObjectService.fs" />
   </ItemGroup>
 
