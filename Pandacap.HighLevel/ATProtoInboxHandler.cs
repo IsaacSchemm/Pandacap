@@ -12,6 +12,16 @@ namespace Pandacap.HighLevel
         ATProtoCredentialProvider credentialProvider,
         IHttpClientFactory httpClientFactory)
     {
+        private const string BlueskyModerationService = "did:plc:ar7c4by46qjdydhdevvrndac";
+
+        private static readonly IReadOnlyList<string> BlueskyModerationServiceAdultContentLabels = [
+            "porn",
+            "sexual",
+            "nudity",
+            "sexual-figurative",
+            "graphic-media"
+        ];
+
         private static async IAsyncEnumerable<BlueskyFeed.FeedItem> WrapAsync(
             Func<BlueskyFeed.Page, Task<BlueskyFeed.FeedResponse>> handler)
         {
@@ -91,6 +101,12 @@ namespace Pandacap.HighLevel
                     },
                     CreatedAt = feedItem.post.record.createdAt,
                     IndexedAt = feedItem.IndexedAt,
+                    IsAdultContent =
+                        feedItem.post.labels
+                        .Where(l => l.src == feedItem.post.author.did || l.src == BlueskyModerationService)
+                        .Select(l => l.val)
+                        .Intersect(BlueskyModerationServiceAdultContentLabels)
+                        .Any(),
                     Text = feedItem.post.record.text,
                     Images = feedItem.post.Images
                         .Select(image => new InboxATProtoImage

@@ -218,21 +218,6 @@ module Notifications =
             |> Reader.readAsync<NotificationList> httpClient (Some credentials)
     }
 
-    //let ListAllNotificationsAsync httpClient credentials = taskSeq {
-    //    let mutable page = FromStart
-    //    let mutable finished = false
-
-    //    while not finished do
-    //        let! result = ListNotificationsAsync httpClient credentials page
-    //        yield! result.notifications
-
-    //        match result.cursor with
-    //        | Some nextCursor ->
-    //            page <- FromCursor nextCursor
-    //        | None ->
-    //            finished <- true
-    //}
-
 /// Handles creating and deleting Bluesky posts.
 module Repo =
     type BlobResponse = {
@@ -355,6 +340,11 @@ module BlueskyFeed =
         member this.InReplyTo = Option.toList this.reply
         member this.OtherUrls = Option.toList this.bridgyOriginalUrl
 
+    type Label = {
+        src: string
+        ``val``: string
+    }
+
     type Post = {
         uri: string
         cid: string
@@ -362,6 +352,7 @@ module BlueskyFeed =
         record: Record
         embed: Embed option
         indexedAt: DateTimeOffset
+        labels: Label list
     } with
         member this.RecordKey =
             match this.uri.Split('/') with
