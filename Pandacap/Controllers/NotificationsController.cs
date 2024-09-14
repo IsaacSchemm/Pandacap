@@ -19,7 +19,8 @@ namespace Pandacap.Controllers
             await new[]
             {
                 activityPubReplyHandler.GetNotificationsAsync(),
-                activityPubNotificationHandler.GetNotificationsAsync(),
+                activityPubNotificationHandler.GetUserPostNotificationsAsync(),
+                activityPubNotificationHandler.GetReplyNotificationsAsync(),
                 atProtoNotificationHandler.GetNotificationsAsync(),
                 deviantArtNotificationsHandler.GetNotificationsAsync(),
                 weasylNotificationHandler.GetNotificationsAsync()

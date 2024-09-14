@@ -16,6 +16,9 @@
     <Compile Include="Avatar.fs" />
     <Compile Include="ProfileProperty.fs" />
     <Compile Include="UserPost.fs" />
+    <Compile Include="UserPostActivity.fs" />
+    <Compile Include="Reply.fs" />
+    <Compile Include="ReplyActivity.fs" />
     <Compile Include="DeviantArtTextPostCheckStatus.fs" />
     <Compile Include="InboxATProtoPost.fs" />
     <Compile Include="InboxActivityStreamsPost.fs" />
@@ -29,7 +32,6 @@
     <Compile Include="Follow.fs" />
     <Compile Include="Follower.fs" />
     <Compile Include="RemoteActivityPubFavorite.fs" />
-    <Compile Include="ActivityPubInboundActivity.fs" />
     <Compile Include="ActivityPubOutboundActivity.fs" />
     <Compile Include="PandacapDbContext.fs" />
   </ItemGroup>

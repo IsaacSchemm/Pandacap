@@ -1,6 +1,7 @@
 ﻿namespace Pandacap.LowLevel
 
 open System
+open Pandacap.Data
 
 /// Provides mappings between Pandacap's internal IDs and the public ActivityPub IDs of corresponding objects.
 type IdMapper(appInfo: ApplicationInformation) =
@@ -40,8 +41,11 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.GetImageUrl(deviationid: Guid) =
         $"https://{appInfo.ApplicationHostname}/Blobs/Images/{deviationid}"
 
-    member _.GetObjectId(deviationid: Guid) =
-        $"https://{appInfo.ApplicationHostname}/UserPosts/{deviationid}"
+    member _.GetObjectId(userPost: UserPost) =
+        $"https://{appInfo.ApplicationHostname}/UserPosts/{userPost.Id}"
+
+    member _.GetObjectId(activityPubReply: Reply) =
+        $"https://{appInfo.ApplicationHostname}/Replies/{activityPubReply.Id}"
 
     member _.GetFollowId(followGuid: Guid) =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Follow/{followGuid}"

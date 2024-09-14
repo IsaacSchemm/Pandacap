@@ -1,0 +1,16 @@
+﻿@model ReplyViewModel
+
+<form method="post">
+    @Html.AntiForgeryToken()
+
+    <label asp-for="@Model.To"></label>
+    <textarea asp-for="@Model.To"></textarea>
+
+    <label asp-for="@Model.Cc"></label>
+    <textarea asp-for="@Model.Cc"></textarea>
+
+    <label asp-for="@Model.TextContent"></label>
+    <textarea asp-for="@Model.TextContent"></textarea>
+
+    <input type="submit" />
+</form>

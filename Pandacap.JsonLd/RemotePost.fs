@@ -4,7 +4,7 @@ open System
 
 type RemotePost = {
     Id: string
-    AttributedTo: Addressee
+    AttributedTo: RemoteActor
     To: Addressee list
     Cc: Addressee list
     InReplyTo: string list
@@ -16,4 +16,10 @@ type RemotePost = {
     SanitizedContent: string
     Url: string
     Attachments: Attachment list
-}
+} with
+    member this.ExplicitAddressees = [
+        for a in this.To @ this.Cc do
+            match a with
+            | Person x | Group x -> x
+            | _ -> ()
+    ]

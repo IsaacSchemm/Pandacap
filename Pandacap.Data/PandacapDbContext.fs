@@ -13,6 +13,9 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.Avatars: DbSet<Avatar> = this.Set()
     member this.ProfileProperties: DbSet<ProfileProperty> = this.Set()
     member this.UserPosts: DbSet<UserPost> = this.Set()
+    member this.UserPostActivities: DbSet<UserPostActivity> = this.Set()
+    member this.Replies: DbSet<Reply> = this.Set()
+    member this.ReplyActivities: DbSet<ReplyActivity> = this.Set()
     member this.DeviantArtTextPostCheckStatuses: DbSet<DeviantArtTextPostCheckStatus> = this.Set()
     member this.InboxArtworkDeviations: DbSet<InboxArtworkDeviation> = this.Set()
     member this.InboxTextDeviations: DbSet<InboxTextDeviation> = this.Set()
@@ -24,7 +27,6 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.Follows: DbSet<Follow> = this.Set()
     member this.Followers: DbSet<Follower> = this.Set()
     member this.RemoteActivityPubFavorites: DbSet<RemoteActivityPubFavorite> = this.Set()
-    member this.ActivityPubInboundActivities: DbSet<ActivityPubInboundActivity> = this.Set()
     member this.ActivityPubOutboundActivities: DbSet<ActivityPubOutboundActivity> = this.Set()
 
     override _.OnModelCreating(builder) =

@@ -1,9 +1,18 @@
 ﻿@using Pandacap.JsonLd
 @model RemotePost
 
+<h1>
+    <img height="50" src="@(Model.AttributedTo.IconUrl ?? "/images/trgray.svg")" alt="" />
+    <span style="display: inline-block; vertical-align: top">
+        <strong>
+            <a href="@Model.AttributedTo.Id" target="_blank">
+                @(Model.AttributedTo.PreferredUsername ?? Model.AttributedTo.Id)
+            </a>
+        </strong>
+    </span>
+</h1>
+
 <dl>
-    <dt>From</dt>
-    <dd><partial name="_Addressee" model="@Model.AttributedTo" /></dd>
     @foreach (var to in Model.To)
     {
         <dt>To</dt>
@@ -66,5 +75,12 @@ else
     <form asp-controller="Favorites" asp-action="Remove" class="d-inline" onsubmit="confirm('Are you sure you want to remove this post from your favorites?')">
         <input type="hidden" name="id" value="@Model.Id" />
         <button class="btn btn-danger">Remove from Favorites</button>
+    </form>
+</p>
+
+<p>
+    <form method="get" asp-action="Reply" class="d-inline">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn btn-outline-primary">Reply</button>
     </form>
 </p>

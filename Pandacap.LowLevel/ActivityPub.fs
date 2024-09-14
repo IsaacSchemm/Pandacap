@@ -82,7 +82,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     ]
 
     member _.AsObject(post: UserPost) = dict [
-        let id = mapper.GetObjectId(post.Id)
+        let id = mapper.GetObjectId(post)
 
         pair "id" id
         pair "url" id
@@ -123,6 +123,23 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             ]
     ]
 
+    member _.AsObject(post: Reply) = dict [
+        let id = mapper.GetObjectId(post)
+
+        pair "id" id
+        pair "url" id
+
+        pair "type" "Note"
+        pair "content" post.Content
+
+        pair "inReplyTo" post.InReplyTo
+
+        pair "attributedTo" mapper.ActorId
+        pair "published" post.PublishedTime
+        pair "to" [yield! post.To]
+        pair "cc" [yield! post.Cc]
+    ]
+
     member this.ObjectToCreate(post: UserPost) = dict [
         pair "type" "Create"
         pair "id" (mapper.GetTransientId())
@@ -149,8 +166,26 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [mapper.FollowersRootId]
-        pair "object" (mapper.GetObjectId(post.Id))
+        pair "object" (mapper.GetObjectId(post))
+    ]
+
+    member this.ObjectToCreate(post: Reply) = dict [
+        pair "type" "Create"
+        pair "id" (mapper.GetTransientId())
+        pair "actor" mapper.ActorId
+        pair "published" post.PublishedTime
+        pair "to" [yield! post.To]
+        pair "cc" [yield! post.Cc]
+        pair "object" (this.AsObject post)
+    ]
+
+    member _.ObjectToDelete(post: Reply) = dict [
+        pair "type" "Delete"
+        pair "id" (mapper.GetTransientId())
+        pair "actor" mapper.ActorId
+        pair "published" DateTimeOffset.UtcNow
+        pair "to" ["https://www.w3.org/ns/activitystreams#Public"]
+        pair "object" (mapper.GetObjectId(post))
     ]
 
     member _.AcceptFollow(followId: string) = dict [
@@ -210,7 +245,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "type" "OrderedCollectionPage"
         pair "partOf" mapper.OutboxRootId
 
-        pair "orderedItems" [for p in posts.DisplayList do mapper.GetObjectId(p.Id)]
+        pair "orderedItems" [for p in posts.DisplayList do mapper.GetObjectId(p)]
         match posts.Next with
         | None -> ()
         | Some next ->

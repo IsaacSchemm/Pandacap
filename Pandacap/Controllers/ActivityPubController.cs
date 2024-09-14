@@ -133,11 +133,17 @@ namespace Pandacap.Controllers
 
                     string id = objectToUndo["@id"]!.Value<string>()!;
 
-                    var activities = await context.ActivityPubInboundActivities
-                        .Where(a => a.ActivityId == id)
+                    var userPostActivities = await context.UserPostActivities
+                        .Where(a => a.Id == id)
                         .ToListAsync(cancellationToken);
 
-                    context.RemoveRange(activities);
+                    context.RemoveRange(userPostActivities);
+
+                    var replyActivities = await context.ReplyActivities
+                        .Where(a => a.Id == id)
+                        .ToListAsync(cancellationToken);
+
+                    context.RemoveRange(replyActivities);
 
                     var announcements = await context.InboxActivityStreamsPosts
                         .Where(a => a.AnnounceId == id)
@@ -211,18 +217,31 @@ namespace Pandacap.Controllers
                             .Where(p => p.Id == id)
                             .SingleOrDefaultAsync(cancellationToken);
 
-                        if (post != null && mapper.GetObjectId(post.Id) == uri.GetLeftPart(UriPartial.Path))
+                        if (post != null && mapper.GetObjectId(post) == uri.GetLeftPart(UriPartial.Path))
                         {
-                            context.ActivityPubInboundActivities.Add(new ActivityPubInboundActivity
+                            context.UserPostActivities.Add(new()
                             {
-                                Id = Guid.NewGuid(),
-                                ActivityId = expansionObj["@id"]!.Value<string>()!,
+                                Id = expansionObj["@id"]!.Value<string>()!,
                                 ActivityType = type.Replace("https://www.w3.org/ns/activitystreams#", ""),
-                                DeviationId = id,
+                                UserPostId = id,
                                 AddedAt = DateTimeOffset.UtcNow,
-                                ActorId = actor.Id,
-                                Username = actor.PreferredUsername,
-                                Usericon = actor.IconUrl
+                                ActorId = actor.Id
+                            });
+                        }
+
+                        var reply = await context.Replies
+                            .Where(p => p.Id == id)
+                            .SingleOrDefaultAsync(cancellationToken);
+
+                        if (reply != null && mapper.GetObjectId(reply) == uri.GetLeftPart(UriPartial.Path))
+                        {
+                            context.ReplyActivities.Add(new()
+                            {
+                                Id = expansionObj["@id"]!.Value<string>()!,
+                                ActivityType = type.Replace("https://www.w3.org/ns/activitystreams#", ""),
+                                ReplyId = id,
+                                AddedAt = DateTimeOffset.UtcNow,
+                                ActorId = actor.Id
                             });
                         }
                     }

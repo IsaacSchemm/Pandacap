@@ -64,12 +64,13 @@ type ActivityPubRemotePostService(
 
         let id = node_id object
 
-        let! attributedTo =
+        let attributedTo =
             object
             |> list "https://www.w3.org/ns/activitystreams#attributedTo"
             |> Seq.map (fun token -> token["@id"].Value<string>())
             |> Seq.head
-            |> hydrateAddresseeAsync cancellationToken
+
+        let! attributedToActor = remoteActorService.FetchActorAsync(attributedTo, cancellationToken)
 
         let! ``to`` =
             object
@@ -87,7 +88,7 @@ type ActivityPubRemotePostService(
 
         return {
             Id = id
-            AttributedTo = attributedTo
+            AttributedTo = attributedToActor
             To = [yield! ``to``]
             Cc = [yield! cc]
             InReplyTo =
