@@ -20,7 +20,7 @@ namespace Pandacap.Controllers
             {
                 activityPubReplyHandler.GetNotificationsAsync(),
                 activityPubNotificationHandler.GetUserPostNotificationsAsync(),
-                activityPubNotificationHandler.GetReplyNotificationsAsync(),
+                activityPubNotificationHandler.GetAddressedPostNotificationsAsync(),
                 atProtoNotificationHandler.GetNotificationsAsync(),
                 deviantArtNotificationsHandler.GetNotificationsAsync(),
                 weasylNotificationHandler.GetNotificationsAsync()

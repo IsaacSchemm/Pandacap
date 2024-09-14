@@ -44,8 +44,8 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.GetObjectId(userPost: UserPost) =
         $"https://{appInfo.ApplicationHostname}/UserPosts/{userPost.Id}"
 
-    member _.GetObjectId(activityPubReply: Reply) =
-        $"https://{appInfo.ApplicationHostname}/Replies/{activityPubReply.Id}"
+    member _.GetObjectId(addressedPost: AddressedPost) =
+        $"https://{appInfo.ApplicationHostname}/AddressedPosts/{addressedPost.Id}"
 
     member _.GetFollowId(followGuid: Guid) =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Follow/{followGuid}"

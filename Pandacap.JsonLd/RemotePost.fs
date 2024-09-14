@@ -15,11 +15,14 @@ type RemotePost = {
     Summary: string
     SanitizedContent: string
     Url: string
+    Audience: string
     Attachments: Attachment list
 } with
-    member this.ExplicitAddressees = [
-        for a in this.To @ this.Cc do
-            match a with
-            | Person x | Group x -> x
-            | _ -> ()
+    member this.ReplyTo = this.AttributedTo.Id
+    member this.ReplyCc = List.distinct [
+        for list in [this.To; this.Cc] do
+            for addressee in list do
+                match addressee with
+                | Person a | Group a -> a.Id
+                | _ -> ()
     ]

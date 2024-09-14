@@ -2,10 +2,9 @@
 
 open System
 
-/// Another ActivityPub actor's interaction with a Pandacap reply.
-type ReplyActivity() =
+type AddressedPostActivity() =
     member val Id = "" with get, set
-    member val ReplyId = Guid.Empty with get, set
+    member val AddressedPostId = Guid.Empty with get, set
     member val ActorId = "" with get, set
     member val ActivityType = "" with get, set
     member val AddedAt = DateTimeOffset.MinValue with get, set

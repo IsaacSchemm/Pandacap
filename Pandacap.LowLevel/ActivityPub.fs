@@ -123,21 +123,24 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             ]
     ]
 
-    member _.AsObject(post: Reply) = dict [
+    member _.AsObject(post: AddressedPost) = dict [
         let id = mapper.GetObjectId(post)
 
         pair "id" id
         pair "url" id
 
         pair "type" "Note"
-        pair "content" post.Content
+        pair "content" post.HtmlContent
 
         pair "inReplyTo" post.InReplyTo
 
         pair "attributedTo" mapper.ActorId
         pair "published" post.PublishedTime
-        pair "to" [yield! post.To]
-        pair "cc" [yield! post.Cc]
+        pair "to" ["https://www.w3.org/ns/activitystreams#Public"; post.To]
+        pair "cc" [yield! post.Cc; if post.Followers then mapper.FollowersRootId]
+
+        if not (isNull post.Audience) then
+            pair "audience" post.Audience
     ]
 
     member this.ObjectToCreate(post: UserPost) = dict [
@@ -169,17 +172,17 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (mapper.GetObjectId(post))
     ]
 
-    member this.ObjectToCreate(post: Reply) = dict [
+    member this.ObjectToCreate(post: AddressedPost) = dict [
         pair "type" "Create"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
-        pair "to" [yield! post.To]
-        pair "cc" [yield! post.Cc]
+        pair "to" ["https://www.w3.org/ns/activitystreams#Public"; post.To]
+        pair "cc" [yield! post.Cc; if post.Followers then mapper.FollowersRootId]
         pair "object" (this.AsObject post)
     ]
 
-    member _.ObjectToDelete(post: Reply) = dict [
+    member _.ObjectToDelete(post: AddressedPost) = dict [
         pair "type" "Delete"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId

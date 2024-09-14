@@ -131,6 +131,10 @@ type ActivityPubRemotePostService(
                 object
                 |> list "https://www.w3.org/ns/activitystreams#url"
                 |> first node_id
+            Audience =
+                object
+                |> list "https://www.w3.org/ns/activitystreams#audience"
+                |> first node_id
             Attachments =
                 this.GetAttachments(object)
         }

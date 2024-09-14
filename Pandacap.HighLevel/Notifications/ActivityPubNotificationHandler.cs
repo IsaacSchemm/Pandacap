@@ -35,11 +35,11 @@ namespace Pandacap.HighLevel.Notifications
             }
         }
 
-        public async IAsyncEnumerable<Notification> GetReplyNotificationsAsync()
+        public async IAsyncEnumerable<Notification> GetAddressedPostNotificationsAsync()
         {
             var activityContext = await contextFactory.CreateDbContextAsync();
 
-            var replyActivities = activityContext.ReplyActivities
+            var replyActivities = activityContext.AddressedPostActivities
                 .AsNoTracking()
                 .OrderByDescending(activity => activity.AddedAt)
                 .AsAsyncEnumerable();

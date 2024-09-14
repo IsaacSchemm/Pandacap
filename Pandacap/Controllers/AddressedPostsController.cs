@@ -2,31 +2,30 @@
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
-using Pandacap.Models;
 using System.Text;
 
 namespace Pandacap.Controllers
 {
-    [Route("Replies")]
-    public class RepliesController(
+    [Route("AddressedPosts")]
+    public class AddressedPostsController(
         PandacapDbContext context,
         ActivityPubTranslator translator) : Controller
     {
         [Route("{id}")]
         public async Task<IActionResult> Index(Guid id)
         {
-            var post = await context.Replies.Where(p => p.Id == id).SingleOrDefaultAsync();
+            var post = await context.AddressedPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
 
             if (post == null)
                 return NotFound();
 
-            if (Request.IsActivityPub())
+            //if (Request.IsActivityPub())
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(translator.AsObject(post)),
                     "application/activity+json",
                     Encoding.UTF8);
 
-            return Content(post.Content, "text/html");
+            //return Content(post.HtmlContent, "text/html");
         }
     }
 }

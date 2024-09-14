@@ -17,8 +17,8 @@
     <Compile Include="ProfileProperty.fs" />
     <Compile Include="UserPost.fs" />
     <Compile Include="UserPostActivity.fs" />
-    <Compile Include="Reply.fs" />
-    <Compile Include="ReplyActivity.fs" />
+    <Compile Include="AddressedPost.fs" />
+    <Compile Include="AddressedPostActivity.fs" />
     <Compile Include="DeviantArtTextPostCheckStatus.fs" />
     <Compile Include="InboxATProtoPost.fs" />
     <Compile Include="InboxActivityStreamsPost.fs" />

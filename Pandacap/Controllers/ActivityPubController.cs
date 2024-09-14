@@ -139,11 +139,11 @@ namespace Pandacap.Controllers
 
                     context.RemoveRange(userPostActivities);
 
-                    var replyActivities = await context.ReplyActivities
+                    var addressedPostActivities = await context.AddressedPostActivities
                         .Where(a => a.Id == id)
                         .ToListAsync(cancellationToken);
 
-                    context.RemoveRange(replyActivities);
+                    context.RemoveRange(addressedPostActivities);
 
                     var announcements = await context.InboxActivityStreamsPosts
                         .Where(a => a.AnnounceId == id)
@@ -229,17 +229,17 @@ namespace Pandacap.Controllers
                             });
                         }
 
-                        var reply = await context.Replies
+                        var addressedPost = await context.AddressedPosts
                             .Where(p => p.Id == id)
                             .SingleOrDefaultAsync(cancellationToken);
 
-                        if (reply != null && mapper.GetObjectId(reply) == uri.GetLeftPart(UriPartial.Path))
+                        if (addressedPost != null && mapper.GetObjectId(addressedPost) == uri.GetLeftPart(UriPartial.Path))
                         {
-                            context.ReplyActivities.Add(new()
+                            context.AddressedPostActivities.Add(new()
                             {
                                 Id = expansionObj["@id"]!.Value<string>()!,
                                 ActivityType = type.Replace("https://www.w3.org/ns/activitystreams#", ""),
-                                ReplyId = id,
+                                AddressedPostId = id,
                                 AddedAt = DateTimeOffset.UtcNow,
                                 ActorId = actor.Id
                             });

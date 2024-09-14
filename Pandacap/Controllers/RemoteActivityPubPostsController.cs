@@ -2,7 +2,7 @@
 using Pandacap.Data;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
-using Pandacap.Models;
+using System.Linq;
 using System.Net;
 
 namespace Pandacap.Controllers
@@ -28,43 +28,32 @@ namespace Pandacap.Controllers
             return View(post);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Reply(string id, CancellationToken cancellationToken)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reply(string id, string content, CancellationToken cancellationToken)
         {
             var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
 
-            return View(new ReplyViewModel
-            {
-                To = post.AttributedTo.Id,
-                Cc = string.Join("\n", post.ExplicitAddressees
-                    .Select(addressee => addressee.Id)
-                    .Except([idMapper.ActorId]))
-            });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reply(string id, [FromForm]ReplyViewModel model, CancellationToken cancellationToken)
-        {
-            var reply = new Reply
+            var addressedPost = new AddressedPost
             {
                 Id = Guid.NewGuid(),
                 InReplyTo = id,
-                To = [.. (model.To ?? "").Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
-                Cc = [.. (model.Cc ?? "").Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
+                To = post.ReplyTo,
+                Cc = post.ReplyCc
+                    .Except([idMapper.ActorId])
+                    .ToList(),
+                Audience = post.Audience,
+                Followers = false,
                 PublishedTime = DateTimeOffset.UtcNow,
-                Content = $"<p>{WebUtility.HtmlEncode(model.TextContent)}</p>"
+                HtmlContent = $"<p>{WebUtility.HtmlEncode(content)}</p>"
             };
 
-            context.Replies.Add(reply);
+            context.AddressedPosts.Add(addressedPost);
 
             HashSet<string> inboxes = [];
 
-            foreach (string actorId in reply.To.Concat(reply.Cc))
+            foreach (string actorId in addressedPost.Recipients)
             {
-                if (actorId == "https://www.w3.org/ns/activitystreams#Public")
-                    continue;
-
                 try
                 {
                     var actor = await activityPubRemoteActorService.FetchActorAsync(actorId, cancellationToken);
@@ -83,13 +72,13 @@ namespace Pandacap.Controllers
                     Inbox = inbox,
                     JsonBody = ActivityPubSerializer.SerializeWithContext(
                         translator.ObjectToCreate(
-                            reply))
+                            addressedPost))
                 });
             }
 
             await context.SaveChangesAsync(cancellationToken);
 
-            return RedirectToAction("Index", "Replies", new { id = reply.Id });
+            return RedirectToAction("Index", "AddressedPosts", new { id = addressedPost.Id });
         }
     }
 }
