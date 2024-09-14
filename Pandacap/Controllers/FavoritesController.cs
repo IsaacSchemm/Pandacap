@@ -14,7 +14,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class FavoritesController(
-        ActivityPubRemoteObjectService activityPubRemoteObjectService,
+        ActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
         ActivityPubTranslator translator) : Controller
@@ -69,7 +69,7 @@ namespace Pandacap.Controllers
             {
                 try
                 {
-                    var actor = await activityPubRemoteObjectService.FetchActorAsync(item.CreatedBy);
+                    var actor = await activityPubRemoteActorService.FetchActorAsync(item.CreatedBy);
 
                     context.ActivityPubOutboundActivities.Add(new()
                     {

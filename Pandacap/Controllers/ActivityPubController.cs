@@ -12,7 +12,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ActivityPubController(
-        ActivityPubRemoteObjectService activityPubRemoteObjectService,
+        ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubRequestHandler activityPubRequestHandler,
         ApplicationInformation appInfo,
         PandacapDbContext context,
@@ -92,7 +92,7 @@ namespace Pandacap.Controllers
 
             // Find out which ActivityPub actor they say they are, and grab that actor's information and public key
             string actorId = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
-            var actor = await activityPubRemoteObjectService.FetchActorAsync(actorId, cancellationToken);
+            var actor = await activityPubRemoteActorService.FetchActorAsync(actorId, cancellationToken);
 
             string type = expansionObj["@type"]![0]!.Value<string>()!;
 

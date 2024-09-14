@@ -6,29 +6,7 @@ open Newtonsoft.Json.Linq
 open JsonLD.Core
 open Pandacap.HighLevel
 
-type ActivityPubRemoteObjectService(requestHandler: ActivityPubRequestHandler) =
-    /// Given an expanded object and a field name, extracts the JSON array value.
-    let list (name: string) (obj: JToken) = obj[name]
-
-    /// Given a sequence of objects and a field name, extracts the JSON array values for each object and combines them into a single sequence.
-    let combine name items = Seq.collect (list name) items
-
-    /// Given an expanded object and a field name, extracts the first or only value in the array.
-    let single name obj = Seq.head (list name obj)
-
-    /// Given an expanded object and a field name, extracts the string value.
-    let str name obj = (list name obj).Value<string>()
-
-    /// Given an expanded object, extracts the node identifier as a string.
-    let node_id obj = obj |> str "@id"
-
-    /// Given an expanded object, extracts the value as a string.
-    let node_value obj = obj |> str "@value"
-
-    /// Given a sequence of objects, returns the result of running the function on the first object, or returns null if the sequence is empty.
-    let first func arr = arr |> Seq.map func |> Seq.tryHead |> Option.toObj
-
-    /// A cache of already-retrieved actors within the lifetime of this service object.
+type ActivityPubRemoteActorService(requestHandler: ActivityPubRequestHandler) =
     let actorCache = Map.empty<string, RemoteActor>
 
     member _.FetchActorAsync(url: string, cancellationToken: CancellationToken) = task {
@@ -43,6 +21,14 @@ type ActivityPubRemoteObjectService(requestHandler: ActivityPubRequestHandler) =
                 |> JObject.Parse
                 |> JsonLdProcessor.Expand
                 |> Seq.exactlyOne
+
+            let ``type`` =
+                object
+                |> node_type
+                |> Seq.head
+
+            if ``type`` <> "https://www.w3.org/ns/activitystreams#Person" then
+                failwith "Object is not an actor"
 
             return {
                 Id = node_id object

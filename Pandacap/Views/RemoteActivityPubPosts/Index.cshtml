@@ -1,0 +1,102 @@
+﻿@using Pandacap.JsonLd
+@model RemotePost
+
+<h1>
+    @{
+        var actor = (Model.AttributedTo as Addressee.FoundActor)?.Item;
+    }
+    <img height="50" src="@(actor?.IconUrl ?? "/images/trgray.svg")" alt="" />
+    <span style="display: inline-block; vertical-align: top">
+        <strong>
+            @(actor?.PreferredUsername ?? Model.AttributedTo.ToString())
+        </strong>
+    </span>
+</h1>
+
+<span class="badge">
+    @Model.Type
+</span>
+
+@if (Model.Name != null)
+{
+    <p>
+        <strong>@Model.Name</strong>
+    </p>
+}
+
+@if (Model.Summary != null || Model.Sensitive)
+{
+    <details>
+        <summary>
+            @(Model.Summary ?? "Show content")
+        </summary>
+
+        <div>
+            @Html.Raw(Model.SanitizedContent)
+        </div>
+
+        @if (Model.Attachments.Any())
+        {
+            <p>
+                @foreach (var attachment in Model.Attachments)
+                {
+                    if (attachment.mediaType?.StartsWith("image/") == true)
+                    {
+                        <img src="@attachment.url" alt="@attachment.name" style="width: 200px; height: 200px; object-fit: contain" />
+                    }
+                }
+            </p>
+        }
+    </details>
+}
+else
+{
+    <div>
+        @Html.Raw(Model.SanitizedContent)
+    </div>
+
+    @if (Model.Attachments.Any())
+    {
+        <p>
+            @foreach (var attachment in Model.Attachments)
+            {
+                if (attachment.mediaType?.StartsWith("image/") == true)
+                {
+                    <img src="@attachment.url" alt="@attachment.name" style="width: 200px; height: 200px; object-fit: contain" />
+                }
+            }
+        </p>
+    }
+}
+
+<p class="text-muted">
+    @Model.PostedAt
+</p>
+
+@if (Model.InReplyTo.Any())
+{
+    <p>
+        In reply to:
+        @foreach (string id in Model.InReplyTo)
+        {
+            <a href="@id" target="_blank">
+                @id
+            </a>
+        }
+    </p>
+}
+
+<dl>
+    <dt>
+        To
+    </dt>
+    <dd>
+        @Model.To
+    </dd>
+    <dt>
+        CC
+    </dt>
+    <dd>
+        @Model.Cc
+    </dd>
+</dl>

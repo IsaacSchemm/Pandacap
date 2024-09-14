@@ -11,47 +11,19 @@ namespace Pandacap
     /// <summary>
     /// Adds remote ActivityPub posts to the Pandacap inbox or to its Favorites collection (equivalent to ActivityPub "likes", but fully public).
     /// </summary>
-    /// <param name="activityPubRemoteObjectService">An object that can retrieve remote ActivityPub actor information</param>
+    /// <param name="activityPubRemoteActorService">An object that can retrieve remote ActivityPub actor information</param>
+    /// <param name="activityPubRemotePostService">An object that can retrieve remote ActivityPub post information</param>
     /// <param name="activityPubRequestHandler">An object that can make signed HTTP ActivityPub requests</param>
     /// <param name="context">The database context</param>
     /// <param name="translator">An object that builds the ActivityPub objects and activities associated with Pandacap objects</param>
     public class RemoteActivityPubPostHandler(
-        ActivityPubRemoteObjectService activityPubRemoteObjectService,
+        ActivityPubRemoteActorService activityPubRemoteActorService,
+        ActivityPubRemotePostService activityPubRemotePostService,
         ActivityPubRequestHandler activityPubRequestHandler,
         PandacapDbContext context,
         ActivityPubTranslator translator)
     {
         private static readonly IEnumerable<JToken> Empty = [];
-
-        public static IEnumerable<(string? name, string url)> GetAttachments(JToken post)
-        {
-            foreach (var attachment in post["https://www.w3.org/ns/activitystreams#attachment"] ?? Empty)
-            {
-                string? mediaType = (attachment["https://www.w3.org/ns/activitystreams#mediaType"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault();
-                string? url = (attachment["https://www.w3.org/ns/activitystreams#url"] ?? Empty)
-                    .Select(token => token["@id"]!.Value<string>())
-                    .FirstOrDefault();
-                string? name = (attachment["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault();
-
-                if (url == null)
-                    continue;
-
-                switch (mediaType)
-                {
-                    case "image/jpeg":
-                    case "image/png":
-                    case "image/gif":
-                    case "image/webp":
-                    case "image/heif":
-                        yield return (name, url);
-                        break;
-                }
-            }
-        }
 
         /// <summary>
         /// Adds a remote ActivityPub post to the Pandacap inbox.
@@ -116,7 +88,7 @@ namespace Pandacap
                 Content = (post["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
-                Attachments = GetAttachments(post)
+                Attachments = activityPubRemotePostService.GetAttachments(post)
                     .Select(attachment => new InboxActivityStreamsImage
                     {
                         Name = attachment.name,
@@ -149,7 +121,7 @@ namespace Pandacap
             string originalPostJson = await activityPubRequestHandler.GetJsonAsync(new Uri(objectId));
             JToken originalPost = JsonLdProcessor.Expand(JObject.Parse(originalPostJson))[0];
 
-            bool include = GetAttachments(originalPost).Any()
+            bool include = activityPubRemotePostService.GetAttachments(originalPost).Length > 0
                 ? follow.IncludeImageShares == true
                 : follow.IncludeTextShares == true;
 
@@ -162,7 +134,7 @@ namespace Pandacap
             if (originalActorId == null)
                 return;
 
-            var originalActor = await activityPubRemoteObjectService.FetchActorAsync(originalActorId);
+            var originalActor = await activityPubRemoteActorService.FetchActorAsync(originalActorId);
 
             context.InboxActivityStreamsPosts.Add(new InboxActivityStreamsPost
             {
@@ -194,7 +166,7 @@ namespace Pandacap
                 Content = (originalPost["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
-                Attachments = GetAttachments(originalPost)
+                Attachments = activityPubRemotePostService.GetAttachments(originalPost)
                     .Select(attachment => new InboxActivityStreamsImage
                     {
                         Name = attachment.name,
@@ -222,7 +194,7 @@ namespace Pandacap
             if (originalActorId == null)
                 return;
 
-            var originalActor = await activityPubRemoteObjectService.FetchActorAsync(originalActorId);
+            var originalActor = await activityPubRemoteActorService.FetchActorAsync(originalActorId);
 
             Guid likeGuid = Guid.NewGuid();
 
@@ -249,7 +221,7 @@ namespace Pandacap
                 Content = (post["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
-                Attachments = GetAttachments(post)
+                Attachments = activityPubRemotePostService.GetAttachments(post)
                     .Select(attachment => new RemoteActivityPubFavoriteImage
                     {
                         Name = attachment.name,

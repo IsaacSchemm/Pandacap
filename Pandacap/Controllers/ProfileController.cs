@@ -14,7 +14,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ProfileController(
-        ActivityPubRemoteObjectService activityPubRemoteObjectService,
+        ActivityPubRemoteActorService activityPubRemoteActorService,
         AtomRssFeedReader atomRssFeedReader,
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
@@ -244,7 +244,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Follow(string id)
         {
-            var actor = await activityPubRemoteObjectService.FetchActorAsync(id);
+            var actor = await activityPubRemoteActorService.FetchActorAsync(id);
 
             Guid followGuid = Guid.NewGuid();
 

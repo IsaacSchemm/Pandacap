@@ -6,8 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Shared.fs" />
     <Compile Include="RemoteActor.fs" />
-    <Compile Include="ActivityPubRemoteObjectService.fs" />
+    <Compile Include="ActivityPubRemoteActorService.fs" />
+    <Compile Include="Addressee.fs" />
+    <Compile Include="Attachment.fs" />
+    <Compile Include="RemotePost.fs" />
+    <Compile Include="ActivityPubRemotePostService.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlSanitizer" Version="8.1.870" />
   </ItemGroup>
 
   <ItemGroup>
