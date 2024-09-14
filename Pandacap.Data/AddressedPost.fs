@@ -9,7 +9,6 @@ type AddressedPost() =
     member val To = "" with get, set
     member val Cc = new ResizeArray<string>() with get, set
     member val Audience = nullString with get, set
-    member val Followers = false with get, set
     member val PublishedTime = DateTimeOffset.MinValue with get, set
     member val HtmlContent = "" with get, set
 

@@ -43,7 +43,6 @@ namespace Pandacap.Controllers
                     .Except([idMapper.ActorId])
                     .ToList(),
                 Audience = post.Audience,
-                Followers = false,
                 PublishedTime = DateTimeOffset.UtcNow,
                 HtmlContent = $"<p>{WebUtility.HtmlEncode(content)}</p>"
             };

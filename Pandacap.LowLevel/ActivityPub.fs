@@ -137,7 +137,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "attributedTo" mapper.ActorId
         pair "published" post.PublishedTime
         pair "to" ["https://www.w3.org/ns/activitystreams#Public"; post.To]
-        pair "cc" [yield! post.Cc; if post.Followers then mapper.FollowersRootId]
+        pair "cc" [yield! post.Cc]
 
         if not (isNull post.Audience) then
             pair "audience" post.Audience
@@ -178,7 +178,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
         pair "to" ["https://www.w3.org/ns/activitystreams#Public"; post.To]
-        pair "cc" [yield! post.Cc; if post.Followers then mapper.FollowersRootId]
+        pair "cc" [yield! post.Cc]
         pair "object" (this.AsObject post)
     ]
 

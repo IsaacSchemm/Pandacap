@@ -1,0 +1,50 @@
+﻿@using Pandacap.Data
+@using Pandacap.LowLevel
+@inject ActivityPubTranslator translator
+@model AddressedPost
+
+@if (Model.InReplyTo != null)
+{
+    <p>
+        in reply to:
+        <a href="@Model.InReplyTo" target="_blank">
+            @Model.InReplyTo
+        </a>
+    </p>
+}
+
+<dl>
+    <dt>To</dt>
+    <dd>
+        @Model.To
+    </dd>
+    @foreach (var cc in Model.Cc)
+    {
+        <dt>CC</dt>
+        <dd>
+            @Model.Cc
+        </dd>
+    }
+    @if (Model.Audience != null)
+    {
+        <dt>Audience</dt>
+        <dd>@Model.Audience</dd>
+    }
+</dl>
+
+@Html.Raw(Model.HtmlContent)
+
+<p class="text-muted">
+    @Model.PublishedTime
+</p>
+
+<pre>@ActivityPubSerializer.SerializeWithContext(translator.AsObject(Model))</pre>
+
+<hr />
+
+<p>
+    <form asp-action="Delete" class="d-inline" onsubmit="confirm('Are you sure you want to delete this post?')">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn btn-danger">Delete</button>
+    </form>
+</p>
