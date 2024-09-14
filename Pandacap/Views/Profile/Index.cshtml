@@ -235,18 +235,18 @@
                 </div>
                 <div class="card mt-3">
                     <div class="card-header">
-                        Add to Favorites
+                        View Post
                     </div>
                     <div class="card-body">
-                        <form asp-controller="Favorites" asp-action="Add">
+                        <form asp-controller="RemoteActivityPubPosts" asp-action="Index">
                             <div class="mb-3">
                                 <label for="id" class="form-label">
                                     Object ID (URL)
                                 </label>
                                 <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
                             </div>
-                            <button type="submit" class="btn btn-primary">
-                                Add
+                            <button type="submit" class="btn btn-outline-primary">
+                                View
                             </button>
                         </form>
                     </div>

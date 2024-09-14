@@ -22,16 +22,13 @@ type ActivityPubRemoteActorService(requestHandler: ActivityPubRequestHandler) =
                 |> JsonLdProcessor.Expand
                 |> Seq.exactlyOne
 
-            let ``type`` =
-                object
-                |> node_type
-                |> Seq.head
-
-            if ``type`` <> "https://www.w3.org/ns/activitystreams#Person" then
-                failwith "Object is not an actor"
-
             return {
-                Id = node_id object
+                Type = object
+                    |> node_type
+                    |> Seq.head
+                Id =
+                    object
+                    |> node_id
                 Inbox =
                     object
                     |> list "http://www.w3.org/ns/ldp#inbox"

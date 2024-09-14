@@ -1,0 +1,14 @@
+﻿@using Pandacap.JsonLd
+@model Addressee
+
+@if (Model.IconUrl != null)
+{
+    <img height="25" src="@Model.IconUrl" alt="" />
+}
+<span style="display: inline-block; vertical-align: top">
+    <strong>
+        <a href="@Model.Url" target="_blank">
+            @(Model.Name ?? Model.Url)
+        </a>
+    </strong>
+</span>

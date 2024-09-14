@@ -3,6 +3,7 @@
 open System
 
 type RemotePost = {
+    Id: string
     AttributedTo: Addressee
     To: Addressee list
     Cc: Addressee list
@@ -13,5 +14,6 @@ type RemotePost = {
     Name: string
     Summary: string
     SanitizedContent: string
+    Url: string
     Attachments: Attachment list
 }

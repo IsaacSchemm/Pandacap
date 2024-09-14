@@ -1,6 +1,7 @@
 ﻿namespace Pandacap.JsonLd
 
 type RemoteActor = {
+    Type: string
     Id: string
     Inbox: string
     SharedInbox: string

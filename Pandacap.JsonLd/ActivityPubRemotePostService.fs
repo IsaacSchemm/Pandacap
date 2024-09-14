@@ -21,10 +21,16 @@ type ActivityPubRemotePostService(
         else
             try
                 let! actor = remoteActorService.FetchActorAsync(id, cancellationToken)
-                return FoundActor actor
-            with
-            | :? HttpRequestException as ex -> return NotFoundActor (id, Option.ofNullable ex.StatusCode)
-            | ex -> return NotFoundActor (id, None)
+
+                match actor.Type with
+                | "https://www.w3.org/ns/activitystreams#Person" ->
+                    return Person actor
+                | "https://www.w3.org/ns/activitystreams#Group" ->
+                    return Group actor
+                | _ ->
+                    return Other id
+            with _ ->
+                return Other id
     }
 
     member _.GetAttachments(object: JToken) =
@@ -56,6 +62,8 @@ type ActivityPubRemotePostService(
             |> JsonLdProcessor.Expand
             |> Seq.exactlyOne
 
+        let id = node_id object
+
         let! attributedTo =
             object
             |> list "https://www.w3.org/ns/activitystreams#attributedTo"
@@ -77,11 +85,8 @@ type ActivityPubRemotePostService(
             |> Seq.map (hydrateAddresseeAsync cancellationToken)
             |> Task.WhenAll
 
-        let x = object |> list "https://www.w3.org/ns/activitystreams#inReplyTo"
-        let y = Seq.toList x
-        printfn "%A" y
-
         return {
+            Id = id
             AttributedTo = attributedTo
             To = [yield! ``to``]
             Cc = [yield! cc]
@@ -121,6 +126,10 @@ type ActivityPubRemotePostService(
                 |> Seq.tryHead
                 |> Option.defaultValue ""
                 |> sanitizer.Sanitize
+            Url =
+                object
+                |> list "https://www.w3.org/ns/activitystreams#url"
+                |> first node_id
             Attachments =
                 this.GetAttachments(object)
         }
