@@ -20,11 +20,17 @@
     <Compile Include="InboxATProtoPost.fs" />
     <Compile Include="InboxActivityStreamsPost.fs" />
     <Compile Include="InboxDeviations.fs" />
+    <Compile Include="InboxArtworkDeviation.fs" />
+    <Compile Include="InboxTextDeviation.fs" />
     <Compile Include="InboxWeasylSubmission.fs" />
     <Compile Include="RssFeeds.fs" />
+    <Compile Include="RssFeedItem.fs" />
     <Compile Include="RemoteActorRelationships.fs" />
+    <Compile Include="Follow.fs" />
+    <Compile Include="Follower.fs" />
     <Compile Include="RemoteActivityPubFavorite.fs" />
-    <Compile Include="ActivityPubActivities.fs" />
+    <Compile Include="ActivityPubInboundActivity.fs" />
+    <Compile Include="ActivityPubOutboundActivity.fs" />
     <Compile Include="PandacapDbContext.fs" />
   </ItemGroup>
 

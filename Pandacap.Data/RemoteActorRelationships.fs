@@ -31,22 +31,3 @@ type RemoteActorRelationship() =
         member this.IconUrl = this.IconUrl
         member this.Pending = this.Pending
         member this.PreferredUsername = this.PreferredUsername
-
-/// An ActivityPub actor who this Pandacap actor is following.
-type Follow() =
-    inherit RemoteActorRelationship()
-
-    member val FollowGuid = Guid.Empty with get, set
-    member val Accepted = false with get, set
-    member val IncludeImageShares = false with get, set
-    member val IncludeTextShares = false with get, set
-
-    override this.Pending = not this.Accepted
-
-/// An ActivityPub actor who is following this Pandacap actor.
-type Follower() =
-    inherit RemoteActorRelationship()
-
-    member val GhostedSince = nullDateTimeOffset with get, set
-
-    override _.Pending = false

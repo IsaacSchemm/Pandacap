@@ -27,17 +27,3 @@ type InboxDeviation() =
         member this.ThumbnailUrls = this.ThumbnailUrls
         member this.Usericon = this.Usericon
         member this.Username = this.Username
-
-/// An artwork submission posted by a user who this instance's owner follows on DeviantArt.
-type InboxArtworkDeviation() =
-    inherit InboxDeviation()
-
-    member val ThumbnailUrl = "" with get, set
-
-    override this.ThumbnailUrls = List.choose Option.ofObj [this.ThumbnailUrl]
-
-/// A journal or status update posted by a user who this instance's owner follows on DeviantArt.
-type InboxTextDeviation() =
-    inherit InboxDeviation()
-
-    override _.ThumbnailUrls = Seq.empty
