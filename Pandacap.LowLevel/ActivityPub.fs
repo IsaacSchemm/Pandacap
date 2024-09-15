@@ -31,6 +31,19 @@ module ActivityPubSerializer =
         for p in apObject do p.Key, p.Value
     ])
 
+module internal AddressedPost =
+    let getTo (post: AddressedPost) = [
+        "https://www.w3.org/ns/activitystreams#Public"
+        if isNull post.InReplyTo then
+            yield! post.Communities
+    ]
+
+    let getCc (post: AddressedPost) = [
+        yield! post.Users
+        if not (isNull post.InReplyTo) then
+            yield! post.Communities
+    ]
+
 /// Creates ActivityPub objects (in string/object pair format) for actors,
 /// posts, and other objects tracked by Pandacap.
 type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
@@ -123,17 +136,15 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             ]
     ]
 
-    member _.AsObject(post: AddressedPost) = dict [
+    member this.AsObject(post: AddressedPost) = dict [
         let id = mapper.GetObjectId(post)
 
         pair "id" id
         pair "url" id
-
-        if isNull post.Title then
-            pair "type" "Note"
-        else
-            pair "type" "Page"
-            pair "title" post.Title
+        
+        pair "type" "Note"
+        if not (isNull post.Title) then
+            pair "name" post.Title
 
         pair "content" post.HtmlContent
 
@@ -141,16 +152,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
 
         pair "attributedTo" mapper.ActorId
         pair "published" post.PublishedTime
-        pair "to" [
-            "https://www.w3.org/ns/activitystreams#Public"
-            if isNull post.InReplyTo then
-                yield! post.Communities
-        ]
-        pair "cc" [
-            yield! post.Users
-            if not (isNull post.InReplyTo) then
-                yield! post.Communities
-        ]
+        pair "to" (AddressedPost.getTo post)
+        pair "cc" (AddressedPost.getCc post)
 
         match Seq.tryHead post.Communities with
         | Some audience -> pair "audience" audience
@@ -191,7 +194,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
-        pair "to" ["https://www.w3.org/ns/activitystreams#Public"]
+        pair "to" (AddressedPost.getTo post)
+        pair "cc" (AddressedPost.getCc post)
         pair "object" (this.AsObject post)
     ]
 

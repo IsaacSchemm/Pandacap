@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using System.Net;
 
 namespace Pandacap.HighLevel
 {
@@ -46,6 +47,11 @@ namespace Pandacap.HighLevel
                     try
                     {
                         await activityPubRequestHandler.PostAsync(new Uri(activity.Inbox), activity.JsonBody);
+                        context.ActivityPubOutboundActivities.Remove(activity);
+                    }
+                    catch (HttpRequestException ex) when (ex.StatusCode is HttpStatusCode code && (int)code % 100 == 4)
+                    {
+                        // Don't send this activity again
                         context.ActivityPubOutboundActivities.Remove(activity);
                     }
                     catch (HttpRequestException)
