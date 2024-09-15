@@ -1,0 +1,74 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model ListViewModel<Follower>
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+@if (!Model.Items.DisplayList.Any())
+{
+    <p>
+        There are no other ActivityPub users who follow this user.
+    </p>
+}
+else
+{
+    @foreach (var item in Model.Items.DisplayList)
+    {
+        bool ghosted = item.GhostedSince != null;
+        <div class="mb-3">
+            <div>
+                <img height="50" src="@item.IconUrl" alt="" />
+                <span style="display: inline-block; vertical-align: top">
+                    <strong>
+                        @(item.PreferredUsername ?? item.ActorId)
+                    </strong>
+                    <br />
+                    <a href="@item.ActorId">@item.ActorId</a>
+                    @if (item.Pending)
+                    {
+                        @:(pending)
+                    }
+                </span>
+            </div>
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <details>
+                    <summary>Options</summary>
+                    @if (!ghosted)
+                    {
+                        <form asp-action="Ghost">
+                            <input type="hidden" name="id" value="@item.ActorId" />
+                            <button type="submit" class="btn btn-secondary">Ghost @(item.PreferredUsername ?? item.ActorId) (stop sending "Create" activities)</button>
+                        </form>
+                        <div class="small text-muted">
+                            This does not block the user (your posts are still accessible through shares, other users on the server, or direct lookup)
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-action="Unghost">
+                            <input type="hidden" name="id" value="@item.ActorId" />
+                            <button type="submit" class="btn btn-primary">Unghost @(item.PreferredUsername ?? item.ActorId) (resume sending "Create" activities)</button>
+                        </form>
+                    }
+                </details>
+            }
+        </div>
+    }
+
+    @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IRemoteActorRelationship nextActor)
+    {
+        <hr />
+
+        <a asp-route-q="@Model.Q"
+           asp-route-next="@nextActor.ActorId"
+           asp-route-count="@Model.Items.DisplayList.Length"
+           class="btn btn-primary">
+            Next @Model.Items.DisplayList.Length items &raquo;
+        </a>
+    }
+}

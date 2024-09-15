@@ -28,12 +28,6 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Gallery" asp-action="TextPosts">Journals &amp; Status Updates</a>
                         </li>
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Gallery" asp-action="AddressedPosts">Addressed Posts</a>
-                            </li>
-                        }
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Favorites" asp-action="Index">Favorites</a>
                         </li>

@@ -1,0 +1,109 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model ListViewModel<Follow>
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+@if (!Model.Items.DisplayList.Any())
+{
+    <p>
+        This user does not currently follow any other ActivityPub users.
+    </p>
+}
+else
+{
+    @foreach (var item in Model.Items.DisplayList)
+    {
+        <div class="mb-3">
+            <div>
+                <img height="50" src="@item.IconUrl" alt="" />
+                <span style="display: inline-block; vertical-align: top">
+                    <strong>
+                        @(item.PreferredUsername ?? item.ActorId)
+                    </strong>
+                    <br />
+                    <a href="@item.ActorId">@item.ActorId</a>
+                    @if (item.Pending)
+                    {
+                        @:(pending)
+                    }
+                </span>
+            </div>
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                Guid r1 = Guid.NewGuid();
+                Guid r2 = Guid.NewGuid();
+                <details>
+                    <summary>Options</summary>
+                    <form asp-action="UpdateFollow">
+                        <input type="hidden" name="id" value="@item.ActorId" />
+                        <div class="mb-3 form-check">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   id="@r1"
+                                   name="includeImageShares"
+                                   value="true"
+                            @(item.IncludeImageShares == true ? "checked" : "")>
+                            <label class="form-check-label" for="@r1">
+                                Include shares (boosts) of image posts
+                            </label>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   id="@r2"
+                                   name="includeTextShares"
+                                   value="true"
+                            @(item.IncludeTextShares == true ? "checked" : "")>
+                            <label class="form-check-label" for="@r2">
+                                Include shares (boosts) of text posts
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary">Save changes</button>
+                    </form>
+
+                    <hr />
+
+                    <form asp-action="Unfollow">
+                        <input type="hidden" name="id" value="@item.ActorId" />
+                        <button type="submit" class="btn btn-outline-danger">Unfollow @(item.PreferredUsername ?? item.ActorId)</button>
+                    </form>
+                </details>
+            }
+        </div>
+    }
+
+    @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IRemoteActorRelationship nextActor)
+    {
+        <hr />
+
+        <a asp-route-q="@Model.Q"
+           asp-route-next="@nextActor.ActorId"
+           asp-route-count="@Model.Items.DisplayList.Length"
+           class="btn btn-primary">
+            Next @Model.Items.DisplayList.Length items &raquo;
+        </a>
+    }
+
+    <hr />
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <form asp-action="Follow">
+            <div class="mb-3">
+                <label for="id" class="form-label">
+                    Actor ID (URL)
+                </label>
+                <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
+                <div class="form-text">Mastodon-style handles (of the form <tt>@@user@@hostname</tt>) are not supported.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Send follow request
+            </button>
+        </form>
+    }
+}

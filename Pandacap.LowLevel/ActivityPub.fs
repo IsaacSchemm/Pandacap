@@ -222,7 +222,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "first" mapper.FollowersPageId
     ]
 
-    member _.AsFollowersCollectionPage(currentPage: string, followers: ListPage<IRemoteActorRelationship>) = dict [
+    member _.AsFollowersCollectionPage(currentPage: string, followers: ListPage<Follower>) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" mapper.FollowersRootId
@@ -241,7 +241,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "first" mapper.FollowingPageId
     ]
 
-    member _.AsFollowingCollectionPage(currentPage: string, following: ListPage<IRemoteActorRelationship>) = dict [
+    member _.AsFollowingCollectionPage(currentPage: string, following: ListPage<Follow>) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" mapper.FollowingRootId

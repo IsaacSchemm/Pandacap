@@ -125,7 +125,6 @@ namespace Pandacap.Controllers
                 .OrderByDescending(f => f.AddedAt)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.ActorId == next || next == null)
-                .OfType<IRemoteActorRelationship>()
                 .AsListPage(count ?? 20);
 
             if (Request.IsActivityPub())
@@ -139,7 +138,7 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
             else {
-                return View("RelationshipList", new ListViewModel<IRemoteActorRelationship>
+                return View(new ListViewModel<Follower>
                 {
                     Title = "Followers",
                     Items = page
@@ -161,7 +160,6 @@ namespace Pandacap.Controllers
                 .OrderByDescending(f => f.AddedAt)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.ActorId == next || next == null)
-                .OfType<IRemoteActorRelationship>()
                 .AsListPage(count ?? 10);
 
             if (Request.IsActivityPub())
@@ -176,7 +174,7 @@ namespace Pandacap.Controllers
             }
             else
             {
-                return View("RelationshipList", new ListViewModel<IRemoteActorRelationship>
+                return View(new ListViewModel<Follow>
                 {
                     Title = "Following",
                     Items = page
