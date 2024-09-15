@@ -129,9 +129,12 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "id" id
         pair "url" id
 
-        pair "type" "Note"
-        if not (isNull post.Title) then
+        if isNull post.Title then
+            pair "type" "Note"
+        else
+            pair "type" "Page"
             pair "title" post.Title
+
         pair "content" post.HtmlContent
 
         pair "inReplyTo" post.InReplyTo
@@ -188,16 +191,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
-        pair "to" [
-            "https://www.w3.org/ns/activitystreams#Public"
-            if isNull post.InReplyTo then
-                yield! post.Communities
-        ]
-        pair "cc" [
-            yield! post.Users
-            if not (isNull post.InReplyTo) then
-                yield! post.Communities
-        ]
+        pair "to" ["https://www.w3.org/ns/activitystreams#Public"]
         pair "object" (this.AsObject post)
     ]
 

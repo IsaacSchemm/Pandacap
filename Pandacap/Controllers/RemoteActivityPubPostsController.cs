@@ -30,7 +30,7 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reply(string id, string title, string content, CancellationToken cancellationToken)
+        public async Task<IActionResult> Reply(string id, string content, CancellationToken cancellationToken)
         {
             var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
 
@@ -41,7 +41,6 @@ namespace Pandacap.Controllers
                 Users = post.People.Select(a => a.Id).ToList(),
                 Communities = post.Groups.Select(a => a.Id).ToList(),
                 PublishedTime = DateTimeOffset.UtcNow,
-                Title = title,
                 HtmlContent = $"<p>{WebUtility.HtmlEncode(content)}</p>"
             };
 
