@@ -1,7 +1,6 @@
 ﻿namespace Pandacap.JsonLd
 
 open System
-open System.Net.Http
 open System.Threading
 open System.Threading.Tasks
 open Newtonsoft.Json.Linq

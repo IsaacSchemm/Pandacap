@@ -21,7 +21,7 @@
     {
         <dt>In reply to</dt>
         <dd>
-            <a href="@Model.InReplyTo" target="_blank">
+            <a asp-controller="RemotePosts" asp-action="Index" asp-id="@Model.InReplyTo">
                 @Model.InReplyTo
             </a>
         </dd>

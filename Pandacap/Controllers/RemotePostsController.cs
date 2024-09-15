@@ -6,30 +6,39 @@ using System.Net;
 
 namespace Pandacap.Controllers
 {
-    public class CommunityController(
+    public class RemotePostsController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
-        PandacapDbContext context,
-        ActivityPubTranslator translator) : Controller
+        ActivityPubRemotePostService activityPubRemotePostService,
+        ActivityPubTranslator translator,
+        PandacapDbContext context) : Controller
     {
-        public IActionResult Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(string id, CancellationToken cancellationToken)
         {
-            return View();
+            if (!Uri.TryCreate(id, UriKind.Absolute, out Uri? uri) || uri == null)
+                return NotFound();
+
+            if (User.Identity?.IsAuthenticated != true)
+                return Redirect(uri.AbsoluteUri);
+
+            var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
+
+            return View(post);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(string community, string title, string content, CancellationToken cancellationToken)
+        public async Task<IActionResult> Reply(string id, string content, CancellationToken cancellationToken)
         {
-            var remoteActor = await activityPubRemoteActorService.FetchActorAsync(community, cancellationToken);
-            if (remoteActor.Type != "https://www.w3.org/ns/activitystreams#Group")
-                throw new Exception("Not a community / group");
+            var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
 
             var addressedPost = new AddressedPost
             {
                 Id = Guid.NewGuid(),
-                Communities = [remoteActor.Id],
+                InReplyTo = id,
+                Users = post.People.Select(a => a.Id).ToList(),
+                Communities = post.Groups.Select(a => a.Id).ToList(),
                 PublishedTime = DateTimeOffset.UtcNow,
-                Title = title,
                 HtmlContent = $"<p>{WebUtility.HtmlEncode(content)}</p>"
             };
 

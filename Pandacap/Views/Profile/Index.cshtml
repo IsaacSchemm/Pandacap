@@ -146,7 +146,7 @@
                         Remote posts
                     </div>
                     <div class="card-body">
-                        <form method="get" asp-controller="RemoteActivityPubPosts" asp-action="Index">
+                        <form method="get" asp-controller="RemotePosts" asp-action="Index">
                             <div class="mb-3">
                                 <label for="id" class="form-label">
                                     Object ID (URL)
@@ -166,7 +166,7 @@
                         Addressed posts
                     </div>
                     <div class="card-body text-center">
-                        <a asp-controller="Community" asp-action="Index" class="btn btn-outline-primary">
+                        <a asp-controller="AddressedPosts" asp-action="CreateCommunityPost" class="btn btn-outline-primary">
                             Create community post
                         </a>
 
