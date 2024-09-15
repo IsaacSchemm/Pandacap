@@ -1,28 +1,28 @@
 ﻿@using Pandacap.Data
 @using Pandacap.LowLevel
-@model AddressedPost
+@model AddressedPostViewModel
 
 <dl>
     @foreach (var user in Model.Users)
     {
         <dt>Recipient</dt>
         <dd>
-            @user
+            <partial name="_Addressee" model="@user" />
         </dd>
     }
     @foreach (var community in Model.Communities)
     {
         <dt>Community</dt>
         <dd>
-            @community
+            <partial name="_Addressee" model="@community" />
         </dd>
     }
-    @if (Model.InReplyTo != null)
+    @if (Model.Post.InReplyTo != null)
     {
         <dt>In reply to</dt>
         <dd>
-            <a asp-controller="RemotePosts" asp-action="Index" asp-id="@Model.InReplyTo">
-                @Model.InReplyTo
+            <a asp-controller="RemotePosts" asp-action="Index" asp-id="@Model.Post.InReplyTo">
+                @Model.Post.InReplyTo
             </a>
         </dd>
     }
@@ -30,17 +30,24 @@
 
 <hr />
 
-@Html.Raw(Model.HtmlContent)
+@if (Model.Post.Title != null)
+{
+    <p>
+        <strong>@Model.Post.Title</strong>
+    </p>
+}
+
+@Html.Raw(Model.Post.HtmlContent)
 
 <p class="text-muted">
-    @Model.PublishedTime
+    @Model.Post.PublishedTime
 </p>
 
 <hr />
 
 <p>
     <form asp-action="Delete" class="d-inline" onsubmit="confirm('Are you sure you want to delete this post?')">
-        <input type="hidden" name="id" value="@Model.Id" />
+        <input type="hidden" name="id" value="@Model.Post.Id" />
         <button class="btn btn-danger">Delete</button>
     </form>
 </p>

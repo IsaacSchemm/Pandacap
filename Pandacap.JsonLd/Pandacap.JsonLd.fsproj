@@ -10,6 +10,7 @@
     <Compile Include="RemoteActor.fs" />
     <Compile Include="ActivityPubRemoteActorService.fs" />
     <Compile Include="Addressee.fs" />
+    <Compile Include="ActivityPubAddresseeService.fs" />
     <Compile Include="Attachment.fs" />
     <Compile Include="RemotePost.fs" />
     <Compile Include="ActivityPubRemotePostService.fs" />

@@ -64,6 +64,7 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
 }
 
 builder.Services
+    .AddScoped<ActivityPubAddresseeService>()
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<AltTextSentinel>()

@@ -12,7 +12,10 @@ type AddressedPost() =
     member val HtmlContent = "" with get, set
 
     interface IPost with
-        member this.DisplayTitle = ExcerptGenerator.fromHtml this.HtmlContent |> Option.defaultValue $"{this.Id}"
+        member this.DisplayTitle =
+            Option.ofObj this.Title
+            |> Option.orElse (ExcerptGenerator.fromHtml this.HtmlContent)
+            |> Option.defaultValue $"{this.Id}"
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/AddressedPosts/{this.Id}"
         member _.ThumbnailUrls = []

@@ -9,28 +9,14 @@ open Ganss.Xss
 open Pandacap.HighLevel
 
 type ActivityPubRemotePostService(
+    addresseeService: ActivityPubAddresseeService,
     remoteActorService: ActivityPubRemoteActorService,
     requestHandler: ActivityPubRequestHandler
 ) =
     let sanitizer = new HtmlSanitizer()
 
-    let hydrateAddresseeAsync cancellationToken id = task {
-        if id = "https://www.w3.org/ns/activitystreams#Public" then
-            return Public
-        else
-            try
-                let! actor = remoteActorService.FetchActorAsync(id, cancellationToken)
-
-                match actor.Type with
-                | "https://www.w3.org/ns/activitystreams#Person" ->
-                    return Person actor
-                | "https://www.w3.org/ns/activitystreams#Group" ->
-                    return Group actor
-                | _ ->
-                    return Other id
-            with _ ->
-                return Other id
-    }
+    let hydrateAddresseeAsync cancellationToken id =
+        addresseeService.HydrateAsync(id, cancellationToken)
 
     member _.GetAttachments(object: JToken) =
         object

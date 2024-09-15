@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
+using Pandacap.Models;
 using System.Net;
 using System.Text;
 
@@ -10,14 +11,17 @@ namespace Pandacap.Controllers
 {
     [Route("AddressedPosts")]
     public class AddressedPostsController(
+        ActivityPubAddresseeService activityPubAddresseeService,
         ActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
         ActivityPubTranslator translator) : Controller
     {
         [Route("{id}")]
-        public async Task<IActionResult> Index(Guid id)
+        public async Task<IActionResult> Index(Guid id, CancellationToken cancellationToken)
         {
-            var post = await context.AddressedPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
+            var post = await context.AddressedPosts
+                .Where(p => p.Id == id)
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (post == null)
                 return NotFound();
@@ -28,7 +32,12 @@ namespace Pandacap.Controllers
                     "application/activity+json",
                     Encoding.UTF8);
 
-            return View(post);
+            return View(new AddressedPostViewModel
+            {
+                Post = post,
+                Users = await Task.WhenAll(post.Users.Select(id => activityPubAddresseeService.HydrateAsync(id, cancellationToken))),
+                Communities = await Task.WhenAll(post.Communities.Select(id => activityPubAddresseeService.HydrateAsync(id, cancellationToken)))
+            });
         }
 
         [HttpGet]
