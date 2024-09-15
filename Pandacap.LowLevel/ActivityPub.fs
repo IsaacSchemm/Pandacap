@@ -130,6 +130,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "url" id
 
         pair "type" "Note"
+        if not (isNull post.Title) then
+            pair "title" post.Title
         pair "content" post.HtmlContent
 
         pair "inReplyTo" post.InReplyTo

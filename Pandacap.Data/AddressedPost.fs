@@ -1,7 +1,6 @@
 ﻿namespace Pandacap.Data
 
 open System
-open System.ComponentModel.DataAnnotations.Schema
 
 type AddressedPost() =
     member val Id = Guid.Empty with get, set
@@ -9,6 +8,7 @@ type AddressedPost() =
     member val Users = new ResizeArray<string>() with get, set
     member val Communities = new ResizeArray<string>() with get, set
     member val PublishedTime = DateTimeOffset.MinValue with get, set
+    member val Title = nullString with get, set
     member val HtmlContent = "" with get, set
 
     interface IPost with

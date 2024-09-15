@@ -2,44 +2,32 @@
 using Pandacap.Data;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
-using System.Linq;
 using System.Net;
 
 namespace Pandacap.Controllers
 {
-    public class RemoteActivityPubPostsController(
+    public class CommunityController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
-        ActivityPubRemotePostService activityPubRemotePostService,
-        ActivityPubTranslator translator,
         PandacapDbContext context,
-        IdMapper idMapper) : Controller
+        ActivityPubTranslator translator) : Controller
     {
-        [HttpGet]
-        public async Task<IActionResult> Index(string id, CancellationToken cancellationToken)
+        public IActionResult Index()
         {
-            if (!Uri.TryCreate(id, UriKind.Absolute, out Uri? uri) || uri == null)
-                return NotFound();
-
-            if (User.Identity?.IsAuthenticated != true)
-                return Redirect(uri.AbsoluteUri);
-
-            var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
-
-            return View(post);
+            return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reply(string id, string title, string content, CancellationToken cancellationToken)
+        public async Task<IActionResult> Index(string community, string title, string content, CancellationToken cancellationToken)
         {
-            var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
+            var remoteActor = await activityPubRemoteActorService.FetchActorAsync(community, cancellationToken);
+            if (remoteActor.Type != "https://www.w3.org/ns/activitystreams#Group")
+                throw new Exception("Not a community / group");
 
             var addressedPost = new AddressedPost
             {
                 Id = Guid.NewGuid(),
-                InReplyTo = id,
-                Users = post.People.Select(a => a.Id).ToList(),
-                Communities = post.Groups.Select(a => a.Id).ToList(),
+                Communities = [remoteActor.Id],
                 PublishedTime = DateTimeOffset.UtcNow,
                 Title = title,
                 HtmlContent = $"<p>{WebUtility.HtmlEncode(content)}</p>"
