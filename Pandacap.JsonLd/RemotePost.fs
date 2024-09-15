@@ -18,11 +18,13 @@ type RemotePost = {
     Audience: string
     Attachments: Attachment list
 } with
-    member this.ReplyTo = this.AttributedTo.Id
-    member this.ReplyCc = List.distinct [
-        for list in [this.To; this.Cc] do
-            for addressee in list do
-                match addressee with
-                | Person a | Group a -> a.Id
-                | _ -> ()
+    member this.Recipients = this.To @ this.Cc
+
+    member this.People = [
+        this.AttributedTo
+        for r in this.Recipients do match r with Person a -> a | _ -> ()
+    ]
+
+    member this.Groups = [
+        for r in this.Recipients do match r with Group a -> a | _ -> ()
     ]

@@ -3,9 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -47,7 +45,9 @@ namespace Pandacap.Controllers
                 .Where(a => a.AddressedPostId == id)
                 .ToListAsync();
 
-            var actorIds = post.Recipients
+            var actorIds = Enumerable.Empty<string>()
+                .Concat(post.Users)
+                .Concat(post.Communities)
                 .Concat(activities.Select(a => a.ActorId))
                 .Distinct();
 

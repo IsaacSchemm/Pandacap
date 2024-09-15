@@ -136,11 +136,20 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
 
         pair "attributedTo" mapper.ActorId
         pair "published" post.PublishedTime
-        pair "to" ["https://www.w3.org/ns/activitystreams#Public"; post.To]
-        pair "cc" [yield! post.Cc]
+        pair "to" [
+            "https://www.w3.org/ns/activitystreams#Public"
+            if isNull post.InReplyTo then
+                yield! post.Communities
+        ]
+        pair "cc" [
+            yield! post.Users
+            if not (isNull post.InReplyTo) then
+                yield! post.Communities
+        ]
 
-        if not (isNull post.Audience) then
-            pair "audience" post.Audience
+        match Seq.tryHead post.Communities with
+        | Some audience -> pair "audience" audience
+        | _ -> ()
     ]
 
     member this.ObjectToCreate(post: UserPost) = dict [
@@ -177,8 +186,16 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
-        pair "to" ["https://www.w3.org/ns/activitystreams#Public"; post.To]
-        pair "cc" [yield! post.Cc]
+        pair "to" [
+            "https://www.w3.org/ns/activitystreams#Public"
+            if isNull post.InReplyTo then
+                yield! post.Communities
+        ]
+        pair "cc" [
+            yield! post.Users
+            if not (isNull post.InReplyTo) then
+                yield! post.Communities
+        ]
         pair "object" (this.AsObject post)
     ]
 

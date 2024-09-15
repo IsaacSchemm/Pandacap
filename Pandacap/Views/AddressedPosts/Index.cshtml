@@ -1,44 +1,40 @@
 ﻿@using Pandacap.Data
 @using Pandacap.LowLevel
-@inject ActivityPubTranslator translator
 @model AddressedPost
 
-@if (Model.InReplyTo != null)
-{
-    <p>
-        in reply to:
-        <a href="@Model.InReplyTo" target="_blank">
-            @Model.InReplyTo
-        </a>
-    </p>
-}
-
 <dl>
-    <dt>To</dt>
-    <dd>
-        @Model.To
-    </dd>
-    @foreach (var cc in Model.Cc)
+    @foreach (var user in Model.Users)
     {
-        <dt>CC</dt>
+        <dt>Recipient</dt>
         <dd>
-            @Model.Cc
+            @user
         </dd>
     }
-    @if (Model.Audience != null)
+    @foreach (var community in Model.Communities)
     {
-        <dt>Audience</dt>
-        <dd>@Model.Audience</dd>
+        <dt>Community</dt>
+        <dd>
+            @community
+        </dd>
+    }
+    @if (Model.InReplyTo != null)
+    {
+        <dt>In reply to</dt>
+        <dd>
+            <a href="@Model.InReplyTo" target="_blank">
+                @Model.InReplyTo
+            </a>
+        </dd>
     }
 </dl>
+
+<hr />
 
 @Html.Raw(Model.HtmlContent)
 
 <p class="text-muted">
     @Model.PublishedTime
 </p>
-
-<pre>@ActivityPubSerializer.SerializeWithContext(translator.AsObject(Model))</pre>
 
 <hr />
 

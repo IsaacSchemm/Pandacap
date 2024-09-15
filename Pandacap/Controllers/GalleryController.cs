@@ -93,5 +93,24 @@ namespace Pandacap.Controllers
                     .AsListPage(count ?? 20)
             });
         }
+
+        public async Task<IActionResult> AddressedPosts(Guid? next, int? count)
+        {
+            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
+
+            var posts = await context.AddressedPosts
+                .Where(d => d.PublishedTime <= startTime)
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == next || next == null)
+                .OfType<IPost>()
+                .AsListPage(count ?? 20);
+
+            return View("List", new ListViewModel<IPost>
+            {
+                Title = "Addressed Posts",
+                Items = posts
+            });
+        }
     }
 }

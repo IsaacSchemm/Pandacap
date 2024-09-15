@@ -38,11 +38,8 @@ namespace Pandacap.Controllers
             {
                 Id = Guid.NewGuid(),
                 InReplyTo = id,
-                To = post.ReplyTo,
-                Cc = post.ReplyCc
-                    .Except([idMapper.ActorId])
-                    .ToList(),
-                Audience = post.Audience,
+                Users = post.People.Select(a => a.Id).ToList(),
+                Communities = post.Groups.Select(a => a.Id).ToList(),
                 PublishedTime = DateTimeOffset.UtcNow,
                 HtmlContent = $"<p>{WebUtility.HtmlEncode(content)}</p>"
             };
@@ -51,7 +48,7 @@ namespace Pandacap.Controllers
 
             HashSet<string> inboxes = [];
 
-            foreach (string actorId in addressedPost.Recipients)
+            foreach (string actorId in addressedPost.Users.Concat(addressedPost.Communities))
             {
                 try
                 {
