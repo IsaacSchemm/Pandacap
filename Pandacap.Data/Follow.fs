@@ -8,6 +8,7 @@ type Follow() =
 
     member val FollowGuid = Guid.Empty with get, set
     member val Accepted = false with get, set
+    member val IgnoreImages = false with get, set
     member val IncludeImageShares = false with get, set
     member val IncludeTextShares = false with get, set
 

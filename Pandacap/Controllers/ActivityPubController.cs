@@ -67,11 +67,6 @@ namespace Pandacap.Controllers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported on Cosmos DB provider for EF Core")]
         public async Task Inbox(CancellationToken cancellationToken)
         {
-            await Task.Delay(4000, cancellationToken);
-            await Task.Delay(4000, cancellationToken);
-            await Task.Delay(4000, cancellationToken);
-            await Task.Delay(4000, cancellationToken);
-
             using var sr = new StreamReader(Request.Body);
             string json = await sr.ReadToEndAsync(cancellationToken);
 

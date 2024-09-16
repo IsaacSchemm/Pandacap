@@ -25,6 +25,15 @@ namespace Pandacap
     {
         private static readonly IEnumerable<JToken> Empty = [];
 
+        private async Task<bool> ShouldIgnoreImagesAsync(RemoteActor sendingActor)
+        {
+            var follow = await context.Follows
+                .Where(f => f.ActorId == sendingActor.Id)
+                .Select(f => new { f.IgnoreImages })
+                .FirstOrDefaultAsync();
+            return follow == null || follow.IgnoreImages;
+        }
+
         /// <summary>
         /// Adds a remote ActivityPub post to the Pandacap inbox.
         /// </summary>
@@ -88,13 +97,15 @@ namespace Pandacap
                 Content = (post["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
-                Attachments = activityPubRemotePostService.GetAttachments(post)
-                    .Select(attachment => new InboxActivityStreamsImage
-                    {
-                        Name = attachment.name,
-                        Url = attachment.url
-                    })
-                    .ToList()
+                Attachments = await ShouldIgnoreImagesAsync(sendingActor)
+                    ? []
+                    : activityPubRemotePostService.GetAttachments(post)
+                        .Select(attachment => new InboxActivityStreamsImage
+                        {
+                            Name = attachment.name,
+                            Url = attachment.url
+                        })
+                        .ToList()
             });
             await context.SaveChangesAsync();
         }
@@ -166,13 +177,15 @@ namespace Pandacap
                 Content = (originalPost["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
-                Attachments = activityPubRemotePostService.GetAttachments(originalPost)
-                    .Select(attachment => new InboxActivityStreamsImage
-                    {
-                        Name = attachment.name,
-                        Url = attachment.url
-                    })
-                    .ToList()
+                Attachments = await ShouldIgnoreImagesAsync(announcingActor)
+                    ? []
+                    : activityPubRemotePostService.GetAttachments(originalPost)
+                        .Select(attachment => new InboxActivityStreamsImage
+                        {
+                            Name = attachment.name,
+                            Url = attachment.url
+                        })
+                        .ToList()
             });
 
             await context.SaveChangesAsync();

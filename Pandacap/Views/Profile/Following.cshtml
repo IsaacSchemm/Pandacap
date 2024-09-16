@@ -35,12 +35,24 @@ else
 
             @if (User.Identity?.IsAuthenticated == true)
             {
+                Guid r0 = Guid.NewGuid();
                 Guid r1 = Guid.NewGuid();
                 Guid r2 = Guid.NewGuid();
                 <details>
                     <summary>Options</summary>
                     <form asp-action="UpdateFollow">
                         <input type="hidden" name="id" value="@item.ActorId" />
+                        <div class="mb-3 form-check">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   id="@r0"
+                                   name="ignoreImages"
+                                   value="true"
+                            @(item.IgnoreImages == true ? "checked" : "")>
+                            <label class="form-check-label" for="@r0">
+                                Ignore images (treat all posts as text posts)
+                            </label>
+                        </div>
                         <div class="mb-3 form-check">
                             <input type="checkbox"
                                    class="form-check-input"
