@@ -7,7 +7,6 @@ using System.Net;
 namespace Pandacap.Controllers
 {
     public class RemotePostsController(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubRemotePostService activityPubRemotePostService,
         ActivityPubTranslator translator,
         PandacapDbContext context,
@@ -46,7 +45,7 @@ namespace Pandacap.Controllers
                 Id = Guid.NewGuid(),
                 InReplyTo = id,
                 Users = users.Select(a => a.Id).ToList(),
-                Community = communities.Select(a => a.Id).FirstOrDefault(),
+                Community = communities.Select(a => a.Id).SingleOrDefault(),
                 PublishedTime = DateTimeOffset.UtcNow,
                 HtmlContent = $"<p>{WebUtility.HtmlEncode(content)}</p>"
             };

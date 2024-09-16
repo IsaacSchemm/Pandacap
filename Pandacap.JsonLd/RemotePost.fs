@@ -19,20 +19,3 @@ type RemotePost = {
     Attachments: Attachment list
 } with
     member this.Recipients = this.To @ this.Cc
-
-    //member this.Actors = seq {
-    //    yield this.AttributedTo
-
-    //    for r in this.Recipients do
-    //        match r with
-    //        | Actor actor -> yield actor
-    //        | _ -> ()
-    //}
-
-    //member this.Groups =
-    //    this.Actors
-    //    |> Seq.where (fun a -> a.Type = "https://www.w3.org/ns/activitystreams#Group")
-
-    //member this.People =
-    //    this.Actors
-    //    |> Seq.except this.Groups
