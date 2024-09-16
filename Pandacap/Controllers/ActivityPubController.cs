@@ -24,12 +24,6 @@ namespace Pandacap.Controllers
         private static new readonly IEnumerable<JToken> Empty = [];
 
         [HttpGet]
-        public IActionResult Activity(Guid id)
-        {
-            return BadRequest($"Activity {id} does not exist or is not resolvable via its ID.");
-        }
-
-        [HttpGet]
         public async Task<IActionResult> Followers()
         {
             int count = await context.Followers.CountAsync();

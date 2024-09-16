@@ -1,14 +1,20 @@
 ﻿@using Pandacap.JsonLd
-@model Addressee
+@model RemoteAddressee
 
-@if (Model.IconUrl != null)
+@{
+    var actor = Model is RemoteAddressee.Actor a
+        ? a.Item
+        : null;
+}
+
+@if (actor != null)
 {
-    <img height="25" src="@Model.IconUrl" alt="" />
+    <img height="25" src="@actor.IconUrl" alt="" />
 }
 <span style="display: inline-block; vertical-align: top">
     <strong>
-        <a href="@Model.Url" target="_blank">
-            @(Model.Name ?? Model.Url)
+        <a href="@Model.Id" target="_blank">
+            @(actor?.PreferredUsername ?? Model.Id)
         </a>
     </strong>
 </span>

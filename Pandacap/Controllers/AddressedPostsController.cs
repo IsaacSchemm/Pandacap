@@ -11,7 +11,6 @@ namespace Pandacap.Controllers
 {
     [Route("AddressedPosts")]
     public class AddressedPostsController(
-        ActivityPubAddresseeService activityPubAddresseeService,
         ActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
         ActivityPubTranslator translator) : Controller
@@ -35,8 +34,8 @@ namespace Pandacap.Controllers
             return View(new AddressedPostViewModel
             {
                 Post = post,
-                Users = await Task.WhenAll(post.Users.Select(id => activityPubAddresseeService.HydrateAsync(id, cancellationToken))),
-                Communities = await Task.WhenAll(post.Communities.Select(id => activityPubAddresseeService.HydrateAsync(id, cancellationToken)))
+                Users = await Task.WhenAll(post.Users.Select(id => activityPubRemoteActorService.FetchAddresseeAsync(id, cancellationToken))),
+                Communities = [await activityPubRemoteActorService.FetchAddresseeAsync(post.Community, cancellationToken)]
             });
         }
 
@@ -59,7 +58,7 @@ namespace Pandacap.Controllers
             var addressedPost = new AddressedPost
             {
                 Id = Guid.NewGuid(),
-                Communities = [remoteActor.Id],
+                Community = remoteActor.Id,
                 PublishedTime = DateTimeOffset.UtcNow,
                 Title = title,
                 HtmlContent = $"<p>{WebUtility.HtmlEncode(content)}</p>"
@@ -67,31 +66,14 @@ namespace Pandacap.Controllers
 
             context.AddressedPosts.Add(addressedPost);
 
-            HashSet<string> inboxes = [];
-
-            foreach (string actorId in addressedPost.Users.Concat(addressedPost.Communities))
+            context.ActivityPubOutboundActivities.Add(new()
             {
-                try
-                {
-                    var actor = await activityPubRemoteActorService.FetchActorAsync(actorId, cancellationToken);
-                    string inbox = actor.SharedInbox ?? actor.Inbox;
-                    if (inbox != null)
-                        inboxes.Add(inbox);
-                }
-                catch (Exception) { }
-            }
-
-            foreach (string inbox in inboxes)
-            {
-                context.ActivityPubOutboundActivities.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    Inbox = inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.ObjectToCreate(
-                            addressedPost))
-                });
-            }
+                Id = Guid.NewGuid(),
+                Inbox = remoteActor.SharedInbox ?? remoteActor.Inbox,
+                JsonBody = ActivityPubSerializer.SerializeWithContext(
+                    translator.ObjectToCreate(
+                        addressedPost))
+            });
 
             await context.SaveChangesAsync(cancellationToken);
 
@@ -113,11 +95,13 @@ namespace Pandacap.Controllers
                 .Where(a => a.AddressedPostId == id)
                 .ToListAsync();
 
-            var actorIds = Enumerable.Empty<string>()
-                .Concat(post.Users)
-                .Concat(post.Communities)
-                .Concat(activities.Select(a => a.ActorId))
-                .Distinct();
+            HashSet<string> actorIds = [];
+            foreach (string x in post.Users)
+                actorIds.Add(x);
+            if (post.Community is string community)
+                actorIds.Add(community);
+            foreach (var a in activities)
+                actorIds.Add(a.ActorId);
 
             HashSet<string> inboxes = [];
 

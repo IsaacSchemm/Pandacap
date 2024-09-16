@@ -64,7 +64,6 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
 }
 
 builder.Services
-    .AddScoped<ActivityPubAddresseeService>()
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<AltTextSentinel>()
@@ -111,7 +110,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Profile}/{action=Index}/{id?}");
+    pattern: "{controller=Profile}/{action=Index}");
 app.MapRazorPages();
 
 app.Run();

@@ -21,7 +21,7 @@
     {
         <dt>In reply to</dt>
         <dd>
-            <a asp-controller="RemotePosts" asp-action="Index" asp-id="@Model.Post.InReplyTo">
+            <a asp-controller="RemotePosts" asp-action="Index" asp-route-id="@Model.Post.InReplyTo">
                 @Model.Post.InReplyTo
             </a>
         </dd>

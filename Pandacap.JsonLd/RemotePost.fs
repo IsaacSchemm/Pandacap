@@ -5,8 +5,8 @@ open System
 type RemotePost = {
     Id: string
     AttributedTo: RemoteActor
-    To: Addressee list
-    Cc: Addressee list
+    To: RemoteAddressee list
+    Cc: RemoteAddressee list
     InReplyTo: string list
     Type: string
     PostedAt: DateTimeOffset
@@ -20,11 +20,19 @@ type RemotePost = {
 } with
     member this.Recipients = this.To @ this.Cc
 
-    member this.People = [
-        this.AttributedTo
-        for r in this.Recipients do match r with Person a -> a | _ -> ()
-    ]
+    //member this.Actors = seq {
+    //    yield this.AttributedTo
 
-    member this.Groups = [
-        for r in this.Recipients do match r with Group a -> a | _ -> ()
-    ]
+    //    for r in this.Recipients do
+    //        match r with
+    //        | Actor actor -> yield actor
+    //        | _ -> ()
+    //}
+
+    //member this.Groups =
+    //    this.Actors
+    //    |> Seq.where (fun a -> a.Type = "https://www.w3.org/ns/activitystreams#Group")
+
+    //member this.People =
+    //    this.Actors
+    //    |> Seq.except this.Groups

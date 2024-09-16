@@ -61,3 +61,16 @@ type ActivityPubRemoteActorService(requestHandler: ActivityPubRequestHandler) =
 
     member this.FetchActorAsync(url) =
         this.FetchActorAsync(url, CancellationToken.None)
+
+    member this.FetchAddresseeAsync(url: string, cancellationToken: CancellationToken) = task {
+        if url = PublicCollection.Id then
+            return PublicCollection
+        else
+            let! actor = this.FetchActorAsync(url, cancellationToken)
+            match actor.Type with
+            | "https://www.w3.org/ns/activitystreams#Collection"
+            | "https://www.w3.org/ns/activitystreams#OrderedCollection" ->
+                return Collection url
+            | _ ->
+                return Actor actor
+    }

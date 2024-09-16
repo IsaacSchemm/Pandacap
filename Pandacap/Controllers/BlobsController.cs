@@ -9,6 +9,7 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         PandacapDbContext context) : Controller
     {
+        [Route("Blobs/Images/{id}")]
         public async Task<IActionResult> Images(Guid id)
         {
             var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
@@ -31,6 +32,7 @@ namespace Pandacap.Controllers
                 image.ContentType);
         }
 
+        [Route("Blobs/Thumbnails/{id}")]
         public async Task<IActionResult> Thumbnails(Guid id)
         {
             var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();

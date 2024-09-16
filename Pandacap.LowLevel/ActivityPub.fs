@@ -31,19 +31,6 @@ module ActivityPubSerializer =
         for p in apObject do p.Key, p.Value
     ])
 
-module internal AddressedPost =
-    let getTo (post: AddressedPost) = [
-        "https://www.w3.org/ns/activitystreams#Public"
-        if isNull post.InReplyTo then
-            yield! post.Communities
-    ]
-
-    let getCc (post: AddressedPost) = [
-        yield! post.Users
-        if not (isNull post.InReplyTo) then
-            yield! post.Communities
-    ]
-
 /// Creates ActivityPub objects (in string/object pair format) for actors,
 /// posts, and other objects tracked by Pandacap.
 type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
@@ -152,11 +139,12 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
 
         pair "attributedTo" mapper.ActorId
         pair "published" post.PublishedTime
-        pair "to" (AddressedPost.getTo post)
-        pair "cc" (AddressedPost.getCc post)
 
-        match Seq.tryHead post.Communities with
-        | Some audience -> pair "audience" audience
+        pair "to" post.Addressing.To
+        pair "cc" post.Addressing.Cc
+
+        match post.Audience with
+        | Some id -> pair "audience" id
         | _ -> ()
     ]
 
@@ -194,8 +182,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
-        pair "to" (AddressedPost.getTo post)
-        pair "cc" (AddressedPost.getCc post)
+        pair "to" post.Addressing.To
+        pair "cc" post.Addressing.Cc
         pair "object" (this.AsObject post)
     ]
 
