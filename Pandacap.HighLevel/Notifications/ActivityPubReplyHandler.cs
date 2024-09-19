@@ -18,7 +18,7 @@ namespace Pandacap.HighLevel.Notifications
                     ActivityName = "New post",
                     UserName = post.Author.Username,
                     UserUrl = post.Author.Id,
-                    Timestamp = post.PostedAt
+                    Timestamp = post.PostedAt.ToUniversalTime()
                 })
                 .AsAsyncEnumerable();
         }

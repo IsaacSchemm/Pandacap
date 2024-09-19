@@ -50,7 +50,7 @@ namespace Pandacap.HighLevel.Notifications
                         UserUrl = $"https://bsky.app/profile/{Uri.EscapeDataString(item.author.did)}",
                         UserPostId = userPost?.Id,
                         UserPostTitle = userPost?.Title,
-                        Timestamp = item.indexedAt
+                        Timestamp = item.indexedAt.ToUniversalTime()
                     };
                 }
 

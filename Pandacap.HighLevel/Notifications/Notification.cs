@@ -2,7 +2,7 @@
 
 namespace Pandacap.HighLevel.Notifications
 {
-    public class Notification
+    public record Notification
     {
         public required NotificationPlatform Platform { get; init; }
         public required string ActivityName { get; init; }

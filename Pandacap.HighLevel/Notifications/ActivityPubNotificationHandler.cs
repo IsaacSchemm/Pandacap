@@ -30,7 +30,7 @@ namespace Pandacap.HighLevel.Notifications
                     UserUrl = activity.ActorId,
                     UserPostId = userPost?.Id,
                     UserPostTitle = userPost?.Title,
-                    Timestamp = activity.AddedAt
+                    Timestamp = activity.AddedAt.ToUniversalTime()
                 };
             }
         }

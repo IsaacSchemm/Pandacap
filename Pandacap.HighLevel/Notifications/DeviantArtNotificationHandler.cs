@@ -26,7 +26,7 @@ namespace Pandacap.HighLevel.Notifications
                     UserUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(message.originator.OrNull()?.username ?? "")}",
                     UserPostId = message.subject?.OrNull()?.deviation?.OrNull()?.deviationid,
                     UserPostTitle = message.subject?.OrNull()?.deviation?.OrNull()?.title?.OrNull(),
-                    Timestamp = message.ts.OrNull() ?? DateTimeOffset.UtcNow
+                    Timestamp = message.ts.OrNull()?.ToUniversalTime() ?? DateTimeOffset.UtcNow
                 };
         }
     }
