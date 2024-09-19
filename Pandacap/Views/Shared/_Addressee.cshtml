@@ -7,15 +7,13 @@
         : null;
 }
 
-@if (actor != null)
+@if (actor?.IconUrl != null)
 {
     <img height="25" src="@actor.IconUrl" alt="" />
 }
 <span style="display: inline-block; vertical-align: top">
     <strong>
-        <a href="@Model.Id" target="_blank">
-            @(actor?.PreferredUsername ?? Model.Id)
-        </a>
-        (@Model.GetType().Name)
+        <a href="@Model.Id" target="_blank">@Model.Id</a>
+        (@Model.Type)
     </strong>
 </span>
