@@ -43,7 +43,15 @@ type UserPost() =
     member this.DescriptionText = TextConverter.FromHtml this.Description
 
     interface IPost with
-        member this.DisplayTitle = this.Title |> orString $"{this.Id}"
+        member this.DisplayTitle =
+            seq {
+                if not this.HideTitle then
+                    this.Title
+                this.DescriptionText
+                $"{this.Id}"
+            }
+            |> Seq.where (not << String.IsNullOrEmpty)
+            |> Seq.head
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/UserPosts/{this.Id}"
         member this.Timestamp = this.PublishedTime

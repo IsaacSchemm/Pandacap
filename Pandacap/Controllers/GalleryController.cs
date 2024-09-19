@@ -23,57 +23,8 @@ namespace Pandacap.Controllers
             return post?.PublishedTime;
         }
 
-        public async Task<IActionResult> Artwork(Guid? next, int? count)
+        private async Task<IActionResult> RenderAsync(string title, IAsyncEnumerable<UserPost> posts, int? count)
         {
-            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
-
-            var posts = await context.UserPosts
-                .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Artwork)
-                .OrderByDescending(d => d.PublishedTime)
-                .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == next || next == null)
-                .OfType<IPost>()
-                .AsListPage(count ?? 20);
-
-            return View("List", new ListViewModel<IPost>
-            {
-                Title = "Gallery",
-                ShowThumbnails = true,
-                Items = posts
-            });
-        }
-
-        public async Task<IActionResult> TextPosts(Guid? next, int? count)
-        {
-            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
-
-            var posts = await context.UserPosts
-                .Where(d => d.PublishedTime <= startTime)
-                .Where(d => !d.Artwork)
-                .OrderByDescending(d => d.PublishedTime)
-                .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == next || next == null)
-                .OfType<IPost>()
-                .AsListPage(count ?? 20);
-
-            return View("List", new ListViewModel<IPost>
-            {
-                Title = "Posts",
-                Items = posts
-            });
-        }
-
-        public async Task<IActionResult> Composite(Guid? next, int? count)
-        {
-            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
-
-            var posts = context.UserPosts
-                .Where(d => d.PublishedTime <= startTime)
-                .OrderByDescending(d => d.PublishedTime)
-                .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == next || next == null);
-
             if (Request.IsActivityPub())
             {
                 return Content(
@@ -92,6 +43,77 @@ namespace Pandacap.Controllers
                     .OfType<IPost>()
                     .AsListPage(count ?? 20)
             });
+        }
+
+        public async Task<IActionResult> Artwork(Guid? next, int? count)
+        {
+            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
+
+            var posts = context.UserPosts
+                .Where(d => d.PublishedTime <= startTime)
+                .Where(d => d.Artwork)
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == next || next == null);
+
+            return await RenderAsync("Gallery", posts, count);
+        }
+
+        public async Task<IActionResult> TextPosts(Guid? next, int? count)
+        {
+            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
+
+            var posts = context.UserPosts
+                .Where(d => d.PublishedTime <= startTime)
+                .Where(d => !d.Artwork)
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == next || next == null);
+
+            return await RenderAsync("Text Posts", posts, count);
+        }
+
+        public async Task<IActionResult> Journals(Guid? next, int? count)
+        {
+            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
+
+            var posts = context.UserPosts
+                .Where(d => d.PublishedTime <= startTime)
+                .Where(d => !d.Artwork)
+                .Where(d => d.IsArticle)
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == next || next == null);
+
+            return await RenderAsync("Journals", posts, count);
+        }
+
+        public async Task<IActionResult> StatusUpdates(Guid? next, int? count)
+        {
+            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
+
+            var posts = context.UserPosts
+                .Where(d => d.PublishedTime <= startTime)
+                .Where(d => !d.Artwork)
+                .Where(d => !d.IsArticle)
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == next || next == null);
+
+            return await RenderAsync("Status Updates", posts, count);
+        }
+
+        public async Task<IActionResult> Composite(Guid? next, int? count)
+        {
+            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
+
+            var posts = context.UserPosts
+                .Where(d => d.PublishedTime <= startTime)
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == next || next == null);
+
+            return await RenderAsync("All Posts", posts, count);
         }
 
         public async Task<IActionResult> AddressedPosts(Guid? next, int? count)
