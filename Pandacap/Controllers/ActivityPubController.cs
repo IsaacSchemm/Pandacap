@@ -13,6 +13,7 @@ namespace Pandacap.Controllers
 {
     public class ActivityPubController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
+        ActivityPubRemotePostService activityPubRemotePostService,
         ActivityPubRequestHandler activityPubRequestHandler,
         ApplicationInformation appInfo,
         PandacapDbContext context,
@@ -244,19 +245,12 @@ namespace Pandacap.Controllers
                 {
                     string postId = obj["@id"]!.Value<string>()!;
 
-                    string replyJson = await activityPubRequestHandler.GetJsonAsync(new Uri(postId), cancellationToken);
-                    JArray replyExpansion = JsonLdProcessor.Expand(JObject.Parse(replyJson));
+                    var remotePost = await activityPubRemotePostService.FetchPostAsync(postId, cancellationToken);
 
-                    bool isMention = Empty
-                        .Concat(replyExpansion[0]["https://www.w3.org/ns/activitystreams#to"] ?? Empty)
-                        .Concat(replyExpansion[0]["https://www.w3.org/ns/activitystreams#cc"] ?? Empty)
-                        .Select(token => token["@id"]!.Value<string>())
-                        .Any(id =>
-                            Uri.TryCreate(id, UriKind.Absolute, out Uri? uri)
-                            && uri.Host == appInfo.ApplicationHostname);
+                    bool isMention = remotePost.Recipients
+                        .Any(addressee => addressee.Id == mapper.ActorId);
 
-                    bool isReply = (replyExpansion[0]["https://www.w3.org/ns/activitystreams#inReplyTo"] ?? Empty)
-                        .Select(token => token["@id"]!.Value<string>())
+                    bool isReply = remotePost.InReplyTo
                         .Any(id =>
                             Uri.TryCreate(id, UriKind.Absolute, out Uri? uri)
                             && uri.Host == appInfo.ApplicationHostname);
@@ -265,10 +259,17 @@ namespace Pandacap.Controllers
                         .Where(f => f.ActorId == actor.Id)
                         .CountAsync(cancellationToken) > 0;
 
+                    var actorIds = remotePost.Recipients
+                        .Where(addressee => !addressee.IsCollection && !addressee.IsPublicCollection)
+                        .Select(addressee => addressee.Id);
+
+                    if (actorIds.Any() && !actorIds.Contains(mapper.ActorId))
+                        isFromFollow = false;
+
                     if (isMention || isReply || isFromFollow)
                         await remoteActivityPubPostHandler.AddRemotePostAsync(
                             actor,
-                            obj,
+                            remotePost,
                             isMention: isMention,
                             isReply: isReply);
                 }

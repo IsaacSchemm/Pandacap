@@ -38,24 +38,21 @@ namespace Pandacap
         /// Adds a remote ActivityPub post to the Pandacap inbox.
         /// </summary>
         /// <param name="sendingActor">The actor who created the post.</param>
-        /// <param name="expandedLdJson">An expanded representation of the LD-JSON that makes up the post.</param>
+        /// <param name="remotePost">An representation of the remote post.</param>
         /// <param name="isMention">Whether this post mentions the Pandacap actor.</param>
         /// <param name="isReply">Whether this post is a reply to a post made by the Pandacap actor.</param>
         /// <returns></returns>
         public async Task AddRemotePostAsync(
             RemoteActor sendingActor,
-            JToken expandedLdJson,
+            RemotePost remotePost,
             bool isMention = false,
             bool isReply = false)
         {
-            var post = expandedLdJson;
-
-            string attributedTo = (post["https://www.w3.org/ns/activitystreams#attributedTo"] ?? Empty).Single()["@id"]!.Value<string>()!;
+            string attributedTo = remotePost.AttributedTo.Id;
             if (attributedTo != sendingActor.Id)
                 return;
 
-            string id = post["@id"]!.Value<string>()!;
-            IEnumerable<string> types = (post["@type"] ?? Empty).Select(token => token.Value<string>()!);
+            string id = remotePost.Id;
 
             int existing = await context.InboxActivityStreamsPosts
                 .Where(p => p.ObjectId == id)
@@ -82,24 +79,14 @@ namespace Pandacap
                 },
                 IsMention = isMention,
                 IsReply = isReply,
-                PostedAt = (post["https://www.w3.org/ns/activitystreams#published"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<DateTime>())
-                    .FirstOrDefault(),
-                Summary = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault(),
-                Sensitive = (post["https://www.w3.org/ns/activitystreams#sensitive"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<bool>())
-                    .Contains(true),
-                Name = (post["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault(),
-                Content = (post["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault(),
+                PostedAt = remotePost.PostedAt,
+                Summary = remotePost.Summary,
+                Sensitive = remotePost.Sensitive,
+                Name = remotePost.Name,
+                Content = remotePost.SanitizedContent,
                 Attachments = await ShouldIgnoreImagesAsync(sendingActor)
                     ? []
-                    : activityPubRemotePostService.GetAttachments(post)
+                    : remotePost.Attachments
                         .Select(attachment => new InboxActivityStreamsImage
                         {
                             Name = attachment.name,
