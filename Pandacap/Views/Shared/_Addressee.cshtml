@@ -16,5 +16,6 @@
         <a href="@Model.Id" target="_blank">
             @(actor?.PreferredUsername ?? Model.Id)
         </a>
+        (@Model.GetType().Name)
     </strong>
 </span>
