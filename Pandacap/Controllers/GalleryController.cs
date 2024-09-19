@@ -11,6 +11,7 @@ namespace Pandacap.Controllers
 {
     public class GalleryController(
         PandacapDbContext context,
+        FeedBuilder feedBuilder,
         ActivityPubTranslator translator) : Controller
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
@@ -25,23 +26,41 @@ namespace Pandacap.Controllers
 
         private async Task<IActionResult> RenderAsync(string title, IAsyncEnumerable<UserPost> posts, int? count)
         {
+            int take = count ?? 20;
+
+            if (Request.Query["format"] == "rss")
+            {
+                return Content(
+                    feedBuilder.ToRssFeed(await posts.Take(take).ToListAsync()),
+                    "application/rss+xml",
+                    Encoding.UTF8);
+            }
+
+            if (Request.Query["format"] == "atom")
+            {
+                return Content(
+                    feedBuilder.ToAtomFeed(await posts.Take(take).ToListAsync()),
+                    "application/atom+xml",
+                    Encoding.UTF8);
+            }
+
             if (Request.IsActivityPub())
             {
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.AsOutboxCollectionPage(
                             Request.GetEncodedUrl(),
-                            await posts.AsListPage(count ?? 20))),
+                            await posts.AsListPage(take))),
                     "application/activity+json",
                     Encoding.UTF8);
             }
 
             return View("List", new ListViewModel<IPost>
             {
-                Title = "Posts",
+                Title = title,
                 Items = await posts
                     .OfType<IPost>()
-                    .AsListPage(count ?? 20)
+                    .AsListPage(take)
             });
         }
 
