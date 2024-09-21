@@ -10,7 +10,7 @@ namespace Pandacap.Controllers
         ActivityPubNotificationHandler activityPubNotificationHandler,
         ActivityPubReplyHandler activityPubReplyHandler,
         ATProtoNotificationHandler atProtoNotificationHandler,
-        DeviantArtNotificationHandler deviantArtNotificationsHandler,
+        DeviantArtFeedNotificationHandler deviantArtFeedNotificationsHandler,
         WeasylNotificationHandler weasylNotificationHandler) : Controller
     {
         private static readonly DateTimeOffset Cutoff = DateTimeOffset.UtcNow.AddDays(-30);
@@ -22,7 +22,7 @@ namespace Pandacap.Controllers
                 activityPubNotificationHandler.GetUserPostNotificationsAsync(),
                 activityPubNotificationHandler.GetAddressedPostNotificationsAsync(),
                 atProtoNotificationHandler.GetNotificationsAsync(),
-                deviantArtNotificationsHandler.GetNotificationsAsync(),
+                deviantArtFeedNotificationsHandler.GetNotificationsAsync(),
                 weasylNotificationHandler.GetNotificationsAsync()
             }
             .MergeNewest(post => post.Timestamp)

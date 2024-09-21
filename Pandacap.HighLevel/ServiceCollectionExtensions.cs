@@ -24,7 +24,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<BlueskyAgent>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtInboxHandler>()
-                .AddScoped<DeviantArtNotificationHandler>()
+                .AddScoped<DeviantArtFeedNotificationHandler>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<IdMapper>()
                 .AddScoped<KeyProvider>()
