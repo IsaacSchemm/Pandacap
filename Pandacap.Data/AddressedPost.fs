@@ -33,10 +33,11 @@ type AddressedPost() =
     |}
 
     interface IPost with
-        member this.DisplayTitle =
-            Option.ofObj this.Title
-            |> Option.orElse (ExcerptGenerator.FromHtml this.HtmlContent)
-            |> Option.defaultValue $"{this.Id}"
+        member this.DisplayTitle = ExcerptGenerator.FromText (seq {
+            this.Title
+            TextConverter.FromHtml this.HtmlContent
+            $"{this.Id}"
+        })
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/AddressedPosts/{this.Id}"
         member _.ThumbnailUrls = []

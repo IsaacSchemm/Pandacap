@@ -14,10 +14,17 @@ namespace Pandacap.HighLevel
 
         private record BlueskyPostWrapper(BlueskyFeed.FeedItem Item) : IPost
         {
+            private IEnumerable<string> EnumerateText()
+            {
+                yield return Item.post.record.text;
+                foreach (var image in Item.post.Images)
+                    yield return image.alt;
+            }
+
             string IPost.Id => Item.post.cid;
             string IPost.Username => Item.post.author.DisplayNameOrNull ?? Item.post.author.did;
             string IPost.Usericon => Item.post.author.AvatarOrNull;
-            string IPost.DisplayTitle => ExcerptGenerator.FromText(Item.post.record.text);
+            string IPost.DisplayTitle => ExcerptGenerator.FromText(EnumerateText());
             DateTimeOffset IPost.Timestamp => Item.post.indexedAt;
             string IPost.LinkUrl => $"https://bsky.app/profile/{Item.post.author.did}/post/{Item.post.RecordKey}";
             IEnumerable<string> IPost.ThumbnailUrls => Item.post.Images.Select(i => i.thumb);

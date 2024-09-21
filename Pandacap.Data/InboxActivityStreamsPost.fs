@@ -36,10 +36,13 @@ type InboxActivityStreamsPost() =
         member this.Id = $"{this.Id}"
         member this.Usericon = this.PostedBy.Usericon
         member this.Username = this.PostedBy.Username
-        member this.DisplayTitle =
-            Option.ofObj this.Name
-            |> Option.orElse (ExcerptGenerator.FromHtml this.Content)
-            |> Option.defaultValue $"{this.ObjectId}"
+        member this.DisplayTitle = ExcerptGenerator.FromText (seq {
+            this.Name
+            TextConverter.FromHtml this.Content
+            for attachment in this.Attachments do
+                attachment.Name
+            $"{this.ObjectId}"
+        })
         member this.Timestamp = this.PostedAt
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
         member this.ThumbnailUrls = this.Attachments |> Seq.map (fun a -> a.Url)

@@ -29,10 +29,11 @@ type RemoteActivityPubFavorite() =
         member this.Id = $"{this.LikeGuid}"
         member this.Usericon = this.Usericon
         member this.Username = this.Username
-        member this.DisplayTitle =
-            Option.ofObj this.Name
-            |> Option.orElse (ExcerptGenerator.FromHtml this.Content)
-            |> Option.defaultValue $"{this.ObjectId}"
+        member this.DisplayTitle = ExcerptGenerator.FromText (seq {
+            this.Name
+            TextConverter.FromHtml this.Content
+            this.ObjectId
+        })
         member this.Timestamp = this.CreatedAt
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
         member this.ThumbnailUrls = this.Attachments |> Seq.map (fun a -> a.Url)
