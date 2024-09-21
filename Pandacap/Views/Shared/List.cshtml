@@ -32,13 +32,22 @@ else
         <strong>@maxDate.ToLongDateString()</strong> (@maxDate.ToShortTimeString()).
     </p>
 
+    if (Model.CanBeSyndicationFeed)
+    {
+        <p>
+            <a href="?format=rss">View as RSS</a>
+            &middot;
+            <a href="?format=atom">View as Atom</a>
+        </p>
+    }
+
     var groups = Model.GroupByUser
         ? Model.Items.DisplayList.GroupBy(item => new { item.Username, item.Usericon })
         : Model.Items.DisplayList.GroupBy(item => new { Username = "", Usericon = "" });
 
     foreach (var group in groups)
     {
-        if (group.Key.Username != null)
+        if (!string.IsNullOrEmpty(group.Key.Username))
         {
             <h1>
                 <img height="50" src="@(group.Key.Usericon ?? "/images/trgray.svg")" alt="" />

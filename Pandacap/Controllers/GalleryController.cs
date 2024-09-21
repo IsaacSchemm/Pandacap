@@ -60,7 +60,8 @@ namespace Pandacap.Controllers
                 Title = title,
                 Items = await posts
                     .OfType<IPost>()
-                    .AsListPage(take)
+                    .AsListPage(take),
+                CanBeSyndicationFeed = true
             });
         }
 
