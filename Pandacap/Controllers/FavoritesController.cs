@@ -13,6 +13,7 @@ namespace Pandacap.Controllers
 {
     public class FavoritesController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
+        ApplicationInformation applicationInformation,
         ATProtoLikesProvider atProtoLikesProvider,
         PandacapDbContext context,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
@@ -56,6 +57,25 @@ namespace Pandacap.Controllers
                 Title = "Favorites",
                 ShowThumbnails = true,
                 Items = await posts.AsListPage(count ?? 20)
+            });
+        }
+
+        public IActionResult DeviantArt()
+        {
+            return Redirect($"https://www.deviantart.com/{Uri.EscapeDataString(applicationInformation.DeviantArtUsername)}/favourites/all");
+        }
+
+        public async Task<IActionResult> Weasyl()
+        {
+            var credentials = await context.WeasylCredentials.FirstOrDefaultAsync();
+            if (credentials != null)
+                return Redirect($"https://www.weasyl.com/favorites/{Uri.EscapeDataString(credentials.Login)}");
+
+            return View("List", new ListViewModel<IPost>
+            {
+                Title = "Favorites",
+                ShowThumbnails = true,
+                Items = ListPage.Empty<IPost>()
             });
         }
 
