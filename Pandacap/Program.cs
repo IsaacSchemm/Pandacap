@@ -53,6 +53,7 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
         {
             d.Scope.Add("browse");
             d.Scope.Add("message");
+            d.Scope.Add("note");
             d.ClientId = deviantArtClientId;
             d.ClientSecret = deviantArtClientSecret;
             d.SaveTokens = true;

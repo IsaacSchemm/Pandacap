@@ -41,14 +41,24 @@ type NotificationPlatform = {
         ViewAllUrl = "https://bsky.app/notifications"
     }
 
-    static member DeviantArt = {
-        DisplayName = "DeviantArt"
+    static member DeviantArtFeed = {
+        DisplayName = "DeviantArt (feed)"
         Badge = {
             Text = "DeviantArt"
             Background = "#00e59b"
             Color = "black"
         }
         ViewAllUrl = "https://www.deviantart.com/notifications"
+    }
+
+    static member DeviantArtNote = {
+        DisplayName = "DeviantArt (notes)"
+        Badge = {
+            Text = "DeviantArt"
+            Background = "#00e59b"
+            Color = "black"
+        }
+        ViewAllUrl = "https://www.deviantart.com/notifications/notes"
     }
 
     static member Weasyl = {

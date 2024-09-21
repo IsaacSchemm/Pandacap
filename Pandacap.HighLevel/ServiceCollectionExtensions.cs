@@ -25,6 +25,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtInboxHandler>()
                 .AddScoped<DeviantArtFeedNotificationHandler>()
+                .AddScoped<DeviantArtNoteNotificationHandler>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<IdMapper>()
                 .AddScoped<KeyProvider>()

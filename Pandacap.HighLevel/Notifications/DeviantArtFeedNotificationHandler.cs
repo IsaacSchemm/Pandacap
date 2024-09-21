@@ -20,7 +20,7 @@ namespace Pandacap.HighLevel.Notifications
             await foreach (var message in feed)
                 yield return new()
                 {
-                    Platform = NotificationPlatform.DeviantArt,
+                    Platform = NotificationPlatform.DeviantArtFeed,
                     ActivityName = message.type,
                     UserName = message.originator.OrNull()?.username,
                     UserUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(message.originator.OrNull()?.username ?? "")}",
