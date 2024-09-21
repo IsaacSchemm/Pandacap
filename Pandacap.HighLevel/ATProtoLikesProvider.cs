@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.FSharp.Core;
+using Pandacap.Data;
 using Pandacap.LowLevel.ATProto;
 
 namespace Pandacap.HighLevel
@@ -11,13 +12,24 @@ namespace Pandacap.HighLevel
     {
         private const string Key = "9be4f4c3-e2dc-45c3-98b8-b8ad0fb5df9f";
 
+        private record BlueskyPostWrapper(BlueskyFeed.FeedItem Item) : IPost
+        {
+            string IPost.Id => Item.post.cid;
+            string IPost.Username => Item.post.author.DisplayNameOrNull ?? Item.post.author.did;
+            string IPost.Usericon => Item.post.author.AvatarOrNull;
+            string IPost.DisplayTitle => ExcerptGenerator.FromText(Item.post.record.text);
+            DateTimeOffset IPost.Timestamp => Item.post.indexedAt;
+            string IPost.LinkUrl => $"https://bsky.app/profile/{Item.post.author.did}/post/{Item.post.RecordKey}";
+            IEnumerable<string> IPost.ThumbnailUrls => Item.post.Images.Select(i => i.thumb);
+        }
+
         private class CachedList
         {
             private readonly SemaphoreSlim _sem = new(1, 1);
-            private readonly List<BlueskyFeed.FeedItem> _list = [];
+            private readonly List<BlueskyPostWrapper> _list = [];
             private BlueskyFeed.Page? _cursor = BlueskyFeed.Page.FromStart;
 
-            public async IAsyncEnumerable<BlueskyFeed.FeedItem> EnumerateAsync(
+            public async IAsyncEnumerable<BlueskyPostWrapper> EnumerateAsync(
                 ATProtoCredentialProvider atProtoCredentialProvider,
                 IHttpClientFactory httpClientFactory)
             {
@@ -41,13 +53,17 @@ namespace Pandacap.HighLevel
                             credentials.DID,
                             _cursor);
 
-                        _list.AddRange(response.feed);
+                        var page = response.feed
+                            .Select(item => new BlueskyPostWrapper(item))
+                            .ToList();
+
+                        _list.AddRange(page);
 
                         _cursor = response.feed.Length > 0 && OptionModule.ToObj(response.cursor) is string next
                             ? BlueskyFeed.Page.NewFromCursor(next)
                             : null;
 
-                        foreach (var item in response.feed)
+                        foreach (var item in page)
                             yield return item;
                     }
                 }
@@ -58,7 +74,7 @@ namespace Pandacap.HighLevel
             }
         }
 
-        public IAsyncEnumerable<BlueskyFeed.FeedItem> EnumerateAsync()
+        public IAsyncEnumerable<IPost> EnumerateAsync()
         {
             var cachedList = memoryCache.GetOrCreate(Key, cacheEntry =>
             {
