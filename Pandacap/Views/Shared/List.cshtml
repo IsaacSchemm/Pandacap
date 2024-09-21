@@ -63,70 +63,67 @@ else
             <div class="row">
                 @foreach (var item in group)
                 {
-                    var thumbs = Model.ShowThumbnails
-                        ? item.ThumbnailUrls.DefaultIfEmpty("/images/trgray.svg")
-                        : ["/images/trgray.svg"];
-                    @foreach (string thumb in thumbs)
-                    {
-                        <div class="col-12 mb-3 @(Model.ShowThumbnails ? "col-sm-4 col-md-3 text-center" : "")">
-                            @if (Model.ShowThumbnails)
+                    string? thumbnailUrl = Model.ShowThumbnails
+                        ? item.ThumbnailUrls.FirstOrDefault()
+                        : null;
+                    <div class="col-12 mb-3 @(Model.ShowThumbnails ? "col-sm-4 col-md-3 text-center" : "")">
+                        @if (Model.ShowThumbnails)
+                        {
+                            <a href="@item.LinkUrl" aria-hidden="true">
+                                <img src="@(thumbnailUrl ?? "/images/trgray.svg")"
+                                        alt=""
+                                        referrerpolicy="no-referrer"
+                                        class="feed-image" />
+                            </a>
+                        }
+                        <label>
+                            @if (Model.AllowDismiss)
                             {
-                                <a href="@item.LinkUrl" aria-hidden="true">
-                                    <img src="@(thumb ?? "/images/trgray.svg")"
-                                         alt=""
-                                         referrerpolicy="no-referrer"
-                                         class="feed-image" />
-                                </a>
+                                <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                             }
-                            <label>
-                                @if (Model.AllowDismiss)
-                                {
-                                    <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                                }
-                                <a href="@item.LinkUrl">@item.DisplayTitle</a>
-                                @if (item is UserPost)
-                                {
-                                    <br />
-                                    <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
-                                }
-                            </label>
-                            @if (item is InboxActivityStreamsPost remote)
+                            <a href="@item.LinkUrl">@item.DisplayTitle</a>
+                            @if (item is UserPost)
+                            {
+                                <br />
+                                <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
+                            }
+                        </label>
+                        @if (item is InboxActivityStreamsPost remote)
+                        {
+                            <div class="mt-3">
+                                <form asp-controller="Favorites" asp-action="Add">
+                                    <input type="hidden" name="id" value="@remote.ObjectId" />
+                                    <button class="btn btn-primary btn-sm">Add to Favorites</button>
+                                </form>
+                            </div>
+                        }
+                        @if (User.Identity?.IsAuthenticated == true && item is RemoteActivityPubFavorite activityPubFavorite)
+                        {
+                            <div class="mt-3">
+                                <form asp-controller="Favorites" asp-action="Remove" onsubmit="confirm('Are you sure you want to remove this post from your favorites?')">
+                                    <input type="hidden" name="id" value="@activityPubFavorite.LikeGuid" />
+                                    <button class="btn btn-danger btn-sm">Remove from Favorites</button>
+                                </form>
+                            </div>
+                        }
+                        @if (item is RssFeedItem feedItem)
+                        {
+                            foreach (var enclosure in feedItem.Enclosures.Where(e => e.MediaType == "audio/mpeg"))
                             {
                                 <div class="mt-3">
-                                    <form asp-controller="Favorites" asp-action="Add">
-                                        <input type="hidden" name="id" value="@remote.ObjectId" />
-                                        <button class="btn btn-primary btn-sm">Add to Favorites</button>
-                                    </form>
-                                </div>
-                            }
-                            @if (User.Identity?.IsAuthenticated == true && item is RemoteActivityPubFavorite activityPubFavorite)
-                            {
-                                <div class="mt-3">
-                                    <form asp-controller="Favorites" asp-action="Remove" onsubmit="confirm('Are you sure you want to remove this post from your favorites?')">
-                                        <input type="hidden" name="id" value="@activityPubFavorite.LikeGuid" />
-                                        <button class="btn btn-danger btn-sm">Remove from Favorites</button>
-                                    </form>
-                                </div>
-                            }
-                            @if (item is RssFeedItem feedItem)
-                            {
-                                foreach (var enclosure in feedItem.Enclosures.Where(e => e.MediaType == "audio/mpeg"))
-                                {
-                                    <div class="mt-3">
-                                        <a class="btn btn-outline-primary btn-sm" href="@enclosure.Url">
-                                            Download
+                                    <a class="btn btn-outline-primary btn-sm" href="@enclosure.Url">
+                                        Download
+                                    </a>
+                                    @if (enclosure.MediaType == "audio/mpeg")
+                                    {
+                                        <a class="btn btn-outline-secondary btn-sm" asp-controller="Podcast" asp-action="SegmentZip" asp-route-url="@enclosure.Url" asp-route-seconds="300">
+                                            Split (.wma)
                                         </a>
-                                        @if (enclosure.MediaType == "audio/mpeg")
-                                        {
-                                            <a class="btn btn-outline-secondary btn-sm" asp-controller="Podcast" asp-action="SegmentZip" asp-route-url="@enclosure.Url" asp-route-seconds="300">
-                                                Split (.wma)
-                                            </a>
-                                        }
-                                    </div>
-                                }
+                                    }
+                                </div>
                             }
-                        </div>
-                    }
+                        }
+                    </div>
                 }
             </div>
         </div>
