@@ -14,7 +14,6 @@ namespace Pandacap.HighLevel
                 .AddSingleton(applicationInformation)
                 .AddScoped<ActivityPubNotificationHandler>()
                 .AddScoped<ActivityPubRequestHandler>()
-                .AddScoped<ActivityPubReplyHandler>()
                 .AddScoped<ActivityPubTranslator>()
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoCredentialProvider>()

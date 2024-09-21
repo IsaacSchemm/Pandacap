@@ -8,7 +8,6 @@ namespace Pandacap.Controllers
     [Authorize]
     public class NotificationsController(
         ActivityPubNotificationHandler activityPubNotificationHandler,
-        ActivityPubReplyHandler activityPubReplyHandler,
         ATProtoNotificationHandler atProtoNotificationHandler,
         DeviantArtFeedNotificationHandler deviantArtFeedNotificationHandler,
         DeviantArtNoteNotificationHandler deviantArtNoteNotificationHandler,
@@ -19,7 +18,6 @@ namespace Pandacap.Controllers
         private async Task<IReadOnlyList<Notification>> CollectNotificationsAsync() =>
             await new[]
             {
-                activityPubReplyHandler.GetNotificationsAsync(),
                 activityPubNotificationHandler.GetUserPostNotificationsAsync(),
                 activityPubNotificationHandler.GetAddressedPostNotificationsAsync(),
                 atProtoNotificationHandler.GetNotificationsAsync(),

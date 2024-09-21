@@ -19,8 +19,8 @@ namespace Pandacap.HighLevel.Notifications
             await foreach (var note in feed)
                 yield return new()
                 {
-                    Platform = NotificationPlatform.DeviantArtNote,
-                    ActivityName = "Note",
+                    Platform = NotificationPlatform.DeviantArt,
+                    ActivityName = "note",
                     UserName = note.user.username,
                     UserUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(note.user.username ?? "")}",
                     Timestamp = note.ts

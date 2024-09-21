@@ -11,24 +11,14 @@ type NotificationPlatform = {
     Badge: Badge
     ViewAllUrl: string
 } with
-    static member ActivityPubActivity = {
-        DisplayName = "ActivityPub (activities)"
+    static member ActivityPub = {
+        DisplayName = "ActivityPub"
         Badge = {
             Text = "ActivityPub"
             Background = "#f1007e"
             Color = "white"
         }
         ViewAllUrl = null
-    }
-
-    static member ActivityPubPost = {
-        DisplayName = "ActivityPub (posts)"
-        Badge = {
-            Text = "ActivityPub"
-            Background = "#f1007e"
-            Color = "white"
-        }
-        ViewAllUrl = "/Inbox/ActivityPubMentionsAndReplies"
     }
 
     static member ATProto = {
@@ -41,24 +31,14 @@ type NotificationPlatform = {
         ViewAllUrl = "https://bsky.app/notifications"
     }
 
-    static member DeviantArtFeed = {
-        DisplayName = "DeviantArt (feed)"
+    static member DeviantArt = {
+        DisplayName = "DeviantArt"
         Badge = {
             Text = "DeviantArt"
             Background = "#00e59b"
             Color = "black"
         }
         ViewAllUrl = "https://www.deviantart.com/notifications"
-    }
-
-    static member DeviantArtNote = {
-        DisplayName = "DeviantArt (notes)"
-        Badge = {
-            Text = "DeviantArt"
-            Background = "#00e59b"
-            Color = "black"
-        }
-        ViewAllUrl = "https://www.deviantart.com/notifications/notes"
     }
 
     static member Weasyl = {

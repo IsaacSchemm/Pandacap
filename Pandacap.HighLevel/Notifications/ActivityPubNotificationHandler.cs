@@ -24,7 +24,7 @@ namespace Pandacap.HighLevel.Notifications
 
                 yield return new()
                 {
-                    Platform = NotificationPlatform.ActivityPubActivity,
+                    Platform = NotificationPlatform.ActivityPub,
                     ActivityName = activity.ActivityType,
                     UserName = activity.ActorId,
                     UserUrl = activity.ActorId,
@@ -48,7 +48,7 @@ namespace Pandacap.HighLevel.Notifications
             {
                 yield return new()
                 {
-                    Platform = NotificationPlatform.ActivityPubActivity,
+                    Platform = NotificationPlatform.ActivityPub,
                     ActivityName = activity.ActivityType,
                     UserName = activity.ActorId,
                     UserUrl = activity.ActorId,
