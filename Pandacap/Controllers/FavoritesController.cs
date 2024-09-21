@@ -1,13 +1,13 @@
-﻿using JsonLD.Core;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
+using Microsoft.FSharp.Core;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
+using Pandacap.LowLevel.ATProto;
 using Pandacap.Models;
 using System.Text;
 
@@ -15,6 +15,7 @@ namespace Pandacap.Controllers
 {
     public class FavoritesController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
+        ATProtoLikesProvider atProtoLikesProvider,
         PandacapDbContext context,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
         ActivityPubTranslator translator) : Controller
@@ -44,6 +45,32 @@ namespace Pandacap.Controllers
                 Items = await activityPubPosts
                     .OfType<IPost>()
                     .AsListPage(count ?? 20)
+            });
+        }
+
+        private record BlueskyPostWrapper(BlueskyFeed.FeedItem Item) : IPost
+        {
+            string IPost.Id => Item.post.cid;
+            string IPost.Username => Item.post.author.DisplayNameOrNull ?? Item.post.author.did;
+            string IPost.Usericon => Item.post.author.AvatarOrNull;
+            string IPost.DisplayTitle => ExcerptGenerator.FromText(Item.post.record.text);
+            DateTimeOffset IPost.Timestamp => Item.post.indexedAt;
+            string IPost.LinkUrl => $"https://bsky.app/profile/{Item.post.author.did}/post/{Item.post.RecordKey}";
+            IEnumerable<string> IPost.ThumbnailUrls => Item.post.Images.Select(i => i.thumb).Take(1);
+        }
+
+        public async Task<IActionResult> Bluesky(string? next, int? count)
+        {
+            var posts = atProtoLikesProvider.EnumerateAsync()
+                .Select(item => new BlueskyPostWrapper(item))
+                .OfType<IPost>()
+                .SkipUntil(post => post.Id == next || next == null);
+
+            return View("List", new ListViewModel<IPost>
+            {
+                Title = "Favorites",
+                ShowThumbnails = true,
+                Items = await posts.AsListPage(count ?? 20)
             });
         }
 

@@ -31,7 +31,7 @@ type RemoteActivityPubFavorite() =
         member this.Username = this.Username
         member this.DisplayTitle =
             Option.ofObj this.Name
-            |> Option.orElse (ExcerptGenerator.fromHtml this.Content)
+            |> Option.orElse (ExcerptGenerator.FromHtml this.Content)
             |> Option.defaultValue $"{this.ObjectId}"
         member this.Timestamp = this.CreatedAt
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"

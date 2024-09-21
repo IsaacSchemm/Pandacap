@@ -31,7 +31,7 @@ type InboxATProtoPost() =
     member val DismissedAt = nullDateTimeOffset with get, set
 
     interface IPost with
-        member this.DisplayTitle = ExcerptGenerator.fromText this.Text
+        member this.DisplayTitle = ExcerptGenerator.FromText this.Text
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"https://bsky.app/profile/{this.Author.DID}/post/{this.RecordKey}"
         member this.ThumbnailUrls = [if not this.IsAdultContent then for i in this.Images do i.Thumb]

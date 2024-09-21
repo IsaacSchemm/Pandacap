@@ -38,7 +38,7 @@ type InboxActivityStreamsPost() =
         member this.Username = this.PostedBy.Username
         member this.DisplayTitle =
             Option.ofObj this.Name
-            |> Option.orElse (ExcerptGenerator.fromHtml this.Content)
+            |> Option.orElse (ExcerptGenerator.FromHtml this.Content)
             |> Option.defaultValue $"{this.ObjectId}"
         member this.Timestamp = this.PostedAt
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"

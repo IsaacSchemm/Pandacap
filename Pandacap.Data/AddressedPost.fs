@@ -35,7 +35,7 @@ type AddressedPost() =
     interface IPost with
         member this.DisplayTitle =
             Option.ofObj this.Title
-            |> Option.orElse (ExcerptGenerator.fromHtml this.HtmlContent)
+            |> Option.orElse (ExcerptGenerator.FromHtml this.HtmlContent)
             |> Option.defaultValue $"{this.Id}"
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/AddressedPosts/{this.Id}"

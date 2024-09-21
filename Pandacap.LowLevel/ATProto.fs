@@ -389,6 +389,16 @@ module BlueskyFeed =
         feed: FeedItem list
     }
 
+    let GetActorLikesAsync httpClient credentials actor page =
+        Requester.build HttpMethod.Get credentials "app.bsky.feed.getActorLikes" [
+            "actor", actor
+
+            match page with
+            | FromCursor c -> "cursor", c
+            | FromStart -> ()
+        ]
+        |> Reader.readAsync<FeedResponse> httpClient (Some credentials)
+
     let GetAuthorFeedAsync httpClient actor page =
         Requester.build HttpMethod.Get Host.Public "app.bsky.feed.getAuthorFeed" [
             "actor", actor

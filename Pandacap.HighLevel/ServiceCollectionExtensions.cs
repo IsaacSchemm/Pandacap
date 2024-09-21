@@ -19,6 +19,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoCredentialProvider>()
                 .AddScoped<ATProtoInboxHandler>()
+                .AddScoped<ATProtoLikesProvider>()
                 .AddScoped<ATProtoNotificationHandler>()
                 .AddScoped<BlueskyAgent>()
                 .AddScoped<DeviantArtCredentialProvider>()

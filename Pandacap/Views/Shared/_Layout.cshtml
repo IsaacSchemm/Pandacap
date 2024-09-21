@@ -31,8 +31,14 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Gallery" asp-action="StatusUpdates">Status Updates</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Favorites" asp-action="Index">Favorites</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="favoritesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Favorites
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="favoritesDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Favorites" asp-action="Index">ActivityPub</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Favorites" asp-action="Bluesky">Bluesky</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="inboxDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
