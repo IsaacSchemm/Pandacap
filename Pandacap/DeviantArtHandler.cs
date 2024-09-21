@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.LowLevel;
+using System.Net;
 
 namespace Pandacap
 {
@@ -273,6 +274,13 @@ namespace Pandacap
                 if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
                     return;
 
+                post.Image = null;
+                post.Thumbnail = null;
+                post.AltText = null;
+
+                string title = deviation.title.OrNull();
+                string excerpt = deviation.excerpt.OrNull();
+
                 var textContent = await DeviantArtFs.Api.Deviation.GetContentAsync(
                     credentials,
                     deviation.deviationid);
@@ -280,15 +288,13 @@ namespace Pandacap
                 if (textContent == null)
                     return;
 
-                post.Image = null;
-                post.Thumbnail = null;
-                post.AltText = null;
+                string html = textContent.html.OrNull();
 
-                post.Description = textContent.html.OrNull()?.Replace("https://www.deviantart.com/users/outgoing?", "");
+                post.Description = !string.IsNullOrWhiteSpace(html)
+                    ? (textContent.html.OrNull()?.Replace("https://www.deviantart.com/users/outgoing?", ""))
+                    : WebUtility.HtmlEncode(excerpt);
 
-                bool isStatus = deviation.excerpt.OrNull() is string excerpt
-                    && deviation.title.OrNull() is string title
-                    && excerpt.StartsWith(title);
+                bool isStatus = string.IsNullOrEmpty(title) || (excerpt ?? "").StartsWith(title);
                 post.HideTitle = isStatus;
                 post.IsArticle = !isStatus;
             }
