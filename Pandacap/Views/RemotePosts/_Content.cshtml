@@ -12,6 +12,17 @@
     @Html.Raw(Model.SanitizedContent)
 </div>
 
+<style type="text/css">
+    .contentImage {
+        width: 400px;
+        height: 400px;
+        max-width: calc(100vw - 100px);
+        max-height: calc(100vh - 100px);
+        background-color: rgba(128, 128, 128, 0.25);
+        object-fit: contain;
+    }
+    </style>
+
 @if (Model.Attachments.Any())
 {
     <p>
@@ -22,7 +33,7 @@
                 <a href="@attachment.url">
                     <img src="@attachment.url"
                          alt="@attachment.name"
-                         style="width: 200px; height: 200px; background-color: rgba(128, 128, 128, 0.25); object-fit: contain" />
+                         class="contentImage" />
                 </a>
             }
         }
