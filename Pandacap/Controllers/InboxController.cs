@@ -38,6 +38,7 @@ namespace Pandacap.Controllers
                 .Where(a => a.Timestamp <= startTime)
                 .OrderByDescending(a => a.Timestamp)
                 .AsAsyncEnumerable()
+                .Where(item => !item.AudioFiles.Any())
                 .OfType<IPost>()
                 .Where(x => x.ThumbnailUrls.Any());
 
@@ -96,6 +97,7 @@ namespace Pandacap.Controllers
                 .Where(a => a.Timestamp <= startTime)
                 .OrderByDescending(a => a.Timestamp)
                 .AsAsyncEnumerable()
+                .Where(item => !item.AudioFiles.Any())
                 .OfType<IPost>()
                 .Where(x => !x.ThumbnailUrls.Any());
 
@@ -200,6 +202,34 @@ namespace Pandacap.Controllers
                 GroupByUser = true,
                 AllowDismiss = true,
                 Items = posts
+            });
+        }
+
+        public async Task<IActionResult> Podcasts(
+            string? next,
+            int? count)
+        {
+            DateTimeOffset startTime = next is string s
+                ? await GetInboxPostsByIds([s])
+                    .Select(f => f.Timestamp)
+                    .SingleAsync()
+                : DateTimeOffset.MaxValue;
+
+            var source = await context.RssFeedItems
+                .Where(a => a.Timestamp <= startTime)
+                .OrderByDescending(a => a.Timestamp)
+                .AsAsyncEnumerable()
+                .Where(item => item.AudioFiles.Any())
+                .OfType<IPost>()
+                .SkipWhile(x => next != null && x.Id != next)
+                .AsListPage(count ?? 100);
+
+            return View("List", new ListViewModel<IPost>
+            {
+                Title = "Inbox (Podcasts)",
+                GroupByUser = true,
+                AllowDismiss = true,
+                Items = source
             });
         }
 

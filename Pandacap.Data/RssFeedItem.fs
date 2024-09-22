@@ -2,6 +2,7 @@
 
 open System
 open FSharp.Data
+open System.ComponentModel.DataAnnotations.Schema
 
 /// A link attached to a feed item.
 type RssFeedEnclosure() =
@@ -19,6 +20,13 @@ type RssFeedItem() =
     member val HtmlDescription = nullString with get, set
     member val Timestamp = DateTimeOffset.MinValue with get, set
     member val Enclosures = new ResizeArray<RssFeedEnclosure>() with get, set
+
+    [<NotMapped>]
+    member this.AudioFiles = seq {
+        for file in this.Enclosures do
+            if file.MediaType = "audio/mpeg" then
+                file
+    }
 
     interface IPost with
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
