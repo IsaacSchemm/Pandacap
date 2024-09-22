@@ -1,4 +1,5 @@
 ﻿using JsonLD.Core;
+using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using Pandacap.LowLevel;
 using System.Net.Http.Headers;
@@ -78,7 +79,24 @@ namespace Pandacap.HighLevel
         /// <param name="url">The URL to request</param>
         /// <param name="cancellationToken">A cancellation token (optional)</param>
         /// <returns>The raw JSON-LD response</returns>
-        public async Task<string> GetJsonAsync(Uri url, CancellationToken cancellationToken = default)
+        public async Task<string> GetJsonAsync(
+            Uri url,
+            CancellationToken cancellationToken = default)
+        {
+            return await GetJsonAsync(url, true, cancellationToken);
+        }
+
+        /// <summary>
+        /// Makes a signed HTTP GET request to a remote ActivityPub server.
+        /// </summary>
+        /// <param name="url">The URL to request</param>
+        /// <param name="includeSignature">Whether to include a Mastodon-style HTTP signature</param>
+        /// <param name="cancellationToken">A cancellation token (optional)</param>
+        /// <returns>The raw JSON-LD response</returns>
+        public async Task<string> GetJsonAsync(
+            Uri url,
+            bool includeSignature,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -87,7 +105,8 @@ namespace Pandacap.HighLevel
                 req.Headers.Date = DateTime.UtcNow;
                 req.Headers.UserAgent.ParseAdd(appInfo.UserAgent);
 
-                await AddSignatureAsync(req);
+                if (includeSignature)
+                    await AddSignatureAsync(req);
 
                 req.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""));
                 req.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/activity+json"));
@@ -96,25 +115,32 @@ namespace Pandacap.HighLevel
 
                 using var res = await httpClient.SendAsync(req, cancellationToken);
                 res.EnsureSuccessStatusCode();
+
+                if (res.Content.Headers.ContentType?.MediaType == "text/html")
+                {
+                    string html = await res.Content.ReadAsStringAsync(cancellationToken);
+                    var links = LinkRelAlternate.ParseFromHtml(html)
+                        .Where(attr => attr.Type == "application/activity+json")
+                        .Select(attr => attr.Href);
+                    string? href = links.FirstOrDefault()
+                        ?? throw new Exception("Request returned an HTML response with no link rel=alternate for application/activity+json");
+
+                    if (href == url.OriginalString)
+                        throw new Exception("Detected circular link rel=alternate reference");
+
+                    return await GetJsonAsync(
+                        new Uri(href),
+                        cancellationToken);
+                }
 
                 return await res.Content.ReadAsStringAsync(cancellationToken);
             }
-            catch (Exception)
+            catch (Exception) when (includeSignature)
             {
-                using var req = new HttpRequestMessage(HttpMethod.Get, url);
-                req.Headers.Host = url.Host;
-                req.Headers.Date = DateTime.UtcNow;
-                req.Headers.UserAgent.ParseAdd(appInfo.UserAgent);
-
-                req.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""));
-                req.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/activity+json"));
-
-                using var httpClient = httpClientFactory.CreateClient();
-
-                using var res = await httpClient.SendAsync(req, cancellationToken);
-                res.EnsureSuccessStatusCode();
-
-                return await res.Content.ReadAsStringAsync(cancellationToken);
+                return await GetJsonAsync(
+                    url,
+                    includeSignature: false,
+                    cancellationToken);
             }
         }
     }

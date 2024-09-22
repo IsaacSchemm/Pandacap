@@ -43,7 +43,7 @@ namespace Pandacap.Controllers
             var addressedPost = new AddressedPost
             {
                 Id = Guid.NewGuid(),
-                InReplyTo = id,
+                InReplyTo = post.Id,
                 Users = users.Select(a => a.Id).ToList(),
                 Community = communities.Select(a => a.Id).SingleOrDefault(),
                 PublishedTime = DateTimeOffset.UtcNow,

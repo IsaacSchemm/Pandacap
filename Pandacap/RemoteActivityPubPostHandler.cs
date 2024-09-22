@@ -185,12 +185,9 @@ namespace Pandacap
         /// <returns></returns>
         public async Task AddRemoteFavoriteAsync(string objectId)
         {
-            string postJson = await activityPubRequestHandler.GetJsonAsync(new Uri(objectId));
-            JToken post = JsonLdProcessor.Expand(JObject.Parse(postJson))[0];
+            var remotePost = await activityPubRemotePostService.FetchPostAsync(objectId, CancellationToken.None);
 
-            string? originalActorId = (post["https://www.w3.org/ns/activitystreams#attributedTo"] ?? Empty)
-                .Select(token => token["@id"]!.Value<string>())
-                .FirstOrDefault();
+            string? originalActorId = remotePost.AttributedTo.Id;
             if (originalActorId == null)
                 return;
 
@@ -201,27 +198,17 @@ namespace Pandacap
             context.Add(new RemoteActivityPubFavorite
             {
                 LikeGuid = likeGuid,
-                ObjectId = objectId,
+                ObjectId = remotePost.Id,
                 CreatedBy = originalActor.Id,
                 Username = originalActor.PreferredUsername,
                 Usericon = originalActor.IconUrl,
-                CreatedAt = (post["https://www.w3.org/ns/activitystreams#published"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<DateTime>())
-                    .FirstOrDefault(),
+                CreatedAt = remotePost.PostedAt,
                 FavoritedAt = DateTimeOffset.UtcNow,
-                Summary = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault(),
-                Sensitive = (post["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<bool>())
-                    .Contains(true),
-                Name = (post["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault(),
-                Content = (post["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault(),
-                Attachments = activityPubRemotePostService.GetAttachments(post)
+                Summary = remotePost.Summary,
+                Sensitive = remotePost.Sensitive,
+                Name = remotePost.Name,
+                Content = remotePost.SanitizedContent,
+                Attachments = remotePost.Attachments
                     .Select(attachment => new RemoteActivityPubFavoriteImage
                     {
                         Name = attachment.name,
