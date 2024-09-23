@@ -115,6 +115,14 @@
     <details>
         <summary class="mb-3">More actions</summary>
 
+        <form asp-action="SaveAltText" class="mb-3">
+            <input type="hidden" name="id" value="@Model.Post.Id" />
+            <input type="text" name="alt" value="@Model.Post.AltText" class="form-control" />
+            <button type="submit" class="btn btn-outline-primary">
+                Update alt text
+            </button>
+        </form>
+
         @if (Model.Post.Artwork)
         {
             <form asp-action="UnmarkAsArtwork" class="mb-3">

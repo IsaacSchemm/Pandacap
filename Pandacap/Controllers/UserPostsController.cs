@@ -40,6 +40,14 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveAltText(Guid id, string alt)
+        {
+            await deviantArtHandler.SetAltTextAsync(id, alt);
+            return RedirectToAction(nameof(Index), new { id });
+        }
+
+        [HttpPost]
         [Authorize]
         [Route("Refresh")]
         [ValidateAntiForgeryToken]

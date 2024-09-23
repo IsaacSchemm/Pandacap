@@ -2,10 +2,8 @@
 {
     public class AltTextPageViewModel
     {
-        public int? PrevOffset { get; set; }
-
-        public int? NextOffset { get; set; }
-
         public IReadOnlyList<AltTextPageItem> Items { get; set; } = [];
+
+        public Guid? Next { get; set; }
     }
 }

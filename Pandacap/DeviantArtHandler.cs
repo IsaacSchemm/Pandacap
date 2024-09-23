@@ -14,7 +14,6 @@ namespace Pandacap
     /// An object responsible for importing and refreshing posts from DeviantArt.
     /// </summary>
     public class DeviantArtHandler(
-        AltTextSentinel altTextSentinel,
         BlobServiceClient blobServiceClient,
         BlueskyAgent blueskyAgent,
         PandacapDbContext context,
@@ -261,9 +260,6 @@ namespace Pandacap
                 post.Image = imageBlobReference;
                 post.Thumbnail = thumbBlobReference;
 
-                if (altTextSentinel.TryGetAltText(deviation.deviationid, out string? altText))
-                    post.AltText = altText;
-
                 post.Description = metadata?.description?.Replace("https://www.deviantart.com/users/outgoing?", "");
 
                 post.HideTitle = false;
@@ -327,6 +323,21 @@ namespace Pandacap
 
             foreach (var blob in oldBlobs)
                 await TryDeleteBlobIfExistsAsync(blob.BlobName);
+        }
+
+        public async Task SetAltTextAsync(Guid id, string altText)
+        {
+            var userPost = await context.UserPosts
+                .Where(post => post.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (userPost == null || userPost.AltText == altText)
+                return;
+
+            userPost.AltText = altText;
+            await context.SaveChangesAsync();
+
+            await AddActivityAsync(userPost, ActivityType.Update);
         }
 
         /// <summary>
