@@ -340,6 +340,75 @@ namespace Pandacap
             await AddActivityAsync(userPost, ActivityType.Update);
         }
 
+        private async IAsyncEnumerable<DeviantArtFs.ResponseTypes.Deviation> GetAllDeviationsAsync(
+            IDeviantArtAccessToken credentials)
+        {
+            var gallery = DeviantArtFs.Api.Gallery
+                .GetAllViewAsync(
+                    credentials,
+                    UserScope.ForCurrentUser,
+                    PagingLimit.DefaultPagingLimit,
+                    PagingOffset.StartingOffset)
+                .Where(d => d.published_time.OrNull() != null);
+
+            var enumerator = gallery.GetAsyncEnumerator();
+            if (!await enumerator.MoveNextAsync())
+                yield break;
+
+            var first = enumerator.Current;
+
+            var newer = new List<DeviantArtFs.ResponseTypes.Deviation>();
+
+            await foreach (var folder in DeviantArtFs.Api.Gallery.GetFoldersAsync(
+                credentials,
+                CalculateSize.NewCalculateSize(false),
+                FolderPreload.NewFolderPreload(true),
+                FilterEmptyFolder.NewFilterEmptyFolder(true),
+                UserScope.ForCurrentUser,
+                PagingLimit.DefaultPagingLimit,
+                PagingOffset.StartingOffset))
+            {
+                async IAsyncEnumerable<DeviantArtFs.ResponseTypes.Deviation> getFromFolderAsync()
+                {
+                    foreach (var initial in folder.deviations.OrEmpty())
+                        yield return initial;
+
+                    // The following block will only be run if the "All" view
+                    // has some sort of unforeseen issue that causes it to be
+                    // missing many or all posts.
+
+                    await foreach (var deviation in DeviantArtFs.Api.Gallery.GetGalleryAsync(
+                        credentials,
+                        UserScope.ForCurrentUser,
+                        GalleryFolderScope.NewSingleGalleryFolder(folder.folderid),
+                        PagingLimit.DefaultPagingLimit,
+                        PagingOffset.StartingOffset))
+                    {
+                        if (!folder.deviations.OrEmpty().Any(d => d.deviationid == deviation.deviationid))
+                            yield return deviation;
+                    }
+                }
+
+                await foreach (var item in getFromFolderAsync())
+                {
+                    if (item.published_time.OrNull() is not DateTimeOffset dt)
+                        continue;
+
+                    if (dt <= first.published_time.Value)
+                        break;
+
+                    if (!newer.Select(d => d.deviationid).Contains(item.deviationid))
+                        newer.Add(item);
+                }
+            }
+
+            foreach (var newerItem in newer.OrderByDescending(d => d.published_time))
+                yield return newerItem;
+
+            while (await enumerator.MoveNextAsync())
+                yield return enumerator.Current;
+        }
+
         /// <summary>
         /// Imports or refreshes a set of DeviantArt posts.
         /// </summary>
@@ -355,13 +424,7 @@ namespace Pandacap
                 scope is DeviantArtImportScope.Window window
                     ? new[]
                         {
-                            DeviantArtFs.Api.Gallery
-                                .GetAllViewAsync(
-                                    credentials,
-                                    UserScope.ForCurrentUser,
-                                    PagingLimit.DefaultPagingLimit,
-                                    PagingOffset.StartingOffset)
-                                .Where(d => d.published_time.OrNull() != null)
+                            GetAllDeviationsAsync(credentials)
                                 .SkipWhile(d => d.published_time.Value > window.newest)
                                 .TakeWhile(d => d.published_time.Value >= window.oldest),
                             DeviantArtFs.Api.User
