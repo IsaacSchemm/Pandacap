@@ -311,9 +311,9 @@ namespace Pandacap.Controllers
                 _oldest: DateTimeOffset.UtcNow.AddHours(-1),
                 _newest: DateTimeOffset.MaxValue);
 
-            await deviantArtHandler.UpdateAvatarAsync();
             await deviantArtHandler.ImportUpstreamPostsAsync(scope);
             await deviantArtHandler.CheckForDeletionAsync(scope);
+            await deviantArtHandler.UpdateAvatarAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -327,9 +327,9 @@ namespace Pandacap.Controllers
                 _oldest: DateTimeOffset.UtcNow.AddMonths(-1),
                 _newest: DateTimeOffset.MaxValue);
 
-            await deviantArtHandler.UpdateAvatarAsync();
             await deviantArtHandler.ImportUpstreamPostsAsync(scope);
             await deviantArtHandler.CheckForDeletionAsync(scope);
+            await deviantArtHandler.UpdateAvatarAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -352,14 +352,14 @@ namespace Pandacap.Controllers
 
                 try
                 {
-                    await sw.WriteLineAsync("Updating avatar");
-                    await deviantArtHandler.UpdateAvatarAsync();
-                    await sw.WriteLineAsync("");
                     await sw.WriteLineAsync("Updating posts");
                     await deviantArtHandler.ImportUpstreamPostsAsync(scope, sw.WriteLineAsync);
                     await sw.WriteLineAsync("");
                     await sw.WriteLineAsync("Checking for deleted posts");
                     await deviantArtHandler.CheckForDeletionAsync(scope);
+                    await sw.WriteLineAsync("");
+                    await sw.WriteLineAsync("Updating avatar");
+                    await deviantArtHandler.UpdateAvatarAsync();
                     await sw.WriteLineAsync("");
                     await sw.WriteLineAsync("Done");
                 }

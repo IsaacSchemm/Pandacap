@@ -340,7 +340,7 @@ namespace Pandacap
             await AddActivityAsync(userPost, ActivityType.Update);
         }
 
-        private async IAsyncEnumerable<DeviantArtFs.ResponseTypes.Deviation> GetAllDeviationsAsync(
+        private static async IAsyncEnumerable<DeviantArtFs.ResponseTypes.Deviation> GetAllDeviationsAsync(
             IDeviantArtAccessToken credentials)
         {
             var gallery = DeviantArtFs.Api.Gallery
@@ -357,8 +357,6 @@ namespace Pandacap
 
             var first = enumerator.Current;
 
-            var newer = new List<DeviantArtFs.ResponseTypes.Deviation>();
-
             await foreach (var folder in DeviantArtFs.Api.Gallery.GetFoldersAsync(
                 credentials,
                 CalculateSize.NewCalculateSize(false),
@@ -368,42 +366,13 @@ namespace Pandacap
                 PagingLimit.DefaultPagingLimit,
                 PagingOffset.StartingOffset))
             {
-                async IAsyncEnumerable<DeviantArtFs.ResponseTypes.Deviation> getFromFolderAsync()
+                if (folder.deviations.OrEmpty().Any(d =>
+                    d.published_time.OrNull() is DateTimeOffset dt
+                    && dt > first.published_time.Value))
                 {
-                    foreach (var initial in folder.deviations.OrEmpty())
-                        yield return initial;
-
-                    // The following block will only be run if the "All" view
-                    // has some sort of unforeseen issue that causes it to be
-                    // missing many or all posts.
-
-                    await foreach (var deviation in DeviantArtFs.Api.Gallery.GetGalleryAsync(
-                        credentials,
-                        UserScope.ForCurrentUser,
-                        GalleryFolderScope.NewSingleGalleryFolder(folder.folderid),
-                        PagingLimit.DefaultPagingLimit,
-                        PagingOffset.StartingOffset))
-                    {
-                        if (!folder.deviations.OrEmpty().Any(d => d.deviationid == deviation.deviationid))
-                            yield return deviation;
-                    }
-                }
-
-                await foreach (var item in getFromFolderAsync())
-                {
-                    if (item.published_time.OrNull() is not DateTimeOffset dt)
-                        continue;
-
-                    if (dt <= first.published_time.Value)
-                        break;
-
-                    if (!newer.Select(d => d.deviationid).Contains(item.deviationid))
-                        newer.Add(item);
+                    throw new NotImplementedException("There are newer posts in individual gallery folders that are not in your \"All\" gallery. Go to DeviantArt to fix this issue.");
                 }
             }
-
-            foreach (var newerItem in newer.OrderByDescending(d => d.published_time))
-                yield return newerItem;
 
             while (await enumerator.MoveNextAsync())
                 yield return enumerator.Current;
