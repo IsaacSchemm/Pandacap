@@ -32,17 +32,6 @@
         </a>
     </p>
 
-    @if (Model.ATProtoDID != null)
-    {
-        <p>
-            Mirrored on Bluesky:
-            <br />
-            <a href="https://bsky.app/profile/@(Model.ATProtoDID)">
-                <tt>@Model.ATProtoDID</tt>
-            </a>
-        </p>
-    }
-
     <p>
         @foreach (var property in Model.ProfileProperties)
         {

@@ -12,8 +12,6 @@ namespace Pandacap.Models
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
 
-        public string? ATProtoDID { get; set; }
-
         public UserPost? MostRecentPost => Enumerable.Empty<UserPost>()
             .Concat(RecentArtwork)
             .Concat(RecentTextPosts)

@@ -64,8 +64,7 @@ namespace Pandacap.Controllers
                     .Take(4)
                     .ToListAsync(),
                 FollowerCount = await context.Followers.CountAsync(),
-                FollowingCount = await context.Follows.CountAsync(),
-                ATProtoDID = did
+                FollowingCount = await context.Follows.CountAsync()
             });
         }
 
