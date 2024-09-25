@@ -104,7 +104,21 @@ namespace Pandacap
             using var resp = await client.GetAsync(whoami.usericon);
             resp.EnsureSuccessStatusCode();
 
+            byte[] data = await resp.Content.ReadAsByteArrayAsync();
+            string contentType = resp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+
             var existingAvatars = await context.Avatars.ToListAsync();
+
+            if (existingAvatars.Count == 1 && contentType == existingAvatars[0].ContentType)
+            {
+                var content = await blobServiceClient
+                    .GetBlobContainerClient("blobs")
+                    .GetBlobClient(existingAvatars[0].BlobName)
+                    .DownloadContentAsync();
+
+                if (content.Value.Content.ToMemory().Span.SequenceEqual(data))
+                    return;
+            }
 
             Guid newAvatarGuid = Guid.NewGuid();
 
@@ -112,13 +126,13 @@ namespace Pandacap
             context.Avatars.Add(new Avatar
             {
                 Id = newAvatarGuid,
-                ContentType = resp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream"
+                ContentType = contentType
             });
 
-            using var stream = await resp.Content.ReadAsStreamAsync();
+            using var ms = new MemoryStream(data, writable: false);
             await blobServiceClient
                 .GetBlobContainerClient("blobs")
-                .UploadBlobAsync($"{newAvatarGuid}", stream);
+                .UploadBlobAsync($"{newAvatarGuid}", ms);
 
             var key = await keyProvider.GetPublicKeyAsync();
             var properties = await context.ProfileProperties.ToListAsync();
