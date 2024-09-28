@@ -55,12 +55,15 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
+            var listPage = await posts
+                .OfType<IPost>()
+                .AsListPage(take);
+
             return View("List", new ListViewModel<IPost>
             {
                 Title = title,
-                Items = await posts
-                    .OfType<IPost>()
-                    .AsListPage(take),
+                ShowThumbnails = listPage.DisplayList.Any(post => post.ThumbnailUrls.Any()),
+                Items = listPage,
                 CanBeSyndicationFeed = true
             });
         }
