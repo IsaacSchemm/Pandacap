@@ -1,5 +1,4 @@
-﻿using JsonLD.Core;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
@@ -8,18 +7,19 @@ using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Signatures;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Pandacap.Controllers
 {
     public class ActivityPubController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubRemotePostService activityPubRemotePostService,
-        ApplicationInformation appInfo,
         PandacapDbContext context,
         JsonLdExpansionService expansionService,
         IdMapper mapper,
         MastodonVerifier mastodonVerifier,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
+        ReplyLookup replyLookup,
         ActivityPubTranslator translator) : Controller
     {
         private static new readonly IEnumerable<JToken> Empty = [];
@@ -248,10 +248,7 @@ namespace Pandacap.Controllers
                     bool isMention = remotePost.Recipients
                         .Any(addressee => addressee.Id == mapper.ActorId);
 
-                    bool isReply = remotePost.InReplyTo
-                        .Any(id =>
-                            Uri.TryCreate(id, UriKind.Absolute, out Uri? uri)
-                            && uri.Host == appInfo.ApplicationHostname);
+                    bool isReply = replyLookup.GetOriginalPostIds(remotePost).Any();
 
                     bool isFromFollow = await context.Follows
                         .Where(f => f.ActorId == actor.Id)
@@ -270,6 +267,31 @@ namespace Pandacap.Controllers
                             remotePost,
                             isMention: isMention,
                             isReply: isReply);
+
+                    var originalPosts = await replyLookup
+                        .GetOriginalPostsAsync(remotePost)
+                        .ToListAsync(cancellationToken);
+
+                    foreach (var originalPost in originalPosts)
+                    {
+                        context.RemoteActivityPubReplies.Add(new()
+                        {
+                            Id = Guid.NewGuid(),
+                            ObjectId = postId,
+                            InReplyTo = originalPost.Id,
+                            Public = remotePost.Recipients.Contains(RemoteAddressee.PublicCollection),
+                            Approved = false,
+                            CreatedBy = remotePost.AttributedTo.Id,
+                            Username = remotePost.AttributedTo.PreferredUsername,
+                            Usericon = remotePost.AttributedTo.IconUrl,
+                            CreatedAt = remotePost.PostedAt,
+                            Summary = remotePost.Summary,
+                            Sensitive = remotePost.Sensitive,
+                            Name = remotePost.Name,
+                            Content = remotePost.SanitizedContent
+                        });
+                        await context.SaveChangesAsync(cancellationToken);
+                    }
                 }
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Update")

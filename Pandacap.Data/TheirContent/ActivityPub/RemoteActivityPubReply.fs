@@ -6,9 +6,10 @@ open System.ComponentModel.DataAnnotations
 /// A remote ActivityPub post that is a reply to one of this app's posts (a UserPost or AddressedPost).
 type RemoteActivityPubReply() =
     [<Key>]
-    member val ObjectId = "" with get, set
+    member val Id = Guid.Empty with get, set
 
-    member val InReplyTo = "" with get, set
+    member val ObjectId = "" with get, set
+    member val InReplyTo = Guid.Empty with get, set
 
     member val Public = false with get, set
     member val Approved = false with get, set

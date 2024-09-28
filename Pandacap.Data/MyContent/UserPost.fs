@@ -61,3 +61,6 @@ type UserPost() =
         }
         member _.Usericon = null
         member _.Username = null
+
+    interface IHostedPost with
+        member this.Id = this.Id
