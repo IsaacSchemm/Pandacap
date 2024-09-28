@@ -1,0 +1,26 @@
+﻿.comment {
+    border-left: 0.125rem solid lightgray;
+    margin-top: 0.5rem;
+    padding-left: 1.25rem;
+}
+
+    .comment .user {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .comment p {
+        margin: 0;
+    }
+
+    .comment .actions {
+        margin-top: 0.5rem;
+    }
+
+    .comment .actions summary {
+        opacity: 0.4;
+    }
+
+    .comment .actions-array {
+        margin: 1em 0;
+    }

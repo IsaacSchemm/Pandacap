@@ -8,6 +8,7 @@ namespace Pandacap.Controllers
 {
     public class RemotePostsController(
         ActivityPubRemotePostService activityPubRemotePostService,
+        ApplicationInformation appInfo,
         ActivityPubTranslator translator,
         PandacapDbContext context,
         IdMapper idMapper) : Controller
@@ -17,6 +18,9 @@ namespace Pandacap.Controllers
         {
             if (!Uri.TryCreate(id, UriKind.Absolute, out Uri? uri) || uri == null)
                 return NotFound();
+
+            if (uri.Host == appInfo.ApplicationHostname)
+                return Redirect(uri.AbsoluteUri);
 
             if (User.Identity?.IsAuthenticated != true)
                 return Redirect(uri.AbsoluteUri);

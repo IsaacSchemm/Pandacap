@@ -3,6 +3,7 @@
     public class ReplyModel
     {
         public required bool Remote { get; init; }
+        public required bool Approved { get; init; }
 
         public required string ObjectId { get; init; }
         public required string CreatedBy { get; init; }

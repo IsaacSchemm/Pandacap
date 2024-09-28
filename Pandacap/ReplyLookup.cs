@@ -46,6 +46,7 @@ namespace Pandacap
 
                 yield return new ReplyModel
                 {
+                    Approved = remotePost.Approved,
                     CreatedAt = remotePost.CreatedAt,
                     CreatedBy = remotePost.CreatedBy,
                     HtmlContent = remotePost.HtmlContent,
@@ -70,6 +71,7 @@ namespace Pandacap
 
                 yield return new ReplyModel
                 {
+                    Approved = true,
                     CreatedAt = addressedPost.PublishedTime,
                     CreatedBy = mapper.ActorId,
                     HtmlContent = addressedPost.HtmlContent,

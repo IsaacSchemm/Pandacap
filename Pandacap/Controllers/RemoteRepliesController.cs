@@ -10,16 +10,52 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task Forget(Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Approve(string objectId, CancellationToken cancellationToken)
         {
             var reply = await context.RemoteActivityPubReplies
-                .Where(r => r.Id == id)
-                .FirstOrDefaultAsync(cancellationToken);
+                .Where(r => r.ObjectId == objectId)
+                .SingleOrDefaultAsync(cancellationToken);
             if (reply == null)
-                return;
+                return BadRequest();
+
+            reply.Approved = true;
+            await context.SaveChangesAsync(cancellationToken);
+
+            return Redirect(reply.InReplyTo);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unapprove(string objectId, CancellationToken cancellationToken)
+        {
+            var reply = await context.RemoteActivityPubReplies
+                .Where(r => r.ObjectId == objectId)
+                .SingleOrDefaultAsync(cancellationToken);
+            if (reply == null)
+                return BadRequest();
+
+            reply.Approved = false;
+            await context.SaveChangesAsync(cancellationToken);
+
+            return Redirect(reply.InReplyTo);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Forget(string objectId, CancellationToken cancellationToken)
+        {
+            var reply = await context.RemoteActivityPubReplies
+                .Where(r => r.ObjectId == objectId)
+                .SingleOrDefaultAsync(cancellationToken);
+            if (reply == null)
+                return BadRequest();
 
             context.Remove(reply);
             await context.SaveChangesAsync(cancellationToken);
+
+            return Redirect(reply.InReplyTo);
         }
     }
 }
