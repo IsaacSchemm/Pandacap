@@ -13,7 +13,6 @@
     <Compile Include="Credentials\ATProtoCredentials.fs" />
     <Compile Include="Credentials\DeviantArtCredentials.fs" />
     <Compile Include="Credentials\WeasylCredentials.fs" />
-    <Compile Include="MyContent\IHostedPost.fs" />
     <Compile Include="MyContent\ActivityPubOutboundActivity.fs" />
     <Compile Include="MyContent\AddressedPost.fs" />
     <Compile Include="MyContent\Avatar.fs" />

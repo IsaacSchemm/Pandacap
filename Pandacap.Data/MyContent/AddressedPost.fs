@@ -19,16 +19,19 @@ type AddressedPost() =
     member this.Audience = Option.ofObj this.Community
 
     [<NotMapped>]
+    member this.Communities = Option.toList this.Audience
+
+    [<NotMapped>]
     member this.Addressing = {|
         To = [
             "https://www.w3.org/ns/activitystreams#Public"
             if not this.IsReply then
-                yield! Option.toList this.Audience
+                yield! this.Communities
         ]
         Cc = [
             yield! this.Users
             if this.IsReply then
-                yield! Option.toList this.Audience
+                yield! this.Communities
         ]
     |}
 
@@ -44,6 +47,3 @@ type AddressedPost() =
         member this.Timestamp = this.PublishedTime
         member _.Usericon = null
         member _.Username = null
-
-    interface IHostedPost with
-        member this.Id = this.Id

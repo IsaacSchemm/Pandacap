@@ -9,7 +9,7 @@ type RemoteActivityPubReply() =
     member val Id = Guid.Empty with get, set
 
     member val ObjectId = "" with get, set
-    member val InReplyTo = Guid.Empty with get, set
+    member val InReplyTo = "" with get, set
 
     member val Public = false with get, set
     member val Approved = false with get, set
@@ -21,4 +21,4 @@ type RemoteActivityPubReply() =
     member val Summary = nullString with get, set
     member val Sensitive = false with get, set
     member val Name = nullString with get, set
-    member val Content = nullString with get, set
+    member val HtmlContent = nullString with get, set

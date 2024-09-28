@@ -13,6 +13,7 @@ namespace Pandacap.Controllers
     public class AddressedPostsController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
+        IdMapper mapper,
         ReplyLookup replyLookup,
         ActivityPubTranslator translator) : Controller
     {
@@ -37,19 +38,17 @@ namespace Pandacap.Controllers
             return View(new AddressedPostViewModel
             {
                 Post = post,
-                Users = await Task.WhenAll(
-                    post.Users.Select(id => activityPubRemoteActorService.FetchAddresseeAsync(
-                        id,
-                        cancellationToken))),
-                Communities = post.Community == null
-                    ? []
-                    : [
-                        await activityPubRemoteActorService.FetchAddresseeAsync(
-                            post.Community,
-                            cancellationToken)
-                    ],
+                Users = await activityPubRemoteActorService.FetchAddresseesAsync(
+                    post.Users,
+                    cancellationToken),
+                Communities = await activityPubRemoteActorService.FetchAddresseesAsync(
+                    post.Communities,
+                    cancellationToken),
                 Replies = await replyLookup
-                    .CollectRepliesAsync(post, loggedIn, cancellationToken)
+                    .CollectRepliesAsync(
+                        mapper.GetObjectId(post),
+                        loggedIn,
+                        cancellationToken)
                     .ToListAsync(cancellationToken)
             });
         }

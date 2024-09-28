@@ -8,6 +8,6 @@ namespace Pandacap.Models
 
         public required IEnumerable<UserPostActivity> RemoteActivities { get; set; }
 
-        public required IEnumerable<RemoteReplyModel> Replies { get; set; }
+        public required IEnumerable<ReplyModel> Replies { get; set; }
     }
 }

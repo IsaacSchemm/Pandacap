@@ -11,6 +11,6 @@ namespace Pandacap.Models
 
         public required IEnumerable<RemoteAddressee> Communities { get; set; }
 
-        public required IEnumerable<RemoteReplyModel> Replies { get; set; }
+        public required IEnumerable<ReplyModel> Replies { get; set; }
     }
 }

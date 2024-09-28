@@ -12,6 +12,7 @@ namespace Pandacap.Controllers
     public class UserPostsController(
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
+        IdMapper mapper,
         ReplyLookup replyLookup,
         ActivityPubTranslator translator) : Controller
     {
@@ -44,7 +45,10 @@ namespace Pandacap.Controllers
                         .ToListAsync(cancellationToken)
                     : [],
                 Replies = await replyLookup
-                    .CollectRepliesAsync(post, loggedIn, cancellationToken)
+                    .CollectRepliesAsync(
+                        mapper.GetObjectId(post),
+                        loggedIn,
+                        cancellationToken)
                     .ToListAsync(cancellationToken)
             });
         }

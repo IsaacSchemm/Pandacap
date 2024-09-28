@@ -2,6 +2,7 @@
 
 open System
 open System.Threading
+open System.Threading.Tasks
 open Newtonsoft.Json.Linq
 open Pandacap.HighLevel
 
@@ -85,3 +86,8 @@ type ActivityPubRemoteActorService(
             | _ ->
                 return InaccessibleObject url
     }
+
+    member this.FetchAddresseesAsync(urls: string seq, cancellationToken: CancellationToken) =
+        urls
+        |> Seq.map (fun url -> this.FetchAddresseeAsync(url, cancellationToken))
+        |> Task.WhenAll

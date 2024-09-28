@@ -1,5 +1,4 @@
-﻿using JsonLD.Util;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
@@ -8,7 +7,6 @@ using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Signatures;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Pandacap.Controllers
 {
@@ -249,9 +247,12 @@ namespace Pandacap.Controllers
                     bool isMention = remotePost.Recipients
                         .Any(addressee => addressee.Id == mapper.ActorId);
 
-                    bool isReply = replyLookup
-                        .GetOriginalPostIds(remotePost)
-                        .Any();
+                    var inReplyTo = await remotePost.InReplyTo
+                        .ToAsyncEnumerable()
+                        .WhereAwait(async id => await replyLookup.IsOriginalPostStoredAsync(id, cancellationToken))
+                        .ToListAsync(cancellationToken);
+
+                    bool isReply = inReplyTo.Count > 0;
 
                     bool isFromFollow = await context.Follows
                         .Where(f => f.ActorId == actor.Id)
@@ -271,17 +272,13 @@ namespace Pandacap.Controllers
                             isMention: isMention,
                             isReply: isReply);
 
-                    var originalPosts = await replyLookup
-                        .GetOriginalPostsAsync(remotePost)
-                        .ToListAsync(cancellationToken);
-
-                    foreach (var originalPost in originalPosts)
+                    foreach (string originalPostId in inReplyTo)
                     {
                         context.RemoteActivityPubReplies.Add(new()
                         {
                             Id = Guid.NewGuid(),
                             ObjectId = postId,
-                            InReplyTo = originalPost.Id,
+                            InReplyTo = originalPostId,
                             Public = remotePost.Recipients.Contains(RemoteAddressee.PublicCollection),
                             Approved = false,
                             CreatedBy = remotePost.AttributedTo.Id,
@@ -291,7 +288,7 @@ namespace Pandacap.Controllers
                             Summary = remotePost.Summary,
                             Sensitive = remotePost.Sensitive,
                             Name = remotePost.Name,
-                            Content = remotePost.SanitizedContent
+                            HtmlContent = remotePost.SanitizedContent
                         });
                         await context.SaveChangesAsync(cancellationToken);
                     }
@@ -348,7 +345,7 @@ namespace Pandacap.Controllers
                             reply.Summary = remotePost.Summary;
                             reply.Sensitive = remotePost.Sensitive;
                             reply.Name = remotePost.Name;
-                            reply.Content = remotePost.SanitizedContent;
+                            reply.HtmlContent = remotePost.SanitizedContent;
                         }
 
                         await context.SaveChangesAsync(cancellationToken);
