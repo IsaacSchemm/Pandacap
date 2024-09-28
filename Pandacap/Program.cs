@@ -69,7 +69,8 @@ builder.Services
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<DeviantArtHandler>()
     .AddScoped<MastodonVerifier>()
-    .AddScoped<RemoteActivityPubPostHandler>();
+    .AddScoped<RemoteActivityPubPostHandler>()
+    .AddScoped<ReplyLookup>();
 
 builder.Services.AddSharedServices(new ApplicationInformation(
     applicationHostname: builder.Configuration["ApplicationHostname"],

@@ -248,7 +248,9 @@ namespace Pandacap.Controllers
                     bool isMention = remotePost.Recipients
                         .Any(addressee => addressee.Id == mapper.ActorId);
 
-                    bool isReply = replyLookup.GetOriginalPostIds(remotePost).Any();
+                    bool isReply = replyLookup
+                        .GetOriginalPostIds(remotePost)
+                        .Any();
 
                     bool isFromFollow = await context.Follows
                         .Where(f => f.ActorId == actor.Id)

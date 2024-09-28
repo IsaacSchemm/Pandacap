@@ -5,6 +5,7 @@ using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.Models;
 using System.Text;
+using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -28,6 +29,12 @@ namespace Pandacap.Controllers
                     "application/activity+json",
                     Encoding.UTF8);
 
+            var replies = await context.RemoteActivityPubReplies
+                .Where(p => p.InReplyTo == id)
+                .AsAsyncEnumerable()
+                .Where(p => (p.Public && p.Approved) || User.Identity?.IsAuthenticated == true)
+                .ToListAsync();
+
             return View(new UserPostViewModel
             {
                 Post = post,
@@ -35,7 +42,8 @@ namespace Pandacap.Controllers
                     ? await context.UserPostActivities
                         .Where(a => a.UserPostId == post.Id)
                         .ToListAsync()
-                    : []
+                    : [],
+                Replies = replies
             });
         }
 

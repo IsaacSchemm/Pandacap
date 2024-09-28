@@ -31,11 +31,28 @@ namespace Pandacap.Controllers
                     "application/activity+json",
                     Encoding.UTF8);
 
+            var replies = await context.RemoteActivityPubReplies
+                .Where(p => p.InReplyTo == id)
+                .AsAsyncEnumerable()
+                .Where(p => p.Public)
+                .Where(p => p.Approved || User.Identity?.IsAuthenticated == true)
+                .ToListAsync(cancellationToken);
+
             return View(new AddressedPostViewModel
             {
                 Post = post,
-                Users = await Task.WhenAll(post.Users.Select(id => activityPubRemoteActorService.FetchAddresseeAsync(id, cancellationToken))),
-                Communities = [await activityPubRemoteActorService.FetchAddresseeAsync(post.Community, cancellationToken)]
+                Users = await Task.WhenAll(
+                    post.Users.Select(id => activityPubRemoteActorService.FetchAddresseeAsync(
+                        id,
+                        cancellationToken))),
+                Communities = post.Community == null
+                    ? []
+                    : [
+                        await activityPubRemoteActorService.FetchAddresseeAsync(
+                            post.Community,
+                            cancellationToken)
+                    ],
+                Replies = replies
             });
         }
 

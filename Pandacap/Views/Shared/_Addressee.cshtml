@@ -7,10 +7,8 @@
         : null;
 }
 
-@if (actor?.IconUrl != null)
-{
-    <img height="25" src="@actor.IconUrl" alt="" />
-}
+<img width="25" height="25" src="@(actor?.IconUrl ?? "/images/trgray.svg")" alt="" />
+
 <span style="display: inline-block; vertical-align: top">
     <strong>
         <a href="@Model.Id" target="_blank">@Model.Id</a>

@@ -192,3 +192,13 @@
         </form>
     </details>
 }
+
+@if (Model.Replies.Any())
+{
+    <h2>Comments</h2>
+
+    foreach (var reply in Model.Replies)
+    {
+        <partial name="_RemoteActivityPubReply" model="@reply" />
+    }
+}
