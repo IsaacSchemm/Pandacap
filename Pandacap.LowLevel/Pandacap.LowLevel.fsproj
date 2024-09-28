@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="ApplicationInformation.fs" />
     <Compile Include="DeviantArtImportScope.fs" />
+    <Compile Include="DeviantArtScraper.fs" />
     <Compile Include="ListPage.fs" />
     <Compile Include="FavoritesCacheEntry.fs" />
     <Compile Include="NotificationPlatform.fs" />
@@ -19,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FSharp.Data.Html.Core" Version="6.4.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Microsoft.Net.Http.Headers" Version="8.0.8" />
   </ItemGroup>

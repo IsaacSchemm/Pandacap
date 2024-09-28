@@ -185,12 +185,14 @@ namespace Pandacap
         /// <returns>An asynchronous sequence of Deviation objects</returns>
         private async IAsyncEnumerable<DeviantArtFs.ResponseTypes.Deviation> GetDeviationsByIdsAsync(IEnumerable<Guid> ids)
         {
-            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
+            if (await credentialProvider.GetCredentialsAsync() is not (_, var user))
                 yield break;
 
             foreach (Guid id in ids)
                 if (await GetDeviationAsync(id) is DeviantArtFs.ResponseTypes.Deviation dev)
-                    yield return dev;
+                    yield return dev.author.OrNull()?.userid == user.userid
+                        ? dev
+                        : throw new Exception("Post not by logged-in user");
         }
 
         /// <summary>

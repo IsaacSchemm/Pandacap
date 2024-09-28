@@ -374,6 +374,18 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Import(string url)
+        {
+            Guid id = await DeviantArtScraper.GetIdAsync(url);
+            await deviantArtHandler.ImportUpstreamPostsAsync(
+                DeviantArtImportScope.FromIds(
+                    [id]));
+            return RedirectToAction("Index", "UserPosts", new { id });
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddFeed(string url)
         {
             await atomRssFeedReader.AddFeedAsync(url);
