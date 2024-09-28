@@ -23,6 +23,16 @@
         @post.CreatedAt
     </a>
 
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <br />
+
+        <form asp-controller="RemoteReplies" asp-action="Forget" method="post" class="d-inline" onsubmit="confirm('Are you sure you want to remove this post from Pandacap?')">
+            <input type="hidden" name="id" value="@post.Id" />
+            <button type="submit" class="btn btn-sm btn-danger">Forget</button>
+        </form>
+    }
+
     @foreach (var reply in Model.LocalReplies)
     {
         <div class="ml-4">

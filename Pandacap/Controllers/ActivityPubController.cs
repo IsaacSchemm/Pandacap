@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using JsonLD.Util;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.Data;
@@ -365,6 +366,9 @@ namespace Pandacap.Controllers
 
                     var favorites = await context.RemoteActivityPubFavorites.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
                     context.RemoveRange(favorites);
+
+                    var replies = await context.RemoteActivityPubReplies.Where(reply => reply.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
+                    context.RemoveRange(replies);
 
                     await context.SaveChangesAsync(cancellationToken);
                 }
