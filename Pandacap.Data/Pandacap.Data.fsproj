@@ -25,6 +25,7 @@
     <Compile Include="TheirContent\ActivityPub\AddressedPostActivity.fs" />
     <Compile Include="TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
     <Compile Include="TheirContent\ActivityPub\RemoteActivityPubFavorite.fs" />
+    <Compile Include="TheirContent\ActivityPub\RemoteActivityPubReply.fs" />
     <Compile Include="TheirContent\ActivityPub\UserPostActivity.fs" />
     <Compile Include="TheirContent\DeviantArt\DeviantArtTextPostCheckStatus.fs" />
     <Compile Include="TheirContent\DeviantArt\InboxDeviation.fs" />

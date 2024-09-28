@@ -36,15 +36,7 @@ type ActivityPubRemotePostService(
         })
         |> Seq.toList
 
-    member this.FetchPostAsync(url: string, cancellationToken: CancellationToken) = task {
-        let uri = new Uri(url)
-        let! json = requestHandler.GetJsonAsync(uri, cancellationToken)
-
-        let object =
-            json
-            |> JObject.Parse
-            |> expansionService.Expand
-
+    member this.ParseExpandedObjectAsync(object: JToken, cancellationToken: CancellationToken) = task {
         let id = node_id object
 
         let attributedTo =
@@ -121,4 +113,11 @@ type ActivityPubRemotePostService(
             Attachments =
                 this.GetAttachments(object)
         }
+    }
+
+    member this.FetchPostAsync(url: string, cancellationToken: CancellationToken) = task {
+        let uri = new Uri(url)
+        let! json = requestHandler.GetJsonAsync(uri, cancellationToken)
+        let object = json |> JObject.Parse |> expansionService.Expand
+        return! this.ParseExpandedObjectAsync(object, cancellationToken)
     }

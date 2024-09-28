@@ -14,9 +14,9 @@ namespace Pandacap.Controllers
     public class ActivityPubController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubRemotePostService activityPubRemotePostService,
-        ActivityPubRequestHandler activityPubRequestHandler,
         ApplicationInformation appInfo,
         PandacapDbContext context,
+        JsonLdExpansionService expansionService,
         IdMapper mapper,
         MastodonVerifier mastodonVerifier,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
@@ -74,9 +74,7 @@ namespace Pandacap.Controllers
             // Expand JSON-LD
             // This is important to do, because objects can be replaced with IDs, pretty much anything can be an array, etc.
             JObject document = JObject.Parse(json);
-            JArray expansionArray = JsonLdProcessor.Expand(document);
-
-            var expansionObj = expansionArray.SingleOrDefault();
+            var expansionObj = expansionService.Expand(document);
             if (expansionObj == null)
                 return;
 
@@ -245,7 +243,7 @@ namespace Pandacap.Controllers
                 {
                     string postId = obj["@id"]!.Value<string>()!;
 
-                    var remotePost = await activityPubRemotePostService.FetchPostAsync(postId, cancellationToken);
+                    var remotePost = await activityPubRemotePostService.ParseExpandedObjectAsync(obj, cancellationToken);
 
                     bool isMention = remotePost.Recipients
                         .Any(addressee => addressee.Id == mapper.ActorId);
@@ -301,6 +299,31 @@ namespace Pandacap.Controllers
                             follow.SharedInbox = actor.SharedInbox;
                             follow.PreferredUsername = actor.PreferredUsername;
                             follow.IconUrl = actor.IconUrl;
+                        }
+
+                        await context.SaveChangesAsync(cancellationToken);
+                    }
+
+                    var replies = await context.RemoteActivityPubReplies
+                        .Where(reply => reply.ObjectId == postId)
+                        .ToListAsync(cancellationToken);
+
+                    if (replies.Count > 0)
+                    {
+                        var remotePost = await activityPubRemotePostService.ParseExpandedObjectAsync(obj, cancellationToken);
+
+                        foreach (var reply in replies)
+                        {
+                            reply.Public &= remotePost.Recipients.Contains(RemoteAddressee.PublicCollection);
+                            reply.Approved = false;
+                            reply.CreatedBy = remotePost.AttributedTo.Id;
+                            reply.Username = remotePost.AttributedTo.PreferredUsername;
+                            reply.Usericon = remotePost.AttributedTo.IconUrl;
+                            reply.CreatedAt = remotePost.PostedAt;
+                            reply.Summary = remotePost.Summary;
+                            reply.Sensitive = remotePost.Sensitive;
+                            reply.Name = remotePost.Name;
+                            reply.Content = remotePost.SanitizedContent;
                         }
 
                         await context.SaveChangesAsync(cancellationToken);
