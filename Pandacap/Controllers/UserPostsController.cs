@@ -5,7 +5,6 @@ using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.Models;
 using System.Text;
-using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -13,12 +12,17 @@ namespace Pandacap.Controllers
     public class UserPostsController(
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
+        ReplyLookup replyLookup,
         ActivityPubTranslator translator) : Controller
     {
         [Route("{id}")]
-        public async Task<IActionResult> Index(Guid id)
+        public async Task<IActionResult> Index(
+            Guid id,
+            CancellationToken cancellationToken)
         {
-            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
+            var post = await context.UserPosts
+                .Where(p => p.Id == id)
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (post == null)
                 return NotFound();
@@ -29,11 +33,7 @@ namespace Pandacap.Controllers
                     "application/activity+json",
                     Encoding.UTF8);
 
-            var replies = await context.RemoteActivityPubReplies
-                .Where(p => p.InReplyTo == id)
-                .AsAsyncEnumerable()
-                .Where(p => (p.Public && p.Approved) || User.Identity?.IsAuthenticated == true)
-                .ToListAsync();
+            bool loggedIn = User.Identity?.IsAuthenticated == true;
 
             return View(new UserPostViewModel
             {
@@ -41,9 +41,11 @@ namespace Pandacap.Controllers
                 RemoteActivities = User.Identity?.IsAuthenticated == true
                     ? await context.UserPostActivities
                         .Where(a => a.UserPostId == post.Id)
-                        .ToListAsync()
+                        .ToListAsync(cancellationToken)
                     : [],
-                Replies = replies
+                Replies = await replyLookup
+                    .CollectRepliesAsync(post, loggedIn, cancellationToken)
+                    .ToListAsync(cancellationToken)
             });
         }
 

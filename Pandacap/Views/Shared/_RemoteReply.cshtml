@@ -1,0 +1,32 @@
+﻿@using Pandacap.Data
+@model RemoteReplyModel
+
+@{
+    var post = Model.RemotePost;
+    string username = post.Username ?? post.CreatedBy;
+}
+
+<section aria-label="Comment" style="border: 1px solid currentColor" class="p-3 mt-3">
+    <img width="25" height="25" src="@(post.Usericon ?? "/images/trgray.svg")" alt="" />
+
+    <span style="display: inline-block; vertical-align: top">
+        <strong>
+            <a href="@post.CreatedBy" target="_blank">@username</a>
+        </strong>
+    </span>
+
+    <br />
+
+    @Html.Raw(post.Content)
+
+    <a class="small" asp-controller="RemotePosts" asp-action="Index" asp-route-id="@post.ObjectId">
+        @post.CreatedAt
+    </a>
+
+    @foreach (var reply in Model.LocalReplies)
+    {
+        <div class="ml-4">
+            <partial name="_LocalReply" model="@reply" />
+        </div>
+    }
+</section>

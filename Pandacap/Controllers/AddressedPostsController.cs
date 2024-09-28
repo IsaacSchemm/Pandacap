@@ -13,6 +13,7 @@ namespace Pandacap.Controllers
     public class AddressedPostsController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
+        ReplyLookup replyLookup,
         ActivityPubTranslator translator) : Controller
     {
         [Route("{id}")]
@@ -31,12 +32,7 @@ namespace Pandacap.Controllers
                     "application/activity+json",
                     Encoding.UTF8);
 
-            var replies = await context.RemoteActivityPubReplies
-                .Where(p => p.InReplyTo == id)
-                .AsAsyncEnumerable()
-                .Where(p => p.Public)
-                .Where(p => p.Approved || User.Identity?.IsAuthenticated == true)
-                .ToListAsync(cancellationToken);
+            bool loggedIn = User.Identity?.IsAuthenticated == true;
 
             return View(new AddressedPostViewModel
             {
@@ -52,7 +48,9 @@ namespace Pandacap.Controllers
                             post.Community,
                             cancellationToken)
                     ],
-                Replies = replies
+                Replies = await replyLookup
+                    .CollectRepliesAsync(post, loggedIn, cancellationToken)
+                    .ToListAsync(cancellationToken)
             });
         }
 
