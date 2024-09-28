@@ -27,6 +27,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<DeviantArtNoteNotificationHandler>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<IdMapper>()
+                .AddScoped<JsonLdExpansionService>()
                 .AddScoped<KeyProvider>()
                 .AddScoped<OutboxProcessor>()
                 .AddScoped<WeasylClientFactory>()

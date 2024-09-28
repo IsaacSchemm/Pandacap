@@ -3,10 +3,12 @@
 open System
 open System.Threading
 open Newtonsoft.Json.Linq
-open JsonLD.Core
 open Pandacap.HighLevel
 
-type ActivityPubRemoteActorService(requestHandler: ActivityPubRequestHandler) =
+type ActivityPubRemoteActorService(
+    expansionService: JsonLdExpansionService,
+    requestHandler: ActivityPubRequestHandler
+) =
     let mutable actorCache = Map.empty<string, RemoteActor>
 
     let fetchAsync (url: string) (cancellationToken: CancellationToken) = task {
@@ -16,8 +18,7 @@ type ActivityPubRemoteActorService(requestHandler: ActivityPubRequestHandler) =
         let object =
             json
             |> JObject.Parse
-            |> JsonLdProcessor.Expand
-            |> Seq.exactlyOne
+            |> expansionService.Expand
 
         return {
             Type = object

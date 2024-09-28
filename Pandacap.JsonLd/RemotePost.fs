@@ -18,4 +18,5 @@ type RemotePost = {
     Audience: string
     Attachments: Attachment list
 } with
+    member this.HasVisibleSummary = not (String.IsNullOrWhiteSpace(this.Summary))
     member this.Recipients = this.To @ this.Cc

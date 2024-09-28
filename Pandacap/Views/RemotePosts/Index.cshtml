@@ -44,11 +44,11 @@
     @Model.Type?.Replace("https://www.w3.org/ns/activitystreams#", "")
 </span>
 
-@if (Model.Summary != null || Model.Sensitive)
+@if (Model.HasVisibleSummary || Model.Sensitive)
 {
     <details>
         <summary>
-            @(Model.Summary ?? "Show content")
+            @(Model.HasVisibleSummary ? Model.Summary : "Show content")
         </summary>
 
         <partial name="_Content" model="@Model" />

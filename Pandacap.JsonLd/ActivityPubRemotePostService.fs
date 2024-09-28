@@ -4,11 +4,11 @@ open System
 open System.Threading
 open System.Threading.Tasks
 open Newtonsoft.Json.Linq
-open JsonLD.Core
 open Ganss.Xss
 open Pandacap.HighLevel
 
 type ActivityPubRemotePostService(
+    expansionService: JsonLdExpansionService,
     remoteActorService: ActivityPubRemoteActorService,
     requestHandler: ActivityPubRequestHandler
 ) =
@@ -43,8 +43,7 @@ type ActivityPubRemotePostService(
         let object =
             json
             |> JObject.Parse
-            |> JsonLdProcessor.Expand
-            |> Seq.exactlyOne
+            |> expansionService.Expand
 
         let id = node_id object
 
