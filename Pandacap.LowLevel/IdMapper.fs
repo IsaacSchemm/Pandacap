@@ -29,8 +29,12 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.OutboxRootId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Outbox"
 
-    member _.OutboxPageId =
-        $"https://{appInfo.ApplicationHostname}/Gallery/Composite"
+    member _.GetOutboxPageId(position: ActivityPubPaginationPosition option) =
+        match position with
+        | Some pos ->
+            $"https://{appInfo.ApplicationHostname}/Gallery/Composite?next={pos.next}&count={pos.count}"
+        | None ->
+            $"https://{appInfo.ApplicationHostname}/Gallery/Composite"
 
     member _.LikedRootId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Liked"
@@ -46,6 +50,16 @@ type IdMapper(appInfo: ApplicationInformation) =
 
     member _.GetObjectId(addressedPost: AddressedPost) =
         $"https://{appInfo.ApplicationHostname}/AddressedPosts/{addressedPost.Id}"
+
+    member _.GetRepliesRootId(objectId: string) =
+        $"https://{appInfo.ApplicationHostname}/RemoteReplies/Collection?objectId={Uri.EscapeDataString(objectId)}"
+
+    member _.GetRepliesPageId(objectId: string, position: ActivityPubPaginationPosition option) =
+        match position with
+        | Some pos ->
+            $"https://{appInfo.ApplicationHostname}/RemoteReplies/Page?objectId={Uri.EscapeDataString(objectId)}&next={pos.next}&count={pos.count}"
+        | None ->
+            $"https://{appInfo.ApplicationHostname}/RemoteReplies/Page?objectId={Uri.EscapeDataString(objectId)}"
 
     member _.GetFollowId(followGuid: Guid) =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Follow/{followGuid}"

@@ -12,6 +12,7 @@
     <Compile Include="ListPage.fs" />
     <Compile Include="FavoritesCacheEntry.fs" />
     <Compile Include="NotificationPlatform.fs" />
+    <Compile Include="ActivityPubPaginationPosition.fs" />
     <Compile Include="IdMapper.fs" />
     <Compile Include="ActorKey.fs" />
     <Compile Include="ActivityPub.fs" />

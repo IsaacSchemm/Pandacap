@@ -121,9 +121,11 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
                         pair "name" post.AltText
                 ]
             ]
+
+        pair "replies" (mapper.GetRepliesRootId(id))
     ]
 
-    member this.AsObject(post: AddressedPost) = dict [
+    member _.AsObject(post: AddressedPost) = dict [
         let id = mapper.GetObjectId(post)
 
         pair "id" id
@@ -146,6 +148,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         match post.Audience with
         | Some id -> pair "audience" id
         | _ -> ()
+
+        pair "replies" (mapper.GetRepliesRootId(id))
     ]
 
     member this.ObjectToCreate(post: UserPost) = dict [
@@ -194,6 +198,26 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "published" DateTimeOffset.UtcNow
         pair "to" ["https://www.w3.org/ns/activitystreams#Public"]
         pair "object" (mapper.GetObjectId(post))
+    ]
+
+    member _.AsRepliesCollection(objectId: string, posts: int) = dict [
+        pair "id" (mapper.GetRepliesRootId(objectId))
+        pair "type" "Collection"
+        pair "totalItems" posts
+        pair "first" (mapper.GetRepliesPageId(objectId, None))
+    ]
+
+    member _.AsRepliesCollectionPage(objectId: string, currentPage: string, posts: ListPage<RemoteActivityPubReply>) = dict [
+        pair "id" currentPage
+        pair "type" "OrderedCollectionPage"
+        pair "partOf" mapper.OutboxRootId
+
+        pair "orderedItems" [for p in posts.DisplayList do p.ObjectId]
+        match posts.Next with
+        | None -> ()
+        | Some next ->
+            let pos = { next = next.Id; count = Seq.length posts.DisplayList }
+            pair "next" (mapper.GetRepliesPageId(objectId, Some pos))
     ]
 
     member _.AcceptFollow(followId: string) = dict [
@@ -245,7 +269,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "id" mapper.OutboxRootId
         pair "type" "Collection"
         pair "totalItems" posts
-        pair "first" mapper.OutboxPageId
+        pair "first" (mapper.GetOutboxPageId(None))
     ]
 
     member _.AsOutboxCollectionPage(currentPage: string, posts: ListPage<UserPost>) = dict [
@@ -257,7 +281,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         match posts.Next with
         | None -> ()
         | Some next ->
-            pair "next" $"{mapper.OutboxPageId}?next={next.Id}&count={Seq.length posts.DisplayList}"
+            let pos = { next = next.Id; count = Seq.length posts.DisplayList }
+            pair "next" (mapper.GetOutboxPageId(Some pos))
     ]
 
     member _.AsLikedCollection(posts: int) = dict [

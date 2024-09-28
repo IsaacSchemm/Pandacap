@@ -1,7 +1,7 @@
 ﻿.comment {
     border-left: 0.125rem solid lightgray;
     margin-top: 0.5rem;
-    padding-left: 1.25rem;
+    padding-left: 1.5rem;
 }
 
     .comment .user {
@@ -14,13 +14,13 @@
     }
 
     .comment .actions {
-        margin-top: 0.5rem;
+        padding: 0.5rem 0;
     }
 
     .comment .actions summary {
-        opacity: 0.4;
+        opacity: 0.5;
     }
 
     .comment .actions-array {
-        margin: 1em 0;
+        margin-top: 0.5em;
     }
