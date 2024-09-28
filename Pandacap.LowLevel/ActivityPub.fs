@@ -122,7 +122,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
                 ]
             ]
 
-        pair "replies" (mapper.GetRepliesRootId(id))
+        pair "replies" (mapper.GetRepliesId(id))
     ]
 
     member _.AsObject(post: AddressedPost) = dict [
@@ -149,7 +149,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         | Some id -> pair "audience" id
         | _ -> ()
 
-        pair "replies" (mapper.GetRepliesRootId(id))
+        pair "replies" (mapper.GetRepliesId(id))
     ]
 
     member this.ObjectToCreate(post: UserPost) = dict [
@@ -200,24 +200,11 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (mapper.GetObjectId(post))
     ]
 
-    member _.AsRepliesCollection(objectId: string, posts: int) = dict [
-        pair "id" (mapper.GetRepliesRootId(objectId))
+    member _.AsRepliesCollection(objectId: string, replies: RemoteActivityPubReply seq) = dict [
+        pair "id" (mapper.GetRepliesId(objectId))
         pair "type" "Collection"
-        pair "totalItems" posts
-        pair "first" (mapper.GetRepliesPageId(objectId, None))
-    ]
-
-    member _.AsRepliesCollectionPage(objectId: string, currentPage: string, posts: ListPage<RemoteActivityPubReply>) = dict [
-        pair "id" currentPage
-        pair "type" "OrderedCollectionPage"
-        pair "partOf" mapper.OutboxRootId
-
-        pair "orderedItems" [for p in posts.DisplayList do p.ObjectId]
-        match posts.Next with
-        | None -> ()
-        | Some next ->
-            let pos = { next = next.Id; count = Seq.length posts.DisplayList }
-            pair "next" (mapper.GetRepliesPageId(objectId, Some pos))
+        pair "totalItems" (Seq.length replies)
+        pair "items" [for r in replies do r.ObjectId]
     ]
 
     member _.AcceptFollow(followId: string) = dict [
@@ -267,7 +254,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
 
     member _.AsOutboxCollection(posts: int) = dict [
         pair "id" mapper.OutboxRootId
-        pair "type" "Collection"
+        pair "type" "OrderedCollection"
         pair "totalItems" posts
         pair "first" (mapper.GetOutboxPageId(None))
     ]

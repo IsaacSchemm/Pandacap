@@ -10,50 +10,38 @@ namespace Pandacap.Controllers
 {
     public class RemoteRepliesController(
         PandacapDbContext context,
+        ReplyLookup replyLookup,
         ActivityPubTranslator translator) : Controller
     {
         [HttpGet]
-        public async Task<IActionResult> Collection(string objectId)
+        public async Task<IActionResult> Collection(string objectId, CancellationToken cancellationToken)
         {
-            int count = await context.RemoteActivityPubReplies.CountAsync();
-            return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    translator.AsRepliesCollection(
-                        objectId,
-                        count)),
-                "application/activity+json",
-                Encoding.UTF8);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Page(string objectId, Guid? next, int? count)
-        {
-            int take = count ?? 20;
-
-            var nextReply = await context.RemoteActivityPubReplies
-                .Where(p => p.Id == next)
-                .Select(p => new { p.CreatedAt })
-                .SingleOrDefaultAsync();
-
-            DateTimeOffset startTime = nextReply?.CreatedAt ?? DateTimeOffset.MaxValue;
-
             var posts = await context.RemoteActivityPubReplies
-                .Where(r => r.InReplyTo == objectId)
-                .Where(r => r.Public && r.Approved)
-                .Where(r => r.CreatedAt <= startTime)
-                .OrderByDescending(r => r.CreatedAt)
-                .AsAsyncEnumerable()
-                .SkipUntil(r => r.Id == next || next == null)
-                .AsListPage(take);
+                .Where(r => r.InReplyTo == objectId
+                    && r.Public
+                    && r.Approved)
+                .OrderBy(r => r.CreatedAt)
+                .ToListAsync(cancellationToken);
 
-            return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    translator.AsRepliesCollectionPage(
-                        objectId,
-                        Request.GetEncodedUrl(),
-                        posts)),
-                "application/activity+json",
-                Encoding.UTF8);
+            if (Request.IsActivityPub())
+            {
+                return Content(
+                    ActivityPubSerializer.SerializeWithContext(
+                        translator.AsRepliesCollection(
+                            objectId,
+                            posts)),
+                    "application/activity+json",
+                    Encoding.UTF8);
+            }
+
+            var models = await replyLookup
+                .CollectRepliesAsync(
+                    objectId,
+                    false,
+                    cancellationToken)
+                .ToListAsync(cancellationToken);
+
+            return View(models);
         }
 
         [HttpPost]

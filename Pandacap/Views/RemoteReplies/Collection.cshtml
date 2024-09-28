@@ -1,0 +1,6 @@
+﻿@model IEnumerable<ReplyModel>
+
+@foreach (var reply in Model)
+{
+    <partial name="_Reply" model="@reply" />
+}
