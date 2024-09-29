@@ -22,14 +22,20 @@
         <tt>@@@appInfo.Username@@@appInfo.HandleHostname</tt>
         <br />
         <a asp-action="Followers">
-            Followers:
+            ActivityPub followers:
             @Model.FollowerCount
         </a>
         <br />
         <a asp-action="Following">
-            Following:
+            ActivityPub following:
             @Model.FollowingCount
         </a>
+    </p>
+
+    <p>
+        <a href="/Gallery/Composite?format=rss">RSS feed</a>
+        &middot;
+        <a href="/Gallery/Composite?format=atom">Atom feed</a>
     </p>
 
     <p>
