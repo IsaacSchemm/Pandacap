@@ -13,14 +13,18 @@
 
 <ol>
     <li>
-        A public art gallery of the main user's posts (split between image
-        posts on one hand, and text posts - journals and status updates - on
-        the other)
+        A public art gallery of the user's posts (split between image posts
+        on one hand, and text posts - journals and status updates - on the
+        other), imported manually from DeviantArt
+    </li>
+    <li>
+        An unlisted, but public, set of ActivityPub replies and mentions
+        created by the user from within Pandacap
     </li>
     <li>
         A private "inbox" of posts created or shared by users who the main
         user follows, accessible only to the main user after logging in (split
-        between image posts, text posts, and shares)
+        between image posts, text posts, mentions, shares, and podcasts)
     </li>
 </ol>
 
@@ -84,13 +88,15 @@
 </p>
 
 <p>
-    Likes, shares, and replies from other users are shown on the Notifications
-    page.
+    In addition, Pandacap allows the logged-in user to create "addressed
+    posts", either by posting to a Lemmy community, or by replying to another
+    ActivityPub post. All such posts are text only (no title or attachments)
+    and are public but unlisted.
 </p>
 
-<p class="small text-muted">
-    Pandacap cannot currently send replies to ActivityPub posts; you'll need to
-    reply from another account instead.
+<p>
+    Likes, shares, and replies from other users are shown on the Notifications
+    page.
 </p>
 
 <p>
@@ -126,8 +132,8 @@
 
 <p>
     Pandacap implements a small atproto client. If the Pandacap user attaches
-    an atproto (e.g. Bluesky) account, posts from the account's home timeline
-    (e.g. posts from users they follow) will be added to the Pandacap inbox.
+    a Bluesky account, posts from the account's home timeline (e.g. posts from
+    users they follow) will be added to the Pandacap inbox.
 </p>
 
 <p class="small text-muted">
@@ -145,7 +151,7 @@
 <p class="small text-muted">
     Pandacap does not have the ability to apply updates to crossposts. The
     recommended workaround is to use Pandacap to detach the crosspost and
-    create a new one, then delete the original from the Weasyl side.
+    create a new one, then delete the original from the Bluesky side.
 </p>
 
 <h2>

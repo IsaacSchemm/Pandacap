@@ -2,7 +2,6 @@
 
 open System
 open System.ComponentModel.DataAnnotations
-open System.ComponentModel.DataAnnotations.Schema
 
 type InboxATProtoUser() =
     member val DID = "" with get, set
@@ -39,6 +38,7 @@ type InboxATProtoPost() =
         })
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"https://bsky.app/profile/{this.Author.DID}/post/{this.RecordKey}"
+        member this.ProfileUrl = $"https://bsky.app/profile/{this.Author.DID}"
         member this.ThumbnailUrls = [if not this.IsAdultContent then for i in this.Images do i.Thumb]
         member this.Timestamp = this.IndexedAt
         member this.Usericon = this.PostedBy.Avatar

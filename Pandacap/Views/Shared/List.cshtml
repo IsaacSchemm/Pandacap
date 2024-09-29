@@ -42,20 +42,26 @@ else
     }
 
     var groups = Model.GroupByUser
-        ? Model.Items.DisplayList.GroupBy(item => new { item.Username, item.Usericon })
-        : Model.Items.DisplayList.GroupBy(item => new { Username = "", Usericon = "" });
+        ? Model.Items.DisplayList.GroupBy(item => new { item.Username, item.ProfileUrl })
+        : Model.Items.DisplayList.GroupBy(item => new { Username = (string)null, ProfileUrl = (string)null });
 
     foreach (var group in groups)
     {
         if (!string.IsNullOrEmpty(group.Key.Username))
         {
+            var icon = group
+                .OrderByDescending(item => item.Timestamp)
+                .Select(item => item.Usericon)
+                .DefaultIfEmpty("/images/trgray.svg")
+                .FirstOrDefault();
+
             <h1>
-                <img height="50" src="@(group.Key.Usericon ?? "/images/trgray.svg")" alt="" />
-                <span style="display: inline-block; vertical-align: top">
+                <img height="50" src="@icon" alt="" />
+                <a href="@group.Key.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
                     <strong>
                         @group.Key.Username
                     </strong>
-                </span>
+                </a>
             </h1>
         }
 

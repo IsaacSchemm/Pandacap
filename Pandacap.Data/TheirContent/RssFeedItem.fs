@@ -42,5 +42,6 @@ type RssFeedItem() =
             with _ ->
                 Seq.empty
         member this.LinkUrl = this.Url
+        member this.ProfileUrl = this.FeedWebsiteUrl
         member this.Usericon = this.FeedIconUrl
         member this.Username = this.FeedWebsiteUrl

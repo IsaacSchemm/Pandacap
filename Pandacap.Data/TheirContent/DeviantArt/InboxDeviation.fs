@@ -8,7 +8,7 @@ open System.ComponentModel.DataAnnotations.Schema
 type InboxDeviation() =
     member val Id = Guid.Empty with get, set
     member val CreatedBy = Guid.Empty with get, set
-    member val Username = nullString with get, set
+    member val Username = "" with get, set
     member val Usericon = nullString with get, set
     member val Timestamp = DateTimeOffset.MinValue with get, set
     member val MatureContent = false with get, set
@@ -23,6 +23,7 @@ type InboxDeviation() =
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.LinkUrl
+        member this.ProfileUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(this.Username)}"
         member this.Timestamp = this.Timestamp
         member this.ThumbnailUrls = this.ThumbnailUrls
         member this.Usericon = this.Usericon

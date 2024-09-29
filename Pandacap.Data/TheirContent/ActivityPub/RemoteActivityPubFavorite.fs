@@ -36,4 +36,5 @@ type RemoteActivityPubFavorite() =
         })
         member this.Timestamp = this.CreatedAt
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
+        member this.ProfileUrl = this.CreatedBy
         member this.ThumbnailUrls = this.Attachments |> Seq.map (fun a -> a.Url)

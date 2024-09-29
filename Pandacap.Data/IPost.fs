@@ -7,6 +7,7 @@ type IPost =
     abstract member Id: string
     abstract member Username: string
     abstract member Usericon: string
+    abstract member ProfileUrl: string
     abstract member DisplayTitle: string
     abstract member Timestamp: DateTimeOffset
     abstract member LinkUrl: string

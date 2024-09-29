@@ -54,6 +54,7 @@ type UserPost() =
             |> Seq.head
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/UserPosts/{this.Id}"
+        member this.ProfileUrl = null
         member this.Timestamp = this.PublishedTime
         member this.ThumbnailUrls = seq {
             if not (List.isEmpty this.ImageBlobs) then

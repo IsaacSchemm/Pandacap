@@ -43,6 +43,7 @@ type AddressedPost() =
         })
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/AddressedPosts/{this.Id}"
+        member this.ProfileUrl = null
         member _.ThumbnailUrls = []
         member this.Timestamp = this.PublishedTime
         member _.Usericon = null
