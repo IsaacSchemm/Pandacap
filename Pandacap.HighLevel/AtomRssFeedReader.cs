@@ -65,6 +65,9 @@ namespace Pandacap.HighLevel
                     Timestamp = item.PublishingDate ?? DateTimeOffset.UtcNow,
                     Enclosures = getAttachments().ToList()
                 });
+
+                if (newFeedItems.Count >= 20)
+                    break;
             }
 
             context.RssFeedItems.AddRange(newFeedItems);
