@@ -31,17 +31,18 @@ type RssFeedItem() =
     interface IPost with
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
-        member this.Timestamp = this.Timestamp
+        member this.LinkUrl = this.Url
+        member this.ProfileUrl = this.FeedWebsiteUrl
+        member _.Platform = RSS_Atom
         member this.ThumbnailUrls =
             try
                 let html = HtmlDocument.Parse (this.HtmlDescription |> orString "")
 
-                html.Descendants "img"
-                |> Seq.choose (fun node -> node.TryGetAttribute "src")
+                html.Descendants("img")
+                |> Seq.choose (fun node -> node.TryGetAttribute("src"))
                 |> Seq.map (fun attr -> attr.Value())
             with _ ->
                 Seq.empty
-        member this.LinkUrl = this.Url
-        member this.ProfileUrl = this.FeedWebsiteUrl
+        member this.Timestamp = this.Timestamp
         member this.Usericon = this.FeedIconUrl
         member this.Username = this.FeedWebsiteUrl

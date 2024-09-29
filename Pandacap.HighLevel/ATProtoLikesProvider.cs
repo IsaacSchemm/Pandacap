@@ -27,6 +27,7 @@ namespace Pandacap.HighLevel
             string IPost.DisplayTitle => ExcerptGenerator.FromText(EnumerateText());
             DateTimeOffset IPost.Timestamp => Item.post.indexedAt;
             string IPost.LinkUrl => $"https://bsky.app/profile/{Item.post.author.did}/post/{Item.post.RecordKey}";
+            PostPlatform IPost.Platform => PostPlatform.ATProto;
             string IPost.ProfileUrl => $"https://bsky.app/profile/{Item.post.author.did}";
             IEnumerable<string> IPost.ThumbnailUrls => Item.post.Images.Select(i => i.thumb);
         }

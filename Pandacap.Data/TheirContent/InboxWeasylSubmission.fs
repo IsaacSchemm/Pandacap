@@ -29,6 +29,7 @@ type InboxWeasylSubmission() =
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Url
         member this.ProfileUrl = $"https://www.weasyl.com/~{Uri.EscapeDataString(this.PostedBy.Login)}"
+        member _.Platform = Weasyl
         member this.ThumbnailUrls =
             match this.Rating with
             | "general" -> this.Thumbnails |> Seq.map (fun i -> i.Url)

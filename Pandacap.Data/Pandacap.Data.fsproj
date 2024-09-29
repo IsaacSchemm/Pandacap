@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Badge.fs" />
+    <Compile Include="PostPlatform.fs" />
     <Compile Include="IPost.fs" />
     <Compile Include="NullValues.fs" />
     <Compile Include="TextConverter.fs" />

@@ -27,14 +27,15 @@ type RemoteActivityPubFavorite() =
 
     interface IPost with
         member this.Id = $"{this.LikeGuid}"
-        member this.Usericon = this.Usericon
-        member this.Username = this.Username
         member this.DisplayTitle = ExcerptGenerator.FromText (seq {
             this.Name
             TextConverter.FromHtml this.Content
             this.ObjectId
         })
-        member this.Timestamp = this.CreatedAt
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
+        member _.Platform = ActivityPub
         member this.ProfileUrl = this.CreatedBy
+        member this.Timestamp = this.CreatedAt
         member this.ThumbnailUrls = this.Attachments |> Seq.map (fun a -> a.Url)
+        member this.Usericon = this.Usericon
+        member this.Username = this.Username

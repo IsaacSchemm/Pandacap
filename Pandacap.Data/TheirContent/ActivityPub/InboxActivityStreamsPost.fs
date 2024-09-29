@@ -34,8 +34,10 @@ type InboxActivityStreamsPost() =
 
     interface IPost with
         member this.Id = $"{this.Id}"
-        member this.Usericon = this.PostedBy.Usericon
         member this.Username = this.PostedBy.Username
+        member this.Usericon = this.PostedBy.Usericon
+        member _.Platform = ActivityPub
+        member this.ProfileUrl = this.PostedBy.Id
         member this.DisplayTitle = ExcerptGenerator.FromText (seq {
             this.Name
             TextConverter.FromHtml this.Content
@@ -45,5 +47,4 @@ type InboxActivityStreamsPost() =
         })
         member this.Timestamp = this.PostedAt
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
-        member this.ProfileUrl = this.PostedBy.Id
         member this.ThumbnailUrls = this.Attachments |> Seq.map (fun a -> a.Url)

@@ -1,10 +1,6 @@
 ﻿namespace Pandacap.LowLevel
 
-type Badge = {
-    Text: string
-    Background: string
-    Color: string
-}
+open Pandacap.Data
 
 type NotificationPlatform = {
     DisplayName: string
@@ -13,40 +9,24 @@ type NotificationPlatform = {
 } with
     static member ActivityPub = {
         DisplayName = "ActivityPub"
-        Badge = {
-            Text = "ActivityPub"
-            Background = "#f1007e"
-            Color = "white"
-        }
+        Badge = PostPlatform.GetBadge ActivityPub
         ViewAllUrl = null
     }
 
     static member ATProto = {
         DisplayName = "atproto"
-        Badge = {
-            Text = "atproto"
-            Background = "#397EF6"
-            Color = "white"
-        }
+        Badge = PostPlatform.GetBadge ATProto
         ViewAllUrl = "https://bsky.app/notifications"
     }
 
     static member DeviantArt = {
         DisplayName = "DeviantArt"
-        Badge = {
-            Text = "DeviantArt"
-            Background = "#00e59b"
-            Color = "black"
-        }
+        Badge = PostPlatform.GetBadge DeviantArt
         ViewAllUrl = "https://www.deviantart.com/notifications"
     }
 
     static member Weasyl = {
         DisplayName = "Weasyl"
-        Badge = {
-            Text = "Weasyl"
-            Background = "#990000"
-            Color = "white"
-        }
+        Badge = PostPlatform.GetBadge Weasyl
         ViewAllUrl = "https://www.weasyl.com/messages/notifications"
     }

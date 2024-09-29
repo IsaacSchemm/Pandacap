@@ -38,6 +38,7 @@ type InboxATProtoPost() =
         })
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"https://bsky.app/profile/{this.Author.DID}/post/{this.RecordKey}"
+        member _.Platform = ATProto
         member this.ProfileUrl = $"https://bsky.app/profile/{this.Author.DID}"
         member this.ThumbnailUrls = [if not this.IsAdultContent then for i in this.Images do i.Thumb]
         member this.Timestamp = this.IndexedAt
