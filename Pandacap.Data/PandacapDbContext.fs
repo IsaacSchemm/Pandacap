@@ -16,6 +16,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.UserPostActivities: DbSet<UserPostActivity> = this.Set()
     member this.AddressedPosts: DbSet<AddressedPost> = this.Set()
     member this.AddressedPostActivities: DbSet<AddressedPostActivity> = this.Set()
+    member this.PostActivities: DbSet<PostActivity> = this.Set()
     member this.DeviantArtTextPostCheckStatuses: DbSet<DeviantArtTextPostCheckStatus> = this.Set()
     member this.InboxArtworkDeviations: DbSet<InboxArtworkDeviation> = this.Set()
     member this.InboxTextDeviations: DbSet<InboxTextDeviation> = this.Set()

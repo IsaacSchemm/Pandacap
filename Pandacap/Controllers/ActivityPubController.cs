@@ -187,50 +187,19 @@ namespace Pandacap.Controllers
                 {
                     string interactedWithId = obj["@id"]!.Value<string>()!;
 
-                    if (type == "https://www.w3.org/ns/activitystreams#Announce")
+                    if (Uri.TryCreate(interactedWithId, UriKind.Absolute, out Uri? uri)
+                        && uri != null
+                        && Uri.TryCreate(mapper.ActorId, UriKind.Absolute, out Uri? me)
+                        && me != null)
                     {
-                        await remoteActivityPubPostHandler.AddRemoteAnnouncementAsync(
-                            actor,
-                            expansionObj["@id"]!.Value<string>()!,
-                            interactedWithId);
-                    }
-
-                    if (Uri.TryCreate(interactedWithId, UriKind.Absolute, out Uri? uri) && uri != null)
-                    {
-                        if (!Guid.TryParse(uri.Segments.Last(), out Guid id))
-                            continue;
-
-                        var post = await context.UserPosts
-                            .Where(p => p.Id == id)
-                            .SingleOrDefaultAsync(cancellationToken);
-
-                        if (post != null && mapper.GetObjectId(post) == uri.GetLeftPart(UriPartial.Path))
+                        context.PostActivities.Add(new()
                         {
-                            context.UserPostActivities.Add(new()
-                            {
-                                Id = expansionObj["@id"]!.Value<string>()!,
-                                ActivityType = type.Replace("https://www.w3.org/ns/activitystreams#", ""),
-                                UserPostId = id,
-                                AddedAt = DateTimeOffset.UtcNow,
-                                ActorId = actor.Id
-                            });
-                        }
-
-                        var addressedPost = await context.AddressedPosts
-                            .Where(p => p.Id == id)
-                            .SingleOrDefaultAsync(cancellationToken);
-
-                        if (addressedPost != null && mapper.GetObjectId(addressedPost) == uri.GetLeftPart(UriPartial.Path))
-                        {
-                            context.AddressedPostActivities.Add(new()
-                            {
-                                Id = expansionObj["@id"]!.Value<string>()!,
-                                ActivityType = type.Replace("https://www.w3.org/ns/activitystreams#", ""),
-                                AddressedPostId = id,
-                                AddedAt = DateTimeOffset.UtcNow,
-                                ActorId = actor.Id
-                            });
-                        }
+                            Id = expansionObj["@id"]!.Value<string>()!,
+                            InReplyTo = interactedWithId,
+                            ActorId = actor.Id,
+                            ActivityType = type.Replace("https://www.w3.org/ns/activitystreams#", ""),
+                            AddedAt = DateTimeOffset.UtcNow
+                        });
                     }
                 }
 

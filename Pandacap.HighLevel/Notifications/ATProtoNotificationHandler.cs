@@ -48,8 +48,9 @@ namespace Pandacap.HighLevel.Notifications
                         ActivityName = item.reason,
                         UserName = item.author.displayName.OrNull() ?? item.author.handle,
                         UserUrl = $"https://bsky.app/profile/{Uri.EscapeDataString(item.author.did)}",
-                        UserPostId = userPost?.Id,
-                        UserPostTitle = userPost?.Title,
+                        PostUrl = userPost == null
+                            ? null
+                            : $"https://bsky.app/profile/{userPost.BlueskyDID}/post/{userPost.BlueskyRecordKey}",
                         Timestamp = item.indexedAt.ToUniversalTime()
                     };
                 }

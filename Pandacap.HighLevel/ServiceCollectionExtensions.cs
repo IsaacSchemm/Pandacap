@@ -13,6 +13,7 @@ namespace Pandacap.HighLevel
             return services
                 .AddSingleton(applicationInformation)
                 .AddScoped<ActivityPubNotificationHandler>()
+                .AddScoped<ActivityPubReplyNotificationHandler>()
                 .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<ActivityPubTranslator>()
                 .AddScoped<AtomRssFeedReader>()

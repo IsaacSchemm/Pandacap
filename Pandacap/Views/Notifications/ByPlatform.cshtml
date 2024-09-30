@@ -31,11 +31,11 @@
                                         @:from
                                         <a href="@notification.UserUrl" target="_blank">@notification.UserName</a>
                                     }
-                                    @if (notification.UserPostId != null)
+                                    @if (notification.PostUrl != null)
                                     {
                                         @:on
-                                        <a href="/UserPosts/@(notification.UserPostId)">
-                                            @notification.UserPostTitle
+                                        <a href="@notification.PostUrl">
+                                            @notification.PostUrl
                                         </a>
                                     }
                                 </div>
