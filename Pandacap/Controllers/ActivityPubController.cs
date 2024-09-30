@@ -7,6 +7,7 @@ using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Signatures;
 using System.Text;
+using static Pandacap.LowLevel.ATProto.BlueskyFeed;
 
 namespace Pandacap.Controllers
 {
@@ -213,41 +214,21 @@ namespace Pandacap.Controllers
 
                     var remotePost = await activityPubRemotePostService.ParseExpandedObjectAsync(obj, cancellationToken);
 
+                    string? inReplyTo = await remotePost.InReplyTo
+                        .ToAsyncEnumerable()
+                        .WhereAwait(async id => await replyLookup.IsOriginalPostStoredAsync(id, cancellationToken))
+                        .FirstOrDefaultAsync(cancellationToken);
+
                     bool isMention = remotePost.Recipients
                         .Any(addressee => addressee.Id == mapper.ActorId);
 
-                    var inReplyTo = await remotePost.InReplyTo
-                        .ToAsyncEnumerable()
-                        .WhereAwait(async id => await replyLookup.IsOriginalPostStoredAsync(id, cancellationToken))
-                        .ToListAsync(cancellationToken);
-
-                    bool isReply = inReplyTo.Count > 0;
-
-                    bool isFromFollow = await context.Follows
-                        .Where(f => f.ActorId == actor.Id)
-                        .CountAsync(cancellationToken) > 0;
-
-                    var actorIds = remotePost.Recipients
-                        .Where(addressee => !addressee.IsCollection && !addressee.IsPublicCollection)
-                        .Select(addressee => addressee.Id);
-
-                    if (actorIds.Any() && !actorIds.Contains(mapper.ActorId))
-                        isFromFollow = false;
-
-                    if (isMention || isReply || isFromFollow)
-                        await remoteActivityPubPostHandler.AddRemotePostAsync(
-                            actor,
-                            remotePost,
-                            isMention: isMention,
-                            isReply: isReply);
-
-                    foreach (string originalPostId in inReplyTo)
+                    if (inReplyTo != null)
                     {
                         context.RemoteActivityPubReplies.Add(new()
                         {
                             Id = Guid.NewGuid(),
                             ObjectId = postId,
-                            InReplyTo = originalPostId,
+                            InReplyTo = inReplyTo,
                             Public = remotePost.Recipients.Contains(RemoteAddressee.PublicCollection),
                             Approved = false,
                             CreatedBy = remotePost.AttributedTo.Id,
@@ -259,7 +240,27 @@ namespace Pandacap.Controllers
                             Name = remotePost.Name,
                             HtmlContent = remotePost.SanitizedContent
                         });
+
                         await context.SaveChangesAsync(cancellationToken);
+                    }
+                    else if (isMention)
+                    {
+                        await remoteActivityPubPostHandler.AddRemotePostAsync(actor, remotePost);
+                    }
+                    else
+                    {
+                        var addressedActors = remotePost.Recipients
+                            .Where(addressee => addressee.IsActor)
+                            .Select(addressee => addressee.Id); 
+
+                        bool isFromFollow = await context.Follows
+                            .Where(f => f.ActorId == actor.Id)
+                            .CountAsync(cancellationToken) > 0;
+
+                        bool addressedToOthers = !isMention && addressedActors.Any();
+
+                        if (isFromFollow && !addressedToOthers)
+                            await remoteActivityPubPostHandler.AddRemotePostAsync(actor, remotePost);
                     }
                 }
             }

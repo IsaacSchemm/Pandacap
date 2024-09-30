@@ -25,7 +25,7 @@ namespace Pandacap
     {
         private static readonly IEnumerable<JToken> Empty = [];
 
-        private async Task<bool> ShouldIgnoreImagesAsync(RemoteActor sendingActor)
+        private async Task<bool> ShouldIgnoreImagesFromActorAsync(RemoteActor sendingActor)
         {
             var follow = await context.Follows
                 .Where(f => f.ActorId == sendingActor.Id)
@@ -38,15 +38,11 @@ namespace Pandacap
         /// Adds a remote ActivityPub post to the Pandacap inbox.
         /// </summary>
         /// <param name="sendingActor">The actor who created the post.</param>
-        /// <param name="remotePost">An representation of the remote post.</param>
-        /// <param name="isMention">Whether this post mentions the Pandacap actor.</param>
-        /// <param name="isReply">Whether this post is a reply to a post made by the Pandacap actor.</param>
+        /// <param name="remotePost">A representation of the remote post.</param>
         /// <returns></returns>
         public async Task AddRemotePostAsync(
             RemoteActor sendingActor,
-            RemotePost remotePost,
-            bool isMention = false,
-            bool isReply = false)
+            RemotePost remotePost)
         {
             string attributedTo = remotePost.AttributedTo.Id;
             if (attributedTo != sendingActor.Id)
@@ -77,14 +73,12 @@ namespace Pandacap
                     Username = sendingActor.PreferredUsername,
                     Usericon = sendingActor.IconUrl
                 },
-                IsMention = isMention,
-                IsReply = isReply,
                 PostedAt = remotePost.PostedAt,
                 Summary = remotePost.Summary,
                 Sensitive = remotePost.Sensitive,
                 Name = remotePost.Name,
                 Content = remotePost.SanitizedContent,
-                Attachments = await ShouldIgnoreImagesAsync(sendingActor)
+                Attachments = await ShouldIgnoreImagesFromActorAsync(sendingActor)
                     ? []
                     : remotePost.Attachments
                         .Select(attachment => new InboxActivityStreamsImage
@@ -164,7 +158,7 @@ namespace Pandacap
                 Content = (originalPost["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
                     .Select(token => token["@value"]!.Value<string>())
                     .FirstOrDefault(),
-                Attachments = await ShouldIgnoreImagesAsync(announcingActor)
+                Attachments = await ShouldIgnoreImagesFromActorAsync(announcingActor)
                     ? []
                     : activityPubRemotePostService.GetAttachments(originalPost)
                         .Select(attachment => new InboxActivityStreamsImage
