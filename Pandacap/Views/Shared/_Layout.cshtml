@@ -1,4 +1,6 @@
-﻿@using Pandacap.LowLevel
+﻿@using Microsoft.AspNetCore.Identity
+@using Pandacap.LowLevel
+@inject SignInManager<IdentityUser> SignInManager
 @inject ApplicationInformation appInfo
 
 <!DOCTYPE html>
@@ -6,10 +8,16 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=8" />
     <title>@ViewData["Title"] - @appInfo.Username</title>
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <!--[if !IE]><!-->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/pandacap.css" asp-append-version="true" />
+    <!--<![endif]-->
+    <!--[if IE]>
+    <link rel="stylesheet" href="/css/ie8.css" />
+    <![endif]-->
 </head>
 <body>
     <header>
@@ -42,27 +50,30 @@
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Favorites" asp-action="Weasyl">Weasyl</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="inboxDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Inbox
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="inboxDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="ImagePosts">Image posts</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="TextPosts">Text posts</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="ActivityPubMentionsAndReplies">Mentions (ActivityPub)</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="Shares">Shares</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="Podcasts">Podcasts</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Notifications
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="notificationsDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Notifications" asp-action="ByDate">By date</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Notifications" asp-action="ByPlatform">By platform</a></li>
-                            </ul>
-                        </li>
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="inboxDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Inbox
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="inboxDropdown">
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="ImagePosts">Image posts</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="TextPosts">Text posts</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="ActivityPubMentionsAndReplies">Mentions (ActivityPub)</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="Shares">Shares</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Inbox" asp-action="Podcasts">Podcasts</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Notifications
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="notificationsDropdown">
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Notifications" asp-action="ByDate">By date</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Notifications" asp-action="ByPlatform">By platform</a></li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
