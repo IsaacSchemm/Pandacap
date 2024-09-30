@@ -188,6 +188,14 @@ namespace Pandacap.Controllers
                 {
                     string interactedWithId = obj["@id"]!.Value<string>()!;
 
+                    if (type == "https://www.w3.org/ns/activitystreams#Announce")
+                    {
+                        await remoteActivityPubPostHandler.AddRemoteAnnouncementAsync(
+                            actor,
+                            expansionObj["@id"]!.Value<string>()!,
+                            interactedWithId);
+                    }
+
                     if (Uri.TryCreate(interactedWithId, UriKind.Absolute, out Uri? uri)
                         && uri != null
                         && Uri.TryCreate(mapper.ActorId, UriKind.Absolute, out Uri? me)

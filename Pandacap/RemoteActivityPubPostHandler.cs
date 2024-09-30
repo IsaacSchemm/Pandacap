@@ -1,8 +1,5 @@
-﻿using JsonLD.Core;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
+﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.HighLevel;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 
@@ -13,25 +10,33 @@ namespace Pandacap
     /// </summary>
     /// <param name="activityPubRemoteActorService">An object that can retrieve remote ActivityPub actor information</param>
     /// <param name="activityPubRemotePostService">An object that can retrieve remote ActivityPub post information</param>
-    /// <param name="activityPubRequestHandler">An object that can make signed HTTP ActivityPub requests</param>
     /// <param name="context">The database context</param>
     /// <param name="translator">An object that builds the ActivityPub objects and activities associated with Pandacap objects</param>
     public class RemoteActivityPubPostHandler(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubRemotePostService activityPubRemotePostService,
-        ActivityPubRequestHandler activityPubRequestHandler,
         PandacapDbContext context,
         ActivityPubTranslator translator)
     {
-        private static readonly IEnumerable<JToken> Empty = [];
-
-        private async Task<bool> ShouldIgnoreImagesFromActorAsync(RemoteActor sendingActor)
+        private async IAsyncEnumerable<InboxActivityStreamsImage> CollectAttachmentsAsync(
+            RemotePost remotePost,
+            RemoteActor sendingActor)
         {
-            var follow = await context.Follows
-                .Where(f => f.ActorId == sendingActor.Id)
-                .Select(f => new { f.IgnoreImages })
-                .FirstOrDefaultAsync();
-            return follow == null || follow.IgnoreImages;
+            int count = await context.Follows
+                .Where(f => f.ActorId == sendingActor.Id && f.IgnoreImages == false)
+                .CountAsync();
+
+            if (count > 0)
+            {
+                foreach (var attachment in remotePost.Attachments)
+                {
+                    yield return new()
+                    {
+                        Name = attachment.name,
+                        Url = attachment.url
+                    };
+                }
+            }
         }
 
         /// <summary>
@@ -78,15 +83,7 @@ namespace Pandacap
                 Sensitive = remotePost.Sensitive,
                 Name = remotePost.Name,
                 Content = remotePost.SanitizedContent,
-                Attachments = await ShouldIgnoreImagesFromActorAsync(sendingActor)
-                    ? []
-                    : remotePost.Attachments
-                        .Select(attachment => new InboxActivityStreamsImage
-                        {
-                            Name = attachment.name,
-                            Url = attachment.url
-                        })
-                        .ToList()
+                Attachments = await CollectAttachmentsAsync(remotePost, sendingActor).ToListAsync()
             });
             await context.SaveChangesAsync();
         }
@@ -110,23 +107,16 @@ namespace Pandacap
             if (follow == null)
                 return;
 
-            string originalPostJson = await activityPubRequestHandler.GetJsonAsync(new Uri(objectId));
-            JToken originalPost = JsonLdProcessor.Expand(JObject.Parse(originalPostJson))[0];
+            var remotePost = await activityPubRemotePostService.FetchPostAsync(objectId, CancellationToken.None);
 
-            bool include = activityPubRemotePostService.GetAttachments(originalPost).Length > 0
+            bool include = remotePost.Attachments.Length > 0
                 ? follow.IncludeImageShares == true
                 : follow.IncludeTextShares == true;
 
             if (!include)
                 return;
 
-            string? originalActorId = (originalPost["https://www.w3.org/ns/activitystreams#attributedTo"] ?? Empty)
-                .Select(token => token["@id"]!.Value<string>())
-                .FirstOrDefault();
-            if (originalActorId == null)
-                return;
-
-            var originalActor = await activityPubRemoteActorService.FetchActorAsync(originalActorId);
+            var originalActor = remotePost.AttributedTo;
 
             context.InboxActivityStreamsPosts.Add(new InboxActivityStreamsPost
             {
@@ -146,27 +136,11 @@ namespace Pandacap
                     Usericon = announcingActor.IconUrl
                 },
                 PostedAt = DateTimeOffset.UtcNow,
-                Summary = (originalPost["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault(),
-                Sensitive = (originalPost["https://www.w3.org/ns/activitystreams#summary"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<bool>())
-                    .Contains(true),
-                Name = (originalPost["https://www.w3.org/ns/activitystreams#name"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault(),
-                Content = (originalPost["https://www.w3.org/ns/activitystreams#content"] ?? Empty)
-                    .Select(token => token["@value"]!.Value<string>())
-                    .FirstOrDefault(),
-                Attachments = await ShouldIgnoreImagesFromActorAsync(announcingActor)
-                    ? []
-                    : activityPubRemotePostService.GetAttachments(originalPost)
-                        .Select(attachment => new InboxActivityStreamsImage
-                        {
-                            Name = attachment.name,
-                            Url = attachment.url
-                        })
-                        .ToList()
+                Summary = remotePost.Summary,
+                Sensitive = remotePost.Sensitive,
+                Name = remotePost.Name,
+                Content = remotePost.SanitizedContent,
+                Attachments = await CollectAttachmentsAsync(remotePost, announcingActor).ToListAsync()
             });
 
             await context.SaveChangesAsync();
