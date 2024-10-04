@@ -5,6 +5,7 @@ open System.ComponentModel.DataAnnotations
 
 type InboxATProtoUser() =
     member val DID = "" with get, set
+    member val PDS = nullString with get, set
     member val DisplayName = nullString with get, set
     member val Handle = "" with get, set
     member val Avatar = nullString with get, set

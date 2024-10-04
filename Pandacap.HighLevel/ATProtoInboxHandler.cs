@@ -10,6 +10,7 @@ namespace Pandacap.HighLevel
         ApplicationInformation appInfo,
         PandacapDbContext context,
         ATProtoCredentialProvider credentialProvider,
+        ATProtoDIDResolver didResolver,
         IHttpClientFactory httpClientFactory)
     {
         private const string BlueskyModerationService = "did:plc:ar7c4by46qjdydhdevvrndac";
@@ -91,6 +92,7 @@ namespace Pandacap.HighLevel
                     Author = new()
                     { 
                         DID = feedItem.post.author.did,
+                        PDS = await didResolver.GetPDSAsync(feedItem.post.author.did),
                         DisplayName = feedItem.post.author.DisplayNameOrNull,
                         Handle = feedItem.post.author.handle,
                         Avatar = feedItem.post.author.AvatarOrNull
@@ -98,6 +100,7 @@ namespace Pandacap.HighLevel
                     PostedBy = new()
                     {
                         DID = feedItem.By.did,
+                        PDS = await didResolver.GetPDSAsync(feedItem.By.did),
                         DisplayName = feedItem.By.DisplayNameOrNull,
                         Handle = feedItem.By.handle,
                         Avatar = feedItem.By.AvatarOrNull

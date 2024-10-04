@@ -1,19 +1,22 @@
-﻿using Microsoft.FSharp.Collections;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.FSharp.Collections;
 using System.Net.Http.Json;
 
 namespace Pandacap.HighLevel
 {
-    public record Service(
-        string Id,
-        string Type,
-        string ServiceEndpoint);
-
-    public record DID(
-        FSharpList<Service> Service);
-
-    public class ATProtoDIDResolver(IHttpClientFactory httpClientFactory)
+    public class ATProtoDIDResolver(
+        IHttpClientFactory httpClientFactory,
+        IMemoryCache memoryCache)
     {
-        public async IAsyncEnumerable<Uri> GetPDSesAsync(string did)
+        private record Service(
+            string Id,
+            string Type,
+            string ServiceEndpoint);
+
+        private record DID(
+            FSharpList<Service> Service);
+
+        private async IAsyncEnumerable<string> GetPDSesAsync(string did)
         {
             var client = httpClientFactory.CreateClient();
 
@@ -29,9 +32,39 @@ namespace Pandacap.HighLevel
                 yield break;
 
             foreach (var service in obj.Service)
-                if (service.Type == "AtprotoPersonalDataServer")
-                    if (Uri.TryCreate(service.ServiceEndpoint, UriKind.Absolute, out Uri? uri))
-                        yield return uri;
+            {
+                if (service.Id != "#atproto_pds")
+                    continue;
+
+                if (service.Type != "AtprotoPersonalDataServer")
+                    continue;
+
+                if (!Uri.TryCreate(service.ServiceEndpoint, UriKind.Absolute, out Uri? uri))
+                    continue;
+
+                yield return uri.Host;
+            }
+        }
+
+        public async Task<string?> GetPDSAsync(string did)
+        {
+            string key = $"{did}/AtprotoPersonalDataServer";
+
+            if (memoryCache.TryGetValue(key, out string? cached))
+                return cached;
+
+            string? pds = await GetPDSesAsync(did)
+                .DefaultIfEmpty(null)
+                .FirstAsync();
+
+            memoryCache.Set(
+                key,
+                pds,
+                pds == null
+                    ? DateTimeOffset.UtcNow.AddMinutes(5)
+                    : DateTimeOffset.UtcNow.AddDays(1));
+
+            return pds;
         }
     }
 }
