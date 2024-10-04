@@ -80,6 +80,9 @@ namespace Pandacap.HighLevel
                 if (existingPosts.Any(e => e.CID == feedItem.post.cid && e.PostedBy.DID == feedItem.By.did))
                     continue;
 
+                if (feedItem.By.did == credentials.DID)
+                    continue;
+
                 context.InboxATProtoPosts.Add(new()
                 {
                     Id = Guid.NewGuid(),
