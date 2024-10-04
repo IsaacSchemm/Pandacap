@@ -18,6 +18,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ActivityPubTranslator>()
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoCredentialProvider>()
+                .AddScoped<ATProtoDIDResolver>()
                 .AddScoped<ATProtoInboxHandler>()
                 .AddScoped<ATProtoLikesProvider>()
                 .AddScoped<ATProtoNotificationHandler>()
