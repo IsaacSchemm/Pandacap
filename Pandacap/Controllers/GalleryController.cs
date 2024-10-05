@@ -24,7 +24,7 @@ namespace Pandacap.Controllers
             return post?.PublishedTime;
         }
 
-        private async Task<IActionResult> RenderAsync(string title, IAsyncEnumerable<UserPost> posts, int? count)
+        private async Task<IActionResult> RenderAsync(string title, IAsyncEnumerable<UserPost> posts, int? count, bool images)
         {
             int take = count ?? 20;
 
@@ -62,7 +62,7 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = title,
-                ShowThumbnails = listPage.DisplayList.Any(post => post.ThumbnailUrls.Any()),
+                ShowThumbnails = images,
                 Items = listPage,
                 CanBeSyndicationFeed = true
             });
@@ -79,7 +79,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
 
-            return await RenderAsync("Gallery", posts, count);
+            return await RenderAsync("Gallery", posts, count, images: true);
         }
 
         public async Task<IActionResult> TextPosts(Guid? next, int? count)
@@ -93,7 +93,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
 
-            return await RenderAsync("Text Posts", posts, count);
+            return await RenderAsync("Text Posts", posts, count, images: false);
         }
 
         public async Task<IActionResult> Journals(Guid? next, int? count)
@@ -108,7 +108,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
 
-            return await RenderAsync("Journals", posts, count);
+            return await RenderAsync("Journals", posts, count, images: false);
         }
 
         public async Task<IActionResult> StatusUpdates(Guid? next, int? count)
@@ -123,7 +123,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
 
-            return await RenderAsync("Status Updates", posts, count);
+            return await RenderAsync("Status Updates", posts, count, images: false);
         }
 
         public async Task<IActionResult> Composite(Guid? next, int? count)
@@ -136,7 +136,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
 
-            return await RenderAsync("All Posts", posts, count);
+            return await RenderAsync("All Posts", posts, count, images: true);
         }
 
         public async Task<IActionResult> AddressedPosts(Guid? next, int? count)
