@@ -95,9 +95,9 @@ namespace Pandacap.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Remove([FromForm] IEnumerable<Guid> id)
+        public async Task<IActionResult> Remove([FromForm] IEnumerable<string> id)
         {
-            await foreach (var item in context.RemoteActivityPubFavorites.Where(a => id.Contains(a.LikeGuid)).AsAsyncEnumerable())
+            await foreach (var item in context.RemoteActivityPubFavorites.Where(a => id.Contains(a.ObjectId)).AsAsyncEnumerable())
             {
                 try
                 {
