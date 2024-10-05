@@ -47,7 +47,7 @@ namespace Pandacap.HighLevel.Notifications
                         Platform = NotificationPlatform.ATProto,
                         ActivityName = item.reason,
                         UserName = item.author.displayName.OrNull() ?? item.author.handle,
-                        UserUrl = $"https://bsky.app/profile/{Uri.EscapeDataString(item.author.did)}",
+                        UserUrl = $"https://bsky.app/profile/{item.author.did}",
                         PostUrl = userPost == null
                             ? null
                             : $"https://bsky.app/profile/{userPost.BlueskyDID}/post/{userPost.BlueskyRecordKey}",
