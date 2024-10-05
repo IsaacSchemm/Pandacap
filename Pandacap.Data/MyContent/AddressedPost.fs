@@ -43,7 +43,7 @@ type AddressedPost() =
         })
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/AddressedPosts/{this.Id}"
-        member _.Platform = Pandacap
+        member _.Badges = []
         member _.ProfileUrl = null
         member _.ThumbnailUrls = []
         member this.Timestamp = this.PublishedTime

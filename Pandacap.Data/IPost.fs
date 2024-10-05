@@ -8,7 +8,7 @@ type IPost =
     abstract member Username: string
     abstract member Usericon: string
     abstract member ProfileUrl: string
-    abstract member Platform: PostPlatform
+    abstract member Badges: Badge list
     abstract member DisplayTitle: string
     abstract member Timestamp: DateTimeOffset
     abstract member LinkUrl: string

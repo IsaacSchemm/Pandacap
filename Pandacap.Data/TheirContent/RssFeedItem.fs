@@ -33,7 +33,11 @@ type RssFeedItem() =
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Url
         member this.ProfileUrl = this.FeedWebsiteUrl
-        member _.Platform = RSS_Atom
+        member this.Badges = [
+            match Uri.TryCreate(this.Url, UriKind.Absolute) with
+            | true, uri -> { PostPlatform.GetBadge RSS_Atom with Text = uri.Host }
+            | false, _ -> ()
+        ]
         member this.ThumbnailUrls =
             try
                 let html = HtmlDocument.Parse (this.HtmlDescription |> orString "")

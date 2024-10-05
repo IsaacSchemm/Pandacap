@@ -34,8 +34,12 @@ type InboxActivityStreamsPost() =
         member this.Id = $"{this.Id}"
         member this.Username = this.PostedBy.Username
         member this.Usericon = this.PostedBy.Usericon
-        member _.Platform = ActivityPub
         member this.ProfileUrl = this.PostedBy.Id
+        member this.Badges = [
+            match Uri.TryCreate(this.PostedBy.Id, UriKind.Absolute) with
+            | true, uri -> { PostPlatform.GetBadge ActivityPub with Text = uri.Host }
+            | false, _ -> ()
+        ]
         member this.DisplayTitle = ExcerptGenerator.FromText (seq {
             this.Name
             TextConverter.FromHtml this.Content

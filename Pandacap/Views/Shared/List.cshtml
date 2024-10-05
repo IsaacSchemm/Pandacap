@@ -42,19 +42,18 @@ else
     }
 
     var groups = Model.GroupByUser
-        ? Model.Items.DisplayList.GroupBy(item => new { item.Username, item.ProfileUrl })
+        ? Model.Items.DisplayList.GroupBy(item => new { Username = (string?)item.Username, ProfileUrl = (string?)item.ProfileUrl })
         : Model.Items.DisplayList.GroupBy(item => new { Username = (string?)null, ProfileUrl = (string?)null });
 
     foreach (var group in groups)
     {
         if (!string.IsNullOrEmpty(group.Key.Username))
         {
-            var first = group
-                .OrderByDescending(item => item.Timestamp)
-                .First();
-
             <h1>
-                <img height="50" src="@(first.Usericon ?? "/images/trgray.svg")" alt="" />
+                @foreach (string icon in group.Select(p => p.Usericon).Take(1))
+                {
+                    <img height="50" src="@icon" alt="" />
+                }
                 <a href="@group.Key.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
                     <strong>
                         @group.Key.Username
@@ -62,11 +61,12 @@ else
                 </a>
             </h1>
 
-            var badge = PostPlatformModule.GetBadge(first.Platform);
-
-            <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color">
-                @badge.Text
-            </span>
+            foreach (var badge in group.SelectMany(p => p.Badges).Distinct())
+            {
+                <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color">
+                    @badge.Text
+                </span>
+            }
         }
 
         <div class="container-fluid">

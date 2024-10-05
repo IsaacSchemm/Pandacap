@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
 using Pandacap.Data;
 using Pandacap.LowLevel.ATProto;
@@ -27,8 +28,8 @@ namespace Pandacap.HighLevel
             string IPost.DisplayTitle => ExcerptGenerator.FromText(EnumerateText());
             DateTimeOffset IPost.Timestamp => Item.post.indexedAt;
             string IPost.LinkUrl => $"https://bsky.app/profile/{Item.post.author.did}/post/{Item.post.RecordKey}";
-            PostPlatform IPost.Platform => PostPlatform.ATProto;
             string IPost.ProfileUrl => $"https://bsky.app/profile/{Item.post.author.did}";
+            FSharpList<Badge> IPost.Badges => FSharpList<Badge>.Empty;
             IEnumerable<string> IPost.ThumbnailUrls => Item.post.Images.Select(i => i.thumb);
         }
 

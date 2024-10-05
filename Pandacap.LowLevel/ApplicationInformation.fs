@@ -25,7 +25,7 @@ type ApplicationInformation = {
     member _.ApplicationName = "Pandacap"
 
     /// The Pandacap version number.
-    member _.VersionNumber = "3.4.7"
+    member _.VersionNumber = "3.4.8"
 
     /// A URL to a website with more information about the application.
     member _.WebsiteUrl = "https://github.com/IsaacSchemm/Pandacap"
