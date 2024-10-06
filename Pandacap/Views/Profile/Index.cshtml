@@ -20,19 +20,16 @@
 
     <p>
         <tt>@@@appInfo.Username@@@appInfo.HandleHostname</tt>
-        @if (User.Identity?.IsAuthenticated == true)
-        {
-            <br />
-            <a asp-action="Followers">
-                ActivityPub followers:
-                @Model.FollowerCount
-            </a>
-            <br />
-            <a asp-action="Following">
-                ActivityPub following:
-                @Model.FollowingCount
-            </a>
-        }
+        <br />
+        <a asp-action="Followers">
+            ActivityPub followers:
+            @Model.FollowerCount
+        </a>
+        <br />
+        <a asp-action="Following">
+            ActivityPub following:
+            @Model.FollowingCount
+        </a>
     </p>
 
     <p>
