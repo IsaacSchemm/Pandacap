@@ -13,8 +13,6 @@ namespace Pandacap.Controllers
 {
     public class FavoritesController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
-        ApplicationInformation applicationInformation,
-        ATProtoLikesProvider atProtoLikesProvider,
         PandacapDbContext context,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
         ActivityPubTranslator translator) : Controller
@@ -44,38 +42,6 @@ namespace Pandacap.Controllers
                 Items = await activityPubPosts
                     .OfType<IPost>()
                     .AsListPage(count ?? 20)
-            });
-        }
-
-        public async Task<IActionResult> Bluesky(string? next, int? count)
-        {
-            var posts = atProtoLikesProvider.EnumerateAsync()
-                .SkipUntil(post => post.Id == next || next == null);
-
-            return View("List", new ListViewModel<IPost>
-            {
-                Title = "Favorites",
-                ShowThumbnails = true,
-                Items = await posts.AsListPage(count ?? 20)
-            });
-        }
-
-        public IActionResult DeviantArt()
-        {
-            return Redirect($"https://www.deviantart.com/{Uri.EscapeDataString(applicationInformation.DeviantArtUsername)}/favourites/all");
-        }
-
-        public async Task<IActionResult> Weasyl()
-        {
-            var credentials = await context.WeasylCredentials.FirstOrDefaultAsync();
-            if (credentials != null)
-                return Redirect($"https://www.weasyl.com/favorites/{Uri.EscapeDataString(credentials.Login)}");
-
-            return View("List", new ListViewModel<IPost>
-            {
-                Title = "Favorites",
-                ShowThumbnails = true,
-                Items = ListPage.Empty<IPost>()
             });
         }
 

@@ -8,6 +8,98 @@
     ViewData["Title"] = "Main Page";
 }
 
+<style type="text/css">
+    .platform-cards .card {
+        display: block;
+        width: 400px;
+        margin: auto;
+        margin-bottom: 1rem;
+        vertical-align: top;
+    }
+
+    .platform-cards .card tt {
+        white-space: nowrap;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<div class="platform-cards float-lg-end">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">ActivityPub</h5>
+
+            <tt>@@@appInfo.Username@@@appInfo.HandleHostname</tt>
+
+            <br />
+
+            <a asp-action="Followers">Followers (@Model.FollowerCount)</a>
+            &middot;
+            <a asp-action="Following">Following (@Model.FollowingCount)</a>
+            &middot;
+            <a asp-controller="Favorites" asp-action="Index">Favorites</a>
+        </div>
+    </div>
+
+    @if (Model.DID != null)
+    {
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Bluesky</h5>
+
+                <a href="https://bsky.app/profile/@Model.DID" target="_blank">
+                    <tt>@Model.DID</tt>
+                </a>
+
+                <br />
+
+                <a href="https://bsky.app/profile/@Model.DID/followers" target="_blank">Followers</a>
+                &middot;
+                <a href="https://bsky.app/profile/@Model.DID/follows" target="_blank">Following</a>
+            </div>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">DeviantArt</h5>
+
+            <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)" target="_blank">
+                <tt>@appInfo.DeviantArtUsername</tt>
+            </a>
+
+            <br />
+
+            <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/about#watchers" target="_blank">Watchers</a>
+            &middot;
+            <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/about#watching" target="_blank">Watching</a>
+            &middot;
+            <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/favourites/all" target="_blank">Favorites</a>
+        </div>
+    </div>
+
+    @if (Model.WeasylUsername != null)
+    {
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Weasyl</h5>
+
+                <a href="https://www.weasyl.com/~@Model.WeasylUsername" target="_blank">
+                    <tt>~@Model.WeasylUsername</tt>
+                </a>
+
+                <br />
+
+                <a href="https://www.weasyl.com/followed/@Model.WeasylUsername" target="_blank">Followers</a>
+                &middot;
+                <a href="https://www.weasyl.com/following/@Model.WeasylUsername" target="_blank">Following</a>
+                &middot;
+                <a href="https://www.weasyl.com/favorites/@Model.WeasylUsername" target="_blank">Favorites</a>
+            </div>
+        </div>
+    }
+</div>
+
 <img src="/Blobs/Avatar"
      alt="Avatar"
      float="left"
@@ -17,20 +109,6 @@
     <h1>
         @appInfo.DeviantArtUsername
     </h1>
-
-    <p>
-        <tt>@@@appInfo.Username@@@appInfo.HandleHostname</tt>
-        <br />
-        <a asp-action="Followers">
-            ActivityPub followers:
-            @Model.FollowerCount
-        </a>
-        <br />
-        <a asp-action="Following">
-            ActivityPub following:
-            @Model.FollowingCount
-        </a>
-    </p>
 
     <p>
         <a href="/Gallery/Composite?format=rss">RSS feed</a>

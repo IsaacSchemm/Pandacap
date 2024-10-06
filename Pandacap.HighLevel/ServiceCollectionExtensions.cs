@@ -20,7 +20,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<ATProtoCredentialProvider>()
                 .AddScoped<ATProtoDIDResolver>()
                 .AddScoped<ATProtoInboxHandler>()
-                .AddScoped<ATProtoLikesProvider>()
                 .AddScoped<ATProtoNotificationHandler>()
                 .AddScoped<BlueskyAgent>()
                 .AddScoped<CompositeNotificationHandler>()

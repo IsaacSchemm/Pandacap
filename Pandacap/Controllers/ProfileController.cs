@@ -47,11 +47,17 @@ namespace Pandacap.Controllers
                 .Select(c => c.DID)
                 .FirstOrDefaultAsync();
 
+            string? weasylUsername = await context.WeasylCredentials
+                .Select(c => c.Login)
+                .FirstOrDefaultAsync();
+
             return View(new ProfileViewModel
             {
                 ProfileProperties = await context.ProfileProperties
                     .OrderBy(p => p.Name)
                     .ToListAsync(),
+                DID = did,
+                WeasylUsername = weasylUsername,
                 RecentArtwork = await context.UserPosts
                     .Where(post => post.Artwork)
                     .OrderByDescending(post => post.PublishedTime)

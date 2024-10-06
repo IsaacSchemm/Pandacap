@@ -39,28 +39,6 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Gallery" asp-action="StatusUpdates">Status Updates</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="favoritesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Favorites
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="favoritesDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Favorites" asp-action="Index">ActivityPub</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Favorites" asp-action="Bluesky">Bluesky</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Favorites" asp-action="DeviantArt">DeviantArt</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Favorites" asp-action="Weasyl">Weasyl</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="followingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Following
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="followingDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Profile" asp-action="Following">ActivityPub</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Following" asp-action="Bluesky">Bluesky</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Following" asp-action="DeviantArt">DeviantArt</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Following" asp-action="Weasyl">Weasyl</a></li>
-                            </ul>
-                        </li>
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item dropdown">

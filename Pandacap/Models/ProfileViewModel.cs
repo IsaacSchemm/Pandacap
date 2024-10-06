@@ -6,6 +6,9 @@ namespace Pandacap.Models
     {
         public IEnumerable<ProfileProperty> ProfileProperties { get; set; } = [];
 
+        public string? DID { get; set; }
+        public string? WeasylUsername { get; set; }
+
         public IEnumerable<UserPost> RecentArtwork { get; set; } = [];
         public IEnumerable<UserPost> RecentTextPosts { get; set; } = [];
 
