@@ -14,6 +14,7 @@ namespace Pandacap
     /// An object responsible for importing and refreshing posts from DeviantArt.
     /// </summary>
     public class DeviantArtHandler(
+        ApplicationInformation applicationInformation,
         BlobServiceClient blobServiceClient,
         BlueskyAgent blueskyAgent,
         PandacapDbContext context,
@@ -34,27 +35,18 @@ namespace Pandacap
         /// <returns></returns>
         private async Task AddActivityAsync(UserPost post, ActivityType activityType)
         {
-            var followers = await context.Followers
-                .Select(follower => new
-                {
-                    follower.Inbox,
-                    follower.SharedInbox,
-                    follower.GhostedSince
-                })
-                .ToListAsync();
-
-            if (activityType == ActivityType.Create)
+            async IAsyncEnumerable<string> getInboxesAsync()
             {
-                followers = followers
-                    .Where(follower => follower.GhostedSince == null)
-                    .ToList();
+                await foreach (var follower in context.Followers)
+                {
+                    if (activityType == ActivityType.Create && follower.IsGhosted())
+                        continue;
+
+                    yield return follower.SharedInbox ?? follower.Inbox;
+                }
             }
 
-            var inboxes = followers
-                .Select(follower => follower.SharedInbox ?? follower.Inbox)
-                .Distinct();
-
-            foreach (string inbox in inboxes)
+            await foreach (string inbox in getInboxesAsync().Distinct())
             {
                 Guid activityGuid = Guid.NewGuid();
 
