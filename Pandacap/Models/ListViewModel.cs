@@ -6,7 +6,7 @@ namespace Pandacap.Models
     {
         public string? Title { get; set; }
 
-        public bool ShowThumbnails { get; set; }
+        public ThumbnailMode ShowThumbnails { get; set; } = ThumbnailMode.Auto;
 
         public bool GroupByUser { get; set; }
 

@@ -26,15 +26,21 @@ type RemoteActivityPubFavorite() =
     member val Attachments = new ResizeArray<RemoteActivityPubFavoriteImage>() with get, set
 
     interface IPost with
-        member _.Badges = []
         member this.Id = $"{this.LikeGuid}"
-        member this.DisplayTitle = ExcerptGenerator.FromText (seq {
-            this.Name
-            TextConverter.FromHtml this.Content
-            this.ObjectId
-        })
+        member this.DisplayTitle =
+            if not (String.IsNullOrWhiteSpace this.Name) then
+                this.Name
+            else if not (String.IsNullOrWhiteSpace this.Content) then
+                TextConverter.FromHtml this.Content
+            else
+                this.ObjectId
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
         member this.ProfileUrl = this.CreatedBy
+        member this.Badges = [
+            match Uri.TryCreate(this.CreatedBy, UriKind.Absolute) with
+            | true, uri -> { PostPlatform.GetBadge ActivityPub with Text = uri.Host }
+            | false, _ -> ()
+        ]
         member this.Timestamp = this.CreatedAt
         member this.ThumbnailUrls = this.Attachments |> Seq.map (fun a -> a.Url)
         member this.Usericon = this.Usericon

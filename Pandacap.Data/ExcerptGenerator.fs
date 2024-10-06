@@ -1,7 +1,6 @@
 ﻿namespace Pandacap.Data
 
 open System
-open FSharp.Data
 
 /// Allows Pandacap to derive a plaintext excerpt from an HTML string.
 module ExcerptGenerator =
@@ -14,13 +13,3 @@ module ExcerptGenerator =
             then $"{e.Substring(0, 60)}..."
             else e)
         |> Seq.head
-
-    ///// Derives a plaintext excerpt from an HTML string.
-    //let FromHtml (html: string) =
-    //    try
-    //        (HtmlDocument.Parse html).Elements()
-    //        |> Seq.map (fun h -> h.InnerText())
-    //        |> FromText
-    //        |> Some
-    //    with _ ->
-    //        None

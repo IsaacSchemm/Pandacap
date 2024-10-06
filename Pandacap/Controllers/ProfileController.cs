@@ -70,7 +70,8 @@ namespace Pandacap.Controllers
                     .Take(4)
                     .ToListAsync(),
                 FollowerCount = await context.Followers.CountAsync(),
-                FollowingCount = await context.Follows.CountAsync()
+                FollowingCount = await context.Follows.CountAsync(),
+                FavoritesCount = await context.RemoteActivityPubFavorites.CountAsync()
             });
         }
 
@@ -110,7 +111,7 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Search",
-                ShowThumbnails = true,
+                ShowThumbnails = ThumbnailMode.Always,
                 Q = q,
                 Items = posts
             });

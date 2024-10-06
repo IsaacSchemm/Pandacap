@@ -8,23 +8,44 @@
     ViewData["Title"] = "Main Page";
 }
 
-<style type="text/css">
-    .platform-cards .card {
-        display: block;
-        width: 400px;
-        margin: auto;
-        margin-bottom: 1rem;
-        vertical-align: top;
-    }
+<img src="/Blobs/Avatar"
+     alt="Avatar"
+     float="left"
+     style="vertical-align: top" />
 
-    .platform-cards .card tt {
-        white-space: nowrap;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-    }
-</style>
+<div style="display: inline-block">
+    <h1>
+        @appInfo.DeviantArtUsername
+    </h1>
 
-<div class="platform-cards float-lg-end">
+    <p>
+        <a href="/Gallery/Composite?format=rss">RSS feed</a>
+        &middot;
+        <a href="/Gallery/Composite?format=atom">Atom feed</a>
+    </p>
+
+    <p>
+        @foreach (var property in Model.ProfileProperties)
+        {
+            @:@property.Name:
+            <a href="@property.Link" target="_blank">
+                @property.Value
+            </a>
+            <br />
+        }
+    </p>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <p>
+            <a asp-controller="ProfileProperties" asp-action="Index">
+                Manage profile links
+            </a>
+        </p>
+    }
+</div>
+
+<div class="platform-cards">
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">ActivityPub</h5>
@@ -37,7 +58,7 @@
             &middot;
             <a asp-action="Following">Following (@Model.FollowingCount)</a>
             &middot;
-            <a asp-controller="Favorites" asp-action="Index">Favorites</a>
+            <a asp-controller="Favorites" asp-action="Index">Favorites (@Model.FavoritesCount)</a>
         </div>
     </div>
 
@@ -97,43 +118,6 @@
                 <a href="https://www.weasyl.com/favorites/@Model.WeasylUsername" target="_blank">Favorites</a>
             </div>
         </div>
-    }
-</div>
-
-<img src="/Blobs/Avatar"
-     alt="Avatar"
-     float="left"
-     style="vertical-align: top" />
-
-<div style="display: inline-block">
-    <h1>
-        @appInfo.DeviantArtUsername
-    </h1>
-
-    <p>
-        <a href="/Gallery/Composite?format=rss">RSS feed</a>
-        &middot;
-        <a href="/Gallery/Composite?format=atom">Atom feed</a>
-    </p>
-
-    <p>
-        @foreach (var property in Model.ProfileProperties)
-        {
-            @:@property.Name:
-            <a href="@property.Link" target="_blank">
-                @property.Value
-            </a>
-            <br />
-        }
-    </p>
-
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <p>
-            <a asp-controller="ProfileProperties" asp-action="Index">
-                Manage profile links
-            </a>
-        </p>
     }
 </div>
 
@@ -459,3 +443,15 @@
         </div>
     </div>
 }
+
+<style type="text/css">
+    .platform-cards .card {
+        display: inline-block;
+        width: 400px;
+        max-width: calc(100% - 0.5rem);
+        margin-bottom: 1rem;
+        margin-left: 0.25rem;
+        margin-right: 0.25rem;
+        vertical-align: top;
+    }
+</style>

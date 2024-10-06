@@ -38,7 +38,7 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Favorites",
-                ShowThumbnails = true,
+                GroupByUser = true,
                 Items = await activityPubPosts
                     .OfType<IPost>()
                     .AsListPage(count ?? 20)

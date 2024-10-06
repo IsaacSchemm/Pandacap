@@ -47,6 +47,11 @@ else
 
     foreach (var group in groups)
     {
+        bool showThumbnails =
+            Model.ShowThumbnails.IsAlways ? true
+            : Model.ShowThumbnails.IsNever ? false
+            : group.Any(item => item.ThumbnailUrls.Any());
+
         if (!string.IsNullOrEmpty(group.Key.Username))
         {
             <h1>
@@ -73,11 +78,9 @@ else
             <div class="row">
                 @foreach (var item in group)
                 {
-                    string? thumbnailUrl = Model.ShowThumbnails
-                        ? item.ThumbnailUrls.FirstOrDefault()
-                        : null;
-                    <div class="col-12 mb-3 @(Model.ShowThumbnails ? "col-sm-4 col-md-3 text-center" : "")">
-                        @if (Model.ShowThumbnails)
+                    string? thumbnailUrl = item.ThumbnailUrls.FirstOrDefault();
+                    <div class="col-12 mb-3 @(showThumbnails ? "col-sm-4 col-md-3 text-center" : "")">
+                        @if (showThumbnails)
                         {
                             <a href="@item.LinkUrl" aria-hidden="true">
                                 <img src="@(thumbnailUrl ?? "/images/trgray.svg")"
@@ -86,7 +89,7 @@ else
                                         class="feed-image" />
                             </a>
                         }
-                        <label>
+                        <label class="@(showThumbnails ? "with-thumbnail" : "")">
                             @if (Model.AllowDismiss)
                             {
                                 <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
@@ -164,3 +167,11 @@ else
         }
     });
 </script>
+
+<style type="text/css">
+    label.with-thumbnail {
+        max-width: 100%;
+        max-height: 3rem;
+        overflow: hidden;
+    }
+</style>

@@ -10,6 +10,7 @@
     <Compile Include="Ghosting.fs" />
     <Compile Include="DeviantArtImportScope.fs" />
     <Compile Include="DeviantArtScraper.fs" />
+    <Compile Include="ThumbnailMode.fs" />
     <Compile Include="ListPage.fs" />
     <Compile Include="FavoritesCacheEntry.fs" />
     <Compile Include="NotificationPlatform.fs" />

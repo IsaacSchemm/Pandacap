@@ -70,7 +70,7 @@ namespace Pandacap.Controllers
             {
                 Title = "Inbox (Image Posts)",
                 GroupByUser = true,
-                ShowThumbnails = true,
+                ShowThumbnails = ThumbnailMode.Always,
                 AllowDismiss = true,
                 Items = posts
             });
@@ -127,6 +127,7 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Inbox (Text Posts)",
+                ShowThumbnails = ThumbnailMode.Never,
                 GroupByUser = true,
                 AllowDismiss = true,
                 Items = posts
@@ -167,7 +168,7 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Inbox (Shares)",
-                ShowThumbnails = posts.DisplayList.SelectMany(x => x.ThumbnailUrls).Any(),
+                ShowThumbnails = ThumbnailMode.Always,
                 GroupByUser = true,
                 AllowDismiss = true,
                 Items = posts
@@ -196,6 +197,7 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel<IPost>
             {
                 Title = "Inbox (Podcasts)",
+                ShowThumbnails = ThumbnailMode.Never,
                 GroupByUser = true,
                 AllowDismiss = true,
                 Items = source
