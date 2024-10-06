@@ -6,29 +6,13 @@ using Pandacap.HighLevel.Notifications;
 namespace Pandacap.Controllers
 {
     [Authorize]
-    public class NotificationsController(
-        ActivityPubNotificationHandler activityPubNotificationHandler,
-        ActivityPubReplyNotificationHandler activityPubNotificationReplyHandler,
-        ATProtoNotificationHandler atProtoNotificationHandler,
-        DeviantArtFeedNotificationHandler deviantArtFeedNotificationHandler,
-        DeviantArtNoteNotificationHandler deviantArtNoteNotificationHandler,
-        WeasylNotificationHandler weasylNotificationHandler) : Controller
+    public class NotificationsController(CompositeNotificationHandler notificationHandler) : Controller
     {
         private static readonly DateTimeOffset Cutoff = DateTimeOffset.UtcNow.AddDays(-30);
 
         private async Task<IReadOnlyList<Notification>> CollectNotificationsAsync() =>
-            await new[]
-            {
-                activityPubNotificationHandler.GetPostNotificationsAsync(),
-                activityPubNotificationHandler.GetUserPostNotificationsAsync(),
-                activityPubNotificationHandler.GetAddressedPostNotificationsAsync(),
-                activityPubNotificationReplyHandler.GetNotificationsAsync(),
-                atProtoNotificationHandler.GetNotificationsAsync(),
-                deviantArtFeedNotificationHandler.GetNotificationsAsync(),
-                deviantArtNoteNotificationHandler.GetNotificationsAsync(),
-                weasylNotificationHandler.GetNotificationsAsync()
-            }
-            .MergeNewest(post => post.Timestamp)
+            await notificationHandler
+            .GetNotificationsAsync()
             .TakeWhile(post => post.Timestamp > Cutoff)
             .ToListAsync();
 

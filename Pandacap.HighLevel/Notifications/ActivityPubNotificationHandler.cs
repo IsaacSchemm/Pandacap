@@ -6,9 +6,10 @@ namespace Pandacap.HighLevel.Notifications
 {
     public class ActivityPubNotificationHandler(
         IDbContextFactory<PandacapDbContext> contextFactory,
-        IdMapper mapper)
+        IdMapper mapper
+    ) : INotificationHandler
     {
-        public async IAsyncEnumerable<Notification> GetPostNotificationsAsync()
+        public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
             Uri myActor = new(mapper.ActorId);
             string baseUrl = myActor.GetLeftPart(UriPartial.Authority);
@@ -32,58 +33,6 @@ namespace Pandacap.HighLevel.Notifications
                     UserUrl = activity.ActorId,
                     PostUrl = activity.InReplyTo,
                     Timestamp = activity.AddedAt.ToUniversalTime()
-                };
-            }
-        }
-
-        [Obsolete]
-        public async IAsyncEnumerable<Notification> GetUserPostNotificationsAsync()
-        {
-            var activityContext = await contextFactory.CreateDbContextAsync();
-            var lookupContext = await contextFactory.CreateDbContextAsync();
-
-            var userPostActivities = activityContext.UserPostActivities
-                .AsNoTracking()
-                .OrderByDescending(activity => activity.AddedAt)
-                .AsAsyncEnumerable();
-
-            await foreach (var activity in userPostActivities)
-            {
-                var userPost = await lookupContext.UserPosts
-                    .Where(d => d.Id == activity.UserPostId)
-                    .SingleOrDefaultAsync();
-
-                yield return new()
-                {
-                    Platform = NotificationPlatform.ActivityPub,
-                    ActivityName = activity.ActivityType,
-                    UserName = activity.ActorId,
-                    UserUrl = activity.ActorId,
-                    PostUrl = mapper.GetObjectId(userPost),
-                    Timestamp = activity.AddedAt.ToUniversalTime()
-                };
-            }
-        }
-
-        [Obsolete]
-        public async IAsyncEnumerable<Notification> GetAddressedPostNotificationsAsync()
-        {
-            var activityContext = await contextFactory.CreateDbContextAsync();
-
-            var replyActivities = activityContext.AddressedPostActivities
-                .AsNoTracking()
-                .OrderByDescending(activity => activity.AddedAt)
-                .AsAsyncEnumerable();
-
-            await foreach (var activity in replyActivities)
-            {
-                yield return new()
-                {
-                    Platform = NotificationPlatform.ActivityPub,
-                    ActivityName = activity.ActivityType,
-                    UserName = activity.ActorId,
-                    UserUrl = activity.ActorId,
-                    Timestamp = activity.AddedAt
                 };
             }
         }

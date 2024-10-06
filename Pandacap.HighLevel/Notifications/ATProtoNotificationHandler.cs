@@ -10,7 +10,8 @@ namespace Pandacap.HighLevel.Notifications
         ApplicationInformation appInfo,
         ATProtoCredentialProvider atProtoCredentialProvider,
         PandacapDbContext context,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory
+    ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {

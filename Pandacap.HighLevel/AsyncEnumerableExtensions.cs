@@ -1,4 +1,4 @@
-﻿namespace Pandacap
+﻿namespace Pandacap.HighLevel
 {
     public static class AsyncEnumerableExtensions
     {

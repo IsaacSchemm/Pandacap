@@ -4,7 +4,8 @@ using Pandacap.LowLevel;
 namespace Pandacap.HighLevel.Notifications
 {
     public class DeviantArtFeedNotificationHandler(
-        DeviantArtCredentialProvider deviantArtCredentialProvider)
+        DeviantArtCredentialProvider deviantArtCredentialProvider
+    ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {

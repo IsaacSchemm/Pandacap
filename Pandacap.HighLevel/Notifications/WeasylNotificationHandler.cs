@@ -2,7 +2,9 @@
 
 namespace Pandacap.HighLevel.Notifications
 {
-    public class WeasylNotificationHandler(WeasylClientFactory weasylClientFactory)
+    public class WeasylNotificationHandler(
+        WeasylClientFactory weasylClientFactory
+    ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
