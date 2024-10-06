@@ -215,6 +215,17 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(Followers));
         }
 
+        [Authorize]
+        public async Task<IActionResult> UpdateFollow(
+            string id)
+        {
+            var follow = await context.Follows
+                .Where(f => f.ActorId == id)
+                .FirstOrDefaultAsync();
+
+            return View(follow);
+        }
+
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]

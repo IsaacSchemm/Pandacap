@@ -1,0 +1,64 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model Follow
+
+<div>
+    <img height="50" src="@Model.IconUrl" alt="" />
+    <span style="display: inline-block; vertical-align: top">
+        <strong>
+            @(Model.PreferredUsername ?? Model.ActorId)
+        </strong>
+        <br />
+        <a href="@Model.ActorId">@Model.ActorId</a>
+        @if (Model.Pending)
+        {
+            @:(pending)
+        }
+    </span>
+</div>
+
+<form asp-action="UpdateFollow" class="mt-3">
+    <input type="hidden" name="id" value="@Model.ActorId" />
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               id="ignoreImages"
+               name="ignoreImages"
+               value="true"
+        @(Model.IgnoreImages == true ? "checked" : "")>
+        <label class="form-check-label" for="ignoreImages">
+            Ignore images (treat all posts as text posts)
+        </label>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               id="includeImageShares"
+               name="includeImageShares"
+               value="true"
+        @(Model.IncludeImageShares == true ? "checked" : "")>
+        <label class="form-check-label" for="includeImageShares">
+            Include shares (boosts) of image posts
+        </label>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               id="includeTextShares"
+               name="includeTextShares"
+               value="true"
+        @(Model.IncludeTextShares == true ? "checked" : "")>
+        <label class="form-check-label" for="includeTextShares">
+            Include shares (boosts) of text posts
+        </label>
+    </div>
+    <button type="submit" class="btn btn-outline-primary">Save changes</button>
+</form>
+
+<hr />
+
+<form asp-action="Unfollow">
+    <input type="hidden" name="id" value="@Model.ActorId" />
+    <button type="submit" class="btn btn-outline-danger">Unfollow @(Model.PreferredUsername ?? Model.ActorId)</button>
+</form>
