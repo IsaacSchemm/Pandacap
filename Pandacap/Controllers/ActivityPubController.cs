@@ -65,7 +65,6 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost, HttpGet]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported on Cosmos DB provider for EF Core")]
         public async Task Inbox(CancellationToken cancellationToken)
         {
             using var sr = new StreamReader(Request.Body);
@@ -259,15 +258,21 @@ namespace Pandacap.Controllers
                     {
                         var addressedActors = remotePost.Recipients
                             .Where(addressee => addressee.IsActor)
-                            .Select(addressee => addressee.Id); 
+                            .Select(addressee => addressee.Id);
 
-                        bool isFromFollow = await context.Follows
+                        var follow = await context.Follows
                             .Where(f => f.ActorId == actor.Id)
-                            .CountAsync(cancellationToken) > 0;
+                            .FirstOrDefaultAsync(cancellationToken);
+
+                        if (follow != null)
+                        {
+                            follow.PreferredUsername = remotePost.AttributedTo.PreferredUsername;
+                            follow.IconUrl = remotePost.AttributedTo.IconUrl;
+                        }
 
                         bool addressedToOthers = !isMention && addressedActors.Any();
 
-                        if (isFromFollow && !addressedToOthers)
+                        if (follow != null && !addressedToOthers)
                             await remoteActivityPubPostHandler.AddRemotePostAsync(actor, remotePost);
                     }
                 }
