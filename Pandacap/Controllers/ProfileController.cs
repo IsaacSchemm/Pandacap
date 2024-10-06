@@ -124,7 +124,7 @@ namespace Pandacap.Controllers
                 .OrderByDescending(f => f.AddedAt)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.ActorId == next || next == null)
-                .AsListPage(count ?? 20);
+                .AsListPage(count ?? 50);
 
             if (Request.IsActivityPub())
             {
@@ -159,7 +159,7 @@ namespace Pandacap.Controllers
                 .OrderByDescending(f => f.AddedAt)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.ActorId == next || next == null)
-                .AsListPage(count ?? 10);
+                .AsListPage(count ?? 50);
 
             if (Request.IsActivityPub())
             {
