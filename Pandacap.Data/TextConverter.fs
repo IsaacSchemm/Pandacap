@@ -7,7 +7,7 @@ module internal TextConverter =
     let FromHtml content =
         try
             String.concat "\n" [
-                let doc = HtmlDocument.Parse content
+                let doc = HtmlDocument.Parse $"<div>{content}</div>"
                 for node in doc.Elements() do
                     node.InnerText()
             ]

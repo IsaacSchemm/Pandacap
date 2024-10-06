@@ -1,12 +1,7 @@
 ﻿using Pandacap.Data;
 using Pandacap.LowLevel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.ServiceModel.Syndication;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Pandacap.HighLevel
@@ -30,10 +25,6 @@ namespace Pandacap.HighLevel
                 if (post.Description != null)
                     yield return post.Description;
             }
-
-            yield return $"<p><a href='{mapper.GetObjectId(post)}'>View on {WebUtility.HtmlEncode(appInfo.ApplicationName)}</a></p>";
-
-            yield return $"<p><a href='{post.Url}'>View on DeviantArt</a></p>";
         }
 
         /// <summary>
@@ -46,11 +37,13 @@ namespace Pandacap.HighLevel
             var item = new SyndicationItem
             {
                 Id = mapper.GetObjectId(post),
-                Title = new TextSyndicationContent(post.Title, TextSyndicationContentKind.Plaintext),
                 PublishDate = post.PublishedTime,
                 LastUpdatedTime = post.PublishedTime,
                 Content = new TextSyndicationContent(string.Join(" ", GetHtml(post)), TextSyndicationContentKind.Html)
             };
+
+            if (!post.HideTitle)
+                item.Title = new TextSyndicationContent(post.Title, TextSyndicationContentKind.Plaintext);
 
             item.Links.Add(SyndicationLink.CreateAlternateLink(new Uri(mapper.GetObjectId(post)), "text/html"));
 
