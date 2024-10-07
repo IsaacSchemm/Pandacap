@@ -113,6 +113,14 @@ namespace Pandacap
                 ? follow.IncludeImageShares == true
                 : follow.IncludeTextShares == true;
 
+            var groups = remotePost.To
+                .OfType<RemoteAddressee.Actor>()
+                .Where(actor => actor.Type == "https://www.w3.org/ns/activitystreams#Group")
+                .Select(actor => actor.Id);
+
+            if (groups.Contains(announcingActor.Id))
+                include = true;
+
             if (!include)
                 return;
 

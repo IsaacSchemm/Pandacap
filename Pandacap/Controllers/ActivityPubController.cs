@@ -7,7 +7,6 @@ using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Signatures;
 using System.Text;
-using static Pandacap.LowLevel.ATProto.BlueskyFeed;
 
 namespace Pandacap.Controllers
 {
@@ -250,11 +249,6 @@ namespace Pandacap.Controllers
                     }
                     else
                     {
-                        bool toGroup = remotePost.To
-                            .OfType<RemoteAddressee.Actor>()
-                            .Where(actor => actor.Type == "https://www.w3.org/ns/activitystreams#Group")
-                            .Any();
-
                         var anybodyAddressed = remotePost.Recipients
                             .Where(r => r.IsActor)
                             .Any();
@@ -270,7 +264,7 @@ namespace Pandacap.Controllers
                             follow.PreferredUsername = remotePost.AttributedTo.PreferredUsername;
                             follow.IconUrl = remotePost.AttributedTo.IconUrl;
 
-                            if (toGroup || nobodyAddressed)
+                            if (nobodyAddressed)
                                 await remoteActivityPubPostHandler.AddRemotePostAsync(actor, remotePost);
                         }
                     }
