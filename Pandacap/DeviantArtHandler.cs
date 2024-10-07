@@ -14,11 +14,11 @@ namespace Pandacap
     /// An object responsible for importing and refreshing posts from DeviantArt.
     /// </summary>
     public class DeviantArtHandler(
-        ApplicationInformation applicationInformation,
         BlobServiceClient blobServiceClient,
         BlueskyAgent blueskyAgent,
         PandacapDbContext context,
         DeviantArtCredentialProvider credentialProvider,
+        ExternalPlatformProvider externalPlatformProvider,
         IHttpClientFactory httpClientFactory,
         KeyProvider keyProvider,
         OutboxProcessor outboxProcessor,
@@ -128,14 +128,6 @@ namespace Pandacap
 
             var key = await keyProvider.GetPublicKeyAsync();
 
-            var dids = await context.ATProtoCredentials
-                .Select(c => c.DID)
-                .ToListAsync();
-
-            var weasylUsernames = await context.WeasylCredentials
-                .Select(c => c.Login)
-                .ToListAsync();
-
             HashSet<string> inboxes = [];
             await foreach (var f in context.Follows)
                 inboxes.Add(f.SharedInbox ?? f.Inbox);
@@ -151,8 +143,7 @@ namespace Pandacap
                     JsonBody = ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToUpdate(
                             key,
-                            dids,
-                            weasylUsernames)),
+                            await externalPlatformProvider.GetExternalPlatformsAsync().ToListAsync())),
                     StoredAt = DateTimeOffset.UtcNow
                 });
             }

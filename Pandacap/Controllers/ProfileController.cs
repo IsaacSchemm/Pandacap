@@ -18,6 +18,7 @@ namespace Pandacap.Controllers
         AtomRssFeedReader atomRssFeedReader,
         PandacapDbContext context,
         DeviantArtHandler deviantArtHandler,
+        ExternalPlatformProvider externalPlatformProvider,
         KeyProvider keyProvider,
         ActivityPubTranslator translator,
         UserManager<IdentityUser> userManager) : Controller
@@ -29,14 +30,6 @@ namespace Pandacap.Controllers
 
             string? userId = userManager.GetUserId(User);
 
-            var dids = await context.ATProtoCredentials
-                .Select(c => c.DID)
-                .ToListAsync();
-
-            var weasylUsernames = await context.WeasylCredentials
-                .Select(c => c.Login)
-                .ToListAsync();
-
             if (Request.IsActivityPub())
             {
                 var key = await keyProvider.GetPublicKeyAsync();
@@ -45,16 +38,14 @@ namespace Pandacap.Controllers
                     ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToObject(
                             await keyProvider.GetPublicKeyAsync(),
-                            dids,
-                            weasylUsernames)),
+                            await externalPlatformProvider.GetExternalPlatformsAsync().ToListAsync())),
                     "application/activity+json",
                     Encoding.UTF8);
             }
 
             return View(new ProfileViewModel
             {
-                BlueskyDIDs = dids,
-                WeasylUsernames = weasylUsernames,
+                ExternalPlatforms = await externalPlatformProvider.GetExternalPlatformsAsync().ToListAsync(),
                 RecentArtwork = await context.UserPosts
                     .Where(post => post.Artwork)
                     .OrderByDescending(post => post.PublishedTime)
