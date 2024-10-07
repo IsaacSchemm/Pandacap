@@ -120,17 +120,11 @@ namespace Pandacap.Controllers
 
                     string id = objectToUndo["@id"]!.Value<string>()!;
 
-                    var userPostActivities = await context.UserPostActivities
+                    var postActivities = await context.PostActivities
                         .Where(a => a.Id == id)
                         .ToListAsync(cancellationToken);
 
-                    context.RemoveRange(userPostActivities);
-
-                    var addressedPostActivities = await context.AddressedPostActivities
-                        .Where(a => a.Id == id)
-                        .ToListAsync(cancellationToken);
-
-                    context.RemoveRange(addressedPostActivities);
+                    context.RemoveRange(postActivities);
 
                     var announcements = await context.InboxActivityStreamsPosts
                         .Where(a => a.AnnounceId == id)

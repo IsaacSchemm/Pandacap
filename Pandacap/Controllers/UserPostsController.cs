@@ -39,11 +39,6 @@ namespace Pandacap.Controllers
             return View(new UserPostViewModel
             {
                 Post = post,
-                RemoteActivities = User.Identity?.IsAuthenticated == true
-                    ? await context.UserPostActivities
-                        .Where(a => a.UserPostId == post.Id)
-                        .ToListAsync(cancellationToken)
-                    : [],
                 Replies = await replyLookup
                     .CollectRepliesAsync(
                         mapper.GetObjectId(post),
@@ -110,29 +105,6 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index), new { id });
-        }
-
-        [HttpPost]
-        [Authorize]
-        [Route("ForgetActivity")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgetActivity(IEnumerable<string> id)
-        {
-            var activities = await context.UserPostActivities
-                .Where(a => id.Contains(a.Id))
-                .ToListAsync();
-
-            context.RemoveRange(activities);
-            await context.SaveChangesAsync();
-
-            var deviationIds = activities
-                .Select(a => a.UserPostId)
-                .Distinct()
-                .ToList();
-
-            return deviationIds.Count == 1
-                ? RedirectToAction(nameof(Index), new { id = deviationIds[0] })
-                : RedirectToAction("Index", "Profile");
         }
 
         [HttpPost]

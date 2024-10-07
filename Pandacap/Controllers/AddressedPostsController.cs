@@ -105,8 +105,8 @@ namespace Pandacap.Controllers
             if (post == null)
                 return NotFound();
 
-            var activities = await context.AddressedPostActivities
-                .Where(a => a.AddressedPostId == id)
+            var activities = await context.PostActivities
+                .Where(a => a.InReplyTo == mapper.GetObjectId(post))
                 .ToListAsync();
 
             HashSet<string> actorIds = [];
@@ -143,7 +143,7 @@ namespace Pandacap.Controllers
                 });
             }
 
-            context.AddressedPostActivities.RemoveRange(activities);
+            context.PostActivities.RemoveRange(activities);
             context.AddressedPosts.Remove(post);
 
             await context.SaveChangesAsync();
