@@ -127,7 +127,14 @@ namespace Pandacap
                 .UploadBlobAsync($"{newAvatarGuid}", ms);
 
             var key = await keyProvider.GetPublicKeyAsync();
-            var properties = await context.ProfileProperties.ToListAsync();
+
+            var dids = await context.ATProtoCredentials
+                .Select(c => c.DID)
+                .ToListAsync();
+
+            var weasylUsernames = await context.WeasylCredentials
+                .Select(c => c.Login)
+                .ToListAsync();
 
             HashSet<string> inboxes = [];
             await foreach (var f in context.Follows)
@@ -144,7 +151,8 @@ namespace Pandacap
                     JsonBody = ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToUpdate(
                             key,
-                            properties)),
+                            dids,
+                            weasylUsernames)),
                     StoredAt = DateTimeOffset.UtcNow
                 });
             }

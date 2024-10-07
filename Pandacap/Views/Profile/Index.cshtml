@@ -23,26 +23,6 @@
         &middot;
         <a href="/Gallery/Composite?format=atom">Atom feed</a>
     </p>
-
-    <p>
-        @foreach (var property in Model.ProfileProperties)
-        {
-            @:@property.Name:
-            <a href="@property.Link" target="_blank">
-                @property.Value
-            </a>
-            <br />
-        }
-    </p>
-
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <p>
-            <a asp-controller="ProfileProperties" asp-action="Index">
-                Manage profile links
-            </a>
-        </p>
-    }
 </div>
 
 <div class="platform-cards">
@@ -62,21 +42,21 @@
         </div>
     </div>
 
-    @if (Model.DID != null)
+    @foreach (string did in Model.BlueskyDIDs)
     {
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Bluesky</h5>
 
-                <a href="https://bsky.app/profile/@Model.DID" target="_blank">
-                    <tt>@Model.DID</tt>
+                <a href="https://bsky.app/profile/@did" target="_blank">
+                    <tt>@did</tt>
                 </a>
 
                 <br />
 
-                <a href="https://bsky.app/profile/@Model.DID/followers" target="_blank">Followers</a>
+                <a href="https://bsky.app/profile/@did/followers" target="_blank">Followers</a>
                 &middot;
-                <a href="https://bsky.app/profile/@Model.DID/follows" target="_blank">Following</a>
+                <a href="https://bsky.app/profile/@did/follows" target="_blank">Following</a>
             </div>
         </div>
     }
@@ -99,23 +79,23 @@
         </div>
     </div>
 
-    @if (Model.WeasylUsername != null)
+    @foreach (string username in Model.WeasylUsernames)
     {
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Weasyl</h5>
 
-                <a href="https://www.weasyl.com/~@Model.WeasylUsername" target="_blank">
-                    <tt>~@Model.WeasylUsername</tt>
+                <a href="https://www.weasyl.com/~@username" target="_blank">
+                    <tt>@username</tt>
                 </a>
 
                 <br />
 
-                <a href="https://www.weasyl.com/followed/@Model.WeasylUsername" target="_blank">Followers</a>
+                <a href="https://www.weasyl.com/followed/@username" target="_blank">Followers</a>
                 &middot;
-                <a href="https://www.weasyl.com/following/@Model.WeasylUsername" target="_blank">Following</a>
+                <a href="https://www.weasyl.com/following/@username" target="_blank">Following</a>
                 &middot;
-                <a href="https://www.weasyl.com/favorites/@Model.WeasylUsername" target="_blank">Favorites</a>
+                <a href="https://www.weasyl.com/favorites/@username" target="_blank">Favorites</a>
             </div>
         </div>
     }
@@ -406,17 +386,17 @@
                                     Manage feeds
                                 </a>
                             </div>
-
-                            <hr />
-
-                            <div class="text-center">
-                                <form asp-controller="InboxIngest" asp-action="Feed">
-                                    <button type="submit" class="btn btn-primary btn-warning">
-                                        Sync inbox (Atom/RSS)
-                                    </button>
-                                </form>
-                            </div>
                         </form>
+
+                        <hr />
+
+                        <div class="text-center">
+                            <form asp-controller="InboxIngest" asp-action="Feed">
+                                <button type="submit" class="btn btn-primary btn-warning">
+                                    Sync inbox (Atom/RSS)
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 

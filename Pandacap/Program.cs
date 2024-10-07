@@ -76,8 +76,7 @@ builder.Services.AddSharedServices(new ApplicationInformation(
     applicationHostname: builder.Configuration["ApplicationHostname"],
     deviantArtUsername: builder.Configuration["DeviantArtUsername"],
     keyVaultHostname: builder.Configuration["KeyVaultHostname"],
-    handleHostname: builder.Configuration["ApplicationHostname"],
-    webFingerDomains: SetModule.Empty<string>()));
+    handleHostname: builder.Configuration["ApplicationHostname"]));
 
 builder.Services.AddHttpClient();
 

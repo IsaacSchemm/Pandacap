@@ -4,10 +4,8 @@ namespace Pandacap.Models
 {
     public class ProfileViewModel
     {
-        public IEnumerable<ProfileProperty> ProfileProperties { get; set; } = [];
-
-        public string? DID { get; set; }
-        public string? WeasylUsername { get; set; }
+        public IEnumerable<string> BlueskyDIDs { get; set; } = [];
+        public IEnumerable<string> WeasylUsernames { get; set; } = [];
 
         public IEnumerable<UserPost> RecentArtwork { get; set; } = [];
         public IEnumerable<UserPost> RecentTextPosts { get; set; } = [];

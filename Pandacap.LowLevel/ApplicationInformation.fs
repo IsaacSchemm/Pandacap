@@ -16,10 +16,6 @@ type ApplicationInformation = {
     /// The host / domain name of the key vault used for the signing key for
     /// ActivityPub.
     KeyVaultHostname: string
-
-    /// Additional hostnames to make WebFinger requests to if an incoming
-    /// WebFinger request doesn't match the admin actor.
-    WebFingerDomains: Set<string>
 } with
     /// The application name (e.g. "Pandacap").
     member _.ApplicationName = "Pandacap"

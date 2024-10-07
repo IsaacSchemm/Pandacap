@@ -29,35 +29,32 @@ namespace Pandacap.Controllers
 
             string? userId = userManager.GetUserId(User);
 
+            var dids = await context.ATProtoCredentials
+                .Select(c => c.DID)
+                .ToListAsync();
+
+            var weasylUsernames = await context.WeasylCredentials
+                .Select(c => c.Login)
+                .ToListAsync();
+
             if (Request.IsActivityPub())
             {
                 var key = await keyProvider.GetPublicKeyAsync();
-                var properties = await context.ProfileProperties.ToListAsync();
 
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToObject(
-                            key,
-                            properties)),
+                            await keyProvider.GetPublicKeyAsync(),
+                            dids,
+                            weasylUsernames)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
 
-            string? did = await context.ATProtoCredentials
-                .Select(c => c.DID)
-                .FirstOrDefaultAsync();
-
-            string? weasylUsername = await context.WeasylCredentials
-                .Select(c => c.Login)
-                .FirstOrDefaultAsync();
-
             return View(new ProfileViewModel
             {
-                ProfileProperties = await context.ProfileProperties
-                    .OrderBy(p => p.Name)
-                    .ToListAsync(),
-                DID = did,
-                WeasylUsername = weasylUsername,
+                BlueskyDIDs = dids,
+                WeasylUsernames = weasylUsernames,
                 RecentArtwork = await context.UserPosts
                     .Where(post => post.Artwork)
                     .OrderByDescending(post => post.PublishedTime)
