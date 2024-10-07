@@ -250,10 +250,16 @@ namespace Pandacap.Controllers
                     }
                     else
                     {
-                        var addressedPeople = remotePost.Recipients
+                        bool toGroup = remotePost.To
                             .OfType<RemoteAddressee.Actor>()
-                            .Where(actor => actor.Type != "https://www.w3.org/ns/activitystreams#Group")
-                            .Select(actor => actor.Id);
+                            .Where(actor => actor.Type == "https://www.w3.org/ns/activitystreams#Group")
+                            .Any();
+
+                        var anybodyAddressed = remotePost.Recipients
+                            .Where(r => r.IsActor)
+                            .Any();
+
+                        bool nobodyAddressed = !anybodyAddressed;
 
                         var follow = await context.Follows
                             .Where(f => f.ActorId == actor.Id)
@@ -264,7 +270,7 @@ namespace Pandacap.Controllers
                             follow.PreferredUsername = remotePost.AttributedTo.PreferredUsername;
                             follow.IconUrl = remotePost.AttributedTo.IconUrl;
 
-                            if (isMention || !addressedPeople.Any())
+                            if (toGroup || nobodyAddressed)
                                 await remoteActivityPubPostHandler.AddRemotePostAsync(actor, remotePost);
                         }
                     }
