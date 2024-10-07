@@ -1,11 +1,11 @@
 ﻿using Pandacap.Data;
-using Pandacap.LowLevel;
 
 namespace Pandacap.Models
 {
     public class ProfileViewModel
     {
-        public IEnumerable<ExternalPlatform> ExternalPlatforms { get; set; } = [];
+        public IEnumerable<string> BlueskyDIDs { get; set; } = [];
+        public IEnumerable<string> WeasylUsernames { get; set; } = [];
 
         public IEnumerable<UserPost> RecentArtwork { get; set; } = [];
         public IEnumerable<UserPost> RecentTextPosts { get; set; } = [];

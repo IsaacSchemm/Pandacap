@@ -37,7 +37,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     /// Creates a string/object pair (F# tuple) with the given key and value.
     let pair key value = (key, value :> obj)
 
-    member _.PersonToObject(key: ActorKey, externalPlatforms: ExternalPlatform seq) = dict [
+    member _.PersonToObject(key: ActorKey, blueskyDIDs: string seq, weasylUsernames: string seq) = dict [
         pair "id" mapper.ActorId
         pair "type" "Person"
         pair "inbox" mapper.InboxId
@@ -61,20 +61,35 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             url = mapper.AvatarUrl
         |}
         pair "attachment" [
-            for e in externalPlatforms do {|
+            let u = Uri.EscapeDataString
+            let w = WebUtility.HtmlEncode
+
+            {|
                 ``type`` = "PropertyValue"
-                name = e.SiteName
-                value = $"<a href='{e.ProfileUrl}'>{WebUtility.HtmlEncode(e.Username)}</a>"
+                name = "DeviantArt"
+                value = $"<a href='https://www.deviantart.com/{u appInfo.DeviantArtUsername}'>{w appInfo.DeviantArtUsername}</a>"
+            |}
+
+            for did in blueskyDIDs do {|
+                ``type`` = "PropertyValue"
+                name = "Bluesky"
+                value = $"<a href='https://bsky.app/profile/{did}'>{w did}</a>"
+            |}
+
+            for username in weasylUsernames do {|
+                ``type`` = "PropertyValue"
+                name = "Weasyl"
+                value = $"<a href='https://www.weasyl.com/~{u username}'>{w username}</a>"
             |}
         ]
     ]
 
-    member this.PersonToUpdate(actorKey, externalPlatforms) = dict [
+    member this.PersonToUpdate(actorKey, blueskyDIDs, weasylUsernames) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
-        pair "object" (this.PersonToObject(actorKey, externalPlatforms))
+        pair "object" (this.PersonToObject(actorKey, blueskyDIDs, weasylUsernames))
     ]
 
     member _.AsObject(post: UserPost) = dict [
