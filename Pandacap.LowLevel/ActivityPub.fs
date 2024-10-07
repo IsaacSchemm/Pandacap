@@ -37,7 +37,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     /// Creates a string/object pair (F# tuple) with the given key and value.
     let pair key value = (key, value :> obj)
 
-    member _.PersonToObject(key: ActorKey, blueskyDIDs: string seq, weasylUsernames: string seq) = dict [
+    member _.PersonToObject(key: ActorKey) = dict [
         pair "id" mapper.ActorId
         pair "type" "Person"
         pair "inbox" mapper.InboxId
@@ -60,36 +60,14 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             ``type`` = "Image"
             url = mapper.AvatarUrl
         |}
-        pair "attachment" [
-            let u = Uri.EscapeDataString
-            let w = WebUtility.HtmlEncode
-
-            {|
-                ``type`` = "PropertyValue"
-                name = "DeviantArt"
-                value = $"<a href='https://www.deviantart.com/{u appInfo.DeviantArtUsername}'>{w appInfo.DeviantArtUsername}</a>"
-            |}
-
-            for did in blueskyDIDs do {|
-                ``type`` = "PropertyValue"
-                name = "Bluesky"
-                value = $"<a href='https://bsky.app/profile/{did}'>{w did}</a>"
-            |}
-
-            for username in weasylUsernames do {|
-                ``type`` = "PropertyValue"
-                name = "Weasyl"
-                value = $"<a href='https://www.weasyl.com/~{u username}'>{w username}</a>"
-            |}
-        ]
     ]
 
-    member this.PersonToUpdate(actorKey, blueskyDIDs, weasylUsernames) = dict [
+    member this.PersonToUpdate(actorKey) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
-        pair "object" (this.PersonToObject(actorKey, blueskyDIDs, weasylUsernames))
+        pair "object" (this.PersonToObject(actorKey))
     ]
 
     member _.AsObject(post: UserPost) = dict [

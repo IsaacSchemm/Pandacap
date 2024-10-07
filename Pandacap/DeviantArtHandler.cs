@@ -128,14 +128,6 @@ namespace Pandacap
 
             var key = await keyProvider.GetPublicKeyAsync();
 
-            var dids = await context.ATProtoCredentials
-                .Select(c => c.DID)
-                .ToListAsync();
-
-            var weasylUsernames = await context.WeasylCredentials
-                .Select(c => c.Login)
-                .ToListAsync();
-
             HashSet<string> inboxes = [];
             await foreach (var f in context.Follows)
                 inboxes.Add(f.SharedInbox ?? f.Inbox);
@@ -150,9 +142,7 @@ namespace Pandacap
                     Inbox = inbox,
                     JsonBody = ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToUpdate(
-                            key,
-                            dids,
-                            weasylUsernames)),
+                            key)),
                     StoredAt = DateTimeOffset.UtcNow
                 });
             }

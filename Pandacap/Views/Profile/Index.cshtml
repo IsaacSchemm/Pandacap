@@ -8,97 +8,130 @@
     ViewData["Title"] = "Main Page";
 }
 
-<img src="/Blobs/Avatar"
-     alt="Avatar"
-     float="left"
-     style="vertical-align: top" />
+<h1>
+    <img src="/Blobs/Avatar"
+            alt=""
+            float="left"
+            style="vertical-align: top" />
+    @appInfo.DeviantArtUsername
+</h1>
 
-<div style="display: inline-block">
-    <h1>
-        @appInfo.DeviantArtUsername
-    </h1>
+<hr />
 
-    <p>
-        <a href="/Gallery/Composite?format=rss">RSS feed</a>
-        &middot;
-        <a href="/Gallery/Composite?format=atom">Atom feed</a>
-    </p>
-</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <h4>Origin</h4>
 
-<div class="platform-cards">
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">ActivityPub</h5>
+            <div class="card my-3">
+                <div class="card-body">
+                    <h5 class="card-title">DeviantArt</h5>
 
-            <tt>@@@appInfo.Username@@@appInfo.HandleHostname</tt>
+                    <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)" target="_blank">
+                        <tt>@appInfo.DeviantArtUsername</tt>
+                    </a>
 
-            <br />
+                    <br />
 
-            <a asp-action="Followers">Followers (@Model.FollowerCount)</a>
-            &middot;
-            <a asp-action="Following">Following (@Model.FollowingCount)</a>
-            &middot;
-            <a asp-controller="Favorites" asp-action="Index">Favorites (@Model.FavoritesCount)</a>
-        </div>
-    </div>
-
-    @foreach (string did in Model.BlueskyDIDs)
-    {
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Bluesky</h5>
-
-                <a href="https://bsky.app/profile/@did" target="_blank">
-                    <tt>@did</tt>
-                </a>
-
-                <br />
-
-                <a href="https://bsky.app/profile/@did/followers" target="_blank">Followers</a>
-                &middot;
-                <a href="https://bsky.app/profile/@did/follows" target="_blank">Following</a>
+                    <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/about#watchers" target="_blank">Watchers</a>
+                    &middot;
+                    <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/about#watching" target="_blank">Watching</a>
+                    &middot;
+                    <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/favourites/all" target="_blank">Favorites</a>
+                </div>
             </div>
         </div>
-    }
+        <div class="col-md-4">
+            <h4>Syndication</h4>
+            
+            <div class="card my-3">
+                <div class="card-body">
+                    <h5 class="card-title">ActivityPub</h5>
 
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">DeviantArt</h5>
+                    <tt>@@@appInfo.Username@@@appInfo.HandleHostname</tt>
 
-            <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)" target="_blank">
-                <tt>@appInfo.DeviantArtUsername</tt>
-            </a>
+                    <br />
 
-            <br />
+                    <a asp-action="Followers">Followers (@Model.FollowerCount)</a>
+                    &middot;
+                    <a asp-action="Following">Following (@Model.FollowingCount)</a>
+                    &middot;
+                    <a asp-controller="Favorites" asp-action="Index">Favorites (@Model.FavoritesCount)</a>
+                </div>
+            </div>
 
-            <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/about#watchers" target="_blank">Watchers</a>
-            &middot;
-            <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/about#watching" target="_blank">Watching</a>
-            &middot;
-            <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/favourites/all" target="_blank">Favorites</a>
-        </div>
-    </div>
+            <div class="card my-3">
+                <div class="card-body">
+                    <h5 class="card-title">Atom</h5>
 
-    @foreach (string username in Model.WeasylUsernames)
-    {
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Weasyl</h5>
+                    <a href="/Gallery/Artwork?format=atom">Gallery</a>
+                    &middot;
+                    <a href="/Gallery/Journals?format=atom">Journals</a>
+                    &middot;
+                    <a href="/Gallery/StatusUpdates?format=atom">Status updates</a>
+                    &middot;
+                    <a href="/Gallery/Composite?format=atom">All</a>
+                </div>
+            </div>
 
-                <a href="https://www.weasyl.com/~@username" target="_blank">
-                    <tt>@username</tt>
-                </a>
+            <div class="card my-3">
+                <div class="card-body">
+                    <h5 class="card-title">RSS</h5>
 
-                <br />
-
-                <a href="https://www.weasyl.com/followed/@username" target="_blank">Followers</a>
-                &middot;
-                <a href="https://www.weasyl.com/following/@username" target="_blank">Following</a>
-                &middot;
-                <a href="https://www.weasyl.com/favorites/@username" target="_blank">Favorites</a>
+                    <a href="/Gallery/Artwork?format=rss">Gallery</a>
+                    &middot;
+                    <a href="/Gallery/Journals?format=rss">Journals</a>
+                    &middot;
+                    <a href="/Gallery/StatusUpdates?format=rss">Status updates</a>
+                    &middot;
+                    <a href="/Gallery/Composite?format=rss">All</a>
+                </div>
             </div>
         </div>
-    }
+        <div class="col-md-4">
+            <h4>Mirrored at</h4>
+
+            @foreach (string did in Model.BlueskyDIDs)
+            {
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Bluesky</h5>
+
+                        <a href="https://bsky.app/profile/@did" target="_blank">
+                            <tt>@did</tt>
+                        </a>
+
+                        <br />
+
+                        <a href="https://bsky.app/profile/@did/followers" target="_blank">Followers</a>
+                        &middot;
+                        <a href="https://bsky.app/profile/@did/follows" target="_blank">Following</a>
+                    </div>
+                </div>
+            }
+
+            @foreach (string username in Model.WeasylUsernames)
+            {
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Weasyl</h5>
+
+                        <a href="https://www.weasyl.com/~@username" target="_blank">
+                            <tt>@username</tt>
+                        </a>
+
+                        <br />
+
+                        <a href="https://www.weasyl.com/followed/@username" target="_blank">Followers</a>
+                        &middot;
+                        <a href="https://www.weasyl.com/following/@username" target="_blank">Following</a>
+                        &middot;
+                        <a href="https://www.weasyl.com/favorites/@username" target="_blank">Favorites</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
 <form asp-action="Search" method="get">
@@ -423,15 +456,3 @@
         </div>
     </div>
 }
-
-<style type="text/css">
-    .platform-cards .card {
-        display: inline-block;
-        width: 400px;
-        max-width: calc(100% - 0.5rem);
-        margin-bottom: 1rem;
-        margin-left: 0.25rem;
-        margin-right: 0.25rem;
-        vertical-align: top;
-    }
-</style>
