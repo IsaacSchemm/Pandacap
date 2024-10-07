@@ -64,7 +64,7 @@ namespace Pandacap.Controllers
                 Encoding.UTF8);
         }
 
-        [HttpPost, HttpGet]
+        [HttpPost]
         public async Task Inbox(CancellationToken cancellationToken)
         {
             using var sr = new StreamReader(Request.Body);
@@ -256,9 +256,10 @@ namespace Pandacap.Controllers
                     }
                     else
                     {
-                        var addressedActors = remotePost.Recipients
-                            .Where(addressee => addressee.IsActor)
-                            .Select(addressee => addressee.Id);
+                        var addressedPeople = remotePost.Recipients
+                            .OfType<RemoteAddressee.Actor>()
+                            .Where(actor => actor.Type != "https://www.w3.org/ns/activitystreams#Group")
+                            .Select(actor => actor.Id);
 
                         var follow = await context.Follows
                             .Where(f => f.ActorId == actor.Id)
@@ -268,12 +269,10 @@ namespace Pandacap.Controllers
                         {
                             follow.PreferredUsername = remotePost.AttributedTo.PreferredUsername;
                             follow.IconUrl = remotePost.AttributedTo.IconUrl;
+
+                            if (isMention || !addressedPeople.Any())
+                                await remoteActivityPubPostHandler.AddRemotePostAsync(actor, remotePost);
                         }
-
-                        bool addressedToOthers = !isMention && addressedActors.Any();
-
-                        if (follow != null && !addressedToOthers)
-                            await remoteActivityPubPostHandler.AddRemotePostAsync(actor, remotePost);
                     }
                 }
             }
