@@ -19,7 +19,7 @@ else
     {
         <div class="mb-3" style="@(item.Ghost ? "opacity: 0.5; filter: grayscale(100%);" : "")">
             <div>
-                <img height="50" src="@item.IconUrl" alt="" />
+                <img height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" />
                 <span style="display: inline-block; vertical-align: top">
                     <strong>
                         @(item.PreferredUsername ?? item.ActorId)

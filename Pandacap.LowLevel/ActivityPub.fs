@@ -212,7 +212,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
 
     member _.AsFollowersCollectionPage(currentPage: string, followers: ListPage<Follower>) = dict [
         pair "id" currentPage
-        pair "type" "OrderedCollectionPage"
+        pair "type" "CollectionPage"
         pair "partOf" mapper.FollowersRootId
 
         pair "orderedItems" [for f in followers.DisplayList do f.ActorId]
@@ -224,14 +224,14 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
 
     member _.AsFollowingCollection(following: int) = dict [
         pair "id" mapper.FollowingRootId
-        pair "type" "OrderedCollection"
+        pair "type" "Collection"
         pair "totalItems" following
         pair "first" mapper.FollowingPageId
     ]
 
     member _.AsFollowingCollectionPage(currentPage: string, following: ListPage<Follow>) = dict [
         pair "id" currentPage
-        pair "type" "OrderedCollectionPage"
+        pair "type" "CollectionPage"
         pair "partOf" mapper.FollowingRootId
 
         pair "orderedItems" [for f in following.DisplayList do f.ActorId]
