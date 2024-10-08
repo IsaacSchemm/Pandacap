@@ -168,7 +168,7 @@ namespace Pandacap.Controllers
 
             var page = await context.Follows
                 .Where(f => f.AddedAt <= startTime)
-                .OrderByDescending(f => f.AddedAt)
+                .OrderBy(f => f.PreferredUsername)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.ActorId == next || next == null)
                 .AsListPage(count ?? 50);
