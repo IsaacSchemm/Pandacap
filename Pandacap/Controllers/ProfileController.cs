@@ -138,11 +138,21 @@ namespace Pandacap.Controllers
                     "application/activity+json",
                     Encoding.UTF8);
             }
-            else {
-                return View(new ListViewModel<Follower>
+            else
+            {
+                var ids = page.DisplayList.Select(f => f.ActorId);
+
+                var ghosted = await context.Follows
+                    .Where(f => ids.Contains(f.ActorId))
+                    .Where(f => f.Ghost == true)
+                    .Select(f => f.ActorId)
+                    .ToListAsync();
+
+                return View(new FollowerViewModel
                 {
                     Title = "Followers",
-                    Items = page
+                    Items = page,
+                    GhostedActors = ghosted
                 });
             }
         }
@@ -201,7 +211,8 @@ namespace Pandacap.Controllers
             string id,
             bool ignoreImages,
             bool includeImageShares,
-            bool includeTextShares)
+            bool includeTextShares,
+            bool ghost)
         {
             await foreach (var follow in context.Follows
                 .Where(f => f.ActorId == id)
@@ -210,6 +221,7 @@ namespace Pandacap.Controllers
                 follow.IgnoreImages = ignoreImages;
                 follow.IncludeImageShares = includeImageShares;
                 follow.IncludeTextShares = includeTextShares;
+                follow.Ghost = ghost;
             }
 
             await context.SaveChangesAsync();

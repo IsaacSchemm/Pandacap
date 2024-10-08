@@ -37,9 +37,14 @@ namespace Pandacap
         {
             async IAsyncEnumerable<string> getInboxesAsync()
             {
+                var ghosted = await context.Follows
+                    .Where(f => f.Ghost == true)
+                    .Select(f => f.ActorId)
+                    .ToListAsync();
+
                 await foreach (var follower in context.Followers)
                 {
-                    if (activityType == ActivityType.Create && follower.IsGhosted())
+                    if (activityType == ActivityType.Create && ghosted.Contains(follower.ActorId))
                         continue;
 
                     yield return follower.SharedInbox ?? follower.Inbox;

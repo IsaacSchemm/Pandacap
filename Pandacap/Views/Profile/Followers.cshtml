@@ -2,7 +2,7 @@
 @using Pandacap.LowLevel
 @using Pandacap.HighLevel
 @using Pandacap.Models
-@model ListViewModel<Follower>
+@model FollowerViewModel
 @inject ApplicationInformation appInfo
 
 @{
@@ -19,7 +19,7 @@ else
 {
     @foreach (var item in Model.Items.DisplayList)
     {
-        <div class="mb-3">
+        <div class="mb-3" style="@(Model.GhostedActors.Contains(item.ActorId) ? "opacity: 0.5; filter: grayscale(100%);" : "")">
             <div>
                 <img height="50" src="@item.IconUrl" alt="" />
                 <span style="display: inline-block; vertical-align: top">
@@ -32,9 +32,9 @@ else
                     {
                         @:(pending)
                     }
-                    @if (item.IsGhosted())
+                    @if (Model.GhostedActors.Contains(item.ActorId) == true)
                     {
-                        @:(ghosted)
+                        <span class="sr-only">(ghosted)</span>
                     }
                 </span>
             </div>

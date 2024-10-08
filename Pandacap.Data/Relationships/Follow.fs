@@ -11,5 +11,6 @@ type Follow() =
     member val IgnoreImages = false with get, set
     member val IncludeImageShares = false with get, set
     member val IncludeTextShares = false with get, set
+    member val Ghost = Nullable<bool>() with get, set
 
     override this.Pending = not this.Accepted
