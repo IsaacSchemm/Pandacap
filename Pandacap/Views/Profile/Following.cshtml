@@ -17,7 +17,7 @@ else
 {
     @foreach (var item in Model.Items.DisplayList)
     {
-        <div class="mb-3" style="@(item.Ghost == true ? "opacity: 0.5; filter: grayscale(100%);" : "")">
+        <div class="mb-3" style="@(item.Ghost ? "opacity: 0.5; filter: grayscale(100%);" : "")">
             <div>
                 <img height="50" src="@item.IconUrl" alt="" />
                 <span style="display: inline-block; vertical-align: top">
@@ -30,9 +30,9 @@ else
                     {
                         @:(pending)
                     }
-                    @if (item.Ghost == true)
+                    @if (item.Ghost)
                     {
-                        <span class="sr-only">(ghosted)</span>
+                        @:(disabled)
                     }
                 </span>
             </div>

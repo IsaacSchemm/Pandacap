@@ -34,7 +34,7 @@ else
                     }
                     @if (Model.GhostedActors.Contains(item.ActorId) == true)
                     {
-                        <span class="sr-only">(ghosted)</span>
+                        @:(disabled)
                     }
                 </span>
             </div>

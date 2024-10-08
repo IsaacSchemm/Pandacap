@@ -60,7 +60,7 @@
                id="ghost"
                name="ghost"
                value="true"
-        @(Model.Ghost == true ? "checked" : "")>
+        @(Model.Ghost ? "checked" : "")>
         <label class="form-check-label" for="ghost">
             Do not send new posts to this actor
         </label>

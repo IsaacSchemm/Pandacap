@@ -144,7 +144,7 @@ namespace Pandacap.Controllers
 
                 var ghosted = await context.Follows
                     .Where(f => ids.Contains(f.ActorId))
-                    .Where(f => f.Ghost == true)
+                    .Where(f => f.Ghost)
                     .Select(f => f.ActorId)
                     .ToListAsync();
 
