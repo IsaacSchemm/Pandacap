@@ -17,6 +17,15 @@ type ActivityPubRemotePostService(
     let hydrateAddresseeAsync cancellationToken id =
         remoteActorService.FetchAddresseeAsync(id, cancellationToken)
 
+    member _.GetAnnouncementSubjectIds(expandedAnnounceObject: JToken) = [
+        for innerObject in expandedAnnounceObject |> list "https://www.w3.org/ns/activitystreams#object" do
+            if node_type innerObject |> Seq.contains "https://www.w3.org/ns/activitystreams#Create" then
+                for obj in innerObject |> list "https://www.w3.org/ns/activitystreams#object" do
+                    node_id obj
+            else
+                node_id innerObject
+    ]
+
     member _.GetAttachments(object: JToken) =
         object
         |> list "https://www.w3.org/ns/activitystreams#attachment"

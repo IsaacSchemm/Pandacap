@@ -176,10 +176,8 @@ namespace Pandacap.Controllers
                 || type == "https://www.w3.org/ns/activitystreams#View"
                 || type == "https://www.w3.org/ns/activitystreams#Announce")
             {
-                foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
+                foreach (string interactedWithId in activityPubRemotePostService.GetAnnouncementSubjectIds(expansionObj))
                 {
-                    string interactedWithId = obj["@id"]!.Value<string>()!;
-
                     if (type == "https://www.w3.org/ns/activitystreams#Announce")
                     {
                         await remoteActivityPubPostHandler.AddRemoteAnnouncementAsync(
