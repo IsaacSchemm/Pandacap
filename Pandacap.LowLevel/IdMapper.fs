@@ -17,14 +17,8 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.FollowersRootId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Followers"
 
-    member _.FollowersPageId =
-        $"https://{appInfo.ApplicationHostname}/Profile/Followers"
-
     member _.FollowingRootId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Following"
-
-    member _.FollowingPageId =
-        $"https://{appInfo.ApplicationHostname}/Profile/Following"
 
     member _.OutboxRootId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Outbox"

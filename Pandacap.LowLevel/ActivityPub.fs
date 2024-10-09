@@ -203,11 +203,11 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" followId
     ]
 
-    member _.AsFollowersCollection(followers: Follower seq) = dict [
+    member _.AsFollowersCollection(followers: int) = dict [
         pair "id" mapper.FollowersRootId
         pair "type" "Collection"
         pair "totalItems" followers
-        pair "items" [for f in followers do f.ActorId]
+        pair "items" []
     ]
 
     member _.AsFollowingCollection(following: Follow seq) = dict [

@@ -26,49 +26,24 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> Followers()
         {
-            var followers = await context.Followers
-                .OrderByDescending(f => f.AddedAt)
-                .ToListAsync();
+            int followers = await context.Followers.CountAsync();
 
-            if (Request.IsActivityPub())
-            {
-                return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        translator.AsFollowersCollection(followers)),
-                    "application/activity+json",
-                    Encoding.UTF8);
-            }
-            else
-            {
-                var ghosted = await context.Follows
-                    .Where(f => f.Ghost)
-                    .Select(f => f.ActorId)
-                    .ToListAsync();
-
-                return View(new FollowerViewModel
-                {
-                    Items = followers,
-                    GhostedActors = ghosted
-                });
-            }
+            return Content(
+                ActivityPubSerializer.SerializeWithContext(
+                    translator.AsFollowersCollection(followers)),
+                "application/activity+json",
+                Encoding.UTF8);
         }
 
         public async Task<IActionResult> Following()
         {
             var follows = await context.Follows.ToListAsync();
 
-            if (Request.IsActivityPub())
-            {
-                return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        translator.AsFollowingCollection(follows)),
-                    "application/activity+json",
-                    Encoding.UTF8);
-            }
-            else
-            {
-                return View(follows.OrderBy(f => f.PreferredUsername?.ToLowerInvariant() ?? f.ActorId));
-            }
+            return Content(
+                ActivityPubSerializer.SerializeWithContext(
+                    translator.AsFollowingCollection(follows)),
+                "application/activity+json",
+                Encoding.UTF8);
         }
 
         [HttpGet]

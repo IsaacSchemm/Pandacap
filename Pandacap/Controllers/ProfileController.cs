@@ -112,14 +112,32 @@ namespace Pandacap.Controllers
             });
         }
 
-        public IActionResult Followers()
+        [Authorize]
+        public async Task<IActionResult> Followers()
         {
-            return RedirectToAction("Followers", "ActivityPub");
+            var followers = await context.Followers
+                .OrderByDescending(f => f.AddedAt)
+                .ToListAsync();
+
+            var ghosted = await context.Follows
+                .Where(f => f.Ghost)
+                .Select(f => f.ActorId)
+                .ToListAsync();
+
+            return View(new FollowerViewModel
+            {
+                Items = followers,
+                GhostedActors = ghosted
+            });
         }
 
-        public IActionResult Following()
+        public async Task<IActionResult> Following()
         {
-            return RedirectToAction("Following", "ActivityPub");
+            var follows = await context.Follows.ToListAsync();
+
+            return View(
+                follows
+                .OrderBy(f => f.PreferredUsername?.ToLowerInvariant() ?? f.ActorId));
         }
 
         [Authorize]

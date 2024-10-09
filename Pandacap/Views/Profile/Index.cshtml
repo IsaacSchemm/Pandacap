@@ -33,8 +33,6 @@
 
                     <br />
 
-                    <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/about#watchers" target="_blank">Watchers</a>
-                    &middot;
                     <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/about#watching" target="_blank">Watching</a>
                     &middot;
                     <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/favourites/all" target="_blank">Favorites</a>
@@ -52,8 +50,6 @@
 
                     <br />
 
-                    <a asp-action="Followers">Followers (@Model.FollowerCount)</a>
-                    &middot;
                     <a asp-action="Following">Following (@Model.FollowingCount)</a>
                     &middot;
                     <a asp-controller="Favorites" asp-action="Index">Favorites (@Model.FavoritesCount)</a>
@@ -103,8 +99,6 @@
 
                         <br />
 
-                        <a href="https://bsky.app/profile/@did/followers" target="_blank">Followers</a>
-                        &middot;
                         <a href="https://bsky.app/profile/@did/follows" target="_blank">Following</a>
                     </div>
                 </div>
@@ -122,8 +116,6 @@
 
                         <br />
 
-                        <a href="https://www.weasyl.com/followed/@username" target="_blank">Followers</a>
-                        &middot;
                         <a href="https://www.weasyl.com/following/@username" target="_blank">Following</a>
                         &middot;
                         <a href="https://www.weasyl.com/favorites/@username" target="_blank">Favorites</a>
@@ -233,9 +225,15 @@
             <div class="col col-12 col-md-6">
                 <div class="card mt-3">
                     <div class="card-header">
-                        Addressed posts
+                        Administration
                     </div>
                     <div class="card-body text-center">
+                        <a asp-controller="Profile" asp-action="Followers" class="btn btn-outline-primary">
+                            View followers
+                        </a>
+
+                        <div class="mb-3"></div>
+
                         <a asp-controller="AddressedPosts" asp-action="CreateCommunityPost" class="btn btn-outline-primary">
                             Create top-level community post
                         </a>
