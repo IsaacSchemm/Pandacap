@@ -6,18 +6,18 @@
 @inject ApplicationInformation appInfo
 
 @{
-    ViewBag.Title = Model.Title;
+    ViewBag.Title = "Followers";
 }
 
-@if (!Model.Items.DisplayList.Any())
+@if (!Model.Items.Any())
 {
     <p>
-        There are no other ActivityPub users who follow this user.
+        There are no ActivityPub actors who follow this user.
     </p>
 }
 else
 {
-    @foreach (var item in Model.Items.DisplayList)
+    @foreach (var item in Model.Items)
     {
         <div class="mb-3" style="@(Model.GhostedActors.Contains(item.ActorId) ? "opacity: 0.5; filter: grayscale(100%);" : "")">
             <div>
@@ -39,17 +39,5 @@ else
                 </span>
             </div>
         </div>
-    }
-
-    @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IRemoteActorRelationship nextActor)
-    {
-        <hr />
-
-        <a asp-route-q="@Model.Q"
-           asp-route-next="@nextActor.ActorId"
-           asp-route-count="@Model.Items.DisplayList.Length"
-           class="btn btn-outline-primary">
-            Next @Model.Items.DisplayList.Length items &raquo;
-        </a>
     }
 }

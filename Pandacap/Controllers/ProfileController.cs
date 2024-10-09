@@ -112,85 +112,14 @@ namespace Pandacap.Controllers
             });
         }
 
-        public async Task<IActionResult> Followers(string? next, int? count)
+        public IActionResult Followers()
         {
-            DateTimeOffset startTime = next is string s
-                ? await context.Followers
-                    .Where(f => f.ActorId == s)
-                    .Select(f => f.AddedAt)
-                    .SingleAsync()
-                : DateTimeOffset.MaxValue;
-
-            var page = await context.Followers
-                .Where(f => f.AddedAt <= startTime)
-                .OrderByDescending(f => f.AddedAt)
-                .AsAsyncEnumerable()
-                .SkipUntil(f => f.ActorId == next || next == null)
-                .AsListPage(count ?? 50);
-
-            if (Request.IsActivityPub())
-            {
-                return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        translator.AsFollowersCollectionPage(
-                            Request.GetEncodedUrl(),
-                            page)),
-                    "application/activity+json",
-                    Encoding.UTF8);
-            }
-            else
-            {
-                var ids = page.DisplayList.Select(f => f.ActorId);
-
-                var ghosted = await context.Follows
-                    .Where(f => ids.Contains(f.ActorId))
-                    .Where(f => f.Ghost)
-                    .Select(f => f.ActorId)
-                    .ToListAsync();
-
-                return View(new FollowerViewModel
-                {
-                    Title = "Followers",
-                    Items = page,
-                    GhostedActors = ghosted
-                });
-            }
+            return RedirectToAction("Followers", "ActivityPub");
         }
 
-        public async Task<IActionResult> Following(string? next, int? count)
+        public IActionResult Following()
         {
-            DateTimeOffset startTime = next is string s
-                ? await context.Follows
-                    .Where(f => f.ActorId == s)
-                    .Select(f => f.AddedAt)
-                    .SingleAsync()
-                : DateTimeOffset.MaxValue;
-
-            var page = await context.Follows
-                .Where(f => f.AddedAt <= startTime)
-                .OrderBy(f => f.PreferredUsername)
-                .AsAsyncEnumerable()
-                .SkipUntil(f => f.ActorId == next || next == null)
-                .AsListPage(count ?? 50);
-
-            if (Request.IsActivityPub())
-            {
-                return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        translator.AsFollowingCollectionPage(
-                            Request.GetEncodedUrl(),
-                            page)),
-                    "application/activity+json",
-                    Encoding.UTF8);
-            }
-            else
-            {
-                return View(new ListViewModel<Follow>
-                {
-                    Title = "Following",
-                    Items = page
-                });
-            }
+            return RedirectToAction("Following", "ActivityPub");
         }
 
         [Authorize]

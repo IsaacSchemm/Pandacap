@@ -5,6 +5,7 @@ using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
+using Pandacap.Models;
 using Pandacap.Signatures;
 using System.Text;
 
@@ -23,30 +24,51 @@ namespace Pandacap.Controllers
     {
         private static new readonly IEnumerable<JToken> Empty = [];
 
-        [HttpGet]
         public async Task<IActionResult> Followers()
         {
-            int count = await context.Followers.CountAsync();
-            return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    translator.AsFollowersCollection(
-                        count)),
-                "application/activity+json",
-                Encoding.UTF8);
+            var followers = await context.Followers
+                .OrderByDescending(f => f.AddedAt)
+                .ToListAsync();
+
+            if (Request.IsActivityPub())
+            {
+                return Content(
+                    ActivityPubSerializer.SerializeWithContext(
+                        translator.AsFollowersCollection(followers)),
+                    "application/activity+json",
+                    Encoding.UTF8);
+            }
+            else
+            {
+                var ghosted = await context.Follows
+                    .Where(f => f.Ghost)
+                    .Select(f => f.ActorId)
+                    .ToListAsync();
+
+                return View(new FollowerViewModel
+                {
+                    Items = followers,
+                    GhostedActors = ghosted
+                });
+            }
         }
 
-        [HttpGet]
         public async Task<IActionResult> Following()
         {
-            int count = await context.Follows
-                .Where(f => f.Accepted)
-                .CountAsync();
-            return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    translator.AsFollowingCollection(
-                        count)),
-                "application/activity+json",
-                Encoding.UTF8);
+            var follows = await context.Follows.ToListAsync();
+
+            if (Request.IsActivityPub())
+            {
+                return Content(
+                    ActivityPubSerializer.SerializeWithContext(
+                        translator.AsFollowingCollection(follows)),
+                    "application/activity+json",
+                    Encoding.UTF8);
+            }
+            else
+            {
+                return View(follows.OrderBy(f => f.PreferredUsername?.ToLowerInvariant() ?? f.ActorId));
+            }
         }
 
         [HttpGet]

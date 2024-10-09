@@ -1,21 +1,21 @@
 ﻿@using Pandacap.Data
 @using Pandacap.HighLevel
 @using Pandacap.Models
-@model ListViewModel<Follow>
+@model IEnumerable<Follow>
 
 @{
-    ViewBag.Title = Model.Title;
+    ViewBag.Title = "Following";
 }
 
-@if (!Model.Items.DisplayList.Any())
+@if (!Model.Any())
 {
     <p>
-        This user does not currently follow any other ActivityPub users.
+        This user does not follow any ActivityPub actors.
     </p>
 }
 else
 {
-    @foreach (var item in Model.Items.DisplayList)
+    @foreach (var item in Model)
     {
         <div class="mb-3" style="@(item.Ghost ? "opacity: 0.5; filter: grayscale(100%);" : "")">
             <div>
@@ -44,18 +44,6 @@ else
                 </a>
             }
         </div>
-    }
-
-    @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IRemoteActorRelationship nextActor)
-    {
-        <hr />
-
-        <a asp-route-q="@Model.Q"
-           asp-route-next="@nextActor.ActorId"
-           asp-route-count="@Model.Items.DisplayList.Length"
-           class="btn btn-primary">
-            Next @Model.Items.DisplayList.Length items &raquo;
-        </a>
     }
 
     <hr />

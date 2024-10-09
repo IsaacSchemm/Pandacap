@@ -203,42 +203,18 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" followId
     ]
 
-    member _.AsFollowersCollection(followers: int) = dict [
+    member _.AsFollowersCollection(followers: Follower seq) = dict [
         pair "id" mapper.FollowersRootId
         pair "type" "Collection"
         pair "totalItems" followers
-        pair "first" mapper.FollowersPageId
+        pair "items" [for f in followers do f.ActorId]
     ]
 
-    member _.AsFollowersCollectionPage(currentPage: string, followers: ListPage<Follower>) = dict [
-        pair "id" currentPage
-        pair "type" "CollectionPage"
-        pair "partOf" mapper.FollowersRootId
-
-        pair "orderedItems" [for f in followers.DisplayList do f.ActorId]
-        match followers.Next with
-        | None -> ()
-        | Some next ->
-            pair "next" $"{mapper.FollowersPageId}?next={next.ActorId}&count={Seq.length followers.DisplayList}"
-    ]
-
-    member _.AsFollowingCollection(following: int) = dict [
+    member _.AsFollowingCollection(following: Follow seq) = dict [
         pair "id" mapper.FollowingRootId
         pair "type" "Collection"
         pair "totalItems" following
-        pair "first" mapper.FollowingPageId
-    ]
-
-    member _.AsFollowingCollectionPage(currentPage: string, following: ListPage<Follow>) = dict [
-        pair "id" currentPage
-        pair "type" "CollectionPage"
-        pair "partOf" mapper.FollowingRootId
-
-        pair "orderedItems" [for f in following.DisplayList do f.ActorId]
-        match following.Next with
-        | None -> ()
-        | Some next ->
-            pair "next" $"{mapper.FollowingPageId}?next={next.ActorId}&count={Seq.length following.DisplayList}"
+        pair "items" [for f in following do f.ActorId]
     ]
 
     member _.AsOutboxCollection(posts: int) = dict [
