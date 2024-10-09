@@ -213,7 +213,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     member _.AsFollowingCollection(following: Follow seq) = dict [
         pair "id" mapper.FollowingRootId
         pair "type" "Collection"
-        pair "totalItems" following
+        pair "totalItems" (Seq.length following)
         pair "items" [for f in following do f.ActorId]
     ]
 
