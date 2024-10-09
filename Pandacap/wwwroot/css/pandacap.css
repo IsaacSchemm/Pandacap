@@ -1,4 +1,14 @@
-﻿.comment .comment {
+﻿.navbar-dark {
+    background-color: #3f4873;
+    color: #e5e5e5;
+    border-color: #232840 !important;
+}
+
+.card {
+    background: rgba(128, 128, 128, 0.05);
+}
+
+.comment .comment {
     border-left: 0.125rem solid lightgray;
     padding-left: 1.5rem;
     margin-bottom: 1rem;
