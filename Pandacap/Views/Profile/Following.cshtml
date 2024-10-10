@@ -26,7 +26,7 @@ else
                     </strong>
                     <br />
                     <a href="@item.ActorId">@item.ActorId</a>
-                    @if (item.Pending)
+                    @if (!item.Accepted)
                     {
                         @:(pending)
                     }

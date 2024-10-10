@@ -28,10 +28,6 @@ else
                     </strong>
                     <br />
                     <a href="@item.ActorId">@item.ActorId</a>
-                    @if (item.Pending)
-                    {
-                        @:(pending)
-                    }
                     @if (Model.GhostedActors.Contains(item.ActorId) == true)
                     {
                         @:(disabled)
