@@ -10,13 +10,11 @@
 
 <h1>
     <img src="/Blobs/Avatar"
-            alt=""
-            float="left"
-            style="vertical-align: top" />
+         alt=""
+         float="left"
+         style="vertical-align: top" />
     @appInfo.DeviantArtUsername
 </h1>
-
-<hr />
 
 <div class="container">
     <div class="row">
@@ -41,7 +39,7 @@
         </div>
         <div class="col-md-4">
             <h4>Syndication</h4>
-            
+
             <div class="card my-3">
                 <div class="card-body">
                     <h5 class="card-title">ActivityPub</h5>
@@ -199,64 +197,14 @@
 {
     <hr />
 
-    <h2>ActivityPub</h2>
-    <div class="container mb-3">
+    <div id="admin" class="container mb-3">
         <div class="row">
-            <div class="col col-12 col-md-6">
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Remote posts
-                    </div>
-                    <div class="card-body">
-                        <form method="get" asp-controller="RemotePosts" asp-action="Index">
-                            <div class="mb-3">
-                                <label for="id" class="form-label">
-                                    Object ID (URL)
-                                </label>
-                                <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
-                            </div>
-                            <button type="submit" class="btn btn-outline-primary">
-                                View
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col col-12 col-md-6">
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Administration
-                    </div>
-                    <div class="card-body text-center">
-                        <a asp-controller="Profile" asp-action="Followers" class="btn btn-outline-primary">
-                            View followers
-                        </a>
-
-                        <div class="mb-3"></div>
-
-                        <a asp-controller="AddressedPosts" asp-action="CreateCommunityPost" class="btn btn-outline-primary">
-                            Create top-level community post
-                        </a>
-
-                        <div class="mb-3"></div>
-
-                        <a asp-controller="Gallery" asp-action="AddressedPosts" class="btn btn-outline-primary">
-                            View all community posts and replies
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container mb-3">
-        <div class="row">
-            <div class="col col-12 col-md-6 col-xl-3 mb-3">
+            <div class="col col-12 col-xl-3">
                 <h2>
                     DeviantArt
                 </h2>
 
-                <div class="card mt-3">
+                <div class="card my-3">
                     <div class="card-header">
                         Gallery
                     </div>
@@ -285,7 +233,7 @@
                     </div>
                 </div>
 
-                <div class="card mt-3">
+                <div class="card my-3">
                     <div class="card-header">
                         Import
                     </div>
@@ -294,18 +242,18 @@
                             <input type="hidden" name="seconds" value="300" />
                             <div class="mb-3">
                                 <input type="url" class="form-control" id="url" name="url" placeholder="https://" />
+                                <div class="form-text">
+                                    Allows scraps
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-primary">
                                 Import
                             </button>
-                            <div class="form-text">
-                                Allows scraps
-                            </div>
                         </form>
                     </div>
                 </div>
 
-                <div class="card mt-3">
+                @* <div class="card mt-3">
                     <div class="card-header">
                         Inbox
                     </div>
@@ -330,71 +278,76 @@
                             </div>
                         </form>
                     </div>
-                </div>
+                </div> *@
             </div>
 
-            <div class="col col-12 col-md-6 col-xl-3 mb-3">
+            <div class="col col-12 col-xl-3">
                 <h2>
-                    atproto
+                    ActivityPub
                 </h2>
 
-                <div class="card mt-3">
+                <div class="card my-3">
                     <div class="card-header">
-                        Configuration
+                        Relationships
+                    </div>
+                    <div class="card-body text-center">
+                        <a asp-controller="Profile" asp-action="Followers" class="btn btn-outline-primary">
+                            Followers (@Model.FollowerCount)
+                        </a>
+
+                        <a asp-controller="Profile" asp-action="Following" class="btn btn-outline-primary">
+                            Following (@Model.FollowingCount)
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card my-3">
+                    <div class="card-header">
+                        Remote
                     </div>
                     <div class="card-body">
-                        <a asp-controller="ATProto" asp-action="Setup" class="btn btn-outline-primary">
-                            Configure external account
+                        <form method="get" asp-controller="RemotePosts" asp-action="Index">
+                            <div class="mb-3">
+                                <label for="id" class="form-label">
+                                    Object ID (URL)
+                                </label>
+                                <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
+                            </div>
+                            <button type="submit" class="btn btn-outline-primary">
+                                View post
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card my-3">
+                    <div class="card-header">
+                        Outbound
+                    </div>
+                    <div class="card-body text-center">
+                        <a asp-controller="Gallery" asp-action="Composite" class="btn btn-outline-primary">
+                            User posts
                         </a>
-                        <div class="form-text">
-                            Posts that appear in the account's home timeline will be added to the inbox.
-                        </div>
-                        <hr />
-                        <div class="text-center">
-                            <form asp-controller="InboxIngest" asp-action="BlueskyTimeline">
-                                <button type="submit" class="btn btn-primary btn-warning">
-                                    Sync now
-                                </button>
-                            </form>
-                        </div>
+
+                        <a asp-controller="Gallery" asp-action="AddressedPosts" class="btn btn-outline-primary">
+                            Addressed posts
+                        </a>
+
+                        <hr>
+
+                        <a asp-controller="AddressedPosts" asp-action="CreateCommunityPost" class="btn btn-outline-primary">
+                            Create new community post
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <div class="col col-12 col-md-6 col-xl-3 mb-3">
-                <h2>
-                    Weasyl
-                </h2>
-
-                <div class="card mt-3">
-                    <div class="card-header">
-                        Configuration
-                    </div>
-                    <div class="card-body">
-                        <a asp-controller="Weasyl" asp-action="Setup" class="btn btn-outline-primary">
-                            Configure external account
-                        </a>
-                        <div class="form-text">
-                            Submissions from watched users will be added to the inbox.
-                        </div>
-                        <hr />
-                        <div class="text-center">
-                            <form asp-controller="InboxIngest" asp-action="WeasylTimeline">
-                                <button type="submit" class="btn btn-primary btn-warning">
-                                    Sync now
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col col-12 col-md-6 col-xl-3 mb-3">
+            <div class="col col-12 col-xl-3">
                 <h2>
                     Atom/RSS
                 </h2>
 
-                <div class="card mt-3">
+                <div class="card my-3">
                     <div class="card-header">
                         Feeds
                     </div>
@@ -419,19 +372,19 @@
                             </div>
                         </form>
 
-                        <hr />
+                        @* <hr />
 
                         <div class="text-center">
                             <form asp-controller="InboxIngest" asp-action="Feed">
                                 <button type="submit" class="btn btn-primary btn-warning">
-                                    Sync inbox (Atom/RSS)
+                                    Sync now
                                 </button>
                             </form>
-                        </div>
+                        </div> *@
                     </div>
                 </div>
 
-                <div class="card mt-3">
+                <div class="card my-3">
                     <div class="card-header">
                         Audio
                     </div>
@@ -448,6 +401,60 @@
                                 Download
                             </button>
                         </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col col-12 col-xl-3">
+                <h2>
+                    Bluesky
+                </h2>
+
+                <div class="card my-3">
+                    <div class="card-header">
+                        Configuration
+                    </div>
+                    <div class="card-body">
+                        <a asp-controller="ATProto" asp-action="Setup" class="btn btn-outline-primary">
+                            Configure account
+                        </a>
+                        <div class="form-text">
+                            Posts that appear in the account's home timeline will be added to the inbox.
+                        </div>
+                        @* <hr />
+                        <div class="text-center">
+                            <form asp-controller="InboxIngest" asp-action="BlueskyTimeline">
+                                <button type="submit" class="btn btn-primary btn-warning">
+                                    Sync now
+                                </button>
+                            </form>
+                        </div> *@
+                    </div>
+                </div>
+
+                <h2>
+                    Weasyl
+                </h2>
+
+                <div class="card my-3">
+                    <div class="card-header">
+                        Configuration
+                    </div>
+                    <div class="card-body">
+                        <a asp-controller="Weasyl" asp-action="Setup" class="btn btn-outline-primary">
+                            Configure account
+                        </a>
+                        <div class="form-text">
+                            Submissions from watched users will be added to the inbox.
+                        </div>
+                        @* <hr />
+                        <div class="text-center">
+                            <form asp-controller="InboxIngest" asp-action="WeasylTimeline">
+                                <button type="submit" class="btn btn-primary btn-warning">
+                                    Sync now
+                                </button>
+                            </form>
+                        </div> *@
                     </div>
                 </div>
             </div>
