@@ -46,10 +46,10 @@ else
         </div>
     }
 
-    <hr />
-
     @if (User.Identity?.IsAuthenticated == true)
     {
+        <hr />
+
         <form asp-action="Follow">
             <div class="mb-3">
                 <label for="id" class="form-label">

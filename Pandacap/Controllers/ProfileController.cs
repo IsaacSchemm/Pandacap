@@ -66,7 +66,8 @@ namespace Pandacap.Controllers
                     .ToListAsync(),
                 FollowerCount = await context.Followers.CountAsync(),
                 FollowingCount = await context.Follows.CountAsync(),
-                FavoritesCount = await context.RemoteActivityPubFavorites.CountAsync()
+                FavoritesCount = await context.RemoteActivityPubFavorites.CountAsync(),
+                CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync()
             });
         }
 
@@ -135,8 +136,7 @@ namespace Pandacap.Controllers
         {
             var follows = await context.Follows.ToListAsync();
 
-            return View(
-                follows
+            return View(follows
                 .OrderBy(f => f.PreferredUsername?.ToLowerInvariant() ?? f.ActorId));
         }
 
