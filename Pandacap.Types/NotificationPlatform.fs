@@ -1,6 +1,4 @@
-﻿namespace Pandacap.LowLevel
-
-open Pandacap.Data
+﻿namespace Pandacap.Types
 
 type NotificationPlatform = {
     DisplayName: string

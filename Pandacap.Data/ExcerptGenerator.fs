@@ -2,7 +2,7 @@
 
 open System
 
-/// Allows Pandacap to derive a plaintext excerpt from an HTML string.
+/// Allows Pandacap to derive a plaintext excerpt.
 module ExcerptGenerator =
     /// Derives a plaintext excerpt from the first non-empty, non-whitespace string in the list.
     let FromText (strings: string seq) =

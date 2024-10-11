@@ -2,6 +2,8 @@
 
 open System
 open System.ComponentModel.DataAnnotations
+open Pandacap.Html
+open Pandacap.Types
 
 type InboxActivityStreamsUser() =
     member val Id = "" with get, set

@@ -7,18 +7,9 @@
 
   <ItemGroup>
     <Compile Include="ApplicationInformation.fs" />
-    <Compile Include="DeviantArtImportScope.fs" />
-    <Compile Include="DeviantArtScraper.fs" />
-    <Compile Include="ThumbnailMode.fs" />
-    <Compile Include="ListPage.fs" />
-    <Compile Include="FavoritesCacheEntry.fs" />
-    <Compile Include="NotificationPlatform.fs" />
-    <Compile Include="ActivityPubPaginationPosition.fs" />
     <Compile Include="IdMapper.fs" />
-    <Compile Include="ActorKey.fs" />
     <Compile Include="ActivityPub.fs" />
     <Compile Include="ATProto.fs" />
-    <Compile Include="LinkRelAlternate.fs" />
   </ItemGroup>
 
   <ItemGroup>

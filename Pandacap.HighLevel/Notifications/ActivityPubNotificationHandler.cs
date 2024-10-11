@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
+using Pandacap.Types;
 
 namespace Pandacap.HighLevel.Notifications
 {

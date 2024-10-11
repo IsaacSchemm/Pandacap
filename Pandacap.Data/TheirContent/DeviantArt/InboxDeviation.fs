@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations.Schema
+open Pandacap.Types
 
 /// A post from a user who this instance's owner follows on DeviantArt.
 [<AbstractClass>]

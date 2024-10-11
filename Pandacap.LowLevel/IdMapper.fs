@@ -23,12 +23,11 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.OutboxRootId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Outbox"
 
-    member _.GetOutboxPageId(position: ActivityPubPaginationPosition option) =
-        match position with
-        | Some pos ->
-            $"https://{appInfo.ApplicationHostname}/Gallery/Composite?next={pos.next}&count={pos.count}"
-        | None ->
-            $"https://{appInfo.ApplicationHostname}/Gallery/Composite"
+    member _.FirstOutboxPageId =
+        $"https://{appInfo.ApplicationHostname}/Gallery/Composite"
+
+    member this.GetOutboxPageId(next: Guid, count: int) =
+        $"{this.FirstOutboxPageId}?next={next}&count={count}"
 
     member _.LikedRootId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Liked"

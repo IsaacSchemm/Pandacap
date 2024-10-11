@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations
+open Pandacap.Types
 
 type InboxWeasylUser() =
     member val Login = "" with get, set

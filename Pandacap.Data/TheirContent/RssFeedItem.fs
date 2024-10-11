@@ -1,8 +1,9 @@
 ﻿namespace Pandacap.Data
 
 open System
-open FSharp.Data
 open System.ComponentModel.DataAnnotations.Schema
+open FSharp.Data
+open Pandacap.Types
 
 /// A link attached to a feed item.
 type RssFeedEnclosure() =

@@ -1,4 +1,4 @@
-﻿namespace Pandacap.Data
+﻿namespace Pandacap.Types
 
 type PostPlatform = ActivityPub | ATProto | DeviantArt | Pandacap | RSS_Atom | Weasyl
 

@@ -2,6 +2,8 @@
 
 open System
 open System.ComponentModel.DataAnnotations
+open Pandacap.Html
+open Pandacap.Types
 
 /// An image attachment to an ActivityPub post from a follow.
 type RemoteActivityPubFavoriteImage() =

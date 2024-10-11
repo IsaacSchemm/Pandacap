@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations.Schema
+open Pandacap.Html
 
 type AddressedPost() =
     member val Id = Guid.Empty with get, set

@@ -1,9 +1,9 @@
-﻿namespace Pandacap.Data
+﻿namespace Pandacap.Html
 
 open FSharp.Data
 
 /// Allows Pandacap to convert HTML to plain text when possible.
-module internal TextConverter =
+module TextConverter =
     let FromHtml content =
         try
             String.concat "\n" [

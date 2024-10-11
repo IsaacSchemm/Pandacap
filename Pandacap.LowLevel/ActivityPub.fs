@@ -2,9 +2,9 @@
 
 open System
 open System.Collections.Generic
-open System.Net
 open System.Text.Json
 open Pandacap.Data
+open Pandacap.Types
 
 /// Contains functions for JSON-LD serialization.
 module ActivityPubSerializer =
@@ -221,7 +221,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "id" mapper.OutboxRootId
         pair "type" "OrderedCollection"
         pair "totalItems" posts
-        pair "first" (mapper.GetOutboxPageId(None))
+        pair "first" mapper.FirstOutboxPageId
     ]
 
     member _.AsOutboxCollectionPage(currentPage: string, posts: ListPage<UserPost>) = dict [
@@ -233,8 +233,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         match posts.Next with
         | None -> ()
         | Some next ->
-            let pos = { next = next.Id; count = Seq.length posts.DisplayList }
-            pair "next" (mapper.GetOutboxPageId(Some pos))
+            pair "next" (mapper.GetOutboxPageId(next.Id, List.length posts.DisplayList))
     ]
 
     member _.AsLikedCollection(posts: int) = dict [

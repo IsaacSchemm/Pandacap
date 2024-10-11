@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using Pandacap.Html;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Models;
+using Pandacap.Types;
 using System.Diagnostics;
 using System.Text;
 

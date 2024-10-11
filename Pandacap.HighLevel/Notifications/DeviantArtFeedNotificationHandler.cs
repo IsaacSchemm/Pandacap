@@ -1,5 +1,6 @@
 ﻿using DeviantArtFs.Extensions;
 using Pandacap.LowLevel;
+using Pandacap.Types;
 
 namespace Pandacap.HighLevel.Notifications
 {

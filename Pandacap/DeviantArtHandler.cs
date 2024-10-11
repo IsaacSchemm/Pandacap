@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.LowLevel;
+using Pandacap.Types;
 using System.Net;
 
 namespace Pandacap
@@ -14,7 +15,6 @@ namespace Pandacap
     /// An object responsible for importing and refreshing posts from DeviantArt.
     /// </summary>
     public class DeviantArtHandler(
-        ApplicationInformation applicationInformation,
         BlobServiceClient blobServiceClient,
         BlueskyAgent blueskyAgent,
         PandacapDbContext context,
@@ -94,7 +94,7 @@ namespace Pandacap
         /// <returns></returns>
         public async Task UpdateAvatarAsync()
         {
-            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var whoami))
+            if (await credentialProvider.GetCredentialsAsync() is not (_, var whoami))
                 return;
 
             using var client = httpClientFactory.CreateClient();

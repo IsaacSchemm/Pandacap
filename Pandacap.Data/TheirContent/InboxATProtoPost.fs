@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations
+open Pandacap.Types
 
 type InboxATProtoUser() =
     member val DID = "" with get, set
