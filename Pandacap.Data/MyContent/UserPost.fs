@@ -2,7 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations.Schema
-open FSharp.Data
+open Pandacap.Html
 
 [<AllowNullLiteral>]
 type UserPostBlobReference() =

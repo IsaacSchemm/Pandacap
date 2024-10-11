@@ -1,4 +1,4 @@
-﻿namespace Pandacap.LowLevel
+﻿namespace Pandacap.Html
 
 open FSharp.Data
 

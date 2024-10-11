@@ -1,5 +1,6 @@
 ﻿using DeviantArtFs.Extensions;
 using Pandacap.LowLevel;
+using Pandacap.Types;
 
 namespace Pandacap.HighLevel.Notifications
 {
@@ -21,7 +22,10 @@ namespace Pandacap.HighLevel.Notifications
             await foreach (var message in feed)
                 yield return new()
                 {
-                    Platform = NotificationPlatform.DeviantArt,
+                    Platform = new NotificationPlatform(
+                        "DeviantArt",
+                        PostPlatformModule.GetBadge(PostPlatform.DeviantArt),
+                        "https://www.deviantart.com/notifications"),
                     ActivityName = message.type,
                     UserName = message.originator.OrNull()?.username,
                     UserUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(message.originator.OrNull()?.username ?? "")}",

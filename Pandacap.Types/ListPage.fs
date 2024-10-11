@@ -1,4 +1,4 @@
-﻿namespace Pandacap.LowLevel
+﻿namespace Pandacap.Types
 
 type ListPage<'T> = {
     DisplayList: 'T list

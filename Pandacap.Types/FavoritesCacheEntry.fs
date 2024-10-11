@@ -1,4 +1,4 @@
-﻿namespace Pandacap.LowLevel
+﻿namespace Pandacap.Types
 
 type FavoritesCacheEntry<'I, 'P> =
 | Item of 'I

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Core;
 using Pandacap.Data;
 using Pandacap.LowLevel;
+using Pandacap.Types;
 
 namespace Pandacap.HighLevel.Notifications
 {
@@ -45,7 +46,10 @@ namespace Pandacap.HighLevel.Notifications
 
                     yield return new()
                     {
-                        Platform = NotificationPlatform.ATProto,
+                        Platform = new NotificationPlatform(
+                            "Bluesky",
+                            PostPlatformModule.GetBadge(PostPlatform.ATProto),
+                            "https://bsky.app/notifications"),
                         ActivityName = item.reason,
                         UserName = item.author.displayName.OrNull() ?? item.author.handle,
                         UserUrl = $"https://bsky.app/profile/{item.author.did}",

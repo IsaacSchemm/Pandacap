@@ -1,5 +1,6 @@
 ﻿using Microsoft.FSharp.Collections;
 using Pandacap.LowLevel;
+using Pandacap.Types;
 
 namespace Pandacap
 {

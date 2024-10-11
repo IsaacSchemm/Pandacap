@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations
+open Pandacap.Types
 
 type InboxATProtoUser() =
     member val DID = "" with get, set
@@ -41,8 +42,9 @@ type InboxATProtoPost() =
         member this.LinkUrl = $"https://bsky.app/profile/{this.Author.DID}/post/{this.RecordKey}"
         member this.ProfileUrl = $"https://bsky.app/profile/{this.PostedBy.DID}"
         member this.Badges = [
-            if not (isNull this.PostedBy.PDS) then
-                { PostPlatform.GetBadge ATProto with Text = this.PostedBy.PDS }
+            match Option.ofObj this.PostedBy.PDS with
+            | Some pds -> PostPlatform.GetBadge ATProto |> Badge.WithParenthetical pds
+            | None -> PostPlatform.GetBadge ATProto
         ]
         member this.ThumbnailUrls = [if not this.IsAdultContent then for i in this.Images do i.Thumb]
         member this.Timestamp = this.IndexedAt

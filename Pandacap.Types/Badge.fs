@@ -1,4 +1,4 @@
-﻿namespace Pandacap.Data
+﻿namespace Pandacap.Types
 
 type Badge = {
     Text: string
@@ -11,4 +11,8 @@ module Badge =
         Text = text
         Background = bgcolor
         Color = color
+    }
+
+    let WithParenthetical text badge = {
+        badge with Text = $"{badge.Text} ({text})"
     }

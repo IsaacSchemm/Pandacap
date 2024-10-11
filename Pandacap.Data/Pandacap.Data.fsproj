@@ -6,11 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Badge.fs" />
-    <Compile Include="PostPlatform.fs" />
     <Compile Include="IPost.fs" />
     <Compile Include="NullValues.fs" />
-    <Compile Include="TextConverter.fs" />
     <Compile Include="ExcerptGenerator.fs" />
     <Compile Include="Credentials\ATProtoCredentials.fs" />
     <Compile Include="Credentials\DeviantArtCredentials.fs" />
@@ -42,6 +39,11 @@
     <PackageReference Include="FSharp.Data.Html.Core" Version="6.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="8.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.Html\Pandacap.Html.fsproj" />
+    <ProjectReference Include="..\Pandacap.Types\Pandacap.Types.fsproj" />
   </ItemGroup>
 
 </Project>

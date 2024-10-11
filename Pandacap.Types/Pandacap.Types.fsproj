@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="ActorKey.fs" />
+    <Compile Include="Badge.fs" />
+    <Compile Include="DeviantArtImportScope.fs" />
+    <Compile Include="FavoritesCacheEntry.fs" />
+    <Compile Include="ListPage.fs" />
+    <Compile Include="NotificationPlatform.fs" />
+    <Compile Include="PostPlatform.fs" />
+    <Compile Include="ThumbnailMode.fs" />
+  </ItemGroup>
+
+</Project>

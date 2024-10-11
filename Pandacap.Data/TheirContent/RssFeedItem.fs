@@ -1,8 +1,9 @@
 ﻿namespace Pandacap.Data
 
 open System
-open FSharp.Data
 open System.ComponentModel.DataAnnotations.Schema
+open FSharp.Data
+open Pandacap.Types
 
 /// A link attached to a feed item.
 type RssFeedEnclosure() =
@@ -35,8 +36,8 @@ type RssFeedItem() =
         member this.ProfileUrl = this.FeedWebsiteUrl
         member this.Badges = [
             match Uri.TryCreate(this.Url, UriKind.Absolute) with
-            | true, uri -> { PostPlatform.GetBadge RSS_Atom with Text = uri.Host }
-            | false, _ -> ()
+            | true, uri -> PostPlatform.GetBadge RSS_Atom |> Badge.WithParenthetical uri.Host
+            | false, _ -> PostPlatform.GetBadge RSS_Atom
         ]
         member this.ThumbnailUrls =
             try
