@@ -22,7 +22,7 @@ else
             <div>
                 <img height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" />
                 <span style="display: inline-block; vertical-align: top">
-                    <a href="@item.ActorId">
+                    <a asp-action="ViewCommunity" asp-route-host="@item.Host" asp-route-name="@item.Name">
                         <strong>
                             @item.Name
                         </strong>

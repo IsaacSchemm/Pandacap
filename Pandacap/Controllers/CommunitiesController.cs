@@ -2,15 +2,43 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.JsonLd;
+using Pandacap.LowLevel;
+using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     public class CommunitiesController(
         PandacapDbContext context,
+        LemmyClient lemmyClient,
         ActivityPubRemoteActorService remoteActorService
     ) : Controller
     {
+        public async Task<IActionResult> ViewCommunity(
+            string host,
+            string name,
+            bool newest = false,
+            int page = 1,
+            int limit = 10,
+            CancellationToken cancellationToken = default)
+        {
+            var community = await lemmyClient.GetCommunityAsync(
+                host,
+                name,
+                cancellationToken);
+
+            var posts = await lemmyClient.GetPostsAsync(
+                host,
+                community.id,
+                newest ? Lemmy.Sort.New : Lemmy.Sort.Active,
+                page,
+                limit,
+                cancellationToken);
+
+            return View(new CommunityViewModel(community, posts));
+        }
+
         public async Task<IActionResult> Bookmarks()
         {
             var communityBookmarks = await context.CommunityBookmarks.ToListAsync();
