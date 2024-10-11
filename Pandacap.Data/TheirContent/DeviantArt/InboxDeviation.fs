@@ -25,7 +25,7 @@ type InboxDeviation() =
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.LinkUrl
         member this.ProfileUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(this.Username)}"
-        member _.Badges = [{ PostPlatform.GetBadge DeviantArt with Text = "www.deviantart.com" }]
+        member _.Badges = [PostPlatform.GetBadge DeviantArt]
         member this.Timestamp = this.Timestamp
         member this.ThumbnailUrls = this.ThumbnailUrls
         member this.Usericon = this.Usericon

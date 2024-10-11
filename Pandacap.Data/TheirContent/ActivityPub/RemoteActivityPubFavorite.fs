@@ -40,8 +40,8 @@ type RemoteActivityPubFavorite() =
         member this.ProfileUrl = this.CreatedBy
         member this.Badges = [
             match Uri.TryCreate(this.CreatedBy, UriKind.Absolute) with
-            | true, uri -> { PostPlatform.GetBadge ActivityPub with Text = uri.Host }
-            | false, _ -> ()
+            | true, uri -> PostPlatform.GetBadge ActivityPub |> Badge.WithParenthetical uri.Host
+            | false, _ -> PostPlatform.GetBadge ActivityPub
         ]
         member this.Timestamp = this.CreatedAt
         member this.ThumbnailUrls = this.Attachments |> Seq.map (fun a -> a.Url)

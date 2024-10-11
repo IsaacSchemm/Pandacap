@@ -27,7 +27,10 @@ namespace Pandacap.HighLevel.Notifications
             {
                 yield return new()
                 {
-                    Platform = NotificationPlatform.ActivityPub,
+                    Platform = new NotificationPlatform(
+                        "ActivityPub",
+                        PostPlatformModule.GetBadge(PostPlatform.ActivityPub),
+                        null),
                     ActivityName = "Reply",
                     UserName = reply.Username,
                     UserUrl = reply.CreatedBy,

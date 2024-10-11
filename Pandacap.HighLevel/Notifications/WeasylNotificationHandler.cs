@@ -16,11 +16,16 @@ namespace Pandacap.HighLevel.Notifications
 
             var now = DateTimeOffset.UtcNow;
 
+            var platform = new NotificationPlatform(
+                "Weasyl",
+                PostPlatformModule.GetBadge(PostPlatform.Weasyl),
+                "https://www.weasyl.com/messages/notifications");
+
             if (summary.comments > 0)
                 yield return new Notification
                 {
                     ActivityName = $"{summary.comments} comment(s)",
-                    Platform = NotificationPlatform.Weasyl,
+                    Platform = platform,
                     Timestamp = now
                 };
 
@@ -28,7 +33,7 @@ namespace Pandacap.HighLevel.Notifications
                 yield return new Notification
                 {
                     ActivityName = $"{summary.journals} journal(s)",
-                    Platform = NotificationPlatform.Weasyl,
+                    Platform = platform,
                     Timestamp = now
                 };
 
@@ -36,7 +41,7 @@ namespace Pandacap.HighLevel.Notifications
                 yield return new Notification
                 {
                     ActivityName = $"{summary.notifications} notification(s)",
-                    Platform = NotificationPlatform.Weasyl,
+                    Platform = platform,
                     Timestamp = now
                 };
 
@@ -44,7 +49,7 @@ namespace Pandacap.HighLevel.Notifications
                 yield return new Notification
                 {
                     ActivityName = $"{summary.unread_notes} unread note(s)",
-                    Platform = NotificationPlatform.Weasyl,
+                    Platform = platform,
                     Timestamp = now
                 };
         }

@@ -21,7 +21,10 @@ namespace Pandacap.HighLevel.Notifications
             await foreach (var note in feed)
                 yield return new()
                 {
-                    Platform = NotificationPlatform.DeviantArt,
+                    Platform = new NotificationPlatform(
+                        "DeviantArt",
+                        PostPlatformModule.GetBadge(PostPlatform.DeviantArt),
+                        "https://www.deviantart.com/notifications"),
                     ActivityName = "note",
                     UserName = note.user.username,
                     UserUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(note.user.username ?? "")}",

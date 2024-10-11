@@ -46,7 +46,10 @@ namespace Pandacap.HighLevel.Notifications
 
                     yield return new()
                     {
-                        Platform = NotificationPlatform.ATProto,
+                        Platform = new NotificationPlatform(
+                            "Bluesky",
+                            PostPlatformModule.GetBadge(PostPlatform.ActivityPub),
+                            "https://bsky.app/notifications"),
                         ActivityName = item.reason,
                         UserName = item.author.displayName.OrNull() ?? item.author.handle,
                         UserUrl = $"https://bsky.app/profile/{item.author.did}",

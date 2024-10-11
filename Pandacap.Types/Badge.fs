@@ -12,3 +12,7 @@ module Badge =
         Background = bgcolor
         Color = color
     }
+
+    let WithParenthetical text badge = {
+        badge with Text = $"{badge.Text} ({text})"
+    }
