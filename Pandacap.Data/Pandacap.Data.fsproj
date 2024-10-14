@@ -20,6 +20,7 @@
     <Compile Include="Relationships\RssFeed.fs" />
     <Compile Include="Relationships\Follow.fs" />
     <Compile Include="Relationships\Follower.fs" />
+    <Compile Include="Relationships\CommunityBookmark.fs" />
     <Compile Include="TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
     <Compile Include="TheirContent\ActivityPub\RemoteActivityPubFavorite.fs" />
     <Compile Include="TheirContent\ActivityPub\RemoteActivityPubReply.fs" />

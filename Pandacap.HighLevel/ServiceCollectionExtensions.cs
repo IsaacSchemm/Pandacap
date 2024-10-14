@@ -31,6 +31,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<IdMapper>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<KeyProvider>()
+                .AddScoped<LemmyClient>()
                 .AddScoped<OutboxProcessor>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WeasylInboxHandler>()
