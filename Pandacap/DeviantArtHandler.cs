@@ -385,6 +385,8 @@ namespace Pandacap
                 }
             }
 
+            yield return enumerator.Current;
+
             while (await enumerator.MoveNextAsync())
                 yield return enumerator.Current;
         }
