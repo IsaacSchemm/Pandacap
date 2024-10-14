@@ -18,9 +18,7 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> ViewCommunity(
             string host,
             string name,
-            bool newest = false,
             int page = 1,
-            int limit = 10,
             CancellationToken cancellationToken = default)
         {
             var community = await lemmyClient.GetCommunityAsync(
@@ -31,18 +29,16 @@ namespace Pandacap.Controllers
             var posts = await lemmyClient.GetPostsAsync(
                 host,
                 community.id,
-                newest ? Lemmy.GetPostsSort.New : Lemmy.GetPostsSort.Active,
+                Lemmy.GetPostsSort.Active,
                 page,
-                limit,
-                cancellationToken);
+                cancellationToken: cancellationToken);
 
-            return View(new CommunityViewModel(host, community, posts));
+            return View(new CommunityViewModel(host, community, page, posts));
         }
 
         public async Task<IActionResult> ViewPost(
             string host,
             int id,
-            bool newest = false,
             CancellationToken cancellationToken = default)
         {
             var (post, community) = await lemmyClient.GetPostAsync(
@@ -54,7 +50,7 @@ namespace Pandacap.Controllers
                 .GetCommentsAsync(
                     host,
                     id,
-                    newest ? Lemmy.GetCommentsSort.New : Lemmy.GetCommentsSort.Top,
+                    Lemmy.GetCommentsSort.Top,
                     cancellationToken)
                 .ToListAsync(cancellationToken);
 

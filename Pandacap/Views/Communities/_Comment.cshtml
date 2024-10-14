@@ -1,7 +1,7 @@
 ﻿@using Pandacap.LowLevel
 @model Lemmy.CommentBranch
 
-<section aria-label="Comment" class="comment">
+<div class="comment">
     <div class="small">
         <a href="@Model.root.creator.actor_id" target="_blank">
             @foreach (string icon in Model.root.creator.Avatars)
@@ -30,4 +30,4 @@
     {
         <partial name="_Comment" model="@reply" />
     }
-</section>
+</div>

@@ -31,6 +31,8 @@ module Lemmy =
         req.Headers.Accept.ParseAdd("application/json")
 
         use! resp = httpClient.SendAsync(req, cancellationToken)
+        resp.EnsureSuccessStatusCode() |> ignore
+
         let! obj = resp.Content.ReadFromJsonAsync<GetCommunityResponse>(cancellationToken)
 
         return obj

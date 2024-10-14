@@ -23,6 +23,10 @@
         <br />
         @Model.Community.name
     </span>
+
+    <div>
+        <a asp-controller="AddressedPosts" asp-action="CreateCommunityPost" asp-route-community="@Model.Community.actor_id">Reply</a>
+    </div>
 </div>
 
 @foreach (var po in Model.PostObjects)
@@ -55,9 +59,34 @@
         <div class="small text-muted">
             @po.counts.score
             &middot;
-            <a href="@po.post.ap_id" target="_blank">@po.counts.comments comment(s)</a>
+            @po.counts.comments comment(s)
             &middot;
             <a asp-controller="RemotePosts" asp-action="Index" asp-route-id="@po.post.ap_id">Reply</a>
         </div>
     </p>
 }
+
+<hr />
+
+<div class="text-right">
+    @if (Model.Page > 1)
+    {
+        <a asp-action="ViewCommunity"
+           asp-route-host="@Model.Host"
+           asp-route-name="@Model.Community.name"
+           asp-route-page="@(Model.Page - 1)"
+           class="btn btn-outline-primary">
+            &laquo; Previous
+        </a>
+    }
+    @if (!Model.PostObjects.IsEmpty)
+    {
+        <a asp-action="ViewCommunity"
+           asp-route-host="@Model.Host"
+           asp-route-name="@Model.Community.name"
+           asp-route-page="@(Model.Page + 1)"
+           class="btn btn-outline-primary">
+            Next &raquo;
+        </a>
+    }
+</div>

@@ -55,8 +55,9 @@ namespace Pandacap.Controllers
 
         [HttpGet]
         [Route("CreateCommunityPost")]
-        public IActionResult CreateCommunityPost()
+        public IActionResult CreateCommunityPost(string? community = null)
         {
+            ViewBag.Community = community;
             return View();
         }
 

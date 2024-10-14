@@ -36,13 +36,15 @@
     }
 
     <div class="small text-muted">
-        @po.post.published.UtcDateTime.ToLongDateString()
+        <a href="@po.post.ap_id" target="_blank">
+            @po.post.published.UtcDateTime.ToLongDateString()
+        </a>
     </div>
 
     <div class="small text-muted">
         @po.counts.score
         &middot;
-        <a href="@po.post.ap_id" target="_blank">@po.counts.comments comment(s)</a>
+        @po.counts.comments comment(s)
         &middot;
         <a asp-controller="RemotePosts" asp-action="Index" asp-route-id="@po.post.ap_id">Reply</a>
     </div>
@@ -52,5 +54,7 @@
 {
     <hr />
 
-    <partial name="_Comment" model="@cb" />
+    <div class="comment">
+        <partial name="_Comment" model="@cb" />
+    </div>
 }
