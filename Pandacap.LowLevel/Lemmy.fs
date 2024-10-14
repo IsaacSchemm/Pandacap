@@ -65,19 +65,24 @@ module Lemmy =
         score: int
     }
 
-    type PostObject = {
+    type PostView = {
         post: Post
         creator: Creator
         counts: Counts
     }
 
+    type GetPostResponse = {
+        post_view: PostView
+        community_view: CommunityView
+    }
+
     type GetPostsResponse = {
-        posts: PostObject list
+        posts: PostView list
         next_page: string option
     } with
         member this.HasNextPage = Option.isSome this.next_page
 
-    type Sort =
+    type GetPostsSort =
     | Active
     | Hot
     | New
@@ -99,12 +104,22 @@ module Lemmy =
     | Scaled
 
     type GetPostsParameter =
-    | Sort of Sort
+    | Sort of GetPostsSort
     | Page of int
     | Limit of int
     | CommunityId of int
     | CommunityName of string
     | PageCursor of string
+
+    let GetPostAsync (httpClient: HttpClient) (host: string) (id: int) (cancellationToken: CancellationToken) = task {
+        use req = new HttpRequestMessage(HttpMethod.Get, $"https://{host}/api/v3/post?id={id}")
+        req.Headers.Accept.ParseAdd("application/json")
+
+        use! resp = httpClient.SendAsync(req, cancellationToken)
+        let! obj = resp.Content.ReadFromJsonAsync<GetPostResponse>(cancellationToken)
+
+        return obj
+    }
 
     let GetPostsAsync (httpClient: HttpClient) (host: string) (parameters: GetPostsParameter seq) (cancellationToken: CancellationToken) = task {
         let qs = String.concat "&" [
@@ -126,3 +141,92 @@ module Lemmy =
 
         return obj
     }
+
+    type Comment = {
+        id: int
+        postId: int
+        content: string
+        removed: bool
+        published: DateTimeOffset
+        ap_id: string
+        path: string
+    } with
+        member this.Parent =
+            this.path.Split('.')
+            |> Seq.rev
+            |> Seq.map Int32.Parse
+            |> Seq.skipWhile (fun id -> id <> this.id)
+            |> Seq.skipWhile (fun id -> id = this.id)
+            |> Seq.head
+
+    type CommentObject = {
+        comment: Comment
+        creator: Creator
+        counts: Counts
+    }
+
+    type GetCommentsResponse = {
+        comments: CommentObject list
+    }
+
+    type GetCommentsSort =
+    | Hot
+    | Top
+    | New
+    | Old
+    | Controversial
+
+    type GetCommentsParameter =
+    | Sort of GetCommentsSort
+    | Page of int
+    | Limit of int
+    | CommunityId of int
+    | CommunityName of string
+    | PostId of int
+    | ParentId of int
+
+    let GetCommentsAsync (httpClient: HttpClient) (host: string) (parameters: GetCommentsParameter seq) (cancellationToken: CancellationToken) = task {
+        let qs = String.concat "&" [
+            for parameter in parameters do
+                match parameter with
+                | Sort x -> $"sort={x}"
+                | Page x -> $"page={x}"
+                | Limit x -> $"limit={x}"
+                | CommunityId x -> $"community_id={x}"
+                | CommunityName x -> $"community_name={Uri.EscapeDataString(x)}"
+                | PostId x -> $"post_id={x}"
+                | ParentId x -> $"parent_id={x}"
+        ]
+
+        use req = new HttpRequestMessage(HttpMethod.Get, $"https://{host}/api/v3/comment/list?{qs}")
+        req.Headers.Accept.ParseAdd("application/json")
+
+        use! resp = httpClient.SendAsync(req, cancellationToken)
+        let! obj = resp.Content.ReadFromJsonAsync<GetCommentsResponse>(cancellationToken)
+
+        return obj
+    }
+
+    type CommentBranch = {
+        root: CommentObject
+        replies: CommentBranch list
+    }
+
+    let Restructure (source: CommentObject seq) = 
+        let sorted =
+            source
+            |> Seq.distinct
+            |> Seq.groupBy (fun co -> co.comment.Parent)
+            |> dict
+
+        let rec createBranches parent = [
+            match sorted.TryGetValue(parent) with
+            | false, _ -> ()
+            | true, found ->
+                for co in found do {
+                    root = co
+                    replies = createBranches co.comment.id
+                }
+        ]
+
+        createBranches 0

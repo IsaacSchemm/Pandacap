@@ -17,10 +17,20 @@ namespace Pandacap.HighLevel
             return resp.community_view.community;
         }
 
-        public async Task<FSharpList<Lemmy.PostObject>> GetPostsAsync(
+        public async Task<(Lemmy.PostView, Lemmy.Community)> GetPostAsync(
+            string host,
+            int id,
+            CancellationToken cancellationToken = default)
+        {
+            using var client = httpClientFactory.CreateClient();
+            var resp = await Lemmy.GetPostAsync(client, host, id, cancellationToken);
+            return (resp.post_view, resp.community_view.community);
+        }
+
+        public async Task<FSharpList<Lemmy.PostView>> GetPostsAsync(
             string host,
             int community_id,
-            Lemmy.Sort sort,
+            Lemmy.GetPostsSort sort,
             int page = 1,
             int limit = 10,
             CancellationToken cancellationToken = default)
@@ -41,36 +51,35 @@ namespace Pandacap.HighLevel
             return resp.posts;
         }
 
-        [Obsolete("Unused")]
-        public async IAsyncEnumerable<Lemmy.PostObject> GetPostsAsync(
+        public async IAsyncEnumerable<Lemmy.CommentObject> GetCommentsAsync(
             string host,
-            int community_id,
-            Lemmy.Sort sort,
+            int post_id,
+            Lemmy.GetCommentsSort sort,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             using var client = httpClientFactory.CreateClient();
 
-            IEnumerable<Lemmy.GetPostsParameter> defaultParameters = [
-                Lemmy.GetPostsParameter.NewSort(sort),
-                Lemmy.GetPostsParameter.NewCommunityId(community_id)
-            ];
-
-            var parameters = defaultParameters;
+            int page = 1;
 
             while (true)
             {
-                var page = await Lemmy.GetPostsAsync(client, host, parameters, cancellationToken);
+                var resp = await Lemmy.GetCommentsAsync(
+                    client,
+                    host,
+                    [
+                        Lemmy.GetCommentsParameter.NewSort(sort),
+                        Lemmy.GetCommentsParameter.NewPostId(post_id),
+                        Lemmy.GetCommentsParameter.NewPage(page)
+                    ],
+                    cancellationToken);
 
-                foreach (var post in page.posts)
-                    yield return post;
-
-                if (!page.HasNextPage)
+                if (resp.comments.Length == 0)
                     break;
 
-                parameters = [
-                    ..defaultParameters,
-                    Lemmy.GetPostsParameter.NewPageCursor(page.next_page.Value)
-                ];
+                foreach (var comment in resp.comments)
+                    yield return comment;
+
+                page++;
             }
         }
     }

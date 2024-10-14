@@ -3,8 +3,8 @@ using Pandacap.LowLevel;
 
 namespace Pandacap.Models
 {
-    public record CommunityViewModel(
-        string Host,
+    public record PostViewModel(
         Lemmy.Community Community,
-        FSharpList<Lemmy.PostView> PostObjects);
+        Lemmy.PostView PostView,
+        FSharpList<Lemmy.CommentBranch> Comments);
 }

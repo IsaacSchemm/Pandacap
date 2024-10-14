@@ -1,0 +1,33 @@
+﻿@using Pandacap.LowLevel
+@model Lemmy.CommentBranch
+
+<section aria-label="Comment" class="comment">
+    <div class="small">
+        <a href="@Model.root.creator.actor_id" target="_blank">
+            @foreach (string icon in Model.root.creator.Avatars)
+            {
+                <img width="25" height="25" src="@icon" alt="" />
+            }
+            @Model.root.creator.Names.First()
+        </a>
+    </div>
+
+    <div style="white-space: pre-wrap">@Model.root.comment.content</div>
+
+    <div class="small text-muted">
+        @Model.root.comment.published.UtcDateTime.ToLongDateString()
+    </div>
+
+    <div class="small text-muted">
+        @Model.root.counts.score
+        &middot;
+        <a href="@Model.root.comment.ap_id" target="_blank">@Model.root.counts.comments comment(s)</a>
+        &middot;
+        <a asp-controller="RemotePosts" asp-action="Index" asp-route-id="@Model.root.comment.ap_id">Reply</a>
+    </div>
+
+    @foreach (var reply in Model.replies)
+    {
+        <partial name="_Comment" model="@reply" />
+    }
+</section>

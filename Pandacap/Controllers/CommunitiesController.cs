@@ -31,12 +31,36 @@ namespace Pandacap.Controllers
             var posts = await lemmyClient.GetPostsAsync(
                 host,
                 community.id,
-                newest ? Lemmy.Sort.New : Lemmy.Sort.Active,
+                newest ? Lemmy.GetPostsSort.New : Lemmy.GetPostsSort.Active,
                 page,
                 limit,
                 cancellationToken);
 
-            return View(new CommunityViewModel(community, posts));
+            return View(new CommunityViewModel(host, community, posts));
+        }
+
+        public async Task<IActionResult> ViewPost(
+            string host,
+            int id,
+            bool newest = false,
+            CancellationToken cancellationToken = default)
+        {
+            var (post, community) = await lemmyClient.GetPostAsync(
+                host,
+                id,
+                cancellationToken);
+
+            var comments = await lemmyClient
+                .GetCommentsAsync(
+                    host,
+                    id,
+                    newest ? Lemmy.GetCommentsSort.New : Lemmy.GetCommentsSort.Top,
+                    cancellationToken)
+                .ToListAsync(cancellationToken);
+
+            var branches = Lemmy.Restructure(comments);
+
+            return View(new PostViewModel(community, post, branches));
         }
 
         public async Task<IActionResult> Bookmarks()

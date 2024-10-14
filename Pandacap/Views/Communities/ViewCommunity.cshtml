@@ -4,14 +4,6 @@
     ViewBag.Title = Model.Community.name;
 }
 
-<style type="text/css">
-    .lemmy-banner img {
-        width: 100%;
-        max-height: 240px;
-        object-fit: cover;
-    }
-</style>
-
 @foreach (string banner in Model.Community.Banners)
 {
     <div class="mb-3 lemmy-banner">
@@ -50,7 +42,9 @@
 
         <div>
             <strong>
-                @po.post.name
+                <a asp-action="ViewPost" asp-route-host="@Model.Host" asp-route-id="@po.post.id">
+                    @po.post.name
+                </a>
             </strong>
         </div>
 

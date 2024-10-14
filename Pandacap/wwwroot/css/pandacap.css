@@ -11,6 +11,7 @@
 .comment .comment {
     border-left: 0.125rem solid lightgray;
     padding-left: 1.5rem;
+    margin-top: 1rem;
     margin-bottom: 1rem;
 }
 
@@ -44,4 +45,10 @@ img.feed-image {
         width: 100%;
         object-fit: contain;
     }
+}
+
+.lemmy-banner img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
 }
