@@ -50,8 +50,8 @@ namespace Pandacap.Controllers
                 .OrderByDescending(a => a.IndexedAt)
                 .AsAsyncEnumerable()
                 .Where(a => a.Author.DID == a.PostedBy.DID)
-                .OfType<IPost>()
-                .Where(x => x.ThumbnailUrls.Any());
+                .Where(a => a.Images.Count > 0)
+                .OfType<IPost>();
 
             var source5 = context.InboxActivityStreamsPosts
                 .Where(a => a.PostedAt <= startTime)
@@ -59,8 +59,8 @@ namespace Pandacap.Controllers
                 .OrderByDescending(a => a.PostedAt)
                 .AsAsyncEnumerable()
                 .Where(a => a.Author.Id == a.PostedBy.Id)
-                .OfType<IPost>()
-                .Where(x => x.ThumbnailUrls.Any());
+                .Where(a => a.Attachments.Count > 0)
+                .OfType<IPost>();
 
             var posts = await new[] { source1, source2, source3, source4, source5 }
                 .MergeNewest(x => x.Timestamp)
@@ -108,8 +108,8 @@ namespace Pandacap.Controllers
                 .OrderByDescending(a => a.IndexedAt)
                 .AsAsyncEnumerable()
                 .Where(a => a.Author.DID == a.PostedBy.DID)
-                .OfType<IPost>()
-                .Where(x => !x.ThumbnailUrls.Any());
+                .Where(a => a.Images.Count > 0)
+                .OfType<IPost>();
 
             var source5 = context.InboxActivityStreamsPosts
                 .Where(a => a.PostedAt <= startTime)
@@ -117,8 +117,8 @@ namespace Pandacap.Controllers
                 .OrderByDescending(a => a.PostedAt)
                 .AsAsyncEnumerable()
                 .Where(a => a.Author.Id == a.PostedBy.Id)
-                .OfType<IPost>()
-                .Where(x => !x.ThumbnailUrls.Any());
+                .Where(a => a.Attachments.Count > 0)
+                .OfType<IPost>();
 
             var posts = await new[] { source1, source3, source4, source5 }
                 .MergeNewest(x => x.Timestamp)

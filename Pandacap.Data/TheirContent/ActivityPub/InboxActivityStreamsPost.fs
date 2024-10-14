@@ -51,4 +51,4 @@ type InboxActivityStreamsPost() =
         })
         member this.Timestamp = this.PostedAt
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
-        member this.ThumbnailUrls = this.Attachments |> Seq.map (fun a -> a.Url)
+        member this.ThumbnailUrls = [if not this.Sensitive then for a in this.Attachments do a.Url]
