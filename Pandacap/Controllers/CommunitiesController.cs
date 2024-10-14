@@ -96,5 +96,24 @@ namespace Pandacap.Controllers
 
             return RedirectToAction(nameof(Bookmarks));
         }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveBookmark(string id, CancellationToken cancellationToken)
+        {
+            var actor = await remoteActorService.FetchActorAsync(id, cancellationToken);
+            if (actor.Id != id)
+                throw new Exception("ID retrieved does not match ID entered");
+
+            var existing = await context.CommunityBookmarks
+                .Where(c => c.ActorId == id)
+                .ToListAsync(cancellationToken);
+            context.CommunityBookmarks.RemoveRange(existing);
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction(nameof(Bookmarks));
+        }
     }
 }

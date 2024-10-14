@@ -31,6 +31,18 @@ else
                     @item.Host
                 </span>
             </div>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <details>
+                    <summary>Options</summary>
+                    <form asp-action="RemoveBookmark">
+                        <input type="hidden" name="id" value="@item.ActorId" />
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            Remove
+                        </button>
+                    </form>
+                </details>
+            }
         </div>
     }
 }
