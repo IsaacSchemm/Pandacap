@@ -12,7 +12,7 @@
         </a>
     </div>
 
-    <div style="white-space: pre-wrap">@Model.root.comment.content</div>
+    <div>@Html.Raw(Model.root.comment.Html)</div>
 
     <div class="small text-muted">
         @Model.root.comment.published.UtcDateTime.ToLongDateString()

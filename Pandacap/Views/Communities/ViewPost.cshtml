@@ -30,10 +30,7 @@
         </strong>
     </div>
 
-    @foreach (string body in po.post.Bodies)
-    {
-        <div style="white-space: pre-wrap">@body</div>
-    }
+    <div>@Html.Raw(po.post.Html)</div>
 
     <div class="small text-muted">
         <a href="@po.post.ap_id" target="_blank">

@@ -4,8 +4,12 @@ open System
 open System.Net.Http
 open System.Net.Http.Json
 open System.Threading
+open CommonMark
+open Ganss.Xss
 
 module Lemmy =
+    let sanitizer = new HtmlSanitizer()
+
     type Community = {
         id: int
         name: string
@@ -50,8 +54,12 @@ module Lemmy =
         featured_community: bool
     } with
         member this.Urls = Option.toList this.url
-        member this.Bodies = Option.toList this.body
         member this.ThumbnailUrls = Option.toList this.thumbnail_url
+        member this.Html =
+            this.body
+            |> Option.map CommonMarkConverter.Convert
+            |> Option.map sanitizer.Sanitize
+            |> Option.defaultValue ""
 
     type Creator = {
          name: string
@@ -160,6 +168,10 @@ module Lemmy =
             |> Seq.skipWhile (fun id -> id <> this.id)
             |> Seq.skipWhile (fun id -> id = this.id)
             |> Seq.head
+        member this.Html =
+            this.content
+            |> CommonMarkConverter.Convert
+            |> sanitizer.Sanitize
 
     type CommentObject = {
         comment: Comment
