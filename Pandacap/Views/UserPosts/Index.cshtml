@@ -2,9 +2,11 @@
 @using Pandacap.LowLevel
 @model UserPostViewModel
 @inject ApplicationInformation appInfo
+@inject IdMapper mapper
 
 @{
     ViewBag.Title = Model.Post.Title;
+    ViewBag.UserPost = Model.Post;
 }
 
 @if (Model.Post.Image == null && DateTimeOffset.UtcNow.AddYears(-1) > Model.Post.PublishedTime)
@@ -26,7 +28,7 @@
 @if (Model.Post.Image != null)
 {
     <p>
-        <img src="/Blobs/Images/@Model.Post.Id"
+        <img src="@mapper.GetImageUrl(Model.Post.Id)"
              alt="@Model.Post.AltText"
              title="@Model.Post.AltText"
              style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />

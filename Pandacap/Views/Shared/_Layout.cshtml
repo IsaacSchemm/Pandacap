@@ -1,7 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Pandacap.Data
 @using Pandacap.LowLevel
 @inject SignInManager<IdentityUser> SignInManager
 @inject ApplicationInformation appInfo
+@inject IdMapper mapper
 
 <!DOCTYPE html>
 <html lang="en">
@@ -18,6 +20,14 @@
     <!--[if IE]>
     <link rel="stylesheet" href="/css/ie8.css" />
     <![endif]-->
+    @if (ViewBag.UserPost is UserPost up)
+    {
+        <meta property="og:title" content="@up.Title" />
+        <meta property="og:description" content="@up.DescriptionText" />
+        <meta property="og:site_name" content="@appInfo.ApplicationName" />
+        <meta property="og:image" content="@mapper.GetImageUrl(up.Id)" />
+        <meta property="og:url" content="@mapper.GetObjectId(up)" />
+    }
 </head>
 <body>
     <header>
