@@ -25,7 +25,12 @@
     </span>
 
     <div>
-        <a asp-controller="AddressedPosts" asp-action="CreateCommunityPost" asp-route-community="@Model.Community.actor_id">Reply</a>
+        <a asp-controller="AddressedPosts"
+           asp-action="CreateCommunityPost"
+           asp-route-community="@Model.Community.actor_id"
+           class="small">
+            Create new post
+        </a>
     </div>
 </div>
 
