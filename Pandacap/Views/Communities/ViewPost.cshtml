@@ -6,6 +6,13 @@
     var po = Model.PostView;
 }
 
+<style type="text/css">
+    img {
+        max-width: 100%;
+        object-fit: contain;
+    }
+</style>
+
 @foreach (string banner in Model.Community.Banners)
 {
     <div class="mb-3 lemmy-banner">
@@ -49,8 +56,6 @@
 
 @foreach (var cb in Model.Comments)
 {
-    <hr />
-
     <div class="comment">
         <partial name="_Comment" model="@cb" />
     </div>

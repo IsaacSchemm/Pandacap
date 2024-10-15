@@ -16,26 +16,36 @@ namespace Pandacap.Controllers
     ) : Controller
     {
         public async Task<IActionResult> ViewCommunity(
-            string host,
-            string name,
+            string actorId,
             int page = 1,
             CancellationToken cancellationToken = default)
         {
+            if (User.Identity?.IsAuthenticated != true)
+                return Redirect(actorId);
+
+            var bookmark = await context.CommunityBookmarks
+                .Where(b => b.ActorId == actorId)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (bookmark == null)
+                return NotFound();
+
             var community = await lemmyClient.GetCommunityAsync(
-                host,
-                name,
+                bookmark.Host,
+                bookmark.Name,
                 cancellationToken);
 
             var posts = await lemmyClient.GetPostsAsync(
-                host,
+                bookmark.Host,
                 community.id,
                 Lemmy.GetPostsSort.Active,
                 page,
                 cancellationToken: cancellationToken);
 
-            return View(new CommunityViewModel(host, community, page, posts));
+            return View(new CommunityViewModel(bookmark.Host, community, page, posts));
         }
 
+        [Authorize]
         public async Task<IActionResult> ViewPost(
             string host,
             int id,
