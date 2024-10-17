@@ -74,7 +74,8 @@ builder.Services
 
 builder.Services.AddSharedServices(new ApplicationInformation(
     applicationHostname: builder.Configuration["ApplicationHostname"],
-    deviantArtUsername: builder.Configuration["DeviantArtUsername"],
+    username: builder.Configuration["ActivityPubUsername"]
+        ?? builder.Configuration["DeviantArtUsername"],
     keyVaultHostname: builder.Configuration["KeyVaultHostname"],
     handleHostname: builder.Configuration["ApplicationHostname"]));
 

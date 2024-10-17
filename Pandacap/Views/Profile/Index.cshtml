@@ -13,7 +13,7 @@
          alt=""
          float="left"
          style="vertical-align: top" />
-    @appInfo.DeviantArtUsername
+    @appInfo.Username
 </h1>
 
 <div class="container">
@@ -21,21 +21,24 @@
         <div class="col-md-4">
             <h4>Origin</h4>
 
-            <div class="card my-3">
-                <div class="card-body">
-                    <h5 class="card-title">DeviantArt</h5>
+            @foreach (string username in Model.DeviantArtUsernames)
+            {
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title">DeviantArt</h5>
 
-                    <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)" target="_blank">
-                        <tt>@appInfo.DeviantArtUsername</tt>
-                    </a>
+                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)" target="_blank">
+                            <tt>@username</tt>
+                        </a>
 
-                    <br />
+                        <br />
 
-                    <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/about#watching" target="_blank">Watching</a>
-                    &middot;
-                    <a href="https://www.deviantart.com/@Uri.EscapeDataString(appInfo.DeviantArtUsername)/favourites/all" target="_blank">Favorites</a>
+                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)/about#watching" target="_blank">Watching</a>
+                        &middot;
+                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)/favourites/all" target="_blank">Favorites</a>
+                    </div>
                 </div>
-            </div>
+            }
         </div>
         <div class="col-md-4">
             <h4>Syndication</h4>

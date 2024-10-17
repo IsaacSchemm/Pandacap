@@ -46,7 +46,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "following" mapper.FollowingRootId
         pair "liked" mapper.LikedRootId
         pair "preferredUsername" appInfo.Username
-        pair "name" appInfo.DeviantArtUsername
+        pair "name" appInfo.Username
         pair "url" mapper.ActorId
         pair "discoverable" true
         pair "indexable" true

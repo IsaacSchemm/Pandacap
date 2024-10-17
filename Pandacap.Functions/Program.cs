@@ -52,7 +52,8 @@ var host = new HostBuilder()
 
         services.AddSharedServices(new ApplicationInformation(
             applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
-            deviantArtUsername: Environment.GetEnvironmentVariable("DeviantArtUsername"),
+            username: Environment.GetEnvironmentVariable("ActivityPubUsername")
+                ?? Environment.GetEnvironmentVariable("DeviantArtUsername"),
             keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
             handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname")));
 
