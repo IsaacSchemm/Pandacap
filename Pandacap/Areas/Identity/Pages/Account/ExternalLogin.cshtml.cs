@@ -88,7 +88,7 @@ namespace Pandacap.Areas.Identity.Pages.Account
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Required]
-            [Display(Name = "Username")]
+            [Display(Name = "Internal Username")]
             public string UserName { get; set; }
         }
         
@@ -117,7 +117,7 @@ namespace Pandacap.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            if (info.LoginProvider == "DeviantArt")
+            if (info.LoginProvider != "Microsoft")
             {
                 var user = await _userManager.FindByLoginAsync(
                     info.LoginProvider,
