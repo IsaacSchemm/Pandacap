@@ -25,10 +25,13 @@
         <meta property="og:title" content="@up.Title" />
         <meta property="og:description" content="@up.DescriptionText" />
         <meta property="og:site_name" content="@appInfo.ApplicationName" />
-        <meta property="og:image" content="@mapper.GetImageUrl(up.Id)" />
         <meta property="og:url" content="@mapper.GetObjectId(up)" />
-        <meta property="twitter:image" content="@mapper.GetImageUrl(up.Id)" />
-        <meta property="twitter:card" content="summary_large_image" />
+        if (up.Image != null)
+        {
+            <meta property="og:image" content="@mapper.GetImageUrl(up, up.Image)" />
+            <meta property="twitter:image" content="@mapper.GetImageUrl(up, up.Image)" />
+            <meta property="twitter:card" content="summary_large_image" />
+        }
     }
 </head>
 <body>
@@ -110,10 +113,9 @@
             </details>
         </div>
     </footer>
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

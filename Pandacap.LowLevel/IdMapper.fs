@@ -35,8 +35,8 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.LikedPageId =
         $"https://{appInfo.ApplicationHostname}/Favorites"
 
-    member _.GetImageUrl(deviationid: Guid) =
-        $"https://{appInfo.ApplicationHostname}/Blobs/Images/{deviationid}"
+    member _.GetImageUrl(userPost: UserPost, blob: UserPostBlobReference) =
+        $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{userPost.Id}/{blob.Id}"
 
     member _.GetObjectId(userPost: UserPost) =
         $"https://{appInfo.ApplicationHostname}/UserPosts/{userPost.Id}"

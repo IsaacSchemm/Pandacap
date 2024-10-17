@@ -21,7 +21,7 @@ namespace Pandacap.HighLevel
             if (!post.IsMature)
             {
                 if (!post.ImageBlobs.IsEmpty)
-                    yield return $"<p><img src='{mapper.GetImageUrl(post.Id)}' height='250' /></p>";
+                    yield return $"<p><img src='{mapper.GetImageUrl(post, post.ImageBlobs[0])}' height='250' /></p>";
                 if (post.Description != null)
                     yield return post.Description;
             }

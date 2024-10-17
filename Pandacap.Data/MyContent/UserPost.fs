@@ -58,8 +58,9 @@ type UserPost() =
         member _.ProfileUrl = null
         member this.Timestamp = this.PublishedTime
         member this.ThumbnailUrls = seq {
-            if not (List.isEmpty this.ImageBlobs) then
-                $"/Blobs/Thumbnails/{this.Id}"
+            match this.ImageBlobs with
+            | image::_ -> $"/Blobs/UserPosts/{this.Id}/{image.Id}"
+            | [] -> ()
         }
         member _.Usericon = null
         member _.Username = null

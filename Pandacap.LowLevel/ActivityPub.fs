@@ -103,7 +103,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             pair "attachment" [
                 dict [
                     pair "type" "Document"
-                    pair "url" (mapper.GetImageUrl(post.Id))
+                    pair "url" (mapper.GetImageUrl(post, post.Image))
                     if not (String.IsNullOrEmpty(post.Image.ContentType)) then
                         pair "mediaType" post.Image.ContentType
                     if not (String.IsNullOrEmpty(post.AltText)) then

@@ -29,7 +29,25 @@ namespace Pandacap.Controllers
             return NotFound();
         }
 
+        [Route("Blobs/UserPosts/{postId}/{blobId}")]
+        [Obsolete("No longer used in newly serialized ActivityPub objects")]
+        public async Task<IActionResult> Images(Guid postId, Guid blobId)
+        {
+            var post = await context.UserPosts.Where(p => p.Id == postId).SingleOrDefaultAsync();
+
+            if (post == null)
+                return NotFound();
+
+            var image = post.ImageBlobs.Where(b => b.Id == blobId).FirstOrDefault();
+
+            if (image == null)
+                return NotFound();
+
+            return await ProxyAsync(post, image.Id);
+        }
+
         [Route("Blobs/Images/{id}")]
+        [Obsolete("No longer used in newly serialized ActivityPub objects")]
         public async Task<IActionResult> Images(Guid id)
         {
             var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();

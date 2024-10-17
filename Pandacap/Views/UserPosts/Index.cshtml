@@ -28,7 +28,7 @@
 @if (Model.Post.Image != null)
 {
     <p>
-        <img src="@mapper.GetImageUrl(Model.Post.Id)"
+        <img src="@mapper.GetImageUrl(Model.Post, Model.Post.Image)"
              alt="@Model.Post.AltText"
              title="@Model.Post.AltText"
              style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
