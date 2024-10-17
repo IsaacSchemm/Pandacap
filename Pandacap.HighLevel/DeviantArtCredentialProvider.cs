@@ -10,11 +10,9 @@ namespace Pandacap.HighLevel
     /// pulls from and updates the database record corresponding to the OAuth
     /// credentials of the connected DeviantArt user.
     /// </summary>
-    /// <param name="applicationInformation">An object containing the username of the connected DeviantArt user</param>
     /// <param name="context">The database context</param>
     /// <param name="deviantArtApp">The application-level credentials for the DeviantArt API</param>
     public class DeviantArtCredentialProvider(
-        ApplicationInformation applicationInformation,
         PandacapDbContext context,
         DeviantArtApp deviantArtApp)
     {
@@ -42,7 +40,6 @@ namespace Pandacap.HighLevel
         private readonly Lazy<Task<Result?>> Credentials = new(async () =>
         {
             var allCredentials = await context.DeviantArtCredentials
-                .Where(c => c.Username == applicationInformation.DeviantArtUsername)
                 .ToListAsync();
 
             foreach (var credentials in allCredentials)
@@ -53,8 +50,7 @@ namespace Pandacap.HighLevel
                     deviantArtApp);
 
                 var whoami = await DeviantArtFs.Api.User.WhoamiAsync(tokenWrapper);
-                if (whoami.username == applicationInformation.DeviantArtUsername)
-                    return new Result(tokenWrapper, whoami);
+                return new Result(tokenWrapper, whoami);
             }
 
             return null;

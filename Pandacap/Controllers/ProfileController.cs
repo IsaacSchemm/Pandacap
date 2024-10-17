@@ -46,6 +46,10 @@ namespace Pandacap.Controllers
                 .Select(c => c.DID)
                 .ToListAsync();
 
+            var deviantArtUsernames = await context.DeviantArtCredentials
+                .Select(d => d.Username)
+                .ToListAsync();
+
             var weasylUsernames = await context.WeasylCredentials
                 .Select(c => c.Login)
                 .ToListAsync();
@@ -53,6 +57,7 @@ namespace Pandacap.Controllers
             return View(new ProfileViewModel
             {
                 BlueskyDIDs = dids,
+                DeviantArtUsernames = deviantArtUsernames,
                 WeasylUsernames = weasylUsernames,
                 RecentArtwork = await context.UserPosts
                     .Where(post => post.Artwork)

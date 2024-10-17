@@ -45,24 +45,29 @@ builder.Services.AddAzureClients(clientBuilder =>
     clientBuilder.UseCredential(new DefaultAzureCredential());
 });
 
-if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
-    && builder.Configuration["DeviantArtClientSecret"] is string deviantArtClientSecret)
-{
-    builder.Services.AddAuthentication()
-        .AddDeviantArt(d =>
-        {
-            d.Scope.Add("browse");
-            d.Scope.Add("message");
-            d.Scope.Add("note");
-            d.ClientId = deviantArtClientId;
-            d.ClientSecret = deviantArtClientSecret;
-            d.SaveTokens = true;
-        });
+string tenantId = builder.Configuration["Authentication:Microsoft:TenantId"]!;
 
-    builder.Services.AddSingleton(new DeviantArtApp(
-        deviantArtClientId,
-        deviantArtClientSecret));
-}
+builder.Services.AddAuthentication()
+    .AddMicrosoftAccount(m =>
+    {
+        m.AuthorizationEndpoint = $"https://login.microsoftonline.com/{Uri.EscapeDataString(tenantId)}/oauth2/v2.0/authorize";
+        m.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
+        m.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
+        m.TokenEndpoint = $"https://login.microsoftonline.com/{Uri.EscapeDataString(tenantId)}/oauth2/v2.0/token";
+    })
+    .AddDeviantArt(d =>
+    {
+        d.Scope.Add("browse");
+        d.Scope.Add("message");
+        d.Scope.Add("note");
+        d.ClientId = builder.Configuration["DeviantArtClientId"]!;
+        d.ClientSecret = builder.Configuration["DeviantArtClientSecret"]!;
+        d.SaveTokens = true;
+    });
+
+builder.Services.AddSingleton(new DeviantArtApp(
+    builder.Configuration["DeviantArtClientId"]!,
+    builder.Configuration["DeviantArtClientSecret"]!));
 
 builder.Services
     .AddScoped<ActivityPubRemoteActorService>()
@@ -74,7 +79,8 @@ builder.Services
 
 builder.Services.AddSharedServices(new ApplicationInformation(
     applicationHostname: builder.Configuration["ApplicationHostname"],
-    deviantArtUsername: builder.Configuration["DeviantArtUsername"],
+    username: builder.Configuration["ActivityPubUsername"]
+        ?? builder.Configuration["DeviantArtUsername"],
     keyVaultHostname: builder.Configuration["KeyVaultHostname"],
     handleHostname: builder.Configuration["ApplicationHostname"]));
 

@@ -25,9 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pandacap.Tests", "Pandacap.
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.JsonLd", "Pandacap.JsonLd\Pandacap.JsonLd.fsproj", "{CBFC11F6-9A8F-42D8-9CAE-83DD004E85C2}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.Html", "Pandacap.Html\Pandacap.Html.fsproj", "{88E1DE6B-F930-4F6B-B191-281F0012FA73}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.Html", "Pandacap.Html\Pandacap.Html.fsproj", "{88E1DE6B-F930-4F6B-B191-281F0012FA73}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.Types", "Pandacap.Types\Pandacap.Types.fsproj", "{13F9274F-AB35-42B6-9B60-3B3616B4194C}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.Types", "Pandacap.Types\Pandacap.Types.fsproj", "{13F9274F-AB35-42B6-9B60-3B3616B4194C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

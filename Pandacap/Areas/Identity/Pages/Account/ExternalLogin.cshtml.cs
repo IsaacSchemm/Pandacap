@@ -88,7 +88,7 @@ namespace Pandacap.Areas.Identity.Pages.Account
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Required]
-            [Display(Name = "Username")]
+            [Display(Name = "Internal Username")]
             public string UserName { get; set; }
         }
         
@@ -117,9 +117,16 @@ namespace Pandacap.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            if (info.Principal.Identity.Name != _applicationInformation.DeviantArtUsername)
+            if (info.LoginProvider != "Microsoft")
             {
-                return RedirectToPage("./Lockout");
+                var user = await _userManager.FindByLoginAsync(
+                    info.LoginProvider,
+                    info.ProviderKey);
+
+                if (user == null)
+                {
+                    return RedirectToPage("./UnrecognizedAccount");
+                }
             }
 
             // Sign in the user with this external login provider if the user already has a login.
@@ -237,9 +244,6 @@ namespace Pandacap.Areas.Identity.Pages.Account
         {
             if (info.LoginProvider == "DeviantArt")
             {
-                if (info.Principal.Identity.Name != _applicationInformation.DeviantArtUsername)
-                    throw new Exception("Incorrect DeviantArt username");
-
                 var credentials = await _context.DeviantArtCredentials
                     .Where(c => c.Username == info.Principal.Identity.Name)
                     .FirstOrDefaultAsync();
