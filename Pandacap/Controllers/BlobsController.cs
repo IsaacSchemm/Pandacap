@@ -9,18 +9,24 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         PandacapDbContext context) : Controller
     {
-        [Route("Blobs/Download/{name}")]
-        [ResponseCache(Duration = 604800, Location = ResponseCacheLocation.Any)]
-        public async Task<IActionResult> Download(string name, string type)
+        private async Task<IActionResult> ProxyAsync(UserPost post, Guid blobId)
         {
-            var blob = await blobServiceClient
-                .GetBlobContainerClient("blobs")
-                .GetBlobClient(name)
-                .DownloadStreamingAsync();
+            foreach (var ib in post.ImageBlobs)
+            {
+                if (ib.Id == blobId)
+                {
+                    var blob = await blobServiceClient
+                        .GetBlobContainerClient("blobs")
+                        .GetBlobClient($"{blobId}")
+                        .DownloadStreamingAsync();
 
-            return File(
-                blob.Value.Content,
-                type);
+                    return File(
+                        blob.Value.Content,
+                        ib.ContentType);
+                }
+            }
+
+            return NotFound();
         }
 
         [Route("Blobs/Images/{id}")]
@@ -36,7 +42,7 @@ namespace Pandacap.Controllers
             if (image == null)
                 return NotFound();
 
-            return RedirectToAction(nameof(Download), new { name = image.BlobName, type = image.ContentType });
+            return await ProxyAsync(post, image.Id);
         }
 
         [Route("Blobs/Thumbnails/{id}")]
@@ -52,7 +58,7 @@ namespace Pandacap.Controllers
             if (image == null)
                 return NotFound();
 
-            return RedirectToAction(nameof(Download), new { name = image.BlobName, type = image.ContentType });
+            return await ProxyAsync(post, image.Id);
         }
 
         public async Task<IActionResult> Avatar()
@@ -62,7 +68,14 @@ namespace Pandacap.Controllers
             if (avatar == null)
                 return NotFound();
 
-            return RedirectToAction(nameof(Download), new { name = avatar.BlobName, type = avatar.ContentType });
+            var blob = await blobServiceClient
+                .GetBlobContainerClient("blobs")
+                .GetBlobClient($"{avatar.Id}")
+                .DownloadStreamingAsync();
+
+            return File(
+                blob.Value.Content,
+                avatar.ContentType);
         }
     }
 }
