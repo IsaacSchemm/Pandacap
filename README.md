@@ -14,17 +14,6 @@ Supported platforms and protocols:
 | RSS / Atom  |                 | ✓                  | ✓     |       |                        |
 | Weasyl      |                 | ✓ (Manual)         | ✓     |       | Partial                | API Key
 
-Supported platforms and protocols:
-
-|                    | ActivityPub             | Bluesky              | DeviantArt          | RSS / Atom | Weasyl
-| Create / Import    |                         |                      | ✓                   |            |
-| Export / Crosspost | ✓                       | ✓ (Manual)           |                     | ✓          | ✓
-| Browse             | Lemmy only              |                      |                     |            |
-| Inbox              | ✓                       | ✓                    | ✓                   | ✓          | ✓
-| Comment / Reply    | ✓                       |                      |                     |            |
-| Notifications      | ✓ (Activities, Replies) | ✓                    | ✓ (Messages, Notes) |            | Partial
-| Authentication     |                         | PDS / DID / Password | OAuth               |            | API Key
-
 Pandacap is a single-user application.
 To log in, the instance owner must use a Microsoft account that they have explicitly allowed in the associated Entra ID app registration.
 

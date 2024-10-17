@@ -125,7 +125,7 @@ namespace Pandacap.Areas.Identity.Pages.Account
 
                 if (user == null)
                 {
-                    return Content("A new Pandacap account cannot be established with only a DeviantArt account. An authorized Azure account is required.");
+                    return RedirectToPage("./UnrecognizedAccount");
                 }
             }
 
