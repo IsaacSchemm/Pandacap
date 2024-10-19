@@ -17,7 +17,7 @@ namespace Pandacap.Controllers
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
         {
-            var post = await context.UserPosts
+            var post = await context.Posts
                 .Where(p => p.Id == id)
                 .Select(p => new { p.PublishedTime })
                 .SingleOrDefaultAsync();
@@ -25,7 +25,7 @@ namespace Pandacap.Controllers
             return post?.PublishedTime;
         }
 
-        private async Task<IActionResult> RenderAsync(string title, IAsyncEnumerable<UserPost> posts, int? count, ThumbnailMode thumbnailMode)
+        private async Task<IActionResult> RenderAsync(string title, IAsyncEnumerable<Post> posts, int? count, ThumbnailMode thumbnailMode)
         {
             int take = count ?? 20;
 
@@ -73,9 +73,9 @@ namespace Pandacap.Controllers
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
 
-            var posts = context.UserPosts
+            var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Artwork)
+                .Where(d => d.Type == PostType.Artwork)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -87,9 +87,9 @@ namespace Pandacap.Controllers
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
 
-            var posts = context.UserPosts
+            var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => !d.Artwork)
+                .Where(d => d.Type != PostType.Artwork)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -101,10 +101,9 @@ namespace Pandacap.Controllers
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
 
-            var posts = context.UserPosts
+            var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => !d.Artwork)
-                .Where(d => d.IsArticle)
+                .Where(d => d.Type == PostType.JournalEntry)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -116,10 +115,9 @@ namespace Pandacap.Controllers
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
 
-            var posts = context.UserPosts
+            var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => !d.Artwork)
-                .Where(d => !d.IsArticle)
+                .Where(d => d.Type == PostType.StatusUpdate)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -131,7 +129,7 @@ namespace Pandacap.Controllers
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
 
-            var posts = context.UserPosts
+            var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
