@@ -70,19 +70,22 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.PersonToObject(actorKey))
     ]
 
-    member _.AsObject(post: UserPost) = dict [
+    member _.AsObject(post: Post) = dict [
         let id = mapper.GetObjectId(post)
 
         pair "id" id
         pair "url" id
 
-        pair "type" (if post.IsArticle then "Article" else "Note")
+        pair "type" (if post.Type = PostType.JournalEntry then "Article" else "Note")
 
-        if not post.HideTitle then
+        if not (isNull post.Title) then
             pair "name" post.Title
 
-        if not (isNull post.Description) then
-            pair "content" $"<p>{post.Description}</p>"
+        if not (isNull post.Summary) then
+            pair "content" post.Summary
+
+        if not (isNull post.Body) then
+            pair "content" $"<p>{post.Body}</p>"
 
         pair "attributedTo" mapper.ActorId
         pair "tag" [
@@ -95,20 +98,19 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
         pair "cc" [mapper.FollowersRootId]
-        if post.IsMature then
-            pair "summary" "Mature Content (DeviantArt)"
+        if post.Sensitive then
             pair "sensitive" true
 
-        if not (isNull post.Image) then
+        if post.Images.Count > 0 then
             pair "attachment" [
-                dict [
-                    pair "type" "Document"
-                    pair "url" (mapper.GetImageUrl(post, post.Image))
-                    if not (String.IsNullOrEmpty(post.Image.ContentType)) then
-                        pair "mediaType" post.Image.ContentType
-                    if not (String.IsNullOrEmpty(post.AltText)) then
-                        pair "name" post.AltText
-                ]
+                for image in post.Images do
+                    dict [
+                        pair "type" "Document"
+                        pair "url" (mapper.GetImageUrl(post, image.Blob))
+                        pair "mediaType" image.Blob.ContentType
+                        if not (String.IsNullOrEmpty(image.AltText)) then
+                            pair "name" image.AltText
+                    ]
             ]
 
         pair "replies" (mapper.GetRepliesId(id))
@@ -141,7 +143,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "replies" (mapper.GetRepliesId(id))
     ]
 
-    member this.ObjectToCreate(post: UserPost) = dict [
+    member this.ObjectToCreate(post: Post) = dict [
         pair "type" "Create"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
@@ -151,7 +153,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member this.ObjectToUpdate(post: UserPost) = dict [
+    member this.ObjectToUpdate(post: Post) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
@@ -161,7 +163,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member _.ObjectToDelete(post: UserPost) = dict [
+    member _.ObjectToDelete(post: Post) = dict [
         pair "type" "Delete"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
@@ -224,7 +226,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "first" mapper.FirstOutboxPageId
     ]
 
-    member _.AsOutboxCollectionPage(currentPage: string, posts: ListPage<UserPost>) = dict [
+    member _.AsOutboxCollectionPage(currentPage: string, posts: ListPage<Post>) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" mapper.OutboxRootId

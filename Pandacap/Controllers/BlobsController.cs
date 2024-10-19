@@ -9,20 +9,20 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         PandacapDbContext context) : Controller
     {
-        private async Task<IActionResult> ProxyAsync(UserPost post, Guid blobId)
+        private async Task<IActionResult> ProxyAsync(Post post, Guid blobId)
         {
-            foreach (var ib in post.ImageBlobs)
+            foreach (var image in post.Images)
             {
-                if (ib.Id == blobId)
+                if (image.Blob.Id == blobId)
                 {
                     var blob = await blobServiceClient
                         .GetBlobContainerClient("blobs")
-                        .GetBlobClient($"{blobId}")
+                        .GetBlobClient($"{image.Blob.Id}")
                         .DownloadStreamingAsync();
 
                     return File(
                         blob.Value.Content,
-                        ib.ContentType);
+                        image.Blob.ContentType);
                 }
             }
 
@@ -30,15 +30,14 @@ namespace Pandacap.Controllers
         }
 
         [Route("Blobs/UserPosts/{postId}/{blobId}")]
-        [Obsolete("No longer used in newly serialized ActivityPub objects")]
         public async Task<IActionResult> Images(Guid postId, Guid blobId)
         {
-            var post = await context.UserPosts.Where(p => p.Id == postId).SingleOrDefaultAsync();
+            var post = await context.Posts.Where(p => p.Id == postId).SingleOrDefaultAsync();
 
             if (post == null)
                 return NotFound();
 
-            var image = post.ImageBlobs.Where(b => b.Id == blobId).FirstOrDefault();
+            var image = post.Blobs.Where(b => b.Id == blobId).FirstOrDefault();
 
             if (image == null)
                 return NotFound();
@@ -50,28 +49,29 @@ namespace Pandacap.Controllers
         [Obsolete("No longer used in newly serialized ActivityPub objects")]
         public async Task<IActionResult> Images(Guid id)
         {
-            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
+            var post = await context.Posts.Where(p => p.Id == id).SingleOrDefaultAsync();
 
             if (post == null)
                 return NotFound();
 
-            var image = post.Image ?? post.Thumbnail;
+            var image = post.Images.FirstOrDefault();
 
             if (image == null)
                 return NotFound();
 
-            return await ProxyAsync(post, image.Id);
+            return await ProxyAsync(post, image.Blob.Id);
         }
 
         [Route("Blobs/Thumbnails/{id}")]
+        [Obsolete("No longer used in newly serialized ActivityPub objects")]
         public async Task<IActionResult> Thumbnails(Guid id)
         {
-            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
+            var post = await context.Posts.Where(p => p.Id == id).SingleOrDefaultAsync();
 
             if (post == null)
                 return NotFound();
 
-            var image = post.Thumbnail ?? post.Image;
+            var image = post.Images.SelectMany(i => i.Thumbnails).FirstOrDefault();
 
             if (image == null)
                 return NotFound();

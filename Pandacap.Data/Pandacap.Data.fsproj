@@ -16,6 +16,7 @@
     <Compile Include="MyContent\AddressedPost.fs" />
     <Compile Include="MyContent\Avatar.fs" />
     <Compile Include="MyContent\UserPost.fs" />
+    <Compile Include="MyContent\Post.fs" />
     <Compile Include="Relationships\RemoteActorRelationship.fs" />
     <Compile Include="Relationships\RssFeed.fs" />
     <Compile Include="Relationships\Follow.fs" />
