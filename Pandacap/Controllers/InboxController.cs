@@ -108,7 +108,7 @@ namespace Pandacap.Controllers
                 .OrderByDescending(a => a.IndexedAt)
                 .AsAsyncEnumerable()
                 .Where(a => a.Author.DID == a.PostedBy.DID)
-                .Where(a => a.Images.Count > 0)
+                .Where(a => a.Images.Count == 0)
                 .OfType<IPost>();
 
             var source5 = context.InboxActivityStreamsPosts
@@ -117,7 +117,7 @@ namespace Pandacap.Controllers
                 .OrderByDescending(a => a.PostedAt)
                 .AsAsyncEnumerable()
                 .Where(a => a.Author.Id == a.PostedBy.Id)
-                .Where(a => a.Attachments.Count > 0)
+                .Where(a => a.Attachments.Count == 0)
                 .OfType<IPost>();
 
             var posts = await new[] { source1, source3, source4, source5 }
