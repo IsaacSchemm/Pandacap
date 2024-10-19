@@ -18,6 +18,12 @@ type PostImage() =
     member val Thumbnails = new ResizeArray<PostBlobRef>() with get, set
     member val AltText = nullString with get, set
 
+    [<NotMapped>]
+    member this.Thumbnail =
+        this.Thumbnails
+        |> Seq.tryHead
+        |> Option.defaultValue this.Blob
+
 type Post() =
     member val Id = Guid.Empty with get, set
 
@@ -51,6 +57,12 @@ type Post() =
     [<NotMapped>]
     member this.BodyText = TextConverter.FromHtml this.Body
 
+    [<NotMapped>]
+    member this.Thumbnails =
+        this.Images
+        |> Seq.map (fun image -> image.Thumbnail)
+        |> Seq.truncate 1
+
     interface IPost with
         member this.DisplayTitle =
             seq {
@@ -67,10 +79,8 @@ type Post() =
         member _.ProfileUrl = null
         member this.Timestamp = this.PublishedTime
         member this.ThumbnailUrls = seq {
-            if this.Type = PostType.Artwork then
-                for image in this.Images |> Seq.truncate 1 do
-                    for thumb in image.Thumbnails |> Seq.truncate 1 do
-                        $"/Blobs/Posts/{this.Id}/{thumb.Id}"
+            for thumb in this.Thumbnails do
+                $"/Blobs/UserPosts/{this.Id}/{thumb.Id}"
         }
         member _.Usericon = null
         member _.Username = null

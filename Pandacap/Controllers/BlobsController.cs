@@ -11,18 +11,18 @@ namespace Pandacap.Controllers
     {
         private async Task<IActionResult> ProxyAsync(Post post, Guid blobId)
         {
-            foreach (var image in post.Images)
+            foreach (var br in post.Blobs)
             {
-                if (image.Blob.Id == blobId)
+                if (br.Id == blobId)
                 {
                     var blob = await blobServiceClient
                         .GetBlobContainerClient("blobs")
-                        .GetBlobClient($"{image.Blob.Id}")
+                        .GetBlobClient($"{br.Id}")
                         .DownloadStreamingAsync();
 
                     return File(
                         blob.Value.Content,
-                        image.Blob.ContentType);
+                        br.ContentType);
                 }
             }
 
