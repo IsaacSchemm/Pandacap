@@ -35,9 +35,7 @@
     </p>
 }
 
-<p>
-    @Html.Raw(Model.Post.Body)
-</p>
+@Html.Raw(Model.Post.Body)
 
 @if (Model.Post.Tags.Any())
 {
