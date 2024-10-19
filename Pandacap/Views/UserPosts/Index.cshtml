@@ -9,7 +9,7 @@
     ViewBag.UserPost = Model.Post;
 }
 
-@if (Model.Post.Image == null && DateTimeOffset.UtcNow.AddYears(-1) > Model.Post.PublishedTime)
+@if (Model.Post.Type != PostType.Artwork && DateTimeOffset.UtcNow.AddYears(-1) > Model.Post.PublishedTime)
 {
     <div class="card text-bg-warning mb-3" style="max-width: 18rem;">
         <div class="card-body">
@@ -25,18 +25,18 @@
     @Model.Post.PublishedTime.UtcDateTime.ToShortTimeString()
 </p>
 
-@if (Model.Post.Image != null)
+@foreach (var image in Model.Post.Images)
 {
     <p>
-        <img src="@mapper.GetImageUrl(Model.Post, Model.Post.Image)"
-             alt="@Model.Post.AltText"
-             title="@Model.Post.AltText"
+        <img src="@mapper.GetImageUrl(Model.Post, image.Blob)"
+             alt="@image.AltText"
+             title="@image.AltText"
              style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
     </p>
 }
 
 <p>
-    @Html.Raw(Model.Post.Description)
+    @Html.Raw(Model.Post.Body)
 </p>
 
 @if (Model.Post.Tags.Any())
@@ -50,9 +50,9 @@
 }
 
 <div class="mb-3">
-    @if (Model.Post.Url is string url)
+    @if (Model.Post.DeviantArtUrl is string daurl)
     {
-        <a href="@url" class="btn btn-outline-primary" target="_blank">
+        <a href="@daurl" class="btn btn-outline-primary" target="_blank">
             View on DeviantArt
         </a>
     }
@@ -81,42 +81,8 @@
 
 @if (User.Identity?.IsAuthenticated == true)
 {
-    <form asp-action="Refresh" class="mb-3">
-        <input type="hidden" name="id" value="@Model.Post.Id" />
-        <button type="submit" class="btn btn-primary">
-            Refresh from DeviantArt
-        </button>
-    </form>
-
     <details>
-        <summary class="mb-3">More actions</summary>
-
-        <form asp-action="SaveAltText" class="mb-3">
-            <input type="hidden" name="id" value="@Model.Post.Id" />
-            <input type="text" name="alt" value="@Model.Post.AltText" class="form-control" />
-            <button type="submit" class="btn btn-outline-primary">
-                Update alt text
-            </button>
-        </form>
-
-        @if (Model.Post.Artwork)
-        {
-            <form asp-action="UnmarkAsArtwork" class="mb-3">
-                <input type="hidden" name="id" value="@Model.Post.Id" />
-                <button type="submit" class="btn btn-secondary small">
-                    Move to Journals &amp; Status Updates
-                </button>
-            </form>
-        }
-        else
-        {
-            <form asp-action="MarkAsArtwork" class="mb-3">
-                <input type="hidden" name="id" value="@Model.Post.Id" />
-                <button type="submit" class="btn btn-secondary small">
-                    Move to Gallery
-                </button>
-            </form>
-        }
+        <summary class="mb-3">Actions</summary>
 
         @if (Model.Post.WeasylSubmitId == null && Model.Post.WeasylJournalId == null)
         {

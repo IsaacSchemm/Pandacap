@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.Models;
-using Pandacap.Types;
 using System.Text;
 
 namespace Pandacap.Controllers
@@ -12,7 +11,6 @@ namespace Pandacap.Controllers
     [Route("UserPosts")]
     public class UserPostsController(
         PandacapDbContext context,
-        DeviantArtHandler deviantArtHandler,
         IdMapper mapper,
         ReplyLookup replyLookup,
         ActivityPubTranslator translator) : Controller
@@ -22,7 +20,7 @@ namespace Pandacap.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            var post = await context.UserPosts
+            var post = await context.Posts
                 .Where(p => p.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
 
@@ -50,72 +48,41 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveAltText(Guid id, string alt)
-        {
-            await deviantArtHandler.SetAltTextAsync(id, alt);
-            return RedirectToAction(nameof(Index), new { id });
-        }
-
-        [HttpPost]
-        [Authorize]
-        [Route("Refresh")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Refresh(Guid id)
-        {
-            var scope = DeviantArtImportScope.FromIds([id]);
-            await deviantArtHandler.ImportUpstreamPostsAsync(scope);
-
-            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
-
-            if (post != null)
-                return RedirectToAction(nameof(Index), new { id });
-            else
-                return NotFound();
-        }
-
-        [HttpPost]
-        [Authorize]
-        [Route("UnmarkAsArtwork")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UnmarkAsArtwork(Guid id)
-        {
-            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
-
-            if (post == null)
-                return NotFound();
-
-            post.Artwork = false;
-            await context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index), new { id });
-        }
-
-        [HttpPost]
-        [Authorize]
-        [Route("MarkAsArtwork")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MarkAsArtwork(Guid id)
-        {
-            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
-
-            if (post == null)
-                return NotFound();
-
-            post.Artwork = true;
-            await context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index), new { id });
-        }
-
-        [HttpPost]
         [Authorize]
         [Route("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var scope = DeviantArtImportScope.FromIds([id]);
-            await deviantArtHandler.CheckForDeletionAsync(scope, forceDelete: true);
+            var post = await context.Posts.Where(p => p.Id == id).SingleAsync();
+
+            async IAsyncEnumerable<string> getInboxesAsync()
+            {
+                var ghosted = await context.Follows
+                    .Where(f => f.Ghost)
+                    .Select(f => f.ActorId)
+                    .ToListAsync();
+
+                await foreach (var follower in context.Followers)
+                {
+                    yield return follower.SharedInbox ?? follower.Inbox;
+                }
+            }
+
+            await foreach (string inbox in getInboxesAsync().Distinct())
+            {
+                Guid activityGuid = Guid.NewGuid();
+
+                string activityJson = ActivityPubSerializer.SerializeWithContext(
+                    translator.ObjectToDelete(post));
+
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = activityGuid,
+                    JsonBody = activityJson,
+                    Inbox = inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
 
             return RedirectToAction("Index", "Profile");
         }

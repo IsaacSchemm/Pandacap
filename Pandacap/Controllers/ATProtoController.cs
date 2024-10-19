@@ -83,7 +83,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crosspost(Guid id)
         {
-            var post = await context.UserPosts
+            var post = await context.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync();
 
@@ -101,7 +101,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Detach(Guid id)
         {
-            var post = await context.UserPosts
+            var post = await context.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync();
 

@@ -377,7 +377,7 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Outbox()
         {
-            int count = await context.UserPosts.CountAsync();
+            int count = await context.Posts.CountAsync();
             return Content(
                 ActivityPubSerializer.SerializeWithContext(
                     translator.AsOutboxCollection(

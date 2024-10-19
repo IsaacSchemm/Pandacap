@@ -79,7 +79,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crosspost(Guid id)
         {
-            var post = await context.UserPosts
+            var post = await context.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync();
 
@@ -89,29 +89,32 @@ namespace Pandacap.Controllers
             if (post.WeasylSubmitId != null || post.WeasylJournalId != null)
                 throw new Exception("Already posted to Weasyl");
 
-            if (post.Image == null)
+            switch (post.Images.Count)
             {
-                post.WeasylJournalId = await client.UploadJournalAsync(
-                    post.Title,
-                    post.IsMature ? Rating.Mature : Rating.General,
-                    post.DescriptionText,
-                    post.Tags);
-            }
-            else
-            {
-                var blob = await blobServiceClient
-                    .GetBlobContainerClient("blobs")
-                    .GetBlobClient(post.Image.BlobName)
-                    .DownloadContentAsync();
+                case 0:
+                    post.WeasylJournalId = await client.UploadJournalAsync(
+                        post.Title,
+                        post.Sensitive ? Rating.Mature : Rating.General,
+                        post.BodyText,
+                        post.Tags);
+                    break;
+                case 1:
+                    var blob = await blobServiceClient
+                        .GetBlobContainerClient("blobs")
+                        .GetBlobClient($"{post.Images.Single().Blob.Id}")
+                        .DownloadContentAsync();
 
-                post.WeasylSubmitId = await client.UploadVisualAsync(
-                    blob.Value.Content.ToMemory(),
-                    post.Title,
-                    SubmissionType.Other,
-                    null,
-                    post.IsMature ? Rating.Mature : Rating.General,
-                    post.DescriptionText,
-                    post.Tags);
+                    post.WeasylSubmitId = await client.UploadVisualAsync(
+                        blob.Value.Content.ToMemory(),
+                        post.Title,
+                        SubmissionType.Other,
+                        null,
+                        post.Sensitive ? Rating.Mature : Rating.General,
+                        post.BodyText,
+                        post.Tags);
+                    break;
+                default:
+                    throw new NotImplementedException("Cannot post more than one image per submission to Weasyl");
             }
 
             await context.SaveChangesAsync();
@@ -123,7 +126,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Detach(Guid id)
         {
-            var post = await context.UserPosts
+            var post = await context.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync();
 

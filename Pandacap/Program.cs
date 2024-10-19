@@ -72,7 +72,6 @@ builder.Services.AddSingleton(new DeviantArtApp(
 builder.Services
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
-    .AddScoped<DeviantArtHandler>()
     .AddScoped<MastodonVerifier>()
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>();
