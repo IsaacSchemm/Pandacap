@@ -30,7 +30,6 @@ namespace Pandacap.Controllers
         }
 
         [Route("Blobs/UserPosts/{postId}/{blobId}")]
-        [Obsolete("No longer used in newly serialized ActivityPub objects")]
         public async Task<IActionResult> Images(Guid postId, Guid blobId)
         {
             var post = await context.UserPosts.Where(p => p.Id == postId).SingleOrDefaultAsync();
@@ -64,6 +63,7 @@ namespace Pandacap.Controllers
         }
 
         [Route("Blobs/Thumbnails/{id}")]
+        [Obsolete("No longer used in newly serialized ActivityPub objects")]
         public async Task<IActionResult> Thumbnails(Guid id)
         {
             var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
