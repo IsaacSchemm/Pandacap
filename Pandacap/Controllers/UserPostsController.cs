@@ -8,6 +8,7 @@ using Pandacap.LowLevel;
 using Pandacap.Models;
 using System.Net;
 using System.Text;
+using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -221,16 +222,20 @@ namespace Pandacap.Controllers
         [Authorize]
         [Route("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(
+            Guid id,
+            CancellationToken cancellationToken)
         {
-            var post = await context.Posts.Where(p => p.Id == id).SingleAsync();
+            var post = await context.Posts
+                .Where(p => p.Id == id)
+                .SingleAsync(cancellationToken);
 
             async IAsyncEnumerable<string> getInboxesAsync()
             {
                 var ghosted = await context.Follows
                     .Where(f => f.Ghost)
                     .Select(f => f.ActorId)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
 
                 await foreach (var follower in context.Followers)
                 {
@@ -254,12 +259,16 @@ namespace Pandacap.Controllers
                 });
             }
 
+            context.Posts.Remove(post);
+
+            await context.SaveChangesAsync(cancellationToken);
+
             foreach (var blob in post.Blobs)
             {
-
+                await blobServiceClient
+                    .GetBlobContainerClient("blobs")
+                    .DeleteBlobIfExistsAsync($"{blob.Id}", cancellationToken: cancellationToken);
             }
-
-            context.Posts.Remove(post);
 
             return RedirectToAction("Index", "Profile");
         }
