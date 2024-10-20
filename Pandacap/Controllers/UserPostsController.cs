@@ -104,8 +104,6 @@ namespace Pandacap.Controllers
                 Id = id,
                 Images = await uploadImagesAsync().ToListAsync(cancellationToken),
                 PublishedTime = DateTimeOffset.UtcNow,
-                Sensitive = model.Sensitive,
-                Summary = model.Summary,
                 Tags = (model.Tags ?? "")
                     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                     .Select(tag => tag.TrimStart('#'))
@@ -147,8 +145,6 @@ namespace Pandacap.Controllers
                 Body = CommonMarkConverter.Convert(model.MarkdownBody),
                 Id = id,
                 PublishedTime = DateTimeOffset.UtcNow,
-                Sensitive = model.Sensitive,
-                Summary = model.Summary,
                 Tags = (model.Tags ?? "")
                     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                     .Select(tag => tag.TrimStart('#'))
@@ -207,8 +203,6 @@ namespace Pandacap.Controllers
                     AltText = model.AltText
                 }],
                 PublishedTime = DateTimeOffset.UtcNow,
-                Sensitive = model.Sensitive,
-                Summary = model.Summary,
                 Tags = (model.Tags ?? "")
                     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                     .Select(tag => tag.TrimStart('#'))
@@ -259,6 +253,13 @@ namespace Pandacap.Controllers
                     StoredAt = DateTimeOffset.UtcNow
                 });
             }
+
+            foreach (var blob in post.Blobs)
+            {
+
+            }
+
+            context.Posts.Remove(post);
 
             return RedirectToAction("Index", "Profile");
         }

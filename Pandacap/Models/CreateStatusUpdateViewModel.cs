@@ -5,14 +5,6 @@ namespace Pandacap.Models
 {
     public class CreateStatusUpdateViewModel
     {
-        [DisplayName("Mark as sensitive or mature content")]
-        public bool Sensitive { get; set; }
-
-        [DisplayName("Hide post contents behind a summary")]
-        public bool UseSummary { get; set; }
-
-        public string? Summary { get; set; }
-
         public IFormFile? File { get; set; }
 
         [DisplayName("Image description (alt text)")]

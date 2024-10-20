@@ -8,14 +8,6 @@ namespace Pandacap.Models
         [Required]
         public string Title { get; set; } = "";
 
-        [DisplayName("Mark as sensitive or mature content")]
-        public bool Sensitive { get; set; }
-
-        [DisplayName("Hide post contents behind a summary")]
-        public bool UseSummary { get; set; }
-
-        public string? Summary { get; set; }
-
         [Required]
         [DisplayName("Body (Markdown)")]
         public string MarkdownBody { get; set; } = "";
