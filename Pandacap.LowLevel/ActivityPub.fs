@@ -81,9 +81,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         if not (isNull post.Title) then
             pair "name" post.Title
 
-        if not (isNull post.Summary) then
-            pair "content" post.Summary
-
         if not (isNull post.Body) then
             pair "content" post.Body
 
@@ -98,8 +95,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
         pair "cc" [mapper.FollowersRootId]
-        if post.Sensitive then
-            pair "sensitive" true
 
         if post.Images.Count > 0 then
             pair "attachment" [

@@ -42,6 +42,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
 
         let! allPosts = this.UserPosts.ToListAsync(cancellationToken)
         for up in allPosts |> Seq.sortBy (fun p -> p.PublishedTime) do
+            if up.IsMature then raise (new NotImplementedException())
             let post = new Post()
             post.BlueskyDID <- up.BlueskyDID
             post.BlueskyRecordKey <- up.BlueskyRecordKey
@@ -61,8 +62,6 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
                     i
             ]
             post.PublishedTime <- up.PublishedTime
-            post.Sensitive <- up.IsMature
-            post.Summary <- if up.IsMature then "Mature content (unspecified)" else null
             post.Tags <- up.Tags
             post.Title <- if up.HideTitle then null else up.Title
             post.Type <-
