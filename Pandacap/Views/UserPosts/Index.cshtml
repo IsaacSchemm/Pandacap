@@ -87,16 +87,35 @@
             <form asp-action="Crosspost" asp-controller="ATProto" class="mb-3">
                 <input type="hidden" name="id" value="@Model.Post.Id" />
                 <button type="submit" class="btn btn-success">
-                    Post to Bluesky / atproto
+                    Post to Bluesky
                 </button>
             </form>
         }
         else
         {
-            <form asp-action="Detach" asp-controller="Weasyl" class="mb-3" onsubmit="This will remove the 'View on Bluesky' button, and This will prevent Pandacap from deleting the post from atproto if the original Pandacap post is deleted.">
+            <form asp-action="Detach" asp-controller="ATProto" class="mb-3" onsubmit="This will remove the 'View on Bluesky' button; it will not delete the post from Bluesky.">
                 <input type="hidden" name="id" value="@Model.Post.Id" />
                 <button type="submit" class="btn btn-warning">
-                    Detach Bluesky / atproto post
+                    Detach Bluesky post
+                </button>
+            </form>
+        }
+
+        @if (Model.Post.DeviantArtId == null)
+        {
+            <form asp-action="Crosspost" asp-controller="DeviantArt" class="mb-3">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-success">
+                    Post to DeviantArt
+                </button>
+            </form>
+        }
+        else
+        {
+            <form asp-action="Detach" asp-controller="DeviantArt" class="mb-3" onsubmit="This will remove the 'View on DeviantArt' button; it will not delete the post from DeviantArt.">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-warning">
+                    Detach DeviantArt post
                 </button>
             </form>
         }
@@ -112,7 +131,7 @@
         }
         else
         {
-            <form asp-action="Detach" asp-controller="Weasyl" class="mb-3" onsubmit="This will remove the 'View on Weasyl' button, and prevent Pandacap from deleting the post from Weasyl if the original Pandacap post is deleted.">
+            <form asp-action="Detach" asp-controller="Weasyl" class="mb-3" onsubmit="This will remove the 'View on Weasyl' button; it will not delete the post from Weasyl.">
                 <input type="hidden" name="id" value="@Model.Post.Id" />
                 <button type="submit" class="btn btn-warning">
                     Detach Weasyl post
@@ -124,7 +143,7 @@
             See the About page for more information about how crossposts work.
         </p>
 
-        <form asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this post from Pandacap? (This will not delete it from DeviantArt.)')">
+        <form asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this post from Pandacap? (This will not delete it from any site it has been crossposted to.)')">
             <input type="hidden" name="id" value="@Model.Post.Id" />
             <button type="submit" class="btn btn-danger">
                 Delete from @appInfo.ApplicationName
