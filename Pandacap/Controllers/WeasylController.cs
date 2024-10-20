@@ -94,7 +94,7 @@ namespace Pandacap.Controllers
                 case 0:
                     post.WeasylJournalId = await client.UploadJournalAsync(
                         post.Title,
-                        post.Sensitive ? Rating.Mature : Rating.General,
+                        Rating.General,
                         post.BodyText,
                         post.Tags);
                     break;
@@ -109,7 +109,7 @@ namespace Pandacap.Controllers
                         post.Title,
                         SubmissionType.Other,
                         null,
-                        post.Sensitive ? Rating.Mature : Rating.General,
+                        Rating.General,
                         post.BodyText,
                         post.Tags);
                     break;

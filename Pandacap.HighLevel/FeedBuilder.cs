@@ -18,13 +18,10 @@ namespace Pandacap.HighLevel
         /// <returns>A sequence of HTML strings that should be concatenated</returns>
         private IEnumerable<string> GetHtml(Post post)
         {
-            if (!post.Sensitive)
-            {
-                foreach (var image in post.Images)
-                    yield return $"<p><img src='{mapper.GetImageUrl(post, image.Blob)}' height='250' /></p>";
-                if (post.Body != null)
-                    yield return post.Body;
-            }
+            foreach (var image in post.Images)
+                yield return $"<p><img src='{mapper.GetImageUrl(post, image.Blob)}' height='250' /></p>";
+            if (post.Body != null)
+                yield return post.Body;
         }
 
         /// <summary>

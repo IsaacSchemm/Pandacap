@@ -28,10 +28,8 @@ type Post() =
     member val Id = Guid.Empty with get, set
 
     member val Type = PostType.StatusUpdate with get, set
-    member val Sensitive = false with get, set
 
     member val Title = nullString with get, set
-    member val Summary = nullString with get, set
     member val Body = nullString with get, set
     member val Images = new ResizeArray<PostImage>() with get, set
     member val Tags = new ResizeArray<string>() with get, set
