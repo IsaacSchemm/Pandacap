@@ -1,15 +1,19 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Storage.Blobs;
+using CommonMark;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.Models;
+using System.Net;
 using System.Text;
 
 namespace Pandacap.Controllers
 {
     [Route("UserPosts")]
     public class UserPostsController(
+        BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         IdMapper mapper,
         ReplyLookup replyLookup,
@@ -45,6 +49,62 @@ namespace Pandacap.Controllers
                         cancellationToken)
                     .ToListAsync(cancellationToken)
             });
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("CreateArtwork")]
+        public IActionResult CreateArtwork()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [Route("CreateArtwork")]
+        public async Task<IActionResult> CreateArtwork(CreateArtworkViewModel model)
+        {
+            if (model.File == null)
+                return BadRequest("No file was provided for upload.");
+
+            Guid id = Guid.NewGuid();
+            Guid blobId = Guid.NewGuid();
+
+            using var stream = model.File.OpenReadStream();
+
+            await blobServiceClient
+                .GetBlobContainerClient("blobs")
+                .UploadBlobAsync($"{blobId}", stream);
+
+            context.Posts.Add(new Post
+            {
+                Body = CommonMarkConverter.Convert(model.MarkdownBody),
+                Id = id,
+                Images = [new()
+                {
+                    Blob = new()
+                    {
+                        Id = blobId,
+                        ContentType = model.File.ContentType
+                    },
+                    AltText = model.AltText
+                }],
+                PublishedTime = DateTimeOffset.UtcNow,
+                Sensitive = model.Sensitive,
+                Summary = model.Summary,
+                Tags = model.Tags
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(tag => tag.TrimStart('#'))
+                    .Distinct()
+                    .ToList(),
+                Title = model.Title,
+                Type = PostType.Artwork
+            });
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index), new { id });
         }
 
         [HttpPost]
