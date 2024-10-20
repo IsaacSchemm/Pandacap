@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateArtworkViewModel
+    public class CreateJournalEntryViewModel
     {
         [Required]
         public string Title { get; set; } = "";
@@ -15,12 +15,6 @@ namespace Pandacap.Models
         public bool UseSummary { get; set; }
 
         public string? Summary { get; set; }
-
-        [Required]
-        public IFormFile? File { get; set; }
-
-        [DisplayName("Image description (alt text)")]
-        public string? AltText { get; set; }
 
         [Required]
         [DisplayName("Body (Markdown)")]

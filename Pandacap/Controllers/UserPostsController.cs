@@ -53,6 +53,118 @@ namespace Pandacap.Controllers
 
         [HttpGet]
         [Authorize]
+        [Route("CreateStatusUpdate")]
+        public IActionResult CreateStatusUpdate()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [Route("CreateStatusUpdate")]
+        public async Task<IActionResult> CreateStatusUpdate(
+            CreateStatusUpdateViewModel model,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            Guid id = Guid.NewGuid();
+
+            async IAsyncEnumerable<PostImage> uploadImagesAsync()
+            {
+                if (model.File == null)
+                    yield break;
+
+                Guid blobId = Guid.NewGuid();
+
+                using var stream = model.File.OpenReadStream();
+
+                await blobServiceClient
+                    .GetBlobContainerClient("blobs")
+                    .UploadBlobAsync($"{blobId}", stream, cancellationToken);
+
+                yield return new()
+                {
+                    Blob = new()
+                    {
+                        Id = blobId,
+                        ContentType = model.File.ContentType
+                    },
+                    AltText = model.AltText
+                };
+            }
+
+            context.Posts.Add(new Post
+            {
+                Body = CommonMarkConverter.Convert(model.MarkdownBody),
+                Id = id,
+                Images = await uploadImagesAsync().ToListAsync(cancellationToken),
+                PublishedTime = DateTimeOffset.UtcNow,
+                Sensitive = model.Sensitive,
+                Summary = model.Summary,
+                Tags = (model.Tags ?? "")
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(tag => tag.TrimStart('#'))
+                    .Distinct()
+                    .ToList(),
+                Type = PostType.StatusUpdate
+            });
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction(nameof(Index), new { id });
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("CreateJournalEntry")]
+        public IActionResult CreateJournalEntry()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [Route("CreateJournalEntry")]
+        public async Task<IActionResult> CreateJournalEntry(
+            CreateJournalEntryViewModel model,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            Guid id = Guid.NewGuid();
+
+            context.Posts.Add(new Post
+            {
+                Body = CommonMarkConverter.Convert(model.MarkdownBody),
+                Id = id,
+                PublishedTime = DateTimeOffset.UtcNow,
+                Sensitive = model.Sensitive,
+                Summary = model.Summary,
+                Tags = (model.Tags ?? "")
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(tag => tag.TrimStart('#'))
+                    .Distinct()
+                    .ToList(),
+                Title = model.Title,
+                Type = PostType.JournalEntry
+            });
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction(nameof(Index), new { id });
+        }
+
+        [HttpGet]
+        [Authorize]
         [Route("CreateArtwork")]
         public IActionResult CreateArtwork()
         {
@@ -63,19 +175,23 @@ namespace Pandacap.Controllers
         [Authorize]
         [ValidateAntiForgeryToken]
         [Route("CreateArtwork")]
-        public async Task<IActionResult> CreateArtwork(CreateArtworkViewModel model)
+        public async Task<IActionResult> CreateArtwork(
+            CreateArtworkViewModel model,
+            CancellationToken cancellationToken)
         {
-            if (model.File == null)
-                return BadRequest("No file was provided for upload.");
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
 
             Guid id = Guid.NewGuid();
             Guid blobId = Guid.NewGuid();
 
-            using var stream = model.File.OpenReadStream();
+            using var stream = model.File!.OpenReadStream();
 
             await blobServiceClient
                 .GetBlobContainerClient("blobs")
-                .UploadBlobAsync($"{blobId}", stream);
+                .UploadBlobAsync($"{blobId}", stream, cancellationToken);
 
             context.Posts.Add(new Post
             {
@@ -93,7 +209,7 @@ namespace Pandacap.Controllers
                 PublishedTime = DateTimeOffset.UtcNow,
                 Sensitive = model.Sensitive,
                 Summary = model.Summary,
-                Tags = model.Tags
+                Tags = (model.Tags ?? "")
                     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                     .Select(tag => tag.TrimStart('#'))
                     .Distinct()
@@ -102,7 +218,7 @@ namespace Pandacap.Controllers
                 Type = PostType.Artwork
             });
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(Index), new { id });
         }

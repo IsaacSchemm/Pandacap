@@ -3,11 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateArtworkViewModel
+    public class CreateStatusUpdateViewModel
     {
-        [Required]
-        public string Title { get; set; } = "";
-
         [DisplayName("Mark as sensitive or mature content")]
         public bool Sensitive { get; set; }
 
@@ -16,7 +13,6 @@ namespace Pandacap.Models
 
         public string? Summary { get; set; }
 
-        [Required]
         public IFormFile? File { get; set; }
 
         [DisplayName("Image description (alt text)")]

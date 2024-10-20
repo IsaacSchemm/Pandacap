@@ -28,7 +28,7 @@
 @foreach (var image in Model.Post.Images)
 {
     <p>
-        <img src="@mapper.GetImageUrl(Model.Post, image.Blob)"
+        <img src="/Blobs/UserPosts/@Model.Post.Id/@image.Blob.Id"
              alt="@image.AltText"
              title="@image.AltText"
              style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
