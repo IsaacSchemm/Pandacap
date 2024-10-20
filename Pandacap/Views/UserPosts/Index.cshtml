@@ -48,17 +48,17 @@
 }
 
 <div class="mb-3">
-    @if (Model.Post.DeviantArtUrl is string daurl)
-    {
-        <a href="@daurl" class="btn btn-outline-primary" target="_blank">
-            View on DeviantArt
-        </a>
-    }
-
     @if (Model.Post.BlueskyDID is string did && Model.Post.BlueskyRecordKey is string rkey)
     {
         <a href="https://bsky.app/profile/@(did)/post/@(rkey)" class="btn btn-outline-primary" target="_blank">
             View on Bluesky
+        </a>
+    }
+
+    @if (Model.Post.DeviantArtUrl is string daurl)
+    {
+        <a href="@daurl" class="btn btn-outline-primary" target="_blank">
+            View on DeviantArt
         </a>
     }
 
@@ -82,25 +82,6 @@
     <details>
         <summary class="mb-3">Actions</summary>
 
-        @if (Model.Post.WeasylSubmitId == null && Model.Post.WeasylJournalId == null)
-        {
-            <form asp-action="Crosspost" asp-controller="Weasyl" class="mb-3">
-                <input type="hidden" name="id" value="@Model.Post.Id" />
-                <button type="submit" class="btn btn-success">
-                    Post to Weasyl
-                </button>
-            </form>
-        }
-        else
-        {
-            <form asp-action="Detach" asp-controller="Weasyl" class="mb-3" onsubmit="This will remove the 'View on Weasyl' button, and prevent Pandacap from deleting the post from Weasyl if the original Pandacap post is deleted.">
-                <input type="hidden" name="id" value="@Model.Post.Id" />
-                <button type="submit" class="btn btn-warning">
-                    Detach Weasyl post
-                </button>
-            </form>
-        }
-
         @if (Model.Post.BlueskyRecordKey == null)
         {
             <form asp-action="Crosspost" asp-controller="ATProto" class="mb-3">
@@ -116,6 +97,25 @@
                 <input type="hidden" name="id" value="@Model.Post.Id" />
                 <button type="submit" class="btn btn-warning">
                     Detach Bluesky / atproto post
+                </button>
+            </form>
+        }
+
+        @if (Model.Post.WeasylSubmitId == null && Model.Post.WeasylJournalId == null)
+        {
+            <form asp-action="Crosspost" asp-controller="Weasyl" class="mb-3">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-success">
+                    Post to Weasyl
+                </button>
+            </form>
+        }
+        else
+        {
+            <form asp-action="Detach" asp-controller="Weasyl" class="mb-3" onsubmit="This will remove the 'View on Weasyl' button, and prevent Pandacap from deleting the post from Weasyl if the original Pandacap post is deleted.">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-warning">
+                    Detach Weasyl post
                 </button>
             </form>
         }
