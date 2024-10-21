@@ -60,12 +60,12 @@ namespace Pandacap.Controllers
                             DeviantArtFs.Api.User.EmbeddableStashItem.NoStashItem),
                         body);
 
-                    var status = await DeviantArtFs.Api.User.GetStatusAsync(
+                    var dev = await DeviantArtFs.Api.Deviation.GetAsync(
                         token,
                         statusResponse.statusid);
 
-                    post.DeviantArtId = status.statusid.Value;
-                    post.DeviantArtUrl = status.url.Value;
+                    post.DeviantArtId = dev.deviationid;
+                    post.DeviantArtUrl = dev.url.Value;
                     await context.SaveChangesAsync(cancellationToken);
 
                     return RedirectToAction("Index", "UserPosts", new { id });
