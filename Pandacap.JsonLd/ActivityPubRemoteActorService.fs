@@ -1,6 +1,8 @@
 ﻿namespace Pandacap.JsonLd
 
 open System
+open System.Net
+open System.Net.Http
 open System.Threading
 open System.Threading.Tasks
 open Newtonsoft.Json.Linq
@@ -83,6 +85,8 @@ type ActivityPubRemoteActorService(
                 | _ ->
                     return Actor actor
             with
+            | :? HttpRequestException as ex when ex.StatusCode = Nullable HttpStatusCode.Unauthorized ->
+                return UnauthorizedObject url
             | _ ->
                 return InaccessibleObject url
     }

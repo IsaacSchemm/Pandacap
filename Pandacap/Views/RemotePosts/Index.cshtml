@@ -1,6 +1,10 @@
 ﻿@using Pandacap.JsonLd
 @model RemotePost
 
+@{
+    ViewBag.Title = "View Remote Post";
+}
+
 <h1>
     <img height="50" src="@(Model.AttributedTo.IconUrl ?? "/images/trgray.svg")" alt="" />
     <span style="display: inline-block; vertical-align: top">
