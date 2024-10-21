@@ -104,11 +104,7 @@ namespace Pandacap.Controllers
                 Id = id,
                 Images = await uploadImagesAsync().ToListAsync(cancellationToken),
                 PublishedTime = DateTimeOffset.UtcNow,
-                Tags = (model.Tags ?? "")
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(tag => tag.TrimStart('#'))
-                    .Distinct()
-                    .ToList(),
+                Tags = model.DistinctTags.ToList(),
                 Type = PostType.StatusUpdate
             };
 
@@ -162,11 +158,7 @@ namespace Pandacap.Controllers
                 Body = CommonMarkConverter.Convert(model.MarkdownBody),
                 Id = id,
                 PublishedTime = DateTimeOffset.UtcNow,
-                Tags = (model.Tags ?? "")
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(tag => tag.TrimStart('#'))
-                    .Distinct()
-                    .ToList(),
+                Tags = model.DistinctTags.ToList(),
                 Title = model.Title,
                 Type = PostType.JournalEntry
             };
@@ -237,11 +229,7 @@ namespace Pandacap.Controllers
                     AltText = model.AltText
                 }],
                 PublishedTime = DateTimeOffset.UtcNow,
-                Tags = (model.Tags ?? "")
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(tag => tag.TrimStart('#'))
-                    .Distinct()
-                    .ToList(),
+                Tags = model.DistinctTags.ToList(),
                 Title = model.Title,
                 Type = PostType.Artwork
             };

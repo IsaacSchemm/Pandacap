@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateArtworkViewModel
+    public class CreateArtworkViewModel : CreatePostViewModel
     {
         [Required]
         public string Title { get; set; } = "";
@@ -13,12 +13,5 @@ namespace Pandacap.Models
 
         [DisplayName("Image description (alt text)")]
         public string? AltText { get; set; }
-
-        [Required]
-        [DisplayName("Body (Markdown)")]
-        public string MarkdownBody { get; set; } = "";
-
-        [DisplayName("Tags (comma-separated, e.g. tag1, tag2, tag3)")]
-        public string? Tags { get; set; }
     }
 }
