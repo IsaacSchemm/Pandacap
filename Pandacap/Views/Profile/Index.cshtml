@@ -18,31 +18,7 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-4">
-            <h4>Origin</h4>
-
-            @foreach (string username in Model.DeviantArtUsernames)
-            {
-                <div class="card my-3">
-                    <div class="card-body">
-                        <h5 class="card-title">DeviantArt</h5>
-
-                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)" target="_blank">
-                            <tt>@username</tt>
-                        </a>
-
-                        <br />
-
-                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)/about#watching" target="_blank">Watching</a>
-                        &middot;
-                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)/favourites/all" target="_blank">Favorites</a>
-                    </div>
-                </div>
-            }
-        </div>
-        <div class="col-md-4">
-            <h4>Syndication</h4>
-
+        <div class="col-xl-4">
             <div class="card my-3">
                 <div class="card-body">
                     <h5 class="card-title">ActivityPub</h5>
@@ -58,7 +34,8 @@
                     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
                 </div>
             </div>
-
+        </div>
+        <div class="col-xl-4">
             <div class="card my-3">
                 <div class="card-body">
                     <h5 class="card-title">Atom</h5>
@@ -87,9 +64,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <h4>Mirrored at</h4>
-
+        <div class="col-xl-4">
             @foreach (string did in Model.BlueskyDIDs)
             {
                 <div class="card my-3">
@@ -103,6 +78,25 @@
                         <br />
 
                         <a href="https://bsky.app/profile/@did/follows" target="_blank">Following</a>
+                    </div>
+                </div>
+            }
+
+            @foreach (string username in Model.DeviantArtUsernames)
+            {
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title">DeviantArt</h5>
+
+                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)" target="_blank">
+                            <tt>@username</tt>
+                        </a>
+
+                        <br />
+
+                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)/about#watching" target="_blank">Watching</a>
+                        &middot;
+                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)/favourites/all" target="_blank">Favorites</a>
                     </div>
                 </div>
             }
@@ -204,26 +198,7 @@
 
     <div id="admin" class="container mb-3">
         <div class="row">
-            <div class="col col-12 col-xl-3">
-                <h2>
-                    DeviantArt
-                </h2>
-
-                <div class="card my-3">
-                    <div class="card-header">
-                        Migration
-                    </div>
-                    <div class="card-body text-center">
-                        <form asp-controller="Profile" asp-action="Migrate">
-                            <button type="submit" class="btn btn-outline-primary">
-                                Copy UserPost &rarr; Post
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col col-12 col-xl-3">
+            <div class="col col-12 col-xl-4">
                 <h2>
                     ActivityPub
                 </h2>
@@ -284,7 +259,7 @@
                 </div>
             </div>
 
-            <div class="col col-12 col-xl-3">
+            <div class="col col-12 col-xl-4">
                 <h2>
                     Atom/RSS
                 </h2>
@@ -313,16 +288,6 @@
                                 </a>
                             </div>
                         </form>
-
-                        @* <hr />
-
-                        <div class="text-center">
-                            <form asp-controller="InboxIngest" asp-action="Feed">
-                                <button type="submit" class="btn btn-primary btn-warning">
-                                    Sync now
-                                </button>
-                            </form>
-                        </div> *@
                     </div>
                 </div>
 
@@ -347,7 +312,7 @@
                 </div>
             </div>
 
-            <div class="col col-12 col-xl-3">
+            <div class="col col-12 col-xl-4">
                 <h2>
                     Bluesky
                 </h2>
