@@ -6,9 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.Models;
-using System.Net;
 using System.Text;
-using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -16,6 +14,7 @@ namespace Pandacap.Controllers
     public class UserPostsController(
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
+        DeliveryInboxCollector deliveryInboxCollector,
         IdMapper mapper,
         ReplyLookup replyLookup,
         ActivityPubTranslator translator) : Controller
@@ -99,7 +98,7 @@ namespace Pandacap.Controllers
                 };
             }
 
-            context.Posts.Add(new Post
+            var post = new Post
             {
                 Body = CommonMarkConverter.Convert(model.MarkdownBody),
                 Id = id,
@@ -111,7 +110,24 @@ namespace Pandacap.Controllers
                     .Distinct()
                     .ToList(),
                 Type = PostType.StatusUpdate
-            });
+            };
+
+            context.Posts.Add(post);
+
+            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                includeGhosted: true,
+                cancellationToken))
+            {
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.ObjectToCreate(
+                            post)),
+                    Inbox = inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
 
             await context.SaveChangesAsync(cancellationToken);
 
@@ -141,7 +157,7 @@ namespace Pandacap.Controllers
 
             Guid id = Guid.NewGuid();
 
-            context.Posts.Add(new Post
+            var post = new Post
             {
                 Body = CommonMarkConverter.Convert(model.MarkdownBody),
                 Id = id,
@@ -153,7 +169,24 @@ namespace Pandacap.Controllers
                     .ToList(),
                 Title = model.Title,
                 Type = PostType.JournalEntry
-            });
+            };
+
+            context.Posts.Add(post);
+
+            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                includeGhosted: true,
+                cancellationToken))
+            {
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.ObjectToCreate(
+                            post)),
+                    Inbox = inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
 
             await context.SaveChangesAsync(cancellationToken);
 
@@ -190,7 +223,7 @@ namespace Pandacap.Controllers
                 .GetBlobContainerClient("blobs")
                 .UploadBlobAsync($"{blobId}", stream, cancellationToken);
 
-            context.Posts.Add(new Post
+            var post = new Post
             {
                 Body = CommonMarkConverter.Convert(model.MarkdownBody),
                 Id = id,
@@ -211,7 +244,24 @@ namespace Pandacap.Controllers
                     .ToList(),
                 Title = model.Title,
                 Type = PostType.Artwork
-            });
+            };
+
+            context.Posts.Add(post);
+
+            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                includeGhosted: true,
+                cancellationToken))
+            {
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.ObjectToCreate(
+                            post)),
+                    Inbox = inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
 
             await context.SaveChangesAsync(cancellationToken);
 
@@ -230,30 +280,16 @@ namespace Pandacap.Controllers
                 .Where(p => p.Id == id)
                 .SingleAsync(cancellationToken);
 
-            async IAsyncEnumerable<string> getInboxesAsync()
+            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                includeGhosted: true,
+                cancellationToken))
             {
-                var ghosted = await context.Follows
-                    .Where(f => f.Ghost)
-                    .Select(f => f.ActorId)
-                    .ToListAsync(cancellationToken);
-
-                await foreach (var follower in context.Followers)
-                {
-                    yield return follower.SharedInbox ?? follower.Inbox;
-                }
-            }
-
-            await foreach (string inbox in getInboxesAsync().Distinct())
-            {
-                Guid activityGuid = Guid.NewGuid();
-
-                string activityJson = ActivityPubSerializer.SerializeWithContext(
-                    translator.ObjectToDelete(post));
-
                 context.ActivityPubOutboundActivities.Add(new()
                 {
-                    Id = activityGuid,
-                    JsonBody = activityJson,
+                    Id = Guid.NewGuid(),
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.ObjectToDelete(
+                            post)),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });
