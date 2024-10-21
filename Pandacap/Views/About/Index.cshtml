@@ -3,8 +3,7 @@
 </h1>
 
 <p>
-    Pandacap is a personal art gallery and follower application, built on
-    ASP.NET Core and Azure.
+    Pandacap is a personal art gallery and feed reader, built on ASP.NET Core and Azure.
 </p>
 
 <p>
@@ -28,6 +27,47 @@
     </li>
 </ol>
 
+<p>
+    The instance owner logs in with their Microsoft account (access is gated
+    through Entra, by applying limits to the app registration they create in
+    the Azure portal during the deployment process - see the README in the
+    source control repository for more detail).
+</p>
+
+<h1>
+    Posts
+</h1>
+
+<p>
+    After logging in, the Pandacap user can create, crosspost, detach, or
+    delete posts, including artwork posts, journal entries, or status updates:
+</p>
+
+<ul>
+    <li>
+        <strong>Artwork posts</strong> have a title, body (description), and exactly one image (PNG or JPEG).
+    </li>
+    <li>
+        <strong>Journal entries</strong> have a title and body.
+    </li>
+    <li>
+        <strong>Status updates</strong> have a body and (optionally) an image (PNG or JPEG).
+    </li>
+</ul>
+
+<p>
+    All post types can have any number of tags, and images can have alt text.
+    Posts with more than one image are supported by Pandacap's data model, but
+    not by all crosspost targets, and there is currently no UI for creating
+    such posts.
+</p>
+
+<p>
+    Posts in Pandacap are automatically shared via Atom / RSS and ActivityPub,
+    but all crossposts (to DeviantArt, Bluesky, and Weasyl) must be initiated
+    manually.
+</p>
+
 <h1>
     Connections
 </h1>
@@ -37,10 +77,16 @@
 </h2>
 
 <p>
-    Public posts on Pandacap are created by manually importing them from the
-    user's DeviantArt account. The user's DeviantArt follows are also a source
-    of posts for the Pandacap private inbox; these are populated periodically
-    (on a timer).
+    Once the user logs in with their Microsoft account, they can attach their
+    DeviantArt account from ASP.NET Core Identity's "external logins" page.
+    This allows Pandacap to connect to DeviantArt and also allows the user to
+    log in with their DeviantArt account (in lieu of their Microsoft account)
+    in the future.
+</p>
+
+<p>
+    The user's DeviantArt follows are a source of posts for the Pandacap
+    private inbox; these are populated periodically (on a timer).
 </p>
 
 <p class="small text-muted">
@@ -50,14 +96,9 @@
     the last Pandacap inbox refresh.
 </p>
 
-<p class="small text-muted">
-    Pandacap does not currently allow the user to create posts that are not
-    tied back to a public DeviantArt post.
-</p>
-
 <p>
-    DeviantArt is also used for authentication. Only the user specified in the
-    Pandacap app settings can log in.
+    Pandacap posts can also be individually crossposted to DeviantArt from the
+    Pandacap "view post" page.
 </p>
 
 <h2>
@@ -66,8 +107,8 @@
 
 <p>
     Pandacap acts as an ActivityPub S2S server, hosting a single actor. This
-    allows users of Mastodon, Pixelfed, <i>et al</i> to follow the Pandacap
-    user and see image and text posts in their inbox.
+    allows Mastodon and Pixelfed users to follow the Pandacap user and see
+    image and text posts in their inbox.
 </p>
 
 <p class="small text-muted">
@@ -128,12 +169,11 @@
 <p class="small text-muted">
     Pandacap also provides a "split" button, which splits the podcast episode
     into five-minute .wma chunks collected within a .zip file. This allows you
-    to burn the .wma chunks as individual tracks to a CD-R or CD-RW using
-    Windows Media Player.
+    to burn the chunks as individual tracks to a CD with gapless playback.
 </p>
 
 <h2>
-    atproto
+    Bluesky
 </h2>
 
 <p>
@@ -149,15 +189,7 @@
 
 <p>
     Pandacap posts can also be individually crossposted to Bluesky / atproto
-    from the Pandacap "view post" page. This attaches the atproto post to the
-    Pandacap post, which adds a "View on Bluesky" button and ensures that if
-    the Pandacap post is deleted, the atproto post gets deleted as well.
-</p>
-
-<p class="small text-muted">
-    Pandacap does not have the ability to apply updates to crossposts. The
-    recommended workaround is to use Pandacap to detach the crosspost and
-    create a new one, then delete the original from the Bluesky side.
+    from the Pandacap "view post" page.
 </p>
 
 <h2>
@@ -171,17 +203,9 @@
 
 <p>
     Pandacap posts can also be individually crossposted to Weasyl from the
-    Pandacap "view post" page. This attaches the Weasyl post to the Pandacap
-    post, which adds a "View on Weasyl" button and ensures that if the
-    Pandacap post is deleted, the atproto post gets deleted as well.
+    Pandacap "view post" page.
 </p>
 
 <p class="small text-muted">
-    Posts without images will be created as journal entries.
-</p>
-
-<p class="small text-muted">
-    Pandacap does not have the ability to apply updates to crossposts. The
-    recommended workaround is to use Pandacap to detach the crosspost and
-    create a new one, then delete the original from the Weasyl side.
+    Status updates will be created as journal entries.
 </p>

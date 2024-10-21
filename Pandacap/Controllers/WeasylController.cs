@@ -89,32 +89,32 @@ namespace Pandacap.Controllers
             if (post.WeasylSubmitId != null || post.WeasylJournalId != null)
                 throw new Exception("Already posted to Weasyl");
 
-            switch (post.Images.Count)
+            if (post.Type == PostType.Artwork)
             {
-                case 0:
-                    post.WeasylJournalId = await client.UploadJournalAsync(
-                        post.Title,
-                        Rating.General,
-                        post.BodyText,
-                        post.Tags);
-                    break;
-                case 1:
-                    var blob = await blobServiceClient
-                        .GetBlobContainerClient("blobs")
-                        .GetBlobClient($"{post.Images.Single().Blob.Id}")
-                        .DownloadContentAsync();
+                if (post.Images.Count != 1)
+                    throw new NotImplementedException("Crossposted Weasyl submissions must have exactly one image");
 
-                    post.WeasylSubmitId = await client.UploadVisualAsync(
-                        blob.Value.Content.ToMemory(),
-                        post.Title,
-                        SubmissionType.Other,
-                        null,
-                        Rating.General,
-                        post.BodyText,
-                        post.Tags);
-                    break;
-                default:
-                    throw new NotImplementedException("Cannot post more than one image per submission to Weasyl");
+                var blob = await blobServiceClient
+                    .GetBlobContainerClient("blobs")
+                    .GetBlobClient($"{post.Images.Single().Blob.Id}")
+                    .DownloadContentAsync();
+
+                post.WeasylSubmitId = await client.UploadVisualAsync(
+                    blob.Value.Content.ToMemory(),
+                    post.Title,
+                    SubmissionType.Other,
+                    null,
+                    Rating.General,
+                    post.BodyText,
+                    post.Tags);
+            }
+            else
+            {
+                post.WeasylJournalId = await client.UploadJournalAsync(
+                    post.Title,
+                    Rating.General,
+                    post.BodyText,
+                    post.Tags);
             }
 
             await context.SaveChangesAsync();
