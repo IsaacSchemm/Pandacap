@@ -34,12 +34,12 @@ namespace Pandacap.HighLevel.Notifications
 
                 foreach (var item in result.notifications)
                 {
-                    UserPost? userPost = null;
+                    Post? userPost = null;
 
                     if (item.reasonSubject != null)
                     {
                         string rkey = item.reasonSubject.Split('/').Last();
-                        userPost = await context.UserPosts
+                        userPost = await context.Posts
                             .Where(d => d.BlueskyRecordKey == rkey)
                             .FirstOrDefaultAsync();
                     }

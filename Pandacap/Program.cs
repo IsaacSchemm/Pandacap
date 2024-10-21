@@ -3,7 +3,6 @@ using DeviantArtFs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
-using Microsoft.FSharp.Collections;
 using Pandacap;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -60,6 +59,9 @@ builder.Services.AddAuthentication()
         d.Scope.Add("browse");
         d.Scope.Add("message");
         d.Scope.Add("note");
+        d.Scope.Add("publish");
+        d.Scope.Add("stash");
+        d.Scope.Add("user.manage");
         d.ClientId = builder.Configuration["DeviantArtClientId"]!;
         d.ClientSecret = builder.Configuration["DeviantArtClientSecret"]!;
         d.SaveTokens = true;
@@ -72,7 +74,7 @@ builder.Services.AddSingleton(new DeviantArtApp(
 builder.Services
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
-    .AddScoped<DeviantArtHandler>()
+    .AddScoped<DeliveryInboxCollector>()
     .AddScoped<MastodonVerifier>()
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>();

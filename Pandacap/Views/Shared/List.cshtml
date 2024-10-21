@@ -95,7 +95,7 @@ else
                                 <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                             }
                             <a href="@item.LinkUrl">@item.DisplayTitle</a>
-                            @if (item is UserPost)
+                            @if (item is Post)
                             {
                                 <br />
                                 <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>

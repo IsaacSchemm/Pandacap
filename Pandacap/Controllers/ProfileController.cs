@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.Html;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Models;
@@ -18,7 +17,6 @@ namespace Pandacap.Controllers
         ActivityPubRemoteActorService activityPubRemoteActorService,
         AtomRssFeedReader atomRssFeedReader,
         PandacapDbContext context,
-        DeviantArtHandler deviantArtHandler,
         KeyProvider keyProvider,
         ActivityPubTranslator translator,
         UserManager<IdentityUser> userManager) : Controller
@@ -59,13 +57,13 @@ namespace Pandacap.Controllers
                 BlueskyDIDs = dids,
                 DeviantArtUsernames = deviantArtUsernames,
                 WeasylUsernames = weasylUsernames,
-                RecentArtwork = await context.UserPosts
-                    .Where(post => post.Artwork)
+                RecentArtwork = await context.Posts
+                    .Where(post => post.Type == PostType.Artwork)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
                     .ToListAsync(),
-                RecentTextPosts = await context.UserPosts
-                    .Where(post => !post.Artwork)
+                RecentTextPosts = await context.Posts
+                    .Where(post => post.Type != PostType.Artwork)
                     .Where(post => post.PublishedTime >= someTimeAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(4)
@@ -81,7 +79,7 @@ namespace Pandacap.Controllers
         {
             var query = q?.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
-            var posts = await context.UserPosts
+            var posts = await context.Posts
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(d => d.Id == next || next == null)
@@ -243,88 +241,6 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Following));
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ImportPastHour()
-        {
-            var scope = DeviantArtImportScope.NewWindow(
-                _oldest: DateTimeOffset.UtcNow.AddHours(-1),
-                _newest: DateTimeOffset.MaxValue);
-
-            await deviantArtHandler.ImportUpstreamPostsAsync(scope);
-            await deviantArtHandler.CheckForDeletionAsync(scope);
-            await deviantArtHandler.UpdateAvatarAsync();
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ImportPastMonth()
-        {
-            var scope = DeviantArtImportScope.NewWindow(
-                _oldest: DateTimeOffset.UtcNow.AddMonths(-1),
-                _newest: DateTimeOffset.MaxValue);
-
-            await deviantArtHandler.ImportUpstreamPostsAsync(scope);
-            await deviantArtHandler.CheckForDeletionAsync(scope);
-            await deviantArtHandler.UpdateAvatarAsync();
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ImportAll()
-        {
-            var scope = DeviantArtImportScope.NewWindow(
-                _oldest: DateTimeOffset.MinValue,
-                _newest: DateTimeOffset.MaxValue);
-
-            Response.StatusCode = 200;
-            Response.ContentType = "text/plain";
-
-            using (var sw = new StreamWriter(Response.Body))
-            {
-                sw.AutoFlush = true;
-
-                try
-                {
-                    await sw.WriteLineAsync("Updating posts");
-                    await deviantArtHandler.ImportUpstreamPostsAsync(scope, sw.WriteLineAsync);
-                    await sw.WriteLineAsync("");
-                    await sw.WriteLineAsync("Checking for deleted posts");
-                    await deviantArtHandler.CheckForDeletionAsync(scope);
-                    await sw.WriteLineAsync("");
-                    await sw.WriteLineAsync("Updating avatar");
-                    await deviantArtHandler.UpdateAvatarAsync();
-                    await sw.WriteLineAsync("");
-                    await sw.WriteLineAsync("Done");
-                }
-                catch (Exception ex)
-                {
-                    await sw.WriteLineAsync($"{ex}");
-                }
-            }
-
-            return new EmptyResult();
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Import(string url)
-        {
-            Guid id = await DeviantArtScraper.GetIdAsync(url);
-            await deviantArtHandler.ImportUpstreamPostsAsync(
-                DeviantArtImportScope.FromIds(
-                    [id]));
-            return RedirectToAction("Index", "UserPosts", new { id });
         }
 
         [HttpPost]

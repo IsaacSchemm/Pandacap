@@ -182,11 +182,11 @@
     </h2>
 
     <p>
-        @foreach (var post in Model.RecentTextPosts)
+        @foreach (IPost post in Model.RecentTextPosts)
         {
             <div>
-                <a href="/UserPosts/@post.Id">@post.Title</a>
-                <span class="text-muted">(@post.PublishedTime.UtcDateTime.ToLongDateString())</span>
+                <a href="/UserPosts/@post.Id">@post.DisplayTitle</a>
+                <span class="text-muted">(@post.Timestamp.UtcDateTime.ToLongDateString())</span>
             </div>
         }
     </p>
@@ -211,79 +211,16 @@
 
                 <div class="card my-3">
                     <div class="card-header">
-                        Gallery
+                        Migration
                     </div>
                     <div class="card-body text-center">
-                        <form asp-action="ImportPastHour">
-                            <button type="submit" class="btn btn-primary">
-                                Sync past hour
-                            </button>
-                        </form>
-
-                        <div class="mb-3"></div>
-
-                        <form asp-action="ImportPastMonth">
-                            <button type="submit" class="btn btn-primary">
-                                Sync past month
-                            </button>
-                        </form>
-
-                        <div class="mb-3"></div>
-
-                        <form asp-action="ImportAll" onsubmit="return confirm('Are you sure you want to import and refresh all of your posts?')">
-                            <button type="submit" class="btn btn-primary">
-                                Sync all posts
+                        <form asp-controller="Profile" asp-action="Migrate">
+                            <button type="submit" class="btn btn-outline-primary">
+                                Copy UserPost &rarr; Post
                             </button>
                         </form>
                     </div>
                 </div>
-
-                <div class="card my-3">
-                    <div class="card-header">
-                        Import
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="Import">
-                            <input type="hidden" name="seconds" value="300" />
-                            <div class="mb-3">
-                                <input type="url" class="form-control" id="url" name="url" placeholder="https://" />
-                                <div class="form-text">
-                                    Allows scraps
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                Import
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                @* <div class="card mt-3">
-                    <div class="card-header">
-                        Inbox
-                    </div>
-                    <div class="card-body text-center">
-                        <form asp-controller="InboxIngest" asp-action="DeviantArtArtworkPosts">
-                            <button type="submit" class="btn btn-primary btn-warning">
-                                Sync artwork posts now
-                            </button>
-                            <div class="form-text">
-                                From DeviantArt's messages feed
-                            </div>
-                        </form>
-
-                        <hr />
-
-                        <form asp-controller="InboxIngest" asp-action="DeviantArtTextPosts">
-                            <button type="submit" class="btn btn-primary btn-warning">
-                                Sync text posts now
-                            </button>
-                            <div class="form-text">
-                                Looks for posts from users you follow whose last DeviantArt visit happened after the previous sync
-                            </div>
-                        </form>
-                    </div>
-                </div> *@
             </div>
 
             <div class="col col-12 col-xl-3">

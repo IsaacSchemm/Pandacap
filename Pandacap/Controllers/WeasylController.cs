@@ -79,7 +79,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crosspost(Guid id)
         {
-            var post = await context.UserPosts
+            var post = await context.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync();
 
@@ -89,19 +89,14 @@ namespace Pandacap.Controllers
             if (post.WeasylSubmitId != null || post.WeasylJournalId != null)
                 throw new Exception("Already posted to Weasyl");
 
-            if (post.Image == null)
+            if (post.Type == PostType.Artwork)
             {
-                post.WeasylJournalId = await client.UploadJournalAsync(
-                    post.Title,
-                    post.IsMature ? Rating.Mature : Rating.General,
-                    post.DescriptionText,
-                    post.Tags);
-            }
-            else
-            {
+                if (post.Images.Count != 1)
+                    throw new NotImplementedException("Crossposted Weasyl submissions must have exactly one image");
+
                 var blob = await blobServiceClient
                     .GetBlobContainerClient("blobs")
-                    .GetBlobClient(post.Image.BlobName)
+                    .GetBlobClient($"{post.Images.Single().Blob.Id}")
                     .DownloadContentAsync();
 
                 post.WeasylSubmitId = await client.UploadVisualAsync(
@@ -109,8 +104,16 @@ namespace Pandacap.Controllers
                     post.Title,
                     SubmissionType.Other,
                     null,
-                    post.IsMature ? Rating.Mature : Rating.General,
-                    post.DescriptionText,
+                    Rating.General,
+                    post.BodyText,
+                    post.Tags);
+            }
+            else
+            {
+                post.WeasylJournalId = await client.UploadJournalAsync(
+                    post.Title,
+                    Rating.General,
+                    post.BodyText,
                     post.Tags);
             }
 
@@ -123,7 +126,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Detach(Guid id)
         {
-            var post = await context.UserPosts
+            var post = await context.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync();
 

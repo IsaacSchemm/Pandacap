@@ -1,0 +1,22 @@
+﻿@using Pandacap.LowLevel
+@model CreateStatusUpdateViewModel
+
+<form asp-action="CreateStatusUpdate" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label asp-for="@Model.File" class="form-label"></label>
+        <input asp-for="@Model.File" class="form-control" accept="image/png,image/jpeg" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="@Model.AltText" class="form-label"></label>
+        <input asp-for="@Model.AltText" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="@Model.MarkdownBody" class="form-label"></label>
+        <textarea asp-for="@Model.MarkdownBody" class="form-control" rows="5"></textarea>
+    </div>
+    <div class="mb-3">
+        <label asp-for="@Model.Tags" class="form-label"></label>
+        <input asp-for="@Model.Tags" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create new post</button>
+</form>

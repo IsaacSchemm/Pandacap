@@ -16,15 +16,12 @@ namespace Pandacap.HighLevel
         /// </summary>
         /// <param name="post">The submission to render</param>
         /// <returns>A sequence of HTML strings that should be concatenated</returns>
-        private IEnumerable<string> GetHtml(UserPost post)
+        private IEnumerable<string> GetHtml(Post post)
         {
-            if (!post.IsMature)
-            {
-                if (!post.ImageBlobs.IsEmpty)
-                    yield return $"<p><img src='{mapper.GetImageUrl(post, post.ImageBlobs[0])}' height='250' /></p>";
-                if (post.Description != null)
-                    yield return post.Description;
-            }
+            foreach (var image in post.Images)
+                yield return $"<p><img src='{mapper.GetImageUrl(post, image.Blob)}' height='250' /></p>";
+            if (post.Body != null)
+                yield return post.Body;
         }
 
         /// <summary>
@@ -32,7 +29,7 @@ namespace Pandacap.HighLevel
         /// </summary>
         /// <param name="post">The submission to render</param>
         /// <returns>A feed item</returns>
-        private SyndicationItem ToSyndicationItem(UserPost post)
+        private SyndicationItem ToSyndicationItem(Post post)
         {
             var item = new SyndicationItem
             {
@@ -42,7 +39,7 @@ namespace Pandacap.HighLevel
                 Content = new TextSyndicationContent(string.Join(" ", GetHtml(post)), TextSyndicationContentKind.Html)
             };
 
-            if (!post.HideTitle)
+            if (post.Title != null)
                 item.Title = new TextSyndicationContent(post.Title, TextSyndicationContentKind.Plaintext);
 
             item.Links.Add(SyndicationLink.CreateAlternateLink(new Uri(mapper.GetObjectId(post)), "text/html"));
@@ -56,7 +53,7 @@ namespace Pandacap.HighLevel
         /// <param name="person">The author of the posts</param>
         /// <param name="posts">A sequence of submissions</param>
         /// <returns>A feed object</returns>
-        private SyndicationFeed ToSyndicationFeed(IEnumerable<UserPost> posts)
+        private SyndicationFeed ToSyndicationFeed(IEnumerable<Post> posts)
         {
             string uri = $"{mapper.ActorId}/feed";
             var feed = new SyndicationFeed
@@ -88,7 +85,7 @@ namespace Pandacap.HighLevel
         /// <param name="person">The author of the posts</param>
         /// <param name="posts">A sequence of submissions</param>
         /// <returns>An RSS feed (should be serialized as UTF-8)</returns>
-        public string ToRssFeed(IEnumerable<UserPost> posts)
+        public string ToRssFeed(IEnumerable<Post> posts)
         {
             var feed = ToSyndicationFeed(posts);
 
@@ -108,7 +105,7 @@ namespace Pandacap.HighLevel
         /// <param name="person">The author of the posts</param>
         /// <param name="posts">A sequence of submissions</param>
         /// <returns>An Atom feed (should be serialized as UTF-8)</returns>
-        public string ToAtomFeed(IEnumerable<UserPost> posts)
+        public string ToAtomFeed(IEnumerable<Post> posts)
         {
             var feed = ToSyndicationFeed(posts);
 

@@ -35,11 +35,11 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.LikedPageId =
         $"https://{appInfo.ApplicationHostname}/Favorites"
 
-    member _.GetImageUrl(userPost: UserPost, blob: UserPostBlobReference) =
-        $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{userPost.Id}/{blob.Id}"
+    member _.GetImageUrl(post: Post, blob: PostBlobRef) =
+        $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{blob.Id}"
 
-    member _.GetObjectId(userPost: UserPost) =
-        $"https://{appInfo.ApplicationHostname}/UserPosts/{userPost.Id}"
+    member _.GetObjectId(post: Post) =
+        $"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}"
 
     member _.GetObjectId(addressedPost: AddressedPost) =
         $"https://{appInfo.ApplicationHostname}/AddressedPosts/{addressedPost.Id}"

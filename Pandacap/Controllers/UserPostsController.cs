@@ -1,18 +1,20 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Storage.Blobs;
+using CommonMark;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.Models;
-using Pandacap.Types;
 using System.Text;
 
 namespace Pandacap.Controllers
 {
     [Route("UserPosts")]
     public class UserPostsController(
+        BlobServiceClient blobServiceClient,
         PandacapDbContext context,
-        DeviantArtHandler deviantArtHandler,
+        DeliveryInboxCollector deliveryInboxCollector,
         IdMapper mapper,
         ReplyLookup replyLookup,
         ActivityPubTranslator translator) : Controller
@@ -22,7 +24,7 @@ namespace Pandacap.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            var post = await context.UserPosts
+            var post = await context.Posts
                 .Where(p => p.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
 
@@ -49,61 +51,207 @@ namespace Pandacap.Controllers
             });
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveAltText(Guid id, string alt)
+        [HttpGet]
+        [Authorize]
+        [Route("CreateStatusUpdate")]
+        public IActionResult CreateStatusUpdate()
         {
-            await deviantArtHandler.SetAltTextAsync(id, alt);
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [Route("CreateStatusUpdate")]
+        public async Task<IActionResult> CreateStatusUpdate(
+            CreateStatusUpdateViewModel model,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            Guid id = Guid.NewGuid();
+
+            async IAsyncEnumerable<PostImage> uploadImagesAsync()
+            {
+                if (model.File == null)
+                    yield break;
+
+                Guid blobId = Guid.NewGuid();
+
+                using var stream = model.File.OpenReadStream();
+
+                await blobServiceClient
+                    .GetBlobContainerClient("blobs")
+                    .UploadBlobAsync($"{blobId}", stream, cancellationToken);
+
+                yield return new()
+                {
+                    Blob = new()
+                    {
+                        Id = blobId,
+                        ContentType = model.File.ContentType
+                    },
+                    AltText = model.AltText
+                };
+            }
+
+            var post = new Post
+            {
+                Body = CommonMarkConverter.Convert(model.MarkdownBody),
+                Id = id,
+                Images = await uploadImagesAsync().ToListAsync(cancellationToken),
+                PublishedTime = DateTimeOffset.UtcNow,
+                Tags = model.DistinctTags.ToList(),
+                Type = PostType.StatusUpdate
+            };
+
+            context.Posts.Add(post);
+
+            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                includeGhosted: true,
+                cancellationToken))
+            {
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.ObjectToCreate(
+                            post)),
+                    Inbox = inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
+
+            await context.SaveChangesAsync(cancellationToken);
+
             return RedirectToAction(nameof(Index), new { id });
         }
 
-        [HttpPost]
+        [HttpGet]
         [Authorize]
-        [Route("Refresh")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Refresh(Guid id)
+        [Route("CreateJournalEntry")]
+        public IActionResult CreateJournalEntry()
         {
-            var scope = DeviantArtImportScope.FromIds([id]);
-            await deviantArtHandler.ImportUpstreamPostsAsync(scope);
-
-            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
-
-            if (post != null)
-                return RedirectToAction(nameof(Index), new { id });
-            else
-                return NotFound();
+            return View();
         }
 
         [HttpPost]
         [Authorize]
-        [Route("UnmarkAsArtwork")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UnmarkAsArtwork(Guid id)
+        [Route("CreateJournalEntry")]
+        public async Task<IActionResult> CreateJournalEntry(
+            CreateJournalEntryViewModel model,
+            CancellationToken cancellationToken)
         {
-            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
 
-            if (post == null)
-                return NotFound();
+            Guid id = Guid.NewGuid();
 
-            post.Artwork = false;
-            await context.SaveChangesAsync();
+            var post = new Post
+            {
+                Body = CommonMarkConverter.Convert(model.MarkdownBody),
+                Id = id,
+                PublishedTime = DateTimeOffset.UtcNow,
+                Tags = model.DistinctTags.ToList(),
+                Title = model.Title,
+                Type = PostType.JournalEntry
+            };
+
+            context.Posts.Add(post);
+
+            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                includeGhosted: true,
+                cancellationToken))
+            {
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.ObjectToCreate(
+                            post)),
+                    Inbox = inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
+
+            await context.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(Index), new { id });
         }
 
+        [HttpGet]
+        [Authorize]
+        [Route("CreateArtwork")]
+        public IActionResult CreateArtwork()
+        {
+            return View();
+        }
+
         [HttpPost]
         [Authorize]
-        [Route("MarkAsArtwork")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MarkAsArtwork(Guid id)
+        [Route("CreateArtwork")]
+        public async Task<IActionResult> CreateArtwork(
+            CreateArtworkViewModel model,
+            CancellationToken cancellationToken)
         {
-            var post = await context.UserPosts.Where(p => p.Id == id).SingleOrDefaultAsync();
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
 
-            if (post == null)
-                return NotFound();
+            Guid id = Guid.NewGuid();
+            Guid blobId = Guid.NewGuid();
 
-            post.Artwork = true;
-            await context.SaveChangesAsync();
+            using var stream = model.File!.OpenReadStream();
+
+            await blobServiceClient
+                .GetBlobContainerClient("blobs")
+                .UploadBlobAsync($"{blobId}", stream, cancellationToken);
+
+            var post = new Post
+            {
+                Body = CommonMarkConverter.Convert(model.MarkdownBody),
+                Id = id,
+                Images = [new()
+                {
+                    Blob = new()
+                    {
+                        Id = blobId,
+                        ContentType = model.File.ContentType
+                    },
+                    AltText = model.AltText
+                }],
+                PublishedTime = DateTimeOffset.UtcNow,
+                Tags = model.DistinctTags.ToList(),
+                Title = model.Title,
+                Type = PostType.Artwork
+            };
+
+            context.Posts.Add(post);
+
+            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                includeGhosted: true,
+                cancellationToken))
+            {
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.ObjectToCreate(
+                            post)),
+                    Inbox = inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
+
+            await context.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(Index), new { id });
         }
@@ -112,10 +260,39 @@ namespace Pandacap.Controllers
         [Authorize]
         [Route("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(
+            Guid id,
+            CancellationToken cancellationToken)
         {
-            var scope = DeviantArtImportScope.FromIds([id]);
-            await deviantArtHandler.CheckForDeletionAsync(scope, forceDelete: true);
+            var post = await context.Posts
+                .Where(p => p.Id == id)
+                .SingleAsync(cancellationToken);
+
+            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                includeGhosted: true,
+                cancellationToken))
+            {
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.ObjectToDelete(
+                            post)),
+                    Inbox = inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
+
+            context.Posts.Remove(post);
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            foreach (var blob in post.Blobs)
+            {
+                await blobServiceClient
+                    .GetBlobContainerClient("blobs")
+                    .DeleteBlobIfExistsAsync($"{blob.Id}", cancellationToken: cancellationToken);
+            }
 
             return RedirectToAction("Index", "Profile");
         }

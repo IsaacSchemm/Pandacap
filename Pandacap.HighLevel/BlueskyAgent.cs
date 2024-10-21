@@ -9,9 +9,10 @@ namespace Pandacap.HighLevel
         ApplicationInformation appInfo,
         ATProtoCredentialProvider atProtoCredentialProvider,
         BlobServiceClient blobServiceClient,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IdMapper mapper)
     {
-        public async Task DeleteBlueskyPostsAsync(UserPost submission)
+        public async Task DeleteBlueskyPostsAsync(Post submission)
         {
             if (submission.BlueskyRecordKey == null)
                 return;
@@ -33,7 +34,7 @@ namespace Pandacap.HighLevel
             submission.BlueskyRecordKey = null;
         }
 
-        public async Task CreateBlueskyPostsAsync(UserPost submission)
+        public async Task CreateBlueskyPostsAsync(Post submission)
         {
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
@@ -47,27 +48,27 @@ namespace Pandacap.HighLevel
 
             async IAsyncEnumerable<Repo.BlobWithAltText> downloadImagesAsync()
             {
-                if (submission.Image == null)
-                    yield break;
+                foreach (var image in submission.Images)
+                {
+                    var blob = await blobServiceClient
+                        .GetBlobContainerClient("blobs")
+                        .GetBlobClient($"{image.Blob.Id}")
+                        .DownloadContentAsync();
 
-                var blob = await blobServiceClient
-                    .GetBlobContainerClient("blobs")
-                    .GetBlobClient(submission.Image.BlobName)
-                    .DownloadContentAsync();
-
-                yield return await Repo.UploadBlobAsync(
-                    httpClient,
-                    wrapper,
-                    blob.Value.Content.ToArray(),
-                    submission.Image.ContentType,
-                    submission.AltText);
+                    yield return await Repo.UploadBlobAsync(
+                        httpClient,
+                        wrapper,
+                        blob.Value.Content.ToArray(),
+                        image.Blob.ContentType,
+                        image.AltText);
+                }
             }
 
-            string text = submission.DescriptionText;
+            string text = submission.BodyText;
             int codepoints = text.Where(c => !char.IsLowSurrogate(c)).Count();
             if (codepoints >= 300)
             {
-                text = submission.Title + "\n\n" + submission.Url;
+                text = submission.Title + "\n\n" + mapper.GetObjectId(submission);
             }
 
             var post = await Repo.CreateRecordAsync(

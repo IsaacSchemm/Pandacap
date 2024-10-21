@@ -1,0 +1,57 @@
+﻿@using Pandacap.LowLevel
+@model DeviantArtCrosspostArtworkViewModel
+
+@{
+    ViewBag.Title = "Post to DeviantArt";
+}
+
+<h1>Post to DeviantArt</h1>
+
+<hr />
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div class="container">
+        <div class="row">
+            <div class="col col-lg-6 mb-3">
+                <h2>Gallery Folders</h2>
+                <div class="mb-3">
+                    <label asp-for="@Model.GalleryFolders" class="form-label"></label>
+                    <select asp-for="@Model.GalleryFolders"
+                            asp-items="@Model.AvailableGalleryFolders"
+                            class="form-control"
+                            style="min-height: 20rem"
+                            multiple></select>
+                </div>
+            </div>
+            <div class="col col-lg-6 mb-3">
+                <h2>Content</h2>
+                <div class="mb-3 form-check px-0">
+                    <input id="is_mature" type="checkbox" disabled>
+                    <label class="form-check-label" for="is_mature">Mature content</label>
+                </div>
+
+                <h2>Permissions</h2>
+                <div class="mb-3 form-check px-0">
+                    <input id="allow_comments" type="checkbox" disabled checked>
+                    <label class="form-check-label" for="allow_comments">Allow comments</label>
+                </div>
+                <div class="mb-3 form-check px-0">
+                    <input id="allow_free_download" type="checkbox" disabled checked>
+                    <label class="form-check-label" for="allow_free_download">Allow free download of original file</label>
+                </div>
+
+                <h2>AI</h2>
+                <div class="mb-3 form-check px-0">
+                    <input asp-for="@Model.IsAiGenerated">
+                    <label class="form-check-label" asp-for="@Model.IsAiGenerated"></label>
+                </div>
+                <div class="mb-3 form-check px-0">
+                    <input asp-for="@Model.NoAi">
+                    <label class="form-check-label" asp-for="@Model.NoAi"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Post to DeviantArt</button>
+</form>

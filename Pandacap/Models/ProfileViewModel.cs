@@ -8,15 +8,15 @@ namespace Pandacap.Models
         public IEnumerable<string> DeviantArtUsernames { get; set; } = [];
         public IEnumerable<string> WeasylUsernames { get; set; } = [];
 
-        public IEnumerable<UserPost> RecentArtwork { get; set; } = [];
-        public IEnumerable<UserPost> RecentTextPosts { get; set; } = [];
+        public IEnumerable<Post> RecentArtwork { get; set; } = [];
+        public IEnumerable<Post> RecentTextPosts { get; set; } = [];
 
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
         public int FavoritesCount { get; set; }
         public int CommunityBookmarksCount { get; set; }
 
-        public UserPost? MostRecentPost => Enumerable.Empty<UserPost>()
+        public Post? MostRecentPost => Enumerable.Empty<Post>()
             .Concat(RecentArtwork)
             .Concat(RecentTextPosts)
             .OrderByDescending(x => x.PublishedTime)

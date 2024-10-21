@@ -9,7 +9,7 @@
     ViewBag.UserPost = Model.Post;
 }
 
-@if (Model.Post.Image == null && DateTimeOffset.UtcNow.AddYears(-1) > Model.Post.PublishedTime)
+@if (Model.Post.Type != PostType.Artwork && DateTimeOffset.UtcNow.AddYears(-1) > Model.Post.PublishedTime)
 {
     <div class="card text-bg-warning mb-3" style="max-width: 18rem;">
         <div class="card-body">
@@ -25,19 +25,17 @@
     @Model.Post.PublishedTime.UtcDateTime.ToShortTimeString()
 </p>
 
-@if (Model.Post.Image != null)
+@foreach (var image in Model.Post.Images)
 {
     <p>
-        <img src="@mapper.GetImageUrl(Model.Post, Model.Post.Image)"
-             alt="@Model.Post.AltText"
-             title="@Model.Post.AltText"
+        <img src="/Blobs/UserPosts/@Model.Post.Id/@image.Blob.Id"
+             alt="@image.AltText"
+             title="@image.AltText"
              style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
     </p>
 }
 
-<p>
-    @Html.Raw(Model.Post.Description)
-</p>
+@Html.Raw(Model.Post.Body)
 
 @if (Model.Post.Tags.Any())
 {
@@ -50,17 +48,17 @@
 }
 
 <div class="mb-3">
-    @if (Model.Post.Url is string url)
-    {
-        <a href="@url" class="btn btn-outline-primary" target="_blank">
-            View on DeviantArt
-        </a>
-    }
-
     @if (Model.Post.BlueskyDID is string did && Model.Post.BlueskyRecordKey is string rkey)
     {
         <a href="https://bsky.app/profile/@(did)/post/@(rkey)" class="btn btn-outline-primary" target="_blank">
             View on Bluesky
+        </a>
+    }
+
+    @if (Model.Post.DeviantArtUrl is string daurl)
+    {
+        <a href="@daurl" class="btn btn-outline-primary" target="_blank">
+            View on DeviantArt
         </a>
     }
 
@@ -81,39 +79,43 @@
 
 @if (User.Identity?.IsAuthenticated == true)
 {
-    <form asp-action="Refresh" class="mb-3">
-        <input type="hidden" name="id" value="@Model.Post.Id" />
-        <button type="submit" class="btn btn-primary">
-            Refresh from DeviantArt
-        </button>
-    </form>
-
     <details>
-        <summary class="mb-3">More actions</summary>
+        <summary class="mb-3">Actions</summary>
 
-        <form asp-action="SaveAltText" class="mb-3">
-            <input type="hidden" name="id" value="@Model.Post.Id" />
-            <input type="text" name="alt" value="@Model.Post.AltText" class="form-control" />
-            <button type="submit" class="btn btn-outline-primary">
-                Update alt text
-            </button>
-        </form>
-
-        @if (Model.Post.Artwork)
+        @if (Model.Post.BlueskyRecordKey == null)
         {
-            <form asp-action="UnmarkAsArtwork" class="mb-3">
+            <form asp-action="Crosspost" asp-controller="ATProto" class="mb-3">
                 <input type="hidden" name="id" value="@Model.Post.Id" />
-                <button type="submit" class="btn btn-secondary small">
-                    Move to Journals &amp; Status Updates
+                <button type="submit" class="btn btn-success">
+                    Post to Bluesky
                 </button>
             </form>
         }
         else
         {
-            <form asp-action="MarkAsArtwork" class="mb-3">
+            <form asp-action="Detach" asp-controller="ATProto" class="mb-3" onsubmit="This will remove the 'View on Bluesky' button; it will not delete the post from Bluesky.">
                 <input type="hidden" name="id" value="@Model.Post.Id" />
-                <button type="submit" class="btn btn-secondary small">
-                    Move to Gallery
+                <button type="submit" class="btn btn-warning">
+                    Detach Bluesky post
+                </button>
+            </form>
+        }
+
+        @if (Model.Post.DeviantArtId == null)
+        {
+            <form asp-action="Crosspost" asp-controller="DeviantArt" class="mb-3">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-success">
+                    Post to DeviantArt
+                </button>
+            </form>
+        }
+        else
+        {
+            <form asp-action="Detach" asp-controller="DeviantArt" class="mb-3" onsubmit="This will remove the 'View on DeviantArt' button; it will not delete the post from DeviantArt.">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-warning">
+                    Detach DeviantArt post
                 </button>
             </form>
         }
@@ -129,29 +131,10 @@
         }
         else
         {
-            <form asp-action="Detach" asp-controller="Weasyl" class="mb-3" onsubmit="This will remove the 'View on Weasyl' button, and prevent Pandacap from deleting the post from Weasyl if the original Pandacap post is deleted.">
+            <form asp-action="Detach" asp-controller="Weasyl" class="mb-3" onsubmit="This will remove the 'View on Weasyl' button; it will not delete the post from Weasyl.">
                 <input type="hidden" name="id" value="@Model.Post.Id" />
                 <button type="submit" class="btn btn-warning">
                     Detach Weasyl post
-                </button>
-            </form>
-        }
-
-        @if (Model.Post.BlueskyRecordKey == null)
-        {
-            <form asp-action="Crosspost" asp-controller="ATProto" class="mb-3">
-                <input type="hidden" name="id" value="@Model.Post.Id" />
-                <button type="submit" class="btn btn-success">
-                    Post to Bluesky / atproto
-                </button>
-            </form>
-        }
-        else
-        {
-            <form asp-action="Detach" asp-controller="Weasyl" class="mb-3" onsubmit="This will remove the 'View on Bluesky' button, and This will prevent Pandacap from deleting the post from atproto if the original Pandacap post is deleted.">
-                <input type="hidden" name="id" value="@Model.Post.Id" />
-                <button type="submit" class="btn btn-warning">
-                    Detach Bluesky / atproto post
                 </button>
             </form>
         }
@@ -160,7 +143,7 @@
             See the About page for more information about how crossposts work.
         </p>
 
-        <form asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this post from Pandacap? (This will not delete it from DeviantArt.)')">
+        <form asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this post from Pandacap? (This will not delete it from any site it has been crossposted to.)')">
             <input type="hidden" name="id" value="@Model.Post.Id" />
             <button type="submit" class="btn btn-danger">
                 Delete from @appInfo.ApplicationName
