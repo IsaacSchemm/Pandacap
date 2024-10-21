@@ -105,15 +105,15 @@ namespace Pandacap.Controllers
                     SubmissionType.Other,
                     null,
                     Rating.General,
-                    post.BodyText,
+                    post.Body,
                     post.Tags);
             }
             else
             {
                 post.WeasylJournalId = await client.UploadJournalAsync(
-                    post.Title,
+                    post.Title ?? ExcerptGenerator.FromText([post.Body]),
                     Rating.General,
-                    post.BodyText,
+                    post.Body,
                     post.Tags);
             }
 

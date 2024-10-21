@@ -100,7 +100,7 @@ namespace Pandacap.Controllers
 
             var post = new Post
             {
-                Body = CommonMarkConverter.Convert(model.MarkdownBody),
+                Body = model.MarkdownBody,
                 Id = id,
                 Images = await uploadImagesAsync().ToListAsync(cancellationToken),
                 PublishedTime = DateTimeOffset.UtcNow,
@@ -155,7 +155,7 @@ namespace Pandacap.Controllers
 
             var post = new Post
             {
-                Body = CommonMarkConverter.Convert(model.MarkdownBody),
+                Body = model.MarkdownBody,
                 Id = id,
                 PublishedTime = DateTimeOffset.UtcNow,
                 Tags = model.DistinctTags.ToList(),
@@ -217,7 +217,7 @@ namespace Pandacap.Controllers
 
             var post = new Post
             {
-                Body = CommonMarkConverter.Convert(model.MarkdownBody),
+                Body = model.MarkdownBody,
                 Id = id,
                 Images = [new()
                 {

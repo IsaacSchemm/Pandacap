@@ -46,14 +46,16 @@ type Post() =
     member val WeasylJournalId = Nullable<int>() with get, set
 
     [<NotMapped>]
+    member this.Html =
+        if isNull this.Body then null
+        else CommonMark.CommonMarkConverter.Convert this.Body
+
+    [<NotMapped>]
     member this.Blobs = seq {
         for i in this.Images do
             yield i.Blob
             yield! i.Thumbnails
     }
-
-    [<NotMapped>]
-    member this.BodyText = TextConverter.FromHtml this.Body
 
     [<NotMapped>]
     member this.Thumbnails =
@@ -66,7 +68,7 @@ type Post() =
             seq {
                 if this.Type <> PostType.StatusUpdate then
                     this.Title
-                this.BodyText
+                this.Body
                 $"{this.Id}"
             }
             |> Seq.where (not << String.IsNullOrEmpty)

@@ -20,8 +20,8 @@ namespace Pandacap.HighLevel
         {
             foreach (var image in post.Images)
                 yield return $"<p><img src='{mapper.GetImageUrl(post, image.Blob)}' height='250' /></p>";
-            if (post.Body != null)
-                yield return post.Body;
+            if (post.Html != null)
+                yield return post.Html;
         }
 
         /// <summary>

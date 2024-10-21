@@ -64,7 +64,7 @@ namespace Pandacap.HighLevel
                 }
             }
 
-            string text = submission.BodyText;
+            string text = submission.Body;
             int codepoints = text.Where(c => !char.IsLowSurrogate(c)).Count();
             if (codepoints >= 300)
             {

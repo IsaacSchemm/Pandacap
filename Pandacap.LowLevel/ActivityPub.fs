@@ -81,8 +81,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         if not (isNull post.Title) then
             pair "name" post.Title
 
-        if not (isNull post.Body) then
-            pair "content" post.Body
+        if not (isNull post.Html) then
+            pair "content" post.Html
 
         pair "attributedTo" mapper.ActorId
         pair "tag" [

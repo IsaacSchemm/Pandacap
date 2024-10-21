@@ -23,7 +23,7 @@
     @if (ViewBag.UserPost is Post up)
     {
         <meta property="og:title" content="@up.Title" />
-        <meta property="og:description" content="@up.BodyText" />
+        <meta property="og:description" content="@up.Body" />
         <meta property="og:site_name" content="@appInfo.ApplicationName" />
         <meta property="og:url" content="@mapper.GetObjectId(up)" />
         if (up.Images.DefaultIfEmpty(null).First() is PostImage image)

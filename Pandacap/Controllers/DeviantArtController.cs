@@ -45,12 +45,8 @@ namespace Pandacap.Controllers
             switch (post.Type)
             {
                 case PostType.StatusUpdate:
-                    string body = post.Body;
-
                     if (post.Images.Count > 0)
-                    {
-                        body += $"<p><a href='{mapper.GetObjectId(post)}'>{WebUtility.HtmlEncode(mapper.GetObjectId(post))}</a></p>";
-                    }
+                        throw new NotImplementedException("Cannot crosspost a status update with an image to DeviantArt");
 
                     var statusResponse = await DeviantArtFs.Api.User.PostStatusAsync(
                         token,
@@ -58,7 +54,7 @@ namespace Pandacap.Controllers
                             DeviantArtFs.Api.User.EmbeddableObject.Nothing,
                             DeviantArtFs.Api.User.EmbeddableObjectParent.NoParent,
                             DeviantArtFs.Api.User.EmbeddableStashItem.NoStashItem),
-                        body);
+                        post.Body);
 
                     var dev = await DeviantArtFs.Api.Deviation.GetAsync(
                         token,
