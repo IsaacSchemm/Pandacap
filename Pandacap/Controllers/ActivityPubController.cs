@@ -186,7 +186,8 @@ namespace Pandacap.Controllers
                     if (Uri.TryCreate(interactedWithId, UriKind.Absolute, out Uri? uri)
                         && uri != null
                         && Uri.TryCreate(mapper.ActorId, UriKind.Absolute, out Uri? me)
-                        && me != null)
+                        && me != null
+                        && uri.Host == me.Host)
                     {
                         context.PostActivities.Add(new()
                         {
