@@ -100,11 +100,13 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             pair "attachment" [
                 for image in post.Images do
                     dict [
-                        pair "type" "Document"
+                        pair "type" "Image"
                         pair "url" (mapper.GetImageUrl(post, image.Blob))
                         pair "mediaType" image.Blob.ContentType
                         if not (String.IsNullOrEmpty(image.AltText)) then
                             pair "name" image.AltText
+                        if not (isNull image.FocalPoint) then
+                            pair "focalPoint" [image.FocalPoint.Horizontal; image.FocalPoint.Vertical]
                     ]
             ]
 

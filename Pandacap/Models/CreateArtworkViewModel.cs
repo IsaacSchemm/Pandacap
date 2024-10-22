@@ -13,5 +13,8 @@ namespace Pandacap.Models
 
         [DisplayName("Image description (alt text)")]
         public string? AltText { get; set; }
+
+        [DisplayName("Crop image at top (instead of at center) in Mastodon")]
+        public bool FocusTop { get; set; }
     }
 }

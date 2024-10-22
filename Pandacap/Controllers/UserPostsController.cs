@@ -1,5 +1,4 @@
 ﻿using Azure.Storage.Blobs;
-using CommonMark;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -226,7 +225,12 @@ namespace Pandacap.Controllers
                         Id = blobId,
                         ContentType = model.File.ContentType
                     },
-                    AltText = model.AltText
+                    AltText = model.AltText,
+                    FocalPoint = new()
+                    {
+                        Horizontal = 0,
+                        Vertical = model.FocusTop ? 1 : 0
+                    }
                 }],
                 PublishedTime = DateTimeOffset.UtcNow,
                 Tags = model.DistinctTags.ToList(),

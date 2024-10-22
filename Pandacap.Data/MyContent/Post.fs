@@ -2,7 +2,6 @@
 
 open System
 open System.ComponentModel.DataAnnotations.Schema
-open Pandacap.Html
 
 type PostType =
 | StatusUpdate = 0
@@ -13,10 +12,17 @@ type PostBlobRef() =
     member val Id = Guid.Empty with get, set
     member val ContentType = "application/octet-stream" with get, set
 
+[<AllowNullLiteral>]
+type PostImageFocalPoint() =
+    member val Horizontal = 0m with get, set
+    member val Vertical = 0m with get, set
+
 type PostImage() =
     member val Blob = new PostBlobRef() with get, set
     member val Thumbnails = new ResizeArray<PostBlobRef>() with get, set
     member val AltText = nullString with get, set
+
+    member val FocalPoint: PostImageFocalPoint = null with get, set
 
     [<NotMapped>]
     member this.Thumbnail =
