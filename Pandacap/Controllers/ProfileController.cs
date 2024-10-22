@@ -33,11 +33,13 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 var key = await keyProvider.GetPublicKeyAsync();
+                var avatar = await context.Avatars.FirstOrDefaultAsync();
 
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToObject(
-                            await keyProvider.GetPublicKeyAsync())),
+                            key,
+                            avatar)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -304,7 +306,7 @@ namespace Pandacap.Controllers
             context.Avatars.RemoveRange(oldAvatars);
             context.Avatars.Add(newAvatar);
 
-            var actorKey = await keyProvider.GetPublicKeyAsync();
+            var key = await keyProvider.GetPublicKeyAsync();
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
                 includeGhosted: true,
@@ -316,7 +318,8 @@ namespace Pandacap.Controllers
                     Id = Guid.NewGuid(),
                     JsonBody = ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToUpdate(
-                            actorKey)),
+                            key,
+                            newAvatar)),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });

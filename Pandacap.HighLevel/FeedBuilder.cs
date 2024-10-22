@@ -63,7 +63,6 @@ namespace Pandacap.HighLevel
                 Description = new TextSyndicationContent($"Pandacap posts from {appInfo.Username}", TextSyndicationContentKind.Plaintext),
                 Copyright = new TextSyndicationContent($"{appInfo.Username}", TextSyndicationContentKind.Plaintext),
                 LastUpdatedTime = posts.Select(x => x.PublishedTime).Max(),
-                ImageUrl = new Uri(mapper.AvatarUrl),
                 Items = posts.Select(ToSyndicationItem)
             };
             feed.Links.Add(SyndicationLink.CreateSelfLink(new Uri(uri), "application/rss+xml"));

@@ -83,7 +83,7 @@ namespace Pandacap
                         .ToListAsync(cancellationToken),
                     Sensitive = false,
                     Summary = null,
-                    Usericon = mapper.AvatarUrl,
+                    Usericon = "/Blobs/Avatar",
                     Username = appInfo.Username
                 };
             }

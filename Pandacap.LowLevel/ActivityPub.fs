@@ -37,7 +37,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     /// Creates a string/object pair (F# tuple) with the given key and value.
     let pair key value = (key, value :> obj)
 
-    member _.PersonToObject(key: ActorKey) = dict [
+    member _.PersonToObject(key: ActorKey, avatar: Avatar) = dict [
         pair "id" mapper.ActorId
         pair "type" "Person"
         pair "inbox" mapper.InboxId
@@ -55,19 +55,20 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             owner = mapper.ActorId
             publicKeyPem = key.Pem
         |}
-        pair "icon" {|
-            mediaType = "image/jpeg"
-            ``type`` = "Image"
-            url = mapper.AvatarUrl
-        |}
+        if not (isNull avatar) then
+            pair "icon" {|
+                mediaType = "image/jpeg"
+                ``type`` = "Image"
+                url = mapper.GetAvatarUrl(avatar)
+            |}
     ]
 
-    member this.PersonToUpdate(actorKey) = dict [
+    member this.PersonToUpdate(key, avatars) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
-        pair "object" (this.PersonToObject(actorKey))
+        pair "object" (this.PersonToObject(key, avatars))
     ]
 
     member _.AsObject(post: Post) = dict [
