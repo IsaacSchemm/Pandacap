@@ -80,9 +80,24 @@ namespace Pandacap.Controllers
             return await ProxyAsync(post, image.Id);
         }
 
+        [Route("Blobs/Avatar")]
         public async Task<IActionResult> Avatar()
         {
             var avatar = await context.Avatars.SingleOrDefaultAsync();
+
+            if (avatar == null)
+                return NotFound();
+
+            return RedirectToAction(nameof(Avatar), new { id = avatar.Id });
+        }
+
+        [Route("Blobs/Avatar/{id}")]
+        [ResponseCache(Duration = 604800, Location = ResponseCacheLocation.Any)]
+        public async Task<IActionResult> Avatar(Guid id)
+        {
+            var avatar = await context.Avatars
+                .Where(a => a.Id == id)
+                .SingleOrDefaultAsync();
 
             if (avatar == null)
                 return NotFound();

@@ -9,7 +9,7 @@ type IdMapper(appInfo: ApplicationInformation) =
         $"https://{appInfo.ApplicationHostname}"
 
     member _.GetAvatarUrl(avatar: Avatar) =
-        $"https://{appInfo.ApplicationHostname}/Blobs/Avatar?uniq={avatar.Id}"
+        $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}"
 
     member _.InboxId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Inbox"
