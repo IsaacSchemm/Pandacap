@@ -31,7 +31,6 @@ namespace Pandacap
 
         public async IAsyncEnumerable<ReplyModel> CollectRepliesAsync(
             string originalObjectId,
-            bool loggedIn,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
@@ -40,20 +39,15 @@ namespace Pandacap
                 .Where(r => r.InReplyTo == originalObjectId)
                 .AsAsyncEnumerable())
             {
-                if (!loggedIn)
-                    if (!remotePost.Public || !remotePost.Approved)
-                        continue;
-
                 yield return new ReplyModel
                 {
-                    Approved = remotePost.Approved,
                     CreatedAt = remotePost.CreatedAt,
                     CreatedBy = remotePost.CreatedBy,
                     HtmlContent = remotePost.HtmlContent,
                     Name = remotePost.Name,
                     ObjectId = remotePost.ObjectId,
                     Remote = true,
-                    Replies = await CollectRepliesAsync(remotePost.ObjectId, loggedIn, cancellationToken)
+                    Replies = await CollectRepliesAsync(remotePost.ObjectId, cancellationToken)
                         .OrderBy(p => p.CreatedAt)
                         .ToListAsync(cancellationToken),
                     Sensitive = remotePost.Sensitive,
@@ -71,14 +65,13 @@ namespace Pandacap
 
                 yield return new ReplyModel
                 {
-                    Approved = true,
                     CreatedAt = addressedPost.PublishedTime,
                     CreatedBy = mapper.ActorId,
                     HtmlContent = addressedPost.HtmlContent,
                     Name = null,
                     ObjectId = objectId,
                     Remote = false,
-                    Replies = await CollectRepliesAsync(objectId, loggedIn, cancellationToken)
+                    Replies = await CollectRepliesAsync(objectId, cancellationToken)
                         .OrderBy(p => p.CreatedAt)
                         .ToListAsync(cancellationToken),
                     Sensitive = false,

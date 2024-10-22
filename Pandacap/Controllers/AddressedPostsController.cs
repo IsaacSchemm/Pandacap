@@ -44,12 +44,13 @@ namespace Pandacap.Controllers
                 Communities = await activityPubRemoteActorService.FetchAddresseesAsync(
                     post.Communities,
                     cancellationToken),
-                Replies = await replyLookup
-                    .CollectRepliesAsync(
-                        mapper.GetObjectId(post),
-                        loggedIn,
-                        cancellationToken)
-                    .ToListAsync(cancellationToken)
+                Replies = User.Identity?.IsAuthenticated == true
+                    ? await replyLookup
+                        .CollectRepliesAsync(
+                            mapper.GetObjectId(post),
+                            cancellationToken)
+                        .ToListAsync(cancellationToken)
+                    : []
             });
         }
 

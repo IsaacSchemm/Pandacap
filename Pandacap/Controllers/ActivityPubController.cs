@@ -225,8 +225,6 @@ namespace Pandacap.Controllers
                             Id = Guid.NewGuid(),
                             ObjectId = postId,
                             InReplyTo = inReplyTo,
-                            Public = remotePost.Recipients.Contains(RemoteAddressee.PublicCollection),
-                            Approved = false,
                             CreatedBy = remotePost.AttributedTo.Id,
                             Username = remotePost.AttributedTo.PreferredUsername,
                             Usericon = remotePost.AttributedTo.IconUrl,
@@ -308,8 +306,6 @@ namespace Pandacap.Controllers
 
                         foreach (var reply in replies)
                         {
-                            reply.Public &= remotePost.Recipients.Contains(RemoteAddressee.PublicCollection);
-                            reply.Approved = false;
                             reply.CreatedBy = remotePost.AttributedTo.Id;
                             reply.Username = remotePost.AttributedTo.PreferredUsername;
                             reply.Usericon = remotePost.AttributedTo.IconUrl;

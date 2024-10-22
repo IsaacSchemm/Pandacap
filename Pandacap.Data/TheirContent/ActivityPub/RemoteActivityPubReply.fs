@@ -11,9 +11,6 @@ type RemoteActivityPubReply() =
     member val ObjectId = "" with get, set
     member val InReplyTo = "" with get, set
 
-    member val Public = false with get, set
-    member val Approved = false with get, set
-
     member val CreatedBy = "" with get, set
     member val Username = nullString with get, set
     member val Usericon = nullString with get, set

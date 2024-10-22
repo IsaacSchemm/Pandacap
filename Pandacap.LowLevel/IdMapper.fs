@@ -44,9 +44,6 @@ type IdMapper(appInfo: ApplicationInformation) =
     member _.GetObjectId(addressedPost: AddressedPost) =
         $"https://{appInfo.ApplicationHostname}/AddressedPosts/{addressedPost.Id}"
 
-    member _.GetRepliesId(objectId: string) =
-        $"https://{appInfo.ApplicationHostname}/RemoteReplies/Collection?objectId={Uri.EscapeDataString(objectId)}"
-
     member _.GetFollowId(followGuid: Guid) =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Follow/{followGuid}"
 

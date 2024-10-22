@@ -28,23 +28,8 @@
                 View
             </a>
 
-            @if (Model.Remote && User.Identity?.IsAuthenticated == true)
+            @if (Model.Remote)
             {
-                if (!Model.Approved)
-                {
-                    <form asp-controller="RemoteReplies" asp-action="Approve" method="post" class="d-inline">
-                        <input type="hidden" name="objectId" value="@Model.ObjectId" />
-                        <button type="submit" class="btn btn-sm btn-primary">Approve</button>
-                    </form>
-                }
-                else
-                {
-                    <form asp-controller="RemoteReplies" asp-action="Unapprove" method="post" class="d-inline">
-                        <input type="hidden" name="objectId" value="@Model.ObjectId" />
-                        <button type="submit" class="btn btn-sm btn-warning">Unapprove</button>
-                    </form>
-                }
-
                 <form asp-controller="RemoteReplies" asp-action="Forget" method="post" class="d-inline" onsubmit="confirm('Are you sure you want to remove this post from Pandacap?')">
                     <input type="hidden" name="objectId" value="@Model.ObjectId" />
                     <button type="submit" class="btn btn-sm btn-danger">Forget</button>

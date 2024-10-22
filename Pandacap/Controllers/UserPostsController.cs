@@ -36,17 +36,16 @@ namespace Pandacap.Controllers
                     "application/activity+json",
                     Encoding.UTF8);
 
-            bool loggedIn = User.Identity?.IsAuthenticated == true;
-
             return View(new UserPostViewModel
             {
                 Post = post,
-                Replies = await replyLookup
-                    .CollectRepliesAsync(
-                        mapper.GetObjectId(post),
-                        loggedIn,
-                        cancellationToken)
-                    .ToListAsync(cancellationToken)
+                Replies = User.Identity?.IsAuthenticated == true
+                    ? await replyLookup
+                        .CollectRepliesAsync(
+                            mapper.GetObjectId(post),
+                            cancellationToken)
+                        .ToListAsync(cancellationToken)
+                    : []
             });
         }
 

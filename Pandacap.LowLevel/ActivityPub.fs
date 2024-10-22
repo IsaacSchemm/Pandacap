@@ -110,8 +110,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
                             pair "focalPoint" [image.FocalPoint.Horizontal; image.FocalPoint.Vertical]
                     ]
             ]
-
-        pair "replies" (mapper.GetRepliesId(id))
     ]
 
     member _.AsObject(post: AddressedPost) = dict [
@@ -137,8 +135,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         match post.Audience with
         | Some id -> pair "audience" id
         | _ -> ()
-
-        pair "replies" (mapper.GetRepliesId(id))
     ]
 
     member this.ObjectToCreate(post: Post) = dict [
@@ -187,13 +183,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "published" DateTimeOffset.UtcNow
         pair "to" ["https://www.w3.org/ns/activitystreams#Public"]
         pair "object" (mapper.GetObjectId(post))
-    ]
-
-    member _.AsRepliesCollection(objectId: string, replies: RemoteActivityPubReply seq) = dict [
-        pair "id" (mapper.GetRepliesId(objectId))
-        pair "type" "Collection"
-        pair "totalItems" (Seq.length replies)
-        pair "items" [for r in replies do r.ObjectId]
     ]
 
     member _.AcceptFollow(followId: string) = dict [
