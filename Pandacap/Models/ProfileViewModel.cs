@@ -9,7 +9,6 @@ namespace Pandacap.Models
         public IEnumerable<string> WeasylUsernames { get; set; } = [];
 
         public IEnumerable<Post> RecentArtwork { get; set; } = [];
-        public IEnumerable<Post> RecentJournalEntries { get; set; } = [];
         public IEnumerable<Post> RecentStatusUpdates { get; set; } = [];
 
         public int FollowerCount { get; set; }

@@ -169,29 +169,6 @@
     </p>
 }
 
-@if (Model.RecentJournalEntries.Any())
-{
-    <h2>
-        Recent journal entries
-    </h2>
-
-    <p>
-        @foreach (IPost post in Model.RecentJournalEntries)
-        {
-            <div>
-                <a href="/UserPosts/@post.Id">@post.DisplayTitle</a>
-                <span class="text-muted">(@post.Timestamp.UtcDateTime.ToLongDateString())</span>
-            </div>
-        }
-    </p>
-
-    <p>
-        <a asp-controller="Gallery" asp-action="Journals">
-            View more &raquo;
-        </a>
-    </p>
-}
-
 @if (Model.RecentStatusUpdates.Any())
 {
     <h2>
