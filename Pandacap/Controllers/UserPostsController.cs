@@ -73,11 +73,18 @@ namespace Pandacap.Controllers
 
             Guid id = Guid.NewGuid();
 
-            async IAsyncEnumerable<PostImage> uploadImagesAsync()
+            var post = new Post
             {
-                if (model.File == null)
-                    yield break;
+                Body = model.MarkdownBody,
+                Id = id,
+                Images = [],
+                PublishedTime = DateTimeOffset.UtcNow,
+                Tags = model.DistinctTags.ToList(),
+                Type = PostType.StatusUpdate
+            };
 
+            if (model.File != null)
+            {
                 Guid blobId = Guid.NewGuid();
 
                 using var stream = model.File.OpenReadStream();
@@ -86,7 +93,7 @@ namespace Pandacap.Controllers
                     .GetBlobContainerClient("blobs")
                     .UploadBlobAsync($"{blobId}", stream, cancellationToken);
 
-                yield return new()
+                post.Images = [new()
                 {
                     Blob = new()
                     {
@@ -94,18 +101,8 @@ namespace Pandacap.Controllers
                         ContentType = model.File.ContentType
                     },
                     AltText = model.AltText
-                };
+                }];
             }
-
-            var post = new Post
-            {
-                Body = model.MarkdownBody,
-                Id = id,
-                Images = await uploadImagesAsync().ToListAsync(cancellationToken),
-                PublishedTime = DateTimeOffset.UtcNow,
-                Tags = model.DistinctTags.ToList(),
-                Type = PostType.StatusUpdate
-            };
 
             context.Posts.Add(post);
 
