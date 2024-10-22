@@ -89,7 +89,7 @@ namespace Pandacap.Controllers
 
             var blob = await blobServiceClient
                 .GetBlobContainerClient("blobs")
-                .GetBlobClient($"{avatar.Id}")
+                .GetBlobClient(avatar.BlobName)
                 .DownloadStreamingAsync();
 
             return File(

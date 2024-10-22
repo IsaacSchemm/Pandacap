@@ -9,10 +9,7 @@
 }
 
 <h1>
-    <img src="/Blobs/Avatar"
-         alt=""
-         float="left"
-         style="vertical-align: top" />
+    <img width="50" height="50" src="/Blobs/Avatar" alt="" />
     @appInfo.Username
 </h1>
 
@@ -202,21 +199,6 @@
 
                 <div class="card my-3">
                     <div class="card-header">
-                        Relationships
-                    </div>
-                    <div class="card-body text-center">
-                        <a asp-controller="Profile" asp-action="Followers" class="btn btn-outline-primary">
-                            Followers (@Model.FollowerCount)
-                        </a>
-
-                        <a asp-controller="Profile" asp-action="Following" class="btn btn-outline-primary">
-                            Following (@Model.FollowingCount)
-                        </a>
-                    </div>
-                </div>
-
-                <div class="card my-3">
-                    <div class="card-header">
                         Remote
                     </div>
                     <div class="card-body">
@@ -236,9 +218,19 @@
 
                 <div class="card my-3">
                     <div class="card-header">
-                        Outbound
+                        Actor
                     </div>
                     <div class="card-body text-center">
+                        <a asp-controller="Profile" asp-action="Followers" class="btn btn-outline-primary">
+                            Followers (@Model.FollowerCount)
+                        </a>
+
+                        <a asp-controller="Profile" asp-action="Following" class="btn btn-outline-primary">
+                            Following (@Model.FollowingCount)
+                        </a>
+
+                        <hr />
+
                         <a asp-controller="Gallery" asp-action="Composite" class="btn btn-outline-primary">
                             User posts
                         </a>
@@ -247,10 +239,10 @@
                             Addressed posts
                         </a>
 
-                        <hr>
+                        <hr />
 
-                        <a asp-controller="AddressedPosts" asp-action="CreateCommunityPost" class="btn btn-outline-primary">
-                            Create new community post
+                        <a asp-controller="Profile" asp-action="UploadAvatar" class="btn btn-outline-primary">
+                            Upload avatar
                         </a>
                     </div>
                 </div>

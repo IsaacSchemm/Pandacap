@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +17,13 @@ namespace Pandacap.Controllers
     public class ProfileController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         AtomRssFeedReader atomRssFeedReader,
+        BlobServiceClient blobServiceClient,
         PandacapDbContext context,
+        DeliveryInboxCollector deliveryInboxCollector,
         KeyProvider keyProvider,
         ActivityPubTranslator translator,
         UserManager<IdentityUser> userManager) : Controller
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported by Cosmos DB backend for EF Core")]
         public async Task<IActionResult> Index()
         {
             var someTimeAgo = DateTime.UtcNow.AddMonths(-3);
@@ -74,27 +76,6 @@ namespace Pandacap.Controllers
                 CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync()
             });
         }
-
-        //public async IAsyncEnumerable<string> RemigrateBody()
-        //{
-        //    await foreach (var post in context.Posts.OrderByDescending(x => x.PublishedTime).AsAsyncEnumerable())
-        //    {
-        //        string? oldBody = await context.UserPosts.Where(x => x.Id == post.Id).Select(x => x.Description).FirstOrDefaultAsync();
-        //        if (oldBody == null)
-        //        {
-        //            continue;
-        //        }
-
-        //        if (post.Body == oldBody)
-        //            continue;
-
-        //        post.Body = oldBody;
-
-        //        yield return post.Body;
-        //    }
-
-        //    await context.SaveChangesAsync();
-        //}
 
         public async Task<IActionResult> Search(string? q, Guid? next, int? count)
         {
@@ -291,6 +272,66 @@ namespace Pandacap.Controllers
         {
             var page = await context.RssFeeds.ToListAsync();
             return View(page);
+        }
+
+        [Authorize]
+        public IActionResult UploadAvatar()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadAvatar(
+            IFormFile file,
+            CancellationToken cancellationToken)
+        {
+            var oldAvatars = await context.Avatars.ToListAsync(cancellationToken);
+
+            var newAvatar = new Avatar
+            {
+                Id = Guid.NewGuid(),
+                ContentType = file.ContentType
+            };
+
+            using var stream = file.OpenReadStream();
+
+            await blobServiceClient
+                .GetBlobContainerClient("blobs")
+                .UploadBlobAsync(newAvatar.BlobName, stream, cancellationToken);
+
+            context.Avatars.RemoveRange(oldAvatars);
+            context.Avatars.Add(newAvatar);
+
+            var actorKey = await keyProvider.GetPublicKeyAsync();
+
+            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                includeGhosted: true,
+                includeFollows: true,
+                cancellationToken))
+            {
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        translator.PersonToUpdate(
+                            actorKey)),
+                    Inbox = inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            foreach (var avatar in oldAvatars)
+            {
+                await blobServiceClient
+                    .GetBlobContainerClient("blobs")
+                    .DeleteBlobIfExistsAsync(avatar.BlobName, cancellationToken: cancellationToken);
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
