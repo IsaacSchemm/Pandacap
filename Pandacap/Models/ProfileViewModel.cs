@@ -18,7 +18,6 @@ namespace Pandacap.Models
 
         public Post? MostRecentPost => Enumerable.Empty<Post>()
             .Concat(RecentArtwork)
-            .Concat(RecentJournalEntries)
             .Concat(RecentStatusUpdates)
             .OrderByDescending(x => x.PublishedTime)
             .FirstOrDefault();
