@@ -24,7 +24,7 @@ namespace Pandacap.Controllers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported by Cosmos DB backend for EF Core")]
         public async Task<IActionResult> Index()
         {
-            var someTimeAgo = DateTime.UtcNow.AddMonths(-6);
+            var someTimeAgo = DateTime.UtcNow.AddMonths(-3);
 
             string? userId = userManager.GetUserId(User);
 
@@ -62,8 +62,14 @@ namespace Pandacap.Controllers
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
                     .ToListAsync(),
-                RecentTextPosts = await context.Posts
-                    .Where(post => post.Type != PostType.Artwork)
+                RecentJournalEntries = await context.Posts
+                    .Where(post => post.Type == PostType.JournalEntry)
+                    .Where(post => post.PublishedTime >= someTimeAgo)
+                    .OrderByDescending(post => post.PublishedTime)
+                    .Take(4)
+                    .ToListAsync(),
+                RecentStatusUpdates = await context.Posts
+                    .Where(post => post.Type == PostType.StatusUpdate)
                     .Where(post => post.PublishedTime >= someTimeAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(4)
@@ -74,6 +80,27 @@ namespace Pandacap.Controllers
                 CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync()
             });
         }
+
+        //public async IAsyncEnumerable<string> RemigrateBody()
+        //{
+        //    await foreach (var post in context.Posts.OrderByDescending(x => x.PublishedTime).AsAsyncEnumerable())
+        //    {
+        //        string? oldBody = await context.UserPosts.Where(x => x.Id == post.Id).Select(x => x.Description).FirstOrDefaultAsync();
+        //        if (oldBody == null)
+        //        {
+        //            continue;
+        //        }
+
+        //        if (post.Body == oldBody)
+        //            continue;
+
+        //        post.Body = oldBody;
+
+        //        yield return post.Body;
+        //    }
+
+        //    await context.SaveChangesAsync();
+        //}
 
         public async Task<IActionResult> Search(string? q, Guid? next, int? count)
         {

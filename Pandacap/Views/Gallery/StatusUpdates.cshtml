@@ -74,74 +74,62 @@ else
             }
         }
 
-        @if (showThumbnails)
-        {
-            <div class="container-fluid">
-                <div class="row">
-                    @foreach (var item in group)
+        <div class="container-fluid">
+            <div class="row">
+                @foreach (var item in group)
+                {
+                    if (item is Post post && post.Type == PostType.StatusUpdate)
                     {
-                        string? thumbnailUrl = item.ThumbnailUrls.FirstOrDefault();
-                        <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
+                        <div class="col-12">
+                            <partial name="_StatusUpdate" model="@post" />
+                        </div>
+                        continue;
+                    }
+
+                    string? thumbnailUrl = item.ThumbnailUrls.FirstOrDefault();
+                    <div class="col-12 mb-3 @(showThumbnails ? "col-sm-4 col-md-3 text-center" : "")">
+                        @if (showThumbnails)
+                        {
                             <a href="@item.LinkUrl" aria-hidden="true">
                                 <img src="@(thumbnailUrl ?? "/images/trgray.svg")"
-                                     alt=""
-                                     referrerpolicy="no-referrer"
-                                     class="feed-image" />
+                                        alt=""
+                                        referrerpolicy="no-referrer"
+                                        class="feed-image" />
                             </a>
-                            <label style="max-width: 100%; max-height: 3rem; overflow: hidden">
-                                @if (Model.AllowDismiss)
-                                {
-                                    <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                                }
-                                <a href="@item.LinkUrl">@item.DisplayTitle</a>
-                            </label>
-                        </div>
-                    }
-                </div>
-            </div>
-        }
-        else
-        {
-            foreach (var item in group)
-            {
-                if (item is Post post && post.Type == PostType.StatusUpdate)
-                {
-                    <partial name="_StatusUpdate" model="@post" />
-                    continue;
-                }
-
-                <div class="mb-3">
-                    <label>
-                        @if (Model.AllowDismiss)
-                        {
-                            <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                         }
-                        <span style="display: inline-block; vertical-align: top">
+                        <label class="@(showThumbnails ? "with-thumbnail" : "")">
+                            @if (Model.AllowDismiss)
+                            {
+                                <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                            }
                             <a href="@item.LinkUrl">@item.DisplayTitle</a>
-                            <br />
-                            <span class="small text-muted">@item.Timestamp.UtcDateTime.ToLongDateString()</span>
-                        </span>
-                    </label>
-                    @if (item is RssFeedItem feedItem)
-                    {
-                        foreach (var enclosure in feedItem.Enclosures.Where(e => e.MediaType == "audio/mpeg"))
+                            @if (item is Post)
+                            {
+                                <br />
+                                <span class="text-muted">(@item.Timestamp.UtcDateTime.ToLongDateString())</span>
+                            }
+                        </label>
+                        @if (item is RssFeedItem feedItem)
                         {
-                            <div class="mt-3">
-                                <a class="btn btn-outline-primary btn-sm" href="@enclosure.Url">
-                                    Download
-                                </a>
-                                @if (enclosure.MediaType == "audio/mpeg")
-                                {
-                                    <a class="btn btn-outline-secondary btn-sm" asp-controller="Podcast" asp-action="SegmentZip" asp-route-url="@enclosure.Url" asp-route-seconds="300">
-                                        Split (.wma)
+                            foreach (var enclosure in feedItem.Enclosures.Where(e => e.MediaType == "audio/mpeg"))
+                            {
+                                <div class="mt-3">
+                                    <a class="btn btn-outline-primary btn-sm" href="@enclosure.Url">
+                                        Download
                                     </a>
-                                }
-                            </div>
+                                    @if (enclosure.MediaType == "audio/mpeg")
+                                    {
+                                        <a class="btn btn-outline-secondary btn-sm" asp-controller="Podcast" asp-action="SegmentZip" asp-route-url="@enclosure.Url" asp-route-seconds="300">
+                                            Split (.wma)
+                                        </a>
+                                    }
+                                </div>
+                            }
                         }
-                    }
-                </div>
-            }
-        }
+                    </div>
+                }
+            </div>
+        </div>
     }
 
     @if (Model.AllowDismiss)
@@ -187,3 +175,11 @@ else
         }
     });
 </script>
+
+<style type="text/css">
+    label.with-thumbnail {
+        max-width: 100%;
+        max-height: 3rem;
+        overflow: hidden;
+    }
+</style>

@@ -8,6 +8,10 @@
     background: rgba(128, 128, 128, 0.05);
 }
 
+.post-body :last-child {
+    margin-bottom: 1rem;
+}
+
 .comment .comment {
     border-left: 0.125rem solid lightgray;
     padding-left: 1.5rem;

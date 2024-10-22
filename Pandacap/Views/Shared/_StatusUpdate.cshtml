@@ -1,0 +1,28 @@
+﻿@using Pandacap.Data
+@using Pandacap.LowLevel
+@inject ApplicationInformation appInfo
+@inject IdMapper mapper
+@model Post
+
+<div class="card p-2 mb-3">
+    <p>
+        <img height="50" src="@mapper.AvatarUrl" alt="" />
+        <span style="display: inline-block; vertical-align: top">
+            <strong>
+                @appInfo.Username
+            </strong>
+            <br />
+            <small>
+                @@@(appInfo.Username)@@@(appInfo.HandleHostname)
+            </small>
+        </span>
+    </p>
+    <div class="post-body">
+        @Html.Raw(Model.Html)
+    </div>
+    <div class="small">
+        <a href="/UserPosts/@Model.Id">
+            @Model.PublishedTime.UtcDateTime.ToLongDateString()
+        </a>
+    </div>
+</div>

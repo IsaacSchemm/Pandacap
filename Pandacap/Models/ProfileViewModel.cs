@@ -9,7 +9,8 @@ namespace Pandacap.Models
         public IEnumerable<string> WeasylUsernames { get; set; } = [];
 
         public IEnumerable<Post> RecentArtwork { get; set; } = [];
-        public IEnumerable<Post> RecentTextPosts { get; set; } = [];
+        public IEnumerable<Post> RecentJournalEntries { get; set; } = [];
+        public IEnumerable<Post> RecentStatusUpdates { get; set; } = [];
 
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
@@ -18,7 +19,8 @@ namespace Pandacap.Models
 
         public Post? MostRecentPost => Enumerable.Empty<Post>()
             .Concat(RecentArtwork)
-            .Concat(RecentTextPosts)
+            .Concat(RecentJournalEntries)
+            .Concat(RecentStatusUpdates)
             .OrderByDescending(x => x.PublishedTime)
             .FirstOrDefault();
     }

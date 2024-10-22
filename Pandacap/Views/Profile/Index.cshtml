@@ -169,14 +169,14 @@
     </p>
 }
 
-@if (Model.RecentTextPosts.Any())
+@if (Model.RecentJournalEntries.Any())
 {
     <h2>
-        Recent posts
+        Recent journal entries
     </h2>
 
     <p>
-        @foreach (IPost post in Model.RecentTextPosts)
+        @foreach (IPost post in Model.RecentJournalEntries)
         {
             <div>
                 <a href="/UserPosts/@post.Id">@post.DisplayTitle</a>
@@ -186,7 +186,27 @@
     </p>
 
     <p>
-        <a asp-controller="Gallery" asp-action="TextPosts">
+        <a asp-controller="Gallery" asp-action="Journals">
+            View more &raquo;
+        </a>
+    </p>
+}
+
+@if (Model.RecentStatusUpdates.Any())
+{
+    <h2>
+        Recent status updates
+    </h2>
+
+    <p>
+        @foreach (Post post in Model.RecentStatusUpdates)
+        {
+            <partial name="_StatusUpdate" model="@post" />
+        }
+    </p>
+
+    <p>
+        <a asp-controller="Gallery" asp-action="StatusUpdates">
             View more &raquo;
         </a>
     </p>
