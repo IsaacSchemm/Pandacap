@@ -30,6 +30,7 @@ namespace Pandacap.Controllers
         }
 
         [Route("Blobs/UserPosts/{postId}/{blobId}")]
+        [ResponseCache(Duration = 604800, Location = ResponseCacheLocation.Any)]
         public async Task<IActionResult> Images(Guid postId, Guid blobId)
         {
             var post = await context.Posts.Where(p => p.Id == postId).SingleOrDefaultAsync();
