@@ -24,24 +24,24 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .SkipUntil(post => post.LikeGuid == next || next == null);
 
+            var listPage = await activityPubPosts.AsListPage(count ?? 20);
+
             if (Request.IsActivityPub())
             {
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.AsLikedCollectionPage(
                             Request.GetEncodedUrl(),
-                            await activityPubPosts.AsListPage(count ?? 20))),
+                            listPage)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
 
-            return View("List", new ListViewModel<IPost>
+            return View("List", new ListViewModel
             {
                 Title = "Favorites",
                 GroupByUser = true,
-                Items = await activityPubPosts
-                    .OfType<IPost>()
-                    .AsListPage(count ?? 20)
+                Items = listPage
             });
         }
 

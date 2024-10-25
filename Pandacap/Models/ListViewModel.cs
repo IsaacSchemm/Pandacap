@@ -1,8 +1,9 @@
-﻿using Pandacap.Types;
+﻿using Pandacap.LowLevel;
+using Pandacap.Types;
 
 namespace Pandacap.Models
 {
-    public class ListViewModel<T>
+    public class ListViewModel
     {
         public string? Title { get; set; }
 
@@ -16,6 +17,6 @@ namespace Pandacap.Models
 
         public string? Q { get; set; }
 
-        public required ListPage<T> Items { get; set; }
+        public required ListPage Items { get; set; }
     }
 }

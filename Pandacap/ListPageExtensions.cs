@@ -1,6 +1,6 @@
 ﻿using Microsoft.FSharp.Collections;
+using Pandacap.Data;
 using Pandacap.LowLevel;
-using Pandacap.Types;
 
 namespace Pandacap
 {
@@ -13,14 +13,13 @@ namespace Pandacap
         /// Creates a ListPage from a given asynchronous sequence.
         /// The sequence should have at least count + 1 items, unless it represents the end of the total set of items.
         /// </summary>
-        /// <typeparam name="T">The type of item in the list</typeparam>
         /// <param name="asyncSeq">The source asynchronous sequence</param>
         /// <param name="count">The number of items per page</param>
         /// <returns></returns>
-        public static async Task<ListPage<T>> AsListPage<T>(this IAsyncEnumerable<T> asyncSeq, int count)
+        public static async Task<ListPage> AsListPage(this IAsyncEnumerable<IPost> asyncSeq, int count)
         {
-            List<T> accumulator = [];
-            List<T> next = [];
+            List<IPost> accumulator = [];
+            List<IPost> next = [];
 
             await foreach (var item in asyncSeq)
             {
@@ -32,7 +31,7 @@ namespace Pandacap
                     break;
             }
 
-            return new ListPage<T>(
+            return new ListPage(
                 SeqModule.ToList(accumulator),
                 SeqModule.TryExactlyOne(next));
         }

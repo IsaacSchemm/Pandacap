@@ -109,10 +109,9 @@ namespace Pandacap.Controllers
 
                     return query.All(q => getKeywords().Contains(q, StringComparer.InvariantCultureIgnoreCase));
                 })
-                .OfType<IPost>()
                 .AsListPage(count ?? 20);
 
-            return View("List", new ListViewModel<IPost>
+            return View("List", new ListViewModel
             {
                 Title = "Search",
                 ShowThumbnails = ThumbnailMode.Always,

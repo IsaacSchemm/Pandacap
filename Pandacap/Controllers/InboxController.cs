@@ -67,7 +67,7 @@ namespace Pandacap.Controllers
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel<IPost>
+            return View("List", new ListViewModel
             {
                 Title = "Inbox (Image Posts)",
                 GroupByUser = true,
@@ -125,7 +125,7 @@ namespace Pandacap.Controllers
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel<IPost>
+            return View("List", new ListViewModel
             {
                 Title = "Inbox (Text Posts)",
                 ShowThumbnails = ThumbnailMode.Never,
@@ -166,7 +166,7 @@ namespace Pandacap.Controllers
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel<IPost>
+            return View("List", new ListViewModel
             {
                 Title = "Inbox (Shares)",
                 ShowThumbnails = ThumbnailMode.Always,
@@ -195,7 +195,7 @@ namespace Pandacap.Controllers
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel<IPost>
+            return View("List", new ListViewModel
             {
                 Title = "Inbox (Podcasts)",
                 ShowThumbnails = ThumbnailMode.Never,

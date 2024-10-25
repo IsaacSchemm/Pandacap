@@ -213,16 +213,22 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "first" mapper.FirstOutboxPageId
     ]
 
-    member _.AsOutboxCollectionPage(currentPage: string, posts: ListPage<Post>) = dict [
+    member _.AsOutboxCollectionPage(currentPage: string, posts: ListPage) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" mapper.OutboxRootId
 
-        pair "orderedItems" [for p in posts.DisplayList do mapper.GetObjectId(p)]
+        pair "orderedItems" [
+            for x in posts.Current do
+                match x with
+                | :? Post as p -> mapper.GetObjectId(p)
+                | _ -> ()
+        ]
+
         match posts.Next with
         | None -> ()
         | Some next ->
-            pair "next" (mapper.GetOutboxPageId(next.Id, List.length posts.DisplayList))
+            pair "next" $"{mapper.FirstOutboxPageId}?next={next.Id}&count={List.length posts.Current}"
     ]
 
     member _.AsLikedCollection(posts: int) = dict [
@@ -232,17 +238,22 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "first" mapper.LikedPageId
     ]
 
-    member _.AsLikedCollectionPage(currentPage: string, posts: ListPage<RemoteActivityPubFavorite>) = dict [
+    member _.AsLikedCollectionPage(currentPage: string, posts: ListPage) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" mapper.LikedRootId
 
-        pair "orderedItems" [for p in posts.DisplayList do p.ObjectId]
+        pair "orderedItems" [
+            for x in posts.Current do
+                match x with
+                | :? RemoteActivityPubFavorite as f -> f.ObjectId
+                | _ -> ()
+        ]
 
         match posts.Next with
         | None -> ()
         | Some next ->
-            pair "next" $"{mapper.LikedPageId}?next={next.LikeGuid}&count={Seq.length posts.DisplayList}"
+            pair "next" $"{mapper.LikedPageId}?next={next.Id}&count={List.length posts.Current}"
     ]
 
     member _.Follow(followGuid: Guid, remoteActorId: string) = dict [

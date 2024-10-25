@@ -45,22 +45,20 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
+            var listPage = await posts.AsListPage(take);
+
             if (Request.IsActivityPub())
             {
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.AsOutboxCollectionPage(
                             Request.GetEncodedUrl(),
-                            await posts.AsListPage(take))),
+                            listPage)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
 
-            var listPage = await posts
-                .OfType<IPost>()
-                .AsListPage(take);
-
-            return View("List", new ListViewModel<IPost>
+            return View("List", new ListViewModel
             {
                 Title = title,
                 ShowThumbnails = thumbnailMode,
@@ -150,7 +148,7 @@ namespace Pandacap.Controllers
                 .OfType<IPost>()
                 .AsListPage(count ?? 20);
 
-            return View("List", new ListViewModel<IPost>
+            return View("List", new ListViewModel
             {
                 Title = "Addressed Posts",
                 Items = posts
