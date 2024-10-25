@@ -5,6 +5,21 @@ namespace Pandacap.HighLevel
 {
     public class JsonLdExpansionService
     {
+        private readonly Dictionary<string, RemoteDocument> _contexts = [];
+
+        private class CustomDocumentLoader(JsonLdExpansionService service) : DocumentLoader
+        {
+            public override RemoteDocument LoadDocument(string url)
+            {
+                if (service._contexts.TryGetValue(url, out RemoteDocument? cached))
+                    return cached;
+
+                var fetched = base.LoadDocument(url);
+                service._contexts.Add(url, fetched);
+                return fetched;
+            }
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Used in dependency injection")]
         public JToken Expand(JObject jObject)
         {
@@ -18,7 +33,10 @@ namespace Pandacap.HighLevel
                 jObject["@context"] = new JArray(new JValue("https://www.w3.org/ns/activitystreams"));
 
                 // Retry
-                return JsonLdProcessor.Expand(jObject).Single();
+                return JsonLdProcessor.Expand(jObject, new JsonLdOptions
+                {
+                    documentLoader = new CustomDocumentLoader(this)
+                }).Single();
             }
         }
     }
