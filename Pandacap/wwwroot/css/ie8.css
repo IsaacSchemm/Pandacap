@@ -16,3 +16,7 @@ img.feed-image {
     border-top-color: ThreeDHighlight;
     border-left-color: ThreeDHighlight;
 }
+
+.post-body p {
+    margin-bottom: 0;
+}

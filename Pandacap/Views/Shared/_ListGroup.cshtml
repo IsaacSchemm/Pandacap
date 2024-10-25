@@ -38,12 +38,14 @@
             <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
                 @if (thumbnail != null)
                 {
-                    <a href="@item.LinkUrl" aria-hidden="true">
-                        <img src="@thumbnail.Url"
-                                alt="@thumbnail.AltText"
-                                referrerpolicy="no-referrer"
-                                class="feed-image" />
-                    </a>
+                    <div class="card">
+                        <a href="@item.LinkUrl" aria-hidden="true">
+                            <img src="@thumbnail.Url"
+                                 alt="@thumbnail.AltText"
+                                 referrerpolicy="no-referrer"
+                                 class="feed-image" />
+                        </a>
+                    </div>
                 }
                 @if (item is Post post && post.Type == PostType.StatusUpdate)
                 {
