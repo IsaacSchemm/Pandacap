@@ -12,7 +12,6 @@
     <Compile Include="FavoritesCacheEntry.fs" />
     <Compile Include="NotificationPlatform.fs" />
     <Compile Include="PostPlatform.fs" />
-    <Compile Include="ThumbnailMode.fs" />
   </ItemGroup>
 
 </Project>

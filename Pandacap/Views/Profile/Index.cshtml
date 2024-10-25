@@ -139,25 +139,7 @@
         Newest artwork
     </h2>
 
-    <div class="container-fluid">
-        <div class="row">
-            @foreach (IPost post in Model.RecentArtwork)
-            {
-                foreach (string thumbnailUrl in post.ThumbnailUrls)
-                {
-                    <div class="col-sm-4 col-md-3 text-center my-4">
-                        <a href="/UserPosts/@post.Id">
-                            <img src="@thumbnailUrl"
-                                 alt=""
-                                 referrerpolicy="no-referrer"
-                                 class="feed-image" />
-                            @post.DisplayTitle
-                        </a>
-                    </div>
-                }
-            }
-        </div>
-    </div>
+    <partial name="_ListGroup" model="@Model.RecentArtwork" />
 
     <p>
         <a asp-controller="Gallery" asp-action="Artwork">
@@ -172,12 +154,7 @@
         Recent status updates
     </h2>
 
-    <p>
-        @foreach (Post post in Model.RecentStatusUpdates)
-        {
-            <partial name="_StatusUpdate" model="@post" />
-        }
-    </p>
+    <partial name="_ListGroup" model="@Model.RecentStatusUpdates" />
 
     <p>
         <a asp-controller="Gallery" asp-action="StatusUpdates">

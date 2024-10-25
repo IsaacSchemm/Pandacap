@@ -28,7 +28,11 @@ type RemoteActivityPubFavorite() =
     member val Attachments = new ResizeArray<RemoteActivityPubFavoriteImage>() with get, set
 
     interface IPost with
-        member this.Id = $"{this.LikeGuid}"
+        member this.Badges = [
+            match Uri.TryCreate(this.CreatedBy, UriKind.Absolute) with
+            | true, uri -> PostPlatform.GetBadge ActivityPub |> Badge.WithParenthetical uri.Host
+            | false, _ -> PostPlatform.GetBadge ActivityPub
+        ]
         member this.DisplayTitle =
             if not (String.IsNullOrWhiteSpace this.Name) then
                 this.Name
@@ -36,14 +40,18 @@ type RemoteActivityPubFavorite() =
                 TextConverter.FromHtml this.Content
             else
                 this.ObjectId
+        member this.Id = $"{this.LikeGuid}"
+        member _.IsDismissable = false
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
         member this.ProfileUrl = this.CreatedBy
-        member this.Badges = [
-            match Uri.TryCreate(this.CreatedBy, UriKind.Absolute) with
-            | true, uri -> PostPlatform.GetBadge ActivityPub |> Badge.WithParenthetical uri.Host
-            | false, _ -> PostPlatform.GetBadge ActivityPub
+        member this.Thumbnails = [
+            if not this.Sensitive then
+                for a in this.Attachments do {
+                    new IPostThumbnail with
+                        member _.AltText = a.Name
+                        member _.Url = a.Url
+                }
         ]
         member this.Timestamp = this.CreatedAt
-        member this.ThumbnailUrls = this.Attachments |> Seq.map (fun a -> a.Url)
         member this.Usericon = this.Usericon
         member this.Username = this.Username

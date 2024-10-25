@@ -33,10 +33,6 @@ type InboxActivityStreamsPost() =
     member this.TextContent = TextConverter.FromHtml this.Content
 
     interface IPost with
-        member this.Id = $"{this.Id}"
-        member this.Username = this.PostedBy.Username
-        member this.Usericon = this.PostedBy.Usericon
-        member this.ProfileUrl = this.PostedBy.Id
         member this.Badges = [
             match Uri.TryCreate(this.PostedBy.Id, UriKind.Absolute) with
             | true, uri -> PostPlatform.GetBadge ActivityPub |> Badge.WithParenthetical uri.Host
@@ -49,6 +45,18 @@ type InboxActivityStreamsPost() =
                 attachment.Name
             $"{this.ObjectId}"
         })
-        member this.Timestamp = this.PostedAt
+        member this.Id = $"{this.Id}"
+        member _.IsDismissable = true
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
-        member this.ThumbnailUrls = [if not this.Sensitive then for a in this.Attachments do a.Url]
+        member this.ProfileUrl = this.PostedBy.Id
+        member this.Thumbnails = [
+            if not this.Sensitive then
+                for a in this.Attachments do {
+                    new IPostThumbnail with
+                        member _.AltText = a.Name
+                        member _.Url = a.Url
+                }
+        ]
+        member this.Timestamp = this.PostedAt
+        member this.Username = this.PostedBy.Username
+        member this.Usericon = this.PostedBy.Usericon

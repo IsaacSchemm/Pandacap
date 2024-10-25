@@ -41,107 +41,15 @@ else
         </p>
     }
 
-    var groups = Model.GroupByUser
-        ? Model.Items.Current.GroupBy(item => new { Username = (string?)item.Username, ProfileUrl = (string?)item.ProfileUrl })
-        : Model.Items.Current.GroupBy(item => new { Username = (string?)null, ProfileUrl = (string?)null });
+    var groups = Model.Items.Current.GroupBy(item => new {
+        Username = item.Username,
+        ProfileUrl = item.ProfileUrl,
+        HasThumbnails = item.Thumbnails.Any()
+    });
 
     foreach (var group in groups)
     {
-        bool showThumbnails =
-            Model.ShowThumbnails.IsAlways ? true
-            : Model.ShowThumbnails.IsNever ? false
-            : group.Any(item => item.ThumbnailUrls.Any());
-
-        if (!string.IsNullOrEmpty(group.Key.Username))
-        {
-            <h1>
-                @foreach (string icon in group.Select(p => p.Usericon).Take(1))
-                {
-                    <img height="50" src="@icon" alt="" />
-                }
-                <a href="@group.Key.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
-                    <strong>
-                        @group.Key.Username
-                    </strong>
-                </a>
-            </h1>
-
-            foreach (var badge in group.SelectMany(p => p.Badges).Distinct())
-            {
-                <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color">
-                    @badge.Text
-                </span>
-            }
-        }
-
-        @if (showThumbnails)
-        {
-            <div class="container-fluid">
-                <div class="row">
-                    @foreach (var item in group)
-                    {
-                        string? thumbnailUrl = item.ThumbnailUrls.FirstOrDefault();
-                        <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
-                            <a href="@item.LinkUrl" aria-hidden="true">
-                                <img src="@(thumbnailUrl ?? "/images/trgray.svg")"
-                                     alt=""
-                                     referrerpolicy="no-referrer"
-                                     class="feed-image" />
-                            </a>
-                            <label style="max-width: 100%; max-height: 3rem; overflow: hidden">
-                                @if (Model.AllowDismiss)
-                                {
-                                    <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                                }
-                                <a href="@item.LinkUrl">@item.DisplayTitle</a>
-                            </label>
-                        </div>
-                    }
-                </div>
-            </div>
-        }
-        else
-        {
-            foreach (var item in group)
-            {
-                if (item is Post post && post.Type == PostType.StatusUpdate)
-                {
-                    <partial name="_StatusUpdate" model="@post" />
-                    continue;
-                }
-
-                <div class="mb-3">
-                    <label>
-                        @if (Model.AllowDismiss)
-                        {
-                            <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                        }
-                        <span style="display: inline-block; vertical-align: top">
-                            <a href="@item.LinkUrl">@item.DisplayTitle</a>
-                            <br />
-                            <span class="small text-muted">@item.Timestamp.UtcDateTime.ToLongDateString()</span>
-                        </span>
-                    </label>
-                    @if (item is RssFeedItem feedItem)
-                    {
-                        foreach (var enclosure in feedItem.Enclosures.Where(e => e.MediaType == "audio/mpeg"))
-                        {
-                            <div class="mt-3">
-                                <a class="btn btn-outline-primary btn-sm" href="@enclosure.Url">
-                                    Download
-                                </a>
-                                @if (enclosure.MediaType == "audio/mpeg")
-                                {
-                                    <a class="btn btn-outline-secondary btn-sm" asp-controller="Podcast" asp-action="SegmentZip" asp-route-url="@enclosure.Url" asp-route-seconds="300">
-                                        Split (.wma)
-                                    </a>
-                                }
-                            </div>
-                        }
-                    }
-                </div>
-            }
-        }
+        <partial name="_ListGroup" model="@group" />
     }
 
     @if (Model.AllowDismiss)

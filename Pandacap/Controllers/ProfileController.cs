@@ -114,7 +114,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = "Search",
-                ShowThumbnails = ThumbnailMode.Always,
                 Q = q,
                 Items = posts
             });

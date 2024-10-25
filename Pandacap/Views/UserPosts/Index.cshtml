@@ -50,9 +50,7 @@
     </p>
 }
 
-<div class="post-body">
-    @Html.Raw(Model.Post.Html)
-</div>
+@Html.Raw(Model.Post.Html)
 
 @if (Model.Post.Tags.Any())
 {

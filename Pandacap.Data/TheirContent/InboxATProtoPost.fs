@@ -32,6 +32,11 @@ type InboxATProtoPost() =
     member val DismissedAt = nullDateTimeOffset with get, set
 
     interface IPost with
+        member this.Badges = [
+            match Option.ofObj this.PostedBy.PDS with
+            | Some pds -> PostPlatform.GetBadge ATProto |> Badge.WithParenthetical pds
+            | None -> PostPlatform.GetBadge ATProto
+        ]
         member this.DisplayTitle = ExcerptGenerator.FromText (seq {
             this.Text
             for image in this.Images do
@@ -39,14 +44,17 @@ type InboxATProtoPost() =
             $"{this.CID}"
         })
         member this.Id = $"{this.Id}"
+        member _.IsDismissable = true
         member this.LinkUrl = $"https://bsky.app/profile/{this.Author.DID}/post/{this.RecordKey}"
         member this.ProfileUrl = $"https://bsky.app/profile/{this.PostedBy.DID}"
-        member this.Badges = [
-            match Option.ofObj this.PostedBy.PDS with
-            | Some pds -> PostPlatform.GetBadge ATProto |> Badge.WithParenthetical pds
-            | None -> PostPlatform.GetBadge ATProto
+        member this.Thumbnails = [
+            if not this.IsAdultContent then
+                for image in this.Images do {
+                    new IPostThumbnail with
+                        member _.AltText = image.Alt
+                        member _.Url = image.Thumb
+                }
         ]
-        member this.ThumbnailUrls = [if not this.IsAdultContent then for i in this.Images do i.Thumb]
         member this.Timestamp = this.IndexedAt
         member this.Usericon = this.PostedBy.Avatar
         member this.Username =

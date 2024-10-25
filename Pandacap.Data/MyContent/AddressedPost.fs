@@ -37,16 +37,17 @@ type AddressedPost() =
     |}
 
     interface IPost with
+        member _.Badges = []
         member this.DisplayTitle = ExcerptGenerator.FromText (seq {
             this.Title
             TextConverter.FromHtml this.HtmlContent
             $"{this.Id}"
         })
         member this.Id = $"{this.Id}"
+        member _.IsDismissable = false
         member this.LinkUrl = $"/AddressedPosts/{this.Id}"
-        member _.Badges = []
         member _.ProfileUrl = null
-        member _.ThumbnailUrls = []
+        member _.Thumbnails = []
         member this.Timestamp = this.PublishedTime
         member _.Usericon = null
         member _.Username = null

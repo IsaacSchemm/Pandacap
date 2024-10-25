@@ -7,8 +7,6 @@ namespace Pandacap.Models
     {
         public string? Title { get; set; }
 
-        public ThumbnailMode ShowThumbnails { get; set; } = ThumbnailMode.Auto;
-
         public bool GroupByUser { get; set; }
 
         public bool CanBeSyndicationFeed { get; set; }

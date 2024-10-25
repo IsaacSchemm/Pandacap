@@ -63,30 +63,23 @@ type Post() =
             yield! i.Thumbnails
     }
 
-    [<NotMapped>]
-    member this.Thumbnails =
-        this.Images
-        |> Seq.map (fun image -> image.Thumbnail)
-        |> Seq.truncate 1
-
     interface IPost with
+        member _.Badges = []
         member this.DisplayTitle =
-            seq {
-                if this.Type <> PostType.StatusUpdate then
-                    this.Title
-                this.Body
-                $"{this.Id}"
-            }
-            |> Seq.where (not << String.IsNullOrEmpty)
-            |> Seq.head
+            match this.Type with
+            | PostType.StatusUpdate -> "Status update"
+            | _ -> this.Title
+        member _.IsDismissable = false
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/UserPosts/{this.Id}"
-        member _.Badges = []
         member _.ProfileUrl = null
         member this.Timestamp = this.PublishedTime
-        member this.ThumbnailUrls = seq {
-            for thumb in this.Thumbnails do
-                $"/Blobs/UserPosts/{this.Id}/{thumb.Id}"
+        member this.Thumbnails = seq {
+            for image in this.Images do {
+                new IPostThumbnail with
+                    member _.AltText = image.AltText
+                    member _.Url = $"/Blobs/UserPosts/{this.Id}/{image.Thumbnail.Id}"
+            }
         }
         member _.Usericon = null
         member _.Username = null

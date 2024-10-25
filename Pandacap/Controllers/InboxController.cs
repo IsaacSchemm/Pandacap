@@ -42,7 +42,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .Where(item => !item.AudioFiles.Any())
                 .OfType<IPost>()
-                .Where(x => x.ThumbnailUrls.Any());
+                .Where(x => x.Thumbnails.Any());
 
             var source4 = context.InboxATProtoPosts
                 .Where(a => a.IndexedAt <= startTime)
@@ -71,7 +71,6 @@ namespace Pandacap.Controllers
             {
                 Title = "Inbox (Image Posts)",
                 GroupByUser = true,
-                ShowThumbnails = ThumbnailMode.Always,
                 AllowDismiss = true,
                 Items = posts
             });
@@ -100,7 +99,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .Where(item => !item.AudioFiles.Any())
                 .OfType<IPost>()
-                .Where(x => !x.ThumbnailUrls.Any());
+                .Where(x => !x.Thumbnails.Any());
 
             var source4 = context.InboxATProtoPosts
                 .Where(a => a.IndexedAt <= startTime)
@@ -128,7 +127,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = "Inbox (Text Posts)",
-                ShowThumbnails = ThumbnailMode.Never,
                 GroupByUser = true,
                 AllowDismiss = true,
                 Items = posts
@@ -169,7 +167,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = "Inbox (Shares)",
-                ShowThumbnails = ThumbnailMode.Always,
                 GroupByUser = true,
                 AllowDismiss = true,
                 Items = posts
@@ -198,7 +195,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = "Inbox (Podcasts)",
-                ShowThumbnails = ThumbnailMode.Never,
                 GroupByUser = true,
                 AllowDismiss = true,
                 Items = source

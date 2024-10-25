@@ -30,24 +30,33 @@ type RssFeedItem() =
     }
 
     interface IPost with
-        member this.DisplayTitle = this.Title |> orString $"{this.Id}"
-        member this.Id = $"{this.Id}"
-        member this.LinkUrl = this.Url
-        member this.ProfileUrl = this.FeedWebsiteUrl
         member this.Badges = [
             match Uri.TryCreate(this.Url, UriKind.Absolute) with
             | true, uri -> PostPlatform.GetBadge RSS_Atom |> Badge.WithParenthetical uri.Host
             | false, _ -> PostPlatform.GetBadge RSS_Atom
         ]
-        member this.ThumbnailUrls =
+        member this.DisplayTitle = this.Title |> orString $"{this.Id}"
+        member this.Id = $"{this.Id}"
+        member _.IsDismissable = true
+        member this.LinkUrl = this.Url
+        member this.ProfileUrl = this.FeedWebsiteUrl
+        member this.Thumbnails =
             try
-                let html = HtmlDocument.Parse (this.HtmlDescription |> orString "")
-
-                html.Descendants("img")
-                |> Seq.choose (fun node -> node.TryGetAttribute("src"))
-                |> Seq.map (fun attr -> attr.Value())
-            with _ ->
-                Seq.empty
+                let html = HtmlDocument.Parse(this.HtmlDescription |> orString "") in seq {
+                    for node in html.Descendants("img") do
+                        match node.TryGetAttribute("src") with
+                        | None -> ()
+                        | Some srcAttr -> {
+                            new IPostThumbnail with
+                                member _.AltText =
+                                    node.TryGetAttribute("alt")
+                                    |> Option.map (fun attr -> attr.Value())
+                                    |> Option.defaultValue ""
+                                member _.Url = srcAttr.Value()
+                        }
+                }
+            with
+            | _ -> Seq.empty
         member this.Timestamp = this.Timestamp
         member this.Usericon = this.FeedIconUrl
         member this.Username = this.FeedWebsiteUrl

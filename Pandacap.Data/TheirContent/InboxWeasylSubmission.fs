@@ -26,15 +26,20 @@ type InboxWeasylSubmission() =
     member val DismissedAt = nullDateTimeOffset with get, set
 
     interface IPost with
+        member _.Badges = [PostPlatform.GetBadge Weasyl]
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
+        member _.IsDismissable = true
         member this.LinkUrl = this.Url
         member this.ProfileUrl = $"https://www.weasyl.com/~{Uri.EscapeDataString(this.PostedBy.Login)}"
-        member _.Badges = [PostPlatform.GetBadge Weasyl]
-        member this.ThumbnailUrls =
-            match this.Rating with
-            | "general" -> this.Thumbnails |> Seq.map (fun i -> i.Url)
-            | _ -> Seq.empty
+        member this.Thumbnails = seq {
+            if this.Rating = "general" then
+                for thumb in this.Thumbnails do {
+                    new IPostThumbnail with
+                        member _.AltText = ""
+                        member _.Url = thumb.Url
+                }
+        }
         member this.Timestamp = this.PostedAt
         member this.Usericon = this.PostedBy.Avatar
         member this.Username = this.PostedBy.DisplayName
