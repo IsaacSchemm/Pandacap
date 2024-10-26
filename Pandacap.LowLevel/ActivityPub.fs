@@ -35,6 +35,7 @@ module ActivityPubSerializer =
 type ActivityPubActorInformation = {
     key: ActorKey
     avatars: Avatar seq
+    inboxes: string seq
     bluesky: string seq
     deviantArt: string seq
     weasyl: string seq
@@ -56,7 +57,25 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "liked" mapper.LikedRootId
         pair "preferredUsername" appInfo.Username
         pair "name" appInfo.Username
-        pair "summary" $"<p>Art gallery hosted by <a href='{appInfo.WebsiteUrl}'>{WebUtility.HtmlEncode(appInfo.ApplicationName)}</a>.</p>"
+        pair "summary" (String.concat "" [
+            $"<p>Art gallery hosted by <a href='{appInfo.WebsiteUrl}'>{WebUtility.HtmlEncode(appInfo.ApplicationName)}</a>.</p>"
+
+            let hosts = seq {
+                for id in info.inboxes do
+                    match Uri.TryCreate(id, UriKind.Absolute) with
+                    | true, uri -> uri.Host
+                    | false, _ -> ()
+            }
+
+            let messages = seq {
+                for host in hosts do
+                    if BridgyFed.Domains |> Seq.contains host then
+                        for did in info.bluesky do
+                            $"<p>Main Bluesky account: https://bsky.app/profile/{did}</p>"
+            }
+
+            yield! Seq.distinct messages
+        ])
         pair "url" mapper.ActorId
         pair "discoverable" true
         pair "indexable" true

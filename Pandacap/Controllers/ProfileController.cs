@@ -24,7 +24,8 @@ namespace Pandacap.Controllers
         DeliveryInboxCollector deliveryInboxCollector,
         KeyProvider keyProvider,
         ActivityPubTranslator translator,
-        UserManager<IdentityUser> userManager) : Controller
+        UserManager<IdentityUser> userManager,
+        OutboxProcessor outboxProcessor) : Controller
     {
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
@@ -56,6 +57,7 @@ namespace Pandacap.Controllers
                             new ActivityPubActorInformation(
                                 key,
                                 avatars,
+                                [],
                                 blueskyDIDs,
                                 deviantArtUsernames,
                                 weasylUsernames))),
@@ -335,6 +337,7 @@ namespace Pandacap.Controllers
                             new ActivityPubActorInformation(
                                 key,
                                 [newAvatar],
+                                [inbox],
                                 blueskyDIDs,
                                 deviantArtUsernames,
                                 weasylUsernames))),

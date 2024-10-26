@@ -15,12 +15,14 @@ namespace Pandacap
                 .Select(f => new { f.Inbox, f.SharedInbox })
                 .ToListAsync(cancellationToken);
 
-            var follows = await context.Follows
-                .Select(f => new { f.Inbox, f.SharedInbox })
-                .ToListAsync(cancellationToken);
+            var follows = includeFollows
+                ? await context.Follows
+                    .Select(f => new { f.Inbox, f.SharedInbox })
+                    .ToListAsync(cancellationToken)
+                : [];
 
-            IEnumerable<string> excludeHosts = post?.BridgyFed == false
-                ? ["bsky.brid.gy", "web.brid.gy"]
+            var excludeHosts = post?.BridgyFed == false
+                ? BridgyFed.Domains
                 : [];
 
             var set = new[] { followers, follows }
