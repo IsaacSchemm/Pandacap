@@ -61,8 +61,7 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = title,
-                Items = listPage,
-                CanBeSyndicationFeed = true
+                Items = listPage
             });
         }
 

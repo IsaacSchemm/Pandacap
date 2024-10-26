@@ -148,6 +148,21 @@
     </p>
 }
 
+@if (Model.RecentJournalEntries.Any())
+{
+    <h2>
+        Recent journal entries
+    </h2>
+
+    <partial name="_ListGroup" model="@Model.RecentJournalEntries" />
+
+    <p>
+        <a asp-controller="Gallery" asp-action="Journals">
+            View more &raquo;
+        </a>
+    </p>
+}
+
 @if (Model.RecentStatusUpdates.Any())
 {
     <h2>

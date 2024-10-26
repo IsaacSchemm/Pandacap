@@ -32,15 +32,6 @@ else
         <strong>@maxDate.ToLongDateString()</strong> (@maxDate.ToShortTimeString()).
     </p>
 
-    if (Model.CanBeSyndicationFeed)
-    {
-        <p>
-            <a href="?format=rss">RSS feed</a>
-            &middot;
-            <a href="?format=atom">Atom feed</a>
-        </p>
-    }
-
     var groups = Model.Items.Current.GroupBy(item => new {
         Username = item.Username,
         ProfileUrl = item.ProfileUrl,

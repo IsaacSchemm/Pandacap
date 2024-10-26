@@ -1,5 +1,4 @@
 ﻿using Pandacap.LowLevel;
-using Pandacap.Types;
 
 namespace Pandacap.Models
 {
@@ -8,8 +7,6 @@ namespace Pandacap.Models
         public string? Title { get; set; }
 
         public bool GroupByUser { get; set; }
-
-        public bool CanBeSyndicationFeed { get; set; }
 
         public bool AllowDismiss { get; set; }
 

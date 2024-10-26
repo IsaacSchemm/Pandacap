@@ -66,11 +66,16 @@ namespace Pandacap.Controllers
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
                     .ToListAsync(),
+                RecentJournalEntries = await context.Posts
+                    .Where(post => post.Type == PostType.JournalEntry)
+                    .OrderByDescending(post => post.PublishedTime)
+                    .Take(3)
+                    .ToListAsync(),
                 RecentStatusUpdates = await context.Posts
                     .Where(post => post.Type == PostType.StatusUpdate)
                     .Where(post => post.PublishedTime >= someTimeAgo)
                     .OrderByDescending(post => post.PublishedTime)
-                    .Take(3)
+                    .Take(5)
                     .ToListAsync(),
                 FollowerCount = await context.Followers.CountAsync(),
                 FollowingCount = await context.Follows.CountAsync(),
