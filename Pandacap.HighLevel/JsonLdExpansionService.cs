@@ -1,26 +1,28 @@
 ﻿using JsonLD.Core;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 
 namespace Pandacap.HighLevel
 {
-    public class JsonLdExpansionService
+    public class JsonLdExpansionService(IMemoryCache cache)
     {
-        private readonly Dictionary<string, RemoteDocument> _contexts = [];
-
-        private class CustomDocumentLoader(JsonLdExpansionService service) : DocumentLoader
+        private class CustomDocumentLoader(IMemoryCache cache) : DocumentLoader
         {
+            private static readonly string Prefix = $"{Guid.NewGuid()}";
+
             public override RemoteDocument LoadDocument(string url)
             {
-                if (service._contexts.TryGetValue(url, out RemoteDocument? cached))
+                string key = $"{Prefix}:{url}";
+
+                if (cache.TryGetValue(key, out RemoteDocument? cached) && cached != null)
                     return cached;
 
                 var fetched = base.LoadDocument(url);
-                service._contexts.Add(url, fetched);
+                cache.Set(key, fetched, DateTimeOffset.UtcNow.AddDays(1));
                 return fetched;
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Used in dependency injection")]
         public JToken Expand(JObject jObject)
         {
             try
@@ -29,13 +31,15 @@ namespace Pandacap.HighLevel
             }
             catch (JsonLdError ex) when (ex.GetType() == JsonLdError.Error.RecursiveContextInclusion || ex.GetType() == JsonLdError.Error.LoadingRemoteContextFailed)
             {
-                // Remove everything except ActivityStreams from the context
-                jObject["@context"] = new JArray(new JValue("https://www.w3.org/ns/activitystreams"));
+                // Override context
+                jObject["@context"] = new JArray(
+                    new JValue("https://www.w3.org/ns/activitystreams"),
+                    new JValue("https://w3id.org/security/v1"));
 
                 // Retry
                 return JsonLdProcessor.Expand(jObject, new JsonLdOptions
                 {
-                    documentLoader = new CustomDocumentLoader(this)
+                    documentLoader = new CustomDocumentLoader(cache)
                 }).Single();
             }
         }
