@@ -68,6 +68,7 @@ namespace Pandacap.Controllers
                     .ToListAsync(),
                 RecentJournalEntries = await context.Posts
                     .Where(post => post.Type == PostType.JournalEntry)
+                    .Where(post => post.PublishedTime >= someTimeAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(3)
                     .ToListAsync(),
