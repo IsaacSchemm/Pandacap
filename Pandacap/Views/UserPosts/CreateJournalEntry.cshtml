@@ -14,5 +14,9 @@
         <label asp-for="@Model.Tags" class="form-label"></label>
         <input asp-for="@Model.Tags" class="form-control" />
     </div>
+    <div class="mb-3 form-check px-0">
+        <input asp-for="@Model.BridgyFed">
+        <label class="form-check-label" asp-for="@Model.BridgyFed"></label>
+    </div>
     <button type="submit" class="btn btn-primary">Create new post</button>
 </form>

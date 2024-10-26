@@ -19,7 +19,7 @@ else
 {
     @foreach (var item in Model.Items)
     {
-        <div class="mb-3" style="@(Model.GhostedActors.Contains(item.ActorId) ? "opacity: 0.5; filter: grayscale(100%);" : "")">
+        <div class="mb-3">
             <div>
                 <img height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" />
                 <span style="display: inline-block; vertical-align: top">
@@ -28,10 +28,6 @@ else
                     </strong>
                     <br />
                     <a href="@item.ActorId">@item.ActorId</a>
-                    @if (Model.GhostedActors.Contains(item.ActorId) == true)
-                    {
-                        @:(disabled)
-                    }
                 </span>
             </div>
         </div>

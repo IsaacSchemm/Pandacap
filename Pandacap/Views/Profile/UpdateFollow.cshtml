@@ -54,22 +54,6 @@
         </label>
     </div>
     <hr />
-    <div class="mb-3 form-check">
-        <input type="checkbox"
-               class="form-check-input"
-               id="ghost"
-               name="ghost"
-               value="true"
-        @(Model.Ghost ? "checked" : "")>
-        <label class="form-check-label" for="ghost">
-            Do not send new posts to this actor
-        </label>
-        <div class="form-text">
-            This setting can be used to prevent new posts from being sent to Bridgy Fed after opting in.
-            It does not prevent posts from being sent to another follower on the same server.
-        </div>
-    </div>
-    <hr />
     <button type="submit" class="btn btn-outline-primary">Save changes</button>
 </form>
 

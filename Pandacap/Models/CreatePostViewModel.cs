@@ -12,6 +12,9 @@ namespace Pandacap.Models
         [DisplayName("Tags (space-separated, e.g. tag1 tag2 tag3)")]
         public string? Tags { get; set; }
 
+        [DisplayName("Send this post to Bridgy Fed (if enabled)")]
+        public bool BridgyFed { get; set; }
+
         public IEnumerable<string> DistinctTags =>
             (Tags ?? "")
             .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)

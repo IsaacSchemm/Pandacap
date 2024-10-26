@@ -79,7 +79,8 @@ namespace Pandacap.Controllers
                 Images = [],
                 PublishedTime = DateTimeOffset.UtcNow,
                 Tags = model.DistinctTags.ToList(),
-                Type = PostType.StatusUpdate
+                Type = PostType.StatusUpdate,
+                BridgyFed = model.BridgyFed
             };
 
             if (model.File != null)
@@ -106,9 +107,8 @@ namespace Pandacap.Controllers
             context.Posts.Add(post);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                includeGhosted: false,
-                includeFollows: false,
-                cancellationToken))
+                post,
+                cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
                 {
@@ -156,15 +156,15 @@ namespace Pandacap.Controllers
                 PublishedTime = DateTimeOffset.UtcNow,
                 Tags = model.DistinctTags.ToList(),
                 Title = model.Title,
-                Type = PostType.JournalEntry
+                Type = PostType.JournalEntry,
+                BridgyFed = model.BridgyFed
             };
 
             context.Posts.Add(post);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                includeGhosted: false,
-                includeFollows: false,
-                cancellationToken))
+                post,
+                cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
                 {
@@ -233,15 +233,15 @@ namespace Pandacap.Controllers
                 PublishedTime = DateTimeOffset.UtcNow,
                 Tags = model.DistinctTags.ToList(),
                 Title = model.Title,
-                Type = PostType.Artwork
+                Type = PostType.Artwork,
+                BridgyFed = model.BridgyFed
             };
 
             context.Posts.Add(post);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                includeGhosted: false,
-                includeFollows: false,
-                cancellationToken))
+                post,
+                cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
                 {
@@ -272,9 +272,8 @@ namespace Pandacap.Controllers
                 .SingleAsync(cancellationToken);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                includeGhosted: true,
                 includeFollows: true,
-                cancellationToken))
+                cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
                 {

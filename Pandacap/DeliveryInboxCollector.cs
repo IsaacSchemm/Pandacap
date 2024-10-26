@@ -1,41 +1,37 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.LowLevel;
 
 namespace Pandacap
 {
     public class DeliveryInboxCollector(PandacapDbContext context)
     {
         public async Task<HashSet<string>> GetDeliveryInboxesAsync(
-            bool includeGhosted,
-            bool includeFollows,
-            CancellationToken cancellationToken)
+            Post? post = null,
+            bool includeFollows = false,
+            CancellationToken cancellationToken = default)
         {
-            async IAsyncEnumerable<string> enumerateAsync()
-            {
-                HashSet<string> omit = [];
+            var followers = await context.Followers
+                .Select(f => new { f.Inbox, f.SharedInbox })
+                .ToListAsync(cancellationToken);
 
-                if (!includeGhosted)
-                {
-                    var query = context.Follows
-                        .Where(f => f.Ghost)
-                        .Select(f => f.ActorId)
-                        .AsAsyncEnumerable();
+            var follows = await context.Follows
+                .Select(f => new { f.Inbox, f.SharedInbox })
+                .ToListAsync(cancellationToken);
 
-                    await foreach (string actorId in query)
-                        omit.Add(actorId);
-                }
+            IEnumerable<string> excludeHosts = post?.BridgyFed == false
+                ? ["bsky.brid.gy", "web.brid.gy"]
+                : [];
 
-                await foreach (var follower in context.Followers)
-                    if (!omit.Contains(follower.ActorId))
-                        yield return follower.SharedInbox ?? follower.Inbox;
+            var set = new[] { followers, follows }
+                .SelectMany(f => f)
+                .Select(f => f.SharedInbox ?? f.Inbox)
+                .Where(inbox =>
+                    Uri.TryCreate(inbox, UriKind.Absolute, out Uri? uri)
+                    && !excludeHosts.Contains(uri.Host))
+                .ToHashSet();
 
-                if (includeFollows)
-                    await foreach (var follow in context.Follows)
-                        if (!omit.Contains(follow.ActorId))
-                            yield return follow.SharedInbox ?? follow.Inbox;
-            }
-
-            return await enumerateAsync().ToHashSetAsync(cancellationToken);
+            return set;
         }
     }
 }

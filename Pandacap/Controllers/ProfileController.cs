@@ -23,7 +23,6 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
         KeyProvider keyProvider,
-        OutboxProcessor outboxProcessor,
         ActivityPubTranslator translator,
         UserManager<IdentityUser> userManager) : Controller
     {
@@ -140,15 +139,9 @@ namespace Pandacap.Controllers
                 .OrderByDescending(f => f.AddedAt)
                 .ToListAsync();
 
-            var ghosted = await context.Follows
-                .Where(f => f.Ghost)
-                .Select(f => f.ActorId)
-                .ToListAsync();
-
             return View(new FollowerViewModel
             {
-                Items = followers,
-                GhostedActors = ghosted
+                Items = followers
             });
         }
 
@@ -178,8 +171,7 @@ namespace Pandacap.Controllers
             string id,
             bool ignoreImages,
             bool includeImageShares,
-            bool includeTextShares,
-            bool ghost)
+            bool includeTextShares)
         {
             await foreach (var follow in context.Follows
                 .Where(f => f.ActorId == id)
@@ -188,7 +180,6 @@ namespace Pandacap.Controllers
                 follow.IgnoreImages = ignoreImages;
                 follow.IncludeImageShares = includeImageShares;
                 follow.IncludeTextShares = includeTextShares;
-                follow.Ghost = ghost;
             }
 
             await context.SaveChangesAsync();
@@ -333,9 +324,8 @@ namespace Pandacap.Controllers
                 .ToListAsync(cancellationToken);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                includeGhosted: true,
                 includeFollows: true,
-                cancellationToken))
+                cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
                 {
