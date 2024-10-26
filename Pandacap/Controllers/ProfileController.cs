@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.JsonLd;
@@ -11,6 +12,7 @@ using Pandacap.Models;
 using Pandacap.Types;
 using System.Diagnostics;
 using System.Text;
+using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -21,67 +23,73 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
         KeyProvider keyProvider,
+        OutboxProcessor outboxProcessor,
         ActivityPubTranslator translator,
         UserManager<IdentityUser> userManager) : Controller
     {
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             var someTimeAgo = DateTime.UtcNow.AddMonths(-3);
 
             string? userId = userManager.GetUserId(User);
 
+            var blueskyDIDs = await context.ATProtoCredentials
+                .Select(c => c.DID)
+                .ToListAsync(cancellationToken);
+
+            var deviantArtUsernames = await context.DeviantArtCredentials
+                .Select(d => d.Username)
+                .ToListAsync(cancellationToken);
+
+            var weasylUsernames = await context.WeasylCredentials
+                .Select(c => c.Login)
+                .ToListAsync(cancellationToken);
+
             if (Request.IsActivityPub())
             {
                 var key = await keyProvider.GetPublicKeyAsync();
-                var avatar = await context.Avatars.FirstOrDefaultAsync();
+                var avatars = await context.Avatars.Take(1).ToListAsync(cancellationToken);
+                var followers = await context.Followers.Select(f => f.ActorId).ToListAsync(cancellationToken);
 
                 return Content(
                     ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToObject(
-                            key,
-                            avatar)),
+                            new ActivityPubActorInformation(
+                                key,
+                                avatars,
+                                blueskyDIDs,
+                                deviantArtUsernames,
+                                weasylUsernames))),
                     "application/activity+json",
                     Encoding.UTF8);
             }
 
-            var dids = await context.ATProtoCredentials
-                .Select(c => c.DID)
-                .ToListAsync();
-
-            var deviantArtUsernames = await context.DeviantArtCredentials
-                .Select(d => d.Username)
-                .ToListAsync();
-
-            var weasylUsernames = await context.WeasylCredentials
-                .Select(c => c.Login)
-                .ToListAsync();
-
             return View(new ProfileViewModel
             {
-                BlueskyDIDs = dids,
+                BlueskyDIDs = blueskyDIDs,
                 DeviantArtUsernames = deviantArtUsernames,
                 WeasylUsernames = weasylUsernames,
                 RecentArtwork = await context.Posts
                     .Where(post => post.Type == PostType.Artwork)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
-                    .ToListAsync(),
+                    .ToListAsync(cancellationToken),
                 RecentJournalEntries = await context.Posts
                     .Where(post => post.Type == PostType.JournalEntry)
                     .Where(post => post.PublishedTime >= someTimeAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(3)
-                    .ToListAsync(),
+                    .ToListAsync(cancellationToken),
                 RecentStatusUpdates = await context.Posts
                     .Where(post => post.Type == PostType.StatusUpdate)
                     .Where(post => post.PublishedTime >= someTimeAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(5)
-                    .ToListAsync(),
-                FollowerCount = await context.Followers.CountAsync(),
-                FollowingCount = await context.Follows.CountAsync(),
-                FavoritesCount = await context.RemoteActivityPubFavorites.CountAsync(),
-                CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync()
+                    .ToListAsync(cancellationToken),
+                FollowerCount = await context.Followers.CountAsync(cancellationToken),
+                FollowingCount = await context.Follows.CountAsync(cancellationToken),
+                FavoritesCount = await context.RemoteActivityPubFavorites.CountAsync(cancellationToken),
+                CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync(cancellationToken)
             });
         }
 
@@ -312,6 +320,18 @@ namespace Pandacap.Controllers
 
             var key = await keyProvider.GetPublicKeyAsync();
 
+            var blueskyDIDs = await context.ATProtoCredentials
+                .Select(c => c.DID)
+                .ToListAsync(cancellationToken);
+
+            var deviantArtUsernames = await context.DeviantArtCredentials
+                .Select(d => d.Username)
+                .ToListAsync(cancellationToken);
+
+            var weasylUsernames = await context.WeasylCredentials
+                .Select(c => c.Login)
+                .ToListAsync(cancellationToken);
+
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
                 includeGhosted: true,
                 includeFollows: true,
@@ -322,8 +342,12 @@ namespace Pandacap.Controllers
                     Id = Guid.NewGuid(),
                     JsonBody = ActivityPubSerializer.SerializeWithContext(
                         translator.PersonToUpdate(
-                            key,
-                            newAvatar)),
+                            new ActivityPubActorInformation(
+                                key,
+                                [newAvatar],
+                                blueskyDIDs,
+                                deviantArtUsernames,
+                                weasylUsernames))),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });

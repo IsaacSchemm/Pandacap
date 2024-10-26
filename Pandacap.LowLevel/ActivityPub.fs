@@ -2,6 +2,7 @@
 
 open System
 open System.Collections.Generic
+open System.Net
 open System.Text.Json
 open Pandacap.Data
 open Pandacap.Types
@@ -31,13 +32,21 @@ module ActivityPubSerializer =
         for p in apObject do p.Key, p.Value
     ])
 
+type ActivityPubActorInformation = {
+    key: ActorKey
+    avatars: Avatar seq
+    bluesky: string seq
+    deviantArt: string seq
+    weasyl: string seq
+}
+
 /// Creates ActivityPub objects (in string/object pair format) for actors,
 /// posts, and other objects tracked by Pandacap.
 type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
     /// Creates a string/object pair (F# tuple) with the given key and value.
     let pair key value = (key, value :> obj)
 
-    member _.PersonToObject(key: ActorKey, avatar: Avatar) = dict [
+    member _.PersonToObject(info: ActivityPubActorInformation) = dict [
         pair "id" mapper.ActorId
         pair "type" "Person"
         pair "inbox" mapper.InboxId
@@ -47,28 +56,51 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "liked" mapper.LikedRootId
         pair "preferredUsername" appInfo.Username
         pair "name" appInfo.Username
+        pair "summary" $"<p>Art gallery hosted by <a href='{appInfo.WebsiteUrl}'>{WebUtility.HtmlEncode(appInfo.ApplicationName)}</a>.</p>"
         pair "url" mapper.ActorId
         pair "discoverable" true
         pair "indexable" true
         pair "publicKey" {|
             id = $"{mapper.ActorId}#main-key"
             owner = mapper.ActorId
-            publicKeyPem = key.Pem
+            publicKeyPem = info.key.Pem
         |}
-        if not (isNull avatar) then
+        for avatar in info.avatars |> Seq.truncate 1 do
             pair "icon" {|
-                mediaType = "image/jpeg"
+                mediaType = avatar.ContentType
                 ``type`` = "Image"
                 url = mapper.GetAvatarUrl(avatar)
             |}
+        pair "attachment" [
+            {|
+                ``type`` = "PropertyValue"
+                name = "ActivityPub"
+                value = $"<a href='{mapper.ActorId}'>{WebUtility.HtmlEncode(mapper.ActorId)}</a>"
+            |}
+            for did in info.bluesky do {|
+                ``type`` = "PropertyValue"
+                name = "Bluesky"
+                value = $"<a href='https://bsky.app/profile/{did}'>{WebUtility.HtmlEncode(did)}</a>"
+            |}
+            for username in info.deviantArt do {|
+                ``type`` = "PropertyValue"
+                name = "DeviantArt"
+                value = $"<a href='https://www.deviantart.com/{Uri.EscapeDataString(username)}'>{WebUtility.HtmlEncode(username)}</a>"
+            |}
+            for login in info.weasyl do {|
+                ``type`` = "PropertyValue"
+                name = "Weasyl"
+                value = $"<a href='https://www.weasyl.com/~{Uri.EscapeDataString(login)}'>{WebUtility.HtmlEncode(login)}</a>"
+            |}
+        ]
     ]
 
-    member this.PersonToUpdate(key, avatars) = dict [
+    member this.PersonToUpdate(info) = dict [
         pair "type" "Update"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
-        pair "object" (this.PersonToObject(key, avatars))
+        pair "object" (this.PersonToObject(info))
     ]
 
     member _.AsObject(post: Post) = dict [
