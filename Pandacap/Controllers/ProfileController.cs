@@ -24,8 +24,7 @@ namespace Pandacap.Controllers
         DeliveryInboxCollector deliveryInboxCollector,
         KeyProvider keyProvider,
         ActivityPubTranslator translator,
-        UserManager<IdentityUser> userManager,
-        OutboxProcessor outboxProcessor) : Controller
+        UserManager<IdentityUser> userManager) : Controller
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported in Cosmos DB backend")]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
@@ -69,12 +68,9 @@ namespace Pandacap.Controllers
             return View(new ProfileViewModel
             {
                 ShowBridgyFedBlueskyLink =
-                    blueskyDIDs.Count == 0
+                    BridgyFed.Enabled
                     && await context.Followers
-                        .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
-                        .CountAsync(cancellationToken) > 0
-                    && await context.Follows
-                        .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
+                        .Where(f => f.ActorId == BridgyFed.Follower)
                         .CountAsync(cancellationToken) > 0,
                 BlueskyDIDs = blueskyDIDs,
                 DeviantArtUsernames = deviantArtUsernames,
@@ -335,7 +331,6 @@ namespace Pandacap.Controllers
                 .ToListAsync(cancellationToken);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                isProfile: true,
                 cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()

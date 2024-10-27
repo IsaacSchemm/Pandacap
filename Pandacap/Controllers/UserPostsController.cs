@@ -106,6 +106,7 @@ namespace Pandacap.Controllers
             context.Posts.Add(post);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                isCreate: true,
                 cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
@@ -160,6 +161,7 @@ namespace Pandacap.Controllers
             context.Posts.Add(post);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                isCreate: true,
                 cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
@@ -235,6 +237,7 @@ namespace Pandacap.Controllers
             context.Posts.Add(post);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                isCreate: true,
                 cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
@@ -266,7 +269,6 @@ namespace Pandacap.Controllers
                 .SingleAsync(cancellationToken);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                isDelete: true,
                 cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()

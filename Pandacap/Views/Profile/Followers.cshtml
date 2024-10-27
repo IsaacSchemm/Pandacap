@@ -30,11 +30,12 @@ else
                     </strong>
                     <br />
                     <a href="@item.ActorId">@item.ActorId</a>
-                    @if (Bridge.All.SelectMany(b => b.Domains).Contains(uri.Host))
+                    @if (BridgyFed.OwnsInbox(item.SharedInbox ?? item.Inbox)
+                        && !BridgyFed.Enabled)
                     {
                         <br />
                         <span class="small text-muted">
-                            This account will only receive messages if you follow it back.
+                            Bridgy Fed is currently disabled in the @appInfo.ApplicationName code and will not recieve new posts.
                         </span>
                     }
                 </span>
