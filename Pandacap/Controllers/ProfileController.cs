@@ -68,9 +68,14 @@ namespace Pandacap.Controllers
 
             return View(new ProfileViewModel
             {
-                BridgyFedBluesky = await context.Followers
-                    .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
-                    .CountAsync(cancellationToken) > 0,
+                ShowBridgyFedBlueskyLink =
+                    blueskyDIDs.Count == 0
+                    && await context.Followers
+                        .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
+                        .CountAsync(cancellationToken) > 0
+                    && await context.Follows
+                        .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
+                        .CountAsync(cancellationToken) > 0,
                 BlueskyDIDs = blueskyDIDs,
                 DeviantArtUsernames = deviantArtUsernames,
                 WeasylUsernames = weasylUsernames,
@@ -330,7 +335,7 @@ namespace Pandacap.Controllers
                 .ToListAsync(cancellationToken);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                includeFollows: true,
+                isProfile: true,
                 cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()

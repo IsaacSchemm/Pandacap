@@ -30,7 +30,7 @@
                     &middot;
                     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
 
-                    @if (Model.BridgyFedBluesky && !Model.BlueskyDIDs.Any())
+                    @if (Model.ShowBridgyFedBlueskyLink)
                     {
                         <hr />
 

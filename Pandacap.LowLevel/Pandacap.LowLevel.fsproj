@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <Compile Include="ApplicationInformation.fs" />
-    <Compile Include="BridgyFed.fs" />
+    <Compile Include="Bridge.fs" />
     <Compile Include="IdMapper.fs" />
     <Compile Include="ListPage.fs" />
     <Compile Include="ActivityPub.fs" />

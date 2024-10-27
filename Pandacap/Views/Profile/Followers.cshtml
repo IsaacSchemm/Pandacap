@@ -19,6 +19,8 @@ else
 {
     @foreach (var item in Model.Items)
     {
+        Uri uri = new(item.ActorId);
+
         <div class="mb-3">
             <div>
                 <img height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" />
@@ -28,6 +30,13 @@ else
                     </strong>
                     <br />
                     <a href="@item.ActorId">@item.ActorId</a>
+                    @if (Bridge.All.SelectMany(b => b.Domains).Contains(uri.Host))
+                    {
+                        <br />
+                        <span class="small text-muted">
+                            This account will only receive messages if you follow it back.
+                        </span>
+                    }
                 </span>
             </div>
         </div>

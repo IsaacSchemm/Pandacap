@@ -79,8 +79,7 @@ namespace Pandacap.Controllers
                 Images = [],
                 PublishedTime = DateTimeOffset.UtcNow,
                 Tags = model.DistinctTags.ToList(),
-                Type = PostType.StatusUpdate,
-                BridgyFed = model.BridgyFed
+                Type = PostType.StatusUpdate
             };
 
             if (model.File != null)
@@ -107,7 +106,6 @@ namespace Pandacap.Controllers
             context.Posts.Add(post);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                post,
                 cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
@@ -156,14 +154,12 @@ namespace Pandacap.Controllers
                 PublishedTime = DateTimeOffset.UtcNow,
                 Tags = model.DistinctTags.ToList(),
                 Title = model.Title,
-                Type = PostType.JournalEntry,
-                BridgyFed = model.BridgyFed
+                Type = PostType.JournalEntry
             };
 
             context.Posts.Add(post);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                post,
                 cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
@@ -233,14 +229,12 @@ namespace Pandacap.Controllers
                 PublishedTime = DateTimeOffset.UtcNow,
                 Tags = model.DistinctTags.ToList(),
                 Title = model.Title,
-                Type = PostType.Artwork,
-                BridgyFed = model.BridgyFed
+                Type = PostType.Artwork
             };
 
             context.Posts.Add(post);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                post,
                 cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
@@ -272,7 +266,7 @@ namespace Pandacap.Controllers
                 .SingleAsync(cancellationToken);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                includeFollows: true,
+                isDelete: true,
                 cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()

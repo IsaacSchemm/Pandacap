@@ -51,8 +51,6 @@ type Post() =
     member val WeasylSubmitId = Nullable<int>() with get, set
     member val WeasylJournalId = Nullable<int>() with get, set
 
-    member val BridgyFed = Nullable<bool>() with get, set
-
     [<NotMapped>]
     member this.Html =
         if isNull this.Body then null

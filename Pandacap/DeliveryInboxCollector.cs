@@ -7,33 +7,42 @@ namespace Pandacap
     public class DeliveryInboxCollector(PandacapDbContext context)
     {
         public async Task<HashSet<string>> GetDeliveryInboxesAsync(
-            Post? post = null,
-            bool includeFollows = false,
+            bool isProfile = false,
+            bool isDelete = false,
             CancellationToken cancellationToken = default)
         {
-            var followers = await context.Followers
-                .Select(f => new { f.Inbox, f.SharedInbox })
-                .ToListAsync(cancellationToken);
+            async IAsyncEnumerable<string> enumerateDisabledDomains()
+            {
+                if (isProfile || isDelete)
+                    yield break;
 
-            var follows = includeFollows
-                ? await context.Follows
-                    .Select(f => new { f.Inbox, f.SharedInbox })
-                    .ToListAsync(cancellationToken)
-                : [];
+                var enabledBridges = await context.Follows
+                    .Where(f => Bridge.All.Select(b => b.Bot).Contains(f.ActorId))
+                    .Select(f => f.ActorId)
+                    .ToListAsync(cancellationToken);
 
-            bool isExcluded(string inbox) =>
-                post?.BridgyFed == false
-                && Uri.TryCreate(
-                    inbox,
-                    UriKind.Absolute,
-                    out Uri? uri)
-                && BridgyFed.Domains.Contains(uri.Host);
+                foreach (var bridge in Bridge.All)
+                    if (!enabledBridges.Contains(bridge.Bot))
+                        foreach (string domain in bridge.Domains)
+                            yield return domain;
+            }
 
-            var set = new[] { followers, follows }
-                .SelectMany(f => f)
-                .Select(f => f.SharedInbox ?? f.Inbox)
-                .Where(inbox => !isExcluded(inbox))
-                .ToHashSet();
+            var disabledDomains = await enumerateDisabledDomains()
+                .ToHashSetAsync(cancellationToken);
+
+            async IAsyncEnumerable<string> enumerateInboxes()
+            {
+                await foreach (var follower in context.Followers)
+                    yield return follower.SharedInbox ?? follower.Inbox;
+
+                if (isProfile || isDelete)
+                    await foreach (var follow in context.Follows)
+                        yield return follow.SharedInbox ?? follow.Inbox;
+            }
+
+            var set = await enumerateInboxes()
+                .Where(inbox => !disabledDomains.Contains(new Uri(inbox).Host))
+                .ToHashSetAsync(cancellationToken);
 
             return set;
         }
