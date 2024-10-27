@@ -27,6 +27,7 @@ namespace Pandacap.Controllers
         UserManager<IdentityUser> userManager,
         OutboxProcessor outboxProcessor) : Controller
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported in Cosmos DB backend")]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             var someTimeAgo = DateTime.UtcNow.AddMonths(-3);
@@ -67,6 +68,9 @@ namespace Pandacap.Controllers
 
             return View(new ProfileViewModel
             {
+                BridgyFedBluesky = await context.Followers
+                    .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
+                    .CountAsync(cancellationToken) > 0,
                 BlueskyDIDs = blueskyDIDs,
                 DeviantArtUsernames = deviantArtUsernames,
                 WeasylUsernames = weasylUsernames,
