@@ -60,21 +60,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "summary" (String.concat "" [
             $"<p>Art gallery hosted by <a href='{appInfo.WebsiteUrl}'>{WebUtility.HtmlEncode(appInfo.ApplicationName)}</a>.</p>"
 
-            let hosts = seq {
-                for id in info.inboxes do
-                    match Uri.TryCreate(id, UriKind.Absolute) with
-                    | true, uri -> uri.Host
-                    | false, _ -> ()
-            }
-
-            let messages = seq {
-                for host in hosts do
-                    if BridgyFed.Domains |> Seq.contains host then
-                        for did in info.bluesky do
-                            $"<p>Main Bluesky account: https://bsky.app/profile/{did}</p>"
-            }
-
-            yield! Seq.distinct messages
+            for did in info.bluesky do
+                $"<p>Bluesky: https://bsky.app/profile/{did}</p>"
         ])
         pair "url" mapper.ActorId
         pair "discoverable" true

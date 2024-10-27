@@ -21,16 +21,18 @@ namespace Pandacap
                     .ToListAsync(cancellationToken)
                 : [];
 
-            var excludeHosts = post?.BridgyFed == false
-                ? BridgyFed.Domains
-                : [];
+            bool isExcluded(string inbox) =>
+                post?.BridgyFed == false
+                && Uri.TryCreate(
+                    inbox,
+                    UriKind.Absolute,
+                    out Uri? uri)
+                && BridgyFed.Domains.Contains(uri.Host);
 
             var set = new[] { followers, follows }
                 .SelectMany(f => f)
                 .Select(f => f.SharedInbox ?? f.Inbox)
-                .Where(inbox =>
-                    Uri.TryCreate(inbox, UriKind.Absolute, out Uri? uri)
-                    && !excludeHosts.Contains(uri.Host))
+                .Where(inbox => !isExcluded(inbox))
                 .ToHashSet();
 
             return set;
