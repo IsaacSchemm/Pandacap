@@ -20,7 +20,14 @@ namespace Pandacap
             }
 
             return await enumerateInboxes()
-                .Where(inbox => !BridgyFed.OwnsInbox(inbox) || BridgyFed.Enabled)
+                .Where(inbox =>
+                {
+                    if (isCreate)
+                        if (!BridgyFed.Enabled && BridgyFed.OwnsInbox(inbox))
+                            return false;
+
+                    return true;
+                })
                 .ToHashSetAsync(cancellationToken);
         }
     }

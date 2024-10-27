@@ -3,7 +3,7 @@
 open System
 
 module BridgyFed =
-    let Enabled = true
+    let Enabled = false
 
     let Follower = "https://bsky.brid.gy/bsky.brid.gy"
 
