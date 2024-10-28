@@ -19,14 +19,14 @@ namespace Pandacap
         public static async Task<ListPage> AsListPage(this IAsyncEnumerable<IPost> asyncSeq, int count)
         {
             List<IPost> accumulator = [];
-            List<IPost> next = [];
+            List<string> next = [];
 
             await foreach (var item in asyncSeq)
             {
                 if (accumulator.Count < count)
                     accumulator.Add(item);
                 else if (next.Count < 1)
-                    next.Add(item);
+                    next.Add(item.Id);
                 else
                     break;
             }

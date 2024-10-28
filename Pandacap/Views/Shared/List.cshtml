@@ -56,12 +56,12 @@ else
         </button>
     }
 
-    @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is IPost nextPost)
+    @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is string id)
     {
         <hr />
 
         <a asp-route-q="@Model.Q"
-           asp-route-next="@nextPost.Id"
+           asp-route-next="@id"
            asp-route-count="@Model.Items.Current.Length"
            class="btn btn-primary">
             Next @Model.Items.Current.Length items &raquo;

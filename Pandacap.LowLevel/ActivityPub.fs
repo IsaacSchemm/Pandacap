@@ -265,8 +265,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
 
         match posts.Next with
         | None -> ()
-        | Some next ->
-            pair "next" $"{mapper.FirstOutboxPageId}?next={next.Id}&count={List.length posts.Current}"
+        | Some id ->
+            pair "next" $"{mapper.FirstOutboxPageId}?next={id}&count={List.length posts.Current}"
     ]
 
     member _.AsLikedCollection(posts: int) = dict [
@@ -290,8 +290,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
 
         match posts.Next with
         | None -> ()
-        | Some next ->
-            pair "next" $"{mapper.LikedPageId}?next={next.Id}&count={List.length posts.Current}"
+        | Some id ->
+            pair "next" $"{mapper.LikedPageId}?next={id}&count={List.length posts.Current}"
     ]
 
     member _.Follow(followGuid: Guid, remoteActorId: string) = dict [

@@ -4,5 +4,5 @@ open Pandacap.Data
 
 type ListPage = {
     Current: IPost list
-    Next: IPost option
+    Next: string option
 }
