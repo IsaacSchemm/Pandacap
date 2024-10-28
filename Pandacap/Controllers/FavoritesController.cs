@@ -40,7 +40,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = "Favorites",
-                GroupByUser = true,
                 Items = listPage
             });
         }

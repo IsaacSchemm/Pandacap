@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,8 +10,7 @@ using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.LowLevel;
 using Pandacap.Models;
-using System.Net;
-using System.Threading;
+using Pandacap.Types;
 using Stash = DeviantArtFs.Api.Stash;
 
 namespace Pandacap.Controllers
@@ -22,6 +22,55 @@ namespace Pandacap.Controllers
         DeviantArtCredentialProvider deviantArtCredentialProvider,
         IdMapper mapper) : Controller
     {
+        private record Wrapper(
+            DeviantArtFs.ResponseTypes.Deviation Deviation,
+            int Index) : IPost, IPostThumbnail
+        {
+            IEnumerable<Badge> IPost.Badges => [PostPlatformModule.GetBadge(PostPlatform.DeviantArt)];
+            string? IPost.DisplayTitle => Deviation.title.OrNull();
+            string? IPost.Id => $"{Index}";
+            bool IPost.IsDismissable => false;
+            string? IPost.LinkUrl => Deviation.url.OrNull();
+            string? IPost.ProfileUrl => null;
+            IEnumerable<IPostThumbnail> IPost.Thumbnails => [this];
+            DateTimeOffset IPost.Timestamp => Deviation.published_time.OrNull() ?? default;
+            string? IPost.Username => null;
+            string? IPost.Usericon => null;
+
+            string? IPostThumbnail.Url => Deviation.thumbs.OrEmpty()
+                .OrderByDescending(x => x.width * x.height)
+                .Select(x => x.src)
+                .FirstOrDefault();
+            string IPostThumbnail.AltText => "";
+        }
+
+        public async Task<IActionResult> HomeFeed(
+            int? next = null,
+            int? count = null)
+        {
+            async IAsyncEnumerable<IPost> enumerateAsync()
+            {
+                if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var token, _))
+                    yield break;
+
+                int index = next ?? 0;
+
+                var asyncSeq = DeviantArtFs.Api.Browse.GetHomeAsync(
+                    token,
+                    PagingLimit.DefaultPagingLimit,
+                    PagingOffset.NewPagingOffset(index));
+
+                await foreach (var item in asyncSeq)
+                    yield return new Wrapper(item, index++);
+            }
+
+            return View("List", new ListViewModel
+            {
+                Title = "DeviantArt Home Feed",
+                Items = await enumerateAsync().AsListPage(count ?? 20)
+            });
+        }
+
         private record FormFile(PostBlobRef BlobRef, BlobDownloadResult DownloadResult) : Stash.IFormFile
         {
             string Stash.IFormFile.Filename => "file." + BlobRef.ContentType.Split('/').Last();

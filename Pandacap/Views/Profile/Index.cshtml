@@ -309,6 +309,21 @@
 
             <div class="col col-12 col-xl-4">
                 <h2>
+                    DeviantArt
+                </h2>
+
+                <div class="card my-3">
+                    <div class="card-header">
+                        Browse
+                    </div>
+                    <div class="card-body">
+                        <a asp-controller="DeviantArt" asp-action="HomeFeed" class="btn btn-outline-primary">
+                            View home feed
+                        </a>
+                    </div>
+                </div>
+
+                <h2>
                     Bluesky
                 </h2>
 
@@ -323,14 +338,6 @@
                         <div class="form-text">
                             Posts that appear in the account's home timeline will be added to the inbox.
                         </div>
-                        @* <hr />
-                        <div class="text-center">
-                            <form asp-controller="InboxIngest" asp-action="BlueskyTimeline">
-                                <button type="submit" class="btn btn-primary btn-warning">
-                                    Sync now
-                                </button>
-                            </form>
-                        </div> *@
                     </div>
                 </div>
 
@@ -349,14 +356,6 @@
                         <div class="form-text">
                             Submissions from watched users will be added to the inbox.
                         </div>
-                        @* <hr />
-                        <div class="text-center">
-                            <form asp-controller="InboxIngest" asp-action="WeasylTimeline">
-                                <button type="submit" class="btn btn-primary btn-warning">
-                                    Sync now
-                                </button>
-                            </form>
-                        </div> *@
                     </div>
                 </div>
             </div>

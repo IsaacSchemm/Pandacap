@@ -70,8 +70,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = "Inbox (Image Posts)",
-                GroupByUser = true,
-                AllowDismiss = true,
                 Items = posts
             });
         }
@@ -127,8 +125,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = "Inbox (Text Posts)",
-                GroupByUser = true,
-                AllowDismiss = true,
                 Items = posts
             });
         }
@@ -167,8 +163,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = "Inbox (Shares)",
-                GroupByUser = true,
-                AllowDismiss = true,
                 Items = posts
             });
         }
@@ -195,8 +189,6 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = "Inbox (Podcasts)",
-                GroupByUser = true,
-                AllowDismiss = true,
                 Items = source
             });
         }
