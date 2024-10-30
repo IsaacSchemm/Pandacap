@@ -6,19 +6,19 @@ For more information, see Views/About/Index.cshtml.
 
 Supported platforms and protocols:
 
-|             | Create / Import | Export / Crosspost | Inbox | Reply | Notifications          | Authentication
-| ----------- | --------------- | ------------------ | ----- | ----- | ---------------------- | ------------------------
-| ActivityPub |                 | ✓                  | ✓     | ✓     | ✓ (Activites, Replies) |
-| Bluesky     |                 | ✓ (Manual)         | ✓     |       | ✓                      | PDS / DID / Password
-| DeviantArt  | ✓               |                    | ✓     |       | ✓ (Messages, Notes)    | OAuth (ASP.NET Identity)
-| RSS / Atom  |                 | ✓                  | ✓     |       |                        |
-| Weasyl      |                 | ✓ (Manual)         | ✓     |       | Partial                | API Key
+|             | Crosspost  | Inbox | Reply | Notifications          | Authentication
+| ----------- | ---------- | ----- | ----- | ---------------------- | ------------------------
+| ActivityPub | ✓          | ✓     | ✓     | ✓ (Activites, Replies) |
+| Bluesky     | ✓ (Manual) | ✓     |       | ✓                      | PDS / DID / Password
+| DeviantArt  | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | OAuth (ASP.NET Identity)
+| RSS / Atom  | ✓          | ✓     |       |                        |
+| Weasyl      | ✓ (Manual) | ✓     |       | Partial                | API Key
 
 Pandacap is a single-user application.
 To log in, the instance owner must use a Microsoft account that they have explicitly allowed in the associated Entra ID app registration.
 
 > **Any authenticated user can access the same data**.
-> This means authorization is the sole reponsibility of your Entra ID registration. so only one user account should be allowed access.
+> This means authorization is the sole reponsibility of your Entra ID registration, so only one user account should be allowed access.
 
 A DeviantArt account cannot be used to set up the Pandacap account, but once attached to the existing account,
 either it or the Microsoft account it can be used to log in.

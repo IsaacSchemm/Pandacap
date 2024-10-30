@@ -18,11 +18,11 @@
 
   <ItemGroup>
     <PackageReference Include="CommonMark.NET" Version="0.15.1" />
-    <PackageReference Include="DeviantArtFs" Version="11.0.0-beta2" />
+    <PackageReference Include="DeviantArtFs" Version="11.0.0" />
     <PackageReference Include="FSharp.Data.Html.Core" Version="6.4.0" />
     <PackageReference Include="HtmlSanitizer" Version="8.1.870" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Net.Http.Headers" Version="8.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Net.Http.Headers" Version="8.0.10" />
   </ItemGroup>
 
   <ItemGroup>
