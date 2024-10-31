@@ -49,7 +49,11 @@ var host = new HostBuilder()
                 deviantArtClientSecret));
         }
 
-        services.AddSharedServices(new ApplicationInformation(
+        services
+            .AddLowLevelServices()
+            .AddHighLevelServices();
+
+        services.AddSingleton(new ApplicationInformation(
             applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
             username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
             keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),

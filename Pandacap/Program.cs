@@ -76,6 +76,8 @@ builder.Services.AddSingleton(new ComputerVisionConfiguration(
     builder.Configuration["Authentication:Microsoft:TenantId"]));
 
 builder.Services
+    .AddLowLevelServices()
+    .AddHighLevelServices()
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<DeliveryInboxCollector>()
@@ -83,7 +85,7 @@ builder.Services
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>();
 
-builder.Services.AddSharedServices(new ApplicationInformation(
+builder.Services.AddSingleton(new ApplicationInformation(
     applicationHostname: builder.Configuration["ApplicationHostname"],
     username: builder.Configuration["ActivityPubUsername"],
     keyVaultHostname: builder.Configuration["KeyVaultHostname"],

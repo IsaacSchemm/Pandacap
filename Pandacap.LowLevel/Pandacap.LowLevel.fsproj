@@ -15,6 +15,7 @@
     <Compile Include="ComputerVision.fs" />
     <Compile Include="DeviantArtFeedPages.fs" />
     <Compile Include="Lemmy.fs" />
+    <Compile Include="DependencyInjectionExtensions.fs" />
   </ItemGroup>
 
   <ItemGroup>
