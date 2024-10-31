@@ -1,0 +1,20 @@
+﻿@using Pandacap.Data
+@model PhotoBinImage
+
+@{
+    ViewBag.Title = "Photo Bin";
+}
+
+<p>
+    <img src="/Blobs/PhotoBin/@Model.Id"
+         alt="@Model.AltText"
+         title="@Model.AltText"
+         style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
+</p>
+
+<form asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this image?')">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button type="submit" class="btn btn-danger">
+        Delete
+    </button>
+</form>

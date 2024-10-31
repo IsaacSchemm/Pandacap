@@ -46,6 +46,27 @@ namespace Pandacap.Controllers
             return await ProxyAsync(post, image.Id);
         }
 
+        [Route("Blobs/PhotoBin/{id}")]
+        [ResponseCache(Duration = 604800, Location = ResponseCacheLocation.Any)]
+        public async Task<IActionResult> PhotoBin(Guid id)
+        {
+            var image = await context.PhotoBinImages
+                .Where(p => p.Id == id)
+                .SingleOrDefaultAsync();
+
+            if (image == null)
+                return NotFound();
+
+            var blob = await blobServiceClient
+                .GetBlobContainerClient("blobs")
+                .GetBlobClient($"{image.Id}")
+                .DownloadStreamingAsync();
+
+            return File(
+                blob.Value.Content,
+                image.ContentType);
+        }
+
         [Route("Blobs/Images/{id}")]
         [Obsolete("No longer used in newly serialized ActivityPub objects")]
         public async Task<IActionResult> Images(Guid id)

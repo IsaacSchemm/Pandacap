@@ -1,7 +1,5 @@
 ﻿namespace Pandacap.Data
 
-open System
-open System.Threading.Tasks
 open Microsoft.AspNetCore.Identity
 open Microsoft.AspNetCore.Identity.EntityFrameworkCore
 open Microsoft.EntityFrameworkCore
@@ -13,6 +11,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.ATProtoCredentials: DbSet<ATProtoCredentials> = this.Set()
     member this.WeasylCredentials: DbSet<WeasylCredentials> = this.Set()
     member this.Avatars: DbSet<Avatar> = this.Set()
+    member this.PhotoBinImages: DbSet<PhotoBinImage> = this.Set()
     member this.Posts: DbSet<Post> = this.Set()
     member this.AddressedPosts: DbSet<AddressedPost> = this.Set()
     member this.PostActivities: DbSet<PostActivity> = this.Set()

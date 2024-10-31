@@ -14,6 +14,7 @@
     <Compile Include="Credentials\WeasylCredentials.fs" />
     <Compile Include="MyContent\ActivityPubOutboundActivity.fs" />
     <Compile Include="MyContent\AddressedPost.fs" />
+    <Compile Include="MyContent\PhotoBinImage.fs" />
     <Compile Include="MyContent\Avatar.fs" />
     <Compile Include="MyContent\Post.fs" />
     <Compile Include="Relationships\RemoteActorRelationship.fs" />
