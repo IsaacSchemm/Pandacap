@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 
 namespace Pandacap.Controllers
 {
+    [Authorize]
+    [Obsolete("Handled by Azure Function timer trigger")]
     public class InboxIngestController(
         AtomRssFeedReader atomRssFeedReader,
         ATProtoInboxHandler atProtoInboxHandler,

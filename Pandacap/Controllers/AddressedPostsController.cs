@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.JsonLd;
@@ -55,6 +56,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("CreateCommunityPost")]
         public IActionResult CreateCommunityPost(string? community = null)
         {
@@ -63,6 +65,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         [Route("CreateCommunityPost")]
         public async Task<IActionResult> CreateCommunityPost(string community, string title, string content, CancellationToken cancellationToken)
@@ -96,8 +99,9 @@ namespace Pandacap.Controllers
             return RedirectToAction("Index", new { id = addressedPost.Id });
         }
 
-        [ValidateAntiForgeryToken]
         [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
             var post = await context.AddressedPosts

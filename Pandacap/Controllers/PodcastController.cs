@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NAudio.MediaFoundation;
 using NAudio.Wave;
 using System.IO.Compression;
 
 namespace Pandacap.Controllers
 {
+    [Authorize]
     public class PodcastController(IHttpClientFactory httpClientFactory) : Controller
     {
         private class WaveProvider(Stream stream, WaveFormat waveFormat) : IWaveProvider
