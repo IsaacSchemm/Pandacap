@@ -71,6 +71,10 @@ builder.Services.AddSingleton(new DeviantArtApp(
     builder.Configuration["DeviantArtClientId"]!,
     builder.Configuration["DeviantArtClientSecret"]!));
 
+builder.Services.AddSingleton(new ComputerVisionConfiguration(
+    builder.Configuration["ComputerVisionEndpoint"],
+    builder.Configuration["Authentication:Microsoft:TenantId"]));
+
 builder.Services
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
@@ -81,8 +85,7 @@ builder.Services
 
 builder.Services.AddSharedServices(new ApplicationInformation(
     applicationHostname: builder.Configuration["ApplicationHostname"],
-    username: builder.Configuration["ActivityPubUsername"]
-        ?? builder.Configuration["DeviantArtUsername"],
+    username: builder.Configuration["ActivityPubUsername"],
     keyVaultHostname: builder.Configuration["KeyVaultHostname"],
     handleHostname: builder.Configuration["ApplicationHostname"]));
 

@@ -23,6 +23,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ATProtoNotificationHandler>()
                 .AddScoped<BlueskyAgent>()
                 .AddScoped<CompositeNotificationHandler>()
+                .AddScoped<ComputerVisionProvider>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtInboxHandler>()
                 .AddScoped<DeviantArtFeedNotificationHandler>()

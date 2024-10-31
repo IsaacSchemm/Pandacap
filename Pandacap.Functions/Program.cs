@@ -4,7 +4,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.LowLevel;
@@ -52,8 +51,7 @@ var host = new HostBuilder()
 
         services.AddSharedServices(new ApplicationInformation(
             applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
-            username: Environment.GetEnvironmentVariable("ActivityPubUsername")
-                ?? Environment.GetEnvironmentVariable("DeviantArtUsername"),
+            username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
             keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
             handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname")));
 

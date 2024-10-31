@@ -12,15 +12,18 @@
     <Compile Include="ListPage.fs" />
     <Compile Include="ActivityPub.fs" />
     <Compile Include="ATProto.fs" />
+    <Compile Include="ComputerVision.fs" />
     <Compile Include="DeviantArtFeedPages.fs" />
     <Compile Include="Lemmy.fs" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.13.1" />
     <PackageReference Include="CommonMark.NET" Version="0.15.1" />
     <PackageReference Include="DeviantArtFs" Version="11.0.0" />
     <PackageReference Include="FSharp.Data.Html.Core" Version="6.4.0" />
     <PackageReference Include="HtmlSanitizer" Version="8.1.870" />
+    <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageReference Include="Microsoft.Net.Http.Headers" Version="8.0.10" />
   </ItemGroup>

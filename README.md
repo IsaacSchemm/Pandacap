@@ -106,7 +106,6 @@ Function app `local.settings.json` example:
         "CosmosDBAccountKey": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000==",
         "DeviantArtClientId": "12345",
         "DeviantArtClientSecret": "00000000000000000000000000000000",
-        "DeviantArtUsername": "example",
         "KeyVaultHostname": "example-kv.vault.azure.net"
       }
     }
@@ -115,11 +114,20 @@ Web app `local.settings.json` example:
 
     {
       "ApplicationHostname": "example.azurewebsites.net",
+      "Authentication": {
+        "Microsoft": {
+          "ClientId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+          "ClientSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "TenantId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+      },
+      "ComputerVisionEndpoint": "https://example-cv.cognitiveservices.azure.com/",
       "CosmosDBAccountEndpoint": "https://example-cosmos.documents.azure.com:443/",
       "CosmosDBAccountKey": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000==",
       "DeviantArtClientId": "12345",
       "DeviantArtClientSecret": "00000000000000000000000000000000",
-      "DeviantArtUsername": "example",
+      "EntraClientId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "StorageAccountHostname": "example.blob.core.windows.net",
       "KeyVaultHostname": "example-kv.vault.azure.net"
     }
 
