@@ -2,12 +2,20 @@
 @model Upload
 
 @{
-    ViewBag.Title = "Photo Bin";
+    ViewBag.Title = "Uploads";
 }
 
 <p>
     @Model.UploadedAt.UtcDateTime.ToLongDateString()
     @Model.UploadedAt.UtcDateTime.ToShortTimeString()
+</p>
+
+<p>
+    <tt>
+        <a href="/Blobs/Uploads/@Model.Id" target="_blank">
+            /Blobs/Uploads/@Model.Id
+        </a>
+    </tt>
 </p>
 
 <p>
@@ -18,11 +26,11 @@
 </p>
 
 <p>
-    <a asp-controller="UserPosts" asp-action="CreateArtwork" asp-route-photoBinImageId="@Model.Id" class="btn btn-outline-primary">
+    <a asp-controller="UserPosts" asp-action="CreateArtworkFromUpload" asp-route-id="@Model.Id" class="btn btn-outline-primary">
         Post as artwork
     </a>
 
-    <a asp-controller="UserPosts" asp-action="CreateStatusUpdate" asp-route-photoBinImageId="@Model.Id" class="btn btn-outline-primary">
+    <a asp-controller="UserPosts" asp-action="CreateStatusUpdateFromUpload" asp-route-id="@Model.Id" class="btn btn-outline-primary">
         Post as status update
     </a>
 </p>

@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Models
 {
-    public enum PhotoBinDestination
+    public enum UploadDestination
     {
         Artwork,
         StatusUpdate,

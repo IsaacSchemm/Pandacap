@@ -1,5 +1,9 @@
 ﻿@using Pandacap.LowLevel
-@model PhotoBinUploadViewModel
+@model UploadViewModel
+
+@{
+    ViewBag.Title = "Upload";
+}
 
 <form asp-action="Upload" enctype="multipart/form-data">
     <input asp-for="@Model.Destination" type="hidden" />
@@ -15,5 +19,5 @@
         <input asp-for="@Model.GenerateAltText">
         <label asp-for="@Model.GenerateAltText" class="form-check-label"></label>
     </div>
-    <button type="submit" class="btn btn-primary">Create new post</button>
+    <button type="submit" class="btn btn-primary">Upload</button>
 </form>

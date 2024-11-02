@@ -6,6 +6,7 @@ using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.Models;
 using System.Text;
+using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -54,7 +55,7 @@ namespace Pandacap.Controllers
         [Route("CreateStatusUpdate")]
         public IActionResult CreateStatusUpdate()
         {
-            return View(new CreateStatusUpdateViewModel());
+            return View();
         }
 
         [HttpGet]
@@ -66,7 +67,7 @@ namespace Pandacap.Controllers
                 .Where(i => i.Id == id)
                 .SingleAsync();
 
-            return View(new CreateStatusUpdateViewModel
+            return View(new CreateStatusUpdateFromUploadViewModel
             {
                 UploadId = upload.Id,
                 AltText = upload.AltText
@@ -84,32 +85,23 @@ namespace Pandacap.Controllers
         [HttpGet]
         [Authorize]
         [Route("CreateArtworkFromUpload")]
-        public async Task<IActionResult> CreateArtworkFromUpload(Guid photoBinImageId)
+        public async Task<IActionResult> CreateArtworkFromUpload(Guid id)
         {
             var upload = await context.Uploads
-                .Where(i => i.Id == photoBinImageId)
+                .Where(i => i.Id == id)
                 .SingleAsync();
 
-            return View(new CreateArtworkViewModel
+            return View(new CreateArtworkFromUploadViewModel
             {
                 AltText = upload.AltText,
                 UploadId = upload.Id
             });
         }
 
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        [Route("CreateStatusUpdate")]
-        public async Task<IActionResult> CreateStatusUpdate(
-            CreateStatusUpdateViewModel model,
-            CancellationToken cancellationToken)
+        private async Task<Guid> AddPostAsync(
+            ICreatePostViewModel model,
+            CancellationToken cancellationToken = default)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
             Guid id = Guid.NewGuid();
 
             var post = new Post
@@ -118,14 +110,20 @@ namespace Pandacap.Controllers
                 Id = id,
                 Images = [],
                 PublishedTime = DateTimeOffset.UtcNow,
-                Tags = model.DistinctTags.ToList(),
-                Type = PostType.StatusUpdate
+                Tags = (model.Tags ?? "")
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(tag => tag.TrimStart('#'))
+                    .Select(tag => tag.TrimEnd(','))
+                    .Distinct()
+                    .ToList(),
+                Title = model.Title,
+                Type = model.PostType
             };
 
-            if (model.UploadId is Guid uploadId)
+            if (model.UploadId is Guid uid)
             {
                 var upload = await context.Uploads
-                    .Where(i => i.Id == uploadId)
+                    .Where(i => i.Id == uid)
                     .SingleAsync(cancellationToken);
 
                 context.Remove(upload);
@@ -137,7 +135,12 @@ namespace Pandacap.Controllers
                         Id = upload.Id,
                         ContentType = upload.ContentType
                     },
-                    AltText = model.AltText
+                    AltText = model.AltText ?? upload.AltText,
+                    FocalPoint = new()
+                    {
+                        Horizontal = 0,
+                        Vertical = model.FocusTop ? 1 : 0
+                    }
                 }];
             }
 
@@ -160,6 +163,44 @@ namespace Pandacap.Controllers
 
             await context.SaveChangesAsync(cancellationToken);
 
+            return id;
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [Route("CreateStatusUpdate")]
+        public async Task<IActionResult> CreateStatusUpdate(
+            CreateStatusUpdateViewModel model,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var id = await AddPostAsync(model, cancellationToken);
+
+            return RedirectToAction(nameof(Index), new { id });
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [Route("CreateStatusUpdateFromUpload")]
+        public async Task<IActionResult> CreateStatusUpdateFromUpload(
+            CreateStatusUpdateFromUploadViewModel model,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var id = await AddPostAsync(model, cancellationToken);
+
+            await context.SaveChangesAsync(cancellationToken);
+
             return RedirectToAction(nameof(Index), new { id });
         }
 
@@ -176,36 +217,7 @@ namespace Pandacap.Controllers
                 return View(model);
             }
 
-            Guid id = Guid.NewGuid();
-
-            var post = new Post
-            {
-                Body = model.MarkdownBody,
-                Id = id,
-                PublishedTime = DateTimeOffset.UtcNow,
-                Tags = model.DistinctTags.ToList(),
-                Title = model.Title,
-                Type = PostType.JournalEntry
-            };
-
-            context.Posts.Add(post);
-
-            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                isCreate: true,
-                cancellationToken: cancellationToken))
-            {
-                context.ActivityPubOutboundActivities.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.ObjectToCreate(
-                            post)),
-                    Inbox = inbox,
-                    StoredAt = DateTimeOffset.UtcNow
-                });
-            }
-
-            await context.SaveChangesAsync(cancellationToken);
+            var id = await AddPostAsync(model, cancellationToken);
 
             return RedirectToAction(nameof(Index), new { id });
         }
@@ -215,7 +227,7 @@ namespace Pandacap.Controllers
         [Route("CreateArtwork")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateArtwork(
-            CreateArtworkViewModel model,
+            CreateArtworkFromUploadViewModel model,
             CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
@@ -223,56 +235,7 @@ namespace Pandacap.Controllers
                 return View(model);
             }
 
-            Guid id = Guid.NewGuid();
-
-            var upload = await context.Uploads
-                .Where(i => i.Id == model.UploadId)
-                .SingleAsync(cancellationToken);
-
-            context.Remove(upload);
-
-            var post = new Post
-            {
-                Body = model.MarkdownBody,
-                Id = id,
-                Images = [new()
-                {
-                    Blob = new()
-                    {
-                        Id = upload.Id,
-                        ContentType = upload.ContentType
-                    },
-                    AltText = model.AltText,
-                    FocalPoint = new()
-                    {
-                        Horizontal = 0,
-                        Vertical = model.FocusTop ? 1 : 0
-                    }
-                }],
-                PublishedTime = DateTimeOffset.UtcNow,
-                Tags = model.DistinctTags.ToList(),
-                Title = model.Title,
-                Type = PostType.Artwork
-            };
-
-            context.Posts.Add(post);
-
-            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                isCreate: true,
-                cancellationToken: cancellationToken))
-            {
-                context.ActivityPubOutboundActivities.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.ObjectToCreate(
-                            post)),
-                    Inbox = inbox,
-                    StoredAt = DateTimeOffset.UtcNow
-                });
-            }
-
-            await context.SaveChangesAsync(cancellationToken);
+            var id = await AddPostAsync(model, cancellationToken);
 
             return RedirectToAction(nameof(Index), new { id });
         }

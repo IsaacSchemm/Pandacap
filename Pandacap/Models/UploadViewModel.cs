@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class PhotoBinUploadViewModel : CreatePostViewModel
+    public class UploadViewModel
     {
         [Required]
         public IFormFile? File { get; set; }
@@ -14,6 +14,6 @@ namespace Pandacap.Models
         [DisplayName("Send the image to Azure AI Vision to generate new alt text")]
         public bool GenerateAltText { get; set; }
 
-        public PhotoBinDestination Destination { get; set; }
+        public UploadDestination Destination { get; set; }
     }
 }

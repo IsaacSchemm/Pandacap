@@ -48,27 +48,27 @@ namespace Pandacap.Controllers
         [Route("Upload")]
         public IActionResult Upload()
         {
-            return View("Upload", new PhotoBinUploadViewModel
+            return View("Upload", new UploadViewModel
             {
-                Destination = PhotoBinDestination.PhotoBin
+                Destination = UploadDestination.PhotoBin
             });
         }
 
         [Route("UploadForArtwork")]
         public IActionResult UploadForArtwork()
         {
-            return View("Upload", new PhotoBinUploadViewModel
+            return View("Upload", new UploadViewModel
             {
-                Destination = PhotoBinDestination.Artwork
+                Destination = UploadDestination.Artwork
             });
         }
 
         [Route("UploadForStatusUpdate")]
         public IActionResult UploadForStatusUpdate()
         {
-            return View("Upload", new PhotoBinUploadViewModel
+            return View("Upload", new UploadViewModel
             {
-                Destination = PhotoBinDestination.StatusUpdate
+                Destination = UploadDestination.StatusUpdate
             });
         }
 
@@ -76,7 +76,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         [Route("Upload")]
         public async Task<IActionResult> Upload(
-            PhotoBinUploadViewModel model,
+            UploadViewModel model,
             CancellationToken cancellationToken)
         {
             Guid id = Guid.NewGuid();
@@ -111,8 +111,8 @@ namespace Pandacap.Controllers
 
             return model.Destination switch
             {
-                PhotoBinDestination.StatusUpdate => RedirectToAction("CreateStatusUpdateFromUpload", "UserPosts", new { id }),
-                PhotoBinDestination.Artwork => RedirectToAction("CreateArtworkFromUpload", "UserPosts", new { id }),
+                UploadDestination.StatusUpdate => RedirectToAction("CreateStatusUpdateFromUpload", "UserPosts", new { id }),
+                UploadDestination.Artwork => RedirectToAction("CreateArtworkFromUpload", "UserPosts", new { id }),
                 _ => RedirectToAction(nameof(ViewUpload), new { id }),
             };
         }
