@@ -13,12 +13,15 @@
                 Create new post
             </a>
             <ul class="dropdown-menu" aria-labelledby="createDropdown">
-                <li><a class="dropdown-item" asp-area="" asp-controller="UserPosts" asp-action="CreateArtwork">Artwork</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-controller="PhotoBin" asp-action="UploadForArtwork">Artwork</a></li>
                 <li><a class="dropdown-item" asp-area="" asp-controller="UserPosts" asp-action="CreateJournalEntry">Journal entry</a></li>
-                <li><a class="dropdown-item" asp-area="" asp-controller="UserPosts" asp-action="CreateStatusUpdate">Status update</a></li>
-                <li><hr class="dropdown-divider" /></li>
-                <li><a class="dropdown-item" asp-area="" asp-controller="PhotoBin" asp-action="Index">View photo bin</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-controller="PhotoBin" asp-action="UploadForStatusUpdate">Status update (image)</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-controller="UserPosts" asp-action="CreateStatusUpdate">Status update (text)</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-controller="PhotoBin" asp-action="Upload">Photo bin</a></li>
             </ul>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-area="" asp-controller="PhotoBin" asp-action="Index">Photo bin</a>
         </li>
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Profile", new { area = "" })">

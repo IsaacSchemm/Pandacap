@@ -1,6 +1,10 @@
 ﻿@using Pandacap.LowLevel
 @model CreateJournalEntryViewModel
 
+@{
+    ViewBag.Title = "Post Journal Entry";
+}
+
 <form asp-action="CreateJournalEntry" enctype="multipart/form-data">
     <div class="mb-3">
         <label asp-for="@Model.Title" class="form-label"></label>

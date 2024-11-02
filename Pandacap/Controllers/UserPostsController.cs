@@ -52,9 +52,17 @@ namespace Pandacap.Controllers
         [HttpGet]
         [Authorize]
         [Route("CreateStatusUpdate")]
-        public IActionResult CreateStatusUpdate()
+        public async Task<IActionResult> CreateStatusUpdate(Guid? photoBinImageId = null)
         {
-            return View();
+            var image = await context.PhotoBinImages
+                .Where(i => i.Id == photoBinImageId)
+                .SingleOrDefaultAsync();
+
+            return View(new CreateStatusUpdateViewModel
+            {
+                PhotoBinImageId = image?.Id,
+                AltText = image?.AltText
+            });
         }
 
         [HttpPost]
@@ -82,22 +90,20 @@ namespace Pandacap.Controllers
                 Type = PostType.StatusUpdate
             };
 
-            if (model.File != null)
+            if (model.PhotoBinImageId is Guid photoBinImageId)
             {
-                Guid blobId = Guid.NewGuid();
+                var image = await context.PhotoBinImages
+                    .Where(i => i.Id == photoBinImageId)
+                    .SingleAsync(cancellationToken);
 
-                using var stream = model.File.OpenReadStream();
-
-                await blobServiceClient
-                    .GetBlobContainerClient("blobs")
-                    .UploadBlobAsync($"{blobId}", stream, cancellationToken);
+                context.Remove(image);
 
                 post.Images = [new()
                 {
                     Blob = new()
                     {
-                        Id = blobId,
-                        ContentType = model.File.ContentType
+                        Id = image.Id,
+                        ContentType = image.ContentType
                     },
                     AltText = model.AltText
                 }];
@@ -183,9 +189,17 @@ namespace Pandacap.Controllers
         [HttpGet]
         [Authorize]
         [Route("CreateArtwork")]
-        public IActionResult CreateArtwork()
+        public async Task<IActionResult> CreateArtwork(Guid photoBinImageId)
         {
-            return View();
+            var image = await context.PhotoBinImages
+                .Where(i => i.Id == photoBinImageId)
+                .SingleAsync();
+
+            return View(new CreateArtworkViewModel
+            {
+                AltText = image.AltText,
+                PhotoBinImageId = image.Id
+            });
         }
 
         [HttpPost]
@@ -202,13 +216,12 @@ namespace Pandacap.Controllers
             }
 
             Guid id = Guid.NewGuid();
-            Guid blobId = Guid.NewGuid();
 
-            using var stream = model.File!.OpenReadStream();
+            var image = await context.PhotoBinImages
+                .Where(i => i.Id == model.PhotoBinImageId)
+                .SingleAsync(cancellationToken);
 
-            await blobServiceClient
-                .GetBlobContainerClient("blobs")
-                .UploadBlobAsync($"{blobId}", stream, cancellationToken);
+            context.Remove(image);
 
             var post = new Post
             {
@@ -218,8 +231,8 @@ namespace Pandacap.Controllers
                 {
                     Blob = new()
                     {
-                        Id = blobId,
-                        ContentType = model.File.ContentType
+                        Id = image.Id,
+                        ContentType = image.ContentType
                     },
                     AltText = model.AltText,
                     FocalPoint = new()

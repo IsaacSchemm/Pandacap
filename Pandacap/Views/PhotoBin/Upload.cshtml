@@ -1,7 +1,8 @@
 ﻿@using Pandacap.LowLevel
-@model UploadImageViewModel
+@model PhotoBinUploadViewModel
 
 <form asp-action="Upload" enctype="multipart/form-data">
+    <input asp-for="@Model.Destination" type="hidden" />
     <div class="mb-3">
         <label asp-for="@Model.File" class="form-label"></label>
         <input asp-for="@Model.File" class="form-control" accept="image/png,image/jpeg" />
