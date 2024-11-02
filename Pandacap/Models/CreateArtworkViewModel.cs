@@ -9,7 +9,7 @@ namespace Pandacap.Models
         public string Title { get; set; } = "";
 
         [Required]
-        public Guid PhotoBinImageId { get; set; }
+        public Guid UploadId { get; set; }
 
         [DisplayName("Image description (alt text)")]
         public string? AltText { get; set; }

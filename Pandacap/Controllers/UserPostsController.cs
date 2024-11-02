@@ -52,16 +52,48 @@ namespace Pandacap.Controllers
         [HttpGet]
         [Authorize]
         [Route("CreateStatusUpdate")]
-        public async Task<IActionResult> CreateStatusUpdate(Guid? photoBinImageId = null)
+        public IActionResult CreateStatusUpdate()
         {
-            var image = await context.PhotoBinImages
-                .Where(i => i.Id == photoBinImageId)
-                .SingleOrDefaultAsync();
+            return View(new CreateStatusUpdateViewModel());
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("CreateStatusUpdateFromUpload")]
+        public async Task<IActionResult> CreateStatusUpdateFromUpload(Guid id)
+        {
+            var upload = await context.Uploads
+                .Where(i => i.Id == id)
+                .SingleAsync();
 
             return View(new CreateStatusUpdateViewModel
             {
-                PhotoBinImageId = image?.Id,
-                AltText = image?.AltText
+                UploadId = upload.Id,
+                AltText = upload.AltText
+            });
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("CreateJournalEntry")]
+        public IActionResult CreateJournalEntry()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("CreateArtworkFromUpload")]
+        public async Task<IActionResult> CreateArtworkFromUpload(Guid photoBinImageId)
+        {
+            var upload = await context.Uploads
+                .Where(i => i.Id == photoBinImageId)
+                .SingleAsync();
+
+            return View(new CreateArtworkViewModel
+            {
+                AltText = upload.AltText,
+                UploadId = upload.Id
             });
         }
 
@@ -90,20 +122,20 @@ namespace Pandacap.Controllers
                 Type = PostType.StatusUpdate
             };
 
-            if (model.PhotoBinImageId is Guid photoBinImageId)
+            if (model.UploadId is Guid uploadId)
             {
-                var image = await context.PhotoBinImages
-                    .Where(i => i.Id == photoBinImageId)
+                var upload = await context.Uploads
+                    .Where(i => i.Id == uploadId)
                     .SingleAsync(cancellationToken);
 
-                context.Remove(image);
+                context.Remove(upload);
 
                 post.Images = [new()
                 {
                     Blob = new()
                     {
-                        Id = image.Id,
-                        ContentType = image.ContentType
+                        Id = upload.Id,
+                        ContentType = upload.ContentType
                     },
                     AltText = model.AltText
                 }];
@@ -129,14 +161,6 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(Index), new { id });
-        }
-
-        [HttpGet]
-        [Authorize]
-        [Route("CreateJournalEntry")]
-        public IActionResult CreateJournalEntry()
-        {
-            return View();
         }
 
         [HttpPost]
@@ -186,26 +210,10 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(Index), new { id });
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("CreateArtwork")]
-        public async Task<IActionResult> CreateArtwork(Guid photoBinImageId)
-        {
-            var image = await context.PhotoBinImages
-                .Where(i => i.Id == photoBinImageId)
-                .SingleAsync();
-
-            return View(new CreateArtworkViewModel
-            {
-                AltText = image.AltText,
-                PhotoBinImageId = image.Id
-            });
-        }
-
         [HttpPost]
         [Authorize]
-        [ValidateAntiForgeryToken]
         [Route("CreateArtwork")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateArtwork(
             CreateArtworkViewModel model,
             CancellationToken cancellationToken)
@@ -217,11 +225,11 @@ namespace Pandacap.Controllers
 
             Guid id = Guid.NewGuid();
 
-            var image = await context.PhotoBinImages
-                .Where(i => i.Id == model.PhotoBinImageId)
+            var upload = await context.Uploads
+                .Where(i => i.Id == model.UploadId)
                 .SingleAsync(cancellationToken);
 
-            context.Remove(image);
+            context.Remove(upload);
 
             var post = new Post
             {
@@ -231,8 +239,8 @@ namespace Pandacap.Controllers
                 {
                     Blob = new()
                     {
-                        Id = image.Id,
-                        ContentType = image.ContentType
+                        Id = upload.Id,
+                        ContentType = upload.ContentType
                     },
                     AltText = model.AltText,
                     FocalPoint = new()

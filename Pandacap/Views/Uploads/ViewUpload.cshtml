@@ -1,5 +1,5 @@
 ﻿@using Pandacap.Data
-@model PhotoBinImage
+@model Upload
 
 @{
     ViewBag.Title = "Photo Bin";
@@ -11,7 +11,7 @@
 </p>
 
 <p>
-    <img src="/Blobs/PhotoBin/@Model.Id"
+    <img src="/Blobs/Uploads/@Model.Id"
          alt="@Model.AltText"
          title="@Model.AltText"
          style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />

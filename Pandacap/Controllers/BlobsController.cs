@@ -46,25 +46,25 @@ namespace Pandacap.Controllers
             return await ProxyAsync(post, image.Id);
         }
 
-        [Route("Blobs/PhotoBin/{id}")]
+        [Route("Blobs/Uploads/{id}")]
         [ResponseCache(Duration = 604800, Location = ResponseCacheLocation.Any)]
         public async Task<IActionResult> PhotoBin(Guid id)
         {
-            var image = await context.PhotoBinImages
+            var upload = await context.Uploads
                 .Where(p => p.Id == id)
                 .SingleOrDefaultAsync();
 
-            if (image == null)
+            if (upload == null)
                 return NotFound();
 
             var blob = await blobServiceClient
                 .GetBlobContainerClient("blobs")
-                .GetBlobClient($"{image.Id}")
+                .GetBlobClient($"{upload.Id}")
                 .DownloadStreamingAsync();
 
             return File(
                 blob.Value.Content,
-                image.ContentType);
+                upload.ContentType);
         }
 
         [Route("Blobs/Images/{id}")]

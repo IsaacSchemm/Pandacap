@@ -10,39 +10,42 @@ using Pandacap.Models;
 namespace Pandacap.Controllers
 {
     [Authorize]
-    public class PhotoBinController(
+    [Route("Uploads")]
+    public class UploadsController(
         BlobServiceClient blobServiceClient,
         ComputerVisionProvider computerVisionProvider,
         PandacapDbContext context) : Controller
     {
         public async Task<IActionResult> Index(int? count, Guid? next)
         {
-            var images = context.PhotoBinImages
+            var uploads = context.Uploads
                 .OrderByDescending(post => post.UploadedAt)
                 .AsAsyncEnumerable()
                 .SkipUntil(post => post.Id == next || next == null);
 
             return View("List", new ListViewModel
             {
-                Items = await images.AsListPage(count ?? 20),
-                Title = "Photo Bin"
+                Items = await uploads.AsListPage(count ?? 20),
+                Title = "Uploads"
             });
         }
 
-        public async Task<IActionResult> ViewImage(
+        [Route("{id}")]
+        public async Task<IActionResult> ViewUpload(
             Guid id,
             CancellationToken cancellationToken)
         {
-            var image = await context.PhotoBinImages
+            var upload = await context.Uploads
                 .Where(i => i.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
 
-            if (image == null)
+            if (upload == null)
                 return NotFound();
 
-            return View(image);
+            return View(upload);
         }
 
+        [Route("Upload")]
         public IActionResult Upload()
         {
             return View("Upload", new PhotoBinUploadViewModel
@@ -51,6 +54,7 @@ namespace Pandacap.Controllers
             });
         }
 
+        [Route("UploadForArtwork")]
         public IActionResult UploadForArtwork()
         {
             return View("Upload", new PhotoBinUploadViewModel
@@ -59,6 +63,7 @@ namespace Pandacap.Controllers
             });
         }
 
+        [Route("UploadForStatusUpdate")]
         public IActionResult UploadForStatusUpdate()
         {
             return View("Upload", new PhotoBinUploadViewModel
@@ -69,23 +74,24 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Route("Upload")]
         public async Task<IActionResult> Upload(
             PhotoBinUploadViewModel model,
             CancellationToken cancellationToken)
         {
-            Guid blobId = Guid.NewGuid();
+            Guid id = Guid.NewGuid();
 
             using var stream = model.File!.OpenReadStream();
 
             await blobServiceClient
                 .GetBlobContainerClient("blobs")
-                .UploadBlobAsync($"{blobId}", stream, cancellationToken);
+                .UploadBlobAsync($"{id}", stream, cancellationToken);
 
             if (model.GenerateAltText)
             {
                 var result = await blobServiceClient
                     .GetBlobContainerClient("blobs")
-                    .GetBlobClient($"{blobId}")
+                    .GetBlobClient($"{id}")
                     .DownloadStreamingAsync(cancellationToken: cancellationToken);
 
                 model.AltText = await computerVisionProvider.RecognizePrintedTextAsync(
@@ -93,9 +99,9 @@ namespace Pandacap.Controllers
                     cancellationToken);
             }
 
-            context.PhotoBinImages.Add(new()
+            context.Uploads.Add(new()
             {
-                Id = blobId,
+                Id = id,
                 ContentType = model.File.ContentType,
                 AltText = model.AltText,
                 UploadedAt = DateTimeOffset.UtcNow
@@ -105,9 +111,9 @@ namespace Pandacap.Controllers
 
             return model.Destination switch
             {
-                PhotoBinDestination.StatusUpdate => RedirectToAction("CreateStatusUpdate", "UserPosts", new { photoBinImageId = blobId }),
-                PhotoBinDestination.Artwork => RedirectToAction("CreateArtwork", "UserPosts", new { photoBinImageId = blobId }),
-                _ => RedirectToAction(nameof(ViewImage), new { id = blobId }),
+                PhotoBinDestination.StatusUpdate => RedirectToAction("CreateStatusUpdateFromUpload", "UserPosts", new { id }),
+                PhotoBinDestination.Artwork => RedirectToAction("CreateArtworkFromUpload", "UserPosts", new { id }),
+                _ => RedirectToAction(nameof(ViewUpload), new { id }),
             };
         }
 
@@ -117,18 +123,18 @@ namespace Pandacap.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            var image = await context.PhotoBinImages
+            var upload = await context.Uploads
                 .Where(i => i.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
 
-            if (image == null)
+            if (upload == null)
                 return NotFound();
 
             await blobServiceClient
                .GetBlobContainerClient("blobs")
-               .DeleteBlobIfExistsAsync($"{image.Id}", cancellationToken: cancellationToken);
+               .DeleteBlobIfExistsAsync($"{upload.Id}", cancellationToken: cancellationToken);
 
-            context.Remove(image);
+            context.Remove(upload);
 
             await context.SaveChangesAsync(cancellationToken);
 

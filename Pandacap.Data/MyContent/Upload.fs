@@ -2,7 +2,7 @@
 
 open System
 
-type PhotoBinImage() =
+type Upload() =
     member val Id = Guid.Empty with get, set
     member val ContentType = "application/octet-stream" with get, set
     member val AltText = "" with get, set
@@ -16,12 +16,12 @@ type PhotoBinImage() =
         ]
         member this.Id = $"{this.Id}"
         member _.IsDismissable = false
-        member this.LinkUrl = $"/PhotoBin/ViewImage?id={this.Id}"
+        member this.LinkUrl = $"/Uploads/{this.Id}"
         member _.ProfileUrl = null
         member this.Thumbnails = [{
             new IPostThumbnail with
                 member _.AltText = this.AltText
-                member _.Url = $"/Blobs/PhotoBin/{this.Id}"
+                member _.Url = $"/Blobs/Uploads/{this.Id}"
         }]
         member this.Timestamp = this.UploadedAt
         member _.Usericon = null
