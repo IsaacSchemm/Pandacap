@@ -131,7 +131,8 @@ module Auth =
         let host = { new IHost with member _.PDS = hostname }
 
         use! resp =
-            Requester.build HttpMethod.Post host "com.atproto.server.createSession" [
+            Requester.build HttpMethod.Post host "com.atproto.server.createSession" []
+            |> Requester.addJsonBody [
                 "identifier", identifier
                 "password", password
             ]
