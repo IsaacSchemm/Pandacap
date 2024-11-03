@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateStatusUpdateViewModel : ICreatePostViewModel
+    public class CreateStatusUpdateViewModel : PostCreator.IViewModel
     {
         [Required]
         [DisplayName("Body (Markdown)")]
@@ -13,14 +13,14 @@ namespace Pandacap.Models
         [DisplayName("Tags (space-separated, e.g. tag1 tag2 tag3)")]
         public string? Tags { get; set; }
 
-        PostType ICreatePostViewModel.PostType => PostType.StatusUpdate;
+        PostType PostCreator.IViewModel.PostType => PostType.StatusUpdate;
 
-        string? ICreatePostViewModel.Title => null;
+        string? PostCreator.IViewModel.Title => null;
 
-        Guid? ICreatePostViewModel.UploadId => null;
+        Guid? PostCreator.IViewModel.UploadId => null;
 
-        string? ICreatePostViewModel.AltText => null;
+        string? PostCreator.IViewModel.AltText => null;
 
-        bool ICreatePostViewModel.FocusTop => false;
+        bool PostCreator.IViewModel.FocusTop => false;
     }
 }

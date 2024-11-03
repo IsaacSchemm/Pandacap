@@ -6,7 +6,6 @@ using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.Models;
 using System.Text;
-using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -16,6 +15,7 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
         IdMapper mapper,
+        PostCreator postCreator,
         ReplyLookup replyLookup,
         ActivityPubTranslator translator) : Controller
     {
@@ -52,10 +52,88 @@ namespace Pandacap.Controllers
 
         [HttpGet]
         [Authorize]
+        [Route("CreateArtworkFromUpload")]
+        public async Task<IActionResult> CreateArtworkFromUpload(Guid id)
+        {
+            var upload = await context.Uploads
+                .Where(i => i.Id == id)
+                .SingleAsync();
+
+            return View(new CreateArtworkFromUploadViewModel
+            {
+                AltText = upload.AltText,
+                UploadId = upload.Id
+            });
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("CreateArtworkFromUpload")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateArtworkFromUpload(
+            CreateArtworkFromUploadViewModel model,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var id = await postCreator.CreatePostAsync(model, cancellationToken);
+
+            return RedirectToAction(nameof(Index), new { id });
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("CreateJournalEntry")]
+        public IActionResult CreateJournalEntry()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [Route("CreateJournalEntry")]
+        public async Task<IActionResult> CreateJournalEntry(
+            CreateJournalEntryViewModel model,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var id = await postCreator.CreatePostAsync(model, cancellationToken);
+
+            return RedirectToAction(nameof(Index), new { id });
+        }
+
+        [HttpGet]
+        [Authorize]
         [Route("CreateStatusUpdate")]
         public IActionResult CreateStatusUpdate()
         {
             return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [Route("CreateStatusUpdate")]
+        public async Task<IActionResult> CreateStatusUpdate(
+            CreateStatusUpdateViewModel model,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var id = await postCreator.CreatePostAsync(model, cancellationToken);
+
+            return RedirectToAction(nameof(Index), new { id });
         }
 
         [HttpGet]
@@ -74,116 +152,6 @@ namespace Pandacap.Controllers
             });
         }
 
-        [HttpGet]
-        [Authorize]
-        [Route("CreateJournalEntry")]
-        public IActionResult CreateJournalEntry()
-        {
-            return View();
-        }
-
-        [HttpGet]
-        [Authorize]
-        [Route("CreateArtworkFromUpload")]
-        public async Task<IActionResult> CreateArtworkFromUpload(Guid id)
-        {
-            var upload = await context.Uploads
-                .Where(i => i.Id == id)
-                .SingleAsync();
-
-            return View(new CreateArtworkFromUploadViewModel
-            {
-                AltText = upload.AltText,
-                UploadId = upload.Id
-            });
-        }
-
-        private async Task<Guid> AddPostAsync(
-            ICreatePostViewModel model,
-            CancellationToken cancellationToken = default)
-        {
-            Guid id = Guid.NewGuid();
-
-            var post = new Post
-            {
-                Body = model.MarkdownBody,
-                Id = id,
-                Images = [],
-                PublishedTime = DateTimeOffset.UtcNow,
-                Tags = (model.Tags ?? "")
-                    .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(tag => tag.TrimStart('#'))
-                    .Select(tag => tag.TrimEnd(','))
-                    .Distinct()
-                    .ToList(),
-                Title = model.Title,
-                Type = model.PostType
-            };
-
-            if (model.UploadId is Guid uid)
-            {
-                var upload = await context.Uploads
-                    .Where(i => i.Id == uid)
-                    .SingleAsync(cancellationToken);
-
-                context.Remove(upload);
-
-                post.Images = [new()
-                {
-                    Blob = new()
-                    {
-                        Id = upload.Id,
-                        ContentType = upload.ContentType
-                    },
-                    AltText = model.AltText ?? upload.AltText,
-                    FocalPoint = new()
-                    {
-                        Horizontal = 0,
-                        Vertical = model.FocusTop ? 1 : 0
-                    }
-                }];
-            }
-
-            context.Posts.Add(post);
-
-            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                isCreate: true,
-                cancellationToken: cancellationToken))
-            {
-                context.ActivityPubOutboundActivities.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.ObjectToCreate(
-                            post)),
-                    Inbox = inbox,
-                    StoredAt = DateTimeOffset.UtcNow
-                });
-            }
-
-            await context.SaveChangesAsync(cancellationToken);
-
-            return id;
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        [Route("CreateStatusUpdate")]
-        public async Task<IActionResult> CreateStatusUpdate(
-            CreateStatusUpdateViewModel model,
-            CancellationToken cancellationToken)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            var id = await AddPostAsync(model, cancellationToken);
-
-            return RedirectToAction(nameof(Index), new { id });
-        }
-
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -197,45 +165,9 @@ namespace Pandacap.Controllers
                 return View(model);
             }
 
-            var id = await AddPostAsync(model, cancellationToken);
+            var id = await postCreator.CreatePostAsync(model, cancellationToken);
 
             await context.SaveChangesAsync(cancellationToken);
-
-            return RedirectToAction(nameof(Index), new { id });
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        [Route("CreateJournalEntry")]
-        public async Task<IActionResult> CreateJournalEntry(
-            CreateJournalEntryViewModel model,
-            CancellationToken cancellationToken)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            var id = await AddPostAsync(model, cancellationToken);
-
-            return RedirectToAction(nameof(Index), new { id });
-        }
-
-        [HttpPost]
-        [Authorize]
-        [Route("CreateArtwork")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateArtwork(
-            CreateArtworkFromUploadViewModel model,
-            CancellationToken cancellationToken)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            var id = await AddPostAsync(model, cancellationToken);
 
             return RedirectToAction(nameof(Index), new { id });
         }

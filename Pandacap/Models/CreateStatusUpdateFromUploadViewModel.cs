@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace Pandacap.Models
 {
-    public class CreateStatusUpdateFromUploadViewModel : ICreatePostViewModel
+    public class CreateStatusUpdateFromUploadViewModel : PostCreator.IViewModel
     {
         [DisplayName("Body (Markdown)")]
         public string MarkdownBody { get; set; } = "";
@@ -16,12 +16,12 @@ namespace Pandacap.Models
         [DisplayName("Image description (alt text)")]
         public string? AltText { get; set; }
 
-        PostType ICreatePostViewModel.PostType => PostType.StatusUpdate;
+        PostType PostCreator.IViewModel.PostType => PostType.StatusUpdate;
 
-        string? ICreatePostViewModel.Title => null;
+        string? PostCreator.IViewModel.Title => null;
 
-        Guid? ICreatePostViewModel.UploadId => UploadId;
+        Guid? PostCreator.IViewModel.UploadId => UploadId;
 
-        bool ICreatePostViewModel.FocusTop => false;
+        bool PostCreator.IViewModel.FocusTop => false;
     }
 }

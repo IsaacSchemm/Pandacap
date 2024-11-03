@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateJournalEntryViewModel : ICreatePostViewModel
+    public class CreateJournalEntryViewModel : PostCreator.IViewModel
     {
         [Required]
         public string Title { get; set; } = "";
@@ -16,12 +16,12 @@ namespace Pandacap.Models
         [DisplayName("Tags (space-separated, e.g. tag1 tag2 tag3)")]
         public string? Tags { get; set; }
 
-        PostType ICreatePostViewModel.PostType => PostType.JournalEntry;
+        PostType PostCreator.IViewModel.PostType => PostType.JournalEntry;
 
-        Guid? ICreatePostViewModel.UploadId => null;
+        Guid? PostCreator.IViewModel.UploadId => null;
 
-        string? ICreatePostViewModel.AltText => null;
+        string? PostCreator.IViewModel.AltText => null;
 
-        bool ICreatePostViewModel.FocusTop => false;
+        bool PostCreator.IViewModel.FocusTop => false;
     }
 }

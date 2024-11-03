@@ -82,6 +82,7 @@ builder.Services
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<DeliveryInboxCollector>()
     .AddScoped<MastodonVerifier>()
+    .AddScoped<PostCreator>()
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>();
 

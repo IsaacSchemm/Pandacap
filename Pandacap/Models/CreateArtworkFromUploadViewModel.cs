@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateArtworkFromUploadViewModel : ICreatePostViewModel
+    public class CreateArtworkFromUploadViewModel : PostCreator.IViewModel
     {
         [Required]
         public string Title { get; set; } = "";
@@ -25,8 +25,8 @@ namespace Pandacap.Models
         [DisplayName("Crop image at top (instead of at center) in Mastodon")]
         public bool FocusTop { get; set; }
 
-        PostType ICreatePostViewModel.PostType => PostType.Artwork;
+        PostType PostCreator.IViewModel.PostType => PostType.Artwork;
 
-        Guid? ICreatePostViewModel.UploadId => UploadId;
+        Guid? PostCreator.IViewModel.UploadId => UploadId;
     }
 }
