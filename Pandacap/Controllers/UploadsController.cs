@@ -81,11 +81,19 @@ namespace Pandacap.Controllers
         {
             Guid id = Guid.NewGuid();
 
-            using var stream = model.File!.OpenReadStream();
+            byte[] buffer = new byte[model.File!.Length];
+            using (var stream = model.File!.OpenReadStream())
+            {
+                using var ms = new MemoryStream(buffer, writable: true);
+                await stream.CopyToAsync(ms, cancellationToken);
+            }
 
-            await blobServiceClient
-                .GetBlobContainerClient("blobs")
-                .UploadBlobAsync($"{id}", stream, cancellationToken);
+            using (var bufferStream = new MemoryStream(buffer, writable: false))
+            {
+                await blobServiceClient
+                    .GetBlobContainerClient("blobs")
+                    .UploadBlobAsync($"{id}", bufferStream, cancellationToken);
+            }
 
             if (model.GenerateAltText)
             {
@@ -94,8 +102,8 @@ namespace Pandacap.Controllers
                     .GetBlobClient($"{id}")
                     .DownloadStreamingAsync(cancellationToken: cancellationToken);
 
-                model.AltText = await computerVisionProvider.RecognizePrintedTextAsync(
-                    result.Value.Content,
+                model.AltText = await computerVisionProvider.GenerateAltTextAsync(
+                    buffer,
                     cancellationToken);
             }
 

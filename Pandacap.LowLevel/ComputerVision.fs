@@ -1,5 +1,6 @@
 ﻿namespace Pandacap.LowLevel
 
+open System
 open System.IO
 open System.Net.Http
 open System.Net.Http.Headers
@@ -15,7 +16,7 @@ type ComputerVisionConfiguration = {
 }
 
 type ComputerVisionProvider(config: ComputerVisionConfiguration, httpClientFactory: IHttpClientFactory) =
-    member _.RecognizePrintedTextAsync(stream: Stream, cancellationToken: CancellationToken) = task {
+    member _.GenerateAltTextAsync(data: byte array, cancellationToken: CancellationToken) = task {
         use client = new ComputerVisionClient(
             credentials = new TokenCredentials({
                 new ITokenProvider with
@@ -35,17 +36,33 @@ type ComputerVisionProvider(config: ComputerVisionConfiguration, httpClientFacto
             disposeHttpClient = true,
             Endpoint = config.Endpoint)
 
-        let! result = client.RecognizePrintedTextInStreamAsync(
+        let! ocrResult = client.RecognizePrintedTextInStreamAsync(
             detectOrientation = false,
-            image = stream,
+            image = new MemoryStream(data, writable = false),
             cancellationToken = cancellationToken)
 
-        return String.concat "\n" [
-            for region in result.Regions do
+        let! imageDescription = client.DescribeImageInStreamAsync(
+            image = new MemoryStream(data, writable = false),
+            cancellationToken = cancellationToken)
+
+        let text = String.concat " " [
+            for region in ocrResult.Regions do
                 for line in region.Lines do
                     String.concat " " [
                         for w in line.Words do
                             w.Text
                     ]
         ]
+
+        let caption =
+            imageDescription.Captions
+            |> Seq.sortByDescending (fun c -> c.Confidence)
+            |> Seq.map (fun c -> c.Text)
+            |> Seq.tryHead
+
+        return
+            match caption with
+            | Some c when text = "" -> c
+            | Some c -> $"{c}: \"{text}\""
+            | None -> text
     }
