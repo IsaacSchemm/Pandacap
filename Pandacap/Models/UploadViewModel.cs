@@ -3,18 +3,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateArtworkViewModel : CreatePostViewModel
+    public class UploadViewModel
     {
-        [Required]
-        public string Title { get; set; } = "";
-
         [Required]
         public IFormFile? File { get; set; }
 
         [DisplayName("Image description (alt text)")]
         public string? AltText { get; set; }
 
-        [DisplayName("Crop image at top (instead of at center) in Mastodon")]
-        public bool FocusTop { get; set; }
+        [DisplayName("Send the image to Azure AI Vision to generate new alt text")]
+        public bool GenerateAltText { get; set; }
+
+        public UploadDestination Destination { get; set; }
     }
 }

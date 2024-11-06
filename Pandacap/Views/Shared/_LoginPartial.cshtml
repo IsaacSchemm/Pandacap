@@ -10,12 +10,16 @@
         </li>
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="createDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Create new post
+                Create new
             </a>
             <ul class="dropdown-menu" aria-labelledby="createDropdown">
-                <li><a class="dropdown-item" asp-area="" asp-controller="UserPosts" asp-action="CreateArtwork">Artwork</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-controller="Uploads" asp-action="UploadForArtwork">Artwork</a></li>
                 <li><a class="dropdown-item" asp-area="" asp-controller="UserPosts" asp-action="CreateJournalEntry">Journal entry</a></li>
-                <li><a class="dropdown-item" asp-area="" asp-controller="UserPosts" asp-action="CreateStatusUpdate">Status update</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-controller="Uploads" asp-action="UploadForStatusUpdate">Status update (image)</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-controller="UserPosts" asp-action="CreateStatusUpdate">Status update (text)</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-controller="Uploads" asp-action="Upload">Upload</a></li>
+                <li><hr class="dropdown-divider" /></li>
+                <li><a class="dropdown-item" asp-area="" asp-controller="Uploads" asp-action="Index">View uploads</a></li>
             </ul>
         </li>
         <li class="nav-item">

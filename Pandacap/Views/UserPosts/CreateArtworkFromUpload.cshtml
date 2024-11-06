@@ -1,0 +1,41 @@
+﻿@using Pandacap.LowLevel
+@model CreateArtworkFromUploadViewModel
+
+@{
+    ViewBag.Title = "Post Artwork";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col col-lg-8">
+            <form asp-action="CreateArtworkFromUpload" enctype="multipart/form-data">
+                <input asp-for="@Model.UploadId" type="hidden" />
+                <div class="mb-3">
+                    <label asp-for="@Model.Title" class="form-label"></label>
+                    <input asp-for="@Model.Title" class="form-control" />
+                </div>
+                <div class="mb-3 form-check px-0">
+                    <input asp-for="@Model.FocusTop">
+                    <label class="form-check-label" asp-for="@Model.FocusTop"></label>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="@Model.MarkdownBody" class="form-label"></label>
+                    <textarea asp-for="@Model.MarkdownBody" class="form-control" rows="5"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="@Model.AltText" class="form-label"></label>
+                    <textarea asp-for="@Model.AltText" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="@Model.Tags" class="form-label"></label>
+                    <input asp-for="@Model.Tags" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">Create new post</button>
+            </form>
+        </div>
+        <div class="col col-lg-4">
+            <img src="/Blobs/Uploads/@Model.UploadId"
+                 style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
+        </div>
+    </div>
+</div>
