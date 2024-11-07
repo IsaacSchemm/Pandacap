@@ -16,8 +16,8 @@ type ComputerVisionConfiguration = {
 }
 
 type ComputerVisionProvider(config: ComputerVisionConfiguration, httpClientFactory: IHttpClientFactory) =
-    member _.GenerateAltTextAsync(data: byte array, cancellationToken: CancellationToken) = task {
-        use client = new ComputerVisionClient(
+    let getClientAsync() = task {
+        return new ComputerVisionClient(
             credentials = new TokenCredentials({
                 new ITokenProvider with
                     member _.GetAuthenticationHeaderAsync(cancellationToken) = task {
@@ -35,17 +35,17 @@ type ComputerVisionProvider(config: ComputerVisionConfiguration, httpClientFacto
             httpClient = httpClientFactory.CreateClient(),
             disposeHttpClient = true,
             Endpoint = config.Endpoint)
+    }
+
+    member _.RecognizePrintedTextAsync(data: byte array, cancellationToken: CancellationToken) = task {
+        use! client = getClientAsync()
 
         let! ocrResult = client.RecognizePrintedTextInStreamAsync(
             detectOrientation = false,
             image = new MemoryStream(data, writable = false),
             cancellationToken = cancellationToken)
 
-        let! imageDescription = client.DescribeImageInStreamAsync(
-            image = new MemoryStream(data, writable = false),
-            cancellationToken = cancellationToken)
-
-        let text = String.concat " " [
+        return String.concat " " [
             for region in ocrResult.Regions do
                 for line in region.Lines do
                     String.concat " " [
@@ -53,16 +53,19 @@ type ComputerVisionProvider(config: ComputerVisionConfiguration, httpClientFacto
                             w.Text
                     ]
         ]
+    }
 
-        let caption =
+    member _.DescribeImageAsync(data: byte array, cancellationToken: CancellationToken) = task {
+        use! client = getClientAsync()
+
+        let! imageDescription = client.DescribeImageInStreamAsync(
+            image = new MemoryStream(data, writable = false),
+            cancellationToken = cancellationToken)
+
+        return
             imageDescription.Captions
             |> Seq.sortByDescending (fun c -> c.Confidence)
             |> Seq.map (fun c -> c.Text)
             |> Seq.tryHead
-
-        return
-            match caption with
-            | Some c when text = "" -> c
-            | Some c -> $"{c}: \"{text}\""
-            | None -> text
+            |> Option.defaultValue ""
     }

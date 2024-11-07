@@ -11,8 +11,11 @@ namespace Pandacap.Models
         [DisplayName("Image description (alt text)")]
         public string? AltText { get; set; }
 
-        [DisplayName("Send the image to Azure AI Vision to generate new alt text")]
-        public bool GenerateAltText { get; set; }
+        [DisplayName("Send the image to Azure to generate alt text using AI image analysis")]
+        public bool GenerateDescription { get; set; }
+
+        [DisplayName("Send the image to Azure to generate alt text using OCR")]
+        public bool PerformOCR { get; set; }
 
         public UploadDestination Destination { get; set; }
     }
