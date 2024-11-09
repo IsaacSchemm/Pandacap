@@ -95,25 +95,13 @@ namespace Pandacap.Controllers
                     .UploadBlobAsync($"{id}", bufferStream, cancellationToken);
             }
 
-            List<string> altTexts = !string.IsNullOrEmpty(model.AltText)
-                ? [model.AltText]
-                : [];
-
-            if (model.GenerateDescription)
-                altTexts.Add(await computerVisionProvider.DescribeImageAsync(
-                    buffer,
-                    cancellationToken));
-
-            if (model.PerformOCR)
-                altTexts.Add(await computerVisionProvider.RecognizePrintedTextAsync(
-                    buffer,
-                    cancellationToken));
-
             context.Uploads.Add(new()
             {
                 Id = id,
                 ContentType = model.File.ContentType,
-                AltText = string.Join(" / ", altTexts),
+                AltText = model.GenerateAltText
+                    ? await computerVisionProvider.AnalyzeImageAsync(buffer, cancellationToken)
+                    : model.AltText,
                 UploadedAt = DateTimeOffset.UtcNow
             });
 

@@ -16,12 +16,8 @@
         <input asp-for="@Model.AltText" class="form-control" />
     </div>
     <div class="mb-3 form-check px-0">
-        <input asp-for="@Model.GenerateDescription">
-        <label asp-for="@Model.GenerateDescription" class="form-check-label"></label>
-    </div>
-    <div class="mb-3 form-check px-0">
-        <input asp-for="@Model.PerformOCR">
-        <label asp-for="@Model.PerformOCR" class="form-check-label"></label>
+        <input asp-for="@Model.GenerateAltText">
+        <label asp-for="@Model.GenerateAltText" class="form-check-label"></label>
     </div>
     <button type="submit" class="btn btn-primary">Upload</button>
 </form>
