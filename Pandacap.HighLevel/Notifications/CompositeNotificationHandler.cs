@@ -19,6 +19,7 @@
                 deviantArtNoteNotificationHandler,
                 weasylNotificationHandler
             }
+            .Select(handler => new NotificationFailureHandler(handler))
             .Select(handler => handler.GetNotificationsAsync())
             .MergeNewest(post => post.Timestamp);
     }
