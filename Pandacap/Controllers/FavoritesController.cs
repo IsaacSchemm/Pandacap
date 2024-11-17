@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
+﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Models;
 using System.Text;
@@ -12,9 +10,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class FavoritesController(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
-        RemoteActivityPubPostHandler remoteActivityPubPostHandler,
         ActivityPubTranslator translator) : Controller
     {
         public async Task<IActionResult> Index(Guid? next, int? count)
@@ -42,47 +38,6 @@ namespace Pandacap.Controllers
                 Title = "Favorites",
                 Items = listPage
             });
-        }
-
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add([FromForm] IEnumerable<string> id)
-        {
-            foreach (string idStr in id)
-            {
-                await remoteActivityPubPostHandler.AddRemoteFavoriteAsync(idStr);
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Remove([FromForm] IEnumerable<string> id)
-        {
-            await foreach (var item in context.RemoteActivityPubFavorites.Where(a => id.Contains(a.ObjectId)).AsAsyncEnumerable())
-            {
-                try
-                {
-                    var actor = await activityPubRemoteActorService.FetchActorAsync(item.CreatedBy);
-
-                    context.ActivityPubOutboundActivities.Add(new()
-                    {
-                        Id = Guid.NewGuid(),
-                        Inbox = actor.Inbox,
-                        JsonBody = ActivityPubSerializer.SerializeWithContext(translator.UndoLike(item.LikeGuid, item.ObjectId))
-                    });
-                }
-                catch (Exception) { }
-
-                context.Remove(item);
-            }
-
-            await context.SaveChangesAsync();
-
-            return RedirectToAction("Index");
         }
     }
 }

@@ -8,26 +8,14 @@ namespace Pandacap.Controllers
 {
     public class RemotePostsController(
         ActivityPubRemotePostService activityPubRemotePostService,
-        ApplicationInformation appInfo,
         ActivityPubTranslator translator,
         PandacapDbContext context,
         IdMapper idMapper) : Controller
     {
         [HttpGet]
-        public async Task<IActionResult> Index(string id, CancellationToken cancellationToken)
+        public IActionResult Index(string id, CancellationToken cancellationToken)
         {
-            if (!Uri.TryCreate(id, UriKind.Absolute, out Uri? uri) || uri == null)
-                return NotFound();
-
-            if (uri.Host == appInfo.ApplicationHostname)
-                return Redirect(uri.AbsoluteUri);
-
-            if (User.Identity?.IsAuthenticated != true)
-                return Redirect(uri.AbsoluteUri);
-
-            var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
-
-            return View(post);
+            return Redirect(id);
         }
 
         [HttpPost]

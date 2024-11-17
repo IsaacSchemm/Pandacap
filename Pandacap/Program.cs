@@ -1,6 +1,4 @@
 using Azure.Identity;
-using DeviantArtFs;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Pandacap;
@@ -44,45 +42,12 @@ builder.Services.AddAzureClients(clientBuilder =>
     clientBuilder.UseCredential(new DefaultAzureCredential());
 });
 
-string tenantId = builder.Configuration["Authentication:Microsoft:TenantId"]!;
-
-builder.Services.AddAuthentication()
-    .AddMicrosoftAccount(m =>
-    {
-        m.AuthorizationEndpoint = $"https://login.microsoftonline.com/{Uri.EscapeDataString(tenantId)}/oauth2/v2.0/authorize";
-        m.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"]!;
-        m.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"]!;
-        m.TokenEndpoint = $"https://login.microsoftonline.com/{Uri.EscapeDataString(tenantId)}/oauth2/v2.0/token";
-    })
-    .AddDeviantArt(d =>
-    {
-        d.Scope.Add("browse");
-        d.Scope.Add("message");
-        d.Scope.Add("note");
-        d.Scope.Add("publish");
-        d.Scope.Add("stash");
-        d.Scope.Add("user.manage");
-        d.ClientId = builder.Configuration["DeviantArtClientId"]!;
-        d.ClientSecret = builder.Configuration["DeviantArtClientSecret"]!;
-        d.SaveTokens = true;
-    });
-
-builder.Services.AddSingleton(new DeviantArtApp(
-    builder.Configuration["DeviantArtClientId"]!,
-    builder.Configuration["DeviantArtClientSecret"]!));
-
-builder.Services.AddSingleton(new ComputerVisionConfiguration(
-    builder.Configuration["ComputerVisionEndpoint"],
-    builder.Configuration["Authentication:Microsoft:TenantId"]));
-
 builder.Services
     .AddLowLevelServices()
     .AddHighLevelServices()
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
-    .AddScoped<DeliveryInboxCollector>()
     .AddScoped<MastodonVerifier>()
-    .AddScoped<PostCreator>()
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>();
 
@@ -96,9 +61,6 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services
-    .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<PandacapDbContext>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

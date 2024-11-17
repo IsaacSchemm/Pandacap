@@ -42,25 +42,3 @@
 <p class="text-muted">
     @Model.Post.PublishedTime
 </p>
-
-@if (Model.Replies.Any())
-{
-    <h2>Comments</h2>
-
-    foreach (var reply in Model.Replies)
-    {
-        <partial name="_Reply" model="@reply" />
-    }
-}
-
-@if (User.Identity?.IsAuthenticated == true)
-{
-    <hr />
-
-    <p>
-        <form asp-action="Delete" class="d-inline" onsubmit="confirm('Are you sure you want to delete this post?')">
-            <input type="hidden" name="id" value="@Model.Post.Id" />
-            <button class="btn btn-danger">Delete</button>
-        </form>
-    </p>
-}
