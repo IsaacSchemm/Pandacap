@@ -30,8 +30,11 @@ namespace Pandacap.Controllers
             {
                 if (await weasylClientFactory.CreateWeasylClientAsync() is WeasylClient client)
                 {
-                    var avatarResponse = await client.GetAvatarAsync(account.Login);
-                    ViewBag.Avatar = avatarResponse.avatar;
+                    try
+                    {
+                        var avatarResponse = await client.GetAvatarAsync(account.Login);
+                        ViewBag.Avatar = avatarResponse.avatar;
+                    } catch (Exception) { }
                 }
             }
 
