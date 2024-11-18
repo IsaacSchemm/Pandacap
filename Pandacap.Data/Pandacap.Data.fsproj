@@ -11,6 +11,7 @@
     <Compile Include="ExcerptGenerator.fs" />
     <Compile Include="Credentials\ATProtoCredentials.fs" />
     <Compile Include="Credentials\DeviantArtCredentials.fs" />
+    <Compile Include="Credentials\FurAffinityCredentials.fs" />
     <Compile Include="Credentials\WeasylCredentials.fs" />
     <Compile Include="MyContent\ActivityPubOutboundActivity.fs" />
     <Compile Include="MyContent\AddressedPost.fs" />
@@ -39,6 +40,7 @@
   <ItemGroup>
     <PackageReference Include="CommonMark.NET" Version="0.15.1" />
     <PackageReference Include="FSharp.Data.Html.Core" Version="6.4.0" />
+    <PackageReference Include="FurAffinityFs" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="8.0.10" />
   </ItemGroup>

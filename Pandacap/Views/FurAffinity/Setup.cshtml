@@ -1,0 +1,38 @@
+﻿@if (ViewBag.Username == null)
+{
+    <div class="row">
+        <div class="col-md-4">
+            <form method="post" asp-action="Connect">
+                <div class="form-floating mb-3">
+                    <input id="a" name="a" class="form-control" type="password" />
+                    <label for="a" class="form-label">
+                        <tt>a</tt> cookie value
+                    </label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input id="b" name="b" class="form-control" type="password" />
+                    <label for="b" class="form-label">
+                        <tt>b</tt> cookie value
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary">Connect</button>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    <div style="display: inline-block">
+        <h1>
+            @ViewBag.Username
+        </h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <form method="post" asp-action="Reset">
+                <button type="submit" class="btn btn-danger">Remove</button>
+            </form>
+        </div>
+    </div>
+}
