@@ -241,7 +241,7 @@ module Repo =
     type Post = {
         text: string
         createdAt: DateTimeOffset
-        images: BlobWithAltText seq
+        images: BlobWithAltText list
     }
 
     type NewRecord = {

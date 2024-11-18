@@ -34,11 +34,11 @@ module ActivityPubSerializer =
 
 type ActivityPubActorInformation = {
     key: ActorKey
-    avatars: Avatar seq
-    inboxes: string seq
-    bluesky: string seq
-    deviantArt: string seq
-    weasyl: string seq
+    avatars: Avatar list
+    inboxes: string list
+    bluesky: string list
+    deviantArt: string list
+    weasyl: string list
 }
 
 /// Creates ActivityPub objects (in string/object pair format) for actors,

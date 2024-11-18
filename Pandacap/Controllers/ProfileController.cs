@@ -56,11 +56,11 @@ namespace Pandacap.Controllers
                         translator.PersonToObject(
                             new ActivityPubActorInformation(
                                 key,
-                                avatars,
+                                [..avatars],
                                 [],
-                                blueskyDIDs,
-                                deviantArtUsernames,
-                                weasylUsernames))),
+                                [..blueskyDIDs],
+                                [..deviantArtUsernames],
+                                [..weasylUsernames]))),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -342,9 +342,9 @@ namespace Pandacap.Controllers
                                 key,
                                 [newAvatar],
                                 [inbox],
-                                blueskyDIDs,
-                                deviantArtUsernames,
-                                weasylUsernames))),
+                                [..blueskyDIDs],
+                                [..deviantArtUsernames],
+                                [..weasylUsernames]))),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });

@@ -77,7 +77,7 @@ namespace Pandacap.HighLevel
                 new Repo.Post(
                     text: text,
                     createdAt: submission.PublishedTime,
-                    images: await downloadImagesAsync().ToListAsync()));
+                    images: [..await downloadImagesAsync().ToListAsync()]));
 
             submission.BlueskyDID = wrapper.DID;
             submission.BlueskyRecordKey = post.RecordKey;
