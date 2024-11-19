@@ -1,0 +1,67 @@
+﻿@using Pandacap.LowLevel
+@model FurAffinityCrosspostArtworkViewModel
+
+@{
+    ViewBag.Title = "Post to Fur Affinity";
+}
+
+<h1>Post to Fur Affinity</h1>
+
+<hr />
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div class="container">
+        <div class="row">
+            <div class="col col-lg-6 mb-3">
+                <h2>Gallery Folders</h2>
+                <div class="mb-3">
+                    <label asp-for="@Model.Folders" class="form-label"></label>
+                    <select asp-for="@Model.Folders"
+                            asp-items="@Model.AvailableFolders"
+                            class="form-control"
+                            style="min-height: 20rem"
+                            multiple></select>
+                </div>
+                <div class="mb-3 form-check px-0">
+                    <input asp-for="@Model.Scraps" type="checkbox">
+                    <label class="form-check-label" asp-for="@Model.Scraps"></label>
+                </div>
+            </div>
+            <div class="col col-lg-6 mb-3">
+                <h2>Rating</h2>
+                <div class="mb-3 form-check px-0">
+                    <input id="is_mature" type="checkbox" disabled checked>
+                    <label class="form-check-label" for="is_mature">General</label>
+                </div>
+
+                <h2>Metadata</h2>
+                <div class="mb-3">
+                    <label asp-for="@Model.Category" class="form-label"></label>
+                    <select asp-for="@Model.Category"
+                            asp-items="@Model.AvailableCategories"
+                            class="form-control"></select>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="@Model.Gender" class="form-label"></label>
+                    <select asp-for="@Model.Gender"
+                            asp-items="@Model.AvailableGenders"
+                            class="form-control"></select>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="@Model.Species" class="form-label"></label>
+                    <select asp-for="@Model.Species"
+                            asp-items="@Model.AvailableSpecies"
+                            class="form-control"></select>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="@Model.Type" class="form-label"></label>
+                    <select asp-for="@Model.Type"
+                            asp-items="@Model.AvailableTypes"
+                            class="form-control"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Post to Fur Affinity</button>
+</form>

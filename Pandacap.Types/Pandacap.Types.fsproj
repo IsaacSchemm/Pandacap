@@ -10,6 +10,7 @@
     <Compile Include="Badge.fs" />
     <Compile Include="DeviantArtImportScope.fs" />
     <Compile Include="FavoritesCacheEntry.fs" />
+    <Compile Include="IFurAffinityCredentials.fs" />
     <Compile Include="NotificationPlatform.fs" />
     <Compile Include="PostPlatform.fs" />
   </ItemGroup>

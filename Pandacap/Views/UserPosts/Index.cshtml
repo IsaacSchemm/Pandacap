@@ -77,6 +77,20 @@
         </a>
     }
 
+    @if (Model.Post.FurAffinitySubmissionId is int faSubmissionId)
+    {
+        <a href="https://www.furaffinity.net/view/@(faSubmissionId)/" class="btn btn-outline-primary" target="_blank">
+            View on Fur Affinity
+        </a>
+    }
+
+    @if (Model.Post.FurAffinityJournalId is int faJournalId)
+    {
+        <a href="https://www.furaffinity.net//journal/@(faJournalId)/" class="btn btn-outline-primary" target="_blank">
+            View on Fur Affinity
+        </a>
+    }
+
     @if (Model.Post.WeasylSubmitId is int submitid)
     {
         <a href="https://www.weasyl.com/~x/submissions/@(submitid)" class="btn btn-outline-primary" target="_blank">
@@ -131,6 +145,25 @@
                 <input type="hidden" name="id" value="@Model.Post.Id" />
                 <button type="submit" class="btn btn-warning">
                     Detach DeviantArt post
+                </button>
+            </form>
+        }
+
+        @if (Model.Post.FurAffinitySubmissionId == null && Model.Post.FurAffinityJournalId == null)
+        {
+            <form asp-action="Crosspost" asp-controller="FurAffinity" class="mb-3">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-success">
+                    Post to Fur Affinity
+                </button>
+            </form>
+        }
+        else
+        {
+            <form asp-action="Detach" asp-controller="FurAffinity" class="mb-3" onsubmit="This will remove the 'View on Fur Affinity' button; it will not delete the post from Fur Affinity.">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-warning">
+                    Detach Fur Affinity post
                 </button>
             </form>
         }

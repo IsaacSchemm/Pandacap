@@ -1,6 +1,7 @@
 ﻿namespace Pandacap.Data
 
 open System.ComponentModel.DataAnnotations
+open Pandacap.Types
 
 /// The active credentials for Fur Affinity.
 type FurAffinityCredentials() =
@@ -9,6 +10,6 @@ type FurAffinityCredentials() =
     member val A = "" with get, set
     member val B = "" with get, set
 
-    interface FurAffinityFs.FurAffinity.ICredentials with
+    interface IFurAffinityCredentials with
         member this.A = this.A
         member this.B = this.B

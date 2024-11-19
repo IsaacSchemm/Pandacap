@@ -48,6 +48,9 @@ type Post() =
     member val DeviantArtId = Nullable<Guid>() with get, set
     member val DeviantArtUrl = nullString with get, set
 
+    member val FurAffinitySubmissionId = Nullable<int>() with get, set
+    member val FurAffinityJournalId = Nullable<int>() with get, set
+
     member val WeasylSubmitId = Nullable<int>() with get, set
     member val WeasylJournalId = Nullable<int>() with get, set
 

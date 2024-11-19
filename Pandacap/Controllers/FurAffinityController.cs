@@ -1,13 +1,20 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.HighLevel;
+using Pandacap.LowLevel;
+using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class FurAffinityController(
-        PandacapDbContext context) : Controller
+        BlobServiceClient blobServiceClient,
+        PandacapDbContext context,
+        FAExportClient faExportClient) : Controller
     {
         public async Task<IActionResult> Setup()
         {
@@ -36,7 +43,7 @@ namespace Pandacap.Controllers
                     B = b
                 };
 
-                credentials.Username = await FurAffinityFs.FurAffinity.WhoamiAsync(credentials);
+                credentials.Username = await FurAffinity.WhoamiAsync(credentials);
 
                 context.FurAffinityCredentials.Add(credentials);
 
@@ -56,6 +63,136 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Setup));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Crosspost(
+            Guid id,
+            CancellationToken cancellationToken)
+        {
+            var post = await context.Posts
+                .Where(p => p.Id == id)
+                .SingleAsync(cancellationToken);
+
+            if (post.Type == PostType.Artwork)
+                return RedirectToAction(nameof(CrosspostArtwork), new { id });
+
+            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
+                ?? throw new Exception("Fur Affinity connection not available");
+
+            if (post.FurAffinitySubmissionId != null || post.FurAffinityJournalId != null)
+                throw new Exception("Already posted to Fur Affinity");
+
+            var journal = await faExportClient.PostJournalAsync(
+                post.Title,
+                post.Body,
+                cancellationToken);
+
+            post.FurAffinityJournalId = int.Parse(new Uri(journal!.url).Segments[2].TrimEnd('/'));
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction("Index", "UserPosts", new { id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CrosspostArtwork(
+            Guid id,
+            CancellationToken cancellationToken)
+        {
+            var post = await context.Posts.FindAsync([id], cancellationToken);
+            if (post == null)
+                return NotFound();
+
+            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
+                ?? throw new Exception("Fur Affinity connection not available");
+
+            if (post.Type != PostType.Artwork)
+                throw new Exception("Not an artwork post");
+
+            var folders = await FurAffinity.ListGalleryFoldersAsync(credentials);
+            var options = await FurAffinity.ListPostOptionsAsync(credentials);
+
+            return View(new FurAffinityCrosspostArtworkViewModel
+            {
+                Id = id,
+                AvailableFolders = folders.Select(f => new SelectListItem(f.Name, $"{f.FolderId}")).ToList(),
+                AvailableCategories = options.Categories.Select(x => new SelectListItem(x.Name, $"{x.Value:d}")).ToList(),
+                AvailableGenders = options.Genders.Select(x => new SelectListItem(x.Name, $"{x.Value:d}")).ToList(),
+                AvailableSpecies = options.Species.Select(x => new SelectListItem(x.Name, $"{x.Value:d}")).ToList(),
+                AvailableTypes = options.Types.Select(x => new SelectListItem(x.Name, $"{x.Value:d}")).ToList()
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CrosspostArtwork(
+            Guid id,
+            FurAffinityCrosspostArtworkViewModel model,
+            CancellationToken cancellationToken)
+        {
+            var post = await context.Posts
+                .Where(p => p.Id == id)
+                .SingleAsync(cancellationToken);
+
+            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
+                ?? throw new Exception("Fur Affinity connection not available");
+
+            if (post.FurAffinitySubmissionId != null || post.FurAffinityJournalId != null)
+                throw new Exception("Already posted to Fur Affinity");
+
+            if (post.Images.Count != 1)
+                throw new NotImplementedException("Crossposted Fur Affinity submissions must have exactly one image");
+
+            var blobRef = post.Images.Single().Blob;
+
+            var blob = await blobServiceClient
+                .GetBlobContainerClient("blobs")
+                .GetBlobClient($"{blobRef.Id}")
+                .DownloadContentAsync(cancellationToken);
+
+            byte[] data = blob.Value.Content.ToArray();
+
+            Uri uri = await FurAffinity.PostArtworkAsync(
+                credentials,
+                new FurAffinity.File(
+                    $"image.{blobRef.ContentType.Split('/').Last()}",
+                    data),
+                new FurAffinity.ArtworkMetadata(
+                    post.Title,
+                    post.Body,
+                    [.. post.Tags],
+                    (FurAffinity.Category)model.Category,
+                    model.Scraps,
+                    (FurAffinity.Type)model.Type,
+                    (FurAffinity.Species)model.Species,
+                    (FurAffinity.Gender)model.Gender,
+                    FurAffinity.Rating.General,
+                    false,
+                    [.. model.Folders]));
+
+            post.FurAffinitySubmissionId = int.Parse(uri.Segments[2].TrimEnd('/'));
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction("Index", "UserPosts", new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Detach(Guid id)
+        {
+            var post = await context.Posts
+                .Where(p => p.Id == id)
+                .SingleAsync();
+
+            post.FurAffinityJournalId = null;
+            post.FurAffinitySubmissionId = null;
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "UserPosts", new { id });
         }
     }
 }
