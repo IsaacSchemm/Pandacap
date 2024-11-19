@@ -8,7 +8,6 @@ using Pandacap.Types;
 namespace Pandacap.HighLevel.Notifications
 {
     public class ATProtoNotificationHandler(
-        ApplicationInformation appInfo,
         ATProtoCredentialProvider atProtoCredentialProvider,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory
@@ -21,7 +20,7 @@ namespace Pandacap.HighLevel.Notifications
                 yield break;
 
             var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var page = LowLevel.ATProto.Notifications.Page.FromStart;
 

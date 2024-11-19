@@ -194,7 +194,7 @@
         <form asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this post from Pandacap? (This will not delete it from any site it has been crossposted to.)')">
             <input type="hidden" name="id" value="@Model.Post.Id" />
             <button type="submit" class="btn btn-danger">
-                Delete from @appInfo.ApplicationName
+                Delete from @UserAgentInformation.ApplicationName
             </button>
         </form>
     </details>

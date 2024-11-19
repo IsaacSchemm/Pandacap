@@ -10,6 +10,7 @@
     <Compile Include="BridgyFed.fs" />
     <Compile Include="IdMapper.fs" />
     <Compile Include="ListPage.fs" />
+    <Compile Include="UserAgentInformation.fs" />
     <Compile Include="ActivityPub.fs" />
     <Compile Include="ATProto.fs" />
     <Compile Include="ComputerVision.fs" />

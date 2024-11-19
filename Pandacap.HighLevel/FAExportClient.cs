@@ -10,7 +10,6 @@ namespace Pandacap.HighLevel
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Matching JSON from FAExport")]
     public class FAExportClient(
-        ApplicationInformation appInfo,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
@@ -21,7 +20,7 @@ namespace Pandacap.HighLevel
             var client = httpClientFactory.CreateClient();
             client.BaseAddress = new("https://faexport.spangle.org.uk");
             client.DefaultRequestHeaders.Add("FA_COOKIE", $"b={credentials.B}; a={credentials.A}");
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
             return client;
         }
 

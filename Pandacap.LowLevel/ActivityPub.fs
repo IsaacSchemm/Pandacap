@@ -58,7 +58,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "preferredUsername" appInfo.Username
         pair "name" appInfo.Username
         pair "summary" (String.concat "" [
-            $"<p>Art gallery hosted by <a href='{appInfo.WebsiteUrl}'>{WebUtility.HtmlEncode(appInfo.ApplicationName)}</a>.</p>"
+            $"<p>Art gallery hosted by <a href='{UserAgentInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(UserAgentInformation.ApplicationName)}</a>.</p>"
 
             for did in info.bluesky do
                 $"<p>Bluesky: https://bsky.app/profile/{did}</p>"

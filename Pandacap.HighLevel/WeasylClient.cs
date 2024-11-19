@@ -1,17 +1,12 @@
-﻿using DeviantArtFs.ResponseTypes;
-using Microsoft.FSharp.Collections;
+﻿using Microsoft.FSharp.Collections;
 using Pandacap.LowLevel;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
-using static DeviantArtFs.Api.Deviation;
-using static Pandacap.HighLevel.WeasylClient;
 
 namespace Pandacap.HighLevel
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Matching response JSON from Weasyl")]
     public partial class WeasylClient(
-        ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory,
         string apiKey)
     {
@@ -21,10 +16,7 @@ namespace Pandacap.HighLevel
             client.DefaultRequestHeaders.Add(
                 "X-Weasyl-API-Key",
                 apiKey);
-            client.DefaultRequestHeaders.UserAgent.Add(
-                new ProductInfoHeaderValue(
-                    appInfo.ApplicationName,
-                    appInfo.VersionNumber));
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
             return client;
         }
 

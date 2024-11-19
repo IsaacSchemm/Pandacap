@@ -24,7 +24,7 @@
     {
         <meta property="og:title" content="@up.Title" />
         <meta property="og:description" content="@up.Body" />
-        <meta property="og:site_name" content="@appInfo.ApplicationName" />
+        <meta property="og:site_name" content="@UserAgentInformation.ApplicationName" />
         <meta property="og:url" content="@mapper.GetObjectId(up)" />
         if (up.Images.DefaultIfEmpty(null).First() is PostImage image)
         {
@@ -95,7 +95,7 @@
         <div class="container">
             <details>
                 <summary>
-                    Powered by <a href="@appInfo.WebsiteUrl" target="_blank">@appInfo.ApplicationName</a> @appInfo.VersionNumber (<a href="/About">about</a>) - &copy; 2024 contributors
+                    Powered by <a href="@UserAgentInformation.WebsiteUrl" target="_blank">@UserAgentInformation.ApplicationName</a> @UserAgentInformation.VersionNumber (<a href="/About">about</a>) - &copy; 2024 contributors
                 </summary>
 
                 <p>

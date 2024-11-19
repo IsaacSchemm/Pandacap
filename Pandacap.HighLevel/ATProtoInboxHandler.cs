@@ -7,7 +7,6 @@ using Pandacap.LowLevel.ATProto;
 namespace Pandacap.HighLevel
 {
     public class ATProtoInboxHandler(
-        ApplicationInformation appInfo,
         PandacapDbContext context,
         ATProtoCredentialProvider credentialProvider,
         ATProtoDIDResolver didResolver,
@@ -53,7 +52,7 @@ namespace Pandacap.HighLevel
                 return;
 
             var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 

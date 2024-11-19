@@ -15,15 +15,4 @@ type ApplicationInformation = {
     /// The host / domain name of the key vault used for the signing key for
     /// ActivityPub.
     KeyVaultHostname: string
-} with
-    /// The application name (e.g. "Pandacap").
-    member _.ApplicationName = "Pandacap"
-
-    /// The Pandacap version number.
-    member _.VersionNumber = "6.0.0-beta1"
-
-    /// A URL to a website with more information about the application.
-    member _.WebsiteUrl = "https://github.com/IsaacSchemm/Pandacap"
-
-    /// The user agent string for outgoing ActivityPub requests.
-    member this.UserAgent = $"{this.ApplicationName}/{this.VersionNumber} ({this.WebsiteUrl})"
+}

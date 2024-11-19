@@ -10,7 +10,6 @@ namespace Pandacap.HighLevel
     /// Performs requests to other ActivityPub servers.
     /// </summary>
     public class ActivityPubRequestHandler(
-        ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory,
         KeyProvider keyProvider,
         IdMapper mapper)
@@ -56,7 +55,7 @@ namespace Pandacap.HighLevel
             using var req = new HttpRequestMessage(HttpMethod.Post, url);
             req.Headers.Host = url.Host;
             req.Headers.Date = DateTime.UtcNow;
-            req.Headers.UserAgent.ParseAdd(appInfo.UserAgent);
+            req.Headers.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             req.Headers.Add("Digest", $"SHA-256={digest}");
 
@@ -101,7 +100,7 @@ namespace Pandacap.HighLevel
                 using var req = new HttpRequestMessage(HttpMethod.Get, url);
                 req.Headers.Host = url.Host;
                 req.Headers.Date = DateTime.UtcNow;
-                req.Headers.UserAgent.ParseAdd(appInfo.UserAgent);
+                req.Headers.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
                 if (includeSignature)
                     await AddSignatureAsync(req);

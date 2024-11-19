@@ -1,5 +1,4 @@
-﻿using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
@@ -11,7 +10,6 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
-        ApplicationInformation appInfo,
         BlueskyAgent blueskyAgent,
         IHttpClientFactory httpClientFactory,
         PandacapDbContext context) : Controller
@@ -38,7 +36,7 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Setup(string pds, string did, string password)
         {
             var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var credentials = await context.ATProtoCredentials
                 .Where(c => c.PDS == pds)

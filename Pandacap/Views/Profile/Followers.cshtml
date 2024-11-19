@@ -3,7 +3,6 @@
 @using Pandacap.HighLevel
 @using Pandacap.Models
 @model FollowerViewModel
-@inject ApplicationInformation appInfo
 
 @{
     ViewBag.Title = "Followers";
@@ -35,7 +34,7 @@ else
                     {
                         <br />
                         <span class="small text-muted">
-                            Bridgy Fed is currently disabled in the @appInfo.ApplicationName code and will not recieve new posts.
+                            Bridgy Fed is currently disabled in the @UserAgentInformation.ApplicationName code and will not recieve new posts.
                         </span>
                     }
                 </span>

@@ -6,7 +6,6 @@ using Pandacap.LowLevel.ATProto;
 namespace Pandacap.HighLevel
 {
     public class BlueskyAgent(
-        ApplicationInformation appInfo,
         ATProtoCredentialProvider atProtoCredentialProvider,
         BlobServiceClient blobServiceClient,
         IHttpClientFactory httpClientFactory,
@@ -18,7 +17,7 @@ namespace Pandacap.HighLevel
                 return;
 
             using var httpClient = httpClientFactory.CreateClient();
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var wrapper = await atProtoCredentialProvider.GetCredentialsAsync();
 
@@ -37,7 +36,7 @@ namespace Pandacap.HighLevel
         public async Task CreateBlueskyPostsAsync(Post submission)
         {
             using var httpClient = httpClientFactory.CreateClient();
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(appInfo.UserAgent);
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var wrapper = await atProtoCredentialProvider.GetCredentialsAsync();
             if (wrapper == null)
