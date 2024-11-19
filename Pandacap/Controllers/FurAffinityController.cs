@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.HighLevel;
 using Pandacap.LowLevel;
 using Pandacap.Models;
 
@@ -14,7 +13,7 @@ namespace Pandacap.Controllers
     public class FurAffinityController(
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
-        FAExportClient faExportClient) : Controller
+        IHttpClientFactory httpClientFactory) : Controller
     {
         public async Task<IActionResult> Setup()
         {
@@ -87,7 +86,9 @@ namespace Pandacap.Controllers
             if (post.FurAffinitySubmissionId != null || post.FurAffinityJournalId != null)
                 throw new Exception("Already posted to Fur Affinity");
 
-            var journal = await faExportClient.PostJournalAsync(
+            var journal = await FAExport.PostJournalAsync(
+                httpClientFactory,
+                credentials,
                 post.Title,
                 post.Body,
                 cancellationToken);

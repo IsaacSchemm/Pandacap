@@ -15,6 +15,7 @@
     <Compile Include="ATProto.fs" />
     <Compile Include="ComputerVision.fs" />
     <Compile Include="DeviantArtFeedPages.fs" />
+    <Compile Include="FAExport.fs" />
     <Compile Include="FurAffinity.fs" />
     <Compile Include="Lemmy.fs" />
     <Compile Include="DependencyInjectionExtensions.fs" />

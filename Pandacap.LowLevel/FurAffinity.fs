@@ -70,7 +70,7 @@ module FurAffinity =
         let client = new HttpClient(handler.Value, disposeHandler = false)
         client.BaseAddress <- new Uri("https://www.furaffinity.net/")
         client.DefaultRequestHeaders.Add("Cookie", $"a={credentials.A}; b={credentials.B}")
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0")
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent)
         client
 
     let private ExtractAuthenticityToken (formName: string) (html: HtmlDocument) =

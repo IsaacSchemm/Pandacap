@@ -23,7 +23,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<DeviantArtInboxHandler>()
                 .AddScoped<DeviantArtFeedNotificationHandler>()
                 .AddScoped<DeviantArtNoteNotificationHandler>()
-                .AddScoped<FAExportClient>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<KeyProvider>()
