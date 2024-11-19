@@ -29,9 +29,12 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Connect(string a, string b)
+        public async Task<IActionResult> Connect(
+            string a,
+            string b,
+            CancellationToken cancellationToken)
         {
-            int count = await context.FurAffinityCredentials.CountAsync();
+            int count = await context.FurAffinityCredentials.CountAsync(cancellationToken);
             if (count > 0)
                 return Conflict();
 
@@ -43,11 +46,11 @@ namespace Pandacap.Controllers
                     B = b
                 };
 
-                credentials.Username = await FurAffinity.WhoamiAsync(credentials);
+                credentials.Username = await FurAffinity.WhoamiAsync(credentials, cancellationToken);
 
                 context.FurAffinityCredentials.Add(credentials);
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(cancellationToken);
             }
 
             return RedirectToAction(nameof(Setup));
@@ -111,8 +114,8 @@ namespace Pandacap.Controllers
             if (post.Type != PostType.Artwork)
                 throw new Exception("Not an artwork post");
 
-            var folders = await FurAffinity.ListGalleryFoldersAsync(credentials);
-            var options = await FurAffinity.ListPostOptionsAsync(credentials);
+            var folders = await FurAffinity.ListGalleryFoldersAsync(credentials, cancellationToken);
+            var options = await FurAffinity.ListPostOptionsAsync(credentials, cancellationToken);
 
             return View(new FurAffinityCrosspostArtworkViewModel
             {
@@ -170,7 +173,8 @@ namespace Pandacap.Controllers
                     (FurAffinity.Gender)model.Gender,
                     FurAffinity.Rating.General,
                     false,
-                    [.. model.Folders]));
+                    [.. model.Folders]),
+                cancellationToken);
 
             post.FurAffinitySubmissionId = int.Parse(uri.Segments[2].TrimEnd('/'));
 

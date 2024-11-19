@@ -66,46 +66,6 @@ namespace Pandacap.HighLevel
             }
         }
 
-        //public record Submission(
-        //    string title,
-        //    string description,
-        //    string description_body,
-        //    string name,
-        //    string profile,
-        //    string profile_name,
-        //    string avatar,
-        //    string link,
-        //    string posted,
-        //    DateTimeOffset posted_at,
-        //    string download,
-        //    string full,
-        //    string thumbnail,
-        //    string gallery,
-        //    string category,
-        //    string theme,
-        //    string species,
-        //    string gender,
-        //    int favorites,
-        //    int comments,
-        //    int views,
-        //    string resolution,
-        //    string rating,
-        //    FSharpList<string> keywords);
-
-        //public async Task<Submission?> GetSubmissionAsync(
-        //    int id,
-        //    CancellationToken cancellationToken = default)
-        //{
-        //    using var client = await CreateClientAsync(cancellationToken);
-        //    using var resp = await client.GetAsync(
-        //        $"/submission/{id}.json",
-        //        cancellationToken);
-        //    if (resp.StatusCode == HttpStatusCode.NotFound)
-        //        return null;
-        //    resp.EnsureSuccessStatusCode();
-        //    return await resp.Content.ReadFromJsonAsync<Submission>(cancellationToken);
-        //}
-
         public record Journal(
             string url);
 

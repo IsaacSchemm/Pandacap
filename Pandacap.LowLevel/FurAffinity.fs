@@ -82,12 +82,12 @@ module FurAffinity =
             | Some token -> token
             | None -> failwith $"Form \"{formName}\" with hidden input \"key\" not found in HTML from server"
 
-    let WhoamiAsync credentials = task {
+    let WhoamiAsync credentials cancellationToken = task {
         use client = getClient credentials
-        use! resp = client.GetAsync "/help/"
+        use! resp = client.GetAsync("/help/", cancellationToken = cancellationToken)
         ignore (resp.EnsureSuccessStatusCode())
 
-        let! html = resp.Content.ReadAsStringAsync()
+        let! html = resp.Content.ReadAsStringAsync(cancellationToken)
         let document = HtmlDocument.Parse html
         return String.concat " / " [
             for item in document.CssSelect("#my-username") do
@@ -126,12 +126,12 @@ module FurAffinity =
                     | _ -> ()
         ]
 
-    let ListPostOptionsAsync credentials = task {
+    let ListPostOptionsAsync credentials cancellationToken = task {
         use client = getClient credentials
-        use! resp = client.GetAsync "/browse/"
+        use! resp = client.GetAsync("/browse/", cancellationToken = cancellationToken)
         ignore (resp.EnsureSuccessStatusCode())
 
-        let! html = resp.Content.ReadAsStringAsync()
+        let! html = resp.Content.ReadAsStringAsync(cancellationToken)
         let document = HtmlDocument.Parse(html)
 
         return {
@@ -142,12 +142,12 @@ module FurAffinity =
         }
     }
 
-    let ListGalleryFoldersAsync credentials = task {
+    let ListGalleryFoldersAsync credentials cancellationToken = task {
         use client = getClient credentials
-        use! resp = client.GetAsync "/controls/folders/submissions/"
+        use! resp = client.GetAsync("/controls/folders/submissions/", cancellationToken = cancellationToken)
         ignore (resp.EnsureSuccessStatusCode())
 
-        let! html = resp.Content.ReadAsStringAsync()
+        let! html = resp.Content.ReadAsStringAsync(cancellationToken)
         let document = HtmlDocument.Parse html
 
         let regex = new System.Text.RegularExpressions.Regex("^/gallery/[^/]+/folder/([0-9]+)/")
@@ -180,13 +180,13 @@ module FurAffinity =
             | name, FilePart file -> content.Add(new ByteArrayContent(file.Data), name, file.FileName)
         content
 
-    let PostArtworkAsync credentials (file: IFile) (metadata: ArtworkMetadata) = task {
+    let PostArtworkAsync credentials (file: IFile) (metadata: ArtworkMetadata) cancellationToken = task {
         use client = getClient credentials
 
         let! artwork_submission_page_key = task {
-            use! resp = client.GetAsync "/submit/"
+            use! resp = client.GetAsync("/submit/", cancellationToken = cancellationToken)
             ignore (resp.EnsureSuccessStatusCode())
-            let! html = resp.Content.ReadAsStringAsync()
+            let! html = resp.Content.ReadAsStringAsync(cancellationToken)
             let token = html |> HtmlDocument.Parse |> ExtractAuthenticityToken "myform"
             return token
         }
@@ -199,16 +199,16 @@ module FurAffinity =
                 "submission", FilePart file
             ]
 
-            use! resp = client.SendAsync req
+            use! resp = client.SendAsync(req, cancellationToken)
             ignore (resp.EnsureSuccessStatusCode())
-            let! html = resp.Content.ReadAsStringAsync()
+            let! html = resp.Content.ReadAsStringAsync(cancellationToken)
             if html.Contains "Security code missing or invalid." then
                 failwith "Security code missing or invalid for page"
             return html |> HtmlDocument.Parse |> ExtractAuthenticityToken "myform"
         }
 
         return! task {
-            let req = new HttpRequestMessage(System.Net.Http.HttpMethod.Post, "/submit/finalize/")
+            use req = new HttpRequestMessage(System.Net.Http.HttpMethod.Post, "/submit/finalize/")
             req.Content <- multipart [
                 "part", FieldPart "5"
                 "key", FieldPart finalize_submission_page_key
@@ -229,8 +229,8 @@ module FurAffinity =
                 for id in metadata.folder_ids do
                     "folder_ids[]", FieldPart $"{id}"
             ]
-            use! resp = client.SendAsync req
-            let! html = resp.Content.ReadAsStringAsync()
+            use! resp = client.SendAsync(req, cancellationToken)
+            let! html = resp.Content.ReadAsStringAsync(cancellationToken)
             if html.Contains "Security code missing or invalid." then
                 failwith "Security code missing or invalid for page"
 
