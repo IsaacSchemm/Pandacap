@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 using Pandacap.LowLevel;
-using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Pandacap.HighLevel
 {
-    public class FurAffinityInboxHandler(
+    public partial class FurAffinityInboxHandler(
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
@@ -45,6 +44,9 @@ namespace Pandacap.HighLevel
 
                     foreach (var submission in page.new_submissions)
                     {
+                        if (submission.id <= lastSeenId)
+                            yield break;
+
                         yield return submission;
                         from = submission.id - 1;
                     }
@@ -52,15 +54,13 @@ namespace Pandacap.HighLevel
             }
 
             var allSubmissions = await enumerateAsync(sfw: false)
-                .TakeWhile(s => s.id > lastSeenId)
                 .ToListAsync();
 
             var sfwIds = await enumerateAsync(sfw: true)
-                .TakeWhile(s => s.id > lastSeenId)
                 .Select(s => s.id)
-                .ToListAsync();
+                .ToHashSetAsync();
 
-            foreach (var submission in allSubmissions.OrderBy(s => s.id))
+            foreach (var submission in allSubmissions)
             {
                 context.InboxFurAffinitySubmissions.Add(new()
                 {
@@ -75,12 +75,20 @@ namespace Pandacap.HighLevel
                         Name = submission.name,
                         Url = submission.profile
                     },
-                    PostedAt = DateTimeOffset.UtcNow,
+                    PostedAt =
+                        GetFurAffinityThumbnailPattern().Match(submission.thumbnail) is Match match
+                        && match.Success
+                        && long.TryParse(match.Groups[1].Value, out long ts)
+                            ? DateTimeOffset.FromUnixTimeSeconds(ts)
+                            : DateTimeOffset.UtcNow,
                     Sfw = sfwIds.Contains(submission.id)
                 });
             }
 
             await context.SaveChangesAsync();
         }
+
+        [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
+        private static partial Regex GetFurAffinityThumbnailPattern();
     }
 }
