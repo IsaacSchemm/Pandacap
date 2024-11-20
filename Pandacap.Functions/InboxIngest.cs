@@ -8,6 +8,7 @@ namespace Pandacap.Functions
     public class InboxIngest(
         AtomRssFeedReader atomRssFeedReader,
         ATProtoInboxHandler atProtoInboxHandler,
+        FurAffinityInboxHandler furAffinityInboxHandler,
         PandacapDbContext context,
         DeviantArtInboxHandler deviantArtInboxHandler,
         WeasylInboxHandler weasylInboxHandler)
@@ -33,6 +34,8 @@ namespace Pandacap.Functions
 
             await c(deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync());
             await c(deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync());
+
+            await c(furAffinityInboxHandler.ImportSubmissionsAsync());
 
             await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync());
 

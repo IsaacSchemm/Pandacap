@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.LowLevel;
 using Pandacap.Models;
-using Pandacap.Types;
 
 namespace Pandacap.Controllers
 {
@@ -62,7 +60,14 @@ namespace Pandacap.Controllers
                 .Where(a => a.Attachments.Count > 0)
                 .OfType<IPost>();
 
-            var posts = await new[] { source1, source2, source3, source4, source5 }
+            var source6 = context.InboxFurAffinitySubmissions
+                .Where(a => a.PostedAt <= startTime)
+                .Where(d => d.DismissedAt == null)
+                .OrderByDescending(a => a.PostedAt)
+                .AsAsyncEnumerable()
+                .OfType<IPost>();
+
+            var posts = await new[] { source1, source2, source3, source4, source5, source6 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -237,6 +242,14 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
+                .InboxFurAffinitySubmissions
+                .Where(x => guids.Contains(x.Id))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
+
+            await foreach (var item in context
                 .InboxWeasylSubmissions
                 .Where(x => guids.Contains(x.Id))
                 .AsAsyncEnumerable())
@@ -269,6 +282,9 @@ namespace Pandacap.Controllers
 
                 if (item is InboxTextDeviation itd)
                     itd.DismissedAt ??= DateTimeOffset.UtcNow;
+
+                if (item is InboxFurAffinitySubmission ifs)
+                    ifs.DismissedAt ??= DateTimeOffset.UtcNow;
 
                 if (item is InboxWeasylSubmission iws)
                     iws.DismissedAt ??= DateTimeOffset.UtcNow;
