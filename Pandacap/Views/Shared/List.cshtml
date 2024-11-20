@@ -56,7 +56,7 @@ else
         </button>
     }
 
-    @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Items.Next) is string id)
+    @if (Model.Items.Next.FirstOrDefault() is string id)
     {
         <hr />
 

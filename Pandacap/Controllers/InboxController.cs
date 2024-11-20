@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Models;
@@ -207,7 +208,7 @@ namespace Pandacap.Controllers
                         yield return g;
             }
 
-            var guids = new HashSet<Guid>(getGuids());
+            FSharpSet<Guid> guids = [.. getGuids()];
 
             await foreach (var item in context
                 .InboxArtworkDeviations

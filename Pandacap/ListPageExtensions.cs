@@ -32,8 +32,8 @@ namespace Pandacap
             }
 
             return new ListPage(
-                SeqModule.ToList(accumulator),
-                SeqModule.TryExactlyOne(next));
+                [.. accumulator],
+                [.. next]);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using DeviantArtFs;
+using Microsoft.FSharp.Collections;
 using Pandacap.HighLevel;
 
 namespace Pandacap
@@ -22,7 +23,7 @@ namespace Pandacap
         {
             await foreach (var chunk in asyncSeq.Chunk(24))
             {
-                var deviationIds = chunk.Select(d => d.deviationid).ToHashSet();
+                FSharpSet<Guid> deviationIds = [.. chunk.Select(d => d.deviationid)];
 
                 var metadataResponse = await DeviantArtFs.Api.Deviation.GetMetadataAsync(
                     credentials,

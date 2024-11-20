@@ -264,8 +264,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         ]
 
         match posts.Next with
-        | None -> ()
-        | Some id ->
+        | [] -> ()
+        | id::_ ->
             pair "next" $"{mapper.FirstOutboxPageId}?next={id}&count={List.length posts.Current}"
     ]
 
@@ -289,8 +289,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         ]
 
         match posts.Next with
-        | None -> ()
-        | Some id ->
+        | [] -> ()
+        | id :: _ ->
             pair "next" $"{mapper.LikedPageId}?next={id}&count={List.length posts.Current}"
     ]
 

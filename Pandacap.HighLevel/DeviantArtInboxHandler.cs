@@ -1,6 +1,7 @@
 ﻿using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 
 namespace Pandacap.HighLevel
@@ -28,11 +29,12 @@ namespace Pandacap.HighLevel
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
-            var mostRecentLocalItemIds = new HashSet<Guid>(
-                await context.InboxArtworkDeviations
+            FSharpSet<Guid> mostRecentLocalItemIds = [
+                .. await context.InboxArtworkDeviations
                     .Where(item => item.Timestamp >= someTimeAgo)
                     .Select(item => item.Id)
-                    .ToListAsync());
+                    .ToListAsync()
+            ];
 
             Stack<DeviantArtFs.ResponseTypes.Deviation> newDeviations = new();
 

@@ -36,7 +36,10 @@ module DeviantArtFeedPages =
                         member _.Username = null
                 }
             ]
-            Next =
-                page.next_offset |> Option.map string
+            Next = [
+                match page.next_offset with
+                | Some id -> $"{id}"
+                | None -> ()
+            ]
         }
     }
