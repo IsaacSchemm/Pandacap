@@ -19,6 +19,7 @@ type InboxFurAffinitySubmission() =
     member val Link = "" with get, set
     member val PostedBy = new InboxFurAffinityUser() with get, set
     member val PostedAt = DateTimeOffset.MinValue with get, set
+    member val Sfw = false with get, set
     member val DismissedAt = nullDateTimeOffset with get, set
 
     interface IPost with
@@ -28,7 +29,13 @@ type InboxFurAffinitySubmission() =
         member _.IsDismissable = true
         member this.LinkUrl = this.Link
         member this.ProfileUrl = this.PostedBy.Url
-        member _.Thumbnails = []
+        member this.Thumbnails = [
+            if this.Sfw then {
+                new IPostThumbnail with
+                    member _.AltText = null
+                    member _.Url = this.Thumbnail
+            }
+        ]
         member this.Timestamp = this.PostedAt
         member _.Usericon = null
         member this.Username = this.PostedBy.Name

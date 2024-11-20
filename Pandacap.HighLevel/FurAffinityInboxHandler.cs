@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 using Pandacap.LowLevel;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace Pandacap.HighLevel
                 .DefaultIfEmpty(0)
                 .Single();
 
-            async IAsyncEnumerable<FAExport.NotificationsSubmission> enumerateAsync()
+            async IAsyncEnumerable<FAExport.NotificationsSubmission> enumerateAsync(bool sfw)
             {
                 int from = int.MaxValue;
 
@@ -36,6 +37,7 @@ namespace Pandacap.HighLevel
                         httpClientFactory,
                         credentials,
                         from,
+                        sfw,
                         CancellationToken.None);
 
                     if (page.new_submissions.IsEmpty)
@@ -49,11 +51,16 @@ namespace Pandacap.HighLevel
                 }
             }
 
-            var newSubmissions = enumerateAsync()
+            var allSubmissions = await enumerateAsync(sfw: false)
                 .TakeWhile(s => s.id > lastSeenId)
-                .Reverse();
+                .ToListAsync();
 
-            await foreach (var submission in newSubmissions)
+            var sfwIds = await enumerateAsync(sfw: true)
+                .TakeWhile(s => s.id > lastSeenId)
+                .Select(s => s.id)
+                .ToListAsync();
+
+            foreach (var submission in allSubmissions.OrderBy(s => s.id))
             {
                 context.InboxFurAffinitySubmissions.Add(new()
                 {
@@ -68,7 +75,8 @@ namespace Pandacap.HighLevel
                         Name = submission.name,
                         Url = submission.profile
                     },
-                    PostedAt = DateTimeOffset.UtcNow
+                    PostedAt = DateTimeOffset.UtcNow,
+                    Sfw = sfwIds.Contains(submission.id)
                 });
             }
 

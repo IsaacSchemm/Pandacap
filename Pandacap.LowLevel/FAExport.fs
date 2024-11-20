@@ -27,14 +27,14 @@ module FAExport =
         new_submissions: NotificationsSubmission list
     }
 
-    let GetNotificationsSubmissionsAsync factory credentials (from: Nullable<int>) cancellationToken = task {
-        let url =
-            if from.HasValue
-            then $"/notifications/submissions.json?from={from}"
-            else $"/notifications/submissions.json"
+    let GetNotificationsSubmissionsAsync factory credentials (from: int) (sfw: bool) cancellationToken = task {
+        let qs = String.concat "&" [
+            $"from={from}"
+            if sfw then "sfw=1"
+        ]
 
         use client = getClient factory credentials
-        use! resp = client.GetAsync(url, cancellationToken = cancellationToken)
+        use! resp = client.GetAsync($"/notifications/submissions.json?{qs}", cancellationToken = cancellationToken)
         return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<NotificationsSubmissions>()
     }
 
