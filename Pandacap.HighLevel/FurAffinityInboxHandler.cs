@@ -26,13 +26,13 @@ namespace Pandacap.HighLevel
                 .DefaultIfEmpty(0)
                 .Single();
 
-            async IAsyncEnumerable<FAExport.NotificationsSubmission> enumerateAsync(bool sfw)
+            async IAsyncEnumerable<FAExport.Notifications.Submission> enumerateAsync(bool sfw)
             {
                 int from = int.MaxValue;
 
                 while (true)
                 {
-                    var page = await FAExport.GetNotificationsSubmissionsAsync(
+                    var page = await FAExport.Notifications.GetSubmissionsAsync(
                         httpClientFactory,
                         credentials,
                         from,

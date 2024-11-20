@@ -6,6 +6,8 @@
         ATProtoNotificationHandler atProtoNotificationHandler,
         DeviantArtFeedNotificationHandler deviantArtFeedNotificationHandler,
         DeviantArtNoteNotificationHandler deviantArtNoteNotificationHandler,
+        FurAffinityNoteNotificationHandler furAffinityNoteNotificationHandler,
+        FurAffinityNotificationHandler furAffinityNotificationHandler,
         WeasylNotificationHandler weasylNotificationHandler
     ) : INotificationHandler
     {
@@ -17,6 +19,8 @@
                 atProtoNotificationHandler,
                 deviantArtFeedNotificationHandler,
                 deviantArtNoteNotificationHandler,
+                furAffinityNoteNotificationHandler,
+                furAffinityNotificationHandler,
                 weasylNotificationHandler
             }
             .Select(handler => new NotificationFailureHandler(handler))

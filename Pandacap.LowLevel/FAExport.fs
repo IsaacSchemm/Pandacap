@@ -13,29 +13,131 @@ module FAExport =
         client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent)
         client
 
-    type NotificationsSubmission = {
-        id: int
-        title: string
-        thumbnail: string
-        link: string
+    module Notifications =
+        type Submission = {
+            id: int
+            title: string
+            thumbnail: string
+            link: string
+            name: string
+            profile: string
+            profile_name: string
+        }
+
+        type Submissions = {
+            new_submissions: Submission list
+        }
+
+        let GetSubmissionsAsync factory credentials (from: int) (sfw: bool) cancellationToken = task {
+            let qs = String.concat "&" [
+                $"from={from}"
+                if sfw then "sfw=1"
+            ]
+
+            use client = getClient factory credentials
+            use! resp = client.GetAsync($"/notifications/submissions.json?{qs}", cancellationToken = cancellationToken)
+            return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Submissions>()
+        }
+
+        type Watch = {
+            watch_id: int
+            name: string
+            profile: string
+            profile_name: string
+            avatar: string
+            posted_at: DateTimeOffset
+            deleted: bool
+        }
+
+        type SubmissionComment = {
+            comment_id: int
+            name: string
+            profile: string
+            profile_name: string
+            is_reply: bool
+            your_submission: bool
+            their_submission: bool
+            submission_id: int
+            title: string
+            posted_at: DateTimeOffset
+            deleted: bool
+        }
+
+        type JournalComment = {
+            comment_id: int
+            name: string
+            profile: string
+            profile_name: string
+            is_reply: bool
+            your_journal: bool
+            their_journal: bool
+            journal_id: int
+            title: string
+            posted_at: DateTimeOffset
+            deleted: bool
+        }
+
+        type Shout = {
+            shout_id: int
+            name: string
+            profile: string
+            profile_name: string
+            posted_at: DateTimeOffset
+            deleted: bool
+        }
+
+        type Favorite = {
+            favorite_notification_id: int
+            name: string
+            profile: string
+            profile_name: string
+            submission_id: int
+            submission_name: string
+            posted_at: DateTimeOffset
+            deleted: bool
+        }
+
+        type Journal = {
+            journal_id: int
+            title: string
+            name: string
+            profile: string
+            profile_name: string
+            posted_at: DateTimeOffset
+            deleted: bool
+        }
+
+        type Others = {
+            new_watches: Watch list
+            new_submission_comments: SubmissionComment list
+            new_journal_comments: Journal list
+            new_shouts: Shout list
+            new_favorites: Favorite list
+            new_journals: Journal list
+        }
+
+        let GetOthersAsync factory credentials cancellationToken = task {
+            use client = getClient factory credentials
+            use! resp = client.GetAsync($"/notifications/others.json", cancellationToken = cancellationToken)
+            return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Others>()
+        }
+
+    type Note = {
+        note_id: int
+        subject: string
+        is_inbound: bool
+        is_read: bool
         name: string
         profile: string
         profile_name: string
+        user_deleted: bool
+        posted_at: DateTimeOffset
     }
 
-    type NotificationsSubmissions = {
-        new_submissions: NotificationsSubmission list
-    }
-
-    let GetNotificationsSubmissionsAsync factory credentials (from: int) (sfw: bool) cancellationToken = task {
-        let qs = String.concat "&" [
-            $"from={from}"
-            if sfw then "sfw=1"
-        ]
-
+    let GetNotesAsync factory credentials folder cancellationToken = task {
         use client = getClient factory credentials
-        use! resp = client.GetAsync($"/notifications/submissions.json?{qs}", cancellationToken = cancellationToken)
-        return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<NotificationsSubmissions>()
+        use! resp = client.GetAsync($"/notes/{Uri.EscapeDataString(folder)}.json", cancellationToken = cancellationToken)
+        return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Note list>()
     }
 
     type PostedJournal = {

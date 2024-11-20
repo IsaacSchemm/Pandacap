@@ -25,6 +25,8 @@ namespace Pandacap.HighLevel
                 .AddScoped<DeviantArtNoteNotificationHandler>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<FurAffinityInboxHandler>()
+                .AddScoped<FurAffinityNoteNotificationHandler>()
+                .AddScoped<FurAffinityNotificationHandler>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<KeyProvider>()
                 .AddScoped<LemmyClient>()
