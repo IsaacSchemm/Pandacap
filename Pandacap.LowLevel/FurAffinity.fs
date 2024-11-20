@@ -6,59 +6,20 @@ open FSharp.Data
 open Pandacap.Types
 
 module FurAffinity =
-    type IFile =
-        abstract member FileName: string
-        abstract member Data: byte array
-
-    type File = {
-        fileName: string
-        data: byte array
-    } with
-        interface IFile with
-            member this.FileName = this.fileName
-            member this.Data = this.data
-
-    type Category = All = 1
-
-    type Type = All = 1
-
-    type Species = Unspecified_Any = 1
-
-    type Gender = Any = 0
-
-    type PostOption<'T when 'T :> Enum> = {
-        Group: string option
-        Name: string
-        Value: 'T
-    } with
-        override this.ToString() = $"""{this.Name} ({this.Value.ToString("d")})"""
-
-    type PostOptions = {
-        Categories: PostOption<Category> list
-        Types: PostOption<Type> list
-        Species: PostOption<Species> list
-        Genders: PostOption<Gender> list
-    }
-
     type Rating =
     | General = 0
     | Adult = 1
     | Mature = 2
 
-    type ExistingGalleryFolderInformation = {
-        FolderId: int64
-        Name: string
-    }
-
     type ArtworkMetadata = {
         title: string
         message: string
         keywords: string list
-        cat: Category
+        cat: int
         scrap: bool
-        atype: Type
-        species: Species
-        gender: Gender
+        atype: int
+        species: int
+        gender: int
         rating: Rating
         lock_comments: bool
         folder_ids: Set<int64>
@@ -72,15 +33,6 @@ module FurAffinity =
         client.DefaultRequestHeaders.Add("Cookie", $"a={credentials.A}; b={credentials.B}")
         client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent)
         client
-
-    let private ExtractAuthenticityToken (formName: string) (html: HtmlDocument) =
-        let m =
-            html.CssSelect($"form[name={formName}] input[name=key]")
-            |> Seq.map (fun e -> e.AttributeValue("value"))
-            |> Seq.tryHead
-        match m with
-            | Some token -> token
-            | None -> failwith $"Form \"{formName}\" with hidden input \"key\" not found in HTML from server"
 
     let WhoamiAsync credentials cancellationToken = task {
         use client = getClient credentials
@@ -106,11 +58,6 @@ module FurAffinity =
             |> Option.map (fun a -> HtmlAttribute.value a)
             |> Option.defaultValue (getName node)
 
-        let getLabel node =
-            node
-            |> HtmlNode.tryGetAttribute "label"
-            |> Option.map (fun a -> HtmlAttribute.value a)
-
         let getDescendants node =
             HtmlNode.descendants false (fun _ -> true) node
 
@@ -119,10 +66,10 @@ module FurAffinity =
                 for x in getDescendants select do
                     match (HtmlNode.name x).ToLowerInvariant() with
                     | "option" ->
-                        { Group = None; Value = getValue x |> int |> enum; Name = getName x}
+                        {| Value = getValue x |> int; Name = getName x |}
                     | "optgroup" ->
                         for y in getDescendants x do
-                            { Group = getLabel x; Value = getValue y |> int |> enum; Name = getName y }
+                            {| Value = getValue y |> int; Name = getName y |}
                     | _ -> ()
         ]
 
@@ -134,12 +81,12 @@ module FurAffinity =
         let! html = resp.Content.ReadAsStringAsync(cancellationToken)
         let document = HtmlDocument.Parse(html)
 
-        return {
+        return {|
             Categories = document |> Scraper.getPostOptions "select[name=cat]"
             Types = document |> Scraper.getPostOptions "select[name=atype]"
             Species = document |> Scraper.getPostOptions "select[name=species]"
             Genders = document |> Scraper.getPostOptions "select[name=gender]"
-        }
+        |}
     }
 
     let ListGalleryFoldersAsync credentials cancellationToken = task {
@@ -163,31 +110,40 @@ module FurAffinity =
                     |> Option.bind extractId
                 match id with
                 | Some s ->
-                    { FolderId = s; Name = HtmlNode.innerText link }
+                    {| FolderId = s; Name = HtmlNode.innerText link |}
                 | None -> ()
         ]
     }
 
-    type MultipartSegmentValue =
+    type private MultipartSegmentValue =
     | FieldPart of string
-    | FilePart of IFile
+    | FilePart of byte[]
 
     let private multipart segments =
         let content = new MultipartFormDataContent()
         for segment in segments do
             match segment with
             | name, FieldPart value -> content.Add(new StringContent(value), name)
-            | name, FilePart file -> content.Add(new ByteArrayContent(file.Data), name, file.FileName)
+            | name, FilePart data -> content.Add(new ByteArrayContent(data), name)
         content
 
-    let PostArtworkAsync credentials (file: IFile) (metadata: ArtworkMetadata) cancellationToken = task {
+    let private extractAuthenticityToken (formName: string) (html: HtmlDocument) =
+        let m =
+            html.CssSelect($"form[name={formName}] input[name=key]")
+            |> Seq.map (fun e -> e.AttributeValue("value"))
+            |> Seq.tryHead
+        match m with
+            | Some token -> token
+            | None -> failwith $"Form \"{formName}\" with hidden input \"key\" not found in HTML from server"
+
+    let PostArtworkAsync credentials file (metadata: ArtworkMetadata) cancellationToken = task {
         use client = getClient credentials
 
         let! artwork_submission_page_key = task {
             use! resp = client.GetAsync("/submit/", cancellationToken = cancellationToken)
             ignore (resp.EnsureSuccessStatusCode())
             let! html = resp.Content.ReadAsStringAsync(cancellationToken)
-            let token = html |> HtmlDocument.Parse |> ExtractAuthenticityToken "myform"
+            let token = html |> HtmlDocument.Parse |> extractAuthenticityToken "myform"
             return token
         }
 
@@ -204,7 +160,7 @@ module FurAffinity =
             let! html = resp.Content.ReadAsStringAsync(cancellationToken)
             if html.Contains "Security code missing or invalid." then
                 failwith "Security code missing or invalid for page"
-            return html |> HtmlDocument.Parse |> ExtractAuthenticityToken "myform"
+            return html |> HtmlDocument.Parse |> extractAuthenticityToken "myform"
         }
 
         return! task {

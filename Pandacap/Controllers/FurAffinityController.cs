@@ -160,18 +160,16 @@ namespace Pandacap.Controllers
 
             Uri uri = await FurAffinity.PostArtworkAsync(
                 credentials,
-                new FurAffinity.File(
-                    $"image.{blobRef.ContentType.Split('/').Last()}",
-                    data),
+                data,
                 new FurAffinity.ArtworkMetadata(
                     post.Title,
                     post.Body,
                     [.. post.Tags],
-                    (FurAffinity.Category)model.Category,
+                    model.Category,
                     model.Scraps,
-                    (FurAffinity.Type)model.Type,
-                    (FurAffinity.Species)model.Species,
-                    (FurAffinity.Gender)model.Gender,
+                    model.Type,
+                    model.Species,
+                    model.Gender,
                     FurAffinity.Rating.General,
                     false,
                     [.. model.Folders]),
