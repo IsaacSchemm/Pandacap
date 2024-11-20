@@ -80,7 +80,7 @@ namespace Pandacap.Controllers
                 Community = remoteActor.Id,
                 PublishedTime = DateTimeOffset.UtcNow,
                 Title = title,
-                HtmlContent = $"<p>{WebUtility.HtmlEncode(content)}</p>"
+                HtmlContent = CommonMark.CommonMarkConverter.Convert(content)
             };
 
             context.AddressedPosts.Add(addressedPost);
