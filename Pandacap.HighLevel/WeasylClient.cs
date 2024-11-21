@@ -7,6 +7,7 @@ namespace Pandacap.HighLevel
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Matching response JSON from Weasyl")]
     public partial class WeasylClient(
+        ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory,
         string apiKey)
     {
@@ -36,7 +37,7 @@ namespace Pandacap.HighLevel
         public async Task<WhoamiResponse> WhoamiAsync()
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync("https://www.weasyl.com/api/whoami");
+            using var resp = await client.GetAsync($"{appInfo.WeasylProxy}?path=api/whoami");
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<WhoamiResponse>()
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
@@ -48,7 +49,7 @@ namespace Pandacap.HighLevel
         public async Task<AvatarResponse> GetAvatarAsync(string username)
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"https://www.weasyl.com/api/useravatar?username={Uri.EscapeDataString(username)}");
+            using var resp = await client.GetAsync($"{appInfo.WeasylProxy}?path=api/useravatar&username={Uri.EscapeDataString(username)}");
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<AvatarResponse>()
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
@@ -84,7 +85,7 @@ namespace Pandacap.HighLevel
                 : $"nexttime={Uri.EscapeDataString(nexttime)}";
 
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"https://www.weasyl.com/api/messages/submissions?{qs}");
+            using var resp = await client.GetAsync($"{appInfo.WeasylProxy}?path={Uri.EscapeDataString($"api/messages/submissions?{qs}")}");
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<SubmissionsResponse>()
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
@@ -116,7 +117,7 @@ namespace Pandacap.HighLevel
         public async Task<MessagesSummary> GetMessagesSummaryAsync(string? nexttime = null)
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync("https://www.weasyl.com/api/messages/summary");
+            using var resp = await client.GetAsync($"{appInfo.WeasylProxy}?path=api/messages/summary");
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<MessagesSummary>()
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
@@ -133,7 +134,7 @@ namespace Pandacap.HighLevel
         public async IAsyncEnumerable<Folder> GetFoldersAsync()
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync("https://www.weasyl.com/submit/visual");
+            using var resp = await client.GetAsync($"{appInfo.WeasylProxy}?path=submit/visual");
             resp.EnsureSuccessStatusCode();
             using var stream = await resp.Content.ReadAsStreamAsync();
             using var sr = new StreamReader(stream);
@@ -185,7 +186,7 @@ namespace Pandacap.HighLevel
 
         public async Task<int?> UploadVisualAsync(ReadOnlyMemory<byte> data, string title, SubmissionType subtype, int? folderid, Rating rating, string content, IEnumerable<string> tags)
         {
-            using var req = new HttpRequestMessage(HttpMethod.Post, "https://www.weasyl.com/submit/visual");
+            using var req = new HttpRequestMessage(HttpMethod.Post, $"{appInfo.WeasylProxy}?path=submit/visual");
 
             req.Content = new MultipartFormDataContent {
                 { new ReadOnlyMemoryContent(data), "submitfile", "picture.dat" },
@@ -210,7 +211,7 @@ namespace Pandacap.HighLevel
 
         public async Task<int?> UploadJournalAsync(string title, Rating rating, string content, IEnumerable<string> tags)
         {
-            using var req = new HttpRequestMessage(HttpMethod.Post, "https://www.weasyl.com/submit/journal");
+            using var req = new HttpRequestMessage(HttpMethod.Post, $"{appInfo.WeasylProxy}?path=submit/journal");
 
             req.Content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
@@ -228,36 +229,6 @@ namespace Pandacap.HighLevel
             return match.Success && int.TryParse(match.Groups[1].Value, out int journalid)
                 ? journalid
                 : null;
-        }
-
-        public async Task DeleteSubmissionAsync(int submitid)
-        {
-            using var req = new HttpRequestMessage(HttpMethod.Post, "https://www.weasyl.com/remove/submission");
-
-            req.Content = new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                ["submitid"] = $"{submitid}",
-                ["confirmed"] = ""
-            });
-
-            using var client = CreateClient();
-            using var resp = await client.SendAsync(req);
-            resp.EnsureSuccessStatusCode();
-        }
-
-        public async Task DeleteJournalAsync(int journalid)
-        {
-            using var req = new HttpRequestMessage(HttpMethod.Post, "https://www.weasyl.com/remove/journal");
-
-            req.Content = new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                ["journalid"] = $"{journalid}",
-                ["confirmed"] = ""
-            });
-
-            using var client = CreateClient();
-            using var resp = await client.SendAsync(req);
-            resp.EnsureSuccessStatusCode();
         }
     }
 }

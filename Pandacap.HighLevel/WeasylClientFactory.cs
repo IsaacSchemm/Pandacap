@@ -5,6 +5,7 @@ using Pandacap.LowLevel;
 namespace Pandacap.HighLevel
 {
     public partial class WeasylClientFactory(
+        ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory,
         PandacapDbContext context)
     {
@@ -13,12 +14,12 @@ namespace Pandacap.HighLevel
             string? apiKey = await context.WeasylCredentials.Select(w => w.ApiKey).SingleOrDefaultAsync();
             return apiKey == null
                 ? null
-                : new(httpClientFactory, apiKey);
+                : new(appInfo, httpClientFactory, apiKey);
         }
 
         public WeasylClient CreateWeasylClient(string apiKey)
         {
-            return new(httpClientFactory, apiKey);
+            return new(appInfo, httpClientFactory, apiKey);
         }
     }
 }
