@@ -54,7 +54,6 @@ module WeasylScraper =
                     |> Seq.choose (fun e -> e.TryGetAttribute("datetime"))
                     |> Seq.map (fun e -> e.Value())
                     |> Seq.map DateTimeOffset.Parse
-                    |> Seq.map (fun d -> d.AddYears(3))
                     |> Seq.tryHead
                     |> Option.defaultValue DateTimeOffset.UtcNow
             }
