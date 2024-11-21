@@ -258,6 +258,14 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
+                .InboxFurAffinityJournals
+                .Where(x => guids.Contains(x.Id))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
+
+            await foreach (var item in context
                 .InboxWeasylSubmissions
                 .Where(x => guids.Contains(x.Id))
                 .AsAsyncEnumerable())
@@ -293,6 +301,9 @@ namespace Pandacap.Controllers
 
                 if (item is InboxFurAffinitySubmission ifs)
                     ifs.DismissedAt ??= DateTimeOffset.UtcNow;
+
+                if (item is InboxFurAffinityJournal ifj)
+                    ifj.DismissedAt ??= DateTimeOffset.UtcNow;
 
                 if (item is InboxWeasylSubmission iws)
                     iws.DismissedAt ??= DateTimeOffset.UtcNow;
