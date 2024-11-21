@@ -8,6 +8,7 @@
         DeviantArtNoteNotificationHandler deviantArtNoteNotificationHandler,
         FurAffinityNoteNotificationHandler furAffinityNoteNotificationHandler,
         FurAffinityNotificationHandler furAffinityNotificationHandler,
+        WeasylNoteNotificationHandler weasylNoteNotificationHandler,
         WeasylNotificationHandler weasylNotificationHandler
     ) : INotificationHandler
     {
@@ -21,6 +22,7 @@
                 deviantArtNoteNotificationHandler,
                 furAffinityNoteNotificationHandler,
                 furAffinityNotificationHandler,
+                weasylNoteNotificationHandler,
                 weasylNotificationHandler
             }
             .Select(handler => new NotificationFailureHandler(handler))

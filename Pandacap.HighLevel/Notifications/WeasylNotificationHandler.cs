@@ -44,14 +44,6 @@ namespace Pandacap.HighLevel.Notifications
                     Platform = platform,
                     Timestamp = now
                 };
-
-            if (summary.unread_notes > 0)
-                yield return new Notification
-                {
-                    ActivityName = $"{summary.unread_notes} unread note(s)",
-                    Platform = platform,
-                    Timestamp = now
-                };
         }
     }
 }

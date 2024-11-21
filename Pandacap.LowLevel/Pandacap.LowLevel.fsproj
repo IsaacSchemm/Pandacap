@@ -18,6 +18,7 @@
     <Compile Include="FAExport.fs" />
     <Compile Include="FurAffinity.fs" />
     <Compile Include="Lemmy.fs" />
+    <Compile Include="WeasylScraper.fs" />
     <Compile Include="DependencyInjectionExtensions.fs" />
   </ItemGroup>
 

@@ -33,6 +33,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<OutboxProcessor>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WeasylInboxHandler>()
+                .AddScoped<WeasylNoteNotificationHandler>()
                 .AddScoped<WeasylNotificationHandler>();
         }
     }

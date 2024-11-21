@@ -114,13 +114,22 @@ namespace Pandacap.HighLevel
             int submissions,
             int unread_notes);
 
-        public async Task<MessagesSummary> GetMessagesSummaryAsync(string? nexttime = null)
+        public async Task<MessagesSummary> GetMessagesSummaryAsync()
         {
             using var client = CreateClient();
             using var resp = await client.GetAsync($"{appInfo.WeasylProxy}?path=api/messages/summary");
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<MessagesSummary>()
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
+        }
+
+        public async Task<FSharpList<WeasylScraper.Note>> GetNotesAsync()
+        {
+            using var client = CreateClient();
+            using var resp = await client.GetAsync($"{appInfo.WeasylProxy}?path=notes");
+            resp.EnsureSuccessStatusCode();
+            string html = await resp.Content.ReadAsStringAsync();
+            return WeasylScraper.ExtractNotes(html);
         }
 
         public record Folder(int FolderId, string Name)
