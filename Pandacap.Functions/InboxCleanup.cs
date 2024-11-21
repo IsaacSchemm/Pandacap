@@ -44,10 +44,19 @@ namespace Pandacap.Functions
             }
 
             await foreach (var inboxItem in context.InboxFurAffinitySubmissions
-                .Where(d => d.DismissedAt != null)
-                .OrderByDescending(d => d.SubmissionId)
-                .Skip(1)
-                .AsAsyncEnumerable())
+                .Where(x => x.DismissedAt != null)
+                .OrderByDescending(x => x.SubmissionId)
+                .AsAsyncEnumerable()
+                .Skip(1))
+            {
+                context.Remove(inboxItem);
+            }
+
+            await foreach (var inboxItem in context.InboxFurAffinityJournals
+                .Where(x => x.DismissedAt != null)
+                .OrderByDescending(x => x.JournalId)
+                .AsAsyncEnumerable()
+                .Skip(1))
             {
                 context.Remove(inboxItem);
             }

@@ -4,8 +4,7 @@ open System
 open System.ComponentModel.DataAnnotations
 open Pandacap.Types
 
-type InboxFurAffinityUser() =
-    member val ProfileName = "" with get, set
+type InboxFurAffinitySubmissionUser() =
     member val Name = "" with get, set
     member val Url = "" with get, set
 
@@ -17,7 +16,7 @@ type InboxFurAffinitySubmission() =
     member val Title = "" with get, set
     member val Thumbnail = "" with get, set
     member val Link = "" with get, set
-    member val PostedBy = new InboxFurAffinityUser() with get, set
+    member val PostedBy = new InboxFurAffinitySubmissionUser() with get, set
     member val PostedAt = DateTimeOffset.MinValue with get, set
     member val Sfw = false with get, set
     member val DismissedAt = nullDateTimeOffset with get, set

@@ -123,7 +123,14 @@ namespace Pandacap.Controllers
                 .Where(a => a.Attachments.Count == 0)
                 .OfType<IPost>();
 
-            var posts = await new[] { source1, source3, source4, source5 }
+            var source6 = context.InboxFurAffinityJournals
+                .Where(a => a.PostedAt <= startTime)
+                .Where(d => d.DismissedAt == null)
+                .OrderByDescending(a => a.PostedAt)
+                .AsAsyncEnumerable()
+                .OfType<IPost>();
+
+            var posts = await new[] { source1, source3, source4, source5, source6 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);

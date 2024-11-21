@@ -75,38 +75,11 @@ namespace Pandacap.HighLevel.Notifications
                     Timestamp = favorite.posted_at,
                     UserName = favorite.name,
                     UserUrl = favorite.profile
-                }),
-                .. others.new_journals.Select(journal => new Notification
-                {
-                    ActivityName = "journal",
-                    Platform = platform,
-                    PostUrl = $"https://www.furaffinity.net/journal/{journal.journal_id}",
-                    Timestamp = journal.posted_at,
-                    UserName = journal.name,
-                    UserUrl = journal.profile
-                }),
+                })
             ];
 
             foreach (var notification in all.OrderByDescending(x => x.Timestamp))
                 yield return notification;
-
-            //var notes = await FAExport.GetNotesAsync(
-            //    httpClientFactory,
-            //    credentials,
-            //    "inbox",
-            //    CancellationToken.None);
-
-            //foreach (var note in notes)
-            //    if (note.is_read)
-            //        yield return new Notification
-            //        {
-            //            ActivityName = "note",
-            //            Platform = platform,
-            //            PostUrl = $"https://www.furaffinity.net/viewmessage/{note.note_id}",
-            //            Timestamp = note.posted_at,
-            //            UserName = note.name,
-            //            UserUrl = note.profile
-            //        };
         }
     }
 }

@@ -31,8 +31,9 @@
     <Compile Include="TheirContent\DeviantArt\InboxDeviation.fs" />
     <Compile Include="TheirContent\DeviantArt\InboxArtworkDeviation.fs" />
     <Compile Include="TheirContent\DeviantArt\InboxTextDeviation.fs" />
+    <Compile Include="TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
+    <Compile Include="TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />
     <Compile Include="TheirContent\InboxATProtoPost.fs" />
-    <Compile Include="TheirContent\InboxFurAffinitySubmission.fs" />
     <Compile Include="TheirContent\InboxWeasylSubmission.fs" />
     <Compile Include="TheirContent\RssFeedItem.fs" />
     <Compile Include="PandacapDbContext.fs" />

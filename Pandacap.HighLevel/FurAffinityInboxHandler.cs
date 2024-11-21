@@ -9,6 +9,9 @@ namespace Pandacap.HighLevel
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
+        [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
+        private static partial Regex GetFurAffinityThumbnailPattern();
+
         public async Task ImportSubmissionsAsync()
         {
             var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync();
@@ -71,7 +74,6 @@ namespace Pandacap.HighLevel
                     Link = submission.link,
                     PostedBy = new()
                     {
-                        ProfileName = submission.profile_name,
                         Name = submission.name,
                         Url = submission.profile
                     },
@@ -88,7 +90,48 @@ namespace Pandacap.HighLevel
             await context.SaveChangesAsync();
         }
 
-        [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
-        private static partial Regex GetFurAffinityThumbnailPattern();
+        public async Task ImportJournalsAsync()
+        {
+            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync();
+
+            if (credentials == null)
+                return;
+
+            var maxIds = await context.InboxFurAffinityJournals
+                .OrderByDescending(s => s.JournalId)
+                .Select(s => s.JournalId)
+                .Take(1)
+                .ToListAsync();
+
+            int lastSeenId = maxIds
+                .DefaultIfEmpty(0)
+                .Single();
+
+            var notifications = await FAExport.Notifications.GetOthersAsync(
+                httpClientFactory,
+                credentials,
+                CancellationToken.None);
+
+            foreach (var journal in notifications.new_journals)
+            {
+                if (journal.journal_id <= lastSeenId)
+                    continue;
+
+                context.InboxFurAffinityJournals.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    JournalId = journal.journal_id,
+                    Title = journal.title,
+                    PostedBy = new()
+                    {
+                        Name = journal.name,
+                        Url = journal.profile
+                    },
+                    PostedAt = journal.posted_at
+                });
+            }
+
+            await context.SaveChangesAsync();
+        }
     }
 }

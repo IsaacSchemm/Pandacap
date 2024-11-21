@@ -36,6 +36,7 @@ namespace Pandacap.Functions
             await c(deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync());
 
             await c(furAffinityInboxHandler.ImportSubmissionsAsync());
+            await c(furAffinityInboxHandler.ImportJournalsAsync());
 
             await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync());
 
