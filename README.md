@@ -6,13 +6,16 @@ For more information, see Views/About/Index.cshtml.
 
 Supported platforms and protocols:
 
-|             | Crosspost  | Inbox | Reply | Notifications          | Authentication
-| ----------- | ---------- | ----- | ----- | ---------------------- | ------------------------
-| ActivityPub | ✓          | ✓     | ✓     | ✓ (Activites, Replies) |
-| Bluesky     | ✓ (Manual) | ✓     |       | ✓                      | PDS / DID / Password
-| DeviantArt  | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | OAuth (ASP.NET Identity)
-| RSS / Atom  | ✓          | ✓     |       |                        |
-| Weasyl      | ✓ (Manual) | ✓     |       | Partial                | API Key
+|              | Crosspost  | Inbox | Reply | Notifications          | Authentication
+| ------------ | ---------- | ----- | ----- | ---------------------- | ------------------------
+| ActivityPub  | ✓          | ✓     | ✓     | ✓ (Activites, Replies) |
+| Bluesky      | ✓ (Manual) | ✓     |       | ✓                      | PDS / DID / Password
+| DeviantArt   | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | OAuth (ASP.NET Identity)
+| Fur Affinity | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | Manual cookie entry
+| RSS / Atom   | ✓          | ✓     |       |                        |
+| Weasyl       | ✓ (Manual) | ✓     |       | Partial                | API key
+
+(Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions.)
 
 Pandacap is a single-user application.
 To log in, the instance owner must use a Microsoft account that they have explicitly allowed in the associated Entra ID app registration.
