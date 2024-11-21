@@ -8,6 +8,7 @@ namespace Pandacap.Models
 
         public IEnumerable<string> BlueskyDIDs { get; set; } = [];
         public IEnumerable<string> DeviantArtUsernames { get; set; } = [];
+        public IEnumerable<string> FurAffinityUsernames { get; set; } = [];
         public IEnumerable<string> WeasylUsernames { get; set; } = [];
 
         public IEnumerable<Post> RecentArtwork { get; set; } = [];

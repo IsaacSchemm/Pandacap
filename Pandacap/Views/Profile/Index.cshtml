@@ -112,6 +112,25 @@
                 </div>
             }
 
+            @foreach (string username in Model.FurAffinityUsernames)
+            {
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Fur Affinity</h5>
+
+                        <a href="https://www.furaffinity.net/user/@Uri.EscapeDataString(username)" target="_blank">
+                            <tt>@username</tt>
+                        </a>
+
+                        <br />
+
+                        <a href="https://www.furaffinity.net/watchlist/by/@Uri.EscapeDataString(username)/" target="_blank">Watching</a>
+                        &middot;
+                        <a href="https://www.furaffinity.net/favorites/@Uri.EscapeDataString(username)/" target="_blank">Favorites</a>
+                    </div>
+                </div>
+            }
+
             @foreach (string username in Model.WeasylUsernames)
             {
                 <div class="card my-3">

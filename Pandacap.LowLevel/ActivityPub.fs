@@ -35,9 +35,9 @@ module ActivityPubSerializer =
 type ActivityPubActorInformation = {
     key: ActorKey
     avatars: Avatar list
-    inboxes: string list
     bluesky: string list
-    deviantArt: string list
+    deviantart: string list
+    furaffinity: string list
     weasyl: string list
 }
 
@@ -88,10 +88,15 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
                 name = "Bluesky"
                 value = $"<a href='https://bsky.app/profile/{did}'>{WebUtility.HtmlEncode(did)}</a>"
             |}
-            for username in info.deviantArt do {|
+            for username in info.deviantart do {|
                 ``type`` = "PropertyValue"
                 name = "DeviantArt"
                 value = $"<a href='https://www.deviantart.com/{Uri.EscapeDataString(username)}'>{WebUtility.HtmlEncode(username)}</a>"
+            |}
+            for username in info.furaffinity do {|
+                ``type`` = "PropertyValue"
+                name = "Fur Affinity"
+                value = $"<a href='https://www.furaffinity.net/user/{Uri.EscapeDataString(username)}'>{WebUtility.HtmlEncode(username)}</a>"
             |}
             for login in info.weasyl do {|
                 ``type`` = "PropertyValue"

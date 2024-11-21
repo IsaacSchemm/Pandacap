@@ -41,6 +41,10 @@ namespace Pandacap.Controllers
                 .Select(d => d.Username)
                 .ToListAsync(cancellationToken);
 
+            var furAffinityUsernames = await context.FurAffinityCredentials
+                .Select(c => c.Username)
+                .ToListAsync(cancellationToken);
+
             var weasylUsernames = await context.WeasylCredentials
                 .Select(c => c.Login)
                 .ToListAsync(cancellationToken);
@@ -56,11 +60,11 @@ namespace Pandacap.Controllers
                         translator.PersonToObject(
                             new ActivityPubActorInformation(
                                 key,
-                                [..avatars],
-                                [],
-                                [..blueskyDIDs],
-                                [..deviantArtUsernames],
-                                [..weasylUsernames]))),
+                                [.. avatars],
+                                [.. blueskyDIDs],
+                                [.. deviantArtUsernames],
+                                [.. furAffinityUsernames],
+                                [.. weasylUsernames]))),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -74,6 +78,7 @@ namespace Pandacap.Controllers
                         .CountAsync(cancellationToken) > 0,
                 BlueskyDIDs = blueskyDIDs,
                 DeviantArtUsernames = deviantArtUsernames,
+                FurAffinityUsernames = furAffinityUsernames,
                 WeasylUsernames = weasylUsernames,
                 RecentArtwork = await context.Posts
                     .Where(post => post.Type == PostType.Artwork)
