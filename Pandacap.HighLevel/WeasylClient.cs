@@ -123,6 +123,15 @@ namespace Pandacap.HighLevel
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
         }
 
+        public async Task<WeasylScraper.Notifications> GetNotificationsAsync()
+        {
+            using var client = CreateClient();
+            using var resp = await client.GetAsync($"{appInfo.WeasylProxy}?path=messages/notifications");
+            resp.EnsureSuccessStatusCode();
+            string html = await resp.Content.ReadAsStringAsync();
+            return WeasylScraper.ExtractNotifications(html);
+        }
+
         public async Task<FSharpList<WeasylScraper.Note>> GetNotesAsync()
         {
             using var client = CreateClient();

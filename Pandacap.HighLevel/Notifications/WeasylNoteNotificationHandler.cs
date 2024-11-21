@@ -23,7 +23,8 @@ namespace Pandacap.HighLevel.Notifications
                     ActivityName = "note",
                     Platform = platform,
                     Timestamp = note.time,
-                    UserName = note.sender
+                    UserName = note.sender,
+                    UserUrl = note.sender_url
                 };
             }
         }

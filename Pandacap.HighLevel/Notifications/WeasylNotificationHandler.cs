@@ -1,5 +1,4 @@
-﻿using Pandacap.LowLevel;
-using Pandacap.Types;
+﻿using Pandacap.Types;
 
 namespace Pandacap.HighLevel.Notifications
 {
@@ -14,36 +13,32 @@ namespace Pandacap.HighLevel.Notifications
 
             var summary = await client.GetMessagesSummaryAsync();
 
-            var now = DateTimeOffset.UtcNow;
+            IEnumerable<string> getStrings()
+            {
+                if (summary.comments > 0)
+                    yield return $"{summary.comments} comment(s)";
+                if (summary.journals > 0)
+                    yield return $"{summary.journals} journal(s)";
+                if (summary.notifications > 0)
+                    yield return $"{summary.notifications} notification(s)";
+            }
+
+            if (!getStrings().Any())
+                yield break;
 
             var platform = new NotificationPlatform(
                 "Weasyl",
                 PostPlatformModule.GetBadge(PostPlatform.Weasyl),
                 "https://www.weasyl.com/messages/notifications");
 
-            if (summary.comments > 0)
-                yield return new Notification
-                {
-                    ActivityName = $"{summary.comments} comment(s)",
-                    Platform = platform,
-                    Timestamp = now
-                };
+            var notifications = await client.GetNotificationsAsync();
 
-            if (summary.journals > 0)
-                yield return new Notification
-                {
-                    ActivityName = $"{summary.journals} journal(s)",
-                    Platform = platform,
-                    Timestamp = now
-                };
-
-            if (summary.notifications > 0)
-                yield return new Notification
-                {
-                    ActivityName = $"{summary.notifications} notification(s)",
-                    Platform = platform,
-                    Timestamp = now
-                };
+            yield return new Notification
+            {
+                ActivityName = string.Join("; ", getStrings()),
+                Platform = platform,
+                Timestamp = notifications.newest_time
+            };
         }
     }
 }
