@@ -27,7 +27,7 @@ module WeasylScraper =
         for group in doc.CssSelect("#messages-checkboxes > .group") do {
             id = group.AttributeValue("id")
             notifications = [
-                for item in doc.CssSelect(".item") do {
+                for item in group.CssSelect(".item") do {
                     users = [
                         for anchor in item.CssSelect("a.username") do {
                             name = anchor.InnerText()
