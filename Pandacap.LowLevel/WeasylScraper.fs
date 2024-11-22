@@ -4,22 +4,46 @@ open System
 open FSharp.Data
 
 module WeasylScraper =
-    type Notifications = {
-        newest_time: DateTimeOffset
+    type NotificationUser = {
+        name: string
+        href: string
     }
 
-    let ExtractNotifications (html: string) =
+    type Notification = {
+        users: NotificationUser list
+        time: DateTimeOffset
+    }
+
+    type NotificationGroup = {
+        id: string
+        notifications: Notification list
+    }
+
+    let ExtractNotifications (html: string) = [
         let doc = HtmlDocument.Parse(html)
 
-        {
-            newest_time =
-                doc.CssSelect("time")
-                |> Seq.choose (fun e -> e.TryGetAttribute("datetime"))
-                |> Seq.map (fun a -> a.Value())
-                |> Seq.map DateTimeOffset.Parse
-                |> Seq.append [DateTimeOffset.MinValue]
-                |> Seq.max
+        let baseUri = new Uri("https://www.weasyl.com/")
+
+        for group in doc.CssSelect("#messages-checkboxes > .group") do {
+            id = group.AttributeValue("id")
+            notifications = [
+                for item in doc.CssSelect(".item") do {
+                    users = [
+                        for anchor in item.CssSelect("a.username") do {
+                            name = anchor.InnerText()
+                            href = (new Uri(baseUri, anchor.AttributeValue("href"))).AbsoluteUri
+                        }
+                    ]
+                    time =
+                        item.CssSelect("time")
+                        |> Seq.map (fun e -> e.AttributeValue("datetime"))
+                        |> Seq.map DateTimeOffset.Parse
+                        |> Seq.tryHead
+                        |> Option.defaultValue DateTimeOffset.UtcNow
+                }
+            ]
         }
+    ]
 
     type Note = {
         title: string
