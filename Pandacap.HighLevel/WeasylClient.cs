@@ -204,7 +204,7 @@ namespace Pandacap.HighLevel
 
         public async Task<int?> UploadVisualAsync(ReadOnlyMemory<byte> data, string title, SubmissionType subtype, int? folderid, Rating rating, string content, IEnumerable<string> tags)
         {
-            using var req = new HttpRequestMessage(HttpMethod.Post, $"{appInfo.WeasylProxy}?path=submit/visual");
+            using var req = new HttpRequestMessage(HttpMethod.Post, $"https://www.weasyl.com/submit/visual");
 
             req.Content = new MultipartFormDataContent {
                 { new ReadOnlyMemoryContent(data), "submitfile", "picture.dat" },
