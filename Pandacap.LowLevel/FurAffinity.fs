@@ -124,7 +124,7 @@ module FurAffinity =
         for segment in segments do
             match segment with
             | name, FieldPart value -> content.Add(new StringContent(value), name)
-            | name, FilePart data -> content.Add(new ByteArrayContent(data), name)
+            | name, FilePart data -> content.Add(new ByteArrayContent(data), name, "image.dat")
         content
 
     let private extractAuthenticityToken (formName: string) (html: HtmlDocument) =
