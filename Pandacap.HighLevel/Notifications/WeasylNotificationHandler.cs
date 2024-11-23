@@ -48,6 +48,7 @@ namespace Pandacap.HighLevel.Notifications
                     {
                         ActivityName = group.id.TrimEnd('s'),
                         Platform = platform,
+                        PostUrl = notification.post_hrefs.FirstOrDefault(),
                         Timestamp = notification.time,
                         UserName = notification.users.Select(u => u.name).FirstOrDefault(),
                         UserUrl = notification.users.Select(u => u.href).FirstOrDefault()

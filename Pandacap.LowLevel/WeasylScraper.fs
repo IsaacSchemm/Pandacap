@@ -12,6 +12,7 @@ module WeasylScraper =
     type Notification = {
         users: NotificationUser list
         time: DateTimeOffset
+        post_hrefs: string Set
     }
 
     type NotificationGroup = {
@@ -40,6 +41,16 @@ module WeasylScraper =
                         |> Seq.map DateTimeOffset.Parse
                         |> Seq.tryHead
                         |> Option.defaultValue DateTimeOffset.UtcNow
+                    post_hrefs =
+                        item.CssSelect("a")
+                        |> Seq.choose (fun e -> e.TryGetAttribute("href"))
+                        |> Seq.map (fun a -> a.Value())
+                        |> Seq.where (fun str ->
+                            str.StartsWith("/character/")
+                            || str.StartsWith("/journal/")
+                            || str.StartsWith("/submission/"))
+                        |> Seq.map (fun path -> (new Uri(baseUri, path)).GetLeftPart(UriPartial.Path))
+                        |> set
                 }
             ]
         }
