@@ -37,7 +37,7 @@ type InboxATProtoPost() =
             | Some pds -> PostPlatform.GetBadge ATProto |> Badge.WithParenthetical pds
             | None -> PostPlatform.GetBadge ATProto
         ]
-        member this.DisplayTitle = ExcerptGenerator.FromText (seq {
+        member this.DisplayTitle = ExcerptGenerator.FromText 60 (seq {
             this.Text
             for image in this.Images do
                 image.Alt

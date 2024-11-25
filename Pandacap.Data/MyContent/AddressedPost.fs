@@ -38,7 +38,7 @@ type AddressedPost() =
 
     interface IPost with
         member _.Badges = []
-        member this.DisplayTitle = ExcerptGenerator.FromText (seq {
+        member this.DisplayTitle = ExcerptGenerator.FromText 120 (seq {
             this.Title
             TextConverter.FromHtml this.HtmlContent
             $"{this.Id}"

@@ -25,6 +25,7 @@ type RemoteActivityPubFavorite() =
     member val Sensitive = false with get, set
     member val Name = nullString with get, set
     member val Content = nullString with get, set
+    member val InReplyTo = nullString with get, set
     member val Attachments = new ResizeArray<RemoteActivityPubFavoriteImage>() with get, set
 
     interface IPost with
@@ -33,13 +34,13 @@ type RemoteActivityPubFavorite() =
             | true, uri -> PostPlatform.GetBadge ActivityPub |> Badge.WithParenthetical uri.Host
             | false, _ -> PostPlatform.GetBadge ActivityPub
         ]
-        member this.DisplayTitle =
-            if not (String.IsNullOrWhiteSpace this.Name) then
-                this.Name
-            else if not (String.IsNullOrWhiteSpace this.Content) then
-                TextConverter.FromHtml this.Content
-            else
-                this.ObjectId
+        member this.DisplayTitle = ExcerptGenerator.FromText 120 [
+            this.Name
+            TextConverter.FromHtml this.Content
+            for attachment in this.Attachments do
+                attachment.Name
+            this.ObjectId
+        ]
         member this.Id = $"{this.LikeGuid}"
         member _.IsDismissable = false
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"

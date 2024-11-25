@@ -38,7 +38,7 @@ type InboxActivityStreamsPost() =
             | true, uri -> PostPlatform.GetBadge ActivityPub |> Badge.WithParenthetical uri.Host
             | false, _ -> PostPlatform.GetBadge ActivityPub
         ]
-        member this.DisplayTitle = ExcerptGenerator.FromText (seq {
+        member this.DisplayTitle = ExcerptGenerator.FromText 60 (seq {
             this.Name
             TextConverter.FromHtml this.Content
             for attachment in this.Attachments do
