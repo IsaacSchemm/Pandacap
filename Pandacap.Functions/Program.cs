@@ -58,7 +58,7 @@ var host = new HostBuilder()
             username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
             keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
             handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
-            weasylProxy: Environment.GetEnvironmentVariable("WeasylProxy")));
+            weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")));
 
         services.AddHttpClient();
     })

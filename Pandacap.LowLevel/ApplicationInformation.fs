@@ -16,7 +16,7 @@ type ApplicationInformation = {
     /// ActivityPub.
     KeyVaultHostname: string
 
-    /// The URL to a PHP script that proxies requests to Weasyl (to avoid an
-    /// IP address filter on Azure's outgoing IP address blocks).
-    WeasylProxy: string
+    /// The hostname for a website that hosts PHP scripts which proxy requests
+    /// to Weasyl (to avoid a filter on Azure's outgoing IP address blocks).
+    WeasylProxyHost: string
 }

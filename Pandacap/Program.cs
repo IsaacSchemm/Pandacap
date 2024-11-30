@@ -91,7 +91,7 @@ builder.Services.AddSingleton(new ApplicationInformation(
     username: builder.Configuration["ActivityPubUsername"],
     keyVaultHostname: builder.Configuration["KeyVaultHostname"],
     handleHostname: builder.Configuration["ApplicationHostname"],
-    weasylProxy: builder.Configuration["WeasylProxy"]));
+    weasylProxyHost: builder.Configuration["WeasylProxyHost"]));
 
 builder.Services.AddHttpClient();
 

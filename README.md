@@ -83,7 +83,7 @@ Application settings (for both the function app and the web app):
 | DeviantArtClientId                    | OAuth client ID from DeviantArt
 | DeviantArtClientSecret                | OAuth secret from DeviantArt
 | KeyVaultHostname                      | Key vault hostname
-| WeasylProxy                           | URL to the file `weasyl.php` deployed to a PHP server
+| WeasylProxyHost                       | Hostname that has `/pandacap/weasyl_proxy.php` and `/pandacap/weasyl_submit.php`
 
 Application settings (for the web app only):
 

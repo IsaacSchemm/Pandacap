@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using Pandacap.LowLevel;
 using static Pandacap.HighLevel.WeasylClient;
 
 namespace Pandacap.Controllers
@@ -12,6 +13,7 @@ namespace Pandacap.Controllers
     public class WeasylController(
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
+        IdMapper mapper,
         WeasylClientFactory weasylClientFactory) : Controller
     {
         public async Task<IActionResult> Setup()
@@ -97,13 +99,8 @@ namespace Pandacap.Controllers
                 if (post.Images.Count != 1)
                     throw new NotImplementedException("Crossposted Weasyl submissions must have exactly one image");
 
-                var blob = await blobServiceClient
-                    .GetBlobContainerClient("blobs")
-                    .GetBlobClient($"{post.Images.Single().Blob.Id}")
-                    .DownloadContentAsync();
-
                 post.WeasylSubmitId = await client.UploadVisualAsync(
-                    blob.Value.Content.ToMemory(),
+                    mapper.GetImageUrl(post, post.Images[0].Blob),
                     post.Title,
                     SubmissionType.Other,
                     null,
@@ -114,7 +111,7 @@ namespace Pandacap.Controllers
             else
             {
                 post.WeasylJournalId = await client.UploadJournalAsync(
-                    post.Title ?? ExcerptGenerator.FromText([post.Body]),
+                    post.Title ?? ExcerptGenerator.FromText(40, [post.Body]),
                     Rating.General,
                     post.Body,
                     post.Tags);
