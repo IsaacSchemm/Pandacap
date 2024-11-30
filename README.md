@@ -74,16 +74,16 @@ This version of Pandacap uses Entra ID as the primary authentication and authori
 
 Application settings (for both the function app and the web app):
 
-| Name                                  | Purpose
-| ------------------------------------- | -----------------------------------------------------
-| ActivityPubUsername                   | Username to use for ActivityPub and on the home page
-| ApplicationHostname                   | Public hostname of the app
-| CosmosDBAccountEndpoint               | URL of the database
-| CosmosDBAccountKey                    | Database key
-| DeviantArtClientId                    | OAuth client ID from DeviantArt
-| DeviantArtClientSecret                | OAuth secret from DeviantArt
-| KeyVaultHostname                      | Key vault hostname
-| WeasylProxyHost                       | Hostname that has `/pandacap/weasyl_proxy.php` and `/pandacap/weasyl_submit.php`
+| Name                    | Purpose
+| ----------------------- | -----------------------------------------------------
+| ActivityPubUsername     | Username to use for ActivityPub and on the home page
+| ApplicationHostname     | Public hostname of the app
+| CosmosDBAccountEndpoint | URL of the database
+| CosmosDBAccountKey      | Database key
+| DeviantArtClientId      | OAuth client ID from DeviantArt
+| DeviantArtClientSecret  | OAuth secret from DeviantArt
+| KeyVaultHostname        | Key vault hostname
+| WeasylProxyHost         | Hostname that has `/pandacap/weasyl_proxy.php` and `/pandacap/weasyl_submit.php`
 
 Application settings (for the web app only):
 

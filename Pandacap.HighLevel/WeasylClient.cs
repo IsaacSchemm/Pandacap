@@ -21,7 +21,7 @@ namespace Pandacap.HighLevel
             return client;
         }
 
-        private Uri WeasylProxyHost => new(appInfo.WeasylProxyHost);
+        private Uri WeasylProxyHost => new("https://" + appInfo.WeasylProxyHost);
         private Uri WeasylProxy => new(WeasylProxyHost, "/pandacap/weasyl_proxy.php");
         private Uri WeasylSubmit => new(WeasylProxyHost, "/pandacap/weasyl_submit.php");
 
