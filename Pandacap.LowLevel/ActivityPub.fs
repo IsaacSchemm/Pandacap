@@ -223,6 +223,24 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
 
     member this.ObjectToDelete(post: AddressedPost) = this.ObjectToDelete(mapper.GetObjectId(post))
 
+    member _.TransientObjectToCreate(text: string, ``to``: string) = dict [
+        pair "type" "Create"
+        pair "id" (mapper.GetTransientId())
+        pair "actor" mapper.ActorId
+        pair "published" DateTimeOffset.UtcNow
+        pair "to" [``to``]
+        pair "object" [
+            pair "id" (mapper.GetTransientId())
+            pair "type" "Note"
+            pair "content" (WebUtility.HtmlEncode(text))
+
+            pair "attributedTo" mapper.ActorId
+            pair "published" DateTimeOffset.UtcNow
+
+            pair "to" [``to``]
+        ]
+    ]
+
     member _.AcceptFollow(followId: string) = dict [
         pair "type" "Accept"
         pair "id" (mapper.GetTransientId())

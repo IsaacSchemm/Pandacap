@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -13,11 +14,27 @@ namespace Pandacap.Controllers
     [Authorize]
     public partial class BridgyFedController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
+        ActivityPubTranslator activityPubTranslator,
         ActivityPubReverseLookup activityPubReverseLookup,
         BridgyFedTimelineBrowser bridgyFedTimelineBrowser,
         PandacapDbContext context,
-        ActivityPubTranslator translator) : Controller
+        IMemoryCache memoryCache) : Controller
     {
+        private readonly static string _inboxCacheKey = $"{Guid.NewGuid()}";
+
+        private async Task<string> GetInboxAsync(CancellationToken cancellationToken)
+        {
+            if (memoryCache.TryGetValue(_inboxCacheKey, out string? found) && found != null)
+                return found;
+
+            var actor = await activityPubRemoteActorService.FetchActorAsync(
+                BridgyFed.Follower,
+                cancellationToken);
+
+            memoryCache.Set(_inboxCacheKey, actor.Inbox, DateTimeOffset.UtcNow.AddHours(1));
+            return actor.Inbox;
+        }
+
         public async Task<IActionResult> Index(
             int offset = 0,
             int count = 25,
@@ -65,18 +82,42 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SendDeleteActivity(
-            string id,
+        public async Task<IActionResult> Create(
+            string text,
             CancellationToken cancellationToken)
         {
-            var actor = await activityPubRemoteActorService.FetchActorAsync(BridgyFed.Follower);
+            string inbox = await GetInboxAsync(cancellationToken);
 
             context.ActivityPubOutboundActivities.Add(new()
             {
                 Id = Guid.NewGuid(),
-                Inbox = actor.Inbox,
+                Inbox = inbox,
                 JsonBody = ActivityPubSerializer.SerializeWithContext(
-                    translator.ObjectToDelete(id)),
+                    activityPubTranslator.TransientObjectToCreate(
+                        text,
+                        to: inbox)),
+                StoredAt = DateTimeOffset.UtcNow
+            });
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return NoContent();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(
+            string id,
+            CancellationToken cancellationToken)
+        {
+            string inbox = await GetInboxAsync(cancellationToken);
+
+            context.ActivityPubOutboundActivities.Add(new()
+            {
+                Id = Guid.NewGuid(),
+                Inbox = inbox,
+                JsonBody = ActivityPubSerializer.SerializeWithContext(
+                    activityPubTranslator.ObjectToDelete(id)),
                 StoredAt = DateTimeOffset.UtcNow
             });
 
