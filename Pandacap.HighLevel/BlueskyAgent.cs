@@ -45,7 +45,7 @@ namespace Pandacap.HighLevel
             if (wrapper.DID == submission.BlueskyDID)
                 return;
 
-            async IAsyncEnumerable<Repo.BlobWithAltText> downloadImagesAsync()
+            async IAsyncEnumerable<Repo.PostImage> downloadImagesAsync()
             {
                 foreach (var image in submission.Images)
                 {

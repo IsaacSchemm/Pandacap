@@ -225,9 +225,10 @@ module Repo =
         blob: obj
     }
 
-    type BlobWithAltText = {
+    type PostImage = {
         blob: obj
         alt: string
+        dimensions: (int * int) option
     }
 
     let UploadBlobAsync httpClient (credentials: ICredentials) (data: byte[]) (contentType: string) (alt: string) = task {
@@ -235,13 +236,23 @@ module Repo =
             Requester.build HttpMethod.Post credentials "com.atproto.repo.uploadBlob" []
             |> Requester.addBody data contentType
             |> Reader.readAsync<BlobResponse> httpClient (Some credentials)
-        return { blob = blobResponse.blob; alt = alt }
+        return {
+            blob = blobResponse.blob
+            alt = alt
+            dimensions =
+                try
+                    use ms = new System.IO.MemoryStream(data, writable = false)
+                    use bitmap = System.Drawing.Bitmap.FromStream(ms)
+                    Some (bitmap.Width, bitmap.Height)
+                with _ ->
+                    None
+        }
     }
 
     type Post = {
         text: string
         createdAt: DateTimeOffset
-        images: BlobWithAltText list
+        images: PostImage list
     }
 
     type NewRecord = {
@@ -270,6 +281,13 @@ module Repo =
                                 for i in post.images do dict [
                                     "image", i.blob
                                     "alt", i.alt
+                                    match i.dimensions with
+                                    | None -> ()
+                                    | Some (width, height) ->
+                                        "aspectRatio", dict [
+                                            "width", width
+                                            "height", height
+                                        ]
                                 ]
                             ]
                         ]
