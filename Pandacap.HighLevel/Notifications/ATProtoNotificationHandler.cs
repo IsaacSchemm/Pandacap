@@ -4,6 +4,7 @@ using Microsoft.FSharp.Core;
 using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.Types;
+using System.Security.Policy;
 
 namespace Pandacap.HighLevel.Notifications
 {
@@ -33,15 +34,12 @@ namespace Pandacap.HighLevel.Notifications
 
                 foreach (var item in result.notifications)
                 {
-                    Post? userPost = null;
-
-                    if (item.reasonSubject != null)
-                    {
-                        string rkey = item.reasonSubject.Split('/').Last();
-                        userPost = await context.Posts
-                            .Where(d => d.BlueskyRecordKey == rkey)
-                            .FirstOrDefaultAsync();
-                    }
+                    string? originalPostRecordKey = (item.reasonSubject ?? "")
+                        .Split('/', StringSplitOptions.RemoveEmptyEntries)
+                        .LastOrDefault();
+                    string? replyRecordKey = (item.uri ?? "")
+                        .Split('/', StringSplitOptions.RemoveEmptyEntries)
+                        .LastOrDefault();
 
                     yield return new()
                     {
@@ -50,11 +48,14 @@ namespace Pandacap.HighLevel.Notifications
                             PostPlatformModule.GetBadge(PostPlatform.ATProto),
                             "https://bsky.app/notifications"),
                         ActivityName = item.reason,
+                        Url = replyRecordKey != null && item.reason == "reply"
+                            ? $"https://bsky.app/profile/{item.author.did}/post/{replyRecordKey}"
+                            : null,
                         UserName = item.author.displayName.OrNull() ?? item.author.handle,
                         UserUrl = $"https://bsky.app/profile/{item.author.did}",
-                        PostUrl = userPost == null
-                            ? null
-                            : $"https://bsky.app/profile/{userPost.BlueskyDID}/post/{userPost.BlueskyRecordKey}",
+                        PostUrl = originalPostRecordKey != null
+                            ? $"https://bsky.app/profile/{credentials.DID}/post/{originalPostRecordKey}"
+                            : null,
                         Timestamp = item.indexedAt.ToUniversalTime()
                     };
                 }

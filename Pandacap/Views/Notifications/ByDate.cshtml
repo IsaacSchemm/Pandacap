@@ -24,7 +24,14 @@
                             <li class="list-group-item">
                                 <div>
                                     <strong>
-                                        @notification.ActivityName
+                                        @if (notification.Url != null)
+                                        {
+                                            <a href="@notification.Url" target="_blank">@notification.ActivityName</a>
+                                        }
+                                        else
+                                        {
+                                            @:@notification.ActivityName
+                                        }
                                     </strong>
                                     @if (notification.UserName != null)
                                     {

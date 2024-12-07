@@ -2,6 +2,7 @@
 using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.Types;
+using System.Security.Policy;
 
 namespace Pandacap.HighLevel.Notifications
 {
@@ -32,6 +33,7 @@ namespace Pandacap.HighLevel.Notifications
                         PostPlatformModule.GetBadge(PostPlatform.ActivityPub),
                         null),
                     ActivityName = "Reply",
+                    Url = $"/RemoteReplies/ViewReply?objectId={Uri.EscapeDataString(reply.ObjectId)}",
                     UserName = reply.Username,
                     UserUrl = reply.CreatedBy,
                     PostUrl = reply.InReplyTo,
