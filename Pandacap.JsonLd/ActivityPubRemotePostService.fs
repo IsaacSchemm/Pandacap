@@ -89,7 +89,7 @@ type ActivityPubRemotePostService(
                 |> List.map node_value
                 |> List.map DateTimeOffset.Parse
                 |> List.tryHead
-                |> Option.defaultValue DateTimeOffset.MinValue
+                |> Option.defaultValue DateTimeOffset.UtcNow
             Sensitive =
                 object
                 |> list "https://www.w3.org/ns/activitystreams#sensitive"
