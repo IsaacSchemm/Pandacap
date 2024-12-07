@@ -18,6 +18,7 @@ namespace Pandacap.Controllers
         ActivityPubTranslator activityPubTranslator,
         BridgyFedTimelineBrowser bridgyFedTimelineBrowser,
         PandacapDbContext context,
+        KeyProvider keyProvider,
         IdMapper mapper,
         IMemoryCache memoryCache) : Controller
     {
@@ -32,8 +33,10 @@ namespace Pandacap.Controllers
                 BridgyFed.Follower,
                 cancellationToken);
 
-            memoryCache.Set(_inboxCacheKey, actor.Inbox, DateTimeOffset.UtcNow.AddHours(1));
-            return actor.Inbox;
+            return memoryCache.Set(
+                _inboxCacheKey,
+                actor.SharedInbox ?? actor.Inbox,
+                DateTimeOffset.UtcNow.AddHours(1));
         }
 
         public async Task<IActionResult> Index(
@@ -95,7 +98,39 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
+        public async Task<IActionResult> UpdateProfile(
+            string summary,
+            CancellationToken cancellationToken)
+        {
+            string inbox = await GetInboxAsync(cancellationToken);
+
+            var key = await keyProvider.GetPublicKeyAsync();
+            var avatars = await context.Avatars.ToListAsync(cancellationToken);
+
+            context.ActivityPubOutboundActivities.Add(new()
+            {
+                Id = Guid.NewGuid(),
+                Inbox = inbox,
+                JsonBody = ActivityPubSerializer.SerializeWithContext(
+                    activityPubTranslator.PersonToUpdate(new ActivityPubActorInformation(
+                        key: key,
+                        summary: summary,
+                        avatars: [.. avatars],
+                        bluesky: [],
+                        deviantart: [],
+                        furaffinity: [],
+                        weasyl: []))),
+                StoredAt = DateTimeOffset.UtcNow
+            });
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return NoContent();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreatePost(
             string text,
             CancellationToken cancellationToken)
         {
@@ -119,7 +154,7 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(
+        public async Task<IActionResult> DeletePost(
             string id,
             CancellationToken cancellationToken)
         {

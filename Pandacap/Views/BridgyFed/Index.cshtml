@@ -36,6 +36,23 @@
     Pandacap only sends ActivityPub activities every ten minutes, so any changes will be delayed.
 </p>
 
+<hr />
+
+<h2>Update profile</h2>
+
+<p>
+    This profile update will only be sent to Bridgy Fed, and not to your followers.
+    It will be overridden by future profile changes (such as changing your avatar).
+</p>
+
+<form asp-action="UpdateProfile">
+    <textarea type="text" name="summary" aria-label="New text summary for Bluesky profile" class="form-control"></textarea>
+    <div style="text-align: right">
+        <button class="btn btn-sm btn-danger" type="submit">
+            Update profile
+        </button>
+    </div>
+</form>
 
 <hr />
 
@@ -45,7 +62,7 @@
     This post will only be sent to Bridgy Fed, and not to your followers.
 </p>
 
-<form asp-action="Create">
+<form asp-action="CreatePost">
     <textarea type="text" name="text" aria-label="Content of new post" class="form-control"></textarea>
     <div style="text-align: right">
         <button class="btn btn-sm btn-danger" type="submit">
@@ -74,7 +91,7 @@
             <a href="@item.BlueskyAppUrl" class="btn btn-sm btn-primary">Bluesky</a>
         </p>
 
-        <form asp-action="Delete" method="post" onsubmit="confirm('Are you sure you want to delete this post from Bridgy Fed?')">
+        <form asp-action="DeletePost" method="post" onsubmit="confirm('Are you sure you want to delete this post from Bridgy Fed?')">
             <input type="hidden" name="id" value="@item.ActivityPubId" />
             <button class="btn btn-sm btn-danger" type="submit">
                 Delete from Bridgy Fed

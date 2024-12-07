@@ -3,16 +3,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Models;
-using Pandacap.Types;
 using System.Diagnostics;
+using System.Net;
 using System.Text;
-using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -26,7 +24,6 @@ namespace Pandacap.Controllers
         ActivityPubTranslator translator,
         UserManager<IdentityUser> userManager) : Controller
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported in Cosmos DB backend")]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             var someTimeAgo = DateTime.UtcNow.AddMonths(-3);
@@ -60,6 +57,7 @@ namespace Pandacap.Controllers
                         translator.PersonToObject(
                             new ActivityPubActorInformation(
                                 key,
+                                $"<p>Art gallery hosted by <a href='{UserAgentInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(UserAgentInformation.ApplicationName)}</a>.</p>",
                                 [.. avatars],
                                 [.. blueskyDIDs],
                                 [.. deviantArtUsernames],
@@ -343,6 +341,7 @@ namespace Pandacap.Controllers
                         translator.PersonToUpdate(
                             new ActivityPubActorInformation(
                                 key,
+                                $"<p>Art gallery hosted by <a href='{UserAgentInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(UserAgentInformation.ApplicationName)}</a>.</p>",
                                 [newAvatar],
                                 [inbox],
                                 [..blueskyDIDs],
