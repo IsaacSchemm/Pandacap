@@ -274,6 +274,16 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RefreshFeed(Guid id)
+        {
+            await atomRssFeedReader.ReadFeedAsync(id);
+
+            return RedirectToAction(nameof(Feeds));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFeed(Guid id)
         {
             await foreach (var feed in context.RssFeeds.Where(f => f.Id == id).AsAsyncEnumerable())

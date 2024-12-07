@@ -30,7 +30,7 @@
 
             @if (Model.Remote)
             {
-                <form asp-controller="RemoteReplies" asp-action="Forget" method="post" class="d-inline" onsubmit="confirm('Are you sure you want to remove this post from Pandacap?')">
+                <form asp-controller="RemoteReplies" asp-action="Forget" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from Pandacap?')">
                     <input type="hidden" name="objectId" value="@Model.ObjectId" />
                     <button type="submit" class="btn btn-sm btn-danger">Forget</button>
                 </form>

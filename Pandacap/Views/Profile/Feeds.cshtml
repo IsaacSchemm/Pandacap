@@ -36,9 +36,14 @@ else
                 <details>
                     <summary>Options</summary>
 
-                    <form asp-action="RemoveFeed">
+                    <form asp-action="RefreshFeed" class="d-block m-2">
                         <input type="hidden" name="id" value="@item.Id" />
-                        <button type="submit" class="btn btn-outline-danger">Unfollow @(item.FeedTitle ?? $"{item.Id}")</button>
+                        <button type="submit" class="btn btn-primary">Refresh</button>
+                    </form>
+
+                    <form asp-action="RemoveFeed" class="d-block m-2" onsubmit="return confirm('Are you sure you want to unfollow this feed?')">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" class="btn btn-danger">Unfollow</button>
                     </form>
                 </details>
             }
