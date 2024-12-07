@@ -98,3 +98,14 @@ else
         </div>
     </form>
 </p>
+
+@if (Model.IsBridgyFed)
+{
+    <hr />
+
+    <p>
+        <div class="form-group">
+            <a class="btn btn-outline-primary" href="@Model.Url">View and reply on Bluesky</a>
+        </div>
+    </p>
+}

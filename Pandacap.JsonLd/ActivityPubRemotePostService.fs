@@ -121,6 +121,8 @@ type ActivityPubRemotePostService(
                 |> first node_id
             Attachments =
                 this.GetAttachments(object)
+            IsBridgyFed =
+                id.StartsWith("https://bsky.brid.gy/")
         }
     }
 
