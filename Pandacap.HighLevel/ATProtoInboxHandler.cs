@@ -65,11 +65,10 @@ namespace Pandacap.HighLevel
                 if (feedItem.IndexedAt < someTimeAgo)
                     break;
 
-                if (feedItem.post.record.InReplyTo.Length > 0)
+                if (feedItem.post.record.InReplyTo is BlueskyFeed.Reply inReplyTo)
                 {
                     var inReplyToDIDs =
-                        feedItem.post.record.InReplyTo
-                        .SelectMany(r => new[] { r.parent, r.root })
+                        new[] { inReplyTo.parent, inReplyTo.root }
                         .Select(r => r.UriComponents.did)
                         .Distinct();
 

@@ -79,6 +79,7 @@ builder.Services
     .AddLowLevelServices()
     .AddHighLevelServices()
     .AddScoped<ActivityPubRemoteActorService>()
+    .AddScoped<BridgyFedTimelineBrowser>()
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<DeliveryInboxCollector>()
     .AddScoped<MastodonVerifier>()

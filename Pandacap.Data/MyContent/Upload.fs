@@ -11,8 +11,8 @@ type Upload() =
     interface IPost with
         member _.Badges = []
         member this.DisplayTitle = String.concat " " [
-            this.UploadedAt.Date.ToLongDateString()
-            this.UploadedAt.Date.ToShortTimeString()
+            this.UploadedAt.UtcDateTime.ToLongDateString()
+            this.UploadedAt.UtcDateTime.ToShortTimeString()
         ]
         member this.Id = $"{this.Id}"
         member _.IsDismissable = false

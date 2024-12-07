@@ -155,6 +155,15 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             ]
     ]
 
+    member _.ObjectToDelete(objectId: string) = dict [
+        pair "type" "Delete"
+        pair "id" (mapper.GetTransientId())
+        pair "actor" mapper.ActorId
+        pair "published" DateTimeOffset.UtcNow
+        pair "to" "https://www.w3.org/ns/activitystreams#Public"
+        pair "object" objectId
+    ]
+
     member _.AsObject(post: AddressedPost) = dict [
         let id = mapper.GetObjectId(post)
 
@@ -200,14 +209,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member _.ObjectToDelete(post: Post) = dict [
-        pair "type" "Delete"
-        pair "id" (mapper.GetTransientId())
-        pair "actor" mapper.ActorId
-        pair "published" DateTimeOffset.UtcNow
-        pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "object" (mapper.GetObjectId(post))
-    ]
+    member this.ObjectToDelete(post: Post) = this.ObjectToDelete(mapper.GetObjectId(post))
 
     member this.ObjectToCreate(post: AddressedPost) = dict [
         pair "type" "Create"
@@ -219,14 +221,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (this.AsObject post)
     ]
 
-    member _.ObjectToDelete(post: AddressedPost) = dict [
-        pair "type" "Delete"
-        pair "id" (mapper.GetTransientId())
-        pair "actor" mapper.ActorId
-        pair "published" DateTimeOffset.UtcNow
-        pair "to" ["https://www.w3.org/ns/activitystreams#Public"]
-        pair "object" (mapper.GetObjectId(post))
-    ]
+    member this.ObjectToDelete(post: AddressedPost) = this.ObjectToDelete(mapper.GetObjectId(post))
 
     member _.AcceptFollow(followId: string) = dict [
         pair "type" "Accept"

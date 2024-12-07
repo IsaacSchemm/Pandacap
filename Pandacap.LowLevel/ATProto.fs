@@ -338,8 +338,8 @@ module BlueskyFeed =
         reply: Reply option
         bridgyOriginalUrl: string option
     } with
-        member this.InReplyTo = Option.toList this.reply
-        member this.OtherUrls = Option.toList this.bridgyOriginalUrl
+        member this.InReplyTo = Option.toObj this.reply
+        member this.ActivityPubId = Option.toObj this.bridgyOriginalUrl
 
     type Label = {
         src: string
@@ -388,7 +388,9 @@ module BlueskyFeed =
     type FeedResponse = {
         cursor: string option
         feed: FeedItem list
-    }
+    } with
+        member this.HasNextPage = Option.isSome this.cursor
+        member this.NextPage = FromCursor (Option.get this.cursor)
 
     let GetActorLikesAsync httpClient credentials actor page =
         Requester.build HttpMethod.Get credentials "app.bsky.feed.getActorLikes" [
