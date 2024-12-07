@@ -12,7 +12,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<ActivityPubNotificationHandler>()
                 .AddScoped<ActivityPubReplyNotificationHandler>()
                 .AddScoped<ActivityPubRequestHandler>()
-                .AddScoped<ActivityPubReverseLookup>()
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoCredentialProvider>()
                 .AddScoped<ATProtoDIDResolver>()

@@ -8,6 +8,7 @@ using Pandacap.HighLevel;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.Models;
+using System.Text.RegularExpressions;
 
 namespace Pandacap.Controllers
 {
@@ -15,9 +16,9 @@ namespace Pandacap.Controllers
     public partial class BridgyFedController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubTranslator activityPubTranslator,
-        ActivityPubReverseLookup activityPubReverseLookup,
         BridgyFedTimelineBrowser bridgyFedTimelineBrowser,
         PandacapDbContext context,
+        IdMapper mapper,
         IMemoryCache memoryCache) : Controller
     {
         private readonly static string _inboxCacheKey = $"{Guid.NewGuid()}";
@@ -46,24 +47,36 @@ namespace Pandacap.Controllers
                 .Take(count)
                 .ToListAsync(cancellationToken);
 
-            FSharpSet<string> activityPubIds = [
+            FSharpSet<string> objectIds = [
                 .. feedItems
                     .Select(item => item.post.record.ActivityPubId)
                     .Where(url => url != null)
             ];
 
-            var discoveredPosts = await activityPubReverseLookup
-                .FindPostsAsync(activityPubIds)
-                .ToDictionaryAsync(
-                    d => d.ActivityPubId,
-                    d => d.Id,
-                    cancellationToken);
+            FSharpSet<Guid> discoveredGuids = [
+                .. objectIds
+                    .SelectMany(url => GuidPattern.Matches(url).Select(m => m.Value))
+                    .Select(Guid.Parse)
+            ];
+
+            FSharpSet<string> discoveredObjectIds = [
+                .. await context.Posts
+                    .Where(p => discoveredGuids.Contains(p.Id))
+                    .AsAsyncEnumerable()
+                    .Select(mapper.GetObjectId)
+                    .ToListAsync(cancellationToken),
+                .. await context.AddressedPosts
+                    .Where(p => discoveredGuids.Contains(p.Id))
+                    .AsAsyncEnumerable()
+                    .Select(mapper.GetObjectId)
+                    .ToListAsync(cancellationToken)
+            ];
 
             var bridgedPosts = feedItems.Select(item => new BridgyFedViewModel.BridgedPost
             {
                 ActivityPubId = item.post.record.ActivityPubId,
                 BlueskyAppUrl = $"https://bsky.app/profile/{item.post.author.did}/post/{item.post.RecordKey}",
-                Found = discoveredPosts.ContainsKey(item.post.record.ActivityPubId),
+                Found = discoveredObjectIds.Contains(item.post.record.ActivityPubId),
                 Handle = item.post.author.handle,
                 OriginalUrl = item.post.record.bridgyOriginalUrl.Value,
                 Text = item.post.record.text,
@@ -125,5 +138,10 @@ namespace Pandacap.Controllers
 
             return NoContent();
         }
+
+        private static readonly Regex GuidPattern = GetGuidPattern();
+
+        [GeneratedRegex("[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}", RegexOptions.IgnoreCase)]
+        private static partial Regex GetGuidPattern();
     }
 }
