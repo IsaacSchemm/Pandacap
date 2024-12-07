@@ -4,11 +4,6 @@ using Pandacap.HighLevel;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
 using Pandacap.LowLevel.ATProto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pandacap
 {
@@ -19,14 +14,10 @@ namespace Pandacap
         IHttpClientFactory httpClientFactory,
         ActivityPubTranslator translator)
     {
-        private IEnumerable<string> CollectPossibleHandles()
+        public async IAsyncEnumerable<BlueskyFeed.FeedItem> CollectFeedItemsAsync()
         {
-            yield return $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy";
-            yield return $"{appInfo.Username}.{appInfo.ApplicationHostname}.ap.brid.gy";
-        }
+            string handle = $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy";
 
-        private async IAsyncEnumerable<BlueskyFeed.FeedItem> CollectFeedItemsAsync(string handle)
-        {
             using var httpClient = httpClientFactory.CreateClient();
 
             var page = BlueskyFeed.Page.FromStart;
@@ -45,13 +36,6 @@ namespace Pandacap
 
                 page = feedResponse.NextPage;
             }
-        }
-
-        public IAsyncEnumerable<BlueskyFeed.FeedItem> CollectFeedItemsAsync()
-        {
-            return CollectPossibleHandles()
-                .Select(CollectFeedItemsAsync)
-                .MergeNewest(f => f.IndexedAt);
         }
 
         public async Task SendDeletionAsync(BlueskyFeed.FeedItem feedItem, CancellationToken cancellationToken)

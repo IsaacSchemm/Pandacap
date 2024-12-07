@@ -1,31 +1,81 @@
-﻿@model IEnumerable<BridgedPostViewModel>
+﻿@model BridgyFedViewModel
 
 @{
-    foreach (var item in Model)
+    ViewBag.Title = "Bridgy Fed";
+}
+
+<h1>Bridgy Fed</h1>
+
+<p>
+    Status:
+    @if (Pandacap.LowLevel.BridgyFed.Enabled)
     {
-        <div class="bridged-post @(item.Found ? "found" : "not-found")">
-            <p class="small">
-                @item.Timestamp.UtcDateTime.ToLongDateString()
-                @item.Timestamp.UtcDateTime.ToShortTimeString()
-            </p>
-
-            <p>
-                @item.Text
-            </p>
-
-            <p>
-                <a href="@item.OriginalUrl" class="btn btn-sm btn-primary">ActivityPub</a>
-                <a href="@item.BlueskyAppUrl" class="btn btn-sm btn-primary">Bluesky</a>
-            </p>
-
-            <form asp-action="SendDeleteActivity" method="post" onsubmit="confirm('Are you sure you want to delete this post from Bridgy Fed?')">
-                <input type="hidden" name="id" value="@item.ActivityPubId" />
-                <button class="btn btn-sm btn-danger" type="submit">
-                    Delete from Bridgy Fed
-                </button>
-            </form>
-        </div>
+        <strong>enabled</strong>
     }
+    else
+    {
+        <strong class="text-danger">disabled</strong>
+    }
+    in @Pandacap.LowLevel.UserAgentInformation.ApplicationName's <code>BridgyFed.fs</code>
+
+    @if (Model.BridgedPosts.FirstOrDefault() is BridgyFedViewModel.BridgedPost post)
+    {
+        <br />
+        <span>
+            Bridged Bluesky handle:
+            <strong>
+                <a href="https://bsky.app/profile/@post.Handle">
+                    @@@post.Handle
+                </a>
+            </strong>
+        </span>
+    }
+</p>
+
+@foreach (var item in Model.BridgedPosts)
+{
+    <div class="bridged-post @(item.Found ? "found" : "not-found")">
+        <p class="small">
+            @item.Timestamp.UtcDateTime.ToLongDateString()
+            @item.Timestamp.UtcDateTime.ToShortTimeString()
+        </p>
+
+        <p>
+            @item.Text
+        </p>
+
+        <p>
+            <a href="@item.OriginalUrl" class="btn btn-sm btn-primary">ActivityPub</a>
+            <a href="@item.BlueskyAppUrl" class="btn btn-sm btn-primary">Bluesky</a>
+        </p>
+
+        <form asp-action="SendDeleteActivity" method="post" onsubmit="confirm('Are you sure you want to delete this post from Bridgy Fed?')">
+            <input type="hidden" name="id" value="@item.ActivityPubId" />
+            <button class="btn btn-sm btn-danger" type="submit">
+                Delete from Bridgy Fed
+            </button>
+        </form>
+    </div>
+}
+
+@if (Model.Offset > 0)
+{
+    <a asp-controller="BridgyFed"
+       asp-action="Index"
+       asp-route-offset="@Math.Max(Model.Offset - Model.Count, 0)"
+       asp-route-count="@Model.Count">
+        &laquo; Previous @Model.Count items
+    </a>
+}
+
+@if (Model.BridgedPosts.Any())
+{
+    <a asp-controller="BridgyFed"
+       asp-action="Index"
+       asp-route-offset="@(Model.Offset + Model.Count)"
+       asp-route-count="@Model.Count">
+        Next @Model.Count items &raquo;
+    </a>
 }
 
 <style type="text/css">

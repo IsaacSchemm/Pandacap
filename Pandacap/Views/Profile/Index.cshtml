@@ -30,7 +30,7 @@
                     &middot;
                     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
 
-                    @if (Model.ShowBridgyFedBlueskyLink)
+                    @if (Model.BridgyFedFollowing && BridgyFed.Enabled)
                     {
                         <hr />
 
@@ -156,10 +156,10 @@
 <form asp-action="Search" method="get">
     <div class="input-group mb-3">
         <input name="q"
-               type="text"
-               class="form-control"
-               placeholder="Search (ID / Title / Tag)"
-               aria-label="Search by ID, title, or tag">
+        type="text"
+        class="form-control"
+        placeholder="Search (ID / Title / Tag)"
+        aria-label="Search by ID, title, or tag">
         <button class="btn btn-primary" type="button">
             Search
         </button>
@@ -265,6 +265,15 @@
                         </a>
 
                         <hr />
+
+                        @if (Model.BridgyFedFollowing)
+                        {
+                            <a asp-controller="BridgyFed" asp-action="Index" class="btn btn-outline-primary">
+                                Manage integration with Bridgy Fed
+                            </a>
+
+                            <hr />
+                        }
 
                         <a asp-controller="Profile" asp-action="UploadAvatar" class="btn btn-outline-primary">
                             Upload avatar
