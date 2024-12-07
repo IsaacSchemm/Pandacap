@@ -225,7 +225,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" [``to``]
-        pair "object" [
+        pair "object" (dict [
             pair "id" (mapper.GetTransientId())
             pair "type" "Note"
             pair "content" (WebUtility.HtmlEncode(text))
@@ -234,7 +234,7 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
             pair "published" DateTimeOffset.UtcNow
 
             pair "to" [``to``]
-        ]
+        ])
     ]
 
     member _.AcceptFollow(followId: string) = dict [

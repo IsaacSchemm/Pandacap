@@ -143,7 +143,31 @@ namespace Pandacap.Controllers
                 JsonBody = ActivityPubSerializer.SerializeWithContext(
                     activityPubTranslator.TransientObjectToCreate(
                         text,
-                        to: inbox)),
+                        to: "https://www.w3.org/ns/activitystreams#Public")),
+                StoredAt = DateTimeOffset.UtcNow
+            });
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return NoContent();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendDirectMessage(
+            string text,
+            CancellationToken cancellationToken)
+        {
+            string inbox = await GetInboxAsync(cancellationToken);
+
+            context.ActivityPubOutboundActivities.Add(new()
+            {
+                Id = Guid.NewGuid(),
+                Inbox = inbox,
+                JsonBody = ActivityPubSerializer.SerializeWithContext(
+                    activityPubTranslator.TransientObjectToCreate(
+                        text,
+                        to: BridgyFed.Follower)),
                 StoredAt = DateTimeOffset.UtcNow
             });
 
