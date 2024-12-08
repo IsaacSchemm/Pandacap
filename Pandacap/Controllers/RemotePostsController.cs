@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos.Linq;
 using Pandacap.Data;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
+using Pandacap.Models;
 using System.Net;
 
 namespace Pandacap.Controllers
@@ -27,7 +29,15 @@ namespace Pandacap.Controllers
 
             var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
 
-            return View(post);
+            return View(new RemotePostViewModel
+            {
+                RemotePost = post,
+                IsBridgyFedEnabled = await context.BridgyFedBridges
+                    .CountAsync(cancellationToken) > 0,
+                IsInFavorites = await context.RemoteActivityPubFavorites
+                    .Where(r => r.ObjectId == post.Id)
+                    .CountAsync(cancellationToken) > 0
+            });
         }
 
         [HttpPost]
