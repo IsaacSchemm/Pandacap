@@ -5,7 +5,7 @@ using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.JsonLd;
 using Pandacap.LowLevel;
-using System.Security.Cryptography;
+using System.Net;
 
 namespace Pandacap.Controllers
 {
@@ -14,7 +14,8 @@ namespace Pandacap.Controllers
         ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubRequestHandler activityPubRequestHandler,
         ActivityPubTranslator activityPubTranslator,
-        PandacapDbContext context) : Controller
+        PandacapDbContext context,
+        IdMapper mapper) : Controller
     {
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -26,7 +27,8 @@ namespace Pandacap.Controllers
                 TimeSpan.FromSeconds(30),
                 cancellationToken);
 
-            string didRequestId = await SendPrivateMessageAsync("did");
+            string didRequestId = mapper.GetObjectId(
+                await SendPrivateMessageAsync("did"));
 
             DateTimeOffset cutoff = DateTimeOffset.UtcNow.AddMinutes(5);
 
@@ -41,6 +43,7 @@ namespace Pandacap.Controllers
                     await Task.Delay(
                         TimeSpan.FromSeconds(10),
                         cancellationToken);
+
                     continue;
                 }
 
@@ -51,7 +54,9 @@ namespace Pandacap.Controllers
                         TimeSpan.FromSeconds(30),
                         cancellationToken);
 
-                    didRequestId = await SendPrivateMessageAsync("did");
+                    didRequestId = didRequestId = mapper.GetObjectId(
+                        await SendPrivateMessageAsync("did"));
+
                     continue;
                 }
 
@@ -96,20 +101,30 @@ namespace Pandacap.Controllers
             return RedirectToAction("Index", "Profile");
         }
 
-        private async Task<string> SendPrivateMessageAsync(string text)
+        private async Task<AddressedPost> SendPrivateMessageAsync(string text)
         {
             var actor = await activityPubRemoteActorService.FetchActorAsync("https://bsky.brid.gy/bsky.brid.gy");
 
-            var pm = activityPubTranslator.TransientPrivateMessage(
-                text,
-                [actor.Id]);
+            var addressedPost = new AddressedPost
+            {
+                Id = Guid.NewGuid(),
+                Users = [actor.Id],
+                PublishedTime = DateTimeOffset.UtcNow,
+                HtmlContent = WebUtility.HtmlEncode(text),
+                IsDirectMessage = true
+            };
+
+            context.AddressedPosts.Add(addressedPost);
+
+            await context.SaveChangesAsync();
 
             await activityPubRequestHandler.PostAsync(
                 new Uri(actor.Inbox),
                 ActivityPubSerializer.SerializeWithContext(
-                    pm.CreateActivity));
+                    activityPubTranslator.ObjectToCreate(
+                        addressedPost)));
 
-            return pm.ObjectId;
+            return addressedPost;
         }
     }
 }

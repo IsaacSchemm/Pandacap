@@ -12,29 +12,31 @@ type AddressedPost() =
     member val PublishedTime = DateTimeOffset.MinValue with get, set
     member val Title = nullString with get, set
     member val HtmlContent = "" with get, set
+    member val IsDirectMessage = Nullable false with get, set
 
     [<NotMapped>]
     member this.IsReply = not (isNull this.InReplyTo)
 
     [<NotMapped>]
-    member this.Audience = Option.ofObj this.Community
+    member this.Addressing =
+        let users = this.Users |> Seq.toList
+        let communities = this.Community |> Option.ofObj |> Option.toList
 
-    [<NotMapped>]
-    member this.Communities = Option.toList this.Audience
-
-    [<NotMapped>]
-    member this.Addressing = {|
-        To = [
-            "https://www.w3.org/ns/activitystreams#Public"
-            if not this.IsReply then
-                yield! this.Communities
-        ]
-        Cc = [
-            yield! this.Users
-            if this.IsReply then
-                yield! this.Communities
-        ]
-    |}
+        if this.IsDirectMessage = Nullable true then
+            {|
+                To = users @ communities
+                Cc = []
+            |}
+        else if this.IsReply then
+            {|
+                To = "https://www.w3.org/ns/activitystreams#Public" :: []
+                Cc = users @ communities
+            |}
+        else
+            {|
+                To = "https://www.w3.org/ns/activitystreams#Public" :: communities
+                Cc = []
+            |}
 
     interface IPost with
         member _.Badges = []

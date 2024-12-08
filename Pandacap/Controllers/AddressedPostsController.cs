@@ -42,9 +42,11 @@ namespace Pandacap.Controllers
                 Users = await activityPubRemoteActorService.FetchAddresseesAsync(
                     post.Users,
                     cancellationToken),
-                Communities = await activityPubRemoteActorService.FetchAddresseesAsync(
-                    post.Communities,
-                    cancellationToken),
+                Communities = post.Community is string community
+                    ? await activityPubRemoteActorService.FetchAddresseesAsync(
+                        [community],
+                        cancellationToken)
+                    : [],
                 Replies = User.Identity?.IsAuthenticated == true
                     ? await replyLookup
                         .CollectRepliesAsync(

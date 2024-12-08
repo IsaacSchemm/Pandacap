@@ -175,9 +175,8 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "to" post.Addressing.To
         pair "cc" post.Addressing.Cc
 
-        match post.Audience with
-        | Some id -> pair "audience" id
-        | _ -> ()
+        if not (isNull post.Community) then
+            pair "audience" post.Community
     ]
 
     member this.ObjectToCreate(post: Post) = dict [
@@ -227,29 +226,6 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "to" ["https://www.w3.org/ns/activitystreams#Public"]
         pair "object" (mapper.GetObjectId(post))
     ]
-
-    member _.TransientPrivateMessage(text: string, ``to``: string list) =
-        let id = mapper.GetTransientId()
-        let obj = dict [
-            pair "id" id
-            pair "type" "Note"
-            pair "content" (WebUtility.HtmlEncode(text))
-            pair "attributedTo" mapper.ActorId
-            pair "published" DateTimeOffset.UtcNow
-            pair "to" ``to``
-        ]
-        {|
-            ObjectId = id
-            Object = obj
-            CreateActivity = dict [
-                pair "type" "Create"
-                pair "id" $"{id}-create"
-                pair "actor" mapper.ActorId
-                pair "published" DateTimeOffset.UtcNow
-                pair "to" ``to``
-                pair "object" obj
-            ]
-        |}
 
     member _.AcceptFollow(followId: string) = dict [
         pair "type" "Accept"
