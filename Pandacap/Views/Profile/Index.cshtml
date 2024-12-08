@@ -271,6 +271,39 @@
                         </a>
                     </div>
                 </div>
+
+                <div class="card my-3">
+                    <div class="card-header">
+                        Bridgy Fed
+                    </div>
+                    <div class="card-body text-center">
+                        <form style="display: inline" asp-controller="BridgyFed" asp-action="Start" method="post">
+                            <button class="btn btn-danger">
+                                Enable
+                            </button>
+                        </form>
+
+                        <form style="display: inline" asp-controller="BridgyFed" asp-action="Stop" method="post">
+                            <button class="btn btn-danger">
+                                Disable
+                            </button>
+                        </form>
+
+                        <hr />
+
+                        <form style="display: inline" asp-controller="BridgyFed" asp-action="Help" method="post">
+                            <button class="btn btn-primary">
+                                Request info
+                            </button>
+                        </form>
+
+                        <form style="display: inline" asp-controller="BridgyFed" asp-action="DID" method="post">
+                            <button class="btn btn-primary">
+                                Request DID
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
 
             <div class="col col-12 col-xl-4">

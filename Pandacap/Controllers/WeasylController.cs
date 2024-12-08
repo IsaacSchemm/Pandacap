@@ -1,5 +1,4 @@
-﻿using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
@@ -11,7 +10,6 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class WeasylController(
-        BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         IdMapper mapper,
         WeasylClientFactory weasylClientFactory) : Controller

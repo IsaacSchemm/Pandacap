@@ -1,16 +1,12 @@
 ﻿using DeviantArtFs.Extensions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Core;
-using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.Types;
-using System.Security.Policy;
 
 namespace Pandacap.HighLevel.Notifications
 {
     public class ATProtoNotificationHandler(
         ATProtoCredentialProvider atProtoCredentialProvider,
-        PandacapDbContext context,
         IHttpClientFactory httpClientFactory
     ) : INotificationHandler
     {

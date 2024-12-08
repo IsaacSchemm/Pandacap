@@ -228,6 +228,26 @@ type ActivityPubTranslator(appInfo: ApplicationInformation, mapper: IdMapper) =
         pair "object" (mapper.GetObjectId(post))
     ]
 
+    member _.TransientPrivateMessageToCreate(text: string, ``to``: string list) = dict [
+        pair "type" "Create"
+        pair "id" (mapper.GetTransientId())
+        pair "actor" mapper.ActorId
+        pair "published" DateTimeOffset.UtcNow
+        pair "to" ``to``
+        pair "object" (dict [
+            pair "id" (mapper.GetTransientId())
+        
+            pair "type" "Note"
+
+            pair "content" (WebUtility.HtmlEncode(text))
+
+            pair "attributedTo" mapper.ActorId
+            pair "published" DateTimeOffset.UtcNow
+
+            pair "to" ``to``
+        ])
+    ]
+
     member _.AcceptFollow(followId: string) = dict [
         pair "type" "Accept"
         pair "id" (mapper.GetTransientId())

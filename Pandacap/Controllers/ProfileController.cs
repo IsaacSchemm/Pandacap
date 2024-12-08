@@ -72,9 +72,8 @@ namespace Pandacap.Controllers
             return View(new ProfileViewModel
             {
                 ShowBridgyFedBlueskyLink =
-                    BridgyFed.Enabled
-                    && await context.Followers
-                        .Where(f => f.ActorId == BridgyFed.Follower)
+                    await context.Followers
+                        .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
                         .CountAsync(cancellationToken) > 0,
                 BlueskyDIDs = blueskyDIDs,
                 DeviantArtUsernames = deviantArtUsernames,

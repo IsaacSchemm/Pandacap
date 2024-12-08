@@ -1,11 +1,11 @@
-﻿using Pandacap.Data;
-using Pandacap.LowLevel;
+﻿using Microsoft.FSharp.Collections;
+using Pandacap.Data;
 
 namespace Pandacap
 {
     public class DeliveryInboxCollector(PandacapDbContext context)
     {
-        public async Task<HashSet<string>> GetDeliveryInboxesAsync(
+        public async Task<FSharpSet<string>> GetDeliveryInboxesAsync(
             bool isCreate = false,
             CancellationToken cancellationToken = default)
         {
@@ -19,16 +19,7 @@ namespace Pandacap
                         yield return follow.SharedInbox ?? follow.Inbox;
             }
 
-            return await enumerateInboxes()
-                .Where(inbox =>
-                {
-                    if (isCreate)
-                        if (!BridgyFed.Enabled && BridgyFed.OwnsInbox(inbox))
-                            return false;
-
-                    return true;
-                })
-                .ToHashSetAsync(cancellationToken);
+            return [.. await enumerateInboxes().ToListAsync(cancellationToken)];
         }
     }
 }
