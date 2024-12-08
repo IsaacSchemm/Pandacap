@@ -16,6 +16,7 @@
     <Compile Include="MyContent\ActivityPubOutboundActivity.fs" />
     <Compile Include="MyContent\AddressedPost.fs" />
     <Compile Include="MyContent\Avatar.fs" />
+    <Compile Include="MyContent\BridgyFedBridge.fs" />
     <Compile Include="MyContent\Post.fs" />
     <Compile Include="MyContent\Upload.fs" />
     <Compile Include="Relationships\RemoteActorRelationship.fs" />

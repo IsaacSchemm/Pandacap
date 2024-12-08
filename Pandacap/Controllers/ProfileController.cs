@@ -33,9 +33,13 @@ namespace Pandacap.Controllers
 
             string? userId = userManager.GetUserId(User);
 
-            var blueskyDIDs = await context.ATProtoCredentials
-                .Select(c => c.DID)
-                .ToListAsync(cancellationToken);
+            IEnumerable<string> blueskyDIDs = [
+                .. await context.ATProtoCredentials
+                    .Select(c => c.DID)
+                    .ToListAsync(cancellationToken),
+                .. await context.BridgyFedBridges
+                    .Select(c => c.DID)
+                    .ToListAsync(cancellationToken)];
 
             var deviantArtUsernames = await context.DeviantArtCredentials
                 .Select(d => d.Username)
@@ -71,10 +75,6 @@ namespace Pandacap.Controllers
 
             return View(new ProfileViewModel
             {
-                ShowBridgyFedBlueskyLink =
-                    await context.Followers
-                        .Where(f => f.ActorId == "https://bsky.brid.gy/bsky.brid.gy")
-                        .CountAsync(cancellationToken) > 0,
                 BlueskyDIDs = blueskyDIDs,
                 DeviantArtUsernames = deviantArtUsernames,
                 FurAffinityUsernames = furAffinityUsernames,

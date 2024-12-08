@@ -12,6 +12,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.FurAffinityCredentials: DbSet<FurAffinityCredentials> = this.Set()
     member this.WeasylCredentials: DbSet<WeasylCredentials> = this.Set()
     member this.Avatars: DbSet<Avatar> = this.Set()
+    member this.BridgyFedBridges: DbSet<BridgyFedBridge> = this.Set()
     member this.Posts: DbSet<Post> = this.Set()
     member this.Uploads: DbSet<Upload> = this.Set()
     member this.AddressedPosts: DbSet<AddressedPost> = this.Set()
