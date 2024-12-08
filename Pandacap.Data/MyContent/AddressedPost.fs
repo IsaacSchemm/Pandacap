@@ -12,7 +12,7 @@ type AddressedPost() =
     member val PublishedTime = DateTimeOffset.MinValue with get, set
     member val Title = nullString with get, set
     member val HtmlContent = "" with get, set
-    member val IsDirectMessage = Nullable false with get, set
+    member val IsDirectMessage = false with get, set
 
     [<NotMapped>]
     member this.IsReply = not (isNull this.InReplyTo)
@@ -22,7 +22,7 @@ type AddressedPost() =
         let users = this.Users |> Seq.toList
         let communities = this.Community |> Option.ofObj |> Option.toList
 
-        if this.IsDirectMessage = Nullable true then
+        if this.IsDirectMessage then
             {|
                 To = users @ communities
                 Cc = []
