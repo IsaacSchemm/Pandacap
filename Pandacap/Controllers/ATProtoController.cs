@@ -197,7 +197,7 @@ namespace Pandacap.Controllers
                 .ToListAsync();
             context.BlueskyFollows.RemoveRange(existing);
 
-            if (model.SpecialBehaviorDescriptions.Any())
+            if (model.SpecialBehavior)
             {
                 context.BlueskyFollows.Add(new()
                 {

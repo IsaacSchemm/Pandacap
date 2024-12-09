@@ -1,7 +1,6 @@
 ﻿namespace Pandacap.Data
 
 open System.ComponentModel.DataAnnotations
-open System.ComponentModel.DataAnnotations.Schema
 
 type BlueskyFollow() =
     [<Key>]

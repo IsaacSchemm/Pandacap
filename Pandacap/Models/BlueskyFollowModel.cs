@@ -10,17 +10,9 @@
         public bool ExcludeTextShares { get; init; }
         public bool ExcludeQuotePosts { get; init; }
 
-        public IEnumerable<string> SpecialBehaviorDescriptions
-        {
-            get
-            {
-                if (ExcludeImageShares)
-                    yield return "Exclude image reposts";
-                if (ExcludeTextShares)
-                    yield return "Exclude text reposts";
-                if (ExcludeQuotePosts)
-                    yield return "Exclude quote posts";
-            }
-        }
+        public bool SpecialBehavior =>
+            ExcludeImageShares
+            || ExcludeTextShares
+            || ExcludeQuotePosts;
     }
 }

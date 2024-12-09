@@ -16,16 +16,6 @@
 
         @if (User.Identity?.IsAuthenticated == true)
         {
-            if (item.SpecialBehaviorDescriptions.Any())
-            {
-                <ul class="mb-0">
-                    @foreach (string desc in item.SpecialBehaviorDescriptions)
-                    {
-                        <li>@desc</li>
-                    }
-                </ul>
-            }
-
             <a asp-action="UpdateFollow" asp-route-did="@item.DID" class="small">
                 Options
             </a>
