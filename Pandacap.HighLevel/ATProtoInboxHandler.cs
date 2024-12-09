@@ -23,9 +23,9 @@ namespace Pandacap.HighLevel
         ];
 
         private static async IAsyncEnumerable<BlueskyFeed.FeedItem> WrapAsync(
-            Func<BlueskyFeed.Page, Task<BlueskyFeed.FeedResponse>> handler)
+            Func<Page, Task<BlueskyFeed.FeedResponse>> handler)
         {
-            var page = BlueskyFeed.Page.FromStart;
+            var page = Page.FromStart;
 
             while (true)
             {
@@ -34,16 +34,15 @@ namespace Pandacap.HighLevel
                 foreach (var item in results.feed)
                     yield return item;
 
-                if (OptionModule.IsNone(results.cursor))
+                if (results.NextPage.IsEmpty)
                     break;
 
-                page = BlueskyFeed.Page.NewFromCursor(results.cursor.Value);
+                page = results.NextPage.Single();
             }
         }
 
         /// <summary>
-        /// Imports new posts from the past three days that have not yet been
-        /// added to the Pandacap inbox.
+        /// Imports new posts from the past day that have not yet been added to the Pandacap inbox.
         /// </summary>
         /// <returns></returns>
         public async Task ImportPostsByUsersWeWatchAsync()
@@ -54,11 +53,14 @@ namespace Pandacap.HighLevel
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
+            DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-1);
 
             var existingPosts = await context.InboxATProtoPosts
                 .Where(item => item.IndexedAt >= someTimeAgo)
                 .ToListAsync();
+
+            var follows = await context.BlueskyFollows
+                .ToDictionaryAsync(f => f.DID);
 
             await foreach (var feedItem in WrapAsync(page => BlueskyFeed.GetTimelineAsync(client, credentials, page)))
             {
@@ -83,13 +85,30 @@ namespace Pandacap.HighLevel
                 if (feedItem.By.did == credentials.DID)
                     continue;
 
+                if (follows.TryGetValue(feedItem.post.author.did, out BlueskyFollow? follow))
+                {
+                    bool isRepost = feedItem.post.author != feedItem.By;
+                    bool hasImages = !feedItem.post.Images.IsEmpty;
+
+                    bool isQuotePost = !feedItem.post.EmbeddedRecords.IsEmpty;
+
+                    if (follow.ExcludeImageShares && isRepost && hasImages)
+                        continue;
+
+                    if (follow.ExcludeTextShares && isRepost && !hasImages)
+                        continue;
+
+                    if (follow.ExcludeQuotePosts && isQuotePost)
+                        continue;
+                }
+
                 context.InboxATProtoPosts.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     CID = feedItem.post.cid,
                     RecordKey = feedItem.post.RecordKey,
                     Author = new()
-                    { 
+                    {
                         DID = feedItem.post.author.did,
                         PDS = await didResolver.GetPDSAsync(feedItem.post.author.did),
                         DisplayName = feedItem.post.author.DisplayNameOrNull,

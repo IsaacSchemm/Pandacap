@@ -182,12 +182,12 @@ module Reader =
             return! finalResp.Content.ReadFromJsonAsync<'T>()
     }
 
+type Page =
+| FromStart
+| FromCursor of string
+
 /// Lists notifications on the user's Bluesky account.
 module Notifications =
-    type Page =
-    | FromStart
-    | FromCursor of string
-
     type Author = {
         did: string
         handle: string
@@ -207,7 +207,11 @@ module Notifications =
     type NotificationList = {
         cursor: string option
         notifications: Notification list
-    }
+    } with
+        member this.NextPage =
+            this.cursor
+            |> Option.map FromCursor
+            |> Option.toList
 
     let ListNotificationsAsync httpClient credentials page = task {
         return!
@@ -308,10 +312,6 @@ module Repo =
 
 /// Handles requests within app.bsky.feed.
 module BlueskyFeed =
-    type Page =
-    | FromStart
-    | FromCursor of string
-
     type Author = {
         did: string
         handle: string
@@ -327,8 +327,14 @@ module BlueskyFeed =
         alt: string
     }
 
+    type EmbeddedRecord = {
+        cid: string
+        uri: string
+    }
+
     type Embed = {
         images: Image list option
+        record: EmbeddedRecord option
     }
 
     type ReplyReference = {
@@ -383,6 +389,10 @@ module BlueskyFeed =
             this.embed
             |> Option.bind (fun e -> e.images)
             |> Option.defaultValue []
+        member this.EmbeddedRecords =
+            this.embed
+            |> Option.bind (fun e -> e.record)
+            |> Option.toList
 
     type Reason = {
         ``$type``: string
@@ -406,7 +416,11 @@ module BlueskyFeed =
     type FeedResponse = {
         cursor: string option
         feed: FeedItem list
-    }
+    } with
+        member this.NextPage =
+            this.cursor
+            |> Option.map FromCursor
+            |> Option.toList
 
     let GetActorLikesAsync httpClient credentials actor page =
         Requester.build HttpMethod.Get credentials "app.bsky.feed.getActorLikes" [
@@ -435,3 +449,24 @@ module BlueskyFeed =
             | FromStart -> ()
         ]
         |> Reader.readAsync<FeedResponse> httpClient (Some credentials)
+
+/// Handles requests within app.bsky.graph.
+module BlueskyGraph =
+    type FollowList = {
+        cursor: string option
+        follows: BlueskyFeed.Author list
+    } with
+        member this.NextPage =
+            this.cursor
+            |> Option.map FromCursor
+            |> Option.toList
+
+    let GetFollowsAsync httpClient credentials actor page =
+        Requester.build HttpMethod.Get credentials "app.bsky.graph.getFollows" [
+            "actor", actor
+
+            match page with
+            | FromCursor c -> "cursor", c
+            | FromStart -> ()
+        ]
+        |> Reader.readAsync<FollowList> httpClient (Some credentials)

@@ -1,0 +1,34 @@
+﻿@model IEnumerable<Pandacap.Data.BlueskyFollow>
+
+@foreach (var item in Model)
+{
+    <div class="mb-3">
+        <div>
+            <img height="50" src="@(item.Avatar ?? "/images/trgray.svg")" alt="" />
+            <span style="display: inline-block; vertical-align: top">
+                <strong>
+                    @item.Handle
+                </strong>
+                <br />
+                <a href="https://bsky.app/profile/@item.DID" target="_blank">@item.DID</a>
+            </span>
+        </div>
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            if (item.SpecialBehaviorDescriptions.Any())
+            {
+                <ul class="mb-0">
+                    @foreach (string desc in item.SpecialBehaviorDescriptions)
+                    {
+                        <li>@desc</li>
+                    }
+                </ul>
+            }
+
+            <a asp-action="UpdateFollow" asp-route-did="@item.DID" class="small">
+                Options
+            </a>
+        }
+    </div>
+}

@@ -1,15 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.LowLevel;
 using Pandacap.LowLevel.ATProto;
+using Pandacap.Models;
+using System.Security.Cryptography;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
+        ATProtoCredentialProvider atProtoCredentialProvider,
         BlueskyAgent blueskyAgent,
         IHttpClientFactory httpClientFactory,
         PandacapDbContext context) : Controller
@@ -109,6 +113,115 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction("Index", "UserPosts", new { id });
+        }
+
+        private async IAsyncEnumerable<BlueskyFeed.Author> CollectAllFollows()
+        {
+            var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var credentials = await atProtoCredentialProvider.GetCredentialsAsync()
+                ?? throw new Exception("No atproto credentials");
+
+            var page = Page.FromStart;
+
+            while (true)
+            {
+                var response = await BlueskyGraph.GetFollowsAsync(
+                    client,
+                    credentials,
+                    credentials.DID,
+                    page);
+
+                foreach (var follow in response.follows)
+                    yield return follow;
+
+                if (response.NextPage.IsEmpty)
+                    break;
+
+                page = response.NextPage.Single();
+            }
+        }
+
+        private async Task RefreshBlueskyFollowingList()
+        {
+            var localRecords = await context.BlueskyFollows.ToListAsync();
+            var upstreamRecords = await CollectAllFollows().ToListAsync();
+
+            foreach (var local in localRecords)
+            {
+                var upstream = upstreamRecords
+                    .SingleOrDefault(x => x.did == local.DID);
+
+                if (upstream == null)
+                {
+                    context.BlueskyFollows.Remove(local);
+                }
+                else
+                {
+                    local.Handle = upstream.handle;
+                    local.Avatar = upstream.AvatarOrNull;
+                }
+            }
+
+            foreach (var upstream in upstreamRecords)
+            {
+                var local = localRecords
+                    .SingleOrDefault(x => x.DID == upstream.did);
+
+                if (local == null)
+                {
+                    context.BlueskyFollows.Add(new()
+                    {
+                        DID = upstream.did,
+                        Handle = upstream.handle,
+                        Avatar = upstream.AvatarOrNull
+                    });
+                }
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Following()
+        {
+            await RefreshBlueskyFollowingList();
+
+            return View(await context.BlueskyFollows.ToListAsync());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateFollow(string did)
+        {
+            var known = await context.BlueskyFollows
+                .Where(u => u.DID == did)
+                .SingleOrDefaultAsync();
+
+            if (known == null)
+                return NotFound();
+
+            return View(known);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateFollow(BlueskyFollow model)
+        {
+            var known = await context.BlueskyFollows
+                .Where(u => u.DID == model.DID)
+                .SingleOrDefaultAsync();
+
+            if (known == null)
+                return NotFound();
+
+            known.ExcludeImageShares = model.ExcludeImageShares;
+            known.ExcludeTextShares = model.ExcludeTextShares;
+            known.ExcludeQuotePosts = model.ExcludeQuotePosts;
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Following));
         }
     }
 }

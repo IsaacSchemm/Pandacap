@@ -19,7 +19,7 @@ namespace Pandacap.HighLevel.Notifications
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var page = LowLevel.ATProto.Notifications.Page.FromStart;
+            var page = LowLevel.ATProto.Page.FromStart;
 
             while (true)
             {
@@ -57,7 +57,7 @@ namespace Pandacap.HighLevel.Notifications
                 }
 
                 if (OptionModule.ToObj(result.cursor) is string next)
-                    page = LowLevel.ATProto.Notifications.Page.NewFromCursor(next);
+                    page = LowLevel.ATProto.Page.NewFromCursor(next);
                 else
                     yield break;
             }
