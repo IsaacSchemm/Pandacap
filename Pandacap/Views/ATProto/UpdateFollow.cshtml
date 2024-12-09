@@ -1,18 +1,11 @@
 ﻿@using Pandacap.Data
 @using Pandacap.HighLevel
 @using Pandacap.Models
-@model BlueskyFollow
+@model BlueskyFollowModel
 
-<div>
-    <img height="50" src="@(Model.Avatar ?? "/images/trgray.svg")" alt="" />
-    <span style="display: inline-block; vertical-align: top">
-        <strong>
-            @Model.Handle
-        </strong>
-        <br />
-        <a href="https://bsky.app/profile/@Model.DID" target="_blank">@Model.DID</a>
-    </span>
-</div>
+<p>
+    <a href="https://bsky.app/profile/@Model.DID" target="_blank">@Model.DID</a>
+</p>
 
 <form asp-action="UpdateFollow" class="mt-3">
     <input type="hidden" name="did" value="@Model.DID" />

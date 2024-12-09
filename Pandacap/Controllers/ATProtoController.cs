@@ -115,7 +115,19 @@ namespace Pandacap.Controllers
             return RedirectToAction("Index", "UserPosts", new { id });
         }
 
-        private async IAsyncEnumerable<BlueskyFollow> CollectRemoteFollows()
+        private async IAsyncEnumerable<BlueskyFollowModel> CollectLocalFollows()
+        {
+            await foreach (var follow in context.BlueskyFollows)
+                yield return new()
+                {
+                    DID = follow.DID,
+                    ExcludeImageShares = follow.ExcludeImageShares,
+                    ExcludeTextShares = follow.ExcludeTextShares,
+                    ExcludeQuotePosts = follow.ExcludeQuotePosts
+                };
+        }
+
+        private async IAsyncEnumerable<BlueskyFollowModel> CollectRemoteFollows()
         {
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
@@ -134,7 +146,7 @@ namespace Pandacap.Controllers
                     page);
 
                 foreach (var follow in response.follows)
-                    yield return new BlueskyFollow
+                    yield return new()
                     {
                         DID = follow.did,
                         Handle = follow.handle,
@@ -151,9 +163,9 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Following()
         {
-            IEnumerable<BlueskyFollow> list = [
-                .. await context.BlueskyFollows.ToListAsync(),
-                .. await CollectRemoteFollows().ToListAsync()
+            IEnumerable<BlueskyFollowModel> list = [
+                .. await CollectRemoteFollows().ToListAsync(),
+                .. await CollectLocalFollows().ToListAsync()
             ];
 
             return View(list.DistinctBy(f => f.DID));
@@ -163,7 +175,7 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> UpdateFollow(string did)
         {
             var follow =
-                await context.BlueskyFollows
+                await CollectLocalFollows()
                     .Where(u => u.DID == did)
                     .FirstOrDefaultAsync()
                 ?? await CollectRemoteFollows()
@@ -178,24 +190,18 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateFollow(BlueskyFollow model)
+        public async Task<IActionResult> UpdateFollow(BlueskyFollowModel model)
         {
             var existing = await context.BlueskyFollows
                 .Where(f => f.DID == model.DID)
                 .ToListAsync();
             context.BlueskyFollows.RemoveRange(existing);
 
-            var follow = await CollectRemoteFollows()
-                .Where(u => u.DID == model.DID)
-                .FirstOrDefaultAsync();
-
-            if (follow != null)
+            if (model.SpecialBehaviorDescriptions.Any())
             {
                 context.BlueskyFollows.Add(new()
                 {
-                    DID = follow.DID,
-                    Handle = follow.Handle,
-                    Avatar = follow.Avatar,
+                    DID = model.DID,
                     ExcludeImageShares = model.ExcludeImageShares,
                     ExcludeTextShares = model.ExcludeTextShares,
                     ExcludeQuotePosts = model.ExcludeQuotePosts,
