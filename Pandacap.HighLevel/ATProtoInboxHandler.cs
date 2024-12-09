@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.FSharp.Core;
 using Pandacap.Data;
 using Pandacap.LowLevel;
 using Pandacap.LowLevel.ATProto;

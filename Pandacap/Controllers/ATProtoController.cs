@@ -115,7 +115,7 @@ namespace Pandacap.Controllers
             return RedirectToAction("Index", "UserPosts", new { id });
         }
 
-        private async IAsyncEnumerable<BlueskyFeed.Author> CollectAllFollows()
+        private async IAsyncEnumerable<BlueskyFollow> CollectRemoteFollows()
         {
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
@@ -134,7 +134,12 @@ namespace Pandacap.Controllers
                     page);
 
                 foreach (var follow in response.follows)
-                    yield return follow;
+                    yield return new BlueskyFollow
+                    {
+                        DID = follow.did,
+                        Handle = follow.handle,
+                        Avatar = follow.AvatarOrNull
+                    };
 
                 if (response.NextPage.IsEmpty)
                     break;
@@ -143,81 +148,59 @@ namespace Pandacap.Controllers
             }
         }
 
-        private async Task RefreshBlueskyFollowingList()
-        {
-            var localRecords = await context.BlueskyFollows.ToListAsync();
-            var upstreamRecords = await CollectAllFollows().ToListAsync();
-
-            foreach (var local in localRecords)
-            {
-                var upstream = upstreamRecords
-                    .SingleOrDefault(x => x.did == local.DID);
-
-                if (upstream == null)
-                {
-                    context.BlueskyFollows.Remove(local);
-                }
-                else
-                {
-                    local.Handle = upstream.handle;
-                    local.Avatar = upstream.AvatarOrNull;
-                }
-            }
-
-            foreach (var upstream in upstreamRecords)
-            {
-                var local = localRecords
-                    .SingleOrDefault(x => x.DID == upstream.did);
-
-                if (local == null)
-                {
-                    context.BlueskyFollows.Add(new()
-                    {
-                        DID = upstream.did,
-                        Handle = upstream.handle,
-                        Avatar = upstream.AvatarOrNull
-                    });
-                }
-            }
-
-            await context.SaveChangesAsync();
-        }
-
         [HttpGet]
         public async Task<IActionResult> Following()
         {
-            await RefreshBlueskyFollowingList();
+            IEnumerable<BlueskyFollow> list = [
+                .. await context.BlueskyFollows.ToListAsync(),
+                .. await CollectRemoteFollows().ToListAsync()
+            ];
 
-            return View(await context.BlueskyFollows.ToListAsync());
+            return View(list.DistinctBy(f => f.DID));
         }
 
         [HttpGet]
         public async Task<IActionResult> UpdateFollow(string did)
         {
-            var known = await context.BlueskyFollows
-                .Where(u => u.DID == did)
-                .SingleOrDefaultAsync();
+            var follow =
+                await context.BlueskyFollows
+                    .Where(u => u.DID == did)
+                    .FirstOrDefaultAsync()
+                ?? await CollectRemoteFollows()
+                    .Where(u => u.DID == did)
+                    .FirstOrDefaultAsync();
 
-            if (known == null)
+            if (follow == null)
                 return NotFound();
 
-            return View(known);
+            return View(follow);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateFollow(BlueskyFollow model)
         {
-            var known = await context.BlueskyFollows
+            var existing = await context.BlueskyFollows
+                .Where(f => f.DID == model.DID)
+                .ToListAsync();
+            context.BlueskyFollows.RemoveRange(existing);
+
+            var follow = await CollectRemoteFollows()
                 .Where(u => u.DID == model.DID)
-                .SingleOrDefaultAsync();
+                .FirstOrDefaultAsync();
 
-            if (known == null)
-                return NotFound();
-
-            known.ExcludeImageShares = model.ExcludeImageShares;
-            known.ExcludeTextShares = model.ExcludeTextShares;
-            known.ExcludeQuotePosts = model.ExcludeQuotePosts;
+            if (follow != null)
+            {
+                context.BlueskyFollows.Add(new()
+                {
+                    DID = follow.DID,
+                    Handle = follow.Handle,
+                    Avatar = follow.Avatar,
+                    ExcludeImageShares = model.ExcludeImageShares,
+                    ExcludeTextShares = model.ExcludeTextShares,
+                    ExcludeQuotePosts = model.ExcludeQuotePosts,
+                });
+            }
 
             await context.SaveChangesAsync();
 
