@@ -7,6 +7,7 @@ namespace Pandacap.HighLevel
 {
     public partial class FurAffinityInboxHandler(
         PandacapDbContext context,
+        FurAffinityTimeZoneCache furAffinityTimeZoneCache,
         IHttpClientFactory httpClientFactory)
     {
         [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
@@ -112,6 +113,8 @@ namespace Pandacap.HighLevel
                 credentials,
                 CancellationToken.None);
 
+            var timeZoneConverter = await furAffinityTimeZoneCache.GetConverterAsync();
+
             foreach (var journal in notifications.new_journals)
             {
                 if (journal.journal_id <= lastSeenId)
@@ -127,7 +130,7 @@ namespace Pandacap.HighLevel
                         Name = journal.name,
                         Url = journal.profile
                     },
-                    PostedAt = journal.posted_at
+                    PostedAt = timeZoneConverter.ConvertToUtc(journal.posted_at)
                 });
             }
 

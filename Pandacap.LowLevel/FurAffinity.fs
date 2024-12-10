@@ -47,6 +47,40 @@ module FurAffinity =
         ]
     }
 
+    let GetTimeZoneAsync credentials cancellationToken = task {
+        use client = getClient credentials
+        use! resp = client.GetAsync("/controls/settings/", cancellationToken = cancellationToken)
+
+        let! html = resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken)
+        let document = HtmlDocument.Parse(html)
+
+        let upstreamTimeZone = {|
+            Name =
+                document.CssSelect("select[name=timezone] option[selected]")
+                |> Seq.map (fun option -> option.InnerText())
+                |> Seq.head
+            DaylightSaving =
+                document.CssSelect("input[name=timezone_dst]")
+                |> Seq.exists (fun checkbox -> checkbox.TryGetAttribute("checked") |> Option.isSome)
+        |}
+
+        return Seq.head (seq {
+            for tz in TimeZoneInfo.GetSystemTimeZones() do
+                if upstreamTimeZone.Name.EndsWith(tz.Id) then
+                    match upstreamTimeZone.DaylightSaving, tz.SupportsDaylightSavingTime with
+                    | true, true -> tz
+                    | false, false -> tz
+                    | false, true -> TimeZoneInfo.CreateCustomTimeZone(
+                        upstreamTimeZone.Name,
+                        tz.BaseUtcOffset,
+                        upstreamTimeZone.Name,
+                        upstreamTimeZone.Name)
+                    | true, false -> ()
+
+            TimeZoneInfo.Utc
+        })
+    }
+
     module private Scraper =
         let getName node =
             node

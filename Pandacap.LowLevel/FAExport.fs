@@ -45,7 +45,7 @@ module FAExport =
             profile: string
             profile_name: string
             avatar: string
-            posted_at: DateTimeOffset
+            posted_at: DateTime
             deleted: bool
         }
 
@@ -59,7 +59,7 @@ module FAExport =
             their_submission: bool
             submission_id: int
             title: string
-            posted_at: DateTimeOffset
+            posted_at: DateTime
             deleted: bool
         }
 
@@ -73,7 +73,7 @@ module FAExport =
             their_journal: bool
             journal_id: int
             title: string
-            posted_at: DateTimeOffset
+            posted_at: DateTime
             deleted: bool
         }
 
@@ -82,7 +82,7 @@ module FAExport =
             name: string
             profile: string
             profile_name: string
-            posted_at: DateTimeOffset
+            posted_at: DateTime
             deleted: bool
         }
 
@@ -93,7 +93,7 @@ module FAExport =
             profile_name: string
             submission_id: int
             submission_name: string
-            posted_at: DateTimeOffset
+            posted_at: DateTime
             deleted: bool
         }
 
@@ -103,7 +103,7 @@ module FAExport =
             name: string
             profile: string
             profile_name: string
-            posted_at: DateTimeOffset
+            posted_at: DateTime
             deleted: bool
         }
 
@@ -131,7 +131,7 @@ module FAExport =
         profile: string
         profile_name: string
         user_deleted: bool
-        posted_at: DateTimeOffset
+        posted_at: DateTime
     }
 
     let GetNotesAsync factory credentials folder cancellationToken = task {

@@ -27,6 +27,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<FurAffinityInboxHandler>()
                 .AddScoped<FurAffinityNoteNotificationHandler>()
                 .AddScoped<FurAffinityNotificationHandler>()
+                .AddScoped<FurAffinityTimeZoneCache>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<KeyProvider>()
                 .AddScoped<LemmyClient>()
