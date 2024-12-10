@@ -84,7 +84,7 @@ namespace Pandacap.HighLevel
                 if (feedItem.By.did == credentials.DID)
                     continue;
 
-                if (follows.TryGetValue(feedItem.post.author.did, out BlueskyFollow? follow))
+                if (follows.TryGetValue(feedItem.By.did, out BlueskyFollow? follow))
                 {
                     bool isRepost = feedItem.post.author != feedItem.By;
                     bool hasImages = !feedItem.post.Images.IsEmpty;
