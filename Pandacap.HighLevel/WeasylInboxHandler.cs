@@ -83,9 +83,9 @@ namespace Pandacap.HighLevel
 
             Dictionary<string, WeasylClient.AvatarResponse> avatars = [];
 
-            var notificationGroups = await weasylClient.GetNotificationGroupsAsync();
+            var journals = await weasylClient.ExtractJournalsAsync();
 
-            foreach (var journal in WeasylScraper.ExtractJournals(notificationGroups))
+            foreach (var journal in journals)
             {
                 if (journal.time < someTimeAgo)
                     break;

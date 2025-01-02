@@ -4,36 +4,20 @@ open System
 open FSharp.Data
 
 module WeasylScraper =
-    type NotificationUser = {
-        name: string
-        href: string
-    }
-
-    type NotificationPost = {
+    type NotificationLink = {
         href: string
         name: string
     }
 
-    type Notification = {
-        users: NotificationUser option
-        time: DateTimeOffset
-        posts: NotificationPost option
-    }
-
-    type NotificationGroup = {
-        id: string
-        notifications: Notification list
-    }
-
-    let ExtractNotificationGroups (html: string) = [
+    let private ExtractNotificationGroups (html: string) = [
         let doc = HtmlDocument.Parse(html)
 
         let baseUri = new Uri("https://www.weasyl.com/")
 
-        for group in doc.CssSelect("#messages-checkboxes > .group") do {
+        for group in doc.CssSelect("#messages-checkboxes > .group") do {|
             id = group.AttributeValue("id")
             notifications = [
-                for item in group.CssSelect(".item") do {
+                for item in group.CssSelect(".item") do {|
                     users = List.tryHead [
                         for anchor in item.CssSelect("a.username") do {
                             name = anchor.InnerText()
@@ -61,45 +45,58 @@ module WeasylScraper =
                             || e.href.Contains("/journal/")
                             || e.href.Contains("/submission/"))
                         |> Seq.tryHead
-                }
+                |}
             ]
-        }
+        |}
     ]
 
-    let ExtractNotifications (groups: NotificationGroup seq) = seq {
-        for group in groups do
-            if group.id <> "journals" then
-                for notification in group.notifications do {|
-                    Id = group.id
-                    PostUrl =
-                        notification.posts
-                        |> Option.map (fun p -> p.href)
-                        |> Option.toObj
-                    Time = notification.time
-                    UserName =
-                        notification.users
-                        |> Option.map (fun u -> u.name)
-                        |> Option.toObj
-                    UserUrl =
-                        notification.users
-                        |> Option.map (fun u -> u.href)
-                        |> Option.toObj
-                |}
+    type ExtractedNotification = {
+        Id: string
+        PostUrl: string
+        Time: DateTimeOffset
+        UserName: string
+        UserUrl: string
     }
 
-    let ExtractJournals notificationGroups = seq {
-        for group in notificationGroups do
+    let ExtractNotifications html = [
+        for group in ExtractNotificationGroups html do
+            for notification in group.notifications do {
+                Id = group.id
+                PostUrl =
+                    notification.posts
+                    |> Option.map (fun p -> p.href)
+                    |> Option.toObj
+                Time = notification.time
+                UserName =
+                    notification.users
+                    |> Option.map (fun u -> u.name)
+                    |> Option.toObj
+                UserUrl =
+                    notification.users
+                    |> Option.map (fun u -> u.href)
+                    |> Option.toObj
+            }
+    ]
+
+    type ExtractedJournal = {
+        time: DateTimeOffset
+        user: NotificationLink
+        post: NotificationLink
+    }
+
+    let ExtractJournals html = [
+        for group in ExtractNotificationGroups html do
             if group.id = "journals" then
                 for notification in group.notifications do
                     match notification.posts, notification.users with
                     | Some post, Some user ->
-                        {|
+                        {
                             time = notification.time
                             user = user
                             post = post
-                        |}
+                        }
                     | _ -> ()
-    }
+    ]
 
     type Note = {
         title: string

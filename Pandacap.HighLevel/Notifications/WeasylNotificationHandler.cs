@@ -17,9 +17,7 @@ namespace Pandacap.HighLevel.Notifications
                 PostPlatformModule.GetBadge(PostPlatform.Weasyl),
                 "https://www.weasyl.com/messages/notifications");
 
-            var notificationGroups = await client.GetNotificationGroupsAsync();
-
-            var notifications = WeasylScraper.ExtractNotifications(notificationGroups);
+            var notifications = await client.ExtractNotificationsAsync();
 
             foreach (var notification in notifications.OrderByDescending(x => x.Time))
             {
