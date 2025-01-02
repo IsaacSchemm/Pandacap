@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
 {
@@ -58,6 +59,51 @@ namespace Pandacap.HighLevel
                         })
                         .ToList(),
                     Url = submission.link
+                });
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Imports new journals from the past three days that have not yet been
+        /// added to the Pandacap inbox.
+        /// </summary>
+        /// <returns></returns>
+        public async Task ImportJournalsByUsersWeWatchAsync()
+        {
+            if (await weasylClientFactory.CreateWeasylClientAsync() is not WeasylClient weasylClient)
+                return;
+
+            DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
+
+            var existingPosts = await context.InboxWeasylJournals
+                .Where(item => item.PostedAt >= someTimeAgo)
+                .ToListAsync();
+
+            Dictionary<string, WeasylClient.AvatarResponse> avatars = [];
+
+            var notificationGroups = await weasylClient.GetNotificationGroupsAsync();
+
+            foreach (var journal in WeasylScraper.ExtractJournals(notificationGroups))
+            {
+                if (journal.time < someTimeAgo)
+                    break;
+
+                if (existingPosts.Any(p => p.Url == journal.post.href))
+                    continue;
+
+                var avatar = await weasylClient.GetAvatarAsync(journal.user.name);
+
+                context.InboxWeasylJournals.Add(new()
+                {
+                    Avatar = avatar?.avatar,
+                    Id = Guid.NewGuid(),
+                    PostedAt = journal.time,
+                    ProfileUrl = journal.user.href,
+                    Title = journal.post.name,
+                    Url = journal.post.href,
+                    Username = journal.user.name
                 });
             }
 

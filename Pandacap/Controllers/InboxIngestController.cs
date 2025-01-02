@@ -43,6 +43,7 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> WeasylTimeline()
         {
             await weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync();
+            await weasylInboxHandler.ImportJournalsByUsersWeWatchAsync();
             return NoContent();
         }
     }

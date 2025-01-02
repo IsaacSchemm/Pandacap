@@ -9,10 +9,15 @@ module WeasylScraper =
         href: string
     }
 
+    type NotificationPost = {
+        href: string
+        name: string
+    }
+
     type Notification = {
-        users: NotificationUser list
+        users: NotificationUser option
         time: DateTimeOffset
-        post_hrefs: string Set
+        posts: NotificationPost option
     }
 
     type NotificationGroup = {
@@ -20,7 +25,7 @@ module WeasylScraper =
         notifications: Notification list
     }
 
-    let ExtractNotifications (html: string) = [
+    let ExtractNotificationGroups (html: string) = [
         let doc = HtmlDocument.Parse(html)
 
         let baseUri = new Uri("https://www.weasyl.com/")
@@ -29,7 +34,7 @@ module WeasylScraper =
             id = group.AttributeValue("id")
             notifications = [
                 for item in group.CssSelect(".item") do {
-                    users = [
+                    users = List.tryHead [
                         for anchor in item.CssSelect("a.username") do {
                             name = anchor.InnerText()
                             href = (new Uri(baseUri, anchor.AttributeValue("href"))).AbsoluteUri
@@ -41,20 +46,60 @@ module WeasylScraper =
                         |> Seq.map DateTimeOffset.Parse
                         |> Seq.tryHead
                         |> Option.defaultValue DateTimeOffset.UtcNow
-                    post_hrefs =
+                    posts =
                         item.CssSelect("a")
-                        |> Seq.choose (fun e -> e.TryGetAttribute("href"))
-                        |> Seq.map (fun a -> a.Value())
-                        |> Seq.where (fun str ->
-                            str.StartsWith("/character/")
-                            || str.StartsWith("/journal/")
-                            || str.StartsWith("/submission/"))
-                        |> Seq.map (fun path -> (new Uri(baseUri, path)).GetLeftPart(UriPartial.Path))
-                        |> set
+                        |> Seq.map (fun e -> {
+                            href =
+                                e.TryGetAttribute("href")
+                                |> Option.map (fun a -> a.Value())
+                                |> Option.map (fun h -> (new Uri(baseUri, h)).GetLeftPart(UriPartial.Path))
+                                |> Option.defaultValue ""
+                            name = e.InnerText()
+                        })
+                        |> Seq.where (fun e ->
+                            e.href.Contains("/character/")
+                            || e.href.Contains("/journal/")
+                            || e.href.Contains("/submission/"))
+                        |> Seq.tryHead
                 }
             ]
         }
     ]
+
+    let ExtractNotifications (groups: NotificationGroup seq) = seq {
+        for group in groups do
+            if group.id <> "journals" then
+                for notification in group.notifications do {|
+                    Id = group.id
+                    PostUrl =
+                        notification.posts
+                        |> Option.map (fun p -> p.href)
+                        |> Option.toObj
+                    Time = notification.time
+                    UserName =
+                        notification.users
+                        |> Option.map (fun u -> u.name)
+                        |> Option.toObj
+                    UserUrl =
+                        notification.users
+                        |> Option.map (fun u -> u.href)
+                        |> Option.toObj
+                |}
+    }
+
+    let ExtractJournals notificationGroups = seq {
+        for group in notificationGroups do
+            if group.id = "journals" then
+                for notification in group.notifications do
+                    match notification.posts, notification.users with
+                    | Some post, Some user ->
+                        {|
+                            time = notification.time
+                            user = user
+                            post = post
+                        |}
+                    | _ -> ()
+    }
 
     type Note = {
         title: string

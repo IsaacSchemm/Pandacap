@@ -39,6 +39,7 @@ namespace Pandacap.Functions
             await c(furAffinityInboxHandler.ImportJournalsAsync());
 
             await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync());
+            await c(weasylInboxHandler.ImportJournalsByUsersWeWatchAsync());
 
             var feeds = await context.RssFeeds.Select(f => new { f.Id }).ToListAsync();
             foreach (var feed in feeds)

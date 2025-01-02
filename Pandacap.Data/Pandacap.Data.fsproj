@@ -36,6 +36,7 @@
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />
     <Compile Include="TheirContent\InboxATProtoPost.fs" />
+    <Compile Include="TheirContent\InboxWeasylJournal.fs" />
     <Compile Include="TheirContent\InboxWeasylSubmission.fs" />
     <Compile Include="TheirContent\RssFeedItem.fs" />
     <Compile Include="PandacapDbContext.fs" />
