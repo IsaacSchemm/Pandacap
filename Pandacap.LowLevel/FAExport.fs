@@ -3,6 +3,7 @@
 open System
 open System.Net.Http
 open System.Net.Http.Json
+open Pandacap.ConfigurationObjects
 open Pandacap.Types
 
 module FAExport =

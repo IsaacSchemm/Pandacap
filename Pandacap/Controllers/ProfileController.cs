@@ -3,16 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.JsonLd;
-using Pandacap.LowLevel;
 using Pandacap.Models;
-using Pandacap.Types;
 using System.Diagnostics;
 using System.Text;
-using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -23,7 +19,8 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
         KeyProvider keyProvider,
-        ActivityPubTranslator translator,
+        ActivityPub.ProfileTranslator profileTranslator,
+        ActivityPub.RelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager) : Controller
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported in Cosmos DB backend")]
@@ -60,14 +57,14 @@ namespace Pandacap.Controllers
                 var followers = await context.Followers.Select(f => f.ActorId).ToListAsync(cancellationToken);
 
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        translator.PersonToObject(
-                            new ActivityPubActorInformation(
-                                key,
+                    ActivityPub.Serializer.SerializeWithContext(
+                        profileTranslator.BuildProfile(
+                            new ActivityPub.Profile(
                                 [.. avatars],
                                 [.. blueskyDIDs],
                                 [.. deviantArtUsernames],
                                 [.. furAffinityUsernames],
+                                key.Pem,
                                 [.. weasylUsernames]))),
                     "application/activity+json",
                     Encoding.UTF8);
@@ -211,8 +208,8 @@ namespace Pandacap.Controllers
             {
                 Id = followGuid,
                 Inbox = actor.Inbox,
-                JsonBody = ActivityPubSerializer.SerializeWithContext(
-                    translator.Follow(
+                JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                    relationshipTranslator.BuildFollow(
                         followGuid,
                         actor.Id)),
                 StoredAt = DateTimeOffset.UtcNow
@@ -246,8 +243,8 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = follow.Inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.UndoFollow(
+                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                        relationshipTranslator.BuildFollowUndo(
                             follow.FollowGuid,
                             follow.ActorId)),
                     StoredAt = DateTimeOffset.UtcNow
@@ -350,14 +347,14 @@ namespace Pandacap.Controllers
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.PersonToUpdate(
-                            new ActivityPubActorInformation(
-                                key,
+                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                        profileTranslator.BuildProfileUpdate(
+                            new ActivityPub.Profile(
                                 [newAvatar],
                                 [inbox],
                                 [..blueskyDIDs],
                                 [..deviantArtUsernames],
+                                key.Pem,
                                 [..weasylUsernames]))),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow

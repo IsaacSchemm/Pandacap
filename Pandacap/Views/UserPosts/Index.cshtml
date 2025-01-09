@@ -1,8 +1,8 @@
-﻿@using Pandacap.Data
-@using Pandacap.LowLevel
+﻿@using Pandacap.ConfigurationObjects
+@using Pandacap.Data
 @model UserPostViewModel
 @inject ApplicationInformation appInfo
-@inject IdMapper mapper
+@inject ActivityPub.Mapper mapper
 
 @{
     ViewBag.Title = Model.Post.Type == PostType.StatusUpdate

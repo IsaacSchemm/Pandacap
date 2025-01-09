@@ -50,6 +50,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub\Pandacap.ActivityPub.fsproj" />
     <ProjectReference Include="..\Pandacap.Html\Pandacap.Html.fsproj" />
     <ProjectReference Include="..\Pandacap.Types\Pandacap.Types.fsproj" />
   </ItemGroup>

@@ -1,5 +1,5 @@
-﻿using Pandacap.Html;
-using Pandacap.LowLevel;
+﻿using Pandacap.ConfigurationObjects;
+using Pandacap.Html;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,7 +12,7 @@ namespace Pandacap.HighLevel
     public class ActivityPubRequestHandler(
         IHttpClientFactory httpClientFactory,
         KeyProvider keyProvider,
-        IdMapper mapper)
+        ActivityPub.Mapper mapper)
     {
         /// <summary>
         /// Adds an HTTP signature to the request.

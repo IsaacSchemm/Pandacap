@@ -31,6 +31,10 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.Html", "Pandacap.H
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.Types", "Pandacap.Types\Pandacap.Types.fsproj", "{13F9274F-AB35-42B6-9B60-3B3616B4194C}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub", "Pandacap.ActivityPub\Pandacap.ActivityPub.fsproj", "{8F43C106-1B33-47F5-BCB1-BC82A46D4E5B}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ConfigurationObjects", "Pandacap.ConfigurationObjects\Pandacap.ConfigurationObjects.fsproj", "{383CC952-483B-4B5B-A905-35C5BEB53F94}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +77,14 @@ Global
 		{13F9274F-AB35-42B6-9B60-3B3616B4194C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13F9274F-AB35-42B6-9B60-3B3616B4194C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13F9274F-AB35-42B6-9B60-3B3616B4194C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F43C106-1B33-47F5-BCB1-BC82A46D4E5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F43C106-1B33-47F5-BCB1-BC82A46D4E5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F43C106-1B33-47F5-BCB1-BC82A46D4E5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F43C106-1B33-47F5-BCB1-BC82A46D4E5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{383CC952-483B-4B5B-A905-35C5BEB53F94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{383CC952-483B-4B5B-A905-35C5BEB53F94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{383CC952-483B-4B5B-A905-35C5BEB53F94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{383CC952-483B-4B5B-A905-35C5BEB53F94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,5 +1,5 @@
-﻿using Pandacap.Data;
-using Pandacap.LowLevel;
+﻿using Pandacap.ConfigurationObjects;
+using Pandacap.Data;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Xml;
@@ -9,7 +9,7 @@ namespace Pandacap.HighLevel
     /// <summary>
     /// Builds Atom and RSS feeds for the outbox.
     /// </summary>
-    public class FeedBuilder(IdMapper mapper, ApplicationInformation appInfo)
+    public class FeedBuilder(ApplicationInformation appInfo)
     {
         /// <summary>
         /// Generates an HTML rendition of the post, including image(s), description, and outgoing link(s).
@@ -19,7 +19,7 @@ namespace Pandacap.HighLevel
         private IEnumerable<string> GetHtml(Post post)
         {
             foreach (var image in post.Images)
-                yield return $"<p><img src='{mapper.GetImageUrl(post, image.Blob)}' height='250' /></p>";
+                yield return $"<p><img src='https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.Blob.Id}' height='250' /></p>";
             if (post.Html != null)
                 yield return post.Html;
         }
@@ -31,9 +31,11 @@ namespace Pandacap.HighLevel
         /// <returns>A feed item</returns>
         private SyndicationItem ToSyndicationItem(Post post)
         {
+            string url = $"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}";
+
             var item = new SyndicationItem
             {
-                Id = mapper.GetObjectId(post),
+                Id = url,
                 PublishDate = post.PublishedTime,
                 LastUpdatedTime = post.PublishedTime,
                 Content = new TextSyndicationContent(string.Join(" ", GetHtml(post)), TextSyndicationContentKind.Html)
@@ -42,7 +44,7 @@ namespace Pandacap.HighLevel
             if (post.Title != null)
                 item.Title = new TextSyndicationContent(post.Title, TextSyndicationContentKind.Plaintext);
 
-            item.Links.Add(SyndicationLink.CreateAlternateLink(new Uri(mapper.GetObjectId(post)), "text/html"));
+            item.Links.Add(SyndicationLink.CreateAlternateLink(new Uri(url), "text/html"));
 
             return item;
         }
@@ -55,17 +57,17 @@ namespace Pandacap.HighLevel
         /// <returns>A feed object</returns>
         private SyndicationFeed ToSyndicationFeed(IEnumerable<Post> posts)
         {
-            string uri = $"{mapper.ActorId}/feed";
+            //string uri = $"https://{appInfo.ApplicationHostname}/feed";
             var feed = new SyndicationFeed
             {
-                Id = uri,
+                //Id = uri,
                 Title = new TextSyndicationContent($"@{appInfo.Username}@{appInfo.HandleHostname}", TextSyndicationContentKind.Plaintext),
                 Description = new TextSyndicationContent($"Pandacap posts from {appInfo.Username}", TextSyndicationContentKind.Plaintext),
                 Copyright = new TextSyndicationContent($"{appInfo.Username}", TextSyndicationContentKind.Plaintext),
                 LastUpdatedTime = posts.Select(x => x.PublishedTime).Max(),
                 Items = posts.Select(ToSyndicationItem)
             };
-            feed.Links.Add(SyndicationLink.CreateSelfLink(new Uri(uri), "application/rss+xml"));
+            //feed.Links.Add(SyndicationLink.CreateSelfLink(new Uri(uri), "application/rss+xml"));
             feed.Links.Add(SyndicationLink.CreateAlternateLink(new Uri($"https://{appInfo.ApplicationHostname}"), "text/html"));
             return feed;
         }

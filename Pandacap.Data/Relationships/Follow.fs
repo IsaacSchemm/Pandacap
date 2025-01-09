@@ -11,3 +11,6 @@ type Follow() =
     member val IgnoreImages = false with get, set
     member val IncludeImageShares = false with get, set
     member val IncludeTextShares = false with get, set
+
+    interface Pandacap.ActivityPub.IFollow with
+        member this.ActorId = this.ActorId

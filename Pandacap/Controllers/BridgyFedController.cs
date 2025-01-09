@@ -13,9 +13,9 @@ namespace Pandacap.Controllers
     public class BridgyFedController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubRequestHandler activityPubRequestHandler,
-        ActivityPubTranslator activityPubTranslator,
         PandacapDbContext context,
-        IdMapper mapper) : Controller
+        ActivityPub.Mapper mapper,
+        ActivityPub.PostTranslator postTranslator) : Controller
     {
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -120,8 +120,8 @@ namespace Pandacap.Controllers
 
             await activityPubRequestHandler.PostAsync(
                 new Uri(actor.Inbox),
-                ActivityPubSerializer.SerializeWithContext(
-                    activityPubTranslator.ObjectToCreate(
+                ActivityPub.Serializer.SerializeWithContext(
+                    postTranslator.BuildObjectCreate(
                         addressedPost)));
 
             return addressedPost;

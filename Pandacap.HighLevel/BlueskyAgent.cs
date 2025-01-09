@@ -1,15 +1,15 @@
 ﻿using Azure.Storage.Blobs;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using Pandacap.LowLevel;
 using Pandacap.LowLevel.ATProto;
 
 namespace Pandacap.HighLevel
 {
     public class BlueskyAgent(
+        ApplicationInformation appInfo,
         ATProtoCredentialProvider atProtoCredentialProvider,
         BlobServiceClient blobServiceClient,
-        IHttpClientFactory httpClientFactory,
-        IdMapper mapper)
+        IHttpClientFactory httpClientFactory)
     {
         public async Task DeleteBlueskyPostsAsync(Post submission)
         {
@@ -67,7 +67,7 @@ namespace Pandacap.HighLevel
             int codepoints = text.Where(c => !char.IsLowSurrogate(c)).Count();
             if (codepoints >= 300)
             {
-                text = submission.Title + "\n\n" + mapper.GetObjectId(submission);
+                text = $"{submission.Title}\n\nhttps://{appInfo.ApplicationHostname}/UserPosts/{submission.Id}";
             }
 
             var post = await Repo.CreateRecordAsync(

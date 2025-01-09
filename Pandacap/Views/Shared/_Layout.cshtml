@@ -1,9 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Pandacap.ConfigurationObjects
 @using Pandacap.Data
-@using Pandacap.LowLevel
 @inject SignInManager<IdentityUser> SignInManager
 @inject ApplicationInformation appInfo
-@inject IdMapper mapper
+@inject ActivityPub.Mapper mapper
 
 <!DOCTYPE html>
 <html lang="en">
@@ -25,11 +25,11 @@
         <meta property="og:title" content="@up.Title" />
         <meta property="og:description" content="@up.Body" />
         <meta property="og:site_name" content="@UserAgentInformation.ApplicationName" />
-        <meta property="og:url" content="@mapper.GetObjectId(up)" />
+        <meta property="og:url" content="https://@appInfo.ApplicationHostname/UserPosts/@up.Id" />
         if (up.Images.DefaultIfEmpty(null).First() is PostImage image)
         {
-            <meta property="og:image" content="@mapper.GetImageUrl(up, image.Blob)" />
-            <meta property="twitter:image" content="@mapper.GetImageUrl(up, image.Blob)" />
+            <meta property="og:image" content="https://@appInfo.ApplicationHostname/Blobs/UserPosts/@up.Id/@image.Blob.Id" />
+            <meta property="twitter:image" content="https://@appInfo.ApplicationHostname/Blobs/UserPosts/@up.Id/@image.Blob.Id" />
             <meta property="twitter:card" content="summary_large_image" />
         }
     }

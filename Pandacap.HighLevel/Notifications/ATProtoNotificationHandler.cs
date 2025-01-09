@@ -1,6 +1,6 @@
 ﻿using DeviantArtFs.Extensions;
 using Microsoft.FSharp.Core;
-using Pandacap.LowLevel;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Types;
 
 namespace Pandacap.HighLevel.Notifications

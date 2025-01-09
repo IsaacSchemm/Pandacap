@@ -1,4 +1,4 @@
-﻿namespace Pandacap.LowLevel
+﻿namespace Pandacap.ConfigurationObjects
 
 type ApplicationInformation = {
     /// The host / domain name used by Pandacap.

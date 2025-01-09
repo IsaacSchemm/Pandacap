@@ -1,7 +1,7 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Keys.Cryptography;
-using Pandacap.LowLevel;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Types;
 
 namespace Pandacap.HighLevel

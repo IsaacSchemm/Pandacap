@@ -4,8 +4,6 @@ using Newtonsoft.Json.Linq;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.JsonLd;
-using Pandacap.LowLevel;
-using Pandacap.Models;
 using Pandacap.Signatures;
 using System.Text;
 
@@ -16,11 +14,13 @@ namespace Pandacap.Controllers
         ActivityPubRemotePostService activityPubRemotePostService,
         PandacapDbContext context,
         JsonLdExpansionService expansionService,
-        IdMapper mapper,
+        ActivityPub.InteractionTranslator interactionTranslator,
+        ActivityPub.Mapper mapper,
         MastodonVerifier mastodonVerifier,
+        ActivityPub.PostTranslator postTranslator,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
-        ReplyLookup replyLookup,
-        ActivityPubTranslator translator) : Controller
+        ActivityPub.RelationshipTranslator relationshipTranslator,
+        ReplyLookup replyLookup) : Controller
     {
         private static new readonly IEnumerable<JToken> Empty = [];
 
@@ -29,8 +29,8 @@ namespace Pandacap.Controllers
             int followers = await context.Followers.CountAsync();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    translator.AsFollowersCollection(followers)),
+                ActivityPub.Serializer.SerializeWithContext(
+                    relationshipTranslator.BuildFollowersCollection(followers)),
                 "application/activity+json",
                 Encoding.UTF8);
         }
@@ -40,8 +40,8 @@ namespace Pandacap.Controllers
             var follows = await context.Follows.ToListAsync();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    translator.AsFollowingCollection(follows)),
+                ActivityPub.Serializer.SerializeWithContext(
+                    relationshipTranslator.BuildFollowingCollection(follows)),
                 "application/activity+json",
                 Encoding.UTF8);
         }
@@ -53,8 +53,8 @@ namespace Pandacap.Controllers
                 .CountAsync();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    translator.AsLikedCollection(
+                ActivityPub.Serializer.SerializeWithContext(
+                    interactionTranslator.BuildLikedCollection(
                         posts)),
                 "application/activity+json",
                 Encoding.UTF8);
@@ -362,8 +362,8 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = actor.Inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.AcceptFollow(objectId)),
+                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                        relationshipTranslator.BuildFollowAccept(objectId)),
                     StoredAt = DateTimeOffset.UtcNow
                 });
             }
@@ -376,8 +376,8 @@ namespace Pandacap.Controllers
         {
             int count = await context.Posts.CountAsync();
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    translator.AsOutboxCollection(
+                ActivityPub.Serializer.SerializeWithContext(
+                    postTranslator.BuildOutboxCollection(
                         count)),
                 "application/activity+json",
                 Encoding.UTF8);
@@ -394,8 +394,8 @@ namespace Pandacap.Controllers
                 return NotFound();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    translator.Follow(
+                ActivityPub.Serializer.SerializeWithContext(
+                    relationshipTranslator.BuildFollow(
                         follow.FollowGuid,
                         follow.ActorId)),
                 "application/activity+json",
@@ -413,8 +413,8 @@ namespace Pandacap.Controllers
                 return NotFound();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    translator.Like(
+                ActivityPub.Serializer.SerializeWithContext(
+                    interactionTranslator.BuildLike(
                         id,
                         post.ObjectId)),
                 "application/activity+json",

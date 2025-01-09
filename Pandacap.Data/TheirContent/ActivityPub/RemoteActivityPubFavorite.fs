@@ -56,3 +56,6 @@ type RemoteActivityPubFavorite() =
         member this.Timestamp = this.CreatedAt
         member this.Usericon = this.Usericon
         member this.Username = this.Username
+
+    interface Pandacap.ActivityPub.ILike with
+        member this.ObjectId = this.ObjectId

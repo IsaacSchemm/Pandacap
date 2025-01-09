@@ -3,6 +3,7 @@
 open System
 open System.Net.Http
 open FSharp.Data
+open Pandacap.ConfigurationObjects
 open Pandacap.Types
 
 module FurAffinity =

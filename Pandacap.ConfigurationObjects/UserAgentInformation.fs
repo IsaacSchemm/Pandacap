@@ -1,11 +1,11 @@
-﻿namespace Pandacap.LowLevel
+﻿namespace Pandacap.ConfigurationObjects
 
 module UserAgentInformation =
     /// The application name (e.g. "Pandacap").
     let ApplicationName = "Pandacap"
 
     /// The Pandacap version number.
-    let VersionNumber = "6.3.5"
+    let VersionNumber = "7.0.0-alpha1"
 
     /// A URL to a website with more information about the application.
     let WebsiteUrl = "https://github.com/IsaacSchemm/Pandacap"

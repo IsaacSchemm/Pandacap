@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.LowLevel;
 using static Pandacap.HighLevel.WeasylClient;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class WeasylController(
+        ApplicationInformation appInfo,
         PandacapDbContext context,
-        IdMapper mapper,
         WeasylClientFactory weasylClientFactory) : Controller
     {
         public async Task<IActionResult> Setup()
@@ -98,7 +98,7 @@ namespace Pandacap.Controllers
                     throw new NotImplementedException("Crossposted Weasyl submissions must have exactly one image");
 
                 post.WeasylSubmitId = await client.UploadVisualAsync(
-                    mapper.GetImageUrl(post, post.Images[0].Blob),
+                    $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{post.Images[0].Blob.Id}",
                     post.Title,
                     SubmissionType.Other,
                     null,

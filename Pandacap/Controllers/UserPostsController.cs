@@ -14,10 +14,10 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
-        IdMapper mapper,
+        ActivityPub.Mapper mapper,
         PostCreator postCreator,
-        ReplyLookup replyLookup,
-        ActivityPubTranslator translator) : Controller
+        ActivityPub.PostTranslator postTranslator,
+        ReplyLookup replyLookup) : Controller
     {
         [Route("{id}")]
         public async Task<IActionResult> Index(
@@ -33,7 +33,7 @@ namespace Pandacap.Controllers
 
             if (Request.IsActivityPub())
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(translator.AsObject(post)),
+                    ActivityPub.Serializer.SerializeWithContext(postTranslator.BuildObject(post)),
                     "application/activity+json",
                     Encoding.UTF8);
 
@@ -190,8 +190,8 @@ namespace Pandacap.Controllers
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.ObjectToDelete(
+                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                        postTranslator.BuildObjectDelete(
                             post)),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
