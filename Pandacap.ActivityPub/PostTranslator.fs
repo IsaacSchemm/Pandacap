@@ -3,7 +3,7 @@
 open System
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor's posts.
-type PostTranslator(appInfo: IHostInformationProvider, mapper: Mapper) =
+type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
     let pair key value = (key, value :> obj)
 
     member _.BuildObject(post: IPost) = dict [
@@ -25,7 +25,7 @@ type PostTranslator(appInfo: IHostInformationProvider, mapper: Mapper) =
             for tag in post.Tags do dict [
                 pair "type" "Hashtag"
                 pair "name" $"#{tag}"
-                pair "href" $"https://{appInfo.ApplicationHostname}/Profile/Search?q=%%23{Uri.EscapeDataString(tag)}"
+                pair "href" $"https://{hostInformation.ApplicationHostname}/Profile/Search?q=%%23{Uri.EscapeDataString(tag)}"
             ]
         ]
         pair "published" post.PublishedTime
@@ -37,7 +37,7 @@ type PostTranslator(appInfo: IHostInformationProvider, mapper: Mapper) =
                 for image in post.Images do
                     dict [
                         pair "type" "Image"
-                        pair "url" $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.BlobId}"
+                        pair "url" $"https://{hostInformation.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.BlobId}"
                         pair "mediaType" image.MediaType
                         if not (String.IsNullOrEmpty(image.AltText)) then
                             pair "name" image.AltText

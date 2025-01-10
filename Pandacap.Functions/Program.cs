@@ -53,19 +53,17 @@ var host = new HostBuilder()
         }
 
         services
-            .AddPandacapServices()
+            .AddPandacapServices(new(
+                applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
+                username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
+                keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
+                handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
+                weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")))
             .AddScoped<ATProtoInboxHandler>()
             .AddScoped<DeviantArtInboxHandler>()
             .AddScoped<FurAffinityInboxHandler>()
             .AddScoped<OutboxProcessor>()
             .AddScoped<WeasylInboxHandler>();
-
-        services.AddSingleton(new ApplicationInformation(
-            applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
-            username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
-            keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
-            handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
-            weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")));
 
         services.AddHttpClient();
     })

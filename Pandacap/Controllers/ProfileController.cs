@@ -22,7 +22,7 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
-        KeyProvider keyProvider,
+        ActivityPubCommunicationPrerequisites keyProvider,
         ActivityPub.ProfileTranslator profileTranslator,
         ActivityPub.RelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager) : Controller
@@ -59,7 +59,6 @@ namespace Pandacap.Controllers
                 .ToListAsync(cancellationToken);
 
             return new ActivityPub.Profile(
-                applicationName: UserAgentInformation.ApplicationName,
                 avatar: new ActivityPub.Avatar(
                     avatar?.ContentType,
                     avatar == null
@@ -70,8 +69,7 @@ namespace Pandacap.Controllers
                 furAffinity: [.. furAffinityUsernames],
                 publicKeyPem: key,
                 username: appInfo.Username,
-                weasyl: [.. weasylUsernames],
-                websiteUrl: UserAgentInformation.WebsiteUrl);
+                weasyl: [.. weasylUsernames]);
         }
 
         public async Task<IActionResult> Index(CancellationToken cancellationToken)

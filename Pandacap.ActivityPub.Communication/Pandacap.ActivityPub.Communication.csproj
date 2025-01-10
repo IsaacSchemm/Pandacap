@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ActivityPub\Pandacap.ActivityPub.fsproj" />
-    <ProjectReference Include="..\Pandacap.ConfigurationObjects\Pandacap.ConfigurationObjects.fsproj" />
     <ProjectReference Include="..\Pandacap.Html\Pandacap.Html.fsproj" />
   </ItemGroup>
 

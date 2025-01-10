@@ -3,7 +3,7 @@
 open System
 
 /// Provides mappings from Pandacap's internal IDs to the public ActivityPub IDs of corresponding objects.
-type Mapper(appInfo: IHostInformationProvider) =
+type Mapper(appInfo: HostInformation) =
     member _.ActorId =
         $"https://{appInfo.ApplicationHostname}"
 

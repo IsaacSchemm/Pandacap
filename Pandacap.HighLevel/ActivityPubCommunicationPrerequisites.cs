@@ -1,19 +1,22 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Keys.Cryptography;
+using Pandacap.ActivityPub.Communication;
 using Pandacap.ConfigurationObjects;
 
-namespace Pandacap.ActivityPub.Communication
+namespace Pandacap.HighLevel
 {
     /// <summary>
     /// Provides access to an encryption key in Azure Key Vault. This key is
     /// used as the signing key for the ActivityPub actor.
     /// </summary>
-    public class KeyProvider(ApplicationInformation appInfo)
+    public class ActivityPubCommunicationPrerequisites(ApplicationInformation appInfo) : IActivityPubCommunicationPrerequisites
     {
         private readonly Lazy<KeyClient> _keyClient = new(() => new KeyClient(
             new Uri($"https://{appInfo.KeyVaultHostname}"),
             new DefaultAzureCredential()));
+
+        string IActivityPubCommunicationPrerequisites.UserAgent => UserAgentInformation.UserAgent;
 
         /// <summary>
         /// Retrieves the public key and renders it in PEM format for use in the ActivityPub actor object.

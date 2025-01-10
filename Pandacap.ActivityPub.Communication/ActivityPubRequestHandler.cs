@@ -1,5 +1,4 @@
-﻿using Pandacap.ConfigurationObjects;
-using Pandacap.Html;
+﻿using Pandacap.Html;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,8 +9,8 @@ namespace Pandacap.ActivityPub.Communication
     /// Performs requests to other ActivityPub servers.
     /// </summary>
     public class ActivityPubRequestHandler(
+        IActivityPubCommunicationPrerequisites activityPubCommunicationPrerequisites,
         IHttpClientFactory httpClientFactory,
-        KeyProvider keyProvider,
         Mapper mapper)
     {
         /// <summary>
@@ -33,7 +32,7 @@ namespace Pandacap.ActivityPub.Communication
 
             string ds = string.Join("\n", toSign());
             byte[] data = Encoding.UTF8.GetBytes(ds);
-            byte[] signature = await keyProvider.SignRsaSha256Async(data);
+            byte[] signature = await activityPubCommunicationPrerequisites.SignRsaSha256Async(data);
             string headerNames = "(request-target) host date";
             if (req.Headers.Contains("Digest"))
             {
@@ -55,7 +54,7 @@ namespace Pandacap.ActivityPub.Communication
             using var req = new HttpRequestMessage(HttpMethod.Post, url);
             req.Headers.Host = url.Host;
             req.Headers.Date = DateTime.UtcNow;
-            req.Headers.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+            req.Headers.UserAgent.ParseAdd(activityPubCommunicationPrerequisites.UserAgent);
 
             req.Headers.Add("Digest", $"SHA-256={digest}");
 
@@ -100,7 +99,7 @@ namespace Pandacap.ActivityPub.Communication
                 using var req = new HttpRequestMessage(HttpMethod.Get, url);
                 req.Headers.Host = url.Host;
                 req.Headers.Date = DateTime.UtcNow;
-                req.Headers.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+                req.Headers.UserAgent.ParseAdd(activityPubCommunicationPrerequisites.UserAgent);
 
                 if (includeSignature)
                     await AddSignatureAsync(req);

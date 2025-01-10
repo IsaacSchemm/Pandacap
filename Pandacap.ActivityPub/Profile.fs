@@ -1,7 +1,6 @@
 ﻿namespace Pandacap.ActivityPub
 
 type Profile = {
-    ApplicationName: string
     Avatar: Avatar
     Bluesky: string list
     DeviantArt: string list
@@ -9,5 +8,4 @@ type Profile = {
     PublicKeyPem: string
     Username: string
     Weasyl: string list
-    WebsiteUrl: string
 }

@@ -4,7 +4,7 @@ open System
 open System.Net
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor.
-type ProfileTranslator(mapper: Mapper) =
+type ProfileTranslator(hostInformation: HostInformation, mapper: Mapper) =
     let pair key value = (key, value :> obj)
 
     member _.BuildProfile(info: Profile) = dict [
@@ -18,7 +18,7 @@ type ProfileTranslator(mapper: Mapper) =
         pair "preferredUsername" info.Username
         pair "name" info.Username
         pair "summary" (String.concat "" [
-            $"<p>Art gallery hosted by <a href='{info.WebsiteUrl}'>{WebUtility.HtmlEncode(info.ApplicationName)}</a>.</p>"
+            $"<p>Art gallery hosted by <a href='{hostInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(hostInformation.ApplicationName)}</a>.</p>"
 
             for did in info.Bluesky do
                 $"<p>Bluesky: https://bsky.app/profile/{did}</p>"
