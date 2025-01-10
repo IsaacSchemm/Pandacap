@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.FurAffinity;
 using Pandacap.HighLevel.FurAffinity;
-using Pandacap.LowLevel;
 using Pandacap.Types;
 
 namespace Pandacap.HighLevel.Notifications
@@ -18,7 +18,7 @@ namespace Pandacap.HighLevel.Notifications
             if (credentials == null)
                 yield break;
 
-            string my_profile = await LowLevel.FurAffinity.WhoamiAsync(
+            string my_profile = await FA.WhoamiAsync(
                 credentials,
                 CancellationToken.None);
 

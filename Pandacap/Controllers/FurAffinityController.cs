@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.LowLevel;
+using Pandacap.FurAffinity;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
@@ -45,7 +45,7 @@ namespace Pandacap.Controllers
                     B = b
                 };
 
-                credentials.Username = await FurAffinity.WhoamiAsync(credentials, cancellationToken);
+                credentials.Username = await FA.WhoamiAsync(credentials, cancellationToken);
 
                 context.FurAffinityCredentials.Add(credentials);
 
@@ -115,8 +115,8 @@ namespace Pandacap.Controllers
             if (post.Type != PostType.Artwork)
                 throw new Exception("Not an artwork post");
 
-            var folders = await FurAffinity.ListGalleryFoldersAsync(credentials, cancellationToken);
-            var options = await FurAffinity.ListPostOptionsAsync(credentials, cancellationToken);
+            var folders = await FA.ListGalleryFoldersAsync(credentials, cancellationToken);
+            var options = await FA.ListPostOptionsAsync(credentials, cancellationToken);
 
             return View(new FurAffinityCrosspostArtworkViewModel
             {
@@ -158,10 +158,10 @@ namespace Pandacap.Controllers
 
             byte[] data = blob.Value.Content.ToArray();
 
-            Uri uri = await FurAffinity.PostArtworkAsync(
+            Uri uri = await FA.PostArtworkAsync(
                 credentials,
                 data,
-                new FurAffinity.ArtworkMetadata(
+                new FA.ArtworkMetadata(
                     post.Title,
                     post.Body,
                     [.. post.Tags],
@@ -170,7 +170,7 @@ namespace Pandacap.Controllers
                     model.Type,
                     model.Species,
                     model.Gender,
-                    FurAffinity.Rating.General,
+                    FA.Rating.General,
                     false,
                     [.. model.Folders]),
                 cancellationToken);

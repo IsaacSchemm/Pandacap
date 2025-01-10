@@ -51,6 +51,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ActivityPub\Pandacap.ActivityPub.fsproj" />
+    <ProjectReference Include="..\Pandacap.ConfigurationObjects\Pandacap.ConfigurationObjects.fsproj" />
+    <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
     <ProjectReference Include="..\Pandacap.Html\Pandacap.Html.fsproj" />
     <ProjectReference Include="..\Pandacap.Types\Pandacap.Types.fsproj" />
   </ItemGroup>

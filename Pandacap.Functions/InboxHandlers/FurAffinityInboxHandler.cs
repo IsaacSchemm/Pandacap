@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.FurAffinity;
 using Pandacap.HighLevel.FurAffinity;
-using Pandacap.LowLevel;
 using System.Text.RegularExpressions;
 
 namespace Pandacap.Functions.InboxHandlers

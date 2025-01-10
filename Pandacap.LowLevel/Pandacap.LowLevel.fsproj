@@ -8,8 +8,6 @@
   <ItemGroup>
     <Compile Include="ATProto.fs" />
     <Compile Include="ComputerVision.fs" />
-    <Compile Include="FAExport.fs" />
-    <Compile Include="FurAffinity.fs" />
     <Compile Include="Lemmy.fs" />
     <Compile Include="WeasylScraper.fs" />
   </ItemGroup>

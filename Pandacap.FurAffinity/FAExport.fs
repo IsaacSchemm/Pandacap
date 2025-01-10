@@ -1,17 +1,15 @@
-﻿namespace Pandacap.LowLevel
+﻿namespace Pandacap.FurAffinity
 
 open System
 open System.Net.Http
 open System.Net.Http.Json
-open Pandacap.ConfigurationObjects
-open Pandacap.Types
 
 module FAExport =
     let private getClient (factory: IHttpClientFactory) (credentials: IFurAffinityCredentials) =
         let client = factory.CreateClient()
         client.BaseAddress <- new Uri("https://faexport.spangle.org.uk")
         client.DefaultRequestHeaders.Add("FA_COOKIE",  $"b={credentials.B}; a={credentials.A}")
-        client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent)
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(credentials.UserAgent)
         client
 
     module Notifications =

@@ -1,12 +1,10 @@
-﻿namespace Pandacap.LowLevel
+﻿namespace Pandacap.FurAffinity
 
 open System
 open System.Net.Http
 open FSharp.Data
-open Pandacap.ConfigurationObjects
-open Pandacap.Types
 
-module FurAffinity =
+module FA =
     type Rating =
     | General = 0
     | Adult = 1
@@ -32,7 +30,7 @@ module FurAffinity =
         let client = new HttpClient(handler.Value, disposeHandler = false)
         client.BaseAddress <- new Uri("https://www.furaffinity.net/")
         client.DefaultRequestHeaders.Add("Cookie", $"a={credentials.A}; b={credentials.B}")
-        client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent)
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(credentials.UserAgent)
         client
 
     let WhoamiAsync credentials cancellationToken = task {

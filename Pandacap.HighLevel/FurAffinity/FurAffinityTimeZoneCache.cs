@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.FurAffinity;
 
 namespace Pandacap.HighLevel.FurAffinity
 {
@@ -11,7 +12,7 @@ namespace Pandacap.HighLevel.FurAffinity
             if (credentials == null)
                 return TimeZoneInfo.Utc;
 
-            return await LowLevel.FurAffinity.GetTimeZoneAsync(credentials, CancellationToken.None);
+            return await FA.GetTimeZoneAsync(credentials, CancellationToken.None);
         });
 
         public async Task<FurAffinityTimeZoneConverter> GetConverterAsync() =>
