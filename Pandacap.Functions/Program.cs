@@ -53,8 +53,7 @@ var host = new HostBuilder()
         }
 
         services
-            .AddLowLevelServices()
-            .AddHighLevelServices()
+            .AddPandacapServices()
             .AddScoped<ATProtoInboxHandler>()
             .AddScoped<DeviantArtInboxHandler>()
             .AddScoped<FurAffinityInboxHandler>()

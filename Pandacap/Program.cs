@@ -77,8 +77,7 @@ builder.Services.AddSingleton(new ComputerVisionConfiguration(
     builder.Configuration["Authentication:Microsoft:TenantId"]));
 
 builder.Services
-    .AddLowLevelServices()
-    .AddHighLevelServices()
+    .AddPandacapServices()
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<DeliveryInboxCollector>()

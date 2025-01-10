@@ -8,15 +8,21 @@ using Pandacap.HighLevel.Notifications;
 using Pandacap.HighLevel.RssInbound;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.Weasyl;
+using Pandacap.LowLevel;
 
 namespace Pandacap.HighLevel
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddHighLevelServices(
+        public static IServiceCollection AddPandacapServices(
             this IServiceCollection services)
         {
             return services
+                .AddScoped<ActivityPub.Mapper>()
+                .AddScoped<ActivityPub.ProfileTranslator>()
+                .AddScoped<ActivityPub.PostTranslator>()
+                .AddScoped<ActivityPub.RelationshipTranslator>()
+                .AddScoped<ActivityPub.InteractionTranslator>()
                 .AddScoped<ActivityPubNotificationHandler>()
                 .AddScoped<ActivityPubReplyNotificationHandler>()
                 .AddScoped<ActivityPubRequestHandler>()
@@ -26,6 +32,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ATProtoNotificationHandler>()
                 .AddScoped<BlueskyAgent>()
                 .AddScoped<CompositeNotificationHandler>()
+                .AddScoped<ComputerVisionProvider>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtFeedNotificationHandler>()
                 .AddScoped<DeviantArtNoteNotificationHandler>()
@@ -33,6 +40,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<FurAffinityNoteNotificationHandler>()
                 .AddScoped<FurAffinityNotificationHandler>()
                 .AddScoped<FurAffinityTimeZoneCache>()
+                .AddScoped<ActivityPub.IHostInformationProvider, HostInformationProvider>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<KeyProvider>()
                 .AddScoped<LemmyClient>()
