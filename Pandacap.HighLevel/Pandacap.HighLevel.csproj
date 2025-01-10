@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ActivityPub.Communication\Pandacap.ActivityPub.Communication.csproj" />
-    <ProjectReference Include="..\Pandacap.LowLevel\Pandacap.LowLevel.fsproj" />
+    <ProjectReference Include="..\Pandacap.Clients\Pandacap.Clients.fsproj" />
   </ItemGroup>
 
 </Project>

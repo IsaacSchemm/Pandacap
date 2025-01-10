@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.LowLevel.ATProto;
+using Pandacap.Clients.ATProto;
 
 namespace Pandacap.HighLevel.ATProto
 {

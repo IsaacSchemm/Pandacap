@@ -54,7 +54,7 @@
     <ProjectReference Include="..\Pandacap.ConfigurationObjects\Pandacap.ConfigurationObjects.fsproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
     <ProjectReference Include="..\Pandacap.Html\Pandacap.Html.fsproj" />
-    <ProjectReference Include="..\Pandacap.Types\Pandacap.Types.fsproj" />
+    <ProjectReference Include="..\Pandacap.PlatformBadges\Pandacap.PlatformBadges.fsproj" />
   </ItemGroup>
 
 </Project>

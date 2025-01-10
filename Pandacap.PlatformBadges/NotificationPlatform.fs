@@ -1,4 +1,4 @@
-﻿namespace Pandacap.Types
+﻿namespace Pandacap.PlatformBadges
 
 type NotificationPlatform = {
     DisplayName: string

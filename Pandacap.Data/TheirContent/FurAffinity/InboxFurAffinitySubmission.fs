@@ -2,7 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations
-open Pandacap.Types
+open Pandacap.PlatformBadges
 
 type InboxFurAffinitySubmissionUser() =
     member val Name = "" with get, set

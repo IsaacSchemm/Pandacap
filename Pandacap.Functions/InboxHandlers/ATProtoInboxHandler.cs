@@ -2,7 +2,7 @@
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel.ATProto;
-using Pandacap.LowLevel.ATProto;
+using Pandacap.Clients.ATProto;
 
 namespace Pandacap.Functions.InboxHandlers
 {

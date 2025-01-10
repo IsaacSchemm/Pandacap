@@ -1,7 +1,7 @@
 ﻿namespace Pandacap.Data
 
 open System
-open Pandacap.Types
+open Pandacap.PlatformBadges
 
 /// A thumbnail to be shown for a post in one of Pandacap's "paged" areas.
 type IPostThumbnail =

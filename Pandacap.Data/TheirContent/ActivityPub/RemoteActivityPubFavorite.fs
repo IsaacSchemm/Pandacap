@@ -3,7 +3,7 @@
 open System
 open System.ComponentModel.DataAnnotations
 open Pandacap.Html
-open Pandacap.Types
+open Pandacap.PlatformBadges
 
 /// An image attachment to an ActivityPub post from a follow.
 type RemoteActivityPubFavoriteImage() =

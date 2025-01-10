@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel.ATProto;
-using Pandacap.LowLevel.ATProto;
+using Pandacap.Clients.ATProto;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers

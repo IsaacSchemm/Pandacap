@@ -2,7 +2,7 @@
 using Pandacap.Data;
 using Pandacap.FurAffinity;
 using Pandacap.HighLevel.FurAffinity;
-using Pandacap.Types;
+using Pandacap.PlatformBadges;
 
 namespace Pandacap.HighLevel.Notifications
 {

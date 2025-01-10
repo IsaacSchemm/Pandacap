@@ -3,7 +3,7 @@
 open System
 open System.ComponentModel.DataAnnotations.Schema
 open FSharp.Data
-open Pandacap.Types
+open Pandacap.PlatformBadges
 
 /// A link attached to a feed item.
 type RssFeedEnclosure() =

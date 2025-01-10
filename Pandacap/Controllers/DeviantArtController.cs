@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel.DeviantArt;
-using Pandacap.LowLevel;
+using Pandacap.Clients;
 using Pandacap.Models;
-using Pandacap.Types;
+using Pandacap.PlatformBadges;
 using Stash = DeviantArtFs.Api.Stash;
 
 namespace Pandacap.Controllers

@@ -9,7 +9,7 @@ using Pandacap.HighLevel.Notifications;
 using Pandacap.HighLevel.RssInbound;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.Weasyl;
-using Pandacap.LowLevel;
+using Pandacap.Clients;
 
 namespace Pandacap.HighLevel
 {

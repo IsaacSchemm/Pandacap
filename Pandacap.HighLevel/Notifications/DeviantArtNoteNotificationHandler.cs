@@ -1,6 +1,6 @@
 ﻿using Pandacap.HighLevel.DeviantArt;
-using Pandacap.LowLevel;
-using Pandacap.Types;
+using Pandacap.Clients;
+using Pandacap.PlatformBadges;
 
 namespace Pandacap.HighLevel.Notifications
 {

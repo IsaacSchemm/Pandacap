@@ -1,4 +1,4 @@
-﻿namespace Pandacap.Types
+﻿namespace Pandacap.PlatformBadges
 
 type PostPlatform = ActivityPub | ATProto | DeviantArt | FurAffinity | Pandacap | RSS_Atom | Weasyl
 

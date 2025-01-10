@@ -7,32 +7,32 @@ namespace Pandacap.HighLevel.Lemmy
     public class LemmyClient(
         IHttpClientFactory httpClientFactory)
     {
-        public async Task<LowLevel.Lemmy.Community> GetCommunityAsync(
+        public async Task<Clients.Lemmy.Community> GetCommunityAsync(
             string host,
             string name,
             CancellationToken cancellationToken = default)
         {
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
-            var resp = await LowLevel.Lemmy.GetCommunityAsync(client, host, name, cancellationToken);
+            var resp = await Clients.Lemmy.GetCommunityAsync(client, host, name, cancellationToken);
             return resp.community_view.community;
         }
 
-        public async Task<(LowLevel.Lemmy.PostView, LowLevel.Lemmy.Community)> GetPostAsync(
+        public async Task<(Clients.Lemmy.PostView, Clients.Lemmy.Community)> GetPostAsync(
             string host,
             int id,
             CancellationToken cancellationToken = default)
         {
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
-            var resp = await LowLevel.Lemmy.GetPostAsync(client, host, id, cancellationToken);
+            var resp = await Clients.Lemmy.GetPostAsync(client, host, id, cancellationToken);
             return (resp.post_view, resp.community_view.community);
         }
 
-        public async Task<FSharpList<LowLevel.Lemmy.PostView>> GetPostsAsync(
+        public async Task<FSharpList<Clients.Lemmy.PostView>> GetPostsAsync(
             string host,
             int community_id,
-            LowLevel.Lemmy.GetPostsSort sort,
+            Clients.Lemmy.GetPostsSort sort,
             int page = 1,
             int limit = 10,
             CancellationToken cancellationToken = default)
@@ -40,24 +40,24 @@ namespace Pandacap.HighLevel.Lemmy
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var resp = await LowLevel.Lemmy.GetPostsAsync(
+            var resp = await Clients.Lemmy.GetPostsAsync(
                 client,
                 host,
                 [
-                    LowLevel.Lemmy.GetPostsParameter.NewSort(sort),
-                    LowLevel.Lemmy.GetPostsParameter.NewPage(page),
-                    LowLevel.Lemmy.GetPostsParameter.NewLimit(limit),
-                    LowLevel.Lemmy.GetPostsParameter.NewCommunityId(community_id)
+                    Clients.Lemmy.GetPostsParameter.NewSort(sort),
+                    Clients.Lemmy.GetPostsParameter.NewPage(page),
+                    Clients.Lemmy.GetPostsParameter.NewLimit(limit),
+                    Clients.Lemmy.GetPostsParameter.NewCommunityId(community_id)
                 ],
                 cancellationToken);
 
             return resp.posts;
         }
 
-        public async IAsyncEnumerable<LowLevel.Lemmy.CommentObject> GetCommentsAsync(
+        public async IAsyncEnumerable<Clients.Lemmy.CommentObject> GetCommentsAsync(
             string host,
             int post_id,
-            LowLevel.Lemmy.GetCommentsSort sort,
+            Clients.Lemmy.GetCommentsSort sort,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             using var client = httpClientFactory.CreateClient();
@@ -67,13 +67,13 @@ namespace Pandacap.HighLevel.Lemmy
 
             while (true)
             {
-                var resp = await LowLevel.Lemmy.GetCommentsAsync(
+                var resp = await Clients.Lemmy.GetCommentsAsync(
                     client,
                     host,
                     [
-                        LowLevel.Lemmy.GetCommentsParameter.NewSort(sort),
-                        LowLevel.Lemmy.GetCommentsParameter.NewPostId(post_id),
-                        LowLevel.Lemmy.GetCommentsParameter.NewPage(page)
+                        Clients.Lemmy.GetCommentsParameter.NewSort(sort),
+                        Clients.Lemmy.GetCommentsParameter.NewPostId(post_id),
+                        Clients.Lemmy.GetCommentsParameter.NewPage(page)
                     ],
                     cancellationToken);
 

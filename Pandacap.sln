@@ -5,7 +5,7 @@ VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pandacap", "Pandacap\Pandacap.csproj", "{E47DCE8F-3440-4D95-988D-7C96117BF290}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.LowLevel", "Pandacap.LowLevel\Pandacap.LowLevel.fsproj", "{0087F1A2-2219-455B-934C-FD2D33D0F426}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.Clients", "Pandacap.Clients\Pandacap.Clients.fsproj", "{0087F1A2-2219-455B-934C-FD2D33D0F426}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pandacap.Functions", "Pandacap.Functions\Pandacap.Functions.csproj", "{B160B3FE-5D6C-4EB7-BA23-302E23C78A65}"
 EndProject
@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pandacap.Tests", "Pandacap.
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.Html", "Pandacap.Html\Pandacap.Html.fsproj", "{88E1DE6B-F930-4F6B-B191-281F0012FA73}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.Types", "Pandacap.Types\Pandacap.Types.fsproj", "{13F9274F-AB35-42B6-9B60-3B3616B4194C}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.PlatformBadges", "Pandacap.PlatformBadges\Pandacap.PlatformBadges.fsproj", "{13F9274F-AB35-42B6-9B60-3B3616B4194C}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub", "Pandacap.ActivityPub\Pandacap.ActivityPub.fsproj", "{8F43C106-1B33-47F5-BCB1-BC82A46D4E5B}"
 EndProject

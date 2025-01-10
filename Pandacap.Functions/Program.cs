@@ -9,7 +9,7 @@ using Pandacap.Data;
 using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
-using Pandacap.LowLevel;
+using Pandacap.Clients;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()

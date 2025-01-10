@@ -1,7 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using Pandacap.LowLevel.ATProto;
+using Pandacap.Clients.ATProto;
 
 namespace Pandacap.HighLevel.ATProto
 {

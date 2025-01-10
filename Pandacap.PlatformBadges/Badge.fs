@@ -1,4 +1,4 @@
-﻿namespace Pandacap.Types
+﻿namespace Pandacap.PlatformBadges
 
 type Badge = {
     Text: string
