@@ -1,14 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.FurAffinity;
-using Pandacap.HighLevel.FurAffinity;
 using Pandacap.PlatformBadges;
 
 namespace Pandacap.HighLevel.Notifications
 {
     public class FurAffinityNoteNotificationHandler(
         PandacapDbContext context,
-        FurAffinityTimeZoneCache furAffinityTimeZoneCache,
         IHttpClientFactory httpClientFactory
     ) : INotificationHandler
     {
@@ -24,7 +22,12 @@ namespace Pandacap.HighLevel.Notifications
                 "inbox",
                 CancellationToken.None);
 
-            var timeZoneConverter = await furAffinityTimeZoneCache.GetConverterAsync();
+            var timeZoneInfo = await FA.GetTimeZoneAsync(credentials, CancellationToken.None);
+
+            DateTimeOffset convertToUtc(DateTime dateTime) =>
+                TimeZoneInfo.ConvertTimeToUtc(
+                    DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified),
+                    timeZoneInfo);
 
             foreach (var note in notes)
                 if (!note.is_read)
@@ -36,7 +39,7 @@ namespace Pandacap.HighLevel.Notifications
                             PostPlatformModule.GetBadge(PostPlatform.FurAffinity),
                             "https://www.furaffinity.net/msg/others/"),
                         PostUrl = $"https://www.furaffinity.net/viewmessage/{note.note_id}",
-                        Timestamp = timeZoneConverter.ConvertToUtc(note.posted_at),
+                        Timestamp = convertToUtc(note.posted_at),
                         UserName = note.name,
                         UserUrl = note.profile
                     };

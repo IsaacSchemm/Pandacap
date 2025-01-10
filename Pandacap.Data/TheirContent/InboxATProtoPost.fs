@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations
+open Pandacap.Html
 open Pandacap.PlatformBadges
 
 type InboxATProtoUser() =

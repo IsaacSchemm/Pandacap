@@ -3,7 +3,6 @@ using Pandacap.ActivityPub.Communication;
 using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
-using Pandacap.HighLevel.FurAffinity;
 using Pandacap.HighLevel.Lemmy;
 using Pandacap.HighLevel.Notifications;
 using Pandacap.HighLevel.RssInbound;
@@ -46,7 +45,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<FeedBuilder>()
                 .AddScoped<FurAffinityNoteNotificationHandler>()
                 .AddScoped<FurAffinityNotificationHandler>()
-                .AddScoped<FurAffinityTimeZoneCache>()
                 .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<ActivityPubCommunicationPrerequisites>()

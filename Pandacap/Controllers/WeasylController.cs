@@ -5,6 +5,7 @@ using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.Weasyl;
+using Pandacap.Html;
 using static Pandacap.HighLevel.WeasylClient;
 
 namespace Pandacap.Controllers

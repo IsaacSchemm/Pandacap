@@ -1,6 +1,6 @@
 # Pandacap
 
-A single-user, Azure-hosted, ActivityPub-compatible art gallery and feed reader built on ASP.NET Core.
+A single-user art gallery, feed reader, and ActivityPub server, built on ASP.NET Core and designed for Azure.
 
 For more information, see Views/About/Index.cshtml.
 
@@ -13,7 +13,7 @@ Supported platforms and protocols:
 | DeviantArt   | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | OAuth (ASP.NET Identity)
 | Fur Affinity | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | Manual cookie entry
 | RSS / Atom   | ✓          | ✓     |       |                        |
-| Weasyl       | ✓ (Manual) | ✓     |       | Partial                | API key
+| Weasyl       | ✓ (Manual) | ✓     |       | ✓                      | API key
 
 (Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions.)
 
@@ -25,6 +25,26 @@ To log in, the instance owner must use a Microsoft account that they have explic
 
 A DeviantArt account cannot be used to set up the Pandacap account, but once attached to the existing account,
 either it or the Microsoft account it can be used to log in.
+
+## Software Architecture
+
+Deployable applications:
+
+* **Pandacap**: The main ASP.NET Core project. Hosts public content (artwork, status updates, journals) and private content (e.g. inbox and notification pages).
+* **Pandacap.Functions**: Runs periodic tasks (see below for more details).
+
+Libraries:
+
+* **Pandacap.ActivityPub.Inbound**: Parses objects recieved or retrieved via ActivityPub (posts and actors), converting them into an abstracted form.
+    * **Pandacap.ActivityPub.Communication**: Sends and retrieves objects to/from remote servers via ActivityPub.
+        * **Pandacap.ActivityPub**: Creates objects representing posts, favorites, the user profile, etc., which can be sent to, or retrieved by, other servers via ActivityPub.
+* **Pandacap.HighLevel**: Contains shared Pandacap code, including Bluesky and Weasyl abstractions, RSS/Atom feed support, and code to assemble the user's notifications into a single list.
+    * **Pandacap.Clients**: Contains API clients for ATProto (Bluesky), Lemmy, and Azure AI Vision.
+        * **Pandacap.Data**: Contains the EF Core data models that are used in the Cosmos DB database to store the user's data.
+            * **Pandacap.ConfigurationObjects**: Contains objects that store deployment-level data (i.e. hostname, username) and codebase-level data (e.g. software name, public website).
+            * **Pandacap.FurAffinity**: Connects to FurAffinity and FAExport.
+            * **Pandacap.Html**: Parses data from HTML pages. Includes special scrapers for DeviantArt and Weasyl.
+            * **Pandacap.PlatformBadges**: Contains types that represent the platforms supported by Pandacap and corresponding displayable badges for the UI.
 
 ## Deployment
 

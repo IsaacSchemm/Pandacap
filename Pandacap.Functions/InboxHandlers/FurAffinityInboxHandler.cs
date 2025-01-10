@@ -1,14 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.FurAffinity;
-using Pandacap.HighLevel.FurAffinity;
 using System.Text.RegularExpressions;
 
 namespace Pandacap.Functions.InboxHandlers
 {
     public partial class FurAffinityInboxHandler(
         PandacapDbContext context,
-        FurAffinityTimeZoneCache furAffinityTimeZoneCache,
         IHttpClientFactory httpClientFactory)
     {
         [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
@@ -113,8 +111,13 @@ namespace Pandacap.Functions.InboxHandlers
                 httpClientFactory,
                 credentials,
                 CancellationToken.None);
+            
+            var timeZoneInfo = await FA.GetTimeZoneAsync(credentials, CancellationToken.None);
 
-            var timeZoneConverter = await furAffinityTimeZoneCache.GetConverterAsync();
+            DateTimeOffset convertToUtc(DateTime dateTime) =>
+                TimeZoneInfo.ConvertTimeToUtc(
+                    DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified),
+                    timeZoneInfo);
 
             foreach (var journal in notifications.new_journals)
             {
@@ -131,7 +134,7 @@ namespace Pandacap.Functions.InboxHandlers
                         Name = journal.name,
                         Url = journal.profile
                     },
-                    PostedAt = timeZoneConverter.ConvertToUtc(journal.posted_at)
+                    PostedAt = convertToUtc(journal.posted_at)
                 });
             }
 
