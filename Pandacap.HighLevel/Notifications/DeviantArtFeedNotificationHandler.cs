@@ -1,4 +1,5 @@
 ﻿using DeviantArtFs.Extensions;
+using Pandacap.HighLevel.DeviantArt;
 using Pandacap.LowLevel;
 using Pandacap.Types;
 

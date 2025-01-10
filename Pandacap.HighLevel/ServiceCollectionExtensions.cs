@@ -1,5 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pandacap.ActivityPub.Communication;
+using Pandacap.HighLevel.ATProto;
+using Pandacap.HighLevel.DeviantArt;
+using Pandacap.HighLevel.FurAffinity;
+using Pandacap.HighLevel.Lemmy;
 using Pandacap.HighLevel.Notifications;
+using Pandacap.HighLevel.RssInbound;
+using Pandacap.HighLevel.RssOutbound;
+using Pandacap.HighLevel.Weasyl;
 
 namespace Pandacap.HighLevel
 {
@@ -15,25 +23,20 @@ namespace Pandacap.HighLevel
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoCredentialProvider>()
                 .AddScoped<ATProtoDIDResolver>()
-                .AddScoped<ATProtoInboxHandler>()
                 .AddScoped<ATProtoNotificationHandler>()
                 .AddScoped<BlueskyAgent>()
                 .AddScoped<CompositeNotificationHandler>()
                 .AddScoped<DeviantArtCredentialProvider>()
-                .AddScoped<DeviantArtInboxHandler>()
                 .AddScoped<DeviantArtFeedNotificationHandler>()
                 .AddScoped<DeviantArtNoteNotificationHandler>()
                 .AddScoped<FeedBuilder>()
-                .AddScoped<FurAffinityInboxHandler>()
                 .AddScoped<FurAffinityNoteNotificationHandler>()
                 .AddScoped<FurAffinityNotificationHandler>()
                 .AddScoped<FurAffinityTimeZoneCache>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<KeyProvider>()
                 .AddScoped<LemmyClient>()
-                .AddScoped<OutboxProcessor>()
                 .AddScoped<WeasylClientFactory>()
-                .AddScoped<WeasylInboxHandler>()
                 .AddScoped<WeasylNoteNotificationHandler>()
                 .AddScoped<WeasylNotificationHandler>();
         }

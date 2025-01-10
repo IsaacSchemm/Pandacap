@@ -6,10 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="ListPage.fs" />
     <Compile Include="ATProto.fs" />
     <Compile Include="ComputerVision.fs" />
-    <Compile Include="DeviantArtFeedPages.fs" />
     <Compile Include="FAExport.fs" />
     <Compile Include="FurAffinity.fs" />
     <Compile Include="Lemmy.fs" />
@@ -30,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ActivityPub\Pandacap.ActivityPub.fsproj" />
+    <ProjectReference Include="..\Pandacap.ConfigurationObjects\Pandacap.ConfigurationObjects.fsproj" />
     <ProjectReference Include="..\Pandacap.Data\Pandacap.Data.fsproj" />
   </ItemGroup>
 

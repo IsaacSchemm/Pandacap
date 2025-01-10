@@ -1,4 +1,5 @@
-﻿using Pandacap.LowLevel;
+﻿using Pandacap.HighLevel.Weasyl;
+using Pandacap.LowLevel;
 using Pandacap.Types;
 
 namespace Pandacap.HighLevel.Notifications

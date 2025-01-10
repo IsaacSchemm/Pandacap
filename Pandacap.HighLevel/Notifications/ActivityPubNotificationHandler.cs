@@ -6,7 +6,7 @@ namespace Pandacap.HighLevel.Notifications
 {
     public class ActivityPubNotificationHandler(
         IDbContextFactory<PandacapDbContext> contextFactory,
-        ActivityPub.Mapper mapper
+        Pandacap.ActivityPub.Mapper mapper
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()

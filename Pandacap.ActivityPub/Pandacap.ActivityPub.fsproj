@@ -6,11 +6,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="ActivityPub.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ConfigurationObjects\Pandacap.ConfigurationObjects.fsproj" />
+    <Compile Include="IHostInformationProvider.fs" />
+    <Compile Include="Serializer.fs" />
+    <Compile Include="IImage.fs" />
+    <Compile Include="IPost.fs" />
+    <Compile Include="IAddressedPost.fs" />
+    <Compile Include="Mapper.fs" />
+    <Compile Include="IListPage.fs" />
+    <Compile Include="ILike.fs" />
+    <Compile Include="IFollow.fs" />
+    <Compile Include="Avatar.fs" />
+    <Compile Include="Profile.fs" />
+    <Compile Include="ProfileTranslator.fs" />
+    <Compile Include="PostTranslator.fs" />
+    <Compile Include="RelationshipTranslator.fs" />
+    <Compile Include="InteractionTranslator.fs" />
   </ItemGroup>
 
 </Project>

@@ -17,10 +17,6 @@ type PostImageFocalPoint() =
     member val Horizontal = 0m with get, set
     member val Vertical = 0m with get, set
 
-    interface Pandacap.ActivityPub.IFocalPoint with
-        member this.Horizontal = this.Horizontal
-        member this.Vertical = this.Vertical
-
 type PostImage() =
     member val Blob = new PostBlobRef() with get, set
     member val Thumbnails = new ResizeArray<PostBlobRef>() with get, set
@@ -35,10 +31,17 @@ type PostImage() =
         |> Option.defaultValue this.Blob
 
     interface Pandacap.ActivityPub.IImage with
-        member this.AltText = this.AltText
         member this.BlobId = this.Blob.Id
-        member this.FocalPoint = this.FocalPoint
+        member this.HorizontalFocalPoint =
+            this.FocalPoint
+            |> Option.ofObj
+            |> Option.map (fun f -> f.Horizontal)
         member this.MediaType = this.Blob.ContentType
+        member this.VerticalFocalPoint =
+            this.FocalPoint
+            |> Option.ofObj
+            |> Option.map (fun f -> f.Vertical)
+        member this.AltText = this.AltText
 
 type Post() =
     member val Id = Guid.Empty with get, set
@@ -97,7 +100,7 @@ type Post() =
         member _.Usericon = null
         member _.Username = null
 
-    interface Pandacap.ActivityPub.IUserPost with
+    interface Pandacap.ActivityPub.IPost with
         member this.Html = this.Html
         member this.Id = this.Id
         member this.Images = [for image in this.Images do image]

@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.Functions.ActivityPub;
+using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
 using Pandacap.LowLevel;
 
@@ -52,7 +54,12 @@ var host = new HostBuilder()
 
         services
             .AddLowLevelServices()
-            .AddHighLevelServices();
+            .AddHighLevelServices()
+            .AddScoped<ATProtoInboxHandler>()
+            .AddScoped<DeviantArtInboxHandler>()
+            .AddScoped<FurAffinityInboxHandler>()
+            .AddScoped<OutboxProcessor>()
+            .AddScoped<WeasylInboxHandler>();
 
         services.AddSingleton(new ApplicationInformation(
             applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),

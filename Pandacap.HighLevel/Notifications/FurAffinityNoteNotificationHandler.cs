@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.HighLevel.FurAffinity;
 using Pandacap.LowLevel;
 using Pandacap.Types;
 

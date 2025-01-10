@@ -25,8 +25,6 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.Data", "Pandacap.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pandacap.Tests", "Pandacap.Tests\Pandacap.Tests.csproj", "{E6BCEBD7-BF66-4986-BA2B-65B129E23DC6}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.JsonLd", "Pandacap.JsonLd\Pandacap.JsonLd.fsproj", "{CBFC11F6-9A8F-42D8-9CAE-83DD004E85C2}"
-EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.Html", "Pandacap.Html\Pandacap.Html.fsproj", "{88E1DE6B-F930-4F6B-B191-281F0012FA73}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Pandacap.Types", "Pandacap.Types\Pandacap.Types.fsproj", "{13F9274F-AB35-42B6-9B60-3B3616B4194C}"
@@ -34,6 +32,10 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub", "Pandacap.ActivityPub\Pandacap.ActivityPub.fsproj", "{8F43C106-1B33-47F5-BCB1-BC82A46D4E5B}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ConfigurationObjects", "Pandacap.ConfigurationObjects\Pandacap.ConfigurationObjects.fsproj", "{383CC952-483B-4B5B-A905-35C5BEB53F94}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.Communication", "Pandacap.ActivityPub.Communication\Pandacap.ActivityPub.Communication.csproj", "{A26903A2-1B74-473F-8CC9-A6851600B6F6}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub.Inbound", "Pandacap.ActivityPub.Inbound\Pandacap.ActivityPub.Inbound.fsproj", "{A59A72F6-CABD-4406-8FDA-F02BE301C8DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,10 +67,6 @@ Global
 		{E6BCEBD7-BF66-4986-BA2B-65B129E23DC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6BCEBD7-BF66-4986-BA2B-65B129E23DC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6BCEBD7-BF66-4986-BA2B-65B129E23DC6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CBFC11F6-9A8F-42D8-9CAE-83DD004E85C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CBFC11F6-9A8F-42D8-9CAE-83DD004E85C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CBFC11F6-9A8F-42D8-9CAE-83DD004E85C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CBFC11F6-9A8F-42D8-9CAE-83DD004E85C2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{88E1DE6B-F930-4F6B-B191-281F0012FA73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{88E1DE6B-F930-4F6B-B191-281F0012FA73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88E1DE6B-F930-4F6B-B191-281F0012FA73}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -85,6 +83,14 @@ Global
 		{383CC952-483B-4B5B-A905-35C5BEB53F94}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{383CC952-483B-4B5B-A905-35C5BEB53F94}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{383CC952-483B-4B5B-A905-35C5BEB53F94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A26903A2-1B74-473F-8CC9-A6851600B6F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A26903A2-1B74-473F-8CC9-A6851600B6F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A26903A2-1B74-473F-8CC9-A6851600B6F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A26903A2-1B74-473F-8CC9-A6851600B6F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A59A72F6-CABD-4406-8FDA-F02BE301C8DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A59A72F6-CABD-4406-8FDA-F02BE301C8DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A59A72F6-CABD-4406-8FDA-F02BE301C8DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A59A72F6-CABD-4406-8FDA-F02BE301C8DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

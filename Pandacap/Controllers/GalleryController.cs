@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using Pandacap.HighLevel.RssOutbound;
 using Pandacap.Models;
 using System.Text;
 

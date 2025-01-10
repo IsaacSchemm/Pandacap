@@ -56,15 +56,15 @@ else
         </button>
     }
 
-    @if (Model.Items.Next.FirstOrDefault() is string id)
+    @if (Model.Items.Next is string id)
     {
         <hr />
 
         <a asp-route-q="@Model.Q"
            asp-route-next="@id"
-           asp-route-count="@Model.Items.Current.Length"
+           asp-route-count="@Model.Items.Current.Count"
            class="btn btn-primary">
-            Next @Model.Items.Current.Length items &raquo;
+            Next @Model.Items.Current.Count items &raquo;
         </a>
     }
 }
