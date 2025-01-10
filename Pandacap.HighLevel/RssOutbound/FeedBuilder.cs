@@ -52,22 +52,21 @@ namespace Pandacap.HighLevel.RssOutbound
         /// <summary>
         /// Creates a feed for a list of posts.
         /// </summary>
-        /// <param name="person">The author of the posts</param>
         /// <param name="posts">A sequence of submissions</param>
+        /// <param name="url">The feed's URL</param>
         /// <returns>A feed object</returns>
-        private SyndicationFeed ToSyndicationFeed(IEnumerable<Post> posts)
+        private SyndicationFeed ToSyndicationFeed(IEnumerable<Post> posts, string url)
         {
-            //string uri = $"https://{appInfo.ApplicationHostname}/feed";
             var feed = new SyndicationFeed
             {
-                //Id = uri,
+                Id = url,
                 Title = new TextSyndicationContent($"@{appInfo.Username}@{appInfo.HandleHostname}", TextSyndicationContentKind.Plaintext),
                 Description = new TextSyndicationContent($"Pandacap posts from {appInfo.Username}", TextSyndicationContentKind.Plaintext),
                 Copyright = new TextSyndicationContent($"{appInfo.Username}", TextSyndicationContentKind.Plaintext),
                 LastUpdatedTime = posts.Select(x => x.PublishedTime).Max(),
                 Items = posts.Select(ToSyndicationItem)
             };
-            //feed.Links.Add(SyndicationLink.CreateSelfLink(new Uri(uri), "application/rss+xml"));
+            feed.Links.Add(SyndicationLink.CreateSelfLink(new Uri(url), "application/rss+xml"));
             feed.Links.Add(SyndicationLink.CreateAlternateLink(new Uri($"https://{appInfo.ApplicationHostname}"), "text/html"));
             return feed;
         }
@@ -83,12 +82,12 @@ namespace Pandacap.HighLevel.RssOutbound
         /// <summary>
         /// Generates an RSS feed for a list of posts.
         /// </summary>
-        /// <param name="person">The author of the posts</param>
         /// <param name="posts">A sequence of submissions</param>
+        /// <param name="url">The feed's URL</param>
         /// <returns>An RSS feed (should be serialized as UTF-8)</returns>
-        public string ToRssFeed(IEnumerable<Post> posts)
+        public string ToRssFeed(IEnumerable<Post> posts, string url)
         {
-            var feed = ToSyndicationFeed(posts);
+            var feed = ToSyndicationFeed(posts, url);
 
             using var sw = new UTF8StringWriter();
 
@@ -103,12 +102,12 @@ namespace Pandacap.HighLevel.RssOutbound
         /// <summary>
         /// Generates an Atom feed for a list of posts.
         /// </summary>
-        /// <param name="person">The author of the posts</param>
         /// <param name="posts">A sequence of submissions</param>
+        /// <param name="url">The feed's URL</param>
         /// <returns>An Atom feed (should be serialized as UTF-8)</returns>
-        public string ToAtomFeed(IEnumerable<Post> posts)
+        public string ToAtomFeed(IEnumerable<Post> posts, string url)
         {
-            var feed = ToSyndicationFeed(posts);
+            var feed = ToSyndicationFeed(posts, url);
 
             using var sw = new UTF8StringWriter();
 

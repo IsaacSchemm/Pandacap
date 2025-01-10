@@ -20,7 +20,7 @@ namespace Pandacap.HighLevel
             ApplicationInformation appInfo)
         {
             return services
-                .AddSingleton(services)
+                .AddSingleton(appInfo)
                 .AddSingleton(new ActivityPub.HostInformation(
                     applicationHostname: appInfo.ApplicationHostname,
                     applicationName: UserAgentInformation.ApplicationName,

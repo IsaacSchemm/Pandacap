@@ -31,7 +31,9 @@ namespace Pandacap.Controllers
             if (Request.Query["format"] == "rss")
             {
                 return Content(
-                    feedBuilder.ToRssFeed(await posts.Take(take).ToListAsync()),
+                    feedBuilder.ToRssFeed(
+                        await posts.Take(take).ToListAsync(),
+                        Request.GetEncodedUrl()),
                     "application/rss+xml",
                     Encoding.UTF8);
             }
@@ -39,7 +41,9 @@ namespace Pandacap.Controllers
             if (Request.Query["format"] == "atom")
             {
                 return Content(
-                    feedBuilder.ToAtomFeed(await posts.Take(take).ToListAsync()),
+                    feedBuilder.ToAtomFeed(
+                        await posts.Take(take).ToListAsync(),
+                        Request.GetEncodedUrl()),
                     "application/atom+xml",
                     Encoding.UTF8);
             }
