@@ -8,7 +8,6 @@
   <ItemGroup>
     <Compile Include="IPost.fs" />
     <Compile Include="NullValues.fs" />
-    <Compile Include="ExcerptGenerator.fs" />
     <Compile Include="Credentials\ATProtoCredentials.fs" />
     <Compile Include="Credentials\DeviantArtCredentials.fs" />
     <Compile Include="Credentials\FurAffinityCredentials.fs" />
@@ -50,8 +49,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub\Pandacap.ActivityPub.fsproj" />
+    <ProjectReference Include="..\Pandacap.ConfigurationObjects\Pandacap.ConfigurationObjects.fsproj" />
+    <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
     <ProjectReference Include="..\Pandacap.Html\Pandacap.Html.fsproj" />
-    <ProjectReference Include="..\Pandacap.Types\Pandacap.Types.fsproj" />
+    <ProjectReference Include="..\Pandacap.PlatformBadges\Pandacap.PlatformBadges.fsproj" />
   </ItemGroup>
 
 </Project>

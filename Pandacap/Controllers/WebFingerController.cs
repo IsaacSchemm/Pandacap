@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Pandacap.LowLevel;
+using Pandacap.ConfigurationObjects;
 
 namespace Pandacap.Controllers
 {
     [Route("")]
     public class WebFingerController(
         ApplicationInformation appInfo,
-        IdMapper mapper) : Controller
+        ActivityPub.Mapper mapper) : Controller
     {
         [HttpGet]
         [Route(".well-known/webfinger")]

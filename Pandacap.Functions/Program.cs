@@ -4,9 +4,12 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.Functions.ActivityPub;
+using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
-using Pandacap.LowLevel;
+using Pandacap.Clients;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -50,15 +53,17 @@ var host = new HostBuilder()
         }
 
         services
-            .AddLowLevelServices()
-            .AddHighLevelServices();
-
-        services.AddSingleton(new ApplicationInformation(
-            applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
-            username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
-            keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
-            handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
-            weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")));
+            .AddPandacapServices(new(
+                applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
+                username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
+                keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
+                handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
+                weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")))
+            .AddScoped<ATProtoInboxHandler>()
+            .AddScoped<DeviantArtInboxHandler>()
+            .AddScoped<FurAffinityInboxHandler>()
+            .AddScoped<OutboxProcessor>()
+            .AddScoped<WeasylInboxHandler>();
 
         services.AddHttpClient();
     })

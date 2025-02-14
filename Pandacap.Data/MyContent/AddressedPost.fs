@@ -53,3 +53,13 @@ type AddressedPost() =
         member this.Timestamp = this.PublishedTime
         member _.Usericon = null
         member _.Username = null
+
+    interface Pandacap.ActivityPub.IAddressedPost with
+        member this.Audience = this.Community
+        member this.Cc = this.Addressing.Cc
+        member this.Html = this.HtmlContent
+        member this.Id = this.Id
+        member this.InReplyTo = this.InReplyTo
+        member this.PublishedTime = this.PublishedTime
+        member this.Title = this.Title
+        member this.To = this.Addressing.To

@@ -1,5 +1,6 @@
-﻿using Pandacap.LowLevel;
-using Pandacap.Types;
+﻿using Pandacap.HighLevel.Weasyl;
+using Pandacap.Clients;
+using Pandacap.PlatformBadges;
 
 namespace Pandacap.HighLevel.Notifications
 {

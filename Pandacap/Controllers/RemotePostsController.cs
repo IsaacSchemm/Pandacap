@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos.Linq;
+using Pandacap.ActivityPub.Inbound;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using Pandacap.JsonLd;
-using Pandacap.LowLevel;
 using Pandacap.Models;
 using System.Net;
 
@@ -11,9 +11,9 @@ namespace Pandacap.Controllers
     public class RemotePostsController(
         ActivityPubRemotePostService activityPubRemotePostService,
         ApplicationInformation appInfo,
-        ActivityPubTranslator translator,
         PandacapDbContext context,
-        IdMapper idMapper) : Controller
+        ActivityPub.Mapper mapper,
+        ActivityPub.PostTranslator postTranslator) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Index(string id, CancellationToken cancellationToken)
@@ -48,7 +48,7 @@ namespace Pandacap.Controllers
 
             List<RemoteActor> actors = [post.AttributedTo];
             foreach (var recipient in post.Recipients)
-                if (recipient is RemoteAddressee.Actor actor && actor.Id != idMapper.ActorId)
+                if (recipient is RemoteAddressee.Actor actor && actor.Id != mapper.ActorId)
                     actors.Add(actor.Item);
 
             var communities = actors.Where(a => a.Type == "https://www.w3.org/ns/activitystreams#Group");
@@ -74,8 +74,8 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.ObjectToCreate(
+                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                        postTranslator.BuildObjectCreate(
                             addressedPost))
                 });
             }

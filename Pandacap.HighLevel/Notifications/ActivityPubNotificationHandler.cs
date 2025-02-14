@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.LowLevel;
-using Pandacap.Types;
+using Pandacap.PlatformBadges;
 
 namespace Pandacap.HighLevel.Notifications
 {
     public class ActivityPubNotificationHandler(
         IDbContextFactory<PandacapDbContext> contextFactory,
-        IdMapper mapper
+        Pandacap.ActivityPub.Mapper mapper
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()

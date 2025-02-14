@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Inbound;
 using Pandacap.Data;
-using Pandacap.HighLevel;
-using Pandacap.JsonLd;
-using Pandacap.LowLevel;
+using Pandacap.HighLevel.Lemmy;
+using Pandacap.Clients;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers

@@ -1,7 +1,8 @@
 ﻿using DeviantArtFs.Extensions;
 using Microsoft.FSharp.Core;
-using Pandacap.LowLevel;
-using Pandacap.Types;
+using Pandacap.ConfigurationObjects;
+using Pandacap.HighLevel.ATProto;
+using Pandacap.PlatformBadges;
 
 namespace Pandacap.HighLevel.Notifications
 {
@@ -19,11 +20,11 @@ namespace Pandacap.HighLevel.Notifications
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var page = LowLevel.ATProto.Page.FromStart;
+            var page = Clients.ATProto.Page.FromStart;
 
             while (true)
             {
-                var result = await LowLevel.ATProto.Notifications.ListNotificationsAsync(
+                var result = await Clients.ATProto.Notifications.ListNotificationsAsync(
                     client,
                     credentials,
                     page);
@@ -57,7 +58,7 @@ namespace Pandacap.HighLevel.Notifications
                 }
 
                 if (OptionModule.ToObj(result.cursor) is string next)
-                    page = LowLevel.ATProto.Page.NewFromCursor(next);
+                    page = Clients.ATProto.Page.NewFromCursor(next);
                 else
                     yield break;
             }

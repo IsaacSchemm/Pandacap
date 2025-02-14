@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Inbound;
 using Pandacap.Data;
-using Pandacap.JsonLd;
-using Pandacap.LowLevel;
 
 namespace Pandacap
 {
@@ -11,12 +10,12 @@ namespace Pandacap
     /// <param name="activityPubRemoteActorService">An object that can retrieve remote ActivityPub actor information</param>
     /// <param name="activityPubRemotePostService">An object that can retrieve remote ActivityPub post information</param>
     /// <param name="context">The database context</param>
-    /// <param name="translator">An object that builds the ActivityPub objects and activities associated with Pandacap objects</param>
+    /// <param name="interactionTranslator">An object that builds the ActivityPub objects and activities associated with Pandacap objects</param>
     public class RemoteActivityPubPostHandler(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubRemotePostService activityPubRemotePostService,
         PandacapDbContext context,
-        ActivityPubTranslator translator)
+        ActivityPub.InteractionTranslator interactionTranslator)
     {
         private async IAsyncEnumerable<InboxActivityStreamsImage> CollectAttachmentsAsync(
             RemotePost remotePost,
@@ -196,7 +195,10 @@ namespace Pandacap
             {
                 Id = Guid.NewGuid(),
                 Inbox = originalActor.Inbox,
-                JsonBody = ActivityPubSerializer.SerializeWithContext(translator.Like(likeGuid, objectId))
+                JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                    interactionTranslator.BuildLike(
+                        likeGuid,
+                        objectId))
             });
             await context.SaveChangesAsync();
         }

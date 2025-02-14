@@ -1,25 +1,52 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
+using DeviantArtFs.ResponseTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using Pandacap.HighLevel;
-using Pandacap.LowLevel;
+using Pandacap.HighLevel.DeviantArt;
+using Pandacap.Clients;
 using Pandacap.Models;
+using Pandacap.PlatformBadges;
 using Stash = DeviantArtFs.Api.Stash;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class DeviantArtController(
+        ApplicationInformation appInfo,
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
-        DeviantArtCredentialProvider deviantArtCredentialProvider,
-        IdMapper mapper) : Controller
+        DeviantArtCredentialProvider deviantArtCredentialProvider) : Controller
     {
+        private record ThumbnailWrapper(Preview Item) : IPostThumbnail
+        {
+            string IPostThumbnail.Url => Item.src;
+            string IPostThumbnail.AltText => "";
+        }
+
+        private record PostWrapper(Deviation Item) : IPost
+        {
+            IEnumerable<Badge> IPost.Badges => [PostPlatformModule.GetBadge(PostPlatform.DeviantArt)];
+            string IPost.DisplayTitle => Item.title.OrNull() ?? $"{Item.deviationid}";
+            string IPost.Id => $"{Item.deviationid}";
+            bool IPost.IsDismissable => false;
+            string? IPost.LinkUrl => Item.url.OrNull();
+            string? IPost.ProfileUrl => null;
+            IEnumerable<IPostThumbnail> IPost.Thumbnails => Item.thumbs.OrEmpty()
+                .OrderByDescending(t => t.width * t.height)
+                .Take(1)
+                .Select(t => new ThumbnailWrapper(t));
+            DateTimeOffset IPost.Timestamp => Item.published_time.OrNull() ?? DateTimeOffset.UtcNow;
+            string? IPost.Username => null;
+            string? IPost.Usericon => null;
+        }
+
         public async Task<IActionResult> HomeFeed(
             int? next = null,
             int? count = null)
@@ -27,15 +54,19 @@ namespace Pandacap.Controllers
             if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var token, _))
                 return Content("No DeviantArt account is connected.");
 
+            var page = await DeviantArtFs.Api.Browse.PageHomeAsync(
+                token,
+                PagingLimit.NewPagingLimit(next ?? 0),
+                PagingOffset.NewPagingOffset(count ?? 20));
+
             return View(
                 "List",
                 new ListViewModel
                 {
                     Title = "DeviantArt Home Feed",
-                    Items = await DeviantArtFeedPages.GetHomeAsync(
-                        token,
-                        next ?? 0,
-                        count ?? 20)
+                    Items = new ListPage(
+                        Current: [.. page.results.OrEmpty().Select(d => new PostWrapper(d))],
+                        Next: page.next_offset.OrNull()?.ToString())
                 });
         }
 
@@ -179,7 +210,7 @@ namespace Pandacap.Controllers
                     Stash.SubmissionTitle.NewSubmissionTitle(post.Title),
                     Stash.ArtistComments.NewArtistComments(post.Body),
                     Stash.TagList.Create(post.Tags),
-                    Stash.OriginalUrl.NewOriginalUrl(mapper.GetObjectId(post)),
+                    Stash.OriginalUrl.NewOriginalUrl($"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}"),
                     is_dirty: false),
                 new FormFile(
                     blob,

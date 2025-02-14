@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.JsonLd;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers

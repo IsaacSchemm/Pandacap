@@ -2,10 +2,9 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Inbound;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.JsonLd;
-using Pandacap.LowLevel;
 using Pandacap.Models;
 using System.Text;
 
@@ -14,8 +13,8 @@ namespace Pandacap.Controllers
     public class FavoritesController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
-        RemoteActivityPubPostHandler remoteActivityPubPostHandler,
-        ActivityPubTranslator translator) : Controller
+        ActivityPub.InteractionTranslator interactionTranslator,
+        RemoteActivityPubPostHandler remoteActivityPubPostHandler) : Controller
     {
         public async Task<IActionResult> Index(Guid? next, int? count)
         {
@@ -29,8 +28,8 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        translator.AsLikedCollectionPage(
+                    ActivityPub.Serializer.SerializeWithContext(
+                        interactionTranslator.BuildLikedCollectionPage(
                             Request.GetEncodedUrl(),
                             listPage)),
                     "application/activity+json",
@@ -72,7 +71,10 @@ namespace Pandacap.Controllers
                     {
                         Id = Guid.NewGuid(),
                         Inbox = actor.Inbox,
-                        JsonBody = ActivityPubSerializer.SerializeWithContext(translator.UndoLike(item.LikeGuid, item.ObjectId))
+                        JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                            interactionTranslator.BuildLikeUndo(
+                                item.LikeGuid,
+                                item.ObjectId))
                     });
                 }
                 catch (Exception) { }

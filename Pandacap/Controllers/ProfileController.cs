@@ -3,35 +3,90 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Pandacap.ActivityPub.Communication;
+using Pandacap.ActivityPub.Inbound;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.JsonLd;
-using Pandacap.LowLevel;
+using Pandacap.HighLevel.RssInbound;
 using Pandacap.Models;
-using Pandacap.Types;
 using System.Diagnostics;
 using System.Text;
-using System.Threading;
 
 namespace Pandacap.Controllers
 {
     public class ProfileController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
+        ApplicationInformation appInfo,
         AtomRssFeedReader atomRssFeedReader,
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
-        KeyProvider keyProvider,
-        ActivityPubTranslator translator,
+        ActivityPubCommunicationPrerequisites keyProvider,
+        ActivityPub.ProfileTranslator profileTranslator,
+        ActivityPub.RelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager) : Controller
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1828:Do not use CountAsync() or LongCountAsync() when AnyAsync() can be used", Justification = "Not supported in Cosmos DB backend")]
+        private async Task<ActivityPub.Profile> GetActivityPubProfileAsync(
+            CancellationToken cancellationToken)
+        {
+            IEnumerable<string> blueskyDIDs = [
+                .. await context.ATProtoCredentials
+                .Select(c => c.DID)
+                    .ToListAsync(cancellationToken),
+                .. await context.BridgyFedBridges
+                    .Select(c => c.DID)
+                    .ToListAsync(cancellationToken)];
+
+            var deviantArtUsernames = await context.DeviantArtCredentials
+                .Select(d => d.Username)
+                .ToListAsync(cancellationToken);
+
+            var furAffinityUsernames = await context.FurAffinityCredentials
+                .Select(c => c.Username)
+                .ToListAsync(cancellationToken);
+
+            var weasylUsernames = await context.WeasylCredentials
+                .Select(c => c.Login)
+                .ToListAsync(cancellationToken);
+
+            string key = await keyProvider.GetPublicKeyAsync();
+
+            var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
+
+            var followers = await context.Followers
+                .Select(f => f.ActorId)
+                .ToListAsync(cancellationToken);
+
+            return new ActivityPub.Profile(
+                avatar: new ActivityPub.Avatar(
+                    avatar?.ContentType,
+                    avatar == null
+                        ? null
+                        : $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}"),
+                bluesky: [.. blueskyDIDs],
+                deviantArt: [.. deviantArtUsernames],
+                furAffinity: [.. furAffinityUsernames],
+                publicKeyPem: key,
+                username: appInfo.Username,
+                weasyl: [.. weasylUsernames]);
+        }
+
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             var someTimeAgo = DateTime.UtcNow.AddMonths(-3);
 
             string? userId = userManager.GetUserId(User);
+
+            if (Request.IsActivityPub())
+            {
+                return Content(
+                    ActivityPub.Serializer.SerializeWithContext(
+                        profileTranslator.BuildProfile(
+                            await GetActivityPubProfileAsync(cancellationToken))),
+                    "application/activity+json",
+                    Encoding.UTF8);
+            }
 
             IEnumerable<string> blueskyDIDs = [
                 .. await context.ATProtoCredentials
@@ -52,26 +107,6 @@ namespace Pandacap.Controllers
             var weasylUsernames = await context.WeasylCredentials
                 .Select(c => c.Login)
                 .ToListAsync(cancellationToken);
-
-            if (Request.IsActivityPub())
-            {
-                var key = await keyProvider.GetPublicKeyAsync();
-                var avatars = await context.Avatars.Take(1).ToListAsync(cancellationToken);
-                var followers = await context.Followers.Select(f => f.ActorId).ToListAsync(cancellationToken);
-
-                return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        translator.PersonToObject(
-                            new ActivityPubActorInformation(
-                                key,
-                                [.. avatars],
-                                [.. blueskyDIDs],
-                                [.. deviantArtUsernames],
-                                [.. furAffinityUsernames],
-                                [.. weasylUsernames]))),
-                    "application/activity+json",
-                    Encoding.UTF8);
-            }
 
             return View(new ProfileViewModel
             {
@@ -211,8 +246,8 @@ namespace Pandacap.Controllers
             {
                 Id = followGuid,
                 Inbox = actor.Inbox,
-                JsonBody = ActivityPubSerializer.SerializeWithContext(
-                    translator.Follow(
+                JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                    relationshipTranslator.BuildFollow(
                         followGuid,
                         actor.Id)),
                 StoredAt = DateTimeOffset.UtcNow
@@ -246,8 +281,8 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = follow.Inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.UndoFollow(
+                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                        relationshipTranslator.BuildFollowUndo(
                             follow.FollowGuid,
                             follow.ActorId)),
                     StoredAt = DateTimeOffset.UtcNow
@@ -330,35 +365,15 @@ namespace Pandacap.Controllers
             context.Avatars.RemoveRange(oldAvatars);
             context.Avatars.Add(newAvatar);
 
-            var key = await keyProvider.GetPublicKeyAsync();
-
-            var blueskyDIDs = await context.ATProtoCredentials
-                .Select(c => c.DID)
-                .ToListAsync(cancellationToken);
-
-            var deviantArtUsernames = await context.DeviantArtCredentials
-                .Select(d => d.Username)
-                .ToListAsync(cancellationToken);
-
-            var weasylUsernames = await context.WeasylCredentials
-                .Select(c => c.Login)
-                .ToListAsync(cancellationToken);
-
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
                 cancellationToken: cancellationToken))
             {
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.PersonToUpdate(
-                            new ActivityPubActorInformation(
-                                key,
-                                [newAvatar],
-                                [inbox],
-                                [..blueskyDIDs],
-                                [..deviantArtUsernames],
-                                [..weasylUsernames]))),
+                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                        profileTranslator.BuildProfileUpdate(
+                            await GetActivityPubProfileAsync(cancellationToken))),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });

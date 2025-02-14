@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Inbound;
 using Pandacap.Data;
-using Pandacap.JsonLd;
-using Pandacap.LowLevel;
 using Pandacap.Models;
-using System.Net;
 using System.Text;
 
 namespace Pandacap.Controllers
@@ -14,9 +12,9 @@ namespace Pandacap.Controllers
     public class AddressedPostsController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
-        IdMapper mapper,
-        ReplyLookup replyLookup,
-        ActivityPubTranslator translator) : Controller
+        ActivityPub.Mapper mapper,
+        ActivityPub.PostTranslator postTranslator,
+        ReplyLookup replyLookup) : Controller
     {
         [Route("{id}")]
         public async Task<IActionResult> Index(Guid id, CancellationToken cancellationToken)
@@ -30,7 +28,7 @@ namespace Pandacap.Controllers
 
             if (Request.IsActivityPub())
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(translator.AsObject(post)),
+                    ActivityPub.Serializer.SerializeWithContext(postTranslator.BuildObject(post)),
                     "application/activity+json",
                     Encoding.UTF8);
 
@@ -91,8 +89,8 @@ namespace Pandacap.Controllers
             {
                 Id = Guid.NewGuid(),
                 Inbox = remoteActor.SharedInbox ?? remoteActor.Inbox,
-                JsonBody = ActivityPubSerializer.SerializeWithContext(
-                    translator.ObjectToCreate(
+                JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                    postTranslator.BuildObjectCreate(
                         addressedPost))
             });
 
@@ -145,8 +143,8 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.ObjectToDelete(
+                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                        postTranslator.BuildObjectDelete(
                             post))
                 });
             }

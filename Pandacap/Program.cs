@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Pandacap;
+using Pandacap.ActivityPub.Inbound;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.JsonLd;
-using Pandacap.LowLevel;
+using Pandacap.Clients;
 using Pandacap.Signatures;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -76,8 +77,12 @@ builder.Services.AddSingleton(new ComputerVisionConfiguration(
     builder.Configuration["Authentication:Microsoft:TenantId"]));
 
 builder.Services
-    .AddLowLevelServices()
-    .AddHighLevelServices()
+    .AddPandacapServices(new(
+        applicationHostname: builder.Configuration["ApplicationHostname"],
+        username: builder.Configuration["ActivityPubUsername"],
+        keyVaultHostname: builder.Configuration["KeyVaultHostname"],
+        handleHostname: builder.Configuration["ApplicationHostname"],
+        weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<DeliveryInboxCollector>()
@@ -85,13 +90,6 @@ builder.Services
     .AddScoped<PostCreator>()
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>();
-
-builder.Services.AddSingleton(new ApplicationInformation(
-    applicationHostname: builder.Configuration["ApplicationHostname"],
-    username: builder.Configuration["ActivityPubUsername"],
-    keyVaultHostname: builder.Configuration["KeyVaultHostname"],
-    handleHostname: builder.Configuration["ApplicationHostname"],
-    weasylProxyHost: builder.Configuration["WeasylProxyHost"]));
 
 builder.Services.AddHttpClient();
 

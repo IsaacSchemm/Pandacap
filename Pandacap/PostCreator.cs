@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.LowLevel;
 
 namespace Pandacap
 {
     public class PostCreator(
         DeliveryInboxCollector deliveryInboxCollector,
         PandacapDbContext context,
-        ActivityPubTranslator translator)
+        ActivityPub.PostTranslator postTranslator)
     {
         public interface IViewModel
         {
@@ -81,8 +80,8 @@ namespace Pandacap
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        translator.ObjectToCreate(
+                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                        postTranslator.BuildObjectCreate(
                             post)),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow

@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.LowLevel;
+using Pandacap.HighLevel.RssOutbound;
 using Pandacap.Models;
-using Pandacap.Types;
 using System.Text;
 
 namespace Pandacap.Controllers
@@ -13,7 +12,7 @@ namespace Pandacap.Controllers
     public class GalleryController(
         PandacapDbContext context,
         FeedBuilder feedBuilder,
-        ActivityPubTranslator translator) : Controller
+        ActivityPub.PostTranslator postTranslator) : Controller
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
         {
@@ -32,7 +31,9 @@ namespace Pandacap.Controllers
             if (Request.Query["format"] == "rss")
             {
                 return Content(
-                    feedBuilder.ToRssFeed(await posts.Take(take).ToListAsync()),
+                    feedBuilder.ToRssFeed(
+                        await posts.Take(take).ToListAsync(),
+                        Request.GetEncodedUrl()),
                     "application/rss+xml",
                     Encoding.UTF8);
             }
@@ -40,7 +41,9 @@ namespace Pandacap.Controllers
             if (Request.Query["format"] == "atom")
             {
                 return Content(
-                    feedBuilder.ToAtomFeed(await posts.Take(take).ToListAsync()),
+                    feedBuilder.ToAtomFeed(
+                        await posts.Take(take).ToListAsync(),
+                        Request.GetEncodedUrl()),
                     "application/atom+xml",
                     Encoding.UTF8);
             }
@@ -50,8 +53,8 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        translator.AsOutboxCollectionPage(
+                    ActivityPub.Serializer.SerializeWithContext(
+                        postTranslator.BuildOutboxCollectionPage(
                             Request.GetEncodedUrl(),
                             listPage)),
                     "application/activity+json",

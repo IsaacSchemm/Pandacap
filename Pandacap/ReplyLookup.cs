@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using Pandacap.LowLevel;
 using Pandacap.Models;
 using System.Runtime.CompilerServices;
 
@@ -9,7 +9,7 @@ namespace Pandacap
     public class ReplyLookup(
         ApplicationInformation appInfo,
         IDbContextFactory<PandacapDbContext> contextFactory,
-        IdMapper mapper)
+        ActivityPub.Mapper mapper)
     {
         public async Task<bool> IsOriginalPostStoredAsync(
             string id,

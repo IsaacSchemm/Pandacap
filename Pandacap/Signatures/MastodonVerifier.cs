@@ -4,10 +4,9 @@
 
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using NSign;
 using NSign.Signatures;
-using Pandacap.JsonLd;
+using Pandacap.ActivityPub.Inbound;
 
 namespace Pandacap.Signatures;
 
@@ -26,11 +25,7 @@ public partial class MastodonVerifier
         Constants.DerivedComponents.SignatureParams
     ];
 
-    [GeneratedRegex(@"\(.*\)")]
-    private static partial Regex DerivedComponentsRegex();
-
     private static readonly char[] SpacesAndQuotes = [' ', '"'];
-    private static readonly char[] SpacesAndParentheses = [' ', '(', ')'];
 
     private static readonly StringSplitOptions RemoveEmpty = StringSplitOptions.RemoveEmptyEntries;
     private static readonly StringSplitOptions Trim = StringSplitOptions.TrimEntries;
