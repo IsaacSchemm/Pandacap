@@ -10,6 +10,7 @@ using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
 using Pandacap.Clients;
+using Pandacap.Functions.FavoriteHandlers;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -60,6 +61,7 @@ var host = new HostBuilder()
                 handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
                 weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")))
             .AddScoped<ATProtoInboxHandler>()
+            .AddScoped<BlueskyFavoriteHandler>()
             .AddScoped<DeviantArtInboxHandler>()
             .AddScoped<FurAffinityInboxHandler>()
             .AddScoped<OutboxProcessor>()

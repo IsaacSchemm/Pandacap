@@ -31,14 +31,12 @@ type RemoteActivityPubFavorite() =
     interface IPost with
         member this.Badges = [
             match Uri.TryCreate(this.CreatedBy, UriKind.Absolute) with
-            | true, uri -> PostPlatform.GetBadge ActivityPub |> Badge.WithParenthetical uri.Host
+            | true, uri -> { PostPlatform.GetBadge ActivityPub with Text = uri.Host }
             | false, _ -> PostPlatform.GetBadge ActivityPub
         ]
-        member this.DisplayTitle = ExcerptGenerator.FromText 120 [
+        member this.DisplayTitle = ExcerptGenerator.FromText Int32.MaxValue [
             this.Name
             TextConverter.FromHtml this.Content
-            for attachment in this.Attachments do
-                attachment.Name
             this.ObjectId
         ]
         member this.Id = $"{this.LikeGuid}"

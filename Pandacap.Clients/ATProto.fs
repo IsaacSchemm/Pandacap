@@ -223,7 +223,7 @@ module Notifications =
             |> Reader.readAsync<NotificationList> httpClient (Some credentials)
     }
 
-/// Handles creating and deleting Bluesky posts.
+/// Handles creating and deleting records in the repo, e.g. Bluesky posts.
 module Repo =
     type BlobResponse = {
         blob: obj

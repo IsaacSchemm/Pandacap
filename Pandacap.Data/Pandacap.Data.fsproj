@@ -28,13 +28,14 @@
     <Compile Include="TheirContent\ActivityPub\RemoteActivityPubFavorite.fs" />
     <Compile Include="TheirContent\ActivityPub\RemoteActivityPubReply.fs" />
     <Compile Include="TheirContent\ActivityPub\PostActivity.fs" />
+    <Compile Include="TheirContent\ATProto\InboxATProtoPost.fs" />
+    <Compile Include="TheirContent\ATProto\BlueskyFavorite.fs" />
     <Compile Include="TheirContent\DeviantArt\DeviantArtTextPostCheckStatus.fs" />
     <Compile Include="TheirContent\DeviantArt\InboxDeviation.fs" />
     <Compile Include="TheirContent\DeviantArt\InboxArtworkDeviation.fs" />
     <Compile Include="TheirContent\DeviantArt\InboxTextDeviation.fs" />
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />
-    <Compile Include="TheirContent\InboxATProtoPost.fs" />
     <Compile Include="TheirContent\InboxWeasylJournal.fs" />
     <Compile Include="TheirContent\InboxWeasylSubmission.fs" />
     <Compile Include="TheirContent\RssFeedItem.fs" />
