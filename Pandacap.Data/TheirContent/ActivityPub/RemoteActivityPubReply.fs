@@ -19,3 +19,5 @@ type RemoteActivityPubReply() =
     member val Sensitive = false with get, set
     member val Name = nullString with get, set
     member val HtmlContent = nullString with get, set
+
+    member val LastAccessible = nullDateTimeOffset with get, set

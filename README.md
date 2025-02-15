@@ -69,6 +69,8 @@ Function app responsibilities:
     * check RSS/Atom feeds for new posts
 * `OutboxCleanup` (every day at 8:00)
     * remove unsent outbound ActivityPub messages that have been pending for more than 7 days
+* `ReplyCleanup` (every month at 12:00 on the 15th)
+    * attempt to fetch every known remote ActivityPub reply, and delete those that haven't been successfully fetched within 3 months
 * `SendOutbound` (every ten minutes)
     * attempt to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
 
