@@ -60,6 +60,9 @@ The web app and function app must have the appropriate IAM permissions to access
 
 Function app responsibilities:
 
+* `FavoritesIngest` (three times per day)
+    * check Bluesky account for new likes and reposts
+    * check DeviantArt account for new favorites
 * `InboxCleanup` (every day at 9:00)
     * clear dismissed inbox entries more than 7 days old
 * `InboxIngest` (every hour at :10)

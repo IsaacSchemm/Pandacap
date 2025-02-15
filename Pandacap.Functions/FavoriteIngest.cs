@@ -4,10 +4,11 @@ using Pandacap.Functions.FavoriteHandlers;
 namespace Pandacap.Functions
 {
     public class FavoriteIngest(
-        BlueskyFavoriteHandler blueskyFavoriteHandler)
+        BlueskyFavoriteHandler blueskyFavoriteHandler,
+        DeviantArtFavoriteHandler deviantArtFavoriteHandler)
     {
         [Function("FavoriteIngest")]
-        public async Task Run([TimerTrigger("0 * * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 0 */8 * * *")] TimerInfo myTimer)
         {
             List<Exception> exceptions = [];
 
@@ -25,6 +26,8 @@ namespace Pandacap.Functions
 
             await c(blueskyFavoriteHandler.ImportLikesAsync());
             await c(blueskyFavoriteHandler.ImportRepostsAsync());
+
+            await c(deviantArtFavoriteHandler.ImportFavoritesAsync());
 
             if (exceptions.Count > 0)
                 throw new AggregateException(exceptions);

@@ -44,7 +44,7 @@ namespace Pandacap.Functions.FavoriteHandlers
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var tooOld = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            var tooOld = new DateTimeOffset(2024, 6, 1, 0, 0, 0, TimeSpan.Zero);
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
             Stack<BlueskyFeed.FeedItem> items = [];
@@ -100,8 +100,6 @@ namespace Pandacap.Functions.FavoriteHandlers
                     ]
                 });
 
-                Console.WriteLine($"{(age > TimeSpan.FromDays(1) ? feedItem.post.record.createdAt : now)} {feedItem.post.record.text}");
-
                 while (DateTimeOffset.UtcNow == now)
                     await Task.Delay(1);
             }
@@ -121,7 +119,7 @@ namespace Pandacap.Functions.FavoriteHandlers
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var tooOld = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            var tooOld = new DateTimeOffset(2024, 6, 1, 0, 0, 0, TimeSpan.Zero);
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
             Stack<BlueskyFeed.FeedItem> items = [];
@@ -179,8 +177,6 @@ namespace Pandacap.Functions.FavoriteHandlers
                             })
                     ]
                 });
-
-                Console.WriteLine($"{(age > TimeSpan.FromDays(1) ? feedItem.post.record.createdAt : now)} {feedItem.post.record.text}");
 
                 while (DateTimeOffset.UtcNow == now)
                     await Task.Delay(1);

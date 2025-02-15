@@ -2,7 +2,6 @@
 
 open System
 open System.ComponentModel.DataAnnotations
-open Pandacap.Html
 open Pandacap.PlatformBadges
 
 type BlueskyFavoriteUser() =
@@ -53,9 +52,3 @@ type BlueskyFavorite() =
             this.CreatedBy.DisplayName
             |> Option.ofObj
             |> Option.defaultValue this.CreatedBy.Handle
-
-type BlueskyLike() =
-    inherit BlueskyFavorite()
-
-type BlueskyRepost() =
-    inherit BlueskyFavorite()

@@ -26,12 +26,18 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IPost>();
 
+            var deviantArtFavorites = context.DeviantArtFavorites
+                .OrderByDescending(post => post.FavoritedAt)
+                .AsAsyncEnumerable()
+                .OfType<IPost>();
+
             var composite =
                 new[]
                 {
                     activityPubPosts,
-                    //blueskyLikes,
-                    blueskyReposts
+                    blueskyLikes,
+                    blueskyReposts,
+                    deviantArtFavorites
                 }
                 .MergeNewest(p => p.Timestamp)
                 .SkipUntil(post => post.Id == $"{next}" || next == null);

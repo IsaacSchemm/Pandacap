@@ -37,6 +37,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.ActivityPubOutboundActivities: DbSet<ActivityPubOutboundActivity> = this.Set()
     member this.BlueskyLikes: DbSet<BlueskyLike> = this.Set()
     member this.BlueskyReposts: DbSet<BlueskyRepost> = this.Set()
+    member this.DeviantArtFavorites: DbSet<DeviantArtFavorite> = this.Set()
 
     override _.OnModelCreating(builder) =
         base.OnModelCreating(builder)

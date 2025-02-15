@@ -31,7 +31,9 @@ else
         <div class="row">
             @foreach (var item in Model.Items.Current)
             {
-                var thumbnails = item.Thumbnails.DefaultIfEmpty(PostThumbnail.Empty);
+                var thumbnails = item.Thumbnails
+                    .Take(1)
+                    .DefaultIfEmpty(PostThumbnail.Empty);
                 foreach (var thumbnail in thumbnails)
                 {
                     <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
@@ -44,7 +46,7 @@ else
                             </a>
                         </div>
 
-                        <label style="max-width: 100%; height: 4.5rem; overflow: hidden">
+                        <label style="max-width: 100%; height: 3rem; overflow: hidden">
                             @if (item.IsDismissable)
                             {
                                 <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />

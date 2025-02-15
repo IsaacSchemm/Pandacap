@@ -4,13 +4,11 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.Functions.ActivityPub;
+using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
-using Pandacap.Clients;
-using Pandacap.Functions.FavoriteHandlers;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -62,6 +60,7 @@ var host = new HostBuilder()
                 weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")))
             .AddScoped<ATProtoInboxHandler>()
             .AddScoped<BlueskyFavoriteHandler>()
+            .AddScoped<DeviantArtFavoriteHandler>()
             .AddScoped<DeviantArtInboxHandler>()
             .AddScoped<FurAffinityInboxHandler>()
             .AddScoped<OutboxProcessor>()
