@@ -35,8 +35,8 @@ type InboxBlueskyPost() =
     interface IPost with
         member this.Badges = [
             match Option.ofObj this.PostedBy.PDS with
-            | Some pds -> PostPlatform.GetBadge ATProto |> Badge.WithParenthetical pds
-            | None -> PostPlatform.GetBadge ATProto
+            | Some pds -> PostPlatform.GetBadge Bluesky |> Badge.WithParenthetical pds
+            | None -> PostPlatform.GetBadge Bluesky
         ]
         member this.DisplayTitle = ExcerptGenerator.FromText 60 (seq {
             this.Text
