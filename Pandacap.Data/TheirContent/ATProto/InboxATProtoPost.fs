@@ -58,7 +58,4 @@ type InboxATProtoPost() =
         ]
         member this.Timestamp = this.IndexedAt
         member this.Usericon = this.PostedBy.Avatar
-        member this.Username =
-            this.PostedBy.DisplayName
-            |> Option.ofObj
-            |> Option.defaultValue this.PostedBy.Handle
+        member this.Username = this.PostedBy.Handle

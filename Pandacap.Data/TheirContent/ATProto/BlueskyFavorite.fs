@@ -48,7 +48,4 @@ type BlueskyFavorite() =
         ]
         member this.Timestamp = this.FavoritedAt
         member this.Usericon = this.CreatedBy.Avatar
-        member this.Username =
-            this.CreatedBy.DisplayName
-            |> Option.ofObj
-            |> Option.defaultValue this.CreatedBy.Handle
+        member this.Username = this.CreatedBy.Handle
