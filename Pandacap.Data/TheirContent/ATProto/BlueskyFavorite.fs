@@ -36,7 +36,7 @@ type BlueskyFavorite() =
         ]
         member this.DisplayTitle = this.Text
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = true
+        member _.IsDismissable = false
         member this.LinkUrl = $"https://bsky.app/profile/{this.CreatedBy.DID}/post/{this.RecordKey}"
         member this.ProfileUrl = $"https://bsky.app/profile/{this.CreatedBy.DID}"
         member this.Thumbnails = [

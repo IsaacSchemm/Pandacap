@@ -39,7 +39,8 @@ namespace Pandacap.Controllers
                     blueskyReposts,
                     deviantArtFavorites
                 }
-                .MergeNewest(p => p.Timestamp)
+                .MergeNewest(post => post.Timestamp)
+                .Where(post => post.Thumbnails.Any())
                 .SkipUntil(post => post.Id == $"{next}" || next == null);
 
             var listPage = await composite.AsListPage(count ?? 40);

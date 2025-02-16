@@ -47,10 +47,6 @@ else
                         </div>
 
                         <label style="max-width: 100%; height: 3rem; overflow: hidden">
-                            @if (item.IsDismissable)
-                            {
-                                <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                            }
                             <a href="@item.LinkUrl">@item.DisplayTitle</a>
                         </label>
 
