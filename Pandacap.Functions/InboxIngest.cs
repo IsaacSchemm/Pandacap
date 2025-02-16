@@ -8,7 +8,7 @@ namespace Pandacap.Functions
 {
     public class InboxIngest(
         AtomRssFeedReader atomRssFeedReader,
-        ATProtoInboxHandler atProtoInboxHandler,
+        BlueskyInboxHandler blueskyInboxHandler,
         FurAffinityInboxHandler furAffinityInboxHandler,
         PandacapDbContext context,
         DeviantArtInboxHandler deviantArtInboxHandler,
@@ -31,7 +31,7 @@ namespace Pandacap.Functions
                 }
             }
 
-            await c(atProtoInboxHandler.ImportPostsByUsersWeWatchAsync());
+            await c(blueskyInboxHandler.ImportPostsByUsersWeWatchAsync());
 
             await c(deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync());
             await c(deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync());

@@ -6,7 +6,7 @@ using Pandacap.Clients.ATProto;
 
 namespace Pandacap.Functions.InboxHandlers
 {
-    public class ATProtoInboxHandler(
+    public class BlueskyInboxHandler(
         PandacapDbContext context,
         ATProtoCredentialProvider credentialProvider,
         ATProtoDIDResolver didResolver,

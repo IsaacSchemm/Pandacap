@@ -58,7 +58,7 @@ var host = new HostBuilder()
                 keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
                 handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
                 weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")))
-            .AddScoped<ATProtoInboxHandler>()
+            .AddScoped<BlueskyInboxHandler>()
             .AddScoped<BlueskyFavoriteHandler>()
             .AddScoped<DeviantArtFavoriteHandler>()
             .AddScoped<DeviantArtInboxHandler>()

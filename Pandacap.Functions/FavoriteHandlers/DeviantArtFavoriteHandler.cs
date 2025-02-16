@@ -45,6 +45,9 @@ namespace Pandacap.Functions.FavoriteHandlers
                 if (existing > 0)
                     break;
 
+                if (deviation.is_mature.OrNull() != false)
+                    continue;
+
                 items.Push(deviation);
             }
 
@@ -65,7 +68,6 @@ namespace Pandacap.Functions.FavoriteHandlers
                     CreatedBy = author.userid,
                     Usericon = author.usericon,
                     Username = author.username,
-                    MatureContent = deviation.is_mature.OrNull() ?? false,
                     Title = deviation.title?.OrNull(),
                     LinkUrl = deviation.url?.OrNull(),
                     ThumbnailUrls = [

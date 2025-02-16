@@ -13,6 +13,16 @@ namespace Pandacap.Functions.FavoriteHandlers
         ATProtoDIDResolver didResolver,
         IHttpClientFactory httpClientFactory)
     {
+        private const string BlueskyModerationService = "did:plc:ar7c4by46qjdydhdevvrndac";
+
+        private static readonly IReadOnlyList<string> BlueskyModerationServiceAdultContentLabels = [
+            "porn",
+            "sexual",
+            "nudity",
+            "sexual-figurative",
+            "graphic-media"
+        ];
+
         private static async IAsyncEnumerable<BlueskyFeed.FeedItem> WrapAsync(
             Func<Page, Task<BlueskyFeed.FeedResponse>> handler)
         {
@@ -62,6 +72,14 @@ namespace Pandacap.Functions.FavoriteHandlers
                     .CountAsync();
                 if (existing > 0)
                     break;
+
+                bool isAdultContent = feedItem.post.labels
+                    .Where(l => l.src == feedItem.post.author.did || l.src == BlueskyModerationService)
+                    .Select(l => l.val)
+                    .Intersect(BlueskyModerationServiceAdultContentLabels)
+                    .Any();
+                if (isAdultContent)
+                    continue;
 
                 items.Push(feedItem);
             }
