@@ -55,7 +55,7 @@ namespace Pandacap.Functions.InboxHandlers
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-1);
 
-            var existingPosts = await context.InboxATProtoPosts
+            var existingPosts = await context.InboxBlueskyPosts
                 .Where(item => item.IndexedAt >= someTimeAgo)
                 .ToListAsync();
 
@@ -102,7 +102,7 @@ namespace Pandacap.Functions.InboxHandlers
                         continue;
                 }
 
-                context.InboxATProtoPosts.Add(new()
+                context.InboxBlueskyPosts.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     CID = feedItem.post.cid,

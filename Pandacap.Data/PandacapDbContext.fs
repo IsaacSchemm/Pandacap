@@ -1,5 +1,6 @@
 ﻿namespace Pandacap.Data
 
+open System
 open Microsoft.AspNetCore.Identity
 open Microsoft.AspNetCore.Identity.EntityFrameworkCore
 open Microsoft.EntityFrameworkCore
@@ -20,7 +21,8 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.DeviantArtTextPostCheckStatuses: DbSet<DeviantArtTextPostCheckStatus> = this.Set()
     member this.InboxArtworkDeviations: DbSet<InboxArtworkDeviation> = this.Set()
     member this.InboxTextDeviations: DbSet<InboxTextDeviation> = this.Set()
-    member this.InboxATProtoPosts: DbSet<InboxATProtoPost> = this.Set()
+    [<Obsolete>] member this.InboxATProtoPosts: DbSet<InboxATProtoPost> = this.Set()
+    member this.InboxBlueskyPosts: DbSet<InboxBlueskyPost> = this.Set()
     member this.InboxActivityStreamsPosts: DbSet<InboxActivityStreamsPost> = this.Set()
     member this.InboxFurAffinityJournals: DbSet<InboxFurAffinityJournal> = this.Set()
     member this.InboxFurAffinitySubmissions: DbSet<InboxFurAffinitySubmission> = this.Set()

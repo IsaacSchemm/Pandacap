@@ -31,8 +31,8 @@ type BlueskyFavorite() =
     interface IPost with
         member this.Badges = [
             match Option.ofObj this.CreatedBy.PDS with
-            | Some pds -> { PostPlatform.GetBadge ATProto with Text = pds }
-            | None -> PostPlatform.GetBadge ATProto
+            | Some pds -> { PostPlatform.GetBadge Bluesky with Text = pds }
+            | None -> PostPlatform.GetBadge Bluesky
         ]
         member this.DisplayTitle = this.Text
         member this.Id = $"{this.Id}"
