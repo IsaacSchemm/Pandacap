@@ -132,14 +132,14 @@ namespace Pandacap.Functions.InboxHandlers
                         .Intersect(BlueskyModerationServiceAdultContentLabels)
                         .Any(),
                     Text = feedItem.post.record.text,
-                    Images = feedItem.post.Images
-                        .Select(image => new InboxATProtoImage
+                    Images = [
+                        .. feedItem.post.Images.Select(image => new InboxBlueskyImage
                         {
                             Thumb = image.thumb,
                             Fullsize = image.fullsize,
                             Alt = image.alt
                         })
-                        .ToList()
+                    ]
                 });
             }
 
