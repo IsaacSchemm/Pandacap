@@ -19,7 +19,6 @@ namespace Pandacap.Functions.FavoriteHandlers
             if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
                 return;
 
-            var tooOld = new DateTimeOffset(2024, 6, 1, 0, 0, 0, TimeSpan.Zero);
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
             Stack<DeviantArtFs.ResponseTypes.Deviation> items = [];
@@ -36,9 +35,6 @@ namespace Pandacap.Functions.FavoriteHandlers
                 if (publishedTime > tooNew)
                     continue;
 
-                if (publishedTime < tooOld)
-                    break;
-
                 var existing = await context.DeviantArtFavorites
                     .Where(item => item.Id == deviation.deviationid)
                     .CountAsync();
@@ -49,6 +45,9 @@ namespace Pandacap.Functions.FavoriteHandlers
                     continue;
 
                 items.Push(deviation);
+
+                if (items.Count >= 200)
+                    break;
             }
 
             while (items.TryPop(out var deviation))

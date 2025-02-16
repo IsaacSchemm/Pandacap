@@ -54,7 +54,6 @@ namespace Pandacap.Functions.FavoriteHandlers
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var tooOld = new DateTimeOffset(2024, 6, 1, 0, 0, 0, TimeSpan.Zero);
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
             Stack<BlueskyFeed.FeedItem> items = [];
@@ -63,9 +62,6 @@ namespace Pandacap.Functions.FavoriteHandlers
             {
                 if (feedItem.IndexedAt > tooNew)
                     continue;
-
-                if (feedItem.IndexedAt < tooOld)
-                    break;
 
                 var existing = await context.BlueskyLikes
                     .Where(item => item.CID == feedItem.post.cid)
@@ -82,6 +78,9 @@ namespace Pandacap.Functions.FavoriteHandlers
                     continue;
 
                 items.Push(feedItem);
+
+                if (items.Count >= 200)
+                    break;
             }
 
             while (items.TryPop(out var feedItem))
@@ -137,7 +136,6 @@ namespace Pandacap.Functions.FavoriteHandlers
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var tooOld = new DateTimeOffset(2024, 6, 1, 0, 0, 0, TimeSpan.Zero);
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
             Stack<BlueskyFeed.FeedItem> items = [];
@@ -146,9 +144,6 @@ namespace Pandacap.Functions.FavoriteHandlers
             {
                 if (feedItem.IndexedAt > tooNew)
                     continue;
-
-                if (feedItem.IndexedAt < tooOld)
-                    break;
 
                 if (feedItem.post.author.did == credentials.DID)
                     continue;
@@ -160,6 +155,9 @@ namespace Pandacap.Functions.FavoriteHandlers
                     break;
 
                 items.Push(feedItem);
+
+                if (items.Count >= 200)
+                    break;
             }
 
             while (items.TryPop(out var feedItem))
