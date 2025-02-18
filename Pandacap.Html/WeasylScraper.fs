@@ -1,9 +1,82 @@
 ﻿namespace Pandacap.Html
 
 open System
+open System.Text.RegularExpressions
 open FSharp.Data
 
 module WeasylScraper =
+    type FavoriteSubmission = {
+        submitid: int
+        title: string
+        thumbnail_url: string
+        url: string
+        username: string
+        user_url: string
+    }
+
+    let ExtractFavoriteSubmissions (html: string) = 
+        let doc = HtmlDocument.Parse(html)
+        
+        let attributeValues name nodes =
+            nodes
+            |> Seq.choose (HtmlNode.tryGetAttribute name)
+            |> Seq.map HtmlAttribute.value
+
+        let innerTexts nodes =
+            nodes
+            |> Seq.map HtmlNode.innerText
+
+        let tryGetNextid (urls: string seq) =
+            urls
+            |> Seq.collect (fun url ->
+                printfn "%s" url
+                let o = Regex.Matches(url, "[&\?]nextid=([0-9]+)")
+                printfn "%d" o.Count
+                o)
+            |> Seq.map (fun m -> m.Groups[1].Value)
+            |> Seq.map Int32.Parse
+            |> Seq.tryHead
+
+        let firstOr value sequence =
+            sequence
+            |> Seq.tryHead
+            |> Option.defaultValue value
+
+        let tryParseInt32 (str: string) =
+            match Int32.TryParse(str) with
+            | true, value -> Some value
+            | false, _ -> None
+
+        let tryGetSubmitid (url: string) =
+            match url.Split('/') with
+            | [| ""; _; "submissions"; str; _ |] -> tryParseInt32 str
+            | _ -> None
+
+        {|
+            nextid =
+                doc.CssSelect("a[rel=next]")
+                |> attributeValues "href"
+                |> tryGetNextid
+                |> Option.toNullable
+            items = [
+                for box in doc.CssSelect("ul.thumbnail-grid > li") do 
+                    let url = box.CssSelect("a") |> attributeValues "href" |> Seq.tryHead
+                    let submitid = url |> Option.bind tryGetSubmitid
+
+                    match url, submitid with
+                    | Some u, Some s ->
+                        {
+                            submitid = s
+                            title = box.CssSelect(".title") |> innerTexts |> firstOr ""
+                            thumbnail_url = box.CssSelect(".thumb img") |> attributeValues "src" |> firstOr null
+                            url = u
+                            username = box.CssSelect("a.username") |> innerTexts |> firstOr ""
+                            user_url = box.CssSelect("a.username") |> attributeValues "href" |> firstOr null
+                        }
+                    | _ -> ()
+            ]
+        |}
+
     type NotificationLink = {
         href: string
         name: string

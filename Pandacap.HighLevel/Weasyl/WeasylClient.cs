@@ -128,6 +128,32 @@ namespace Pandacap.HighLevel
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
         }
 
+        public async IAsyncEnumerable<WeasylScraper.FavoriteSubmission> ExtractFavoriteSubmissionsAsync(int userid)
+        {
+            int? nextid = null;
+
+            while (true)
+            {
+                string qs = $"userid={userid}&feature=submit";
+                if (nextid is int n)
+                    qs += $"&nextid={n}";
+
+                using var client = CreateClient();
+                using var resp = await client.GetAsync($"{WeasylProxy}?path=favorites&{qs}");
+                resp.EnsureSuccessStatusCode();
+                string html = await resp.Content.ReadAsStringAsync();
+                var page = WeasylScraper.ExtractFavoriteSubmissions(html);
+
+                foreach (var item in page.items)
+                    yield return item;
+
+                if (page.nextid == null)
+                    break;
+
+                nextid = page.nextid;
+            }
+        }
+
         public async Task<FSharpList<WeasylScraper.ExtractedJournal>> ExtractJournalsAsync()
         {
             using var client = CreateClient();
