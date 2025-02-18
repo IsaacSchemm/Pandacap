@@ -73,15 +73,27 @@ namespace Pandacap.HighLevel
             string type,
             string owner,
             string owner_login,
+            OwnerMedia? owner_media,
             SubmissionMedia media,
             string link);
 
         public record SubmissionMedia(
             FSharpList<Media> thumbnail);
 
+        public record OwnerMedia(
+            FSharpList<Media> avatar);
+
         public record Media(
-            string url,
-            int mediaid);
+            string url);
+
+        public async Task<Submission> ViewSubmissionAsync(int submitid)
+        {
+            using var client = CreateClient();
+            using var resp = await client.GetAsync($"{WeasylProxy}?path=api/submissions/{submitid}/view&anyway=x");
+            resp.EnsureSuccessStatusCode();
+            return await resp.Content.ReadFromJsonAsync<Submission>()
+                ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
+        }
 
         private async Task<SubmissionsResponse> PageMessagesSubmissionsAsync(string? nexttime = null)
         {
@@ -128,7 +140,7 @@ namespace Pandacap.HighLevel
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
         }
 
-        public async IAsyncEnumerable<WeasylScraper.FavoriteSubmission> ExtractFavoriteSubmissionsAsync(int userid)
+        public async IAsyncEnumerable<int> ExtractFavoriteSubmitidsAsync(int userid)
         {
             int? nextid = null;
 
@@ -142,10 +154,10 @@ namespace Pandacap.HighLevel
                 using var resp = await client.GetAsync($"{WeasylProxy}?path=favorites&{qs}");
                 resp.EnsureSuccessStatusCode();
                 string html = await resp.Content.ReadAsStringAsync();
-                var page = WeasylScraper.ExtractFavoriteSubmissions(html);
+                var page = WeasylScraper.ExtractFavoriteSubmitids(html);
 
-                foreach (var item in page.items)
-                    yield return item;
+                foreach (int submitid in page.submitids)
+                    yield return submitid;
 
                 if (page.nextid == null)
                     break;

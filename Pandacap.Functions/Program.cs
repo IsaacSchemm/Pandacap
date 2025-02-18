@@ -65,6 +65,7 @@ var host = new HostBuilder()
             .AddScoped<FurAffinityFavoriteHandler>()
             .AddScoped<FurAffinityInboxHandler>()
             .AddScoped<OutboxProcessor>()
+            .AddScoped<WeasylFavoriteHandler>()
             .AddScoped<WeasylInboxHandler>();
 
         services.AddHttpClient();

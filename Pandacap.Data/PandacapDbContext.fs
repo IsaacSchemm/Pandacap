@@ -40,6 +40,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.BlueskyReposts: DbSet<BlueskyRepost> = this.Set()
     member this.DeviantArtFavorites: DbSet<DeviantArtFavorite> = this.Set()
     member this.FurAffinityFavorites: DbSet<FurAffinityFavorite> = this.Set()
+    member this.WeasylFavoriteSubmissions: DbSet<WeasylFavoriteSubmission> = this.Set()
 
     override _.OnModelCreating(builder) =
         base.OnModelCreating(builder)

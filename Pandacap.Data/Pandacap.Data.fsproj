@@ -40,8 +40,9 @@
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />
     <Compile Include="TheirContent\FurAffinity\FurAffinityFavorite.fs" />
-    <Compile Include="TheirContent\InboxWeasylJournal.fs" />
-    <Compile Include="TheirContent\InboxWeasylSubmission.fs" />
+    <Compile Include="TheirContent\Weasyl\InboxWeasylJournal.fs" />
+    <Compile Include="TheirContent\Weasyl\InboxWeasylSubmission.fs" />
+    <Compile Include="TheirContent\Weasyl\WeasylFavoriteSubmission.fs" />
     <Compile Include="TheirContent\RssFeedItem.fs" />
     <Compile Include="PandacapDbContext.fs" />
   </ItemGroup>

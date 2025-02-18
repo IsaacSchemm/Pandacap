@@ -37,6 +37,11 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IPost>();
 
+            var weasylFavoriteSubmissions = context.WeasylFavoriteSubmissions
+                .OrderByDescending(post => post.FavoritedAt)
+                .AsAsyncEnumerable()
+                .OfType<IPost>();
+
             var composite =
                 new[]
                 {
@@ -44,7 +49,8 @@ namespace Pandacap.Controllers
                     blueskyLikes,
                     blueskyReposts,
                     deviantArtFavorites,
-                    furAffinityFavorites
+                    furAffinityFavorites,
+                    weasylFavoriteSubmissions
                 }
                 .MergeNewest(post => post.Timestamp)
                 .Where(post => post.Thumbnails.Any())
@@ -60,24 +66,25 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Remove([FromForm] string id)
+        public async Task<IActionResult> Remove([FromForm] Guid id)
         {
-            await remoteActivityPubPostHandler.RemoveRemoteFavoritesAsync([id]);
+            var objectIds = await context.RemoteActivityPubFavorites
+                .Where(f => f.LikeGuid == id)
+                .Select(f => f.ObjectId)
+                .ToListAsync();
+            await remoteActivityPubPostHandler.RemoveRemoteFavoritesAsync(objectIds);
 
-            if (Guid.TryParse(id, out var guid))
-            {
-                await foreach (var item in context.BlueskyLikes.Where(f => f.Id == guid).AsAsyncEnumerable())
-                    context.Remove(item);
+            await foreach (var item in context.BlueskyLikes.Where(f => f.Id == id).AsAsyncEnumerable())
+                context.Remove(item);
 
-                await foreach (var item in context.BlueskyReposts.Where(f => f.Id == guid).AsAsyncEnumerable())
-                    context.Remove(item);
+            await foreach (var item in context.BlueskyReposts.Where(f => f.Id == id).AsAsyncEnumerable())
+                context.Remove(item);
 
-                await foreach (var item in context.DeviantArtFavorites.Where(f => f.Id == guid).AsAsyncEnumerable())
-                    context.Remove(item);
+            await foreach (var item in context.DeviantArtFavorites.Where(f => f.Id == id).AsAsyncEnumerable())
+                context.Remove(item);
 
-                await foreach (var item in context.FurAffinityFavorites.Where(f => f.Id == guid).AsAsyncEnumerable())
-                    context.Remove(item);
-            }
+            await foreach (var item in context.FurAffinityFavorites.Where(f => f.Id == id).AsAsyncEnumerable())
+                context.Remove(item);
 
             await context.SaveChangesAsync();
 

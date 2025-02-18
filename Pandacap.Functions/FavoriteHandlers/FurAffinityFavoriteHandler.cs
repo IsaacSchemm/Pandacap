@@ -46,8 +46,6 @@ namespace Pandacap.Functions.FavoriteHandlers
 
             await foreach (var submission in enumerateAsync())
             {
-                var publishedTime = submission.GetPublishedTime() ?? DateTimeOffset.UtcNow;
-
                 var existing = await context.FurAffinityFavorites
                     .Where(item => item.SubmissionId == submission.id)
                     .CountAsync();
