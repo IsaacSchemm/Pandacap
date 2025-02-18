@@ -41,7 +41,7 @@
 }
 
 img.feed-image {
-    height: 150px;
+    height: 200px;
 }
 
 @supports (object-fit: contain) {

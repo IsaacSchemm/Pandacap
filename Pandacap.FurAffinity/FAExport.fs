@@ -12,17 +12,40 @@ module FAExport =
         client.DefaultRequestHeaders.UserAgent.ParseAdd(credentials.UserAgent)
         client
 
-    module Notifications =
-        type Submission = {
-            id: int
-            title: string
-            thumbnail: string
-            link: string
-            name: string
-            profile: string
-            profile_name: string
-        }
+    type Submission = {
+        id: int
+        title: string
+        thumbnail: string
+        link: string
+        name: string
+        profile: string
+        profile_name: string
+    }
 
+    [<RequireQualifiedAccess>]
+    type FavoritesPage =
+    | First
+    | After of int
+    | Before of int
+
+    let GetFavoritesAsync factory credentials name sfw pagination cancellationToken = task {
+        let qs = String.concat "&" [
+            "full=1"
+
+            match pagination with
+            | FavoritesPage.First -> ()
+            | FavoritesPage.After x -> $"next={x}"
+            | FavoritesPage.Before x -> $"next={x}"
+
+            if sfw then "sfw=1"
+        ]
+
+        use client = getClient factory credentials
+        use! resp = client.GetAsync($"/user/{Uri.EscapeDataString(name)}/favorites.json?{qs}", cancellationToken = cancellationToken)
+        return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Submission list>(cancellationToken)
+    }
+
+    module Notifications =
         type Submissions = {
             new_submissions: Submission list
         }

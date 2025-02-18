@@ -40,6 +40,7 @@
     <Compile Include="TheirContent\DeviantArt\DeviantArtFavorite.fs" />
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />
+    <Compile Include="TheirContent\FurAffinity\FurAffinityFavorite.fs" />
     <Compile Include="TheirContent\InboxWeasylJournal.fs" />
     <Compile Include="TheirContent\InboxWeasylSubmission.fs" />
     <Compile Include="TheirContent\RssFeedItem.fs" />

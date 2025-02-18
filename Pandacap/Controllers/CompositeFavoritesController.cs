@@ -31,13 +31,19 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IPost>();
 
+            var furAffinityFavorites = context.FurAffinityFavorites
+                .OrderByDescending(post => post.FavoritedAt)
+                .AsAsyncEnumerable()
+                .OfType<IPost>();
+
             var composite =
                 new[]
                 {
                     activityPubPosts,
                     blueskyLikes,
                     blueskyReposts,
-                    deviantArtFavorites
+                    deviantArtFavorites,
+                    furAffinityFavorites
                 }
                 .MergeNewest(post => post.Timestamp)
                 .Where(post => post.Thumbnails.Any())

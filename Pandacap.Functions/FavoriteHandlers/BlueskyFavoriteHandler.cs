@@ -3,7 +3,6 @@ using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.Clients.ATProto;
-using System.Linq;
 
 namespace Pandacap.Functions.FavoriteHandlers
 {
@@ -116,9 +115,6 @@ namespace Pandacap.Functions.FavoriteHandlers
                             })
                     ]
                 });
-
-                while (DateTimeOffset.UtcNow == now)
-                    await Task.Delay(1);
             }
 
             await context.SaveChangesAsync();

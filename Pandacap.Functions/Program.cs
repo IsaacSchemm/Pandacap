@@ -62,6 +62,7 @@ var host = new HostBuilder()
             .AddScoped<BlueskyFavoriteHandler>()
             .AddScoped<DeviantArtFavoriteHandler>()
             .AddScoped<DeviantArtInboxHandler>()
+            .AddScoped<FurAffinityFavoriteHandler>()
             .AddScoped<FurAffinityInboxHandler>()
             .AddScoped<OutboxProcessor>()
             .AddScoped<WeasylInboxHandler>();

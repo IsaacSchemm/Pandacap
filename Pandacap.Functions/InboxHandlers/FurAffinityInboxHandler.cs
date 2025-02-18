@@ -29,7 +29,7 @@ namespace Pandacap.Functions.InboxHandlers
                 .DefaultIfEmpty(0)
                 .Single();
 
-            async IAsyncEnumerable<FAExport.Notifications.Submission> enumerateAsync(bool sfw)
+            async IAsyncEnumerable<FAExport.Submission> enumerateAsync(bool sfw)
             {
                 int from = int.MaxValue;
 

@@ -23,6 +23,9 @@ namespace Pandacap.Functions.FavoriteHandlers
 
             Stack<DeviantArtFs.ResponseTypes.Deviation> items = [];
 
+            var count = await context.DeviantArtFavorites.CountAsync();
+            Console.WriteLine(count);
+
             await foreach (var deviation in DeviantArtFs.Api.Collections.GetAllAsync(
                 credentials,
                 UserScope.ForCurrentUser,
@@ -79,9 +82,6 @@ namespace Pandacap.Functions.FavoriteHandlers
                         ? publishedTime
                         : now
                 });
-
-                while (DateTimeOffset.UtcNow == now)
-                    await Task.Delay(1);
             }
 
             await context.SaveChangesAsync();

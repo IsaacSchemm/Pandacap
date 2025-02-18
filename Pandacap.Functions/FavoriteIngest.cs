@@ -5,7 +5,8 @@ namespace Pandacap.Functions
 {
     public class FavoriteIngest(
         BlueskyFavoriteHandler blueskyFavoriteHandler,
-        DeviantArtFavoriteHandler deviantArtFavoriteHandler)
+        DeviantArtFavoriteHandler deviantArtFavoriteHandler,
+        FurAffinityFavoriteHandler furAffinityFavoriteHandler)
     {
         [Function("FavoriteIngest")]
         public async Task Run([TimerTrigger("0 0 */8 * * *")] TimerInfo myTimer)
@@ -28,6 +29,8 @@ namespace Pandacap.Functions
             await c(blueskyFavoriteHandler.ImportRepostsAsync());
 
             await c(deviantArtFavoriteHandler.ImportFavoritesAsync());
+
+            await c(furAffinityFavoriteHandler.ImportFavoritesAsync());
 
             if (exceptions.Count > 0)
                 throw new AggregateException(exceptions);
