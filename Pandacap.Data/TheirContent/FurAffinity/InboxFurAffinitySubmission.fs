@@ -7,6 +7,7 @@ open Pandacap.PlatformBadges
 type InboxFurAffinitySubmissionUser() =
     member val Name = "" with get, set
     member val Url = "" with get, set
+    member val Avatar = "" with get, set
 
 type InboxFurAffinitySubmission() =
     [<Key>]

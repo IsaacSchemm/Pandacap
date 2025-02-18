@@ -12,6 +12,19 @@ module FAExport =
         client.DefaultRequestHeaders.UserAgent.ParseAdd(credentials.UserAgent)
         client
 
+    type User = {
+        name: string
+        profile: string
+        avatar: string
+        full_name: string
+    }
+
+    let GetUserAsync factory credentials name cancellationToken = task {
+        use client = getClient factory credentials
+        use! resp = client.GetAsync($"/user/{Uri.EscapeDataString(name)}.json", cancellationToken = cancellationToken)
+        return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<User>(cancellationToken)
+    }
+
     type Submission = {
         id: int
         title: string
