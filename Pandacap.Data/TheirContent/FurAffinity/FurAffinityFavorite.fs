@@ -6,6 +6,7 @@ open Pandacap.PlatformBadges
 
 type FurAffinityFavoriteUser() =
     member val Name = "" with get, set
+    member val ProfileName = "" with get, set
     member val Url = "" with get, set
 
 type FurAffinityFavorite() =
@@ -16,7 +17,7 @@ type FurAffinityFavorite() =
     member val Title = "" with get, set
     member val Thumbnail = "" with get, set
     member val Link = "" with get, set
-    member val PostedBy = new InboxFurAffinitySubmissionUser() with get, set
+    member val PostedBy = new FurAffinityFavoriteUser() with get, set
     member val PostedAt = DateTimeOffset.MinValue with get, set
 
     member val FavoritedAt = DateTimeOffset.MinValue with get, set
@@ -34,5 +35,5 @@ type FurAffinityFavorite() =
                 member _.Url = this.Thumbnail
         }]
         member this.Timestamp = this.PostedAt
-        member _.Usericon = null
+        member this.Usericon = $"https://a.furaffinity.net/{this.PostedAt.ToUnixTimeSeconds()}/{Uri.EscapeDataString(this.PostedBy.ProfileName)}.gif"
         member this.Username = this.PostedBy.Name

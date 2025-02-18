@@ -6,8 +6,8 @@ open Pandacap.PlatformBadges
 
 type InboxFurAffinitySubmissionUser() =
     member val Name = "" with get, set
-    member val ProfileName = "" with get, set
     member val Url = "" with get, set
+    member val Avatar = "" with get, set
 
 type InboxFurAffinitySubmission() =
     [<Key>]
@@ -37,5 +37,5 @@ type InboxFurAffinitySubmission() =
             }
         ]
         member this.Timestamp = this.PostedAt
-        member this.Usericon = $"https://a.furaffinity.net/{this.PostedAt.ToUnixTimeSeconds()}/{Uri.EscapeDataString(this.PostedBy.ProfileName)}.gif"
+        member _.Usericon = null
         member this.Username = this.PostedBy.Name
