@@ -7,7 +7,8 @@ using Pandacap.Models;
 namespace Pandacap.Controllers
 {
     public class CompositeFavoritesController(
-        PandacapDbContext context) : Controller
+        PandacapDbContext context,
+        RemoteActivityPubPostHandler remoteActivityPubPostHandler) : Controller
     {
         public async Task<IActionResult> Index(Guid? next, int? count)
         {
@@ -56,6 +57,31 @@ namespace Pandacap.Controllers
                 Title = "Favorites",
                 Items = listPage
             });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Remove([FromForm] string id)
+        {
+            await remoteActivityPubPostHandler.RemoveRemoteFavoritesAsync([id]);
+
+            if (Guid.TryParse(id, out var guid))
+            {
+                await foreach (var item in context.BlueskyLikes.Where(f => f.Id == guid).AsAsyncEnumerable())
+                    context.Remove(item);
+
+                await foreach (var item in context.BlueskyReposts.Where(f => f.Id == guid).AsAsyncEnumerable())
+                    context.Remove(item);
+
+                await foreach (var item in context.DeviantArtFavorites.Where(f => f.Id == guid).AsAsyncEnumerable())
+                    context.Remove(item);
+
+                await foreach (var item in context.FurAffinityFavorites.Where(f => f.Id == guid).AsAsyncEnumerable())
+                    context.Remove(item);
+            }
+
+            await context.SaveChangesAsync();
+
+            return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
         }
     }
 }

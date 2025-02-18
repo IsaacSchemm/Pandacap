@@ -154,7 +154,7 @@ namespace Pandacap
         }
 
         /// <summary>
-        /// Add a remote ActivityPub post to the Favorites collection.
+        /// Adds a remote ActivityPub post to the Favorites collection.
         /// </summary>
         /// <param name="objectId">The ActivityPub object ID (URL).</param>
         /// <returns></returns>
@@ -201,6 +201,39 @@ namespace Pandacap
                         objectId))
             });
             await context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Removes remote ActivityPub posts from the Favorites collection.
+        /// </summary>
+        /// <param name="objectId">The ActivityPub object ID (URL).</param>
+        /// <returns></returns>
+        public async Task RemoveRemoteFavoritesAsync(IEnumerable<string> objectIds)
+        {
+            await foreach (var item in context.RemoteActivityPubFavorites
+                .Where(a => objectIds.Contains(a.ObjectId))
+                .AsAsyncEnumerable())
+            {
+                try
+                {
+                    var actor = await activityPubRemoteActorService.FetchActorAsync(item.CreatedBy);
+
+                    context.ActivityPubOutboundActivities.Add(new()
+                    {
+                        Id = Guid.NewGuid(),
+                        Inbox = actor.Inbox,
+                        JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                            interactionTranslator.BuildLikeUndo(
+                                item.LikeGuid,
+                                item.ObjectId))
+                    });
+                }
+                catch (Exception) { }
+
+                context.Remove(item);
+
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

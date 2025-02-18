@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub.Inbound;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Models;
@@ -11,7 +10,6 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class FavoritesController(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
         ActivityPub.InteractionTranslator interactionTranslator,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler) : Controller
@@ -61,28 +59,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove([FromForm] IEnumerable<string> id)
         {
-            await foreach (var item in context.RemoteActivityPubFavorites.Where(a => id.Contains(a.ObjectId)).AsAsyncEnumerable())
-            {
-                try
-                {
-                    var actor = await activityPubRemoteActorService.FetchActorAsync(item.CreatedBy);
-
-                    context.ActivityPubOutboundActivities.Add(new()
-                    {
-                        Id = Guid.NewGuid(),
-                        Inbox = actor.Inbox,
-                        JsonBody = ActivityPub.Serializer.SerializeWithContext(
-                            interactionTranslator.BuildLikeUndo(
-                                item.LikeGuid,
-                                item.ObjectId))
-                    });
-                }
-                catch (Exception) { }
-
-                context.Remove(item);
-            }
-
-            await context.SaveChangesAsync();
+            await remoteActivityPubPostHandler.RemoveRemoteFavoritesAsync(id);
 
             return RedirectToAction("Index");
         }
