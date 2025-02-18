@@ -64,12 +64,6 @@ namespace Pandacap.Functions.FavoriteHandlers
                 var publishedTime = submission.GetPublishedTime() ?? now;
                 var age = now - publishedTime;
 
-                var user = await FAExport.GetUserAsync(
-                    httpClientFactory,
-                    credentials,
-                    submission.profile_name,
-                    CancellationToken.None);
-
                 context.FurAffinityFavorites.Add(new()
                 {
                     Id = Guid.NewGuid(),
@@ -80,8 +74,8 @@ namespace Pandacap.Functions.FavoriteHandlers
                     PostedBy = new()
                     {
                         Name = submission.name,
-                        Url = submission.profile,
-                        Avatar = user.avatar
+                        ProfileName = submission.profile_name,
+                        Url = submission.profile
                     },
                     PostedAt = publishedTime,
                     FavoritedAt = age > TimeSpan.FromDays(1)
