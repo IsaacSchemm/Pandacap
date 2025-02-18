@@ -28,7 +28,6 @@
     <Compile Include="TheirContent\ActivityPub\RemoteActivityPubFavorite.fs" />
     <Compile Include="TheirContent\ActivityPub\RemoteActivityPubReply.fs" />
     <Compile Include="TheirContent\ActivityPub\PostActivity.fs" />
-    <Compile Include="TheirContent\ATProto\InboxATProtoPost.fs" />
     <Compile Include="TheirContent\ATProto\InboxBlueskyPost.fs" />
     <Compile Include="TheirContent\ATProto\BlueskyFavorite.fs" />
     <Compile Include="TheirContent\ATProto\BlueskyLike.fs" />

@@ -52,15 +52,6 @@ namespace Pandacap.Controllers
                 .Where(a => a.Images.Count > 0)
                 .OfType<IPost>();
 
-            var source4b = context.InboxATProtoPosts
-                .Where(a => a.IndexedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.IndexedAt)
-                .AsAsyncEnumerable()
-                .Where(a => a.Author.DID == a.PostedBy.DID)
-                .Where(a => a.Images.Count > 0)
-                .OfType<IPost>();
-
             var source5 = context.InboxActivityStreamsPosts
                 .Where(a => a.PostedAt <= startTime)
                 .Where(d => d.DismissedAt == null)
@@ -77,7 +68,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IPost>();
 
-            var posts = await new[] { source1, source2, source3, source4, source4b, source5, source6 }
+            var posts = await new[] { source1, source2, source3, source4, source5, source6 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -130,15 +121,6 @@ namespace Pandacap.Controllers
                 .Where(a => a.Images.Count == 0)
                 .OfType<IPost>();
 
-            var source4b = context.InboxATProtoPosts
-                .Where(a => a.IndexedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.IndexedAt)
-                .AsAsyncEnumerable()
-                .Where(a => a.Author.DID == a.PostedBy.DID)
-                .Where(a => a.Images.Count == 0)
-                .OfType<IPost>();
-
             var source5 = context.InboxActivityStreamsPosts
                 .Where(a => a.PostedAt <= startTime)
                 .Where(d => d.DismissedAt == null)
@@ -155,7 +137,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IPost>();
 
-            var posts = await new[] { source1, source2, source3, source4, source4b, source5, source6 }
+            var posts = await new[] { source1, source2, source3, source4, source5, source6 }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -177,14 +159,6 @@ namespace Pandacap.Controllers
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var atProto = context.InboxATProtoPosts
-                .Where(a => a.IndexedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.IndexedAt)
-                .AsAsyncEnumerable()
-                .Where(a => a.Author.DID != a.PostedBy.DID)
-                .OfType<IPost>();
-
             var activityStreams = context.InboxActivityStreamsPosts
                 .Where(a => a.PostedAt <= startTime)
                 .Where(d => d.DismissedAt == null)
@@ -201,7 +175,7 @@ namespace Pandacap.Controllers
                 .Where(a => a.Author.DID != a.PostedBy.DID)
                 .OfType<IPost>();
 
-            var posts = await new[] { atProto, activityStreams, bluesky }
+            var posts = await new[] { activityStreams, bluesky }
                 .MergeNewest(x => x.Timestamp)
                 .SkipWhile(x => next != null && x.Id != next)
                 .AsListPage(count ?? 100);
@@ -260,14 +234,6 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .InboxTextDeviations
-                .Where(item => guids.Contains(item.Id))
-                .AsAsyncEnumerable())
-            {
-                yield return item;
-            }
-
-            await foreach (var item in context
-                .InboxATProtoPosts
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
@@ -336,9 +302,6 @@ namespace Pandacap.Controllers
         {
             await foreach (var item in GetInboxPostsByIds(id))
             {
-                if (item is InboxATProtoPost atp)
-                    atp.DismissedAt ??= DateTimeOffset.UtcNow;
-
                 if (item is InboxActivityStreamsPost asp)
                     asp.DismissedAt ??= DateTimeOffset.UtcNow;
 
