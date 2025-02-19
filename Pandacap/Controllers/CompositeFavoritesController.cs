@@ -20,6 +20,8 @@ namespace Pandacap.Controllers
 
             var listPage = await composite.AsListPage(count ?? 40);
 
+            ViewBag.NoIndex = true;
+
             return View("List", new ListViewModel
             {
                 Title = "Favorites",

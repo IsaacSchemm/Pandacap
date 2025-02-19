@@ -61,6 +61,8 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
+            ViewBag.NoIndex = true;
+
             return View("List", new ListViewModel
             {
                 Title = title,
