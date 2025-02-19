@@ -1,0 +1,58 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model IEnumerable<IPost>
+
+<div class="container-fluid">
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            var thumbnails = item.Thumbnails
+            .Take(1)
+            .DefaultIfEmpty(PostThumbnail.Empty);
+            foreach (var thumbnail in thumbnails)
+            {
+                <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
+                    <div class="card">
+                        <a href="@item.LinkUrl" style="text-decoration: none">
+                            <img src="@thumbnail.Url"
+                                 alt="@thumbnail.AltText"
+                                 referrerpolicy="no-referrer"
+                                 class="feed-image" />
+                        </a>
+                    </div>
+
+                    <label style="max-width: 100%; height: 3rem; overflow: hidden">
+                        <a href="@item.LinkUrl">@item.DisplayTitle</a>
+                    </label>
+
+                    <div class="mb-2">
+                        <img height="25" src="@item.Usericon" alt="" />
+                        <a href="@item.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
+                            <strong>
+                                @item.Username
+                            </strong>
+                        </a>
+                    </div>
+
+                    @foreach (var badge in item.Badges)
+                    {
+                        <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color; max-width: 100%; overflow-x: hidden; text-overflow: ellipsis;">
+                            @badge.Text
+                        </span>
+                    }
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form asp-action="Remove" onsubmit="return confirm('Are you sure you want to remove this post from Favorites? (Pandacap may or may not re-add it if it is still in your Favorites page on the upstream platform.')">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                Remove
+                            </button>
+                        </form>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>

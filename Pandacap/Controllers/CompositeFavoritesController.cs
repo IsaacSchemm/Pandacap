@@ -7,52 +7,14 @@ using Pandacap.Models;
 namespace Pandacap.Controllers
 {
     public class CompositeFavoritesController(
+        CompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler) : Controller
     {
         public async Task<IActionResult> Index(Guid? next, int? count)
         {
-            var activityPubPosts = context.RemoteActivityPubFavorites
-                .OrderByDescending(post => post.FavoritedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
-            var blueskyLikes = context.BlueskyLikes
-                .OrderByDescending(post => post.FavoritedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
-            var blueskyReposts = context.BlueskyReposts
-                .OrderByDescending(post => post.FavoritedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
-            var deviantArtFavorites = context.DeviantArtFavorites
-                .OrderByDescending(post => post.FavoritedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
-            var furAffinityFavorites = context.FurAffinityFavorites
-                .OrderByDescending(post => post.FavoritedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
-            var weasylFavoriteSubmissions = context.WeasylFavoriteSubmissions
-                .OrderByDescending(post => post.FavoritedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
             var composite =
-                new[]
-                {
-                    activityPubPosts,
-                    blueskyLikes,
-                    blueskyReposts,
-                    deviantArtFavorites,
-                    furAffinityFavorites,
-                    weasylFavoriteSubmissions
-                }
-                .MergeNewest(post => post.Timestamp)
+                compositeFavoritesProvider.GetAllAsync()
                 .Where(post => post.Thumbnails.Any())
                 .SkipUntil(post => post.Id == $"{next}" || next == null);
 
@@ -66,27 +28,18 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Remove([FromForm] Guid id)
+        public async Task<IActionResult> Remove([FromForm] string id, CancellationToken cancellationToken)
         {
-            var objectIds = await context.RemoteActivityPubFavorites
-                .Where(f => f.LikeGuid == id)
-                .Select(f => f.ObjectId)
-                .ToListAsync();
-            await remoteActivityPubPostHandler.RemoveRemoteFavoritesAsync(objectIds);
+            var item = await compositeFavoritesProvider.GetAllAsync()
+                .Where(f => f.Id == id)
+                .FirstOrDefaultAsync(cancellationToken);
 
-            await foreach (var item in context.BlueskyLikes.Where(f => f.Id == id).AsAsyncEnumerable())
+            if (item is RemoteActivityPubFavorite r)
+                await remoteActivityPubPostHandler.RemoveRemoteFavoritesAsync([r.ObjectId]);
+            else if (item != null)
                 context.Remove(item);
 
-            await foreach (var item in context.BlueskyReposts.Where(f => f.Id == id).AsAsyncEnumerable())
-                context.Remove(item);
-
-            await foreach (var item in context.DeviantArtFavorites.Where(f => f.Id == id).AsAsyncEnumerable())
-                context.Remove(item);
-
-            await foreach (var item in context.FurAffinityFavorites.Where(f => f.Id == id).AsAsyncEnumerable())
-                context.Remove(item);
-
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
         }

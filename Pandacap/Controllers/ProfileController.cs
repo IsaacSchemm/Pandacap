@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -20,6 +19,7 @@ namespace Pandacap.Controllers
         ApplicationInformation appInfo,
         AtomRssFeedReader atomRssFeedReader,
         BlobServiceClient blobServiceClient,
+        CompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
         ActivityPubCommunicationPrerequisites keyProvider,
@@ -117,6 +117,10 @@ namespace Pandacap.Controllers
                 RecentArtwork = await context.Posts
                     .Where(post => post.Type == PostType.Artwork)
                     .OrderByDescending(post => post.PublishedTime)
+                    .Take(8)
+                    .ToListAsync(cancellationToken),
+                RecentFavorites = await compositeFavoritesProvider
+                    .GetAllAsync()
                     .Take(8)
                     .ToListAsync(cancellationToken),
                 RecentJournalEntries = await context.Posts

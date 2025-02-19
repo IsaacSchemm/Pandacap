@@ -26,7 +26,7 @@
 
                     <a asp-action="Following">Following (@Model.FollowingCount)</a>
                     &middot;
-                    <a asp-controller="Favorites" asp-action="Index">Favorites (@Model.FavoritesCount)</a>
+                    <a asp-controller="Favorites" asp-action="Index">Likes (@Model.FavoritesCount)</a>
                     &middot;
                     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
                 </div>
@@ -162,6 +162,21 @@
 
     <p>
         <a asp-controller="Gallery" asp-action="Artwork">
+            View more &raquo;
+        </a>
+    </p>
+}
+
+@if (Model.RecentFavorites.Any())
+{
+    <h2>
+        Favorites
+    </h2>
+
+    <partial name="_List" model="@Model.RecentFavorites" />
+
+    <p>
+        <a asp-controller="CompositeFavorites" asp-action="Index">
             View more &raquo;
         </a>
     </p>

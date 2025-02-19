@@ -6,14 +6,14 @@ For more information, see Views/About/Index.cshtml.
 
 Supported platforms and protocols:
 
-|              | Crosspost  | Inbox | Reply | Notifications          | Authentication
-| ------------ | ---------- | ----- | ----- | ---------------------- | ------------------------
-| ActivityPub  | ✓          | ✓     | ✓     | ✓ (Activites, Replies) |
-| Bluesky      | ✓ (Manual) | ✓     |       | ✓                      | PDS / DID / Password
-| DeviantArt   | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | OAuth (ASP.NET Identity)
-| Fur Affinity | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | Manual cookie entry
-| RSS / Atom   | ✓          | ✓     |       |                        |
-| Weasyl       | ✓ (Manual) | ✓     |       | ✓                      | API key
+|              | Crosspost  | Inbox | Reply | Notifications          | Favorites          | Authentication
+| ------------ | ---------- | ----- | ----- | ---------------------- | ------------------ | ------------------------
+| ActivityPub  | ✓          | ✓     | ✓     | ✓ (Activites, Replies) | ✓ (Likes)          |
+| Bluesky      | ✓ (Manual) | ✓     |       | ✓                      | ✓ (Likes, Reposts) | PDS / DID / Password
+| DeviantArt   | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | ✓                  | OAuth (ASP.NET Identity)
+| Fur Affinity | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | ✓                  | Manual cookie entry
+| RSS / Atom   | ✓          | ✓     |       |                        |                    |
+| Weasyl       | ✓ (Manual) | ✓     |       | ✓                      | ✓ (Submissions)    | API key
 
 (Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions.)
 
