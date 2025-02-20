@@ -14,13 +14,13 @@
 </h1>
 
 <p align="center">
-    <a asp-controller="Gallery" asp-action="Artwork" class="btn btn-outline-primary" style="min-width: 100px">
+    <a asp-controller="Gallery" asp-action="Artwork" class="btn btn-outline-primary" style="min-width: 125px">
         Gallery
     </a>
-    <a asp-controller="Gallery" asp-action="TextPosts" class="btn btn-outline-primary" style="min-width: 100px">
+    <a asp-controller="Gallery" asp-action="TextPosts" class="btn btn-outline-primary" style="min-width: 125px">
         Text Posts
     </a>
-    <a asp-controller="CompositeFavorites" asp-action="Artwork" class="btn btn-outline-primary" style="min-width: 100px">
+    <a asp-controller="CompositeFavorites" asp-action="Artwork" class="btn btn-outline-primary" style="min-width: 125px">
         Favorites
     </a>
 </p>
@@ -28,7 +28,7 @@
 <div class="container">
     <div class="row">
         <div class="col-xl-4">
-            <div class="card my-3">
+            <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">ActivityPub</h5>
 
@@ -41,110 +41,85 @@
                     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
                 </div>
             </div>
-        </div>
-        <div class="col-xl-4">
-            <div class="card my-3">
-                <div class="card-body">
-                    <h5 class="card-title">Atom</h5>
 
-                    <a href="/Gallery/Artwork?format=atom">Gallery</a>
-                    &middot;
-                    <a href="/Gallery/Journals?format=atom">Journals</a>
-                    &middot;
-                    <a href="/Gallery/StatusUpdates?format=atom">Status updates</a>
-                    &middot;
-                    <a href="/Gallery/Composite?format=atom">All</a>
-                </div>
-            </div>
 
-            <div class="card my-3">
-                <div class="card-body">
-                    <h5 class="card-title">RSS</h5>
-
-                    <a href="/Gallery/Artwork?format=rss">Gallery</a>
-                    &middot;
-                    <a href="/Gallery/Journals?format=rss">Journals</a>
-                    &middot;
-                    <a href="/Gallery/StatusUpdates?format=rss">Status updates</a>
-                    &middot;
-                    <a href="/Gallery/Composite?format=rss">All</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-4">
             @foreach (string did in Model.BlueskyDIDs)
             {
-                <div class="card my-3">
+                <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Bluesky</h5>
 
                         <a href="https://bsky.app/profile/@did" target="_blank">
                             <tt>@did</tt>
                         </a>
-
-                        <br />
-
-                        <a href="https://bsky.app/profile/@did/follows" target="_blank">Following</a>
                     </div>
                 </div>
             }
-
+        </div>
+        <div class="col-xl-4">
             @foreach (string username in Model.DeviantArtUsernames)
             {
-                <div class="card my-3">
+                <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">DeviantArt</h5>
 
                         <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)" target="_blank">
                             <tt>@username</tt>
                         </a>
-
-                        <br />
-
-                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)/about#watching" target="_blank">Watching</a>
-                        &middot;
-                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)/favourites/all" target="_blank">Favorites</a>
                     </div>
                 </div>
             }
 
             @foreach (string username in Model.FurAffinityUsernames)
             {
-                <div class="card my-3">
+                <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Fur Affinity</h5>
 
                         <a href="https://www.furaffinity.net/user/@Uri.EscapeDataString(username)" target="_blank">
                             <tt>@username</tt>
                         </a>
-
-                        <br />
-
-                        <a href="https://www.furaffinity.net/watchlist/by/@Uri.EscapeDataString(username)/" target="_blank">Watching</a>
-                        &middot;
-                        <a href="https://www.furaffinity.net/favorites/@Uri.EscapeDataString(username)/" target="_blank">Favorites</a>
                     </div>
                 </div>
             }
 
             @foreach (string username in Model.WeasylUsernames)
             {
-                <div class="card my-3">
+                <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Weasyl</h5>
 
                         <a href="https://www.weasyl.com/~@username" target="_blank">
                             <tt>@username</tt>
                         </a>
-
-                        <br />
-
-                        <a href="https://www.weasyl.com/following/@username" target="_blank">Following</a>
-                        &middot;
-                        <a href="https://www.weasyl.com/favorites/@username" target="_blank">Favorites</a>
                     </div>
                 </div>
             }
+        </div>
+        <div class="col-xl-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Atom</h5>
+
+                    <a href="/Gallery/Artwork?format=atom">Gallery</a>
+                    &middot;
+                    <a href="/Gallery/TextPosts?format=atom">Text posts</a>
+                    &middot;
+                    <a href="/Gallery/Composite?format=atom">All</a>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">RSS</h5>
+
+                    <a href="/Gallery/Artwork?format=rss">Gallery</a>
+                    &middot;
+                    <a href="/Gallery/TextPosts?format=rss">Text posts</a>
+                    &middot;
+                    <a href="/Gallery/Composite?format=rss">All</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
