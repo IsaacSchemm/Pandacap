@@ -26,8 +26,11 @@ namespace Pandacap.Functions.FavoriteHandlers
 
                 var existing = await context.WeasylFavoriteSubmissions
                     .Where(item => item.Submitid == submission.submitid)
-                    .CountAsync();
-                if (existing > 0)
+                    .ToListAsync();
+
+                if (existing.Count > 1)
+                    context.RemoveRange(existing);
+                else if (existing.Count > 0)
                     break;
 
                 if (submission.rating != "general")

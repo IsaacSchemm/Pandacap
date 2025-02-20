@@ -40,6 +40,7 @@ module WeasylScraper =
                 |> Seq.collect (fun node -> node.CssSelect("a"))
                 |> attributeValues "href"
                 |> Seq.choose tryGetSubmitid
+                |> Seq.distinct
                 |> Seq.toList
             nextid =
                 doc.CssSelect("a[rel=next]")
