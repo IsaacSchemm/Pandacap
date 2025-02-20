@@ -34,6 +34,6 @@ type FurAffinityFavorite() =
                 member _.AltText = null
                 member _.Url = this.Thumbnail
         }]
-        member this.Timestamp = this.PostedAt
+        member this.Timestamp = this.FavoritedAt
         member this.Usericon = $"https://a.furaffinity.net/{this.PostedAt.ToUnixTimeSeconds()}/{Uri.EscapeDataString(this.PostedBy.ProfileName)}.gif"
         member this.Username = this.PostedBy.Name

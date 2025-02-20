@@ -41,9 +41,9 @@
                     <div class="card">
                         <a href="@item.LinkUrl" style="text-decoration: none">
                             <img src="@thumbnail.Url"
-                                 alt="@thumbnail.AltText"
-                                 referrerpolicy="no-referrer"
-                                 class="feed-image" />
+                            alt="@thumbnail.AltText"
+                            referrerpolicy="no-referrer"
+                            class="feed-image" />
                         </a>
                     </div>
                 }
@@ -71,6 +71,16 @@
 @foreach (var item in withoutThumbnails)
 {
     <div class="mb-3">
+        @if (item is Post myPost)
+        {
+            <div class="small text-muted">
+                @(myPost.Type == PostType.JournalEntry ? "✏️ journal entry"
+                    : myPost.Type == PostType.StatusUpdate ? "💬 status update"
+                    : myPost.Type == PostType.Artwork ? "🖌 artwork"
+                    : "")
+            </div>
+        }
+
         @if (item is Post post && post.Type == PostType.StatusUpdate)
         {
             <div class="post-body">

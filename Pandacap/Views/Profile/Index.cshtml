@@ -13,6 +13,18 @@
     @appInfo.Username
 </h1>
 
+<p align="center">
+    <a asp-controller="Gallery" asp-action="Artwork" class="btn btn-outline-primary" style="min-width: 100px">
+        Gallery
+    </a>
+    <a asp-controller="Gallery" asp-action="TextPosts" class="btn btn-outline-primary" style="min-width: 100px">
+        Text Posts
+    </a>
+    <a asp-controller="CompositeFavorites" asp-action="Artwork" class="btn btn-outline-primary" style="min-width: 100px">
+        Favorites
+    </a>
+</p>
+
 <div class="container">
     <div class="row">
         <div class="col-xl-4">
@@ -25,8 +37,6 @@
                     <br />
 
                     <a asp-action="Following">Following (@Model.FollowingCount)</a>
-                    &middot;
-                    <a asp-controller="Favorites" asp-action="Index">Likes (@Model.FavoritesCount)</a>
                     &middot;
                     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
                 </div>
@@ -154,14 +164,14 @@
 
 @if (Model.RecentArtwork.Any())
 {
-    <h2>
+    <h2 class="my-4">
         Newest artwork
     </h2>
 
     <partial name="_ListGroup" model="@Model.RecentArtwork" />
 
-    <p>
-        <a asp-controller="Gallery" asp-action="Artwork">
+    <p align="right">
+        <a asp-controller="Gallery" asp-action="Artwork" class="btn btn-outline-primary">
             View more &raquo;
         </a>
     </p>
@@ -169,44 +179,29 @@
 
 @if (Model.RecentFavorites.Any())
 {
-    <h2>
+    <h2 class="my-4">
         Favorites
     </h2>
 
     <partial name="_List" model="@Model.RecentFavorites" />
 
-    <p>
-        <a asp-controller="CompositeFavorites" asp-action="Index">
+    <p align="right">
+        <a asp-controller="CompositeFavorites" asp-action="Artwork" class="btn btn-outline-primary">
             View more &raquo;
         </a>
     </p>
 }
 
-@if (Model.RecentJournalEntries.Any())
+@if (Model.RecentTextPosts.Any())
 {
-    <h2>
-        Recent journal entries
+    <h2 class="my-4">
+        Recent text posts
     </h2>
 
-    <partial name="_ListGroup" model="@Model.RecentJournalEntries" />
+    <partial name="_ListGroup" model="@Model.RecentTextPosts" />
 
-    <p>
-        <a asp-controller="Gallery" asp-action="Journals">
-            View more &raquo;
-        </a>
-    </p>
-}
-
-@if (Model.RecentStatusUpdates.Any())
-{
-    <h2>
-        Recent status updates
-    </h2>
-
-    <partial name="_ListGroup" model="@Model.RecentStatusUpdates" />
-
-    <p>
-        <a asp-controller="Gallery" asp-action="StatusUpdates">
+    <p align="right">
+        <a asp-controller="Gallery" asp-action="TextPosts" class="btn btn-outline-primary">
             View more &raquo;
         </a>
     </p>
@@ -253,6 +248,10 @@
 
                         <a asp-controller="Profile" asp-action="Following" class="btn btn-outline-primary">
                             Following (@Model.FollowingCount)
+                        </a>
+
+                        <a asp-controller="Favorites" asp-action="Index" class="btn btn-outline-primary">
+                            Favorites (@Model.FavoritesCount)
                         </a>
 
                         <hr />

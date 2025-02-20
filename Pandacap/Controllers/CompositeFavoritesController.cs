@@ -11,18 +11,18 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler) : Controller
     {
-        public async Task<IActionResult> Index(Guid? next, int? count)
+        public async Task<IActionResult> Artwork(Guid? next, int? count)
         {
             var composite =
                 compositeFavoritesProvider.GetAllAsync()
                 .Where(post => post.Thumbnails.Any())
                 .SkipUntil(post => post.Id == $"{next}" || next == null);
 
-            var listPage = await composite.AsListPage(count ?? 40);
+            var listPage = await composite.AsListPage(count ?? 20);
 
             ViewBag.NoIndex = true;
 
-            return View("List", new ListViewModel
+            return View("FavoritesGallery", new ListViewModel
             {
                 Title = "Favorites",
                 Items = listPage

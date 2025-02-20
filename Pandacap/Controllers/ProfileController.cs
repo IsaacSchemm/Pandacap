@@ -74,8 +74,6 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            var someTimeAgo = DateTime.UtcNow.AddMonths(-3);
-
             string? userId = userManager.GetUserId(User);
 
             if (Request.IsActivityPub())
@@ -108,6 +106,9 @@ namespace Pandacap.Controllers
                 .Select(c => c.Login)
                 .ToListAsync(cancellationToken);
 
+            var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
+            var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
+
             return View(new ProfileViewModel
             {
                 BlueskyDIDs = blueskyDIDs,
@@ -116,22 +117,18 @@ namespace Pandacap.Controllers
                 WeasylUsernames = weasylUsernames,
                 RecentArtwork = await context.Posts
                     .Where(post => post.Type == PostType.Artwork)
+                    .Where(post => post.PublishedTime >= threeMonthsAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
                     .ToListAsync(cancellationToken),
                 RecentFavorites = await compositeFavoritesProvider
                     .GetAllAsync()
+                    .TakeWhile(post => post.Timestamp >= oneMonthAgo)
                     .Take(8)
                     .ToListAsync(cancellationToken),
-                RecentJournalEntries = await context.Posts
-                    .Where(post => post.Type == PostType.JournalEntry)
-                    .Where(post => post.PublishedTime >= someTimeAgo)
-                    .OrderByDescending(post => post.PublishedTime)
-                    .Take(3)
-                    .ToListAsync(cancellationToken),
-                RecentStatusUpdates = await context.Posts
-                    .Where(post => post.Type == PostType.StatusUpdate)
-                    .Where(post => post.PublishedTime >= someTimeAgo)
+                RecentTextPosts = await context.Posts
+                    .Where(post => post.Type != PostType.Artwork)
+                    .Where(post => post.PublishedTime >= threeMonthsAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(5)
                     .ToListAsync(cancellationToken),

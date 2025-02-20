@@ -39,6 +39,6 @@ type WeasylFavoriteSubmission() =
                     member _.Url = thumb.Url
             }
         ]
-        member this.Timestamp = this.PostedAt
+        member this.Timestamp = this.FavoritedAt
         member this.Usericon = this.PostedBy.Avatar
         member this.Username = this.PostedBy.DisplayName

@@ -23,7 +23,7 @@ type DeviantArtFavorite() =
         member _.IsDismissable = false
         member this.LinkUrl = this.LinkUrl
         member this.ProfileUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(this.Username)}"
-        member this.Timestamp = this.Timestamp
+        member this.Timestamp = this.FavoritedAt
         member this.Thumbnails = [
             for url in this.ThumbnailUrls do {
                 new IPostThumbnail with

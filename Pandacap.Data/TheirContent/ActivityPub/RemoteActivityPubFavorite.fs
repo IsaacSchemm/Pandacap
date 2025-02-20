@@ -51,7 +51,7 @@ type RemoteActivityPubFavorite() =
                         member _.Url = a.Url
                 }
         ]
-        member this.Timestamp = this.CreatedAt
+        member this.Timestamp = this.FavoritedAt
         member this.Usericon = this.Usericon
         member this.Username = this.Username
 

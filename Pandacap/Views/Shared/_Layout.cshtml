@@ -52,10 +52,10 @@
                             <a class="nav-link" asp-area="" asp-controller="Gallery" asp-action="Artwork">Gallery</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Gallery" asp-action="Journals">Journals</a>
+                            <a class="nav-link" asp-area="" asp-controller="Gallery" asp-action="TextPosts">Text Posts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Gallery" asp-action="StatusUpdates">Status Updates</a>
+                            <a class="nav-link" asp-area="" asp-controller="CompositeFavorites" asp-action="Gallery">Favorites</a>
                         </li>
                         @if (SignInManager.IsSignedIn(User))
                         {

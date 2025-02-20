@@ -12,8 +12,7 @@ namespace Pandacap.Models
         public IEnumerable<Post> RecentArtwork { get; set; } = [];
         public IEnumerable<IPost> RecentFavorites { get; set; } = [];
 
-        public IEnumerable<Post> RecentJournalEntries { get; set; } = [];
-        public IEnumerable<Post> RecentStatusUpdates { get; set; } = [];
+        public IEnumerable<Post> RecentTextPosts { get; set; } = [];
 
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
@@ -22,7 +21,7 @@ namespace Pandacap.Models
 
         public Post? MostRecentPost => Enumerable.Empty<Post>()
             .Concat(RecentArtwork)
-            .Concat(RecentStatusUpdates)
+            .Concat(RecentTextPosts)
             .OrderByDescending(x => x.PublishedTime)
             .FirstOrDefault();
     }
