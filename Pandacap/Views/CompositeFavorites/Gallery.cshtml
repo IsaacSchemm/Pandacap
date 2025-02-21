@@ -1,0 +1,104 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model ListViewModel
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="#">Artwork</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-action="TextPosts">Text Posts</a>
+    </li>
+</ul>
+
+@if (!Model.Items.Current.Any())
+{
+    <p>
+        Showing <strong>0</strong> items.
+    </p>
+}
+else
+{
+    var minDate = Model.Items.Current.Select(item => item.Timestamp).Min().UtcDateTime;
+    var maxDate = Model.Items.Current.Select(item => item.Timestamp).Max().UtcDateTime;
+
+    <p>
+        Showing
+        <strong>@Model.Items.Current.Count()</strong>
+        item(s) posted between
+        <strong>@minDate.ToLongDateString()</strong> (@minDate.ToShortTimeString())
+        and
+        <strong>@maxDate.ToLongDateString()</strong> (@maxDate.ToShortTimeString()).
+    </p>
+
+    <div class="container-fluid">
+        <div class="row">
+            @foreach (var item in Model.Items.Current)
+            {
+                var thumbnails = item.Thumbnails
+                    .Take(1)
+                    .DefaultIfEmpty(PostThumbnail.Empty);
+                foreach (var thumbnail in thumbnails)
+                {
+                    <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
+                        <div class="card">
+                            <a href="@item.LinkUrl" style="text-decoration: none">
+                                <img src="@thumbnail.Url"
+                                alt="@thumbnail.AltText"
+                                referrerpolicy="no-referrer"
+                                class="feed-image" />
+                            </a>
+                        </div>
+
+                        <label style="max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
+                            <a href="@item.LinkUrl">@item.DisplayTitle</a>
+                        </label>
+
+                        <div class="mb-2">
+                            <img height="25" src="@item.Usericon" alt="" />
+                            <a href="@item.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
+                                <strong>
+                                    @item.Username
+                                </strong>
+                            </a>
+                        </div>
+
+                        @foreach (var badge in item.Badges)
+                        {
+                            <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color; max-width: 100%; overflow-x: hidden; text-overflow: ellipsis;">
+                                @badge.Text
+                            </span>
+                        }
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <form asp-action="Remove" onsubmit="return confirm('Are you sure you want to remove this post from Favorites? (Pandacap may or may not re-add it if it is still in your Favorites page on the upstream platform.')">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    Remove
+                                </button>
+                            </form>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    @if (Model.Items.Next is string id)
+    {
+        <hr />
+
+        <a asp-route-q="@Model.Q"
+           asp-route-next="@id"
+           asp-route-count="@Model.Items.Current.Count"
+           class="btn btn-primary">
+            Next @Model.Items.Current.Count items &raquo;
+        </a>
+    }
+}

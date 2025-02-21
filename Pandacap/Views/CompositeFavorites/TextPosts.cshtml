@@ -7,6 +7,15 @@
     ViewBag.Title = Model.Title;
 }
 
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link" asp-action="Artwork">Artwork</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="#">Text Posts</a>
+    </li>
+</ul>
+
 @if (!Model.Items.Current.Any())
 {
     <p>
@@ -36,35 +45,25 @@ else
                     .DefaultIfEmpty(PostThumbnail.Empty);
                 foreach (var thumbnail in thumbnails)
                 {
-                    <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
-                        <div class="card">
-                            <a href="@item.LinkUrl" style="text-decoration: none">
-                                <img src="@thumbnail.Url"
-                                alt="@thumbnail.AltText"
-                                referrerpolicy="no-referrer"
-                                class="feed-image" />
-                            </a>
-                        </div>
-
-                        <label style="max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-                            <a href="@item.LinkUrl">@item.DisplayTitle</a>
-                        </label>
-
+                    <div class="col-12 mb-3">
                         <div class="mb-2">
                             <img height="25" src="@item.Usericon" alt="" />
-                            <a href="@item.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
-                                <strong>
-                                    @item.Username
-                                </strong>
-                            </a>
+
+                            <a href="@item.ProfileUrl"><strong>@item.Username</strong></a>
+
+                            @foreach (var badge in item.Badges)
+                            {
+                                <span class="badge" style="background-color: @badge.Background; color: @badge.Color; vertical-align: middle">
+                                    @badge.Text
+                                </span>
+                            }
                         </div>
 
-                        @foreach (var badge in item.Badges)
-                        {
-                            <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color; max-width: 100%; overflow-x: hidden; text-overflow: ellipsis;">
-                                @badge.Text
-                            </span>
-                        }
+                        <div class="card">
+                            <div class="card-body">
+                                @item.DisplayTitle
+                            </div>
+                        </div>
 
                         @if (User.Identity?.IsAuthenticated == true)
                         {

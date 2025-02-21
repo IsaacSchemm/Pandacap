@@ -22,9 +22,27 @@ namespace Pandacap.Controllers
 
             ViewBag.NoIndex = true;
 
-            return View("FavoritesGallery", new ListViewModel
+            return View("Gallery", new ListViewModel
             {
-                Title = "Favorites",
+                Title = "Favorites > Gallery",
+                Items = listPage
+            });
+        }
+
+        public async Task<IActionResult> TextPosts(Guid? next, int? count)
+        {
+            var composite =
+                compositeFavoritesProvider.GetAllAsync()
+                .Where(post => !post.Thumbnails.Any())
+                .SkipUntil(post => post.Id == $"{next}" || next == null);
+
+            var listPage = await composite.AsListPage(count ?? 20);
+
+            ViewBag.NoIndex = true;
+
+            return View("TextPosts", new ListViewModel
+            {
+                Title = "Favorites > Text Posts",
                 Items = listPage
             });
         }
