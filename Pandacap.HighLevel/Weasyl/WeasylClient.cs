@@ -61,8 +61,8 @@ namespace Pandacap.HighLevel
         }
 
         private record SubmissionsResponse(
-            string? backtime,
-            string? nexttime,
+            long? backtime,
+            long? nexttime,
             FSharpList<Submission> submissions);
 
         public record Submission(
@@ -95,15 +95,17 @@ namespace Pandacap.HighLevel
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
         }
 
-        private async Task<SubmissionsResponse> PageMessagesSubmissionsAsync(string? nexttime = null)
+        private async Task<SubmissionsResponse> PageMessagesSubmissionsAsync(long? nexttime = null)
         {
             string qs = nexttime == null
                 ? ""
-                : $"nexttime={Uri.EscapeDataString(nexttime)}";
+                : $"nexttime={nexttime}";
 
             using var client = CreateClient();
             using var resp = await client.GetAsync($"{WeasylProxy}?path={Uri.EscapeDataString($"api/messages/submissions?{qs}")}");
             resp.EnsureSuccessStatusCode();
+            string jj = await resp.Content.ReadAsStringAsync();
+            Console.WriteLine(jj);
             return await resp.Content.ReadFromJsonAsync<SubmissionsResponse>()
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
         }
@@ -117,7 +119,7 @@ namespace Pandacap.HighLevel
                 foreach (var submission in resp.submissions)
                     yield return submission;
 
-                if (resp.nexttime is string nexttime)
+                if (resp.nexttime is long nexttime)
                     resp = await PageMessagesSubmissionsAsync(nexttime: nexttime);
                 else
                     break;
