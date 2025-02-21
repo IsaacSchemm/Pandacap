@@ -1,0 +1,36 @@
+﻿@model ListViewModel
+
+<details>
+    <summary>Manage</summary>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Author</th>
+                <th scope="col">Text</th>
+                <th scope="col">Posted At</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items.Current)
+            {
+                <tr>
+                    <td>@item.Username</td>
+                    <td>@item.DisplayTitle</td>
+                    <td>
+                        <a href="@item.LinkUrl">@item.Timestamp.Date.ToShortDateString()</a>
+                    </td>
+                    <td>
+                        <form asp-action="Remove" onsubmit="return confirm('Are you sure you want to remove this post from Favorites? (Pandacap may or may not re-add it if it is still in your Favorites page on the upstream platform.)')">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</details>

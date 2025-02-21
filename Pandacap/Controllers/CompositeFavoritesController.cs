@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -22,7 +23,7 @@ namespace Pandacap.Controllers
 
             ViewBag.NoIndex = true;
 
-            return View("Gallery", new ListViewModel
+            return View(new ListViewModel
             {
                 Title = "Favorites > Gallery",
                 Items = listPage
@@ -40,7 +41,7 @@ namespace Pandacap.Controllers
 
             ViewBag.NoIndex = true;
 
-            return View("TextPosts", new ListViewModel
+            return View(new ListViewModel
             {
                 Title = "Favorites > Text Posts",
                 Items = listPage
@@ -48,6 +49,8 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove([FromForm] string id, CancellationToken cancellationToken)
         {
             var item = await compositeFavoritesProvider.GetAllAsync()

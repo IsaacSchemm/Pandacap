@@ -123,6 +123,7 @@ namespace Pandacap.Controllers
                     .ToListAsync(cancellationToken),
                 RecentFavorites = await compositeFavoritesProvider
                     .GetAllAsync()
+                    .Where(post => post.Thumbnails.Any())
                     .TakeWhile(post => post.Timestamp >= oneMonthAgo)
                     .Take(8)
                     .ToListAsync(cancellationToken),

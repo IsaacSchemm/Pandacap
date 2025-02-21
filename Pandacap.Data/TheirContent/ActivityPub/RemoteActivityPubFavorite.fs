@@ -45,11 +45,12 @@ type RemoteActivityPubFavorite() =
         member this.ProfileUrl = this.CreatedBy
         member this.Thumbnails = [
             if not this.Sensitive then
-                for a in this.Attachments do {
-                    new IPostThumbnail with
-                        member _.AltText = a.Name
-                        member _.Url = a.Url
-                }
+                for a in this.Attachments do
+                    if not (String.IsNullOrEmpty(a.Url)) then {
+                        new IPostThumbnail with
+                            member _.AltText = a.Name
+                            member _.Url = a.Url
+                    }
         ]
         member this.Timestamp = this.FavoritedAt
         member this.Usericon = this.Usericon
