@@ -10,6 +10,7 @@ type DeviantArtFavorite() =
     member val Usericon = nullString with get, set
     member val Timestamp = DateTimeOffset.MinValue with get, set
     member val Title = nullString with get, set
+    member val Content = nullString with get, set
     member val LinkUrl = nullString with get, set
 
     member val ThumbnailUrls = new ResizeArray<string>() with get, set

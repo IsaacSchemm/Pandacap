@@ -104,8 +104,6 @@ namespace Pandacap.HighLevel
             using var client = CreateClient();
             using var resp = await client.GetAsync($"{WeasylProxy}?path={Uri.EscapeDataString($"api/messages/submissions?{qs}")}");
             resp.EnsureSuccessStatusCode();
-            string jj = await resp.Content.ReadAsStringAsync();
-            Console.WriteLine(jj);
             return await resp.Content.ReadFromJsonAsync<SubmissionsResponse>()
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
         }

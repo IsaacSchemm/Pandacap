@@ -65,6 +65,10 @@ else
 
                                 @Html.Raw(ap.Content)
                             }
+                            else if (item is DeviantArtFavorite d && d.Content is string dc)
+                            {
+                                @Html.Raw(dc)
+                            }
                             else
                             {
                                 @item.DisplayTitle

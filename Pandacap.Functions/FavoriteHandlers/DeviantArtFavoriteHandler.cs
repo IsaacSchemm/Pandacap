@@ -1,5 +1,6 @@
 ﻿using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
+using DeviantArtFs.ResponseTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel.DeviantArt;
@@ -21,7 +22,7 @@ namespace Pandacap.Functions.FavoriteHandlers
 
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
-            Stack<DeviantArtFs.ResponseTypes.Deviation> items = [];
+            Stack<Deviation> items = [];
 
             var count = await context.DeviantArtFavorites.CountAsync();
             Console.WriteLine(count);
@@ -60,7 +61,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                 var now = DateTimeOffset.UtcNow;
                 var age = now - publishedTime;
 
-                if (deviation.author.OrNull() is not DeviantArtFs.ResponseTypes.User author)
+                if (deviation.author.OrNull() is not User author)
                     continue;
 
                 context.DeviantArtFavorites.Add(new()
@@ -71,6 +72,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                     Usericon = author.usericon,
                     Username = author.username,
                     Title = deviation.title?.OrNull(),
+                    Content = deviation.excerpt.OrNull(),
                     LinkUrl = deviation.url?.OrNull(),
                     ThumbnailUrls = [
                         .. deviation.thumbs.OrEmpty()
