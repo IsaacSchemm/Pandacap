@@ -1,20 +1,18 @@
 ﻿namespace Pandacap.Data
 
 open System
-open System.ComponentModel.DataAnnotations
 open Pandacap.Html
 open Pandacap.PlatformBadges
 
-/// An image attachment to an ActivityPub post from a follow.
-type RemoteActivityPubFavoriteImage() =
+/// An image attachment to an ActivityPub post.
+type ActivityPubFavoriteImage() =
     member val Url = "" with get, set
     member val Name = nullString with get, set
 
-/// A remote ActivityPub post that this app's instance owner has added to their Favorites.
-[<Obsolete>]
-type RemoteActivityPubFavorite() =
-    [<Key>]
-    member val LikeGuid = Guid.Empty with get, set
+/// A remote ActivityPub post that this app's instance owner has liked or reposted.
+[<AbstractClass>]
+type ActivityPubFavorite() =
+    abstract member Id: Guid with get
 
     member val ObjectId = "" with get, set
     member val CreatedBy = "" with get, set
@@ -28,7 +26,10 @@ type RemoteActivityPubFavorite() =
     member val Name = nullString with get, set
     member val Content = nullString with get, set
     member val InReplyTo = nullString with get, set
-    member val Attachments = new ResizeArray<RemoteActivityPubFavoriteImage>() with get, set
+    member val Attachments = new ResizeArray<ActivityPubFavoriteImage>() with get, set
+
+    interface IFavorite with
+        member this.HiddenAt = this.HiddenAt
 
     interface IPost with
         member this.Badges = [
@@ -41,7 +42,7 @@ type RemoteActivityPubFavorite() =
             TextConverter.FromHtml this.Content
             this.ObjectId
         ]
-        member this.Id = $"{this.LikeGuid}"
+        member this.Id = $"{this.Id}"
         member _.IsDismissable = false
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
         member this.ProfileUrl = this.CreatedBy
@@ -57,6 +58,3 @@ type RemoteActivityPubFavorite() =
         member this.Timestamp = this.FavoritedAt
         member this.Usericon = this.Usericon
         member this.Username = this.Username
-
-    interface Pandacap.ActivityPub.ILike with
-        member this.ObjectId = this.ObjectId

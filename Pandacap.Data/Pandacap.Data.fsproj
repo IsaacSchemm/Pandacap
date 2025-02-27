@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <Compile Include="IPost.fs" />
+    <Compile Include="IFavorite.fs" />
     <Compile Include="NullValues.fs" />
     <Compile Include="Credentials\ATProtoCredentials.fs" />
     <Compile Include="Credentials\DeviantArtCredentials.fs" />
@@ -26,6 +27,9 @@
     <Compile Include="Relationships\BlueskyFollow.fs" />
     <Compile Include="TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
     <Compile Include="TheirContent\ActivityPub\RemoteActivityPubFavorite.fs" />
+    <Compile Include="TheirContent\ActivityPub\ActivityPubFavorite.fs" />
+    <Compile Include="TheirContent\ActivityPub\ActivityPubAnnounce.fs" />
+    <Compile Include="TheirContent\ActivityPub\ActivityPubLike.fs" />
     <Compile Include="TheirContent\ActivityPub\RemoteActivityPubReply.fs" />
     <Compile Include="TheirContent\ActivityPub\PostActivity.fs" />
     <Compile Include="TheirContent\ATProto\InboxBlueskyPost.fs" />

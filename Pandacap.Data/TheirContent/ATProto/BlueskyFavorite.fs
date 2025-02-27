@@ -25,8 +25,12 @@ type BlueskyFavorite() =
     member val CreatedBy = new BlueskyFavoriteUser() with get, set
     member val CreatedAt = DateTimeOffset.MinValue with get, set
     member val FavoritedAt = DateTimeOffset.MinValue with get, set
+    member val HiddenAt = nullDateTimeOffset with get, set
     member val Text = "" with get, set
     member val Images = new ResizeArray<BlueskyFavoriteImage>() with get, set
+
+    interface IFavorite with
+        member this.HiddenAt = this.HiddenAt
 
     interface IPost with
         member this.Badges = [

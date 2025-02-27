@@ -34,7 +34,7 @@ namespace Pandacap.Controllers
                 RemotePost = post,
                 IsBridgyFedEnabled = await context.BridgyFedBridges
                     .CountAsync(cancellationToken) > 0,
-                IsInFavorites = await context.RemoteActivityPubFavorites
+                IsInFavorites = await context.ActivityPubLikes
                     .Where(r => r.ObjectId == post.Id)
                     .CountAsync(cancellationToken) > 0
             });

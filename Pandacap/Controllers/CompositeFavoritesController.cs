@@ -51,16 +51,28 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Remove([FromForm] string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Hide([FromForm] Guid id, CancellationToken cancellationToken)
         {
-            var item = await compositeFavoritesProvider.GetAllAsync()
-                .Where(f => f.Id == id)
-                .FirstOrDefaultAsync(cancellationToken);
+            await foreach (var item in context.ActivityPubAnnounces.Where(x => x.AnnounceGuid == id).AsAsyncEnumerable())
+                item.HiddenAt = DateTimeOffset.UtcNow;
 
-            if (item is RemoteActivityPubFavorite r)
-                await remoteActivityPubPostHandler.RemoveRemoteFavoritesAsync([r.ObjectId]);
-            else if (item != null)
-                context.Remove(item);
+            await foreach (var item in context.ActivityPubLikes.Where(x => x.LikeGuid == id).AsAsyncEnumerable())
+                item.HiddenAt = DateTimeOffset.UtcNow;
+
+            await foreach (var item in context.BlueskyLikes.Where(x => x.Id == id).AsAsyncEnumerable())
+                item.HiddenAt = DateTimeOffset.UtcNow;
+
+            await foreach (var item in context.BlueskyReposts.Where(x => x.Id == id).AsAsyncEnumerable())
+                item.HiddenAt = DateTimeOffset.UtcNow;
+
+            await foreach (var item in context.DeviantArtFavorites.Where(x => x.Id == id).AsAsyncEnumerable())
+                item.HiddenAt = DateTimeOffset.UtcNow;
+
+            await foreach (var item in context.FurAffinityFavorites.Where(x => x.Id == id).AsAsyncEnumerable())
+                item.HiddenAt = DateTimeOffset.UtcNow;
+
+            await foreach (var item in context.WeasylFavoriteSubmissions.Where(x => x.Id == id).AsAsyncEnumerable())
+                item.HiddenAt = DateTimeOffset.UtcNow;
 
             await context.SaveChangesAsync(cancellationToken);
 

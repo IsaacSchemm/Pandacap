@@ -135,7 +135,7 @@ namespace Pandacap.Controllers
                     .ToListAsync(cancellationToken),
                 FollowerCount = await context.Followers.CountAsync(cancellationToken),
                 FollowingCount = await context.Follows.CountAsync(cancellationToken),
-                FavoritesCount = await context.RemoteActivityPubFavorites.CountAsync(cancellationToken),
+                FavoritesCount = await context.ActivityPubLikes.CountAsync(cancellationToken),
                 CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync(cancellationToken)
             });
         }

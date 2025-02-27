@@ -170,7 +170,7 @@ namespace Pandacap
 
             Guid likeGuid = Guid.NewGuid();
 
-            context.Add(new RemoteActivityPubFavorite
+            context.Add(new ActivityPubLike
             {
                 LikeGuid = likeGuid,
                 ObjectId = remotePost.Id,
@@ -184,7 +184,7 @@ namespace Pandacap
                 Name = remotePost.Name,
                 Content = remotePost.SanitizedContent,
                 Attachments = remotePost.Attachments
-                    .Select(attachment => new RemoteActivityPubFavoriteImage
+                    .Select(attachment => new ActivityPubFavoriteImage
                     {
                         Name = attachment.name,
                         Url = attachment.url
@@ -210,7 +210,7 @@ namespace Pandacap
         /// <returns></returns>
         public async Task RemoveRemoteFavoritesAsync(IEnumerable<string> objectIds)
         {
-            await foreach (var item in context.RemoteActivityPubFavorites
+            await foreach (var item in context.ActivityPubLikes
                 .Where(a => objectIds.Contains(a.ObjectId))
                 .AsAsyncEnumerable())
             {

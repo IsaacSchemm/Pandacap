@@ -16,12 +16,12 @@ namespace Pandacap.Controllers
     {
         public async Task<IActionResult> Index(Guid? next, int? count)
         {
-            var activityPubPosts = context.RemoteActivityPubFavorites
+            var activityPubLikes = context.ActivityPubLikes
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
                 .SkipUntil(post => post.LikeGuid == next || next == null);
 
-            var listPage = await activityPubPosts.AsListPage(count ?? 20);
+            var listPage = await activityPubLikes.AsListPage(count ?? 20);
 
             if (Request.IsActivityPub())
             {

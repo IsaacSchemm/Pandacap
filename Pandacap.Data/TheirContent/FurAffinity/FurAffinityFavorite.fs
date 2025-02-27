@@ -21,6 +21,10 @@ type FurAffinityFavorite() =
     member val PostedAt = DateTimeOffset.MinValue with get, set
 
     member val FavoritedAt = DateTimeOffset.MinValue with get, set
+    member val HiddenAt = nullDateTimeOffset with get, set
+
+    interface IFavorite with
+        member this.HiddenAt = this.HiddenAt
 
     interface IPost with
         member _.Badges = [{ PostPlatform.GetBadge FurAffinity with Text = "furaffinity.net" }]

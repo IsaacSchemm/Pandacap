@@ -1,53 +1,92 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using System.Threading.Tasks;
 
 namespace Pandacap
 {
     public class CompositeFavoritesProvider(PandacapDbContext context)
     {
-        public IAsyncEnumerable<IPost> GetAllAsync()
+        public async IAsyncEnumerable<IFavorite> GetAllAsync()
         {
-            var activityPubPosts = context.RemoteActivityPubFavorites
+            if (await context.ActivityPubLikes.CountAsync() == 0)
+            {
+                await foreach (var like in context.RemoteActivityPubFavorites)
+                {
+                    context.ActivityPubLikes.Add(new()
+                    {
+                        Attachments = [.. like.Attachments.Select(a => new ActivityPubFavoriteImage
+                        {
+                            Name = a.Name,
+                            Url = a.Url
+                        })],
+                        Content = like.Content,
+                        CreatedAt = like.CreatedAt,
+                        CreatedBy = like.CreatedBy,
+                        FavoritedAt = like.FavoritedAt,
+                        InReplyTo = like.InReplyTo,
+                        LikeGuid = like.LikeGuid,
+                        Name = like.Name,
+                        ObjectId = like.ObjectId,
+                        Sensitive = like.Sensitive,
+                        Summary = like.Summary,
+                        Usericon = like.Usericon,
+                        Username = like.Username
+                    });
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            var activityPubAnnounces = context.ActivityPubAnnounces
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
-                .OfType<IPost>();
+                .OfType<IFavorite>();
+
+            var activityPubLikes = context.ActivityPubLikes
+                .OrderByDescending(post => post.FavoritedAt)
+                .AsAsyncEnumerable()
+                .OfType<IFavorite>();
 
             var blueskyLikes = context.BlueskyLikes
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
-                .OfType<IPost>();
+                .OfType<IFavorite>();
 
             var blueskyReposts = context.BlueskyReposts
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
-                .OfType<IPost>();
+                .OfType<IFavorite>();
 
             var deviantArtFavorites = context.DeviantArtFavorites
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
-                .OfType<IPost>();
+                .OfType<IFavorite>();
 
             var furAffinityFavorites = context.FurAffinityFavorites
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
-                .OfType<IPost>();
+                .OfType<IFavorite>();
 
             var weasylFavoriteSubmissions = context.WeasylFavoriteSubmissions
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
-                .OfType<IPost>();
+                .OfType<IFavorite>();
 
-            return new[]
+            var x = new[]
             {
-                activityPubPosts,
+                activityPubAnnounces,
+                activityPubLikes,
                 blueskyLikes,
                 blueskyReposts,
                 deviantArtFavorites,
                 furAffinityFavorites,
                 weasylFavoriteSubmissions
             }
-            .MergeNewest(post => post.Timestamp);
+            .MergeNewest(post => post.Timestamp)
+            .Where(post => post.HiddenAt == null);
+
+            await foreach (var y in x) yield return y;
         }
     }
 }
