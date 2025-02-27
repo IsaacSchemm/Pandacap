@@ -9,8 +9,7 @@ namespace Pandacap.Controllers
 {
     public class CompositeFavoritesController(
         CompositeFavoritesProvider compositeFavoritesProvider,
-        PandacapDbContext context,
-        RemoteActivityPubPostHandler remoteActivityPubPostHandler) : Controller
+        PandacapDbContext context) : Controller
     {
         public async Task<IActionResult> Artwork(Guid? next, int? count)
         {

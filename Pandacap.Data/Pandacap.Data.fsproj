@@ -26,7 +26,6 @@
     <Compile Include="Relationships\CommunityBookmark.fs" />
     <Compile Include="Relationships\BlueskyFollow.fs" />
     <Compile Include="TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
-    <Compile Include="TheirContent\ActivityPub\RemoteActivityPubFavorite.fs" />
     <Compile Include="TheirContent\ActivityPub\ActivityPubFavorite.fs" />
     <Compile Include="TheirContent\ActivityPub\ActivityPubAnnounce.fs" />
     <Compile Include="TheirContent\ActivityPub\ActivityPubLike.fs" />
