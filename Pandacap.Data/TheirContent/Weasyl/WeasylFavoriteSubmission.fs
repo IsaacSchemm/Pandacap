@@ -27,7 +27,9 @@ type WeasylFavoriteSubmission() =
     member val HiddenAt = nullDateTimeOffset with get, set
 
     interface IFavorite with
-        member this.HiddenAt = this.HiddenAt
+        member this.HiddenAt
+            with get () = this.HiddenAt
+             and set value = this.HiddenAt <- value
 
     interface IPost with
         member _.Badges = [{ PostPlatform.GetBadge Weasyl with Text = "weasyl.com" }]

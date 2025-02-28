@@ -52,25 +52,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Hide([FromForm] Guid id, CancellationToken cancellationToken)
         {
-            await foreach (var item in context.ActivityPubAnnounces.Where(x => x.AnnounceGuid == id).AsAsyncEnumerable())
-                item.HiddenAt = DateTimeOffset.UtcNow;
-
-            await foreach (var item in context.ActivityPubLikes.Where(x => x.LikeGuid == id).AsAsyncEnumerable())
-                item.HiddenAt = DateTimeOffset.UtcNow;
-
-            await foreach (var item in context.BlueskyLikes.Where(x => x.Id == id).AsAsyncEnumerable())
-                item.HiddenAt = DateTimeOffset.UtcNow;
-
-            await foreach (var item in context.BlueskyReposts.Where(x => x.Id == id).AsAsyncEnumerable())
-                item.HiddenAt = DateTimeOffset.UtcNow;
-
-            await foreach (var item in context.DeviantArtFavorites.Where(x => x.Id == id).AsAsyncEnumerable())
-                item.HiddenAt = DateTimeOffset.UtcNow;
-
-            await foreach (var item in context.FurAffinityFavorites.Where(x => x.Id == id).AsAsyncEnumerable())
-                item.HiddenAt = DateTimeOffset.UtcNow;
-
-            await foreach (var item in context.WeasylFavoriteSubmissions.Where(x => x.Id == id).AsAsyncEnumerable())
+            await foreach (var item in compositeFavoritesProvider.GetAllAsync([id]))
                 item.HiddenAt = DateTimeOffset.UtcNow;
 
             await context.SaveChangesAsync(cancellationToken);

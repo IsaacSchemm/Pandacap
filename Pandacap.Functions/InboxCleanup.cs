@@ -69,6 +69,14 @@ namespace Pandacap.Functions
                 context.Remove(inboxItem);
             }
 
+            await foreach (var inboxItem in context.RssFeedItems
+                .Where(d => d.DismissedAt != null)
+                .Where(d => d.Timestamp < weekAgo)
+                .AsAsyncEnumerable())
+            {
+                context.Remove(inboxItem);
+            }
+
             await context.SaveChangesAsync();
         }
     }

@@ -11,6 +11,70 @@ namespace Pandacap.Controllers
     [Authorize]
     public class InboxController(PandacapDbContext context) : Controller
     {
+        private IAsyncEnumerable<IInboxPost> GetAllAsync()
+        {
+            var activityPub = context.InboxActivityStreamsPosts
+                .OrderByDescending(d => d.PostedAt)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
+            var bluesky = context.InboxBlueskyPosts
+                .OrderByDescending(d => d.IndexedAt)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
+            var deviantArtImages = context.InboxArtworkDeviations
+                .OrderByDescending(d => d.Timestamp)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
+            var deviantArtText = context.InboxTextDeviations
+                .OrderByDescending(d => d.Timestamp)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
+            var furAffinitySubmissions = context.InboxFurAffinitySubmissions
+                .OrderByDescending(d => d.PostedAt)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
+            var furAffinityJournals = context.InboxFurAffinityJournals
+                .OrderByDescending(d => d.PostedAt)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
+            var weasylSubmissions = context.InboxWeasylSubmissions
+                .OrderByDescending(d => d.PostedAt)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
+            var weasylJournals = context.InboxWeasylJournals
+                .OrderByDescending(d => d.PostedAt)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
+            var rssItems = context.RssFeedItems
+                .OrderByDescending(d => d.Timestamp)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
+            return
+                new[]
+                {
+                    activityPub,
+                    bluesky,
+                    deviantArtImages,
+                    deviantArtText,
+                    furAffinitySubmissions,
+                    furAffinityJournals,
+                    weasylSubmissions,
+                    weasylJournals,
+                    rssItems
+                }
+                .MergeNewest(post => post.Timestamp)
+                .Where(post => post.DismissedAt == null);
+        }
+
         public async Task<IActionResult> ImagePosts(
             string? next,
             int? count)
@@ -21,56 +85,11 @@ namespace Pandacap.Controllers
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var source1 = context.InboxArtworkDeviations
-                .Where(d => d.Timestamp <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(d => d.Timestamp)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
-            var source2 = context.InboxWeasylSubmissions
-                .Where(a => a.PostedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.PostedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
-            var source3 = context.RssFeedItems
-                .Where(a => a.Timestamp <= startTime)
-                .OrderByDescending(a => a.Timestamp)
-                .AsAsyncEnumerable()
-                .Where(item => !item.AudioFiles.Any())
-                .OfType<IPost>()
-                .Where(x => x.Thumbnails.Any());
-
-            var source4 = context.InboxBlueskyPosts
-                .Where(a => a.IndexedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.IndexedAt)
-                .AsAsyncEnumerable()
-                .Where(a => a.Author.DID == a.PostedBy.DID)
-                .Where(a => a.Images.Count > 0)
-                .OfType<IPost>();
-
-            var source5 = context.InboxActivityStreamsPosts
-                .Where(a => a.PostedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.PostedAt)
-                .AsAsyncEnumerable()
-                .Where(a => a.Author.Id == a.PostedBy.Id)
-                .Where(a => a.Attachments.Count > 0)
-                .OfType<IPost>();
-
-            var source6 = context.InboxFurAffinitySubmissions
-                .Where(a => a.PostedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.PostedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
-            var posts = await new[] { source1, source2, source3, source4, source5, source6 }
-                .MergeNewest(x => x.Timestamp)
+            var posts = await GetAllAsync()
                 .SkipWhile(x => next != null && x.Id != next)
+                .Where(x => !x.IsPodcast)
+                .Where(x => !x.IsShare)
+                .Where(x => x.Thumbnails.Any())
                 .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel
@@ -90,56 +109,11 @@ namespace Pandacap.Controllers
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var source1 = context.InboxTextDeviations
-                .Where(d => d.Timestamp <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(d => d.Timestamp)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
-            var source2 = context.InboxWeasylJournals
-                .Where(d => d.PostedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(d => d.PostedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
-            var source3 = context.RssFeedItems
-                .Where(a => a.Timestamp <= startTime)
-                .OrderByDescending(a => a.Timestamp)
-                .AsAsyncEnumerable()
-                .Where(item => !item.AudioFiles.Any())
-                .OfType<IPost>()
-                .Where(x => !x.Thumbnails.Any());
-
-            var source4 = context.InboxBlueskyPosts
-                .Where(a => a.IndexedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.IndexedAt)
-                .AsAsyncEnumerable()
-                .Where(a => a.Author.DID == a.PostedBy.DID)
-                .Where(a => a.Images.Count == 0)
-                .OfType<IPost>();
-
-            var source5 = context.InboxActivityStreamsPosts
-                .Where(a => a.PostedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.PostedAt)
-                .AsAsyncEnumerable()
-                .Where(a => a.Author.Id == a.PostedBy.Id)
-                .Where(a => a.Attachments.Count == 0)
-                .OfType<IPost>();
-
-            var source6 = context.InboxFurAffinityJournals
-                .Where(a => a.PostedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.PostedAt)
-                .AsAsyncEnumerable()
-                .OfType<IPost>();
-
-            var posts = await new[] { source1, source2, source3, source4, source5, source6 }
-                .MergeNewest(x => x.Timestamp)
+            var posts = await GetAllAsync()
                 .SkipWhile(x => next != null && x.Id != next)
+                .Where(x => !x.IsPodcast)
+                .Where(x => !x.IsShare)
+                .Where(x => !x.Thumbnails.Any())
                 .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel
@@ -159,25 +133,10 @@ namespace Pandacap.Controllers
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var activityStreams = context.InboxActivityStreamsPosts
-                .Where(a => a.PostedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.PostedAt)
-                .AsAsyncEnumerable()
-                .Where(a => a.Author.Id != a.PostedBy.Id)
-                .OfType<IPost>();
-
-            var bluesky = context.InboxBlueskyPosts
-                .Where(a => a.IndexedAt <= startTime)
-                .Where(d => d.DismissedAt == null)
-                .OrderByDescending(a => a.IndexedAt)
-                .AsAsyncEnumerable()
-                .Where(a => a.Author.DID != a.PostedBy.DID)
-                .OfType<IPost>();
-
-            var posts = await new[] { activityStreams, bluesky }
-                .MergeNewest(x => x.Timestamp)
+            var posts = await GetAllAsync()
                 .SkipWhile(x => next != null && x.Id != next)
+                .Where(x => !x.IsPodcast)
+                .Where(x => x.IsShare)
                 .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel
@@ -197,23 +156,19 @@ namespace Pandacap.Controllers
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
-            var source = await context.RssFeedItems
-                .Where(a => a.Timestamp <= startTime)
-                .OrderByDescending(a => a.Timestamp)
-                .AsAsyncEnumerable()
-                .Where(item => item.AudioFiles.Any())
-                .OfType<IPost>()
+            var posts = await GetAllAsync()
                 .SkipWhile(x => next != null && x.Id != next)
+                .Where(x => x.IsPodcast)
                 .AsListPage(count ?? 100);
 
             return View("List", new ListViewModel
             {
                 Title = "Inbox (Podcasts)",
-                Items = source
+                Items = posts
             });
         }
 
-        private async IAsyncEnumerable<IPost> GetInboxPostsByIds(IEnumerable<string> ids)
+        private async IAsyncEnumerable<IInboxPost> GetInboxPostsByIds(IEnumerable<string> ids)
         {
             IEnumerable<Guid> getGuids()
             {
@@ -301,34 +256,7 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Dismiss([FromForm] IEnumerable<string> id)
         {
             await foreach (var item in GetInboxPostsByIds(id))
-            {
-                if (item is InboxActivityStreamsPost asp)
-                    asp.DismissedAt ??= DateTimeOffset.UtcNow;
-
-                if (item is InboxBlueskyPost ibp)
-                    ibp.DismissedAt ??= DateTimeOffset.UtcNow;
-
-                if (item is InboxArtworkDeviation iid)
-                    iid.DismissedAt ??= DateTimeOffset.UtcNow;
-
-                if (item is InboxTextDeviation itd)
-                    itd.DismissedAt ??= DateTimeOffset.UtcNow;
-
-                if (item is InboxFurAffinitySubmission ifs)
-                    ifs.DismissedAt ??= DateTimeOffset.UtcNow;
-
-                if (item is InboxFurAffinityJournal ifj)
-                    ifj.DismissedAt ??= DateTimeOffset.UtcNow;
-
-                if (item is InboxWeasylSubmission iws)
-                    iws.DismissedAt ??= DateTimeOffset.UtcNow;
-
-                if (item is InboxWeasylJournal iwj)
-                    iwj.DismissedAt ??= DateTimeOffset.UtcNow;
-
-                if (item is RssFeedItem fi)
-                    context.Remove(fi);
-            }
+                item.DismissedAt ??= DateTimeOffset.UtcNow;
 
             await context.SaveChangesAsync();
 

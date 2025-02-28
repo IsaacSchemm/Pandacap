@@ -33,7 +33,11 @@ type InboxActivityStreamsPost() =
     member this.TextContent = TextConverter.FromHtml this.Content
 
     interface IInboxPost with
-        member this.DismissedAt = this.DismissedAt
+        member this.DismissedAt
+            with get () = this.DismissedAt
+             and set value = this.DismissedAt <- value
+        member _.IsPodcast = false
+        member this.IsShare = this.PostedBy.Id <> this.Author.Id
 
     interface IPost with
         member this.Badges = [

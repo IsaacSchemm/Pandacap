@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 
@@ -56,6 +57,15 @@ namespace Pandacap
                 }
                 .MergeNewest(post => post.Timestamp)
                 .Where(post => post.HiddenAt == null);
+        }
+
+        public IAsyncEnumerable<IFavorite> GetAllAsync(IEnumerable<Guid> guids)
+        {
+            FSharpSet<string> ids = [.. guids.Select(g => $"{g}")];
+
+            return GetAllAsync()
+                .Where(x => ids.Contains(x.Id))
+                .Take(ids.Count);
         }
     }
 }

@@ -5,4 +5,4 @@ open System
 type IFavorite =
     inherit IPost
 
-    abstract member HiddenAt: Nullable<DateTimeOffset>
+    abstract member HiddenAt: Nullable<DateTimeOffset> with get, set

@@ -21,6 +21,7 @@ type RssFeedItem() =
     member val HtmlDescription = nullString with get, set
     member val Timestamp = DateTimeOffset.MinValue with get, set
     member val Enclosures = new ResizeArray<RssFeedEnclosure>() with get, set
+    member val DismissedAt = nullDateTimeOffset with get, set
 
     [<NotMapped>]
     member this.AudioFiles = seq {
@@ -30,7 +31,11 @@ type RssFeedItem() =
     }
 
     interface IInboxPost with
-        member _.DismissedAt = Nullable()
+        member this.DismissedAt
+            with get () = this.DismissedAt
+             and set value = this.DismissedAt <- value
+        member this.IsPodcast = not (Seq.isEmpty this.AudioFiles)
+        member _.IsShare = false
 
     interface IPost with
         member this.Badges = [
