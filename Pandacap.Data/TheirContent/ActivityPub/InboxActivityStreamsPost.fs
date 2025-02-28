@@ -32,6 +32,9 @@ type InboxActivityStreamsPost() =
 
     member this.TextContent = TextConverter.FromHtml this.Content
 
+    interface IInboxPost with
+        member this.DismissedAt = this.DismissedAt
+
     interface IPost with
         member this.Badges = [
             match Uri.TryCreate(this.PostedBy.Id, UriKind.Absolute) with
@@ -46,7 +49,6 @@ type InboxActivityStreamsPost() =
             $"{this.ObjectId}"
         })
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = true
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
         member this.ProfileUrl = this.PostedBy.Id
         member this.Thumbnails = [

@@ -20,11 +20,13 @@ type InboxDeviation() =
     [<NotMapped>]
     abstract member ThumbnailUrls: string seq
 
+    interface IInboxPost with
+        member this.DismissedAt = this.DismissedAt
+
     interface IPost with
         member _.Badges = [PostPlatform.GetBadge DeviantArt]
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = true
         member this.LinkUrl = this.LinkUrl
         member this.ProfileUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(this.Username)}"
         member this.Timestamp = this.Timestamp

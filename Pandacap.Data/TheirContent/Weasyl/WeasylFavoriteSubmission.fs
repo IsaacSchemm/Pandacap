@@ -33,7 +33,6 @@ type WeasylFavoriteSubmission() =
         member _.Badges = [{ PostPlatform.GetBadge Weasyl with Text = "weasyl.com" }]
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = true
         member this.LinkUrl = this.Url
         member this.ProfileUrl = $"https://www.weasyl.com/~{Uri.EscapeDataString(this.PostedBy.Login)}"
         member this.Thumbnails = [

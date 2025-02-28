@@ -25,11 +25,13 @@ type InboxWeasylSubmission() =
     member val Url = "" with get, set
     member val DismissedAt = nullDateTimeOffset with get, set
 
+    interface IInboxPost with
+        member this.DismissedAt = this.DismissedAt
+
     interface IPost with
         member _.Badges = [PostPlatform.GetBadge Weasyl]
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = true
         member this.LinkUrl = this.Url
         member this.ProfileUrl = $"https://www.weasyl.com/~{Uri.EscapeDataString(this.PostedBy.Login)}"
         member this.Thumbnails = seq {

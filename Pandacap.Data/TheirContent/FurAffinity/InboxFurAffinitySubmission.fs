@@ -22,11 +22,13 @@ type InboxFurAffinitySubmission() =
     member val Sfw = false with get, set
     member val DismissedAt = nullDateTimeOffset with get, set
 
+    interface IInboxPost with
+        member this.DismissedAt = this.DismissedAt
+
     interface IPost with
         member _.Badges = [PostPlatform.GetBadge FurAffinity]
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = true
         member this.LinkUrl = this.Link
         member this.ProfileUrl = this.PostedBy.Url
         member this.Thumbnails = [

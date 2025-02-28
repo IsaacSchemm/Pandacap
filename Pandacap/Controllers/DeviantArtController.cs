@@ -35,7 +35,6 @@ namespace Pandacap.Controllers
             IEnumerable<Badge> IPost.Badges => [PostPlatformModule.GetBadge(PostPlatform.DeviantArt)];
             string IPost.DisplayTitle => Item.title.OrNull() ?? $"{Item.deviationid}";
             string IPost.Id => $"{Item.deviationid}";
-            bool IPost.IsDismissable => false;
             string? IPost.LinkUrl => Item.url.OrNull();
             string? IPost.ProfileUrl => null;
             IEnumerable<IPostThumbnail> IPost.Thumbnails => Item.thumbs.OrEmpty()

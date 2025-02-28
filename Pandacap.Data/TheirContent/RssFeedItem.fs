@@ -29,6 +29,9 @@ type RssFeedItem() =
                 file
     }
 
+    interface IInboxPost with
+        member _.DismissedAt = Nullable()
+
     interface IPost with
         member this.Badges = [
             match Uri.TryCreate(this.Url, UriKind.Absolute) with
@@ -37,7 +40,6 @@ type RssFeedItem() =
         ]
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = true
         member this.LinkUrl = this.Url
         member this.ProfileUrl = this.FeedWebsiteUrl
         member this.Thumbnails =

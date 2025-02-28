@@ -7,7 +7,7 @@
     ViewBag.Title = Model.Title;
 }
 
-@if (Model.Items.Current.Any(item => item.IsDismissable))
+@if (Model.Items.Current.Any(item => item is IInboxPost))
 {
     <form id="dismissForm" asp-controller="Inbox" asp-action="Dismiss" method="post"></form>
 }
@@ -43,7 +43,7 @@ else
         <partial name="_ListGroup" model="@group" />
     }
 
-    @if (Model.Items.Current.Any(item => item.IsDismissable))
+    @if (Model.Items.Current.Any(item => item is IInboxPost))
     {
         <hr />
 

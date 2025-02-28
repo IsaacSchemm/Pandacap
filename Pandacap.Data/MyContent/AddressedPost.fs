@@ -46,7 +46,6 @@ type AddressedPost() =
             $"{this.Id}"
         })
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = false
         member this.LinkUrl = $"/AddressedPosts/{this.Id}"
         member _.ProfileUrl = null
         member _.Thumbnails = []

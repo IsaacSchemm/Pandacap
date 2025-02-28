@@ -43,7 +43,6 @@ type ActivityPubFavorite() =
             this.ObjectId
         ]
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = false
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
         member this.ProfileUrl = this.CreatedBy
         member this.Thumbnails = [

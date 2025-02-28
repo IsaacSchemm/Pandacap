@@ -85,7 +85,6 @@ type Post() =
             match this.Type with
             | PostType.StatusUpdate -> "Status update"
             | _ -> this.Title
-        member _.IsDismissable = false
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/UserPosts/{this.Id}"
         member _.ProfileUrl = null

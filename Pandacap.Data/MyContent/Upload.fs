@@ -15,7 +15,6 @@ type Upload() =
             this.UploadedAt.Date.ToShortTimeString()
         ]
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = false
         member this.LinkUrl = $"/Uploads/{this.Id}"
         member _.ProfileUrl = null
         member this.Thumbnails = [{

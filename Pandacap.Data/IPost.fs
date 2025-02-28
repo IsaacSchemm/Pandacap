@@ -20,7 +20,6 @@ type IPost =
     abstract member Badges: Badge seq
     abstract member DisplayTitle: string
     abstract member Id: string
-    abstract member IsDismissable: bool
     abstract member LinkUrl: string
     abstract member ProfileUrl: string
     abstract member Thumbnails: IPostThumbnail seq

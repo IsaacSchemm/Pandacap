@@ -30,7 +30,6 @@ type FurAffinityFavorite() =
         member _.Badges = [{ PostPlatform.GetBadge FurAffinity with Text = "furaffinity.net" }]
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = true
         member this.LinkUrl = this.Link
         member this.ProfileUrl = this.PostedBy.Url
         member this.Thumbnails = [{

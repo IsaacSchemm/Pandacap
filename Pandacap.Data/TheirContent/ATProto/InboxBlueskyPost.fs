@@ -32,6 +32,9 @@ type InboxBlueskyPost() =
     member val Images = new ResizeArray<InboxBlueskyImage>() with get, set
     member val DismissedAt = nullDateTimeOffset with get, set
 
+    interface IInboxPost with
+        member this.DismissedAt = this.DismissedAt
+
     interface IPost with
         member this.Badges = [
             match Option.ofObj this.PostedBy.PDS with
@@ -45,7 +48,6 @@ type InboxBlueskyPost() =
             $"{this.CID}"
         })
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = true
         member this.LinkUrl = $"https://bsky.app/profile/{this.Author.DID}/post/{this.RecordKey}"
         member this.ProfileUrl = $"https://bsky.app/profile/{this.PostedBy.DID}"
         member this.Thumbnails = [

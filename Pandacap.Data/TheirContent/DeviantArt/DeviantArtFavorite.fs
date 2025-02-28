@@ -25,7 +25,6 @@ type DeviantArtFavorite() =
         member _.Badges = [{ PostPlatform.GetBadge DeviantArt with Text = "deviantart.com" }]
         member this.DisplayTitle = this.Title |> orString ""
         member this.Id = $"{this.Id}"
-        member _.IsDismissable = false
         member this.LinkUrl = this.LinkUrl
         member this.ProfileUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(this.Username)}"
         member this.Timestamp = this.FavoritedAt
