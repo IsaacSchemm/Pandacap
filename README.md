@@ -13,6 +13,7 @@ Supported platforms and protocols:
 | DeviantArt   | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | ✓                  | OAuth (ASP.NET Identity)
 | Fur Affinity | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | ✓                  | Manual cookie entry
 | RSS / Atom   | ✓          | ✓     |       |                        |                    |
+| Sheezy.Art   |            |       |       |                        | ✓                  |
 | Weasyl       | ✓ (Manual) | ✓     |       | ✓                      | ✓ (Submissions)    | API key
 
 (Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions.)

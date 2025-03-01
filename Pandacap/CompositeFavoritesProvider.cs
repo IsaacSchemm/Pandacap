@@ -39,6 +39,11 @@ namespace Pandacap
                 .AsAsyncEnumerable()
                 .OfType<IFavorite>();
 
+            var sheezyArtFavorites = context.SheezyArtFavorites
+                .OrderByDescending(post => post.FavoritedAt)
+                .AsAsyncEnumerable()
+                .OfType<IFavorite>();
+
             var weasylFavoriteSubmissions = context.WeasylFavoriteSubmissions
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
@@ -53,6 +58,7 @@ namespace Pandacap
                     blueskyReposts,
                     deviantArtFavorites,
                     furAffinityFavorites,
+                    sheezyArtFavorites,
                     weasylFavoriteSubmissions
                 }
                 .MergeNewest(post => post.Timestamp)

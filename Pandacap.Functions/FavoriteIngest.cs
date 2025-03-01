@@ -7,10 +7,11 @@ namespace Pandacap.Functions
         BlueskyFavoriteHandler blueskyFavoriteHandler,
         DeviantArtFavoriteHandler deviantArtFavoriteHandler,
         FurAffinityFavoriteHandler furAffinityFavoriteHandler,
+        SheezyArtFavoriteHandler sheezyArtFavoriteHandler,
         WeasylFavoriteHandler weasylFavoriteHandler)
     {
         [Function("FavoriteIngest")]
-        public async Task Run([TimerTrigger("0 0 */8 * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 0 21 * * *")] TimerInfo myTimer)
         {
             List<Exception> exceptions = [];
 
@@ -32,6 +33,8 @@ namespace Pandacap.Functions
             await c(deviantArtFavoriteHandler.ImportFavoritesAsync());
 
             await c(furAffinityFavoriteHandler.ImportFavoritesAsync());
+
+            await c(sheezyArtFavoriteHandler.ImportFavoritesAsync());
 
             await c(weasylFavoriteHandler.ImportFavoriteSubmissionsAsync());
 

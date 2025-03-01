@@ -14,6 +14,7 @@
     <Compile Include="Credentials\DeviantArtCredentials.fs" />
     <Compile Include="Credentials\FurAffinityCredentials.fs" />
     <Compile Include="Credentials\WeasylCredentials.fs" />
+    <Compile Include="OtherAccounts\SheezyArtAccount.fs" />
     <Compile Include="MyContent\ActivityPubOutboundActivity.fs" />
     <Compile Include="MyContent\AddressedPost.fs" />
     <Compile Include="MyContent\Avatar.fs" />
@@ -44,6 +45,7 @@
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />
     <Compile Include="TheirContent\FurAffinity\FurAffinityFavorite.fs" />
+    <Compile Include="TheirContent\SheezyArt\SheezyArtFavorite.fs" />
     <Compile Include="TheirContent\Weasyl\InboxWeasylJournal.fs" />
     <Compile Include="TheirContent\Weasyl\InboxWeasylSubmission.fs" />
     <Compile Include="TheirContent\Weasyl\WeasylFavoriteSubmission.fs" />

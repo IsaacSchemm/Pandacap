@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <Compile Include="DeviantArtScraper.fs" />
+    <Compile Include="SheezyArtScraper.fs" />
     <Compile Include="WeasylScraper.fs" />
     <Compile Include="ExcerptGenerator.fs" />
     <Compile Include="TextConverter.fs" />

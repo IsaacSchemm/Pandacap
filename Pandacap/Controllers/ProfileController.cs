@@ -102,6 +102,10 @@ namespace Pandacap.Controllers
                 .Select(c => c.Username)
                 .ToListAsync(cancellationToken);
 
+            var sheezyArtUsernames = await context.SheezyArtAccounts
+                .Select(c => c.Username)
+                .ToListAsync(cancellationToken);
+
             var weasylUsernames = await context.WeasylCredentials
                 .Select(c => c.Login)
                 .ToListAsync(cancellationToken);
@@ -114,6 +118,7 @@ namespace Pandacap.Controllers
                 BlueskyDIDs = blueskyDIDs,
                 DeviantArtUsernames = deviantArtUsernames,
                 FurAffinityUsernames = furAffinityUsernames,
+                SheezyArtUsernames = sheezyArtUsernames,
                 WeasylUsernames = weasylUsernames,
                 RecentArtwork = await context.Posts
                     .Where(post => post.Type == PostType.Artwork)
