@@ -54,6 +54,8 @@ namespace Pandacap
                 .AsAsyncEnumerable()
                 .OfType<IFavorite>();
 
+            var cutoff = DateTimeOffset.UtcNow.AddMonths(-6);
+
             return
                 new[]
                 {
@@ -68,6 +70,7 @@ namespace Pandacap
                     weasylFavoriteSubmissions
                 }
                 .MergeNewest(post => post.Timestamp)
+                .TakeWhile(post => post.Timestamp > cutoff)
                 .Where(post => post.HiddenAt == null);
         }
 
