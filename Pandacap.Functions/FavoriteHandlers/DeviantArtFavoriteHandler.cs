@@ -80,7 +80,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                             .Select(t => t.src)
                             .Take(1)
                     ],
-                    FavoritedAt = age > TimeSpan.FromDays(1)
+                    FavoritedAt = age > TimeSpan.FromDays(3)
                         ? publishedTime
                         : now
                 });

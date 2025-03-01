@@ -101,7 +101,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                         Avatar = feedItem.post.author.AvatarOrNull
                     },
                     CreatedAt = feedItem.post.record.createdAt,
-                    FavoritedAt = age > TimeSpan.FromDays(1)
+                    FavoritedAt = age > TimeSpan.FromDays(3)
                         ? feedItem.post.record.createdAt
                         : now,
                     Text = feedItem.post.record.text,

@@ -78,7 +78,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                         Url = submission.profile
                     },
                     PostedAt = publishedTime,
-                    FavoritedAt = age > TimeSpan.FromDays(1)
+                    FavoritedAt = age > TimeSpan.FromDays(3)
                         ? publishedTime
                         : now
                 });

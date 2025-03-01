@@ -70,7 +70,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                             })
                     ],
                     Url = submission.link,
-                    FavoritedAt = age > TimeSpan.FromDays(1)
+                    FavoritedAt = age > TimeSpan.FromDays(3)
                         ? publishedTime
                         : now
                 });
