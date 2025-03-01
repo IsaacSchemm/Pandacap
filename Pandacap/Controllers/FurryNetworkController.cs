@@ -1,18 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub;
+using Pandacap.Clients;
 using Pandacap.Data;
 using Pandacap.Html;
 
 namespace Pandacap.Controllers
 {
-    public class SheezyArtController(
+    public class FurryNetworkController(
         PandacapDbContext context,
+        FurryNetworkClient furryNetworkClient,
         Mapper mapper) : Controller
     {
         public async Task<IActionResult> Setup(CancellationToken cancellationToken)
         {
-            var account = await context.SheezyArtAccounts
+            var account = await context.FurryNetworkAccounts
                 .AsNoTracking()
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -25,18 +27,25 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Setup(string username, CancellationToken cancellationToken)
         {
-            var profile = await SheezyArtScraper.GetProfileAsync(username);
+            var profile = await furryNetworkClient.GetProfileAsync(username);
 
-            if (!Uri.TryCreate(mapper.ActorId, UriKind.Absolute, out Uri? actorId)
-                || !profile.socialLinks.Contains(actorId))
+            IEnumerable<Uri> findUris()
             {
-                return Content($"You must add a social link to your Sheezy.Art profile with the Pandacap actor ID ({actorId}) as the URL.");
+                foreach (var cf in profile.customFields)
+                    if (Uri.TryCreate(cf.value, UriKind.Absolute, out Uri? uri))
+                        yield return uri;
             }
 
-            var accounts = await context.SheezyArtAccounts.ToListAsync(cancellationToken);
+            if (!Uri.TryCreate(mapper.ActorId, UriKind.Absolute, out Uri? actorId)
+                || !findUris().Contains(actorId))
+            {
+                return Content($"You must add a profile field to Furry Network with the Pandacap actor ID ({actorId}) as the value.");
+            }
+
+            var accounts = await context.FurryNetworkAccounts.ToListAsync(cancellationToken);
             context.RemoveRange(accounts);
 
-            context.SheezyArtAccounts.Add(new()
+            context.FurryNetworkAccounts.Add(new()
             {
                 Username = username
             });
@@ -50,7 +59,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reset(CancellationToken cancellationToken)
         {
-            var accounts = await context.SheezyArtAccounts.ToListAsync(cancellationToken);
+            var accounts = await context.FurryNetworkAccounts.ToListAsync(cancellationToken);
             context.RemoveRange(accounts);
 
             await context.SaveChangesAsync(cancellationToken);

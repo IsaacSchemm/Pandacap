@@ -45,6 +45,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<FeedBuilder>()
                 .AddScoped<FurAffinityNoteNotificationHandler>()
                 .AddScoped<FurAffinityNotificationHandler>()
+                .AddScoped<FurryNetworkClient>()
                 .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<ActivityPubCommunicationPrerequisites>()

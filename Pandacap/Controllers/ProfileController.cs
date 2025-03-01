@@ -118,7 +118,6 @@ namespace Pandacap.Controllers
                 BlueskyDIDs = blueskyDIDs,
                 DeviantArtUsernames = deviantArtUsernames,
                 FurAffinityUsernames = furAffinityUsernames,
-                SheezyArtUsernames = sheezyArtUsernames,
                 WeasylUsernames = weasylUsernames,
                 RecentArtwork = await context.Posts
                     .Where(post => post.Type == PostType.Artwork)

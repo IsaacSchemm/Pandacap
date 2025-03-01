@@ -14,7 +14,8 @@
     <Compile Include="Credentials\DeviantArtCredentials.fs" />
     <Compile Include="Credentials\FurAffinityCredentials.fs" />
     <Compile Include="Credentials\WeasylCredentials.fs" />
-    <Compile Include="OtherAccounts\SheezyArtAccount.fs" />
+    <Compile Include="MonitoringTargets\FurryNetworkAccount.fs" />
+    <Compile Include="MonitoringTargets\SheezyArtAccount.fs" />
     <Compile Include="MyContent\ActivityPubOutboundActivity.fs" />
     <Compile Include="MyContent\AddressedPost.fs" />
     <Compile Include="MyContent\Avatar.fs" />
@@ -27,6 +28,7 @@
     <Compile Include="Relationships\Follower.fs" />
     <Compile Include="Relationships\CommunityBookmark.fs" />
     <Compile Include="Relationships\BlueskyFollow.fs" />
+    <Compile Include="TheirContent\FurryNetwork\FurryNetworkFavorite.fs" />
     <Compile Include="TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
     <Compile Include="TheirContent\ActivityPub\ActivityPubFavorite.fs" />
     <Compile Include="TheirContent\ActivityPub\ActivityPubAnnounce.fs" />

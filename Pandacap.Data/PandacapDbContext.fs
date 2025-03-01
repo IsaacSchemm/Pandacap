@@ -12,6 +12,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.DeviantArtCredentials: DbSet<DeviantArtCredentials> = this.Set()
     member this.FurAffinityCredentials: DbSet<FurAffinityCredentials> = this.Set()
     member this.WeasylCredentials: DbSet<WeasylCredentials> = this.Set()
+    member this.FurryNetworkAccounts: DbSet<FurryNetworkAccount> = this.Set()
     member this.SheezyArtAccounts: DbSet<SheezyArtAccount> = this.Set()
     member this.Avatars: DbSet<Avatar> = this.Set()
     member this.BridgyFedBridges: DbSet<BridgyFedBridge> = this.Set()
@@ -42,6 +43,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.BlueskyReposts: DbSet<BlueskyRepost> = this.Set()
     member this.DeviantArtFavorites: DbSet<DeviantArtFavorite> = this.Set()
     member this.FurAffinityFavorites: DbSet<FurAffinityFavorite> = this.Set()
+    member this.FurryNetworkFavorites: DbSet<FurryNetworkFavorite> = this.Set()
     member this.SheezyArtFavorites: DbSet<SheezyArtFavorite> = this.Set()
     member this.WeasylFavoriteSubmissions: DbSet<WeasylFavoriteSubmission> = this.Set()
 

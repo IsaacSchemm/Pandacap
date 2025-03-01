@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="ATProto.fs" />
     <Compile Include="ComputerVision.fs" />
+    <Compile Include="FurryNetwork.fs" />
     <Compile Include="Lemmy.fs" />
   </ItemGroup>
 

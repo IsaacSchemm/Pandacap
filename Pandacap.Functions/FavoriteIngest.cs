@@ -7,6 +7,7 @@ namespace Pandacap.Functions
         BlueskyFavoriteHandler blueskyFavoriteHandler,
         DeviantArtFavoriteHandler deviantArtFavoriteHandler,
         FurAffinityFavoriteHandler furAffinityFavoriteHandler,
+        FurryNetworkFavoriteHandler furryNetworkFavoriteHandler,
         SheezyArtFavoriteHandler sheezyArtFavoriteHandler,
         WeasylFavoriteHandler weasylFavoriteHandler)
     {
@@ -33,6 +34,8 @@ namespace Pandacap.Functions
             await c(deviantArtFavoriteHandler.ImportFavoritesAsync());
 
             await c(furAffinityFavoriteHandler.ImportFavoritesAsync());
+
+            await c(furryNetworkFavoriteHandler.ImportFavoritesAsync());
 
             await c(sheezyArtFavoriteHandler.ImportFavoritesAsync());
 

@@ -39,6 +39,11 @@ namespace Pandacap
                 .AsAsyncEnumerable()
                 .OfType<IFavorite>();
 
+            var furryNetworkFavorites = context.FurryNetworkFavorites
+                .OrderByDescending(post => post.FavoritedAt)
+                .AsAsyncEnumerable()
+                .OfType<IFavorite>();
+
             var sheezyArtFavorites = context.SheezyArtFavorites
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
@@ -58,6 +63,7 @@ namespace Pandacap
                     blueskyReposts,
                     deviantArtFavorites,
                     furAffinityFavorites,
+                    furryNetworkFavorites,
                     sheezyArtFavorites,
                     weasylFavoriteSubmissions
                 }

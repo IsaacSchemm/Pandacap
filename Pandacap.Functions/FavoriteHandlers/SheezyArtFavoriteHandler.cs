@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.HighLevel;
 using Pandacap.Html;
 
 namespace Pandacap.Functions.FavoriteHandlers
 {
-    public partial class SheezyArtFavoriteHandler(
+    public class SheezyArtFavoriteHandler(
         PandacapDbContext context)
     {
         public async Task ImportFavoritesAsync()
@@ -13,8 +12,6 @@ namespace Pandacap.Functions.FavoriteHandlers
             await foreach (string username in context.SheezyArtAccounts.Select(a => a.Username).AsAsyncEnumerable())
             {
                 var profile = await SheezyArtScraper.GetProfileAsync(username);
-
-                Stack<WeasylClient.Submission> items = [];
 
                 foreach (var submission in profile.artwork)
                 {

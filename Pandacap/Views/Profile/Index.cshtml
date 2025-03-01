@@ -83,19 +83,6 @@
                 </div>
             }
 
-            @foreach (string username in Model.SheezyArtUsernames)
-            {
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Sheezy.Art</h5>
-
-                        <a href="https://sheezy.art/@Uri.EscapeDataString(username)" target="_blank">
-                            <tt>@@@username</tt>
-                        </a>
-                    </div>
-                </div>
-            }
-
             @foreach (string username in Model.WeasylUsernames)
             {
                 <div class="card mb-3">
@@ -341,12 +328,12 @@
 
             <div class="col col-12 col-lg-6">
                 <h2>
-                    DeviantArt
+                    Crossposting &amp; inbox ingestion targets
                 </h2>
 
                 <div class="card my-3">
                     <div class="card-header">
-                        Browse
+                        DeviantArt
                     </div>
                     <div class="card-body">
                         <a asp-controller="DeviantArt" asp-action="HomeFeed" class="btn btn-outline-primary">
@@ -355,21 +342,14 @@
                     </div>
                 </div>
 
-                <h2>
-                    Bluesky
-                </h2>
-
                 <div class="card my-3">
                     <div class="card-header">
-                        Configuration
+                        Bluesky
                     </div>
                     <div class="card-body">
                         <a asp-controller="ATProto" asp-action="Setup" class="btn btn-outline-primary">
                             Configure account
                         </a>
-                        <div class="form-text">
-                            Posts that appear in the account's home timeline will be added to the inbox.
-                        </div>
 
                         <hr />
 
@@ -379,13 +359,9 @@
                     </div>
                 </div>
 
-                <h2>
-                    Fur Affinity
-                </h2>
-
                 <div class="card my-3">
                     <div class="card-header">
-                        Configuration
+                        Fur Affinity
                     </div>
                     <div class="card-body">
                         <a asp-controller="FurAffinity" asp-action="Setup" class="btn btn-outline-primary">
@@ -394,36 +370,40 @@
                     </div>
                 </div>
 
-                <h2>
-                    Sheezy.Art
-                </h2>
-
                 <div class="card my-3">
                     <div class="card-header">
-                        Configuration
+                        Weasyl
                     </div>
                     <div class="card-body">
-                        <a asp-controller="SheezyArt" asp-action="Setup" class="btn btn-outline-primary">
+                        <a asp-controller="Weasyl" asp-action="Setup" class="btn btn-outline-primary">
                             Configure account
                         </a>
                     </div>
                 </div>
 
                 <h2>
-                    Weasyl
+                    Monitoring targets
                 </h2>
 
                 <div class="card my-3">
                     <div class="card-header">
-                        Configuration
+                        Furry Network
                     </div>
                     <div class="card-body">
-                        <a asp-controller="Weasyl" asp-action="Setup" class="btn btn-outline-primary">
+                        <a asp-controller="FurryNetwork" asp-action="Setup" class="btn btn-outline-primary">
                             Configure account
                         </a>
-                        <div class="form-text">
-                            Submissions from watched users will be added to the inbox.
-                        </div>
+                    </div>
+                </div>
+
+                <div class="card my-3">
+                    <div class="card-header">
+                        Sheezy.Art
+                    </div>
+                    <div class="card-body">
+                        <a asp-controller="SheezyArt" asp-action="Setup" class="btn btn-outline-primary">
+                            Configure account
+                        </a>
                     </div>
                 </div>
             </div>
