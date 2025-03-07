@@ -1,14 +1,110 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NAudio.MediaFoundation;
 using NAudio.Wave;
+using Pandacap.Data;
 using System.IO.Compression;
+using System.Net.Http.Headers;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
-    public class PodcastController(IHttpClientFactory httpClientFactory) : Controller
+    public class PodcastController(
+        PandacapDbContext context,
+        IHttpClientFactory httpClientFactory) : Controller
     {
+        private class HttpStream(
+            IHttpClientFactory httpClientFactory,
+            Uri Uri,
+            long ContentLength) : Stream
+        {
+            public override bool CanRead => true;
+
+            public override bool CanSeek => true;
+
+            public override bool CanWrite => false;
+
+            public override long Length => ContentLength;
+
+            public override long Position { get; set; }
+
+            public override void Flush() { }
+
+            public override int Read(byte[] buffer, int offset, int count) =>
+                ReadAsync(buffer.AsMemory(offset, count))
+                .AsTask()
+                .GetAwaiter()
+                .GetResult();
+
+            public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+            {
+                using var client = httpClientFactory.CreateClient();
+                using var req = new HttpRequestMessage(HttpMethod.Get, Uri);
+                req.Headers.Range = new RangeHeaderValue(Position, Position + buffer.Length);
+                using var resp = await client.SendAsync(req, cancellationToken);
+                resp.EnsureSuccessStatusCode();
+                using var stream = await resp.Content.ReadAsStreamAsync(cancellationToken);
+                int read = await stream.ReadAsync(buffer, cancellationToken);
+                Position += read;
+                return read;
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                return Position = origin == SeekOrigin.Begin ? offset
+                    : origin == SeekOrigin.Current ? Position + offset
+                    : origin == SeekOrigin.End ? ContentLength + offset
+                    : throw new ArgumentException("Unrecgonized origin", nameof(origin));
+            }
+
+            public override void SetLength(long value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public async Task<IActionResult> ProxyAttachment(
+            Guid id,
+            int index = 0)
+        {
+            var feed = await context.RssFeedItems
+                .Where(i => i.Id == id)
+                .Select(i => new { i.AudioFiles })
+                .SingleOrDefaultAsync();
+
+            var audioFile = (feed?.AudioFiles ?? [])
+                .Skip(index)
+                .FirstOrDefault();
+
+            if (audioFile == null)
+                return NotFound();
+
+            var uri = new Uri(audioFile.Url);
+
+            using var req = new HttpRequestMessage(HttpMethod.Head, uri);
+
+            using var client = httpClientFactory.CreateClient();
+            using var resp = await client.SendAsync(req);
+
+            resp.EnsureSuccessStatusCode();
+
+            return File(
+                new BufferedStream(
+                    new HttpStream(
+                        httpClientFactory,
+                        uri,
+                        resp.Content.Headers.ContentLength ?? throw new NotImplementedException()),
+                    1024 * 1024 * 10),
+                resp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream",
+                enableRangeProcessing: true);
+        }
+
         private class WaveProvider(Stream stream, WaveFormat waveFormat) : IWaveProvider
         {
             public WaveFormat WaveFormat => waveFormat;
