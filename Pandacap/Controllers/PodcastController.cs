@@ -32,41 +32,42 @@ namespace Pandacap.Controllers
             public override void Flush() { }
 
             public override int Read(byte[] buffer, int offset, int count) =>
-                ReadAsync(buffer.AsMemory(offset, count))
-                .AsTask()
-                .GetAwaiter()
-                .GetResult();
+                throw new NotImplementedException();
 
             public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
             {
                 using var client = httpClientFactory.CreateClient();
+
                 using var req = new HttpRequestMessage(HttpMethod.Get, Uri);
                 req.Headers.Range = new RangeHeaderValue(Position, Position + buffer.Length);
+
                 using var resp = await client.SendAsync(req, cancellationToken);
                 resp.EnsureSuccessStatusCode();
+
                 using var stream = await resp.Content.ReadAsStreamAsync(cancellationToken);
+
                 int read = await stream.ReadAsync(buffer, cancellationToken);
                 Position += read;
+
                 return read;
             }
 
             public override long Seek(long offset, SeekOrigin origin)
             {
-                return Position = origin == SeekOrigin.Begin ? offset
-                    : origin == SeekOrigin.Current ? Position + offset
-                    : origin == SeekOrigin.End ? ContentLength + offset
-                    : throw new ArgumentException("Unrecgonized origin", nameof(origin));
+                return Position = origin switch
+                {
+                    SeekOrigin.Begin => offset,
+                    SeekOrigin.Current => Position + offset,
+                    SeekOrigin.End => ContentLength + offset,
+                    _ => throw new ArgumentException($"Unrecgonized origin {origin}", nameof(origin))
+                };
             }
 
-            public override void SetLength(long value)
-            {
+            public override void SetLength(long value) =>
                 throw new NotImplementedException();
-            }
 
-            public override void Write(byte[] buffer, int offset, int count)
-            {
+            public override void Write(byte[] buffer, int offset, int count) =>
                 throw new NotImplementedException();
-            }
         }
 
         public async Task<IActionResult> ProxyAttachment(
@@ -94,13 +95,16 @@ namespace Pandacap.Controllers
 
             resp.EnsureSuccessStatusCode();
 
+            if (resp.Content.Headers.ContentLength is not long length)
+                return Redirect(audioFile.Url);
+
             return File(
                 new BufferedStream(
                     new HttpStream(
                         httpClientFactory,
                         uri,
-                        resp.Content.Headers.ContentLength ?? throw new NotImplementedException()),
-                    1024 * 1024 * 10),
+                        length),
+                    1048576),
                 resp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream",
                 enableRangeProcessing: true);
         }
