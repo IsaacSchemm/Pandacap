@@ -1,0 +1,73 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pandacap Media Player</title>
+</head>
+<body>
+    <main>
+        <div id="addlControls">
+            <label>
+                Audio output device
+                <select>
+                    <option>Aaa</option>
+                    <option>Bbb</option>
+                    <option>Ccc</option>
+                </select>
+            </label>
+
+            <div style="flex: 1 1 0"></div>
+
+            <a class="btn btn-outline-primary btn-sm" asp-controller="Podcast" asp-action="Download" asp-route-url="@ViewBag.Url">
+                Download
+            </a>
+
+            <a class="btn btn-outline-secondary btn-sm" asp-controller="Podcast" asp-action="SegmentZip" asp-route-url="@ViewBag.Url" asp-route-seconds="300">
+                Split
+            </a>
+        </div>
+        <div id="media">
+            <video src="@ViewBag.Src" controls></video>
+        </div>
+    </main>
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pandacap.css" asp-append-version="true" />
+
+    <style type="text/css">
+        html, body, main {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #addlControls {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: row;
+        }
+
+            #addlControls > * {
+                flex: 0 0 auto;
+            }
+
+        #media {
+            flex: 1 1 auto;
+            position: relative;
+        }
+
+            #media video {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+            }
+    </style>
+</body>
+</html>

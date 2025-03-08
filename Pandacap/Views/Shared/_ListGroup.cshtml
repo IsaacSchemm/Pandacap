@@ -110,18 +110,15 @@
             foreach (var enclosure in feedItem.Enclosures)
             {
                 <div class="mt-3">
-                    <a class="btn btn-outline-primary btn-sm" asp-controller="Podcast" asp-action="ProxyAttachment" asp-route-id="@feedItem.Id" asp-route-index="@i">
+                    <a class="btn btn-outline-primary btn-sm" asp-controller="Podcast" asp-action="Download" asp-route-url="@enclosure.Url">
                         Download
                     </a>
                     @if (enclosure.MediaType == "audio/mpeg")
                     {
-                        <a class="btn btn-outline-secondary btn-sm" asp-controller="Podcast" asp-action="SegmentZip" asp-route-url="@enclosure.Url" asp-route-seconds="300">
-                            Split (.wma)
+                        <a class="btn btn-outline-primary btn-sm" asp-controller="Podcast" asp-action="Player" asp-route-url="@enclosure.Url" target="_blank">
+                            Play
                         </a>
                     }
-                </div>
-                <div class="mt-3">
-                    <audio style="min-width: 300px" controls src="/Podcast/ProxyAttachment?id=@feedItem.Id&index=@i" preload="none"></audio>
                 </div>
                 i++;
             }
