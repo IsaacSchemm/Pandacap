@@ -1,89 +1,53 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NAudio.MediaFoundation;
-using NAudio.Wave;
-using System.IO.Compression;
+using Pandacap.Podcasts;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
-    public class PodcastController(IHttpClientFactory httpClientFactory) : Controller
+    public class PodcastController(
+        PodcastStreamProvider podcastStreamProvider,
+        WmaZipSplitter wmaZipSplitter) : Controller
     {
-        private class WaveProvider(Stream stream, WaveFormat waveFormat) : IWaveProvider
+        public async Task<IActionResult> Download(
+            string url,
+            CancellationToken cancellationToken = default)
         {
-            public WaveFormat WaveFormat => waveFormat;
+            var uri = new Uri(url);
 
-            public int Read(byte[] buffer, int offset, int count) =>
-                stream.Read(buffer, offset, count);
+            var accessor = await podcastStreamProvider.CreateAccessorAsync(
+                uri,
+                cancellationToken);
+
+            return File(
+                accessor.Stream,
+                accessor.MediaType,
+                fileDownloadName: uri.Segments.Last(),
+                enableRangeProcessing: accessor.ContentLength != null);
         }
 
-        public async Task<IActionResult> SegmentZip(string url, int seconds, CancellationToken cancellationToken)
+        public IActionResult Player(string url)
         {
-            string filename = new Uri(url).Segments.Last();
-            string basename = Path.GetFileNameWithoutExtension(filename);
+            ViewBag.Src = url;
 
-            string tempfile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}-{filename}");
+            return View();
+        }
 
-            try
-            {
-                MediaFoundationApi.Startup();
+        public async Task<IActionResult> SegmentZip(
+            string url,
+            int seconds,
+            CancellationToken cancellationToken)
+        {
+            Response.ContentType = "application/zip";
+            Response.Headers.ContentDisposition = $"attachment;filename=podcast.zip";
 
-                using (var client = httpClientFactory.CreateClient())
-                {
-                    using var resp = await client.GetAsync(url, cancellationToken);
-                    using var stream = await resp.Content.ReadAsStreamAsync(cancellationToken);
-                    using var fs = new FileStream(tempfile, FileMode.CreateNew, FileAccess.Write);
-                    await stream.CopyToAsync(fs, cancellationToken);
-                }
+            await wmaZipSplitter.SegmentZip(
+                new Uri(url),
+                TimeSpan.FromSeconds(seconds),
+                Response.BodyWriter.AsStream(),
+                cancellationToken);
 
-                using var reader = new AudioFileReader(tempfile);
-
-                byte[] buffer = new byte[
-                    reader.WaveFormat.SampleRate
-                    * seconds
-                    * reader.WaveFormat.Channels
-                    * reader.WaveFormat.BitsPerSample
-                    / 8];
-
-                Response.ContentType = "application/zip";
-                Response.Headers.ContentDisposition = $"attachment;filename={basename}.zip";
-
-                using (var archive = new ZipArchive(
-                    Response.BodyWriter.AsStream(),
-                    ZipArchiveMode.Create,
-                    false))
-                {
-                    int i = 0;
-                    while (true)
-                    {
-                        int read = await reader.ReadAsync(buffer, cancellationToken);
-                        if (read == 0)
-                            break;
-
-                        using var inputStream = new MemoryStream(buffer, 0, read, writable: false);
-                        using var outputBuffer = new MemoryStream();
-
-                        MediaFoundationEncoder.EncodeToWma(
-                            new WaveProvider(
-                                inputStream,
-                                reader.WaveFormat),
-                            outputBuffer);
-
-                        var entry = archive.CreateEntry($"{basename}_{++i:00}.wma", CompressionLevel.NoCompression);
-                        using var zipStream = entry.Open();
-
-                        outputBuffer.Position = 0;
-                        await outputBuffer.CopyToAsync(zipStream, cancellationToken);
-                    }
-                }
-
-                return new EmptyResult();
-            }
-            finally
-            {
-                if (System.IO.File.Exists(tempfile))
-                    System.IO.File.Delete(tempfile);
-            }
+            return new EmptyResult();
         }
     }
 }

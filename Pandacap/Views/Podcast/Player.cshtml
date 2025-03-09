@@ -1,0 +1,159 @@
+﻿@{
+    Layout = null;
+
+    string appName = Pandacap.ConfigurationObjects.UserAgentInformation.ApplicationName;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pandacap Media Player</title>
+</head>
+<body>
+    <main>
+        <div id="addlControls">
+            <button class="btn btn-primary btn-sm" id="selectAudioOutput">
+                Select audio output
+            </button>
+
+            <div style="flex: 1 1 0"></div>
+
+            <a class="btn btn-outline-primary btn-sm"
+               asp-controller="Podcast"
+               asp-action="Download"
+               asp-route-url="@ViewBag.Src"
+               title="Downloads the file, using @appName as a proxy server.">
+                Download
+            </a>
+
+            <a class="btn btn-outline-secondary btn-sm"
+               asp-controller="Podcast"
+               asp-action="SegmentZip"
+               asp-route-url="@ViewBag.Src"
+               asp-route-seconds="300"
+               title="Re-encodes the file as a series of uncompressed .wma files, each no more than 5 minutes in length, to be burned to an audio CD-RW with gapless playback using Windows Media Player Legacy.">
+                ...for CD
+            </a>
+        </div>
+        <div id="media">
+            <video src="@ViewBag.Src" controls preload="none"></video>
+        </div>
+    </main>
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pandacap.css" asp-append-version="true" />
+
+    <style type="text/css">
+        html, body, main {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #addlControls {
+            display: flex;
+            flex: 0 0 auto;
+            flex-direction: row;
+            gap: 0.5em;
+            margin: 0.5em;
+            overflow-x: auto;
+        }
+
+            #addlControls > * {
+                flex: 0 0 auto;
+            }
+
+        #media {
+            flex: 1 1 auto;
+            position: relative;
+        }
+
+            #media video {
+                background-color: black;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+            }
+
+        #audioOutputSelectionDialog {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            min-width: 300px;
+            max-width: calc(100vh - 4em);
+            max-height: calc(100vh - 2em);
+            overflow-y: auto;
+            position: fixed;
+            top: 1em;
+        }
+    </style>
+
+    <script type="text/javascript">
+        const video = document.getElementsByTagName("video")[0];
+
+        if (!("selectAudioOutput" in navigator.mediaDevices)) {
+            navigator.mediaDevices.selectAudioOutput = async () => {
+                const enumerateDevices = async () => {
+                    const list1 = await navigator.mediaDevices.enumerateDevices();
+                    if (list1.some(x => x.deviceId))
+                        return list1;
+
+                    const acquired = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                    const list2 = await navigator.mediaDevices.enumerateDevices();
+
+                    for (const track of acquired.getTracks())
+                        track.stop();
+
+                    return list2;
+                };
+
+                const allDevices = await enumerateDevices();
+
+                const dialog = document.createElement("dialog");
+                dialog.id = "audioOutputSelectionDialog";
+                dialog.open = true;
+                document.body.appendChild(dialog);
+
+                try {
+                    const deviceId = await new Promise((r, j) => {
+                        for (const device of allDevices) {
+                            if (device.kind !== "audiooutput")
+                                continue;
+
+                            const button = document.createElement("button");
+                            button.className = "btn btn-primary";
+                            button.innerText = device.label || device.deviceId;
+                            button.addEventListener("click", () => r(device));
+                            dialog.appendChild(button);
+                        }
+
+                        const close = document.createElement("button");
+                        close.className = "btn btn-secondary";
+                        close.innerText = "Cancel";
+                        close.addEventListener("click", () => j("Device selection canceled"));
+                        dialog.appendChild(close);
+                    });
+
+                    return deviceId;
+                } finally {
+                    document.body.removeChild(dialog);
+                }
+            };
+        }
+
+        document.getElementById("selectAudioOutput").addEventListener("click", async () => {
+            try {
+                const mediaDeviceInfo = await navigator.mediaDevices.selectAudioOutput();
+                video.setSinkId(mediaDeviceInfo.deviceId);
+            } catch (e) {
+                console.error(e);
+            }
+        });
+    </script>
+</body>
+</html>

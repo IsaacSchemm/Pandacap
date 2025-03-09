@@ -10,6 +10,7 @@ using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Clients;
 using Pandacap.Signatures;
+using Pandacap.Podcasts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,9 +89,11 @@ builder.Services
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<DeliveryInboxCollector>()
     .AddScoped<MastodonVerifier>()
+    .AddScoped<PodcastStreamProvider>()
     .AddScoped<PostCreator>()
     .AddScoped<RemoteActivityPubPostHandler>()
-    .AddScoped<ReplyLookup>();
+    .AddScoped<ReplyLookup>()
+    .AddScoped<WmaZipSplitter>();
 
 builder.Services.AddHttpClient();
 
