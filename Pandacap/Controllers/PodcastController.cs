@@ -1,11 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NAudio.MediaFoundation;
-using NAudio.Wave;
-using Pandacap.Data;
 using Pandacap.Podcasts;
-using System.IO.Compression;
 
 namespace Pandacap.Controllers
 {
@@ -33,7 +28,7 @@ namespace Pandacap.Controllers
 
         public IActionResult Player(string url)
         {
-            ViewBag.Url = url;
+            ViewBag.Src = url;
 
             return View();
         }
