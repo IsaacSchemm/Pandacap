@@ -39,6 +39,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub.Inboun
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.FurAffinity", "Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj", "{B9EB0193-2B7A-48F1-B685-4862F66AF00C}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.Podcasts", "Pandacap.Podcasts\Pandacap.Podcasts.fsproj", "{9DEC3CC9-D0F7-4CAB-8500-C273E8210B00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,10 @@ Global
 		{B9EB0193-2B7A-48F1-B685-4862F66AF00C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9EB0193-2B7A-48F1-B685-4862F66AF00C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9EB0193-2B7A-48F1-B685-4862F66AF00C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DEC3CC9-D0F7-4CAB-8500-C273E8210B00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DEC3CC9-D0F7-4CAB-8500-C273E8210B00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DEC3CC9-D0F7-4CAB-8500-C273E8210B00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DEC3CC9-D0F7-4CAB-8500-C273E8210B00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

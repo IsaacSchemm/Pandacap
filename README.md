@@ -47,6 +47,7 @@ Libraries:
             * **Pandacap.FurAffinity**: Connects to FurAffinity and FAExport.
             * **Pandacap.Html**: Parses data from HTML pages. Includes special scrapers for DeviantArt and Weasyl.
             * **Pandacap.PlatformBadges**: Contains types that represent the platforms supported by Pandacap and corresponding displayable badges for the UI.
+* **Pandacap.Podcasts**: Specific code for playing or re-encoding podcasts.
 
 ## Deployment
 

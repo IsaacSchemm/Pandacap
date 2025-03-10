@@ -19,11 +19,13 @@ namespace Pandacap.Controllers
                 uri,
                 cancellationToken);
 
+            var mediaType = accessor.ContentType?.MediaType ?? "application/octet-stream";
+
             return File(
                 accessor.Stream,
-                accessor.MediaType,
+                mediaType,
                 fileDownloadName: uri.Segments.Last(),
-                enableRangeProcessing: accessor.ContentLength != null);
+                enableRangeProcessing: accessor.EnableRangeProcessing);
         }
 
         public IActionResult Player(string url)
