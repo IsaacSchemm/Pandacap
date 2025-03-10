@@ -18,10 +18,9 @@
             <div style="flex: 1 1 0"></div>
 
             <a class="btn btn-outline-primary btn-sm"
-               asp-controller="Podcast"
-               asp-action="Download"
-               asp-route-url="@ViewBag.Src"
-               title="Downloads the file, using @appName as a proxy server.">
+               href="@ViewBag.Src"
+               target="_blank"
+               title="Opens the file in a new window or tab.">
                 Download
             </a>
 
@@ -35,7 +34,7 @@
             </a>
         </div>
         <div id="media">
-            <video src="/Podcast/Download?url=@ViewBag.Src" controls preload="none"></video>
+            <video src="@ViewBag.Src" controls preload="none"></video>
         </div>
     </main>
 

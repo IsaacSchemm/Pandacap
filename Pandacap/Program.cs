@@ -89,7 +89,6 @@ builder.Services
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<DeliveryInboxCollector>()
     .AddScoped<MastodonVerifier>()
-    .AddScoped<PodcastStreamProvider>()
     .AddScoped<PostCreator>()
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>()

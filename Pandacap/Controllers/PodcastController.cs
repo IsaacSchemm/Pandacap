@@ -6,28 +6,8 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class PodcastController(
-        PodcastStreamProvider podcastStreamProvider,
         WmaZipSplitter wmaZipSplitter) : Controller
     {
-        public async Task<IActionResult> Download(
-            string url,
-            CancellationToken cancellationToken = default)
-        {
-            var uri = new Uri(url);
-
-            var accessor = await podcastStreamProvider.CreateAccessorAsync(
-                uri,
-                cancellationToken);
-
-            var mediaType = accessor.ContentType?.MediaType ?? "application/octet-stream";
-
-            return File(
-                accessor.Stream,
-                mediaType,
-                fileDownloadName: uri.Segments.Last(),
-                enableRangeProcessing: accessor.EnableRangeProcessing);
-        }
-
         public IActionResult Player(string url)
         {
             ViewBag.Src = url;
