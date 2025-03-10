@@ -109,7 +109,7 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
         pair "published" post.PublishedTime
         pair "to" post.To
         pair "cc" post.Cc
-        pair "object" (this.BuildObjectCreate(post))
+        pair "object" (this.BuildObject(post))
     ]
 
     member _.BuildObjectDelete(post: IAddressedPost) = dict [
