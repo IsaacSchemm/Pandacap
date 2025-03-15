@@ -13,6 +13,7 @@
     <Compile Include="Credentials\ATProtoCredentials.fs" />
     <Compile Include="Credentials\DeviantArtCredentials.fs" />
     <Compile Include="Credentials\FurAffinityCredentials.fs" />
+    <Compile Include="Credentials\RedditCredentials.fs" />
     <Compile Include="Credentials\WeasylCredentials.fs" />
     <Compile Include="MonitoringTargets\FurryNetworkAccount.fs" />
     <Compile Include="MonitoringTargets\SheezyArtAccount.fs" />
@@ -28,7 +29,6 @@
     <Compile Include="Relationships\Follower.fs" />
     <Compile Include="Relationships\CommunityBookmark.fs" />
     <Compile Include="Relationships\BlueskyFollow.fs" />
-    <Compile Include="TheirContent\FurryNetwork\FurryNetworkFavorite.fs" />
     <Compile Include="TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
     <Compile Include="TheirContent\ActivityPub\ActivityPubFavorite.fs" />
     <Compile Include="TheirContent\ActivityPub\ActivityPubAnnounce.fs" />
@@ -47,6 +47,8 @@
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
     <Compile Include="TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />
     <Compile Include="TheirContent\FurAffinity\FurAffinityFavorite.fs" />
+    <Compile Include="TheirContent\FurryNetwork\FurryNetworkFavorite.fs" />
+    <Compile Include="TheirContent\Reddit\RedditUpvotedPost.fs" />
     <Compile Include="TheirContent\SheezyArt\SheezyArtFavorite.fs" />
     <Compile Include="TheirContent\Weasyl\InboxWeasylJournal.fs" />
     <Compile Include="TheirContent\Weasyl\InboxWeasylSubmission.fs" />

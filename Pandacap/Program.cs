@@ -67,11 +67,22 @@ builder.Services.AddAuthentication()
         d.ClientId = builder.Configuration["DeviantArtClientId"]!;
         d.ClientSecret = builder.Configuration["DeviantArtClientSecret"]!;
         d.SaveTokens = true;
+    })
+    .AddReddit(o => {
+        o.Scope.Add("read");
+        o.Scope.Add("history");
+        o.ClientId = builder.Configuration["RedditAppId"]!;
+        o.ClientSecret = builder.Configuration["RedditAppSecret"]!;
+        o.SaveTokens = true;
     });
 
 builder.Services.AddSingleton(new DeviantArtApp(
     builder.Configuration["DeviantArtClientId"]!,
     builder.Configuration["DeviantArtClientSecret"]!));
+
+builder.Services.AddSingleton(new RedditAppInformation(
+    builder.Configuration["RedditAppId"]!,
+    builder.Configuration["RedditAppSecret"]!));
 
 builder.Services.AddSingleton(new ComputerVisionConfiguration(
     builder.Configuration["ComputerVisionEndpoint"],

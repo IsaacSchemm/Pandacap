@@ -4,6 +4,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
@@ -51,6 +52,14 @@ var host = new HostBuilder()
                 deviantArtClientSecret));
         }
 
+        if (Environment.GetEnvironmentVariable("RedditAppId") is string redditAppId
+            && Environment.GetEnvironmentVariable("RedditAppSecret") is string redditAppSecret)
+        {
+            services.AddSingleton(new RedditAppInformation(
+                redditAppId,
+                redditAppSecret));
+        }
+
         services
             .AddPandacapServices(new(
                 applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
@@ -66,6 +75,7 @@ var host = new HostBuilder()
             .AddScoped<FurAffinityInboxHandler>()
             .AddScoped<FurryNetworkFavoriteHandler>()
             .AddScoped<OutboxProcessor>()
+            .AddScoped<RedditFavoriteHandler>()
             .AddScoped<SheezyArtFavoriteHandler>()
             .AddScoped<WeasylFavoriteHandler>()
             .AddScoped<WeasylInboxHandler>();

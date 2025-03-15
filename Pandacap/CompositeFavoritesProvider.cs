@@ -44,6 +44,11 @@ namespace Pandacap
                 .AsAsyncEnumerable()
                 .OfType<IFavorite>();
 
+            var redditUpvotedPosts = context.RedditUpvotedPosts
+                .OrderByDescending(post => post.FavoritedAt)
+                .AsAsyncEnumerable()
+                .OfType<IFavorite>();
+
             var sheezyArtFavorites = context.SheezyArtFavorites
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
@@ -66,6 +71,7 @@ namespace Pandacap
                     deviantArtFavorites,
                     furAffinityFavorites,
                     furryNetworkFavorites,
+                    redditUpvotedPosts,
                     sheezyArtFavorites,
                     weasylFavoriteSubmissions
                 }

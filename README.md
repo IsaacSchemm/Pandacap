@@ -10,12 +10,13 @@ Supported platforms and protocols:
 | ------------- | ---------- | ----- | ----- | ---------------------- | ------------------ | ------------------------
 | ActivityPub   | ✓          | ✓     | ✓     | ✓ (Activites, Replies) | ✓ (Likes)          |
 | Bluesky       | ✓ (Manual) | ✓     |       | ✓                      | ✓ (Likes, Reposts) | PDS / DID / Password
-| DeviantArt    | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | ✓                  | OAuth (ASP.NET Identity)
-| Furry Network |            |       |       |                        | ✓                  |
+| DeviantArt    | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | ✓                  | OAuth
 | Fur Affinity  | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | ✓                  | Manual cookie entry
+| Reddit        |            |       |       |                        | ✓                  | OAuth
 | RSS / Atom    | ✓          | ✓     |       |                        |                    |
-| Sheezy.Art    |            |       |       |                        | ✓                  |
 | Weasyl        | ✓ (Manual) | ✓     |       | ✓                      | ✓ (Submissions)    | API key
+
+Pandacap can also monitor Furry Network and Sheezy.Art accounts for new favorites.
 
 (Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions.)
 
@@ -64,15 +65,11 @@ The web app and function app must have the appropriate IAM permissions to access
 Function app responsibilities:
 
 * `FavoritesIngest` (three times per day)
-    * check Bluesky account for new likes and reposts
-    * check DeviantArt account for new favorites
+    * check accounts for new favorites / likes / upvotes
 * `InboxCleanup` (every day at 9:00)
     * clear dismissed inbox entries more than 7 days old
 * `InboxIngest` (every hour at :10)
-    * check Bluesky feed for new posts
-    * check DeviantArt feed for new posts
-    * check users followed on DeviantArt for new journals and status updates
-    * check RSS/Atom feeds for new posts
+    * check feeds for new posts
 * `OutboxCleanup` (every day at 8:00)
     * remove unsent outbound ActivityPub messages that have been pending for more than 7 days
 * `SendOutbound` (every ten minutes)
@@ -108,6 +105,8 @@ Application settings (for both the function app and the web app):
 | CosmosDBAccountKey      | Database key
 | DeviantArtClientId      | OAuth client ID from DeviantArt
 | DeviantArtClientSecret  | OAuth secret from DeviantArt
+| RedditAppId             | OAuth client ID from Reddit
+| RedditAppSecret         | OAuth secret from v
 | KeyVaultHostname        | Key vault hostname
 | WeasylProxyHost         | Hostname that has `/pandacap/weasyl_proxy.php` and `/pandacap/weasyl_submit.php`
 

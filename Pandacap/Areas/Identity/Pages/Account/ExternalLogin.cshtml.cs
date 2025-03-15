@@ -258,6 +258,29 @@ namespace Pandacap.Areas.Identity.Pages.Account
                     .Single();
                 await _context.SaveChangesAsync();
             }
+            else if (info.LoginProvider == "Reddit")
+            {
+                var credentials = await _context.RedditCredentials
+                    .Where(c => c.Username == info.Principal.Identity.Name)
+                    .FirstOrDefaultAsync();
+                if (credentials == null)
+                {
+                    credentials = new RedditCredentials
+                    {
+                        Username = info.Principal.Identity.Name
+                    };
+                    _context.RedditCredentials.Add(credentials);
+                }
+                credentials.AccessToken = info.AuthenticationTokens
+                    .Where(t => t.Name == "access_token")
+                    .Select(t => t.Value)
+                    .Single();
+                credentials.RefreshToken = info.AuthenticationTokens
+                    .Where(t => t.Name == "refresh_token")
+                    .Select(t => t.Value)
+                    .Single();
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }
