@@ -28,9 +28,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                 context.SaveChanges();
             };
 
-            Stack<Reddit.Controllers.Post> items = [];
-
-            IEnumerable<Reddit.Controllers.Post> enumeratePostsAsync()
+            IEnumerable<Reddit.Controllers.Post> enumeratePosts()
             {
                 string? after = null;
 
@@ -50,7 +48,9 @@ namespace Pandacap.Functions.FavoriteHandlers
                 }
             }
 
-            foreach (var post in enumeratePostsAsync())
+            Stack<Reddit.Controllers.Post> items = [];
+
+            foreach (var post in enumeratePosts())
             {
                 var existing = await context.RedditUpvotedPosts
                     .Where(item => item.Id36 == post.Id)
