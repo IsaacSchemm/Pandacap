@@ -27,7 +27,7 @@ type RedditUpvotedPost() =
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.URL
-        member this.ProfileUrl = $"https://www.reddit.com/user/${Uri.EscapeDataString(this.Author)}"
+        member this.ProfileUrl = $"https://www.reddit.com/user/{Uri.EscapeDataString(this.Author)}"
         member this.Thumbnails = [
             if not (isNull this.Thumbnail) then {
                 new IPostThumbnail with
