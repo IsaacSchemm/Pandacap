@@ -9,6 +9,7 @@
     <Compile Include="IPost.fs" />
     <Compile Include="IInboxPost.fs" />
     <Compile Include="IFavorite.fs" />
+    <Compile Include="TitleGenerator.fs" />
     <Compile Include="NullValues.fs" />
     <Compile Include="Credentials\ATProtoCredentials.fs" />
     <Compile Include="Credentials\DeviantArtCredentials.fs" />

@@ -40,7 +40,7 @@ type BlueskyFavorite() =
             | Some pds -> { PostPlatform.GetBadge Bluesky with Text = pds }
             | None -> PostPlatform.GetBadge Bluesky
         ]
-        member this.DisplayTitle = this.Text
+        member this.DisplayTitle = TitleGenerator.FromBody(this.Text)
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"https://bsky.app/profile/{this.CreatedBy.DID}/post/{this.RecordKey}"
         member this.ProfileUrl = $"https://bsky.app/profile/{this.CreatedBy.DID}"

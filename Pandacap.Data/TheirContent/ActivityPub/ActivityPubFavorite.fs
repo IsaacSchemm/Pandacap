@@ -39,11 +39,13 @@ type ActivityPubFavorite() =
             | true, uri -> { PostPlatform.GetBadge ActivityPub with Text = uri.Host }
             | false, _ -> PostPlatform.GetBadge ActivityPub
         ]
-        member this.DisplayTitle = ExcerptGenerator.FromText Int32.MaxValue [
-            this.Name
-            TextConverter.FromHtml this.Content
-            this.ObjectId
-        ]
+        member this.DisplayTitle =
+            if not (String.IsNullOrWhiteSpace(this.Name)) then
+                this.Name
+            else
+                this.Content
+                |> TextConverter.FromHtml
+                |> TitleGenerator.FromBody
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
         member this.ProfileUrl = this.CreatedBy
