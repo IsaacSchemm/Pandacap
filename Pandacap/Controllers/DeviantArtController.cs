@@ -47,16 +47,15 @@ namespace Pandacap.Controllers
         }
 
         public async Task<IActionResult> HomeFeed(
-            int? next = null,
-            int? count = null)
+            int? next = null)
         {
             if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var token, _))
                 return Content("No DeviantArt account is connected.");
 
             var page = await DeviantArtFs.Api.Browse.PageHomeAsync(
                 token,
-                PagingLimit.NewPagingLimit(next ?? 0),
-                PagingOffset.NewPagingOffset(count ?? 20));
+                PagingLimit.NewPagingLimit(24),
+                PagingOffset.NewPagingOffset(next ?? 20));
 
             return View(
                 "List",
