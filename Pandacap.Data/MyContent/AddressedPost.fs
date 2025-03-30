@@ -40,10 +40,9 @@ type AddressedPost() =
 
     interface IPost with
         member _.Badges = []
-        member this.DisplayTitle = ExcerptGenerator.FromText 120 (seq {
+        member this.DisplayTitle = ExcerptGenerator.FromFirst 120 (seq {
             this.Title
             TextConverter.FromHtml this.HtmlContent
-            $"{this.Id}"
         })
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/AddressedPosts/{this.Id}"

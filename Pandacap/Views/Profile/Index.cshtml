@@ -203,10 +203,22 @@
                                 <label for="id" class="form-label">
                                     Object ID (URL)
                                 </label>
-                                <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
+                                <input type="url" class="form-control" name="id" placeholder="https://" />
                             </div>
                             <button type="submit" class="btn btn-outline-primary">
                                 View post
+                            </button>
+                        </form>
+                        <hr />
+                        <form method="get" asp-controller="Mastodon" asp-action="StartViewingLocalTimeline">
+                            <div class="mb-3">
+                                <label for="id" class="form-label">
+                                    Hostname
+                                </label>
+                                <input type="text" class="form-control" name="host" placeholder="example.com" />
+                            </div>
+                            <button type="submit" class="btn btn-outline-primary">
+                                View local timeline
                             </button>
                         </form>
                     </div>

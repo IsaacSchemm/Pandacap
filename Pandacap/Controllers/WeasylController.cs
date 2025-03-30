@@ -111,7 +111,7 @@ namespace Pandacap.Controllers
             else
             {
                 post.WeasylJournalId = await client.UploadJournalAsync(
-                    post.Title ?? ExcerptGenerator.FromText(40, [post.Body]),
+                    post.Title ?? ExcerptGenerator.FromText(40, post.Body),
                     Rating.General,
                     post.Body,
                     post.Tags);

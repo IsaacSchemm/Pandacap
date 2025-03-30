@@ -10,6 +10,7 @@
     <Compile Include="ComputerVision.fs" />
     <Compile Include="FurryNetwork.fs" />
     <Compile Include="Lemmy.fs" />
+    <Compile Include="Mastodon.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -45,12 +45,9 @@ type InboxActivityStreamsPost() =
             | true, uri -> PostPlatform.GetBadge ActivityPub |> Badge.WithParenthetical uri.Host
             | false, _ -> PostPlatform.GetBadge ActivityPub
         ]
-        member this.DisplayTitle = ExcerptGenerator.FromText 60 (seq {
+        member this.DisplayTitle = ExcerptGenerator.FromFirst 60 (seq {
             this.Name
             TextConverter.FromHtml this.Content
-            for attachment in this.Attachments do
-                attachment.Name
-            $"{this.ObjectId}"
         })
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"

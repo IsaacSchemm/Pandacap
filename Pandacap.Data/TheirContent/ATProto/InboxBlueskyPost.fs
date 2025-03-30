@@ -45,12 +45,7 @@ type InboxBlueskyPost() =
             | Some pds -> PostPlatform.GetBadge Bluesky |> Badge.WithParenthetical pds
             | None -> PostPlatform.GetBadge Bluesky
         ]
-        member this.DisplayTitle = ExcerptGenerator.FromText 60 (seq {
-            this.Text
-            for image in this.Images do
-                image.Alt
-            $"{this.CID}"
-        })
+        member this.DisplayTitle = ExcerptGenerator.FromText 60 this.Text
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"https://bsky.app/profile/{this.Author.DID}/post/{this.RecordKey}"
         member this.ProfileUrl = $"https://bsky.app/profile/{this.PostedBy.DID}"
