@@ -76,8 +76,9 @@ namespace Pandacap.Functions.FavoriteHandlers
                 var publishedTime = post.Created;
                 var age = now - publishedTime;
 
-                var thumbnail = post is Reddit.Controllers.LinkPost lp && lp.URL.StartsWith("https://i.redd.it/")
-                    ? lp.Thumbnail
+                var thumbnail = post is not Reddit.Controllers.LinkPost lp ? null
+                    : lp.URL.StartsWith("https://i.redd.it/") ? lp.Thumbnail
+                    : lp.URL.StartsWith("https://www.reddit.com/gallery") ? lp.Thumbnail
                     : null;
 
                 context.RedditUpvotedPosts.Add(new()
