@@ -44,10 +44,6 @@ namespace Pandacap.Functions.FavoriteHandlers
 
             while (items.TryPop(out var submission))
             {
-                var now = DateTimeOffset.UtcNow;
-                var publishedTime = submission.posted_at;
-                var age = now - publishedTime;
-
                 context.WeasylFavoriteSubmissions.Add(new()
                 {
                     Id = Guid.NewGuid(),
@@ -70,9 +66,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                             })
                     ],
                     Url = submission.link,
-                    FavoritedAt = age > TimeSpan.FromDays(3)
-                        ? publishedTime
-                        : now
+                    FavoritedAt = DateTime.UtcNow.Date
                 });
             }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.FurAffinity;
+using Pandacap.HighLevel;
 using Pandacap.HighLevel.FurAffinity;
 
 namespace Pandacap.Functions.FavoriteHandlers
@@ -60,10 +61,6 @@ namespace Pandacap.Functions.FavoriteHandlers
 
             while (items.TryPop(out var submission))
             {
-                var now = DateTimeOffset.UtcNow;
-                var publishedTime = submission.GetPublishedTime() ?? now;
-                var age = now - publishedTime;
-
                 context.FurAffinityFavorites.Add(new()
                 {
                     Id = Guid.NewGuid(),
@@ -77,10 +74,8 @@ namespace Pandacap.Functions.FavoriteHandlers
                         ProfileName = submission.profile_name,
                         Url = submission.profile
                     },
-                    PostedAt = publishedTime,
-                    FavoritedAt = age > TimeSpan.FromDays(3)
-                        ? publishedTime
-                        : now
+                    PostedAt = submission.GetPublishedTime() ?? DateTimeOffset.MinValue,
+                    FavoritedAt = DateTime.UtcNow.Date
                 });
             }
 

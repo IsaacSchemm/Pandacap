@@ -72,10 +72,6 @@ namespace Pandacap.Functions.FavoriteHandlers
 
             while (items.TryPop(out var post))
             {
-                var now = DateTimeOffset.UtcNow;
-                var publishedTime = post.Created;
-                var age = now - publishedTime;
-
                 var thumbnail = post is not Reddit.Controllers.LinkPost lp ? null
                     : lp.URL.StartsWith("https://i.redd.it/") ? lp.Thumbnail
                     : lp.URL.StartsWith("https://www.reddit.com/gallery") ? lp.Thumbnail
@@ -85,13 +81,12 @@ namespace Pandacap.Functions.FavoriteHandlers
                 {
                     Id = Guid.NewGuid(),
                     Author = post.Author,
+                    Created = post.Created,
                     Id36 = post.Id,
                     Thumbnail = thumbnail,
                     Title = post.Title,
                     URL = "https://www.reddit.com" + post.Permalink,
-                    FavoritedAt = age > TimeSpan.FromDays(28)
-                        ? publishedTime
-                        : now
+                    FavoritedAt = DateTime.UtcNow.Date
                 });
             }
 

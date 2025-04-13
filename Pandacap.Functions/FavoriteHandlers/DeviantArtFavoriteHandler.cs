@@ -3,6 +3,7 @@ using DeviantArtFs.ParameterTypes;
 using DeviantArtFs.ResponseTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.HighLevel.DeviantArt;
 
 namespace Pandacap.Functions.FavoriteHandlers
@@ -23,9 +24,6 @@ namespace Pandacap.Functions.FavoriteHandlers
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
             Stack<Deviation> items = [];
-
-            var count = await context.DeviantArtFavorites.CountAsync();
-            Console.WriteLine(count);
 
             await foreach (var deviation in DeviantArtFs.Api.Collections.GetAllAsync(
                 credentials,
@@ -56,18 +54,13 @@ namespace Pandacap.Functions.FavoriteHandlers
 
             while (items.TryPop(out var deviation))
             {
-                var publishedTime = deviation.published_time.Value;
-
-                var now = DateTimeOffset.UtcNow;
-                var age = now - publishedTime;
-
                 if (deviation.author.OrNull() is not User author)
                     continue;
 
                 context.DeviantArtFavorites.Add(new()
                 {
                     Id = deviation.deviationid,
-                    Timestamp = publishedTime,
+                    Timestamp = deviation.published_time.OrNull() ?? DateTimeOffset.MinValue,
                     CreatedBy = author.userid,
                     Usericon = author.usericon,
                     Username = author.username,
@@ -80,9 +73,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                             .Select(t => t.src)
                             .Take(1)
                     ],
-                    FavoritedAt = age > TimeSpan.FromDays(3)
-                        ? publishedTime
-                        : now
+                    FavoritedAt = DateTime.UtcNow.Date
                 });
             }
 

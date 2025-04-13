@@ -3,6 +3,7 @@ using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.Clients.ATProto;
+using Pandacap.HighLevel;
 
 namespace Pandacap.Functions.FavoriteHandlers
 {
@@ -101,9 +102,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                         Avatar = feedItem.post.author.AvatarOrNull
                     },
                     CreatedAt = feedItem.post.record.createdAt,
-                    FavoritedAt = age > TimeSpan.FromDays(3)
-                        ? feedItem.post.record.createdAt
-                        : now,
+                    FavoritedAt = DateTime.UtcNow.Date,
                     Text = feedItem.post.record.text,
                     Images = [
                         .. feedItem.post.Images
@@ -175,9 +174,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                         Avatar = feedItem.post.author.AvatarOrNull
                     },
                     CreatedAt = feedItem.post.record.createdAt,
-                    FavoritedAt = age > TimeSpan.FromDays(1)
-                        ? feedItem.post.record.createdAt
-                        : now,
+                    FavoritedAt = DateTime.UtcNow.Date,
                     Text = feedItem.post.record.text,
                     Images = [
                         .. feedItem.post.Images

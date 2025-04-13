@@ -54,9 +54,9 @@
         /// <param name="asyncEnumerables">The sequences to combine</param>
         /// <param name="dateSelector">A function that extracts the date field from each item</param>
         /// <returns>A single asynchronous sequence with all items combined</returns>
-        public static async IAsyncEnumerable<T> MergeNewest<T>(
+        public static async IAsyncEnumerable<T> MergeNewest<T, U>(
             this IEnumerable<IAsyncEnumerable<T>> asyncEnumerables,
-            Func<T, DateTimeOffset> dateSelector)
+            Func<T, IComparable<U>> dateSelector)
         {
             IReadOnlyList<Worker<T>> workers = asyncEnumerables
                 .Select(e => new Worker<T>(e))

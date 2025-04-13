@@ -2,6 +2,7 @@
 using Microsoft.FSharp.Core;
 using Pandacap.Clients;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 
 namespace Pandacap.Functions.FavoriteHandlers
 {
