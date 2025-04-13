@@ -75,8 +75,8 @@ namespace Pandacap
                     sheezyArtFavorites,
                     weasylFavoriteSubmissions
                 }
-                .MergeNewest(post => post.Timestamp)
-                .TakeWhile(post => post.Timestamp > cutoff)
+                .MergeNewest(post => post.FavoritedAt)
+                .TakeWhile(post => post.FavoritedAt > cutoff)
                 .Where(post => post.HiddenAt == null);
         }
 

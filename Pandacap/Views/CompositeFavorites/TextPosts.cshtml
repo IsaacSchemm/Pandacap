@@ -24,8 +24,8 @@
 }
 else
 {
-    var minDate = Model.Items.Current.Select(item => item.Timestamp).Min().UtcDateTime;
-    var maxDate = Model.Items.Current.Select(item => item.Timestamp).Max().UtcDateTime;
+    var minDate = Model.Items.Current.Select(item => item.PostedAt).Min().UtcDateTime;
+    var maxDate = Model.Items.Current.Select(item => item.PostedAt).Max().UtcDateTime;
 
     <p>
         Showing
@@ -81,7 +81,7 @@ else
                     </div>
 
                     <p align="right" class="small text-muted">
-                        <a href="@item.LinkUrl">@item.Timestamp.Date.ToLongDateString()</a>
+                        <a href="@item.LinkUrl">@item.PostedAt.Date.ToLongDateString()</a>
                     </p>
                 </div>
             }

@@ -24,8 +24,8 @@
 }
 else
 {
-    var minDate = Model.Items.Current.Select(item => item.Timestamp).Min().UtcDateTime;
-    var maxDate = Model.Items.Current.Select(item => item.Timestamp).Max().UtcDateTime;
+    var minDate = Model.Items.Current.Select(item => item.PostedAt).Min().UtcDateTime;
+    var maxDate = Model.Items.Current.Select(item => item.PostedAt).Max().UtcDateTime;
 
     <p>
         Showing

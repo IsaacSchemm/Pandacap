@@ -37,6 +37,7 @@ type InboxWeasylSubmission() =
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Url
+        member this.PostedAt = this.PostedAt
         member this.ProfileUrl = $"https://www.weasyl.com/~{Uri.EscapeDataString(this.PostedBy.Login)}"
         member this.Thumbnails = seq {
             if this.Rating = "general" then
@@ -46,6 +47,5 @@ type InboxWeasylSubmission() =
                         member _.Url = thumb.Url
                 }
         }
-        member this.Timestamp = this.PostedAt
         member this.Usericon = this.PostedBy.Avatar
         member this.Username = this.PostedBy.DisplayName

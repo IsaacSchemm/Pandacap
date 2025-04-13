@@ -28,19 +28,19 @@ type FurAffinityFavorite() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
-        member this.PostedAt = this.PostedAt
+        member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
         member _.Badges = [{ PostPlatform.GetBadge FurAffinity with Text = "furaffinity.net" }]
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Link
+        member this.PostedAt = this.PostedAt
         member this.ProfileUrl = this.PostedBy.Url
         member this.Thumbnails = [{
             new IPostThumbnail with
                 member _.AltText = null
                 member _.Url = this.Thumbnail
         }]
-        member this.Timestamp = this.FavoritedAt
         member this.Usericon = $"https://a.furaffinity.net/{this.PostedAt.ToUnixTimeSeconds()}/{Uri.EscapeDataString(this.PostedBy.ProfileName)}.gif"
         member this.Username = this.PostedBy.Name

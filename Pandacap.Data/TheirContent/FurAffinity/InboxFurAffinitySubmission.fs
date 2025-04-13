@@ -34,6 +34,7 @@ type InboxFurAffinitySubmission() =
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Link
+        member this.PostedAt = this.PostedAt
         member this.ProfileUrl = this.PostedBy.Url
         member this.Thumbnails = [
             if this.Sfw then {
@@ -42,6 +43,5 @@ type InboxFurAffinitySubmission() =
                     member _.Url = this.Thumbnail
             }
         ]
-        member this.Timestamp = this.PostedAt
         member _.Usericon = null
         member this.Username = this.PostedBy.Name

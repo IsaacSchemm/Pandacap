@@ -64,6 +64,7 @@ module Mastodon =
                             |> ExcerptGenerator.FromText 60
                     member _.Id = post.id
                     member _.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(post.uri)}"
+                    member _.PostedAt = post.created_at
                     member _.ProfileUrl = post.account.url
                     member _.Thumbnails = [
                         if not post.sensitive then
@@ -74,7 +75,6 @@ module Mastodon =
                                         member _.AltText = attachment.description
                                 }
                     ]
-                    member _.Timestamp = post.created_at
                     member _.Username = post.account.username
                     member _.Usericon = post.account.avatar
             }

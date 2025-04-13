@@ -21,8 +21,8 @@ type IPost =
     abstract member DisplayTitle: string
     abstract member Id: string
     abstract member LinkUrl: string
+    abstract member PostedAt: DateTimeOffset
     abstract member ProfileUrl: string
     abstract member Thumbnails: IPostThumbnail seq
-    abstract member Timestamp: DateTimeOffset
     abstract member Username: string
     abstract member Usericon: string

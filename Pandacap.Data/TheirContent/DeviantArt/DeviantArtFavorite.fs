@@ -23,15 +23,15 @@ type DeviantArtFavorite() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
-        member this.PostedAt = this.Timestamp
+        member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
         member _.Badges = [{ PostPlatform.GetBadge DeviantArt with Text = "deviantart.com" }]
         member this.DisplayTitle = this.Title |> orString ""
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.LinkUrl
+        member this.PostedAt = this.Timestamp
         member this.ProfileUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(this.Username)}"
-        member this.Timestamp = this.FavoritedAt
         member this.Thumbnails = [
             for url in this.ThumbnailUrls do {
                 new IPostThumbnail with

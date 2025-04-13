@@ -33,9 +33,9 @@ type RssFavorite() =
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Url
+        member this.PostedAt = this.Timestamp
         member this.ProfileUrl = this.FeedWebsiteUrl
         member this.Thumbnails = seq { for t in this.Thumbnails do t }
-        member this.Timestamp = this.FavoritedAt
         member this.Usericon = this.FeedIconUrl
         member this.Username = this.FeedWebsiteUrl
 
@@ -44,4 +44,4 @@ type RssFavorite() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
-        member this.PostedAt = this.Timestamp
+        member this.FavoritedAt = this.FavoritedAt

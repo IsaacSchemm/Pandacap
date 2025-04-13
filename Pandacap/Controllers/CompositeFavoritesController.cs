@@ -15,7 +15,7 @@ namespace Pandacap.Controllers
             var composite =
                 compositeFavoritesProvider.GetAllAsync()
                 .Where(post => post.Thumbnails.Any())
-                .OrderByDescending(post => post.Timestamp.Date)
+                .OrderByDescending(post => post.FavoritedAt.Date)
                 .ThenByDescending(post => post.PostedAt)
                 .SkipUntil(post => post.Id == $"{next}" || next == null);
 
@@ -35,7 +35,7 @@ namespace Pandacap.Controllers
             var composite =
                 compositeFavoritesProvider.GetAllAsync()
                 .Where(post => !post.Thumbnails.Any())
-                .OrderByDescending(post => post.Timestamp.Date)
+                .OrderByDescending(post => post.FavoritedAt.Date)
                 .ThenByDescending(post => post.PostedAt)
                 .SkipUntil(post => post.Id == $"{next}" || next == null);
 

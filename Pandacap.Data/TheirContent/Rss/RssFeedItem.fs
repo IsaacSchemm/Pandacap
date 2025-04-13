@@ -46,6 +46,7 @@ type RssFeedItem() =
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Url
+        member this.PostedAt = this.Timestamp
         member this.ProfileUrl = this.FeedWebsiteUrl
         member this.Thumbnails =
             try
@@ -64,6 +65,5 @@ type RssFeedItem() =
                 }
             with
             | _ -> Seq.empty
-        member this.Timestamp = this.Timestamp
         member this.Usericon = this.FeedIconUrl
         member this.Username = this.FeedWebsiteUrl

@@ -31,7 +31,7 @@ type WeasylFavoriteSubmission() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
-        member this.PostedAt = this.PostedAt
+        member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
         member _.Badges = [{ PostPlatform.GetBadge Weasyl with Text = "weasyl.com" }]
@@ -46,6 +46,6 @@ type WeasylFavoriteSubmission() =
                     member _.Url = thumb.Url
             }
         ]
-        member this.Timestamp = this.FavoritedAt
+        member this.PostedAt = this.PostedAt
         member this.Usericon = this.PostedBy.Avatar
         member this.Username = this.PostedBy.DisplayName

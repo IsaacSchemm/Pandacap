@@ -87,8 +87,8 @@ type Post() =
             | _ -> this.Title
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/UserPosts/{this.Id}"
+        member this.PostedAt = this.PublishedTime
         member _.ProfileUrl = null
-        member this.Timestamp = this.PublishedTime
         member this.Thumbnails = seq {
             for image in this.Images do {
                 new IPostThumbnail with

@@ -33,7 +33,7 @@ type ActivityPubFavorite() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
-        member this.PostedAt = this.CreatedAt
+        member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
         member this.Badges = [
@@ -50,6 +50,7 @@ type ActivityPubFavorite() =
                 |> TitleGenerator.FromBody
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
+        member this.PostedAt = this.CreatedAt
         member this.ProfileUrl = this.CreatedBy
         member this.Thumbnails = [
             if not this.Sensitive then
@@ -60,6 +61,5 @@ type ActivityPubFavorite() =
                             member _.Url = a.Url
                     }
         ]
-        member this.Timestamp = this.FavoritedAt
         member this.Usericon = this.Usericon
         member this.Username = this.Username

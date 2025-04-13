@@ -51,6 +51,7 @@ type InboxActivityStreamsPost() =
         })
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
+        member this.PostedAt = this.PostedAt
         member this.ProfileUrl = this.PostedBy.Id
         member this.Thumbnails = [
             if not this.Sensitive then
@@ -60,6 +61,5 @@ type InboxActivityStreamsPost() =
                         member _.Url = a.Url
                 }
         ]
-        member this.Timestamp = this.PostedAt
         member this.Username = this.PostedBy.Username
         member this.Usericon = this.PostedBy.Usericon

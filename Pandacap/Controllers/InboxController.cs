@@ -71,7 +71,7 @@ namespace Pandacap.Controllers
                     weasylJournals,
                     rssItems
                 }
-                .MergeNewest(post => post.Timestamp)
+                .MergeNewest(post => post.PostedAt)
                 .Where(post => post.DismissedAt == null);
         }
 
@@ -81,7 +81,7 @@ namespace Pandacap.Controllers
         {
             DateTimeOffset startTime = next is string s
                 ? await GetInboxPostsByIds([s])
-                    .Select(f => f.Timestamp)
+                    .Select(f => f.PostedAt)
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
@@ -105,7 +105,7 @@ namespace Pandacap.Controllers
         {
             DateTimeOffset startTime = next is string s
                 ? await GetInboxPostsByIds([s])
-                    .Select(f => f.Timestamp)
+                    .Select(f => f.PostedAt)
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
@@ -129,7 +129,7 @@ namespace Pandacap.Controllers
         {
             DateTimeOffset startTime = next is string s
                 ? await GetInboxPostsByIds([s])
-                    .Select(f => f.Timestamp)
+                    .Select(f => f.PostedAt)
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 
@@ -152,7 +152,7 @@ namespace Pandacap.Controllers
         {
             DateTimeOffset startTime = next is string s
                 ? await GetInboxPostsByIds([s])
-                    .Select(f => f.Timestamp)
+                    .Select(f => f.PostedAt)
                     .SingleAsync()
                 : DateTimeOffset.MaxValue;
 

@@ -23,13 +23,14 @@ type RedditUpvotedPost() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
-        member this.PostedAt = if this.Created.HasValue then this.Created.Value else DateTimeOffset.MinValue
+        member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
         member _.Badges = [{ PostPlatform.GetBadge Reddit with Text = "reddit.com" }]
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.URL
+        member this.PostedAt = this.Created |> Option.ofNullable |> Option.defaultValue DateTimeOffset.MinValue
         member this.ProfileUrl = $"https://www.reddit.com/user/{Uri.EscapeDataString(this.Author)}"
         member this.Thumbnails = [
             if not (isNull this.Thumbnail) then {
@@ -38,6 +39,5 @@ type RedditUpvotedPost() =
                     member _.Url = this.Thumbnail
             }
         ]
-        member this.Timestamp = this.FavoritedAt
         member _.Usericon = null
         member this.Username = this.Author

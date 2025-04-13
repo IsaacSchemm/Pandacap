@@ -48,6 +48,7 @@ type InboxBlueskyPost() =
         member this.DisplayTitle = ExcerptGenerator.FromText 60 this.Text
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"https://bsky.app/profile/{this.Author.DID}/post/{this.RecordKey}"
+        member this.PostedAt = this.CreatedAt
         member this.ProfileUrl = $"https://bsky.app/profile/{this.PostedBy.DID}"
         member this.Thumbnails = [
             if not this.IsAdultContent then
@@ -57,6 +58,5 @@ type InboxBlueskyPost() =
                         member _.Url = image.Thumb
                 }
         ]
-        member this.Timestamp = this.IndexedAt
         member this.Usericon = this.PostedBy.Avatar
         member this.Username = this.PostedBy.Handle

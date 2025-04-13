@@ -16,12 +16,12 @@ type Upload() =
         ]
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/Uploads/{this.Id}"
+        member this.PostedAt = this.UploadedAt
         member _.ProfileUrl = null
         member this.Thumbnails = [{
             new IPostThumbnail with
                 member _.AltText = this.AltText
                 member _.Url = $"/Blobs/Uploads/{this.Id}"
         }]
-        member this.Timestamp = this.UploadedAt
         member _.Usericon = null
         member _.Username = null

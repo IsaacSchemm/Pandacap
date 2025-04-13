@@ -8,7 +8,6 @@
             <tr>
                 <th scope="col">Author</th>
                 <th scope="col">Text</th>
-                <th scope="col">Posted At</th>
                 <th scope="col">Actions</th>
             </tr>
         </thead>
@@ -18,9 +17,6 @@
                 <tr>
                     <td>@item.Username</td>
                     <td>@item.DisplayTitle</td>
-                    <td>
-                        <a href="@item.LinkUrl">@item.Timestamp.Date.ToShortDateString()</a>
-                    </td>
                     <td>
                         <form asp-action="Hide" onsubmit="return confirm('Are you sure you want to hide this post from Favorites?">
                             <input type="hidden" name="id" value="@item.Id" />

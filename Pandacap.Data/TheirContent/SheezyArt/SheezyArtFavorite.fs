@@ -23,7 +23,7 @@ type SheezyArtFavorite() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
-        member this.PostedAt = this.FavoritedAt
+        member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
         member _.Badges = [{ PostPlatform.GetBadge SheezyArt with Text = "sheezy.art" }]
@@ -36,6 +36,6 @@ type SheezyArtFavorite() =
                 member _.AltText = null
                 member _.Url = this.Thumbnail
         }]
-        member this.Timestamp = this.FavoritedAt
+        member this.PostedAt = this.FavoritedAt
         member this.Usericon = this.Avatar
         member this.Username = this.Artist

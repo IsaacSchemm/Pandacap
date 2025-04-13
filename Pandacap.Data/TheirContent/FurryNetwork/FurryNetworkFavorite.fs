@@ -23,13 +23,14 @@ type FurryNetworkFavorite() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
-        member this.PostedAt = this.FavoritedAt
+        member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
         member _.Badges = [{ PostPlatform.GetBadge FurryNetwork with Text = "furrynetwork.com" }]
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Url
+        member this.PostedAt = this.FavoritedAt
         member this.ProfileUrl = $"https://furrynetwork.com/${Uri.EscapeDataString(this.CreatorName)}"
         member this.Thumbnails = [
             if not (isNull this.ThumbnailUrl) then {
@@ -38,6 +39,5 @@ type FurryNetworkFavorite() =
                     member _.Url = this.ThumbnailUrl
             }
         ]
-        member this.Timestamp = this.FavoritedAt
         member this.Usericon = this.CreatorAvatarUrl
         member this.Username = this.CreatorName

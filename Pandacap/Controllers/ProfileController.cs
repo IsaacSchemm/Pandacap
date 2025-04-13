@@ -128,8 +128,8 @@ namespace Pandacap.Controllers
                 RecentFavorites = await compositeFavoritesProvider
                     .GetAllAsync()
                     .Where(post => post.Thumbnails.Any())
-                    .TakeWhile(post => post.Timestamp >= oneMonthAgo)
-                    .OrderByDescending(favorite => favorite.Timestamp.Date)
+                    .TakeWhile(post => post.FavoritedAt >= oneMonthAgo)
+                    .OrderByDescending(favorite => favorite.FavoritedAt.Date)
                     .ThenByDescending(favorite => favorite.PostedAt)
                     .Take(8)
                     .ToListAsync(cancellationToken),

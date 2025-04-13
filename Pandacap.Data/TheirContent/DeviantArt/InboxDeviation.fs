@@ -32,8 +32,8 @@ type InboxDeviation() =
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.LinkUrl
+        member this.PostedAt = this.Timestamp
         member this.ProfileUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(this.Username)}"
-        member this.Timestamp = this.Timestamp
         member this.Thumbnails = [
             if not this.MatureContent then
                 for url in this.ThumbnailUrls do {

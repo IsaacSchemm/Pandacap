@@ -34,7 +34,7 @@ type BlueskyFavorite() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
-        member this.PostedAt = this.CreatedAt
+        member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
         member this.Badges = [
@@ -53,6 +53,6 @@ type BlueskyFavorite() =
                     member _.Url = image.Thumb
             }
         ]
-        member this.Timestamp = this.FavoritedAt
+        member this.PostedAt = this.CreatedAt
         member this.Usericon = this.CreatedBy.Avatar
         member this.Username = this.CreatedBy.Handle
