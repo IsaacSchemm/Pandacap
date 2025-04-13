@@ -32,6 +32,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.InboxWeasylSubmissions: DbSet<InboxWeasylSubmission> = this.Set()
     member this.RssFeeds: DbSet<RssFeed> = this.Set()
     member this.RssFeedItems: DbSet<RssFeedItem> = this.Set()
+    member this.RssFavorites: DbSet<RssFavorite> = this.Set()
     member this.Follows: DbSet<Follow> = this.Set()
     member this.Followers: DbSet<Follower> = this.Set()
     member this.CommunityBookmarks: DbSet<CommunityBookmark> = this.Set()
