@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Models;
@@ -16,6 +15,8 @@ namespace Pandacap.Controllers
             var composite =
                 compositeFavoritesProvider.GetAllAsync()
                 .Where(post => post.Thumbnails.Any())
+                .OrderByDescending(post => post.Timestamp.Date)
+                .ThenByDescending(post => post.PostedAt)
                 .SkipUntil(post => post.Id == $"{next}" || next == null);
 
             var listPage = await composite.AsListPage(count ?? 20);
@@ -34,6 +35,8 @@ namespace Pandacap.Controllers
             var composite =
                 compositeFavoritesProvider.GetAllAsync()
                 .Where(post => !post.Thumbnails.Any())
+                .OrderByDescending(post => post.Timestamp.Date)
+                .ThenByDescending(post => post.PostedAt)
                 .SkipUntil(post => post.Id == $"{next}" || next == null);
 
             var listPage = await composite.AsListPage(count ?? 20);

@@ -129,6 +129,8 @@ namespace Pandacap.Controllers
                     .GetAllAsync()
                     .Where(post => post.Thumbnails.Any())
                     .TakeWhile(post => post.Timestamp >= oneMonthAgo)
+                    .OrderByDescending(favorite => favorite.Timestamp.Date)
+                    .ThenByDescending(favorite => favorite.PostedAt)
                     .Take(8)
                     .ToListAsync(cancellationToken),
                 RecentTextPosts = await context.Posts

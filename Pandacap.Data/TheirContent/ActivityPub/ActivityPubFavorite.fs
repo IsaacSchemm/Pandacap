@@ -33,6 +33,8 @@ type ActivityPubFavorite() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
+        member this.PostedAt = this.CreatedAt
+
     interface IPost with
         member this.Badges = [
             match Uri.TryCreate(this.CreatedBy, UriKind.Absolute) with

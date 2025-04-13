@@ -34,6 +34,8 @@ type BlueskyFavorite() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
+        member this.PostedAt = this.CreatedAt
+
     interface IPost with
         member this.Badges = [
             match Option.ofObj this.CreatedBy.PDS with

@@ -10,6 +10,7 @@ type RedditUpvotedPost() =
 
     member val Id36 = "" with get, set
     member val Author = nullString with get, set
+    member val Created = nullDateTimeOffset with get, set
     member val Title = "" with get, set
     member val Thumbnail = nullString with get, set
     member val URL = "" with get, set
@@ -21,6 +22,8 @@ type RedditUpvotedPost() =
         member this.HiddenAt
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
+
+        member this.PostedAt = if this.Created.HasValue then this.Created.Value else DateTimeOffset.MinValue
 
     interface IPost with
         member _.Badges = [{ PostPlatform.GetBadge Reddit with Text = "reddit.com" }]

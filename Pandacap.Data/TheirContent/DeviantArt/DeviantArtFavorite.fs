@@ -23,6 +23,8 @@ type DeviantArtFavorite() =
             with get () = this.HiddenAt
              and set value = this.HiddenAt <- value
 
+        member this.PostedAt = this.Timestamp
+
     interface IPost with
         member _.Badges = [{ PostPlatform.GetBadge DeviantArt with Text = "deviantart.com" }]
         member this.DisplayTitle = this.Title |> orString ""
