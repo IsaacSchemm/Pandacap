@@ -1,0 +1,39 @@
+﻿@using Pandacap.Data
+
+@model RssFeedItem
+
+@{
+    ViewBag.Title = "View RSS/Atom Feed Item";
+}
+
+<h1>
+    <img height="50" src="@(Model.FeedIconUrl ?? "/images/trgray.svg")" alt="" />
+    <span style="display: inline-block; vertical-align: top">
+        <strong>
+            <a href="@Model.FeedWebsiteUrl" target="_blank">
+                @(Model.FeedTitle)
+            </a>
+        </strong>
+    </span>
+</h1>
+
+@Html.Raw(new Ganss.Xss.HtmlSanitizer().Sanitize(Model.HtmlDescription))
+
+<p class="text-muted">
+    <a href="@Model.Url" target="_blank">
+        @Model.Timestamp
+    </a>
+</p>
+
+<hr />
+
+<p>
+    <form asp-action="AddToFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to add this post to your favorites?')">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn btn-primary">Add to Favorites</button>
+    </form>
+    <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn btn-danger">Remove from Favorites</button>
+    </form>
+</p>

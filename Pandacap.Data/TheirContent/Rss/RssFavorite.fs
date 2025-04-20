@@ -13,6 +13,7 @@ type RssFavoriteImage() =
 
 type RssFavorite() =
     member val Id = Guid.Empty with get, set
+    member val FeedTitle = nullString with get, set
     member val FeedWebsiteUrl = nullString with get, set
     member val FeedIconUrl = nullString with get, set
     member val Title = nullString with get, set
@@ -27,7 +28,7 @@ type RssFavorite() =
     interface IPost with
         member this.Badges = [
             match Uri.TryCreate(this.Url, UriKind.Absolute) with
-            | true, uri -> PostPlatform.GetBadge RSS_Atom |> Badge.WithParenthetical uri.Host
+            | true, uri -> { PostPlatform.GetBadge RSS_Atom with Text = uri.Host }
             | false, _ -> PostPlatform.GetBadge RSS_Atom
         ]
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
@@ -37,7 +38,7 @@ type RssFavorite() =
         member this.ProfileUrl = this.FeedWebsiteUrl
         member this.Thumbnails = seq { for t in this.Thumbnails do t }
         member this.Usericon = this.FeedIconUrl
-        member this.Username = this.FeedWebsiteUrl
+        member this.Username = this.FeedTitle |> orString this.FeedWebsiteUrl
 
     interface IFavorite with
         member this.HiddenAt
