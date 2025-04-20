@@ -42,7 +42,7 @@ namespace Pandacap.Controllers
                 page,
                 cancellationToken: cancellationToken);
 
-            return View(new CommunityViewModel(bookmark.Host, community, page, posts));
+            return View(new CommunityViewModel(actorId, bookmark.Host, community, page, posts));
         }
 
         [Authorize]

@@ -77,8 +77,7 @@
     @if (Model.Page > 1)
     {
         <a asp-action="ViewCommunity"
-           asp-route-host="@Model.Host"
-           asp-route-name="@Model.Community.name"
+           asp-route-actorId="@Model.ActorId"
            asp-route-page="@(Model.Page - 1)"
            class="btn btn-outline-primary">
             &laquo; Previous
@@ -87,8 +86,7 @@
     @if (!Model.PostObjects.IsEmpty)
     {
         <a asp-action="ViewCommunity"
-           asp-route-host="@Model.Host"
-           asp-route-name="@Model.Community.name"
+           asp-route-actorId="@Model.ActorId"
            asp-route-page="@(Model.Page + 1)"
            class="btn btn-outline-primary">
             Next &raquo;
