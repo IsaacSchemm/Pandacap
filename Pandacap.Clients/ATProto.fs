@@ -235,6 +235,13 @@ module Repo =
         dimensions: (int * int) option
     }
 
+    type PostExternal = {
+        description: string
+        blob: obj
+        title: string
+        uri: string
+    }
+
     let UploadBlobAsync httpClient (credentials: ICredentials) (data: byte[]) (contentType: string) (alt: string) = task {
         let! blobResponse =
             Requester.build HttpMethod.Post credentials "com.atproto.repo.uploadBlob" []
@@ -253,10 +260,12 @@ module Repo =
         }
     }
 
+    type PostEmbed = Images of PostImage list | External of PostExternal | NoEmbed
+
     type Post = {
         text: string
         createdAt: DateTimeOffset
-        images: PostImage list
+        embed: PostEmbed
     }
 
     type NewRecord = {
@@ -278,11 +287,12 @@ module Repo =
                     "text", post.text
                     "createdAt", post.createdAt.ToString("o")
 
-                    if not (Seq.isEmpty post.images) then
+                    match post.embed with
+                    | Images images ->
                         "embed", dict [
                             "$type", "app.bsky.embed.images" :> obj
                             "images", [
-                                for i in post.images do dict [
+                                for i in images do dict [
                                     "image", i.blob
                                     "alt", i.alt
                                     match i.dimensions with
@@ -295,6 +305,17 @@ module Repo =
                                 ]
                             ]
                         ]
+                    | External ext ->
+                        "embed", dict [
+                            "$type", "app.bsky.embed.external" :> obj
+                            "external", dict [
+                                "description", ext.description :> obj
+                                "thumb", ext.blob
+                                "title", ext.title
+                                "uri", ext.uri
+                            ]
+                        ]
+                    | NoEmbed -> ()
                 ]
             ]
             |> Reader.readAsync<NewRecord> httpClient (Some credentials)
@@ -302,7 +323,8 @@ module Repo =
 
     let DeleteRecordAsync httpClient (credentials: ICredentials) (rkey: string) = task {
         do!
-            Requester.build HttpMethod.Post credentials "com.atproto.repo.deleteRecord" [
+            Requester.build HttpMethod.Post credentials "com.atproto.repo.deleteRecord" []
+            |> Requester.addJsonBody [
                 "repo", credentials.DID
                 "collection", "app.bsky.feed.post"
                 "rkey", rkey

@@ -51,6 +51,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<ActivityPubCommunicationPrerequisites>()
                 .AddScoped<LemmyClient>()
+                .AddScoped<StarpassAgent>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WeasylNoteNotificationHandler>()
                 .AddScoped<WeasylNotificationHandler>();

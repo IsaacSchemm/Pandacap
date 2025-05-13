@@ -18,19 +18,11 @@ namespace Pandacap.Controllers
     {
         public async Task<IActionResult> Setup()
         {
-            var account = await context.ATProtoCredentials
+            var accounts = await context.ATProtoCredentials
                 .AsNoTracking()
-                .Select(account => new
-                {
-                    account.PDS,
-                    account.DID
-                })
-                .FirstOrDefaultAsync();
+                .ToListAsync();
 
-            ViewBag.PDS = account?.PDS;
-            ViewBag.DID = account?.DID;
-
-            return View();
+            return View(accounts);
         }
 
         [HttpPost]
@@ -41,16 +33,12 @@ namespace Pandacap.Controllers
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var credentials = await context.ATProtoCredentials
-                .Where(c => c.PDS == pds)
                 .Where(c => c.DID == did)
                 .FirstOrDefaultAsync();
 
             if (credentials == null)
             {
                 var session = await Auth.CreateSessionAsync(client, pds, did, password);
-
-                var accounts = await context.ATProtoCredentials.ToListAsync();
-                context.RemoveRange(accounts);
 
                 credentials = new()
                 {
@@ -69,10 +57,52 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reset()
+        public async Task<IActionResult> Remove(string did)
         {
-            var accounts = await context.ATProtoCredentials.ToListAsync();
+            var accounts = await context.ATProtoCredentials
+                .Where(a => a.DID == did)
+                .ToListAsync();
             context.RemoveRange(accounts);
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Setup));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetCrosspostTarget(string did)
+        {
+            var accounts = await context.ATProtoCredentials
+                .Where(a => a.DID == did || a.CrosspostTargetSince != null)
+                .ToListAsync();
+
+            foreach (var account in accounts)
+            {
+                account.CrosspostTargetSince = account.DID == did
+                    ? DateTimeOffset.UtcNow
+                    : null;
+            }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Setup));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetFavoritesTarget(string did)
+        {
+            var accounts = await context.ATProtoCredentials
+                .Where(a => a.DID == did || a.FavoritesTargetSince != null)
+                .ToListAsync();
+
+            foreach (var account in accounts)
+            {
+                account.FavoritesTargetSince = account.DID == did
+                    ? DateTimeOffset.UtcNow
+                    : null;
+            }
 
             await context.SaveChangesAsync();
 
