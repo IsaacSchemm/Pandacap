@@ -42,6 +42,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtFeedNotificationHandler>()
                 .AddScoped<DeviantArtNoteNotificationHandler>()
+                .AddScoped<FavoritesFeedBuilder>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<FurAffinityNoteNotificationHandler>()
                 .AddScoped<FurAffinityNotificationHandler>()
