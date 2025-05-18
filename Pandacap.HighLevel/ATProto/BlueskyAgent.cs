@@ -19,7 +19,7 @@ namespace Pandacap.HighLevel.ATProto
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var wrapper = await atProtoCredentialProvider.GetCredentialsAsync();
+            var wrapper = await atProtoCredentialProvider.GetCrosspostingCredentialsAsync();
 
             if (wrapper?.DID != submission.BlueskyDID)
                 throw new Exception("Cannot delete post from a non-connected atproto account");
@@ -38,7 +38,7 @@ namespace Pandacap.HighLevel.ATProto
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var wrapper = await atProtoCredentialProvider.GetCredentialsAsync();
+            var wrapper = await atProtoCredentialProvider.GetCrosspostingCredentialsAsync();
             if (wrapper == null)
                 return;
 

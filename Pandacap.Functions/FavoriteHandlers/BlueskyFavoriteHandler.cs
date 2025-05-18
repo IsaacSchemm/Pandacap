@@ -48,7 +48,7 @@ namespace Pandacap.Functions.FavoriteHandlers
         /// <returns></returns>
         public async Task ImportLikesAsync()
         {
-            if (await credentialProvider.GetCredentialsAsync() is not IAutomaticRefreshCredentials credentials)
+            if (await credentialProvider.GetCrosspostingCredentialsAsync() is not IAutomaticRefreshCredentials credentials)
                 return;
 
             var client = httpClientFactory.CreateClient();
@@ -125,7 +125,7 @@ namespace Pandacap.Functions.FavoriteHandlers
         /// <returns></returns>
         public async Task ImportRepostsAsync()
         {
-            if (await credentialProvider.GetCredentialsAsync() is not IAutomaticRefreshCredentials credentials)
+            if (await credentialProvider.GetCrosspostingCredentialsAsync() is not IAutomaticRefreshCredentials credentials)
                 return;
 
             var client = httpClientFactory.CreateClient();

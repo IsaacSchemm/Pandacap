@@ -160,8 +160,8 @@ namespace Pandacap.Controllers
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var credentials = await atProtoCredentialProvider.GetCredentialsAsync()
-                ?? throw new Exception("No atproto credentials");
+            var credentials = await atProtoCredentialProvider.GetCrosspostingCredentialsAsync()
+                ?? throw new Exception("No atproto credentials marked for crossposting");
 
             var page = Page.FromStart;
 

@@ -47,7 +47,7 @@ namespace Pandacap.Functions.InboxHandlers
         /// <returns></returns>
         public async Task ImportPostsByUsersWeWatchAsync()
         {
-            if (await credentialProvider.GetCredentialsAsync() is not IAutomaticRefreshCredentials credentials)
+            if (await credentialProvider.GetCrosspostingCredentialsAsync() is not IAutomaticRefreshCredentials credentials)
                 return;
 
             var client = httpClientFactory.CreateClient();

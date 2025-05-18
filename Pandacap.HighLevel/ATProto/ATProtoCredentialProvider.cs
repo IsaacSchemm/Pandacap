@@ -34,19 +34,16 @@ namespace Pandacap.HighLevel.ATProto
             }
         }
 
-        private readonly Lazy<Task<FSharpList<AutomaticRefreshCredentials>>> AllCredentials = new(async () =>
+        private readonly Lazy<Task<IReadOnlyList<AutomaticRefreshCredentials>>> AllCredentials = new(async () =>
         {
             var credentials = await context.ATProtoCredentials.ToListAsync();
 
             return [.. credentials.Select(c => new AutomaticRefreshCredentials(context, c))];
         });
 
-        public async Task<AutomaticRefreshCredentials?> GetCredentialsAsync()
+        public async Task<IReadOnlyList<AutomaticRefreshCredentials>> GetAllCredentialsAsync()
         {
-            var credentials = await AllCredentials.Value;
-            return credentials
-                .Where(c => c.CrosspostTarget)
-                .FirstOrDefault();
+            return await AllCredentials.Value;
         }
 
         public async Task<AutomaticRefreshCredentials?> GetCredentialsAsync(string did)
@@ -54,6 +51,14 @@ namespace Pandacap.HighLevel.ATProto
             var credentials = await AllCredentials.Value;
             return credentials
                 .Where(c => c.DID == did)
+                .FirstOrDefault();
+        }
+
+        public async Task<AutomaticRefreshCredentials?> GetCrosspostingCredentialsAsync()
+        {
+            var credentials = await AllCredentials.Value;
+            return credentials
+                .Where(c => c.CrosspostTarget)
                 .FirstOrDefault();
         }
 

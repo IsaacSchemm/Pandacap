@@ -1,5 +1,6 @@
 ﻿using DeviantArtFs.Extensions;
 using Microsoft.FSharp.Core;
+using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.PlatformBadges;
@@ -13,14 +14,21 @@ namespace Pandacap.HighLevel.Notifications
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
-            var credentials = await atProtoCredentialProvider.GetCredentialsAsync();
-            if (credentials == null)
-                yield break;
+            var allCredentials = await atProtoCredentialProvider.GetAllCredentialsAsync();
+            var results = allCredentials
+                .Select(GetNotificationsAsync)
+                .MergeNewest(post => post.Timestamp);
+            await foreach (var result in results)
+                yield return result;
+        }
 
+        private async IAsyncEnumerable<Notification> GetNotificationsAsync(
+            IAutomaticRefreshCredentials credentials)
+        {
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var page = Clients.ATProto.Page.FromStart;
+            var page = Page.FromStart;
 
             while (true)
             {
@@ -58,7 +66,7 @@ namespace Pandacap.HighLevel.Notifications
                 }
 
                 if (OptionModule.ToObj(result.cursor) is string next)
-                    page = Clients.ATProto.Page.NewFromCursor(next);
+                    page = Page.NewFromCursor(next);
                 else
                     yield break;
             }
