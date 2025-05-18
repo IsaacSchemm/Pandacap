@@ -102,36 +102,20 @@ namespace Pandacap.HighLevel
                 "image/jpeg",
                 thumbnail.AltText);
 
-            string platformName = favorite.Badges
-                .Select(b => b.Text)
-                .DefaultIfEmpty("an external site")
-                .First();
-
-            var date = DateTimeOffset.UtcNow;
-
             var record = await Repo.CreateRecordAsync(
                 httpClient,
                 credentials,
                 Repo.Record.NewPost(new(
                     text: "",
-                    createdAt: date,
+                    createdAt: DateTimeOffset.UtcNow,
                     embed: Repo.PostEmbed.NewExternal(new(
-                        description: $"by {favorite.Username} on {platformName}",
+                        description: $"by {favorite.Username}",
                         blob: postImage.blob,
                         title: favorite.DisplayTitle,
                         uri: favorite.LinkUrl)),
                     pandacapIds: [
                         Repo.PandacapId.NewForFavorite(favorite.Id)
                     ])));
-
-            await Repo.CreateRecordAsync(
-                httpClient,
-                credentials,
-                Repo.Record.NewEmptyThreadGate(
-                    record));
-
-            while (DateTimeOffset.UtcNow == date)
-                await Task.Delay(1);
 
             starpassPost.BlueskyDID = credentials.DID;
             starpassPost.BlueskyRecordKey = record.RecordKey;
@@ -168,13 +152,12 @@ namespace Pandacap.HighLevel
 
         public async Task RefreshAllAsync()
         {
-            var cutoff = DateTime.UtcNow.AddDays(-30);
+            var cutoff = DateTime.UtcNow.AddDays(-14);
 
             var local = await compositeFavoritesProvider
                 .GetAllAsync()
                 .Where(p => p.Thumbnails.Any())
                 .TakeWhile(p => p.FavoritedAt > cutoff)
-                .Take(0)
                 .ToListAsync();
 
             var remote = await context.StarpassPosts
