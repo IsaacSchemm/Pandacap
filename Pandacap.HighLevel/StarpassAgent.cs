@@ -3,6 +3,8 @@ using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel.ATProto;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace Pandacap.HighLevel
 {
@@ -12,10 +14,55 @@ namespace Pandacap.HighLevel
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
+        private byte[] LetterboxToJpeg(byte[] data)
+        {
+            if (!OperatingSystem.IsWindows())
+                throw new NotImplementedException();
+
+            using var ms1 = new MemoryStream(data, writable: false);
+            using var image1 = Image.FromStream(ms1);
+
+            double w = image1.Width;
+            double h = image1.Height;
+            double r = w / h;
+
+            if (w > 400)
+            {
+                double f = w / 400;
+                w /= f;
+                h /= f;
+            }
+
+            if (w > 200)
+            {
+                double f = h / 200;
+                w /= f;
+                h /= f;
+            }
+
+            using var image2 = new Bitmap(400, 200);
+            using var g = Graphics.FromImage(image2);
+
+            int iw = (int)w;
+            int ih = (int)h;
+            int ix = (image2.Width - iw) / 2;
+            int iy = (image2.Height - ih) / 2;
+
+            g.FillRectangle(new SolidBrush(Color.White), ix, iy, iw, ih);
+            g.DrawImage(image1, ix, iy, iw, ih);
+
+            using var ms2 = new MemoryStream();
+            image2.Save(
+                ms2,
+                ImageFormat.Jpeg);
+
+            return ms2.ToArray();
+        }
+
         public async Task AddAsync(IFavorite favorite)
         {
-            if (favorite is BlueskyFavorite || favorite is ActivityPubFavorite)
-                throw new NotImplementedException();
+            //if (favorite is BlueskyFavorite || favorite is ActivityPubFavorite)
+            //    throw new NotImplementedException();
 
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
@@ -49,11 +96,13 @@ namespace Pandacap.HighLevel
                 .Content
                 .ReadAsByteArrayAsync();
 
+            var letterboxedThumbnail = LetterboxToJpeg(thumbnailData);
+
             var postImage = await Repo.UploadBlobAsync(
                 httpClient,
                 credentials,
-                thumbnailData,
-                thumbnailResponse.Content.Headers.ContentType?.MediaType ?? "application/octet-stream",
+                letterboxedThumbnail,
+                "image/jpeg",
                 thumbnail.AltText);
 
             string platformName = favorite.Badges
@@ -115,7 +164,7 @@ namespace Pandacap.HighLevel
                 .GetAllAsync()
                 .Where(p => p.Thumbnails.Any())
                 .TakeWhile(p => p.FavoritedAt > cutoff)
-                .Take(0)
+                .Take(20)
                 .ToListAsync();
 
             var remote = await context.StarpassPosts

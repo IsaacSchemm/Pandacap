@@ -15,7 +15,7 @@ namespace Pandacap.Functions
         WeasylFavoriteHandler weasylFavoriteHandler)
     {
         [Function("FavoriteIngest")]
-        public async Task Run([TimerTrigger("0 0 20 * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("30 44 14 * * *")] TimerInfo myTimer)
         {
             List<Exception> exceptions = [];
 
