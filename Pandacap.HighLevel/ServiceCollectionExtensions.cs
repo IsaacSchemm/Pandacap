@@ -37,6 +37,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ATProtoDIDResolver>()
                 .AddScoped<ATProtoNotificationHandler>()
                 .AddScoped<BlueskyAgent>()
+                .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<CompositeNotificationHandler>()
                 .AddScoped<ComputerVisionProvider>()
                 .AddScoped<DeviantArtCredentialProvider>()

@@ -8,6 +8,7 @@ namespace Pandacap.HighLevel
 {
     public class StarpassAgent(
         ATProtoCredentialProvider atProtoCredentialProvider,
+        CompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
@@ -65,7 +66,7 @@ namespace Pandacap.HighLevel
                 credentials,
                 new Repo.Post(
                     "",
-                    favorite.PostedAt,
+                    favorite.FavoritedAt,
                     Repo.PostEmbed.NewExternal(new(
                         description: $"by {favorite.Username} on {platformName}",
                         blob: postImage.blob,
@@ -77,14 +78,10 @@ namespace Pandacap.HighLevel
             await context.SaveChangesAsync();
         }
 
-        public async Task RemoveAsync(IFavorite favorite)
+        public async Task RemoveAsync(StarpassPost starpassPost)
         {
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
-
-            var starpassPost = await context.StarpassPosts
-                .Where(s => s.FavoriteId == favorite.Id)
-                .SingleOrDefaultAsync();
 
             if (starpassPost == null)
                 return;
@@ -107,6 +104,66 @@ namespace Pandacap.HighLevel
 
             context.StarpassPosts.Remove(starpassPost);
             await context.SaveChangesAsync();
+        }
+
+        public async Task RefreshAllAsync()
+        {
+            var cutoff = DateTime.UtcNow.AddDays(-30);
+
+            var local = await compositeFavoritesProvider
+                .GetAllAsync()
+                .Where(p => p.Thumbnails.Any())
+                .TakeWhile(p => p.FavoritedAt > cutoff)
+                .ToListAsync();
+
+            var remote = await context.StarpassPosts
+                .ToListAsync();
+
+            var localIds = local
+                .Select(x => x.Id)
+                .ToHashSet();
+            var remoteIds = remote
+                .Select(x => x.FavoriteId)
+                .ToHashSet();
+
+            var toAdd = local
+                .Where(x => !remoteIds.Contains(x.Id))
+                //.Take(0)
+                .ToList();
+            var toRemove = remote
+                .Where(x => !localIds.Contains(x.FavoriteId))
+                .ToList();
+
+            var exceptions = new List<Exception>();
+
+            foreach (var item in toAdd)
+            {
+                try
+                {
+                    await AddAsync(item);
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+
+            foreach (var item in toRemove)
+            {
+                try
+                {
+                    await RemoveAsync(item);
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+
+            if (exceptions.Count > 0)
+            {
+                throw new AggregateException([.. exceptions]);
+            }
         }
     }
 }
