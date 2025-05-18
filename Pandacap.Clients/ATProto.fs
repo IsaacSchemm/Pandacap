@@ -262,10 +262,13 @@ module Repo =
 
     type PostEmbed = Images of PostImage list | External of PostExternal | NoEmbed
 
+    type PandacapId = ForPost of Guid | ForFavorite of string
+
     type Post = {
         text: string
         createdAt: DateTimeOffset
         embed: PostEmbed
+        pandacapIds: PandacapId list
     }
 
     type NewRecord = {
@@ -286,6 +289,13 @@ module Repo =
                     "$type", "app.bsky.feed.post" :> obj
                     "text", post.text
                     "createdAt", post.createdAt.ToString("o")
+
+                    for pandacapId in post.pandacapIds do
+                        match pandacapId with
+                        | ForPost id ->
+                            "pandacapPost", id
+                        | ForFavorite id ->
+                            "pandacapFavorite", id
 
                     match post.embed with
                     | Images images ->

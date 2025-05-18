@@ -65,13 +65,14 @@ namespace Pandacap.HighLevel
                 httpClient,
                 credentials,
                 new Repo.Post(
-                    "",
-                    favorite.FavoritedAt,
-                    Repo.PostEmbed.NewExternal(new(
+                    text: "",
+                    createdAt: favorite.FavoritedAt,
+                    embed: Repo.PostEmbed.NewExternal(new(
                         description: $"by {favorite.Username} on {platformName}",
                         blob: postImage.blob,
                         title: favorite.DisplayTitle,
-                        uri: favorite.LinkUrl))));
+                        uri: favorite.LinkUrl)),
+                    pandacapIds: [Repo.PandacapId.NewForFavorite(favorite.Id)]));
 
             starpassPost.BlueskyDID = credentials.DID;
             starpassPost.BlueskyRecordKey = record.RecordKey;
@@ -114,6 +115,7 @@ namespace Pandacap.HighLevel
                 .GetAllAsync()
                 .Where(p => p.Thumbnails.Any())
                 .TakeWhile(p => p.FavoritedAt > cutoff)
+                .Take(0)
                 .ToListAsync();
 
             var remote = await context.StarpassPosts
@@ -128,7 +130,6 @@ namespace Pandacap.HighLevel
 
             var toAdd = local
                 .Where(x => !remoteIds.Contains(x.Id))
-                //.Take(0)
                 .ToList();
             var toRemove = remote
                 .Where(x => !localIds.Contains(x.FavoriteId))
