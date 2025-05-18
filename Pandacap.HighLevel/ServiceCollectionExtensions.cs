@@ -37,6 +37,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ATProtoDIDResolver>()
                 .AddScoped<ATProtoNotificationHandler>()
                 .AddScoped<BlueskyAgent>()
+                .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<CompositeNotificationHandler>()
                 .AddScoped<ComputerVisionProvider>()
                 .AddScoped<DeviantArtCredentialProvider>()
@@ -51,6 +52,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<ActivityPubCommunicationPrerequisites>()
                 .AddScoped<LemmyClient>()
+                .AddScoped<StarpassAgent>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WeasylNoteNotificationHandler>()
                 .AddScoped<WeasylNotificationHandler>();

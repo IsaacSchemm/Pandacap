@@ -235,6 +235,13 @@ module Repo =
         dimensions: (int * int) option
     }
 
+    type PostExternal = {
+        description: string
+        blob: obj
+        title: string
+        uri: string
+    }
+
     let UploadBlobAsync httpClient (credentials: ICredentials) (data: byte[]) (contentType: string) (alt: string) = task {
         let! blobResponse =
             Requester.build HttpMethod.Post credentials "com.atproto.repo.uploadBlob" []
@@ -253,10 +260,15 @@ module Repo =
         }
     }
 
+    type PostEmbed = Images of PostImage list | External of PostExternal | NoEmbed
+
+    type PandacapId = ForPost of Guid | ForFavorite of string
+
     type Post = {
         text: string
         createdAt: DateTimeOffset
-        images: PostImage list
+        embed: PostEmbed
+        pandacapIds: PandacapId list
     }
 
     type NewRecord = {
@@ -267,42 +279,76 @@ module Repo =
             this.uri.Split('/')
             |> Seq.last
 
-    let CreateRecordAsync httpClient (credentials: ICredentials) (post: Post) = task {
+    type Record = Post of Post | EmptyThreadGate of NewRecord
+
+    let CreateRecordAsync httpClient (credentials: ICredentials) (record: Record) = task {
         return!
             Requester.build HttpMethod.Post credentials "com.atproto.repo.createRecord" []
             |> Requester.addJsonBody [
                 "repo", credentials.DID
-                "collection", "app.bsky.feed.post"
-                "record", dict [
-                    "$type", "app.bsky.feed.post" :> obj
-                    "text", post.text
-                    "createdAt", post.createdAt.ToString("o")
 
-                    if not (Seq.isEmpty post.images) then
-                        "embed", dict [
-                            "$type", "app.bsky.embed.images" :> obj
-                            "images", [
-                                for i in post.images do dict [
-                                    "image", i.blob
-                                    "alt", i.alt
-                                    match i.dimensions with
-                                    | None -> ()
-                                    | Some (width, height) ->
-                                        "aspectRatio", dict [
-                                            "width", width
-                                            "height", height
-                                        ]
+                match record with
+                | EmptyThreadGate record ->
+                    "collection", "app.bsky.feed.threadgate"
+                    "rkey", record.RecordKey
+                    "record", dict [
+                        "$type", "app.bsky.feed.threadgate" :> obj
+                        "post", record.uri
+                        "allow", []
+                        "createdAt", DateTimeOffset.UtcNow.ToString("o")
+                    ]
+                | Post post ->
+                    "collection", "app.bsky.feed.post"
+                    "record", dict [
+                        "$type", "app.bsky.feed.post" :> obj
+                        "text", post.text
+                        "createdAt", post.createdAt.ToString("o")
+
+                        for pandacapId in post.pandacapIds do
+                            match pandacapId with
+                            | ForPost id ->
+                                "pandacapPost", id
+                            | ForFavorite id ->
+                                "pandacapFavorite", id
+
+                        match post.embed with
+                        | Images images ->
+                            "embed", dict [
+                                "$type", "app.bsky.embed.images" :> obj
+                                "images", [
+                                    for i in images do dict [
+                                        "image", i.blob
+                                        "alt", i.alt
+                                        match i.dimensions with
+                                        | None -> ()
+                                        | Some (width, height) ->
+                                            "aspectRatio", dict [
+                                                "width", width
+                                                "height", height
+                                            ]
+                                    ]
                                 ]
                             ]
-                        ]
-                ]
+                        | External ext ->
+                            "embed", dict [
+                                "$type", "app.bsky.embed.external" :> obj
+                                "external", dict [
+                                    "description", ext.description :> obj
+                                    "thumb", ext.blob
+                                    "title", ext.title
+                                    "uri", ext.uri
+                                ]
+                            ]
+                        | NoEmbed -> ()
+                    ]
             ]
             |> Reader.readAsync<NewRecord> httpClient (Some credentials)
     }
 
     let DeleteRecordAsync httpClient (credentials: ICredentials) (rkey: string) = task {
         do!
-            Requester.build HttpMethod.Post credentials "com.atproto.repo.deleteRecord" [
+            Requester.build HttpMethod.Post credentials "com.atproto.repo.deleteRecord" []
+            |> Requester.addJsonBody [
                 "repo", credentials.DID
                 "collection", "app.bsky.feed.post"
                 "rkey", rkey

@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Data;
-using Pandacap.HighLevel;
 
-namespace Pandacap
+namespace Pandacap.HighLevel
 {
     public class CompositeFavoritesProvider(PandacapDbContext context)
     {

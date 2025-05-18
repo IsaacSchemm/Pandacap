@@ -19,7 +19,7 @@ namespace Pandacap.HighLevel.ATProto
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var wrapper = await atProtoCredentialProvider.GetCredentialsAsync();
+            var wrapper = await atProtoCredentialProvider.GetCrosspostingCredentialsAsync();
 
             if (wrapper?.DID != submission.BlueskyDID)
                 throw new Exception("Cannot delete post from a non-connected atproto account");
@@ -38,7 +38,7 @@ namespace Pandacap.HighLevel.ATProto
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var wrapper = await atProtoCredentialProvider.GetCredentialsAsync();
+            var wrapper = await atProtoCredentialProvider.GetCrosspostingCredentialsAsync();
             if (wrapper == null)
                 return;
 
@@ -73,10 +73,15 @@ namespace Pandacap.HighLevel.ATProto
             var post = await Repo.CreateRecordAsync(
                 httpClient,
                 wrapper,
-                new Repo.Post(
+                Repo.Record.NewPost(new(
                     text: text,
                     createdAt: submission.PublishedTime,
-                    images: [.. await downloadImagesAsync().ToListAsync()]));
+                    embed: Repo.PostEmbed.NewImages([
+                        .. await downloadImagesAsync().ToListAsync()
+                    ]),
+                    pandacapIds: [
+                        Repo.PandacapId.NewForPost(submission.Id)
+                    ])));
 
             submission.BlueskyDID = wrapper.DID;
             submission.BlueskyRecordKey = post.RecordKey;

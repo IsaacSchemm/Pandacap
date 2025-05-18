@@ -1,4 +1,49 @@
-﻿<div class="row">
+﻿@using Pandacap.Data
+@model IEnumerable<ATProtoCredentials>
+
+<h1>Accounts</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">PDS</th>
+            <th scope="col">DID</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var account in Model)
+        {
+            <tr>
+                <td>
+                    @account.PDS
+                </td>
+                <td>
+                    <a href="https://bsky.app/profile/@account.DID" target="_blank">
+                        @account.DID
+                    </a>
+                    @if (account.CrosspostTargetSince != null)
+                    {
+                        <div class="small text-muted">Crosspost target</div>
+                    }
+                    @if (account.FavoritesTargetSince != null)
+                    {
+                        <div class="small text-muted">Favorites target</div>
+                    }
+                </td>
+                <td>
+                    <form method="post" asp-action="Remove" asp-did="@account.DID">
+                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h1 class="mt-4">Add new account</h1>
+
+<div class="row">
     <div class="col-md-4">
         <form method="post" asp-action="Setup">
             <div class="form-floating mb-3">
@@ -15,9 +60,71 @@
             </div>
             <button type="submit" class="btn btn-primary">Connect</button>
         </form>
-        <hr />
-        <form method="post" asp-action="Reset">
-            <button type="submit" class="btn btn-danger">Remove</button>
+    </div>
+</div>
+
+<h1 class="mt-4">Select crossposting target</h1>
+
+<p>
+    You will be able to manually crosspost to this Bluesky account using the "Post to Bluesky" button.
+</p>
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" asp-action="SetCrosspostTarget">
+            <div class="form-floating mb-3">
+                <select id="did" name="did" class="form-select">
+                    <option value="">None</option>
+                    @foreach (var account in Model)
+                    {
+                        if (account.CrosspostTargetSince != null)
+                        {
+                            <option selected>@account.DID</option>
+                        }
+                        else
+                        {
+                            <option>@account.DID</option>
+                        }
+                    }
+                </select>
+                <label for="did" class="form-label">DID</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Connect</button>
+        </form>
+    </div>
+</div>
+
+<h1 class="mt-4">Select favorites target</h1>
+
+<p>
+    Automatic Bluesky posts will be created on this account that embed posts from Favorites > Gallery.
+    <br />
+    <span class="small text-muted">
+        These Bluesky posts will be deleted once the original post is more than 30 days old.
+    </span>
+</p>
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" asp-action="SetFavoritesTarget">
+            <div class="form-floating mb-3">
+                <select id="did" name="did" class="form-select">
+                    <option value="">None</option>
+                    @foreach (var account in Model)
+                    {
+                        if (account.FavoritesTargetSince != null)
+                        {
+                            <option selected>@account.DID</option>
+                        }
+                        else
+                        {
+                            <option>@account.DID</option>
+                        }
+                    }
+                </select>
+                <label for="did" class="form-label">DID</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Connect</button>
         </form>
     </div>
 </div>

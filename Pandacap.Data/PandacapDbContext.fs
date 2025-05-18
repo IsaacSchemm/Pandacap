@@ -18,6 +18,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.Avatars: DbSet<Avatar> = this.Set()
     member this.BridgyFedBridges: DbSet<BridgyFedBridge> = this.Set()
     member this.Posts: DbSet<Post> = this.Set()
+    member this.StarpassPosts: DbSet<StarpassPost> = this.Set()
     member this.Uploads: DbSet<Upload> = this.Set()
     member this.AddressedPosts: DbSet<AddressedPost> = this.Set()
     member this.PostActivities: DbSet<PostActivity> = this.Set()
