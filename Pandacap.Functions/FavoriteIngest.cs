@@ -1,6 +1,5 @@
 using Microsoft.Azure.Functions.Worker;
 using Pandacap.Functions.FavoriteHandlers;
-using Pandacap.HighLevel;
 
 namespace Pandacap.Functions
 {
@@ -10,7 +9,6 @@ namespace Pandacap.Functions
         FurAffinityFavoriteHandler furAffinityFavoriteHandler,
         FurryNetworkFavoriteHandler furryNetworkFavoriteHandler,
         SheezyArtFavoriteHandler sheezyArtFavoriteHandler,
-        StarpassAgent starpassAgent,
         RedditFavoriteHandler redditFavoriteHandler,
         WeasylFavoriteHandler weasylFavoriteHandler)
     {
@@ -40,8 +38,6 @@ namespace Pandacap.Functions
 
             await c(furryNetworkFavoriteHandler.ImportFavoritesAsync());
             await c(sheezyArtFavoriteHandler.ImportFavoritesAsync());
-
-            await c(starpassAgent.RefreshAllAsync());
 
             if (exceptions.Count > 0)
                 throw new AggregateException(exceptions);

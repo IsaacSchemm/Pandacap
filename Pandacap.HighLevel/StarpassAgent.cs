@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -150,7 +151,7 @@ namespace Pandacap.HighLevel
             await context.SaveChangesAsync();
         }
 
-        public async Task RefreshAllAsync()
+        public async Task RefreshAllAsync(int newPostLimit = int.MaxValue)
         {
             var cutoff = DateTime.UtcNow.AddDays(-14);
 
@@ -172,6 +173,8 @@ namespace Pandacap.HighLevel
 
             var toAdd = local
                 .Where(x => !remoteIds.Contains(x.Id))
+                .OrderBy(x => x.FavoritedAt)
+                .Take(newPostLimit)
                 .ToList();
             var toRemove = remote
                 .Where(x => !localIds.Contains(x.FavoriteId))
