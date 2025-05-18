@@ -14,7 +14,7 @@ namespace Pandacap.HighLevel
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
-        private byte[] LetterboxToJpeg(byte[] data)
+        private static byte[] LetterboxToJpeg(byte[] data)
         {
             if (!OperatingSystem.IsWindows())
                 throw new NotImplementedException();
@@ -61,9 +61,6 @@ namespace Pandacap.HighLevel
 
         public async Task AddAsync(IFavorite favorite)
         {
-            //if (favorite is BlueskyFavorite || favorite is ActivityPubFavorite)
-            //    throw new NotImplementedException();
-
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
@@ -110,18 +107,31 @@ namespace Pandacap.HighLevel
                 .DefaultIfEmpty("an external site")
                 .First();
 
+            var date = DateTimeOffset.UtcNow;
+
             var record = await Repo.CreateRecordAsync(
                 httpClient,
                 credentials,
-                new Repo.Post(
+                Repo.Record.NewPost(new(
                     text: "",
-                    createdAt: favorite.FavoritedAt,
+                    createdAt: date,
                     embed: Repo.PostEmbed.NewExternal(new(
                         description: $"by {favorite.Username} on {platformName}",
                         blob: postImage.blob,
                         title: favorite.DisplayTitle,
                         uri: favorite.LinkUrl)),
-                    pandacapIds: [Repo.PandacapId.NewForFavorite(favorite.Id)]));
+                    pandacapIds: [
+                        Repo.PandacapId.NewForFavorite(favorite.Id)
+                    ])));
+
+            await Repo.CreateRecordAsync(
+                httpClient,
+                credentials,
+                Repo.Record.NewEmptyThreadGate(
+                    record));
+
+            while (DateTimeOffset.UtcNow == date)
+                await Task.Delay(1);
 
             starpassPost.BlueskyDID = credentials.DID;
             starpassPost.BlueskyRecordKey = record.RecordKey;
@@ -164,7 +174,7 @@ namespace Pandacap.HighLevel
                 .GetAllAsync()
                 .Where(p => p.Thumbnails.Any())
                 .TakeWhile(p => p.FavoritedAt > cutoff)
-                .Take(20)
+                .Take(0)
                 .ToListAsync();
 
             var remote = await context.StarpassPosts

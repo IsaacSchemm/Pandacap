@@ -279,54 +279,68 @@ module Repo =
             this.uri.Split('/')
             |> Seq.last
 
-    let CreateRecordAsync httpClient (credentials: ICredentials) (post: Post) = task {
+    type Record = Post of Post | EmptyThreadGate of NewRecord
+
+    let CreateRecordAsync httpClient (credentials: ICredentials) (record: Record) = task {
         return!
             Requester.build HttpMethod.Post credentials "com.atproto.repo.createRecord" []
             |> Requester.addJsonBody [
                 "repo", credentials.DID
-                "collection", "app.bsky.feed.post"
-                "record", dict [
-                    "$type", "app.bsky.feed.post" :> obj
-                    "text", post.text
-                    "createdAt", post.createdAt.ToString("o")
 
-                    for pandacapId in post.pandacapIds do
-                        match pandacapId with
-                        | ForPost id ->
-                            "pandacapPost", id
-                        | ForFavorite id ->
-                            "pandacapFavorite", id
+                match record with
+                | EmptyThreadGate record ->
+                    "collection", "app.bsky.feed.threadgate"
+                    "rkey", record.RecordKey
+                    "record", dict [
+                        "$type", "app.bsky.feed.threadgate" :> obj
+                        "post", record.uri
+                        "allow", []
+                        "createdAt", DateTimeOffset.UtcNow.ToString("o")
+                    ]
+                | Post post ->
+                    "collection", "app.bsky.feed.post"
+                    "record", dict [
+                        "$type", "app.bsky.feed.post" :> obj
+                        "text", post.text
+                        "createdAt", post.createdAt.ToString("o")
 
-                    match post.embed with
-                    | Images images ->
-                        "embed", dict [
-                            "$type", "app.bsky.embed.images" :> obj
-                            "images", [
-                                for i in images do dict [
-                                    "image", i.blob
-                                    "alt", i.alt
-                                    match i.dimensions with
-                                    | None -> ()
-                                    | Some (width, height) ->
-                                        "aspectRatio", dict [
-                                            "width", width
-                                            "height", height
-                                        ]
+                        for pandacapId in post.pandacapIds do
+                            match pandacapId with
+                            | ForPost id ->
+                                "pandacapPost", id
+                            | ForFavorite id ->
+                                "pandacapFavorite", id
+
+                        match post.embed with
+                        | Images images ->
+                            "embed", dict [
+                                "$type", "app.bsky.embed.images" :> obj
+                                "images", [
+                                    for i in images do dict [
+                                        "image", i.blob
+                                        "alt", i.alt
+                                        match i.dimensions with
+                                        | None -> ()
+                                        | Some (width, height) ->
+                                            "aspectRatio", dict [
+                                                "width", width
+                                                "height", height
+                                            ]
+                                    ]
                                 ]
                             ]
-                        ]
-                    | External ext ->
-                        "embed", dict [
-                            "$type", "app.bsky.embed.external" :> obj
-                            "external", dict [
-                                "description", ext.description :> obj
-                                "thumb", ext.blob
-                                "title", ext.title
-                                "uri", ext.uri
+                        | External ext ->
+                            "embed", dict [
+                                "$type", "app.bsky.embed.external" :> obj
+                                "external", dict [
+                                    "description", ext.description :> obj
+                                    "thumb", ext.blob
+                                    "title", ext.title
+                                    "uri", ext.uri
+                                ]
                             ]
-                        ]
-                    | NoEmbed -> ()
-                ]
+                        | NoEmbed -> ()
+                    ]
             ]
             |> Reader.readAsync<NewRecord> httpClient (Some credentials)
     }
