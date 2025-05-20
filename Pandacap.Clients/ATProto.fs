@@ -223,6 +223,23 @@ module Notifications =
             |> Reader.readAsync<NotificationList> httpClient (Some credentials)
     }
 
+/// Gets Bluesky profile info.
+module Profile =
+    type ProfileResponse = {
+        did: string
+        handle: string
+        avatar: string
+        description: string
+    }
+
+    let GetProfileAsync httpClient actor = task {
+        return!
+            Requester.build HttpMethod.Get Host.Public "app.bsky.actor.getProfile" [
+                "actor", actor
+            ]
+            |> Reader.readAsync<ProfileResponse> httpClient None
+    }
+
 /// Handles creating and deleting records in the repo, e.g. Bluesky posts.
 module Repo =
     type BlobResponse = {

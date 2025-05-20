@@ -4,7 +4,8 @@ namespace Pandacap.Models
 {
     public class ProfileViewModel
     {
-        public IEnumerable<string> BlueskyDIDs { get; set; } = [];
+        public IEnumerable<string> BlueskyCrosspostHandles { get; set; } = [];
+        public IEnumerable<string> BlueskyFavoriteHandles { get; set; } = [];
         public IEnumerable<string> DeviantArtUsernames { get; set; } = [];
         public IEnumerable<string> FurAffinityUsernames { get; set; } = [];
         public IEnumerable<string> WeasylUsernames { get; set; } = [];

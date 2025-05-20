@@ -105,6 +105,8 @@ builder.Services
     .AddScoped<ReplyLookup>()
     .AddScoped<WmaZipSplitter>();
 
+builder.Services.AddSingleton<BlueskyResolver>();
+
 builder.Services.AddHttpClient();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
