@@ -39,13 +39,6 @@ namespace Pandacap.HighLevel.Notifications
 
                 foreach (var item in result.notifications)
                 {
-                    string? originalPostRecordKey = (item.reasonSubject ?? "")
-                        .Split('/', StringSplitOptions.RemoveEmptyEntries)
-                        .LastOrDefault();
-                    string? replyRecordKey = (item.uri ?? "")
-                        .Split('/', StringSplitOptions.RemoveEmptyEntries)
-                        .LastOrDefault();
-
                     yield return new()
                     {
                         Platform = new NotificationPlatform(
@@ -53,13 +46,13 @@ namespace Pandacap.HighLevel.Notifications
                             PostPlatformModule.GetBadge(PostPlatform.ATProto),
                             "https://bsky.app/notifications"),
                         ActivityName = item.reason,
-                        Url = replyRecordKey != null && item.reason == "reply"
-                            ? $"https://bsky.app/profile/{item.author.did}/post/{replyRecordKey}"
+                        Url = item.RecordKey != null && item.reason == "reply"
+                            ? $"https://bsky.app/profile/{item.author.did}/post/{Uri.EscapeDataString(item.RecordKey)}"
                             : null,
                         UserName = item.author.displayName.OrNull() ?? item.author.handle,
                         UserUrl = $"https://bsky.app/profile/{item.author.did}",
-                        PostUrl = originalPostRecordKey != null
-                            ? $"https://bsky.app/profile/{credentials.DID}/post/{originalPostRecordKey}"
+                        PostUrl = item.ReasonSubjectRecordKey != null
+                            ? $"https://bsky.app/profile/{credentials.DID}/post/{Uri.EscapeDataString(item.ReasonSubjectRecordKey)}"
                             : null,
                         Timestamp = item.indexedAt.ToUniversalTime()
                     };

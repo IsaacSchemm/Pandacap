@@ -79,8 +79,8 @@ namespace Pandacap.HighLevel.ATProto
                     embed: Repo.PostEmbed.NewImages([
                         .. await downloadImagesAsync().ToListAsync()
                     ]),
-                    pandacapIds: [
-                        Repo.PandacapId.NewForPost(submission.Id)
+                    pandacapMetadata: [
+                        Repo.PandacapMetadata.NewPostId(submission.Id)
                     ])));
 
             submission.BlueskyDID = wrapper.DID;

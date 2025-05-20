@@ -30,6 +30,12 @@ type IHost =
 module Host =
     let Public = { new IHost with member _.PDS = "public.api.bsky.app" }
 
+module RecordKey =
+    let Extract (uri: string) =
+        match uri with
+        | null -> null
+        | _ -> uri.Split('/') |> Array.last |> Uri.UnescapeDataString
+
 /// Any object that can be used to authenticate with Bluesky.
 /// Contains the user's DID, the PDS to connect to, and the current access token.
 type ICredentials =
@@ -182,6 +188,9 @@ module Reader =
             return! finalResp.Content.ReadFromJsonAsync<'T>()
     }
 
+    let readAsAsync<'T> httpClient credentials (_: 'T) req =
+        readAsync<'T> httpClient credentials req
+
 type Page =
 | FromStart
 | FromCursor of string
@@ -202,7 +211,9 @@ module Notifications =
         reasonSubject: string
         isRead: bool
         indexedAt: DateTimeOffset
-    }
+    } with
+        member this.RecordKey = RecordKey.Extract this.uri
+        member this.ReasonSubjectRecordKey = RecordKey.Extract this.reasonSubject
 
     type NotificationList = {
         cursor: string option
@@ -242,32 +253,30 @@ module Profile =
 
 /// Handles creating and deleting records in the repo, e.g. Bluesky posts.
 module Repo =
-    type BlobResponse = {
-        blob: obj
-    }
-
     type PostImage = {
-        blob: obj
-        alt: string
-        dimensions: (int * int) option
+        Blob: obj
+        AltText: string
+        Dimensions: (int * int) option
     }
 
     type PostExternal = {
-        description: string
-        blob: obj
-        title: string
-        uri: string
+        Description: string
+        Blob: obj
+        Title: string
+        Uri: string
     }
 
     let UploadBlobAsync httpClient (credentials: ICredentials) (data: byte[]) (contentType: string) (alt: string) = task {
         let! blobResponse =
             Requester.build HttpMethod.Post credentials "com.atproto.repo.uploadBlob" []
             |> Requester.addBody data contentType
-            |> Reader.readAsync<BlobResponse> httpClient (Some credentials)
+            |> Reader.readAsAsync httpClient (Some credentials) {|
+                blob = null :> obj
+            |}
         return {
-            blob = blobResponse.blob
-            alt = alt
-            dimensions =
+            Blob = blobResponse.blob
+            AltText = alt
+            Dimensions =
                 try
                     use ms = new System.IO.MemoryStream(data, writable = false)
                     use bitmap = System.Drawing.Bitmap.FromStream(ms)
@@ -279,24 +288,26 @@ module Repo =
 
     type PostEmbed = Images of PostImage list | External of PostExternal | NoEmbed
 
-    type PandacapId = ForPost of Guid | ForFavorite of string
+    type PandacapMetadata = PostId of Guid | FavoriteId of string
 
     type Post = {
-        text: string
-        createdAt: DateTimeOffset
-        embed: PostEmbed
-        pandacapIds: PandacapId list
+        Text: string
+        CreatedAt: DateTimeOffset
+        Embed: PostEmbed
+        PandacapMetadata: PandacapMetadata list
     }
+
+    type ThreadGate = {
+        Uri: string
+    }
+
+    type Record = Post of Post | EmptyThreadGate of ThreadGate
 
     type NewRecord = {
         uri: string
         cid: string
     } with
-        member this.RecordKey =
-            this.uri.Split('/')
-            |> Seq.last
-
-    type Record = Post of Post | EmptyThreadGate of NewRecord
+        member this.RecordKey = RecordKey.Extract this.uri
 
     let CreateRecordAsync httpClient (credentials: ICredentials) (record: Record) = task {
         return!
@@ -305,12 +316,12 @@ module Repo =
                 "repo", credentials.DID
 
                 match record with
-                | EmptyThreadGate record ->
+                | EmptyThreadGate x ->
                     "collection", "app.bsky.feed.threadgate"
-                    "rkey", record.RecordKey
+                    "rkey", RecordKey.Extract x.Uri
                     "record", dict [
                         "$type", "app.bsky.feed.threadgate" :> obj
-                        "post", record.uri
+                        "post", x.Uri
                         "allow", []
                         "createdAt", DateTimeOffset.UtcNow.ToString("o")
                     ]
@@ -318,25 +329,25 @@ module Repo =
                     "collection", "app.bsky.feed.post"
                     "record", dict [
                         "$type", "app.bsky.feed.post" :> obj
-                        "text", post.text
-                        "createdAt", post.createdAt.ToString("o")
+                        "text", post.Text
+                        "createdAt", post.CreatedAt.ToString("o")
 
-                        for pandacapId in post.pandacapIds do
-                            match pandacapId with
-                            | ForPost id ->
+                        for pm in post.PandacapMetadata do
+                            match pm with
+                            | PostId id ->
                                 "pandacapPost", id
-                            | ForFavorite id ->
+                            | FavoriteId id ->
                                 "pandacapFavorite", id
 
-                        match post.embed with
+                        match post.Embed with
                         | Images images ->
                             "embed", dict [
                                 "$type", "app.bsky.embed.images" :> obj
                                 "images", [
                                     for i in images do dict [
-                                        "image", i.blob
-                                        "alt", i.alt
-                                        match i.dimensions with
+                                        "image", i.Blob
+                                        "alt", i.AltText
+                                        match i.Dimensions with
                                         | None -> ()
                                         | Some (width, height) ->
                                             "aspectRatio", dict [
@@ -350,10 +361,10 @@ module Repo =
                             "embed", dict [
                                 "$type", "app.bsky.embed.external" :> obj
                                 "external", dict [
-                                    "description", ext.description :> obj
-                                    "thumb", ext.blob
-                                    "title", ext.title
-                                    "uri", ext.uri
+                                    "description", ext.Description :> obj
+                                    "thumb", ext.Blob
+                                    "title", ext.Title
+                                    "uri", ext.Uri
                                 ]
                             ]
                         | NoEmbed -> ()
@@ -362,16 +373,14 @@ module Repo =
             |> Reader.readAsync<NewRecord> httpClient (Some credentials)
     }
 
-    let DeleteRecordAsync httpClient (credentials: ICredentials) (rkey: string) = task {
-        do!
-            Requester.build HttpMethod.Post credentials "com.atproto.repo.deleteRecord" []
-            |> Requester.addJsonBody [
-                "repo", credentials.DID
-                "collection", "app.bsky.feed.post"
-                "rkey", rkey
-            ]
-            |> Reader.readAsync<unit> httpClient (Some credentials)
-    }
+    let DeleteRecordAsync httpClient (credentials: ICredentials) (rkey: string) =
+        Requester.build HttpMethod.Post credentials "com.atproto.repo.deleteRecord" []
+        |> Requester.addJsonBody [
+            "repo", credentials.DID
+            "collection", "app.bsky.feed.post"
+            "rkey", rkey
+        ]
+        |> Reader.readAsync<unit> httpClient (Some credentials)
 
 /// Handles requests within app.bsky.feed.
 module BlueskyFeed =
@@ -443,11 +452,7 @@ module BlueskyFeed =
         labels: Label list
     } with
         member this.RecordKey =
-            match this.uri.Split('/') with
-            | [| "at:"; ""; _; "app.bsky.feed.post"; rkey |] ->
-                Uri.UnescapeDataString(rkey)
-            | _ ->
-                failwith "Cannot extract record key from URI"
+            RecordKey.Extract this.uri
         member this.Images =
             this.embed
             |> Option.bind (fun e -> e.images)

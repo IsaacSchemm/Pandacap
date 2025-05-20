@@ -111,11 +111,11 @@ namespace Pandacap.HighLevel
                     createdAt: DateTimeOffset.UtcNow,
                     embed: Repo.PostEmbed.NewExternal(new(
                         description: $"by {favorite.Username}",
-                        blob: postImage.blob,
+                        blob: postImage.Blob,
                         title: favorite.DisplayTitle,
                         uri: favorite.LinkUrl)),
-                    pandacapIds: [
-                        Repo.PandacapId.NewForFavorite(favorite.Id)
+                    pandacapMetadata: [
+                        Repo.PandacapMetadata.NewFavoriteId(favorite.Id)
                     ])));
 
             starpassPost.BlueskyDID = credentials.DID;
