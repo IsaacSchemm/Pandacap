@@ -48,7 +48,9 @@
 
 @foreach (var profile in Model.BlueskyCrosspostProfiles)
 {
-    @await Html.PartialAsync("_BlueskyProfile", profile)
+    <p>
+        @await Html.PartialAsync("_BlueskyProfile", profile)
+    </p>
 }
 
 <p>
@@ -63,6 +65,13 @@
     </a>
 
     <br />
+
+    @foreach (var profile in Model.BlueskyBridgedProfiles)
+    {
+        @await Html.PartialAsync("_BlueskyProfile", profile)
+
+        <br />
+    }
 
     <a asp-action="Following">Following (@Model.FollowingCount)</a>
     &middot;
@@ -112,12 +121,12 @@
         <a href="/CompositeFavorites/Artwork?format=rss" target="_blank">RSS</a>
     </p>
 
-    <p>
-        @foreach (var profile in Model.BlueskyFavoriteProfiles)
-        {
+    @foreach (var profile in Model.BlueskyFavoriteProfiles)
+    {
+        <p>
             @await Html.PartialAsync("_BlueskyProfile", profile)
-        }
-    </p>
+        </p>
+    }
 
     <partial name="_List" model="@Model.RecentFavorites" />
 

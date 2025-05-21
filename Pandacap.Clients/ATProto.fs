@@ -243,12 +243,27 @@ module Profile =
         description: string
     }
 
+    let private parseAsAsync<'T> (_: 'T) (content: HttpContent) = content.ReadFromJsonAsync<'T>()
+
     let GetProfileAsync httpClient actor = task {
-        return!
+        use! response =
             Requester.build HttpMethod.Get Host.Public "app.bsky.actor.getProfile" [
                 "actor", actor
             ]
-            |> Reader.readAsync<ProfileResponse> httpClient None
+            |> Requester.sendAsync httpClient
+
+        match response.StatusCode with
+        | HttpStatusCode.BadRequest ->
+
+            let! data = response.Content |> parseAsAsync {|
+                error = ""
+                message = ""
+            |}
+
+            return failwithf "%A" data
+        | _ ->
+            let! data = response.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<ProfileResponse>()
+            return data
     }
 
 /// Handles creating and deleting records in the repo, e.g. Bluesky posts.

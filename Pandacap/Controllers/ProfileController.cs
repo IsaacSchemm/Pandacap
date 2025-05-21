@@ -31,16 +31,9 @@ namespace Pandacap.Controllers
         private async Task<ActivityPub.Profile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
         {
-            var blueskyHandles = await blueskyResolver
-                .ResolveAllAsync(
-                    context.ATProtoCredentials
-                        .Where(c => c.CrosspostTargetSince != null)
-                        .Select(c => c.DID)
-                        .AsAsyncEnumerable(),
-                    context.BridgyFedBridges
-                        .Select(c => c.DID)
-                        .AsAsyncEnumerable())
-                .Select(p => $"@{p.Handle}")
+            var blueskyDIDs = await context.ATProtoCredentials
+                .Where(c => c.CrosspostTargetSince != null)
+                .Select(c => c.DID)
                 .ToListAsync(cancellationToken);
 
             var deviantArtUsernames = await context.DeviantArtCredentials
@@ -69,7 +62,7 @@ namespace Pandacap.Controllers
                     avatar == null
                         ? null
                         : $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}"),
-                bluesky: [.. blueskyHandles],
+                bluesky: [.. blueskyDIDs],
                 deviantArt: [.. deviantArtUsernames],
                 furAffinity: [.. furAffinityUsernames],
                 publicKeyPem: key,
@@ -91,24 +84,23 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
-            var blueskyProfiles = await blueskyResolver
-                .ResolveAllAsync(
-                    context.ATProtoCredentials
-                        .Where(c => c.CrosspostTargetSince != null)
-                        .Select(c => c.DID)
-                        .AsAsyncEnumerable(),
-                    context.BridgyFedBridges
-                        .Select(c => c.DID)
-                        .AsAsyncEnumerable())
-                .ToListAsync(cancellationToken);
+            var atProtoCredentials = await context.ATProtoCredentials.ToListAsync(cancellationToken);
 
-            var starpassProfiles = await blueskyResolver
-                .ResolveAllAsync(
-                    context.ATProtoCredentials
-                        .Where(c => c.FavoritesTargetSince != null)
-                        .Select(c => c.DID)
-                        .AsAsyncEnumerable())
-                .ToListAsync(cancellationToken);
+            var blueskyCrosspostDIDs = atProtoCredentials
+                .Where(c => c.CrosspostTargetSince != null)
+                .Select(c => c.DID);
+            var blueskyFavoritesDIDs = atProtoCredentials
+                .Where(c => c.FavoritesTargetSince != null)
+                .Select(c => c.DID);
+
+            var profiles = await blueskyResolver.GetAsync([
+                .. atProtoCredentials.Select(c => c.DID),
+                $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy"
+            ]);
+
+            var bridgedProfiles = profiles.Where(p => p.Handle.EndsWith(".ap.brid.gy"));
+            var blueskyCrosspostProfiles = profiles.Where(p => blueskyCrosspostDIDs.Contains(p.DID));
+            var blueskyFavoritesProfiles = profiles.Where(p => blueskyFavoritesDIDs.Contains(p.DID));
 
             var deviantArtUsernames = await context.DeviantArtCredentials
                 .Select(d => d.Username)
@@ -131,8 +123,9 @@ namespace Pandacap.Controllers
 
             return View(new ProfileViewModel
             {
-                BlueskyCrosspostProfiles = blueskyProfiles,
-                BlueskyFavoriteProfiles = starpassProfiles,
+                BlueskyBridgedProfiles = bridgedProfiles,
+                BlueskyCrosspostProfiles = blueskyCrosspostProfiles,
+                BlueskyFavoriteProfiles = blueskyFavoritesProfiles,
                 DeviantArtUsernames = deviantArtUsernames,
                 FurAffinityUsernames = furAffinityUsernames,
                 WeasylUsernames = weasylUsernames,
