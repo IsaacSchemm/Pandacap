@@ -97,6 +97,7 @@ builder.Services
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
+    .AddScoped<BlueskyProfileResolver>()
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<DeliveryInboxCollector>()
     .AddScoped<MastodonVerifier>()
@@ -104,8 +105,6 @@ builder.Services
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>()
     .AddScoped<WmaZipSplitter>();
-
-builder.Services.AddSingleton<BlueskyResolver>();
 
 builder.Services.AddHttpClient();
 

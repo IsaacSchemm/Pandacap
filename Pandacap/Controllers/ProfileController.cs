@@ -19,7 +19,7 @@ namespace Pandacap.Controllers
         ApplicationInformation appInfo,
         AtomRssFeedReader atomRssFeedReader,
         BlobServiceClient blobServiceClient,
-        BlueskyResolver blueskyResolver,
+        BlueskyProfileResolver blueskyResolver,
         CompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
@@ -31,18 +31,17 @@ namespace Pandacap.Controllers
         private async Task<ActivityPub.Profile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
         {
-            IEnumerable<string> blueskyHandles = [
-                .. await context.ATProtoCredentials
-                    .Where(c => c.CrosspostTargetSince != null)
-                    .Select(c => c.DID)
-                    .AsAsyncEnumerable()
-                    .SelectAwait(async did => await blueskyResolver.ResolveHandleAsync(did))
-                    .ToListAsync(cancellationToken),
-                .. await context.BridgyFedBridges
-                    .Select(c => c.DID)
-                    .AsAsyncEnumerable()
-                    .SelectAwait(async did => await blueskyResolver.ResolveHandleAsync(did))
-                    .ToListAsync(cancellationToken)];
+            var blueskyHandles = await blueskyResolver
+                .ResolveAllAsync(
+                    context.ATProtoCredentials
+                        .Where(c => c.CrosspostTargetSince != null)
+                        .Select(c => c.DID)
+                        .AsAsyncEnumerable(),
+                    context.BridgyFedBridges
+                        .Select(c => c.DID)
+                        .AsAsyncEnumerable())
+                .Select(p => $"@{p.Handle}")
+                .ToListAsync(cancellationToken);
 
             var deviantArtUsernames = await context.DeviantArtCredentials
                 .Select(d => d.Username)
@@ -92,26 +91,24 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
-            IEnumerable<string> blueskyHandles = [
-                .. await context.ATProtoCredentials
-                    .Where(c => c.CrosspostTargetSince != null)
-                    .Select(c => c.DID)
-                    .AsAsyncEnumerable()
-                    .SelectAwait(async did => await blueskyResolver.ResolveHandleAsync(did))
-                    .ToListAsync(cancellationToken),
-                .. await context.BridgyFedBridges
-                    .Select(c => c.DID)
-                    .AsAsyncEnumerable()
-                    .SelectAwait(async did => await blueskyResolver.ResolveHandleAsync(did))
-                    .ToListAsync(cancellationToken)];
+            var blueskyProfiles = await blueskyResolver
+                .ResolveAllAsync(
+                    context.ATProtoCredentials
+                        .Where(c => c.CrosspostTargetSince != null)
+                        .Select(c => c.DID)
+                        .AsAsyncEnumerable(),
+                    context.BridgyFedBridges
+                        .Select(c => c.DID)
+                        .AsAsyncEnumerable())
+                .ToListAsync(cancellationToken);
 
-            IEnumerable<string> starpassHandles = [
-                .. await context.ATProtoCredentials
-                    .Where(c => c.FavoritesTargetSince != null)
-                    .Select(c => c.DID)
-                    .AsAsyncEnumerable()
-                    .SelectAwait(async did => await blueskyResolver.ResolveHandleAsync(did))
-                    .ToListAsync(cancellationToken)];
+            var starpassProfiles = await blueskyResolver
+                .ResolveAllAsync(
+                    context.ATProtoCredentials
+                        .Where(c => c.FavoritesTargetSince != null)
+                        .Select(c => c.DID)
+                        .AsAsyncEnumerable())
+                .ToListAsync(cancellationToken);
 
             var deviantArtUsernames = await context.DeviantArtCredentials
                 .Select(d => d.Username)
@@ -134,8 +131,8 @@ namespace Pandacap.Controllers
 
             return View(new ProfileViewModel
             {
-                BlueskyCrosspostHandles = blueskyHandles,
-                BlueskyFavoriteHandles = starpassHandles,
+                BlueskyCrosspostProfiles = blueskyProfiles,
+                BlueskyFavoriteProfiles = starpassProfiles,
                 DeviantArtUsernames = deviantArtUsernames,
                 FurAffinityUsernames = furAffinityUsernames,
                 WeasylUsernames = weasylUsernames,

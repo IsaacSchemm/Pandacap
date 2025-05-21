@@ -42,14 +42,14 @@
                 </div>
             </div>
 
-            @foreach (string did in Model.BlueskyCrosspostHandles)
+            @foreach (var profile in Model.BlueskyCrosspostProfiles)
             {
                 <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Bluesky</h5>
 
-                        <a href="https://bsky.app/profile/@did" target="_blank">
-                            <tt>@did</tt>
+                        <a href="@profile.BlueskyUri" target="_blank">
+                            <tt>@@@profile.Handle</tt>
                         </a>
                     </div>
                 </div>
@@ -161,11 +161,15 @@
         <a href="/CompositeFavorites/Artwork?format=rss">RSS</a>
         &middot;
         <a href="/CompositeFavorites/Artwork?format=atom">Atom</a>
-        @foreach (string did in Model.BlueskyFavoriteHandles)
+        @foreach (var profile in Model.BlueskyFavoriteProfiles)
         {
             @:&middot;
-            <a href="https://bsky.app/profile/@did">Bluesky</a>
-            @:(@@@did)
+            <a href="@profile.BlueskyUri">Bluesky (@@@profile.Handle)</a>
+            foreach (var ap in profile.ActivityPubMirrors)
+            {
+                @:&middot;
+                <a href="@ap.Id">ActivityPub (@ap.Handle)</a>
+            }
         }
     </p>
 
