@@ -13,7 +13,7 @@
     @appInfo.Username
 </h1>
 
-<p align="center">
+<p>
     <a asp-controller="Gallery" asp-action="Artwork" class="btn btn-outline-primary mb-1" style="min-width: 125px">
         Gallery
     </a>
@@ -25,7 +25,7 @@
     </a>
 </p>
 
-<p align="center">
+<p>
     <a href="/Gallery/Composite?format=atom" target="_blank">Atom</a>
     &middot;
     <a href="/Gallery/Composite?format=rss" target="_blank">RSS</a>
@@ -48,35 +48,10 @@
 
 @foreach (var profile in Model.BlueskyCrosspostProfiles)
 {
-    <p align="center">
-        <tt style="user-select: all">@@@profile.Handle</tt>
-
-        <a href="@profile.BlueskyUri" target="_blank">
-            <img alt=""
-                 src="https://web-cdn.bsky.app/static/favicon-16x16.png"
-                 width="16"
-                 height="16" />
-            <span class="visually-hidden">View on Bluesky</span>
-        </a>
-
-        @foreach (var ap in profile.ActivityPubMirrors)
-        {
-            <br />
-
-            <tt style="user-select: all">@ap.Handle</tt>
-
-            <a href="@ap.Id" target="_blank">
-                <img alt=""
-                        src="/images/Fediverse_logo.svg"
-                        width="16"
-                        height="16" />
-                <span class="visually-hidden">ActivityPub actor ID</span>
-            </a>
-        }
-    </p>
+    @await Html.PartialAsync("_BlueskyProfile", profile)
 }
 
-<p align="center">
+<p>
     <tt style="user-select: all">@@@appInfo.Username@@@appInfo.HandleHostname</tt>
 
     <a href="https://@appInfo.ApplicationHostname" target="_blank">
@@ -140,30 +115,7 @@
     <p>
         @foreach (var profile in Model.BlueskyFavoriteProfiles)
         {
-            <tt style="user-select: all">@@@profile.Handle</tt>
-
-            <a href="@profile.BlueskyUri" target="_blank">
-                <img alt=""
-                     src="https://web-cdn.bsky.app/static/favicon-16x16.png"
-                     width="16"
-                     height="16" />
-                <span class="visually-hidden">View on Bluesky</span>
-            </a>
-
-            foreach (var ap in profile.ActivityPubMirrors)
-            {
-                <br />
-
-                <tt style="user-select: all">@ap.Handle</tt>
-
-                <a href="@ap.Id" target="_blank">
-                    <img alt=""
-                            src="/images/Fediverse_logo.svg"
-                            width="16"
-                            height="16" />
-                    <span class="visually-hidden">ActivityPub actor ID</span>
-                </a>
-            }
+            @await Html.PartialAsync("_BlueskyProfile", profile)
         }
     </p>
 

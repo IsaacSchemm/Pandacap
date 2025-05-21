@@ -1,0 +1,28 @@
+﻿@model BlueskyProfileResolver.ProfileInformation
+
+<p>
+    <tt style="user-select: all">@@@Model.Handle</tt>
+
+    <a href="@Model.BlueskyUri" target="_blank">
+        <img alt=""
+                src="https://web-cdn.bsky.app/static/favicon-16x16.png"
+                width="16"
+                height="16" />
+        <span class="visually-hidden">View on Bluesky</span>
+    </a>
+
+    @foreach (var ap in Model.ActivityPubMirrors)
+    {
+        <br />
+
+        <tt style="user-select: all">@ap.Handle</tt>
+
+        <a href="@ap.Id" target="_blank">
+            <img alt=""
+                    src="/images/Fediverse_logo.svg"
+                    width="16"
+                    height="16" />
+            <span class="visually-hidden">ActivityPub actor ID</span>
+        </a>
+    }
+</p>
