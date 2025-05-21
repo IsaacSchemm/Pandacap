@@ -159,6 +159,8 @@ namespace Pandacap.HighLevel
                 .GetAllAsync()
                 .Where(p => p.Thumbnails.Any())
                 .TakeWhile(p => p.FavoritedAt > cutoff)
+                .OrderByDescending(post => post.FavoritedAt.Date)
+                .ThenByDescending(post => post.PostedAt)
                 .ToListAsync();
 
             var remote = await context.StarpassPosts
