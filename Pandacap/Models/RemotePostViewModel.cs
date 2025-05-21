@@ -6,6 +6,5 @@ namespace Pandacap.Models
     {
         public required RemotePost RemotePost { get; init; }
         public required bool IsInFavorites { get; init; }
-        public required bool IsBridgyFedEnabled { get; init; }
     }
 }
