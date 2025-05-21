@@ -25,103 +25,84 @@
     </a>
 </p>
 
-<div class="container">
-    <div class="row">
-        <div class="col-xl-4">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">ActivityPub</h5>
+<p align="center">
+    <a href="/Gallery/Composite?format=atom" target="_blank">Atom</a>
+    &middot;
+    <a href="/Gallery/Composite?format=rss" target="_blank">RSS</a>
+    @foreach (var username in Model.DeviantArtUsernames)
+    {
+        @:&middot;
+        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)" target="_blank">DeviantArt</a>
+    }
+    @foreach (var username in Model.FurAffinityUsernames)
+    {
+        @:&middot;
+        <a href="https://www.furaffinity.net/user/@Uri.EscapeDataString(username)" target="_blank">Fur Affinity</a>
+    }
+    @foreach (var username in Model.WeasylUsernames)
+    {
+        @:&middot;
+        <a href="https://www.weasyl.com/~@username" target="_blank">Weasyl</a>
+    }
+</p>
 
-                    <tt>@@@appInfo.Username@@@appInfo.HandleHostname</tt>
+@foreach (var profile in Model.BlueskyCrosspostProfiles)
+{
+    <p align="center">
+        <tt style="user-select: all">@@@profile.Handle</tt>
 
-                    <br />
+        <a href="@profile.BlueskyUri" target="_blank">
+            <img alt=""
+                 src="https://web-cdn.bsky.app/static/favicon-16x16.png"
+                 width="16"
+                 height="16" />
+            <span class="visually-hidden">View on Bluesky</span>
+        </a>
 
-                    <a asp-action="Following">Following (@Model.FollowingCount)</a>
-                    &middot;
-                    <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
-                </div>
-            </div>
+        @foreach (var ap in profile.ActivityPubMirrors)
+        {
+            <br />
 
-            @foreach (var profile in Model.BlueskyCrosspostProfiles)
-            {
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Bluesky</h5>
+            <tt style="user-select: all">@ap.Handle</tt>
 
-                        <a href="@profile.BlueskyUri" target="_blank">
-                            <tt>@@@profile.Handle</tt>
-                        </a>
-                    </div>
-                </div>
-            }
-        </div>
-        <div class="col-xl-4">
-            @foreach (string username in Model.DeviantArtUsernames)
-            {
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">DeviantArt</h5>
+            <a href="@ap.Id" target="_blank">
+                <img alt=""
+                        src="/images/Fediverse_logo.svg"
+                        width="16"
+                        height="16" />
+                <span class="visually-hidden">ActivityPub actor ID</span>
+            </a>
+        }
+    </p>
+}
 
-                        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)" target="_blank">
-                            <tt>@username</tt>
-                        </a>
-                    </div>
-                </div>
-            }
+<p align="center">
+    <tt style="user-select: all">@@@appInfo.Username@@@appInfo.HandleHostname</tt>
 
-            @foreach (string username in Model.FurAffinityUsernames)
-            {
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Fur Affinity</h5>
+    <a href="https://@appInfo.ApplicationHostname" target="_blank">
+        <img alt=""
+             src="/images/Fediverse_logo.svg"
+             width="16"
+             height="16" />
+        <span class="visually-hidden">ActivityPub actor ID</span>
+    </a>
 
-                        <a href="https://www.furaffinity.net/user/@Uri.EscapeDataString(username)" target="_blank">
-                            <tt>@username</tt>
-                        </a>
-                    </div>
-                </div>
-            }
+    <br />
 
-            @foreach (string username in Model.WeasylUsernames)
-            {
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Weasyl</h5>
+    <a asp-action="Following">Following (@Model.FollowingCount)</a>
+    &middot;
+    <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
+</p>
 
-                        <a href="https://www.weasyl.com/~@username" target="_blank">
-                            <tt>@username</tt>
-                        </a>
-                    </div>
-                </div>
-            }
-        </div>
-        <div class="col-xl-4">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Atom</h5>
+<h2 class="my-4">
+    Newest artwork
+</h2>
 
-                    <a href="/Gallery/Artwork?format=atom">Gallery</a>
-                    &middot;
-                    <a href="/Gallery/TextPosts?format=atom">Text posts</a>
-                    &middot;
-                    <a href="/Gallery/Composite?format=atom">All</a>
-                </div>
-            </div>
-
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">RSS</h5>
-
-                    <a href="/Gallery/Artwork?format=rss">Gallery</a>
-                    &middot;
-                    <a href="/Gallery/TextPosts?format=rss">Text posts</a>
-                    &middot;
-                    <a href="/Gallery/Composite?format=rss">All</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<p>
+    <a href="/Gallery/Artwork?format=atom" target="_blank">Atom</a>
+    &middot;
+    <a href="/Gallery/Artwork?format=rss" target="_blank">RSS</a>
+</p>
 
 <form asp-action="Search" method="get">
     <div class="input-group mb-3">
@@ -136,20 +117,13 @@
     </div>
 </form>
 
-@if (Model.RecentArtwork.Any())
-{
-    <h2 class="my-4">
-        Newest artwork
-    </h2>
+<partial name="_ListGroup" model="@Model.RecentArtwork" />
 
-    <partial name="_ListGroup" model="@Model.RecentArtwork" />
-
-    <p align="right">
-        <a asp-controller="Gallery" asp-action="Artwork" class="btn btn-outline-primary">
-            View more &raquo;
-        </a>
-    </p>
-}
+<p align="right">
+    <a asp-controller="Gallery" asp-action="Artwork" class="btn btn-outline-primary">
+        View more &raquo;
+    </a>
+</p>
 
 @if (Model.RecentFavorites.Any())
 {
@@ -158,17 +132,37 @@
     </h2>
 
     <p>
-        <a href="/CompositeFavorites/Artwork?format=rss">RSS</a>
+        <a href="/CompositeFavorites/Artwork?format=atom" target="_blank">Atom</a>
         &middot;
-        <a href="/CompositeFavorites/Artwork?format=atom">Atom</a>
+        <a href="/CompositeFavorites/Artwork?format=rss" target="_blank">RSS</a>
+    </p>
+
+    <p>
         @foreach (var profile in Model.BlueskyFavoriteProfiles)
         {
-            @:&middot;
-            <a href="@profile.BlueskyUri">Bluesky (@@@profile.Handle)</a>
+            <tt style="user-select: all">@@@profile.Handle</tt>
+
+            <a href="@profile.BlueskyUri" target="_blank">
+                <img alt=""
+                     src="https://web-cdn.bsky.app/static/favicon-16x16.png"
+                     width="16"
+                     height="16" />
+                <span class="visually-hidden">View on Bluesky</span>
+            </a>
+
             foreach (var ap in profile.ActivityPubMirrors)
             {
-                @:&middot;
-                <a href="@ap.Id">ActivityPub (@ap.Handle)</a>
+                <br />
+
+                <tt style="user-select: all">@ap.Handle</tt>
+
+                <a href="@ap.Id" target="_blank">
+                    <img alt=""
+                            src="/images/Fediverse_logo.svg"
+                            width="16"
+                            height="16" />
+                    <span class="visually-hidden">ActivityPub actor ID</span>
+                </a>
             }
         }
     </p>
@@ -187,6 +181,12 @@
     <h2 class="my-4">
         Recent text posts
     </h2>
+
+    <p>
+        <a href="/Gallery/TextPosts?format=atom" target="_blank">Atom</a>
+        &middot;
+        <a href="/Gallery/TextPosts?format=rss" target="_blank">RSS</a>
+    </p>
 
     <partial name="_ListGroup" model="@Model.RecentTextPosts" />
 

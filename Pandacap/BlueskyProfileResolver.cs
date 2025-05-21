@@ -41,7 +41,7 @@ namespace Pandacap
             async IAsyncEnumerable<ActivityPubMirror> findMirrorsAsync()
             {
                 var addressee = await activityPubRemoteActorService.FetchAddresseeAsync(
-                    $"https://bsky.brid.gy/ap/{Uri.EscapeDataString(did)}",
+                    $"https://bsky.brid.gy/ap/{Uri.EscapeDataString(profile.handle)}",
                     CancellationToken.None);
                 if (addressee is RemoteAddressee.Actor actor)
                     yield return new()
@@ -52,13 +52,13 @@ namespace Pandacap
             }
 
             var addressee = await activityPubRemoteActorService.FetchAddresseeAsync(
-                $"https://bsky.brid.gy/ap/{Uri.EscapeDataString(did)}",
+                $"https://bsky.brid.gy/ap/{Uri.EscapeDataString(profile.handle)}",
                 CancellationToken.None);
 
             var profileInformation = new ProfileInformation
             {
                 Handle = profile.handle,
-                BlueskyUri = new Uri($"https://bsky.app/profile/{Uri.EscapeDataString(profile.did)}"),
+                BlueskyUri = new Uri($"https://bsky.app/profile/{Uri.EscapeDataString(profile.handle)}"),
                 ActivityPubMirrors = [.. await findMirrorsAsync().ToListAsync()]
             };
 
