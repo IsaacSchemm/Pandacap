@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ImageMagick;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
@@ -17,45 +18,24 @@ namespace Pandacap.HighLevel
     {
         private static byte[] LetterboxToJpeg(byte[] data)
         {
-            if (!OperatingSystem.IsWindows())
-                throw new NotImplementedException();
+            using var image1 = new MagickImage(data);
 
-            using var ms1 = new MemoryStream(data, writable: false);
-            using var image1 = Image.FromStream(ms1);
+            using var image2 = new MagickImage(
+                new MagickColor("#ffffff"),
+                Math.Max(image1.Width, image1.Height * 2),
+                Math.Max(image1.Height, image1.Width / 2));
 
-            double w = image1.Width;
-            double h = image1.Height;
-            double r = w / h;
+            image2.Composite(
+                image1,
+                (int)((image2.Width - image1.Width) / 2),
+                (int)((image2.Height - image1.Height) / 2),
+                CompositeOperator.Over);
 
-            if (w > 400)
-            {
-                double f = w / 400;
-                w /= f;
-                h /= f;
-            }
-
-            if (w > 200)
-            {
-                double f = h / 200;
-                w /= f;
-                h /= f;
-            }
-
-            using var image2 = new Bitmap(400, 200);
-            using var g = Graphics.FromImage(image2);
-
-            int iw = (int)w;
-            int ih = (int)h;
-            int ix = (image2.Width - iw) / 2;
-            int iy = (image2.Height - ih) / 2;
-
-            g.FillRectangle(new SolidBrush(Color.White), ix, iy, iw, ih);
-            g.DrawImage(image1, ix, iy, iw, ih);
+            if (image2.Width > 480)
+                image2.Resize(480, 240);
 
             using var ms2 = new MemoryStream();
-            image2.Save(
-                ms2,
-                ImageFormat.Jpeg);
+            image2.WriteAsync(ms2, MagickFormat.Jpg);
 
             return ms2.ToArray();
         }
@@ -86,6 +66,10 @@ namespace Pandacap.HighLevel
             var thumbnail = favorite.Thumbnails
                 .Where(t => t.Url != null)
                 .First();
+
+            using var thumbnailRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                thumbnail.Url);
 
             using var thumbnailResponse = await httpClient.GetAsync(thumbnail.Url);
 
