@@ -49,7 +49,7 @@ type ActivityPubFavorite() =
                 |> TextConverter.FromHtml
                 |> TitleGenerator.FromBody
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
+        member this.LinkUrl = $"{this.ObjectId}"
         member this.PostedAt = this.CreatedAt
         member this.ProfileUrl = this.CreatedBy
         member this.Thumbnails = [

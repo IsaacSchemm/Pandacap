@@ -53,15 +53,13 @@ namespace Pandacap.HighLevel
                 .Where(s => s.FavoriteId == favorite.Id)
                 .SingleOrDefaultAsync();
 
-            if (starpassPost == null)
-            {
-                starpassPost = new StarpassPost
-                {
-                    FavoriteId = favorite.Id
-                };
+            if (starpassPost != null)
+                return;
 
-                context.StarpassPosts.Add(starpassPost);
-            }
+            starpassPost = new StarpassPost
+            {
+                FavoriteId = favorite.Id
+            };
 
             var thumbnail = favorite.Thumbnails
                 .Where(t => t.Url != null)
@@ -104,6 +102,8 @@ namespace Pandacap.HighLevel
 
             starpassPost.BlueskyDID = credentials.DID;
             starpassPost.BlueskyRecordKey = record.RecordKey;
+
+            context.StarpassPosts.Add(starpassPost);
             await context.SaveChangesAsync();
         }
 
