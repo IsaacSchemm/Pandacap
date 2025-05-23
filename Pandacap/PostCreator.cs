@@ -4,9 +4,7 @@ using Pandacap.Data;
 namespace Pandacap
 {
     public class PostCreator(
-        DeliveryInboxCollector deliveryInboxCollector,
-        PandacapDbContext context,
-        ActivityPub.PostTranslator postTranslator)
+        PandacapDbContext context)
     {
         public interface IViewModel
         {
@@ -72,21 +70,6 @@ namespace Pandacap
             }
 
             context.Posts.Add(post);
-
-            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                isCreate: true,
-                cancellationToken: cancellationToken))
-            {
-                context.ActivityPubOutboundActivities.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
-                        postTranslator.BuildObjectCreate(
-                            post)),
-                    Inbox = inbox,
-                    StoredAt = DateTimeOffset.UtcNow
-                });
-            }
 
             await context.SaveChangesAsync(cancellationToken);
 

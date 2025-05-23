@@ -54,28 +54,12 @@
 }
 
 <p>
-    <tt style="user-select: all">@@@appInfo.Username@@@appInfo.HandleHostname</tt>
-
-    <a href="https://@appInfo.ApplicationHostname" target="_blank">
-        <img alt=""
-             src="/images/Fediverse_logo.svg"
-             width="16"
-             height="16" />
-        <span class="visually-hidden">ActivityPub actor ID</span>
-    </a>
-
-    <br />
-
     @foreach (var profile in Model.BlueskyBridgedProfiles)
     {
         @await Html.PartialAsync("_BlueskyProfile", profile)
 
         <br />
     }
-
-    <a asp-action="Following">Following (@Model.FollowingCount)</a>
-    &middot;
-    <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
 </p>
 
 <h2 class="my-4">

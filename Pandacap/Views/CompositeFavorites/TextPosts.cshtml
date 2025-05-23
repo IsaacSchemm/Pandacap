@@ -56,16 +56,7 @@ else
 
                     <div class="card">
                         <div class="card-body">
-                            @if (item is ActivityPubFavorite ap)
-                            {
-                                if (!string.IsNullOrEmpty(ap.Name))
-                                {
-                                    <p>@ap.Name</p>
-                                }
-
-                                @Html.Raw(ap.Content)
-                            }
-                            else if (item is BlueskyFavorite b)
+                            @if (item is BlueskyFavorite b)
                             {
                                 <p>@b.Text</p>
                             }

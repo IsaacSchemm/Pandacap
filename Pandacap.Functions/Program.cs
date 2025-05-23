@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
@@ -74,7 +73,6 @@ var host = new HostBuilder()
             .AddScoped<FurAffinityFavoriteHandler>()
             .AddScoped<FurAffinityInboxHandler>()
             .AddScoped<FurryNetworkFavoriteHandler>()
-            .AddScoped<OutboxProcessor>()
             .AddScoped<RedditFavoriteHandler>()
             .AddScoped<SheezyArtFavoriteHandler>()
             .AddScoped<WeasylFavoriteHandler>()

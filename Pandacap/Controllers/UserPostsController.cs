@@ -13,11 +13,7 @@ namespace Pandacap.Controllers
     public class UserPostsController(
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
-        DeliveryInboxCollector deliveryInboxCollector,
-        ActivityPub.Mapper mapper,
-        PostCreator postCreator,
-        ActivityPub.PostTranslator postTranslator,
-        ReplyLookup replyLookup) : Controller
+        PostCreator postCreator) : Controller
     {
         [Route("{id}")]
         public async Task<IActionResult> Index(
@@ -31,22 +27,10 @@ namespace Pandacap.Controllers
             if (post == null)
                 return NotFound();
 
-            if (Request.IsActivityPub())
-                return Content(
-                    ActivityPub.Serializer.SerializeWithContext(postTranslator.BuildObject(post)),
-                    "application/activity+json",
-                    Encoding.UTF8);
-
             return View(new UserPostViewModel
             {
                 Post = post,
-                Replies = User.Identity?.IsAuthenticated == true
-                    ? await replyLookup
-                        .CollectRepliesAsync(
-                            mapper.GetObjectId(post),
-                            cancellationToken)
-                        .ToListAsync(cancellationToken)
-                    : []
+                Replies = []
             });
         }
 
@@ -183,20 +167,6 @@ namespace Pandacap.Controllers
             var post = await context.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync(cancellationToken);
-
-            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                cancellationToken: cancellationToken))
-            {
-                context.ActivityPubOutboundActivities.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
-                        postTranslator.BuildObjectDelete(
-                            post)),
-                    Inbox = inbox,
-                    StoredAt = DateTimeOffset.UtcNow
-                });
-            }
 
             context.Posts.Remove(post);
 

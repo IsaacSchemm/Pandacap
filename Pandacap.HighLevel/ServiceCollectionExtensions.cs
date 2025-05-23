@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Pandacap.ActivityPub.Communication;
 using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
@@ -20,18 +19,6 @@ namespace Pandacap.HighLevel
         {
             return services
                 .AddSingleton(appInfo)
-                .AddSingleton(new ActivityPub.HostInformation(
-                    applicationHostname: appInfo.ApplicationHostname,
-                    applicationName: UserAgentInformation.ApplicationName,
-                    websiteUrl: UserAgentInformation.WebsiteUrl))
-                .AddScoped<ActivityPub.Mapper>()
-                .AddScoped<ActivityPub.ProfileTranslator>()
-                .AddScoped<ActivityPub.PostTranslator>()
-                .AddScoped<ActivityPub.RelationshipTranslator>()
-                .AddScoped<ActivityPub.InteractionTranslator>()
-                .AddScoped<ActivityPubNotificationHandler>()
-                .AddScoped<ActivityPubReplyNotificationHandler>()
-                .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoCredentialProvider>()
                 .AddScoped<ATProtoDIDResolver>()
@@ -48,9 +35,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<FurAffinityNoteNotificationHandler>()
                 .AddScoped<FurAffinityNotificationHandler>()
                 .AddScoped<FurryNetworkClient>()
-                .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
-                .AddScoped<JsonLdExpansionService>()
-                .AddScoped<ActivityPubCommunicationPrerequisites>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<StarpassAgent>()
                 .AddScoped<WeasylClientFactory>()

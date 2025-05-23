@@ -1,8 +1,6 @@
 ﻿namespace Pandacap.HighLevel.Notifications
 {
     public class CompositeNotificationHandler(
-        ActivityPubNotificationHandler activityPubNotificationHandler,
-        ActivityPubReplyNotificationHandler activityPubNotificationReplyHandler,
         ATProtoNotificationHandler atProtoNotificationHandler,
         DeviantArtFeedNotificationHandler deviantArtFeedNotificationHandler,
         DeviantArtNoteNotificationHandler deviantArtNoteNotificationHandler,
@@ -15,8 +13,6 @@
         public IAsyncEnumerable<Notification> GetNotificationsAsync() =>
             new INotificationHandler[]
             {
-                activityPubNotificationHandler,
-                activityPubNotificationReplyHandler,
                 atProtoNotificationHandler,
                 deviantArtFeedNotificationHandler,
                 deviantArtNoteNotificationHandler,

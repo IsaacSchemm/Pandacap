@@ -4,12 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Pandacap;
-using Pandacap.ActivityPub.Inbound;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Clients;
-using Pandacap.Signatures;
 using Pandacap.Podcasts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -95,15 +93,9 @@ builder.Services
         keyVaultHostname: builder.Configuration["KeyVaultHostname"],
         handleHostname: builder.Configuration["ApplicationHostname"],
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
-    .AddScoped<ActivityPubRemoteActorService>()
-    .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<BlueskyProfileResolver>()
     .AddScoped<CompositeFavoritesProvider>()
-    .AddScoped<DeliveryInboxCollector>()
-    .AddScoped<MastodonVerifier>()
     .AddScoped<PostCreator>()
-    .AddScoped<RemoteActivityPubPostHandler>()
-    .AddScoped<ReplyLookup>()
     .AddScoped<WmaZipSplitter>();
 
 builder.Services.AddHttpClient();

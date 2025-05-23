@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.FSharp.Collections;
-using Pandacap.ActivityPub.Inbound;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using System.Reflection.Metadata;
@@ -10,7 +9,6 @@ using System.Security.Cryptography;
 namespace Pandacap
 {
     public class BlueskyProfileResolver(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
         ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory,
         IMemoryCache memoryCache)
@@ -31,18 +29,48 @@ namespace Pandacap
 
         private async Task<FSharpList<ActivityPubMirror>> FindBridgesToActivityPub(string did)
         {
-            var addressee = await activityPubRemoteActorService.FetchAddresseeAsync(
-                $"https://bsky.brid.gy/ap/{Uri.EscapeDataString(did)}",
-                CancellationToken.None);
-            return addressee is RemoteAddressee.Actor actor
-                ? [
+            try
+            {
+                using var client = httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+                using var req = new HttpRequestMessage(
+                    HttpMethod.Get,
+                    $"https://bsky.brid.gy/ap/{Uri.EscapeDataString(did)}");
+
+                req.Headers.Accept.ParseAdd("application/activity+json");
+
+                using var resp = await client.SendAsync(req);
+
+                if (!resp.IsSuccessStatusCode)
+                    return [];
+
+                async Task<T?> deserializeAsync<T>(T _)
+                {
+                    return await resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<T>();
+                }
+
+                var actor = await deserializeAsync(new
+                {
+                    id = "",
+                    preferredUsername = ""
+                });
+
+                if (actor == null)
+                    return [];
+
+                return [
                     new()
                     {
-                        Id = actor.Id,
-                        Handle = $"@{actor.Item.PreferredUsername}@bsky.brid.gy"
+                        Id = actor.id,
+                        Handle = $"@{actor.preferredUsername}@bsky.brid.gy"
                     }
-                ]
-                : [];
+                ];
+            }
+            catch (Exception)
+            {
+                return [];
+            }
         }
 
         private async Task<FSharpList<ProfileInformation>> ResolveProfileAsync(string didOrHandle)
@@ -55,10 +83,6 @@ namespace Pandacap
                 var profile = await Profile.GetProfileAsync(
                     client,
                     didOrHandle);
-
-                var addressee = await activityPubRemoteActorService.FetchAddresseeAsync(
-                    $"https://bsky.brid.gy/ap/{Uri.EscapeDataString(profile.handle)}",
-                    CancellationToken.None);
 
                 return [
                     new()

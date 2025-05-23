@@ -11,8 +11,7 @@ namespace Pandacap.Controllers
 {
     public class GalleryController(
         PandacapDbContext context,
-        FeedBuilder feedBuilder,
-        ActivityPub.PostTranslator postTranslator) : Controller
+        FeedBuilder feedBuilder) : Controller
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
         {
@@ -49,17 +48,6 @@ namespace Pandacap.Controllers
             }
 
             var listPage = await posts.AsListPage(take);
-
-            if (Request.IsActivityPub())
-            {
-                return Content(
-                    ActivityPub.Serializer.SerializeWithContext(
-                        postTranslator.BuildOutboxCollectionPage(
-                            Request.GetEncodedUrl(),
-                            listPage)),
-                    "application/activity+json",
-                    Encoding.UTF8);
-            }
 
             ViewBag.NoIndex = true;
 
@@ -137,25 +125,6 @@ namespace Pandacap.Controllers
                 .SkipUntil(f => f.Id == next || next == null);
 
             return await RenderAsync("All Posts", posts, count);
-        }
-
-        public async Task<IActionResult> AddressedPosts(Guid? next, int? count)
-        {
-            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
-
-            var posts = await context.AddressedPosts
-                .Where(d => d.PublishedTime <= startTime)
-                .OrderByDescending(d => d.PublishedTime)
-                .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == next || next == null)
-                .OfType<IPost>()
-                .AsListPage(count ?? 20);
-
-            return View("List", new ListViewModel
-            {
-                Title = "Addressed Posts",
-                Items = posts
-            });
         }
     }
 }

@@ -35,7 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ActivityPub.Inbound\Pandacap.ActivityPub.Inbound.fsproj" />
     <ProjectReference Include="..\Pandacap.HighLevel\Pandacap.HighLevel.csproj" />
     <ProjectReference Include="..\Pandacap.Clients\Pandacap.Clients.fsproj" />
     <ProjectReference Include="..\Pandacap.Podcasts\Pandacap.Podcasts.fsproj" />
