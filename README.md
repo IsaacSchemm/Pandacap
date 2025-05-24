@@ -12,11 +12,11 @@ Supported platforms and protocols:
 | Bluesky       | ✓ (Manual) | ✓     |       | ✓                      | ✓ (Likes, Reposts) | PDS / DID / Password
 | DeviantArt    | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | ✓                  | OAuth
 | Fur Affinity  | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | ✓                  | Manual cookie entry
+| Furry Network |            |       |       |                        | ✓                  |
 | Reddit        |            |       |       |                        | ✓                  | OAuth
 | RSS / Atom    | ✓          | ✓     |       |                        |                    |
+| Sheezy.Art    |            |       |       |                        | ✓                  |
 | Weasyl        | ✓ (Manual) | ✓     |       | ✓                      | ✓ (Submissions)    | API key
-
-Pandacap can also monitor Furry Network and Sheezy.Art accounts for new favorites.
 
 (Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions.)
 
@@ -64,16 +64,18 @@ The web app and function app must have the appropriate IAM permissions to access
 
 Function app responsibilities:
 
-* `FavoritesIngest` (three times per day)
+* `FavoriteIngest`
     * check accounts for new favorites / likes / upvotes
-* `InboxCleanup` (every day at 9:00)
+* `InboxCleanup`
     * clear dismissed inbox entries more than 7 days old
-* `InboxIngest` (every hour at :10)
+* `InboxIngest`
     * check feeds for new posts
-* `OutboxCleanup` (every day at 8:00)
+* `OutboxCleanup`
     * remove unsent outbound ActivityPub messages that have been pending for more than 7 days
-* `SendOutbound` (every ten minutes)
+* `SendOutbound`
     * attempt to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
+* `StarpassSync`
+    * posts links (with image embeds) to favorites to an associated Bluesky account (once per run), and removes old (14+ days) posts
 
 ### Authorization
 
@@ -108,6 +110,7 @@ Application settings (for both the function app and the web app):
 | RedditAppId             | OAuth client ID from Reddit
 | RedditAppSecret         | OAuth secret from v
 | KeyVaultHostname        | Key vault hostname
+| StorageAccountHostname  | Hostname of the Azure blob storage account used for storing images associated with your posts or avatar
 | WeasylProxyHost         | Hostname that has `/pandacap/weasyl_proxy.php` and `/pandacap/weasyl_submit.php`
 
 Application settings (for the web app only):
@@ -117,6 +120,7 @@ Application settings (for the web app only):
 | Authentication:Microsoft:TenantId     | Tenant ID of your Entra (AAD) directory
 | Authentication:Microsoft:ClientId     | Application (client) ID of the app registration you've created in Entra
 | Authentication:Microsoft:ClientSecret | A client secret generated for the app registration
+| ComputerVisionEndpoint                | URL of the Azure AI Vision endpoint for generating sample alt text
 
 The CosmosDBAccountKey is optional; without it, Pandacap will try to connect
 to Cosmos DB using Entra authentication, which can lead to slower performance.
