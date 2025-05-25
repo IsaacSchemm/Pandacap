@@ -21,6 +21,19 @@
     <Compile Include="PostTranslator.fs" />
     <Compile Include="RelationshipTranslator.fs" />
     <Compile Include="InteractionTranslator.fs" />
+    <Compile Include="Communication\IActivityPubCommunicationPrerequisites.fs" />
+    <Compile Include="Communication\ActivityPubRequestHandler.fs" />
+    <Compile Include="Communication\JsonLdExpansionService.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="json-ld.net" Version="1.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.Html\Pandacap.Html.fsproj" />
   </ItemGroup>
 
 </Project>
