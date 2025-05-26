@@ -24,7 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.HighLevel\Pandacap.HighLevel.csproj" />
-    <ProjectReference Include="..\Pandacap.Clients\Pandacap.Clients.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

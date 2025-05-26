@@ -1,24 +1,54 @@
 # Pandacap
 
-A single-user art gallery, feed reader, and ActivityPub server, built on ASP.NET Core and designed for Azure.
+A single-user art gallery, feed reader, and ActivityPub server, built using F# and C# on ASP.NET Core and designed for Azure.
 
-For more information, see Views/About/Index.cshtml.
+On the home page:
 
-Supported platforms and protocols:
+* Your avatar and username
+* Links to your attached accounts
+* Your ActivityPub handle, and links to users you follow and communities you've bookmarked
+* Links to RSS/Atom feeds
+* Your **image posts**
+* Image posts from your **favorites**
+* Your **text posts**
 
-|               | Crosspost  | Inbox | Reply | Notifications          | Favorites          | Authentication
-| ------------- | ---------- | ----- | ----- | ---------------------- | ------------------ | ------------------------
-| ActivityPub   | ✓          | ✓     | ✓     | ✓ (Activites, Replies) | ✓ (Likes)          |
-| Bluesky       | ✓ (Manual) | ✓     |       | ✓                      | ✓ (Likes, Reposts) | PDS / DID / Password
-| DeviantArt    | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | ✓                  | OAuth
-| Fur Affinity  | ✓ (Manual) | ✓     |       | ✓ (Messages, Notes)    | ✓                  | Manual cookie entry
-| Furry Network |            |       |       |                        | ✓                  |
-| Reddit        |            |       |       |                        | ✓                  | OAuth
-| RSS / Atom    | ✓          | ✓     |       |                        |                    |
-| Sheezy.Art    |            |       |       |                        | ✓                  |
-| Weasyl        | ✓ (Manual) | ✓     |       | ✓                      | ✓ (Submissions)    | API key
+Features:
 
-(Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions.)
+* Create **image posts** and **text posts**, which are available on the site, over RSS/Atom and ActivityPub, and can be crossposted to other platforms
+* View posts from users or feeds you follow in the **inbox**, split among **image posts**, **text posts**, **shares**, and **podcasts**, and grouped by author
+    * Non-ActivityPub posts are periodically imported (~3 times per day)
+* View **notifications** from activity on your posts or from your attached accounts
+* Automatically import **favorites** from attached accounts
+
+ActivityPub features:
+
+* Follow or unfollow users
+* Hide images and/or reposts from specific users you follow
+* Create **addressed posts** (replies to other posts or top-level posts to communities)
+* Add posts to your favorites
+* Enable and disable Bridgy Fed
+
+RSS/Atom features:
+
+* Follow or unfollow feeds
+* Add posts to your favorites
+* Play or download podcasts
+
+Bluesky features:
+
+* Hide reposts and/or quote posts from specific users you follow
+* On a second Bluesky account, automatically post **links** to your favorites (with an embedded title and thumbnail), and automatically delete these posts after 14 days
+
+Things Pandacap does **not** do:
+
+* Act as an OAuth server.
+* Host more than one user account.
+* Automatically crosspost your image posts or text posts to Bluesky, DeviantArt, etc.
+* Automatically delete posts that you *manually* crosspost to Bluesky, DeviantArt, etc., even when you delete them from Pandacap.
+* Allow you to add more than one image to an image post.
+* Allow you to repost / "boost" / `Announce` an ActivityPub post.
+
+## Techincal Information
 
 Pandacap is a single-user application.
 To log in, the instance owner must use a Microsoft account that they have explicitly allowed in the associated Entra ID app registration.
@@ -26,8 +56,26 @@ To log in, the instance owner must use a Microsoft account that they have explic
 > **Any authenticated user can access the same data**.
 > This means authorization is the sole reponsibility of your Entra ID registration, so only one user account should be allowed access.
 
-A DeviantArt account cannot be used to set up the Pandacap account, but once attached to the existing account,
-either it or the Microsoft account it can be used to log in.
+Supported protocols:
+
+|               | Posts | Replies | Inbox | Notifications          | Add to Favorites
+| ------------- | ----- | ------- | ----- | ---------------------- | -----------------
+| ActivityPub   | ✓     | ✓       | ✓     | ✓ (Activites, Replies) | ✓ (sent as Likes)
+| RSS / Atom    | ✓     | ✓       | ✓     |                        | ✓
+
+Supported platforms:
+
+|               | Crosspost  | Inbox | Notifications       | Imported Favorites   | Authentication
+| ------------- | ---------- | ----- | ------------------- | -------------------- | --------------------
+| Bluesky       | ✓          | ✓     | ✓                   | Likes, Reposts       | PDS / DID / Password
+| DeviantArt    | ✓          | ✓     | ✓ (Messages, Notes) | Favorites            | OAuth
+| Fur Affinity  | ✓          | ✓     | ✓ (Messages, Notes) | Favorites            | Manual cookie entry
+| Furry Network |            |       |                     | Favorites            |
+| Reddit        |            |       |                     | Upvotes              | OAuth
+| Sheezy.Art    |            |       |                     | Favorites            |
+| Weasyl        | ✓          | ✓     | ✓                   | Favorite Submissions | API key
+
+(Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions.)
 
 ## Software Architecture
 
@@ -38,17 +86,18 @@ Deployable applications:
 
 Libraries:
 
-* **Pandacap.ActivityPub.Inbound**: Parses objects recieved or retrieved via ActivityPub (posts and actors), converting them into an abstracted form.
-    * **Pandacap.ActivityPub.Communication**: Sends and retrieves objects to/from remote servers via ActivityPub.
-        * **Pandacap.ActivityPub**: Creates objects representing posts, favorites, the user profile, etc., which can be sent to, or retrieved by, other servers via ActivityPub.
-* **Pandacap.HighLevel**: Contains shared Pandacap code, including Bluesky and Weasyl abstractions, RSS/Atom feed support, and code to assemble the user's notifications into a single list.
-    * **Pandacap.Clients**: Contains API clients for ATProto (Bluesky), Lemmy, and Azure AI Vision.
-        * **Pandacap.Data**: Contains the EF Core data models that are used in the Cosmos DB database to store the user's data.
-            * **Pandacap.ConfigurationObjects**: Contains objects that store deployment-level data (i.e. hostname, username) and codebase-level data (e.g. software name, public website).
-            * **Pandacap.FurAffinity**: Connects to FurAffinity and FAExport.
-            * **Pandacap.Html**: Parses data from HTML pages. Includes special scrapers for DeviantArt and Weasyl.
-            * **Pandacap.PlatformBadges**: Contains types that represent the platforms supported by Pandacap and corresponding displayable badges for the UI.
-* **Pandacap.Podcasts**: Specific code for playing or re-encoding podcasts.
+* **Pandacap.LowLevel**
+    * **ConfigurationObjects**: Contains objects that store deployment-level data (i.e. hostname, username) and codebase-level data (e.g. software name, public website).
+    * **PlatformBadges**: Contains types that represent the platforms supported by Pandacap and corresponding displayable badges for the UI.
+    * **Html**:  Parses and scrapes data from HTML pages.
+    * **FurAffinity**: Connects to FurAffinity and FAExport.
+    * **ActivityPub**: Creates objects representing posts, favorites, the user profile, etc., which can be sent to, or retrieved by, other servers via ActivityPub.
+        * **Communication**: Sends and retrieves objects to/from remote servers via ActivityPub.
+        * **Inbound**: Parses objects recieved or retrieved via ActivityPub (posts and actors), converting them into an abstracted form.
+    * **Podcasts**: Code for splitting and re-encoding podcasts for transfer to an audio CD.
+    * **Data**: Contains the EF Core data models that are used in the Cosmos DB database to store the user's data.
+    * **Clients**: Contains API clients for ATProto (Bluesky), Lemmy, and Azure AI Vision, among others.
+* **Pandacap.HighLevel**: Contains shared Pandacap code, including Bluesky and Weasyl abstractions, RSS/Atom feed support, and code to assemble the user's notifications and favorites into composite lists.
 
 ## Deployment
 
@@ -58,7 +107,7 @@ This application runs on the following Azure resources:
 * An Azure Functions app
 * A web app
 * A Key Vault
-* A storage account
+* A blob storage account
 
 The web app and function app must have the appropriate IAM permissions to access the storage account (Storage Blob Data Contributor) and the key vault (Key Vault Crypto User).
 
@@ -108,7 +157,7 @@ Application settings (for both the function app and the web app):
 | DeviantArtClientId      | OAuth client ID from DeviantArt
 | DeviantArtClientSecret  | OAuth secret from DeviantArt
 | RedditAppId             | OAuth client ID from Reddit
-| RedditAppSecret         | OAuth secret from v
+| RedditAppSecret         | OAuth secret from Reddit
 | KeyVaultHostname        | Key vault hostname
 | StorageAccountHostname  | Hostname of the Azure blob storage account used for storing images associated with your posts or avatar
 | WeasylProxyHost         | Hostname that has `/pandacap/weasyl_proxy.php` and `/pandacap/weasyl_submit.php`
@@ -164,5 +213,4 @@ Web app `local.settings.json` example:
       "KeyVaultHostname": "example-kv.vault.azure.net"
     }
 
-The key vault is for a single encryption key called `activitypub` that is used
-to sign ActivityPub requests.
+The key vault is for a single encryption key called `activitypub` that is used to sign ActivityPub requests.
