@@ -14,7 +14,8 @@ On the home page:
 
 Features:
 
-* Create **image posts** and **text posts**, which are available on the site, over RSS/Atom and ActivityPub, and can be crossposted to other platforms
+* Create **image posts** and **text posts**, which are available on the site, via RSS/Atom, and via ActivityPub
+* Crosspost your image posts and text posts to attached Bluesky, DeviantArt, Fur Affinity, or Weasyl accounts
 * View posts from users or feeds you follow in the **inbox**, split among **image posts**, **text posts**, **shares**, and **podcasts**, and grouped by author
     * Non-ActivityPub posts are periodically imported (~3 times per day)
 * View **notifications** from activity on your posts or from your attached accounts
@@ -75,7 +76,7 @@ Supported platforms:
 | Sheezy.Art    |            |       |                     | Favorites            |
 | Weasyl        | ✓          | ✓     | ✓                   | Favorite Submissions | API key
 
-(Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions.)
+Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions, and Weasyl support relies on a PHP proxy script (included in this repository).
 
 ## Software Architecture
 
