@@ -80,6 +80,21 @@
                             : "")
             </div>
         }
+        else if (item is AddressedPost addressedPost)
+        {
+            foreach (var id in addressedPost.Addressing.To)
+            {
+                <div class="small text-muted">
+                    To: @id
+                </div>
+            }
+            foreach (var id in addressedPost.Addressing.Cc)
+            {
+                <div class="small text-muted">
+                    CC: @id
+                </div>
+            }
+        }
 
         @if (item is Post post && post.Type == PostType.StatusUpdate)
         {

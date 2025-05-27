@@ -9,7 +9,14 @@
 }
 
 <h1>
-    <img width="50" height="50" src="/Blobs/Avatar" alt="" />
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a asp-action="UploadAvatar"><img width="50" height="50" src="/Blobs/Avatar" alt="" /></a>
+    }
+    else
+    {
+        <img width="50" height="50" src="/Blobs/Avatar" alt="" />
+    }
     @appInfo.Username
 </h1>
 
@@ -54,15 +61,15 @@
 }
 
 <p>
-    <tt style="user-select: all">@@@appInfo.Username@@@appInfo.HandleHostname</tt>
-
-    <a href="https://@appInfo.ApplicationHostname" target="_blank">
+    <a href="https://@appInfo.ApplicationHostname" target="_blank" style="text-decoration: none">
         <img alt=""
              src="/images/Fediverse_logo.svg"
              width="16"
              height="16" />
         <span class="visually-hidden">ActivityPub actor ID</span>
     </a>
+
+    <tt style="user-select: all">@@@appInfo.Username@@@appInfo.HandleHostname</tt>
 
     <br />
 
@@ -73,9 +80,23 @@
         <br />
     }
 
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a asp-action="Followers">Followers (@Model.FollowerCount)</a>
+        @:&middot;
+    }
+
     <a asp-action="Following">Following (@Model.FollowingCount)</a>
     &middot;
     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        @:&middot;
+        <a asp-controller="ActivityPubPosts" asp-action="Index">Posts</a>
+        @:&middot;
+        <a asp-controller="Favorites" asp-action="Index">Favorites (@Model.FavoritesCount)</a>
+    }
 </p>
 
 <h2 class="my-4">
@@ -202,43 +223,6 @@
 
                 <div class="card my-3">
                     <div class="card-header">
-                        Actor
-                    </div>
-                    <div class="card-body text-center">
-                        <a asp-controller="Profile" asp-action="Followers" class="btn btn-outline-primary">
-                            Followers (@Model.FollowerCount)
-                        </a>
-
-                        <a asp-controller="Profile" asp-action="Following" class="btn btn-outline-primary">
-                            Following (@Model.FollowingCount)
-                        </a>
-
-                        <hr />
-
-                        <a asp-controller="Favorites" asp-action="Index" class="btn btn-outline-primary">
-                            Favorites (@Model.FavoritesCount)
-                        </a>
-
-                        <hr />
-
-                        <a asp-controller="Gallery" asp-action="Composite" class="btn btn-outline-primary">
-                            User posts
-                        </a>
-
-                        <a asp-controller="Gallery" asp-action="AddressedPosts" class="btn btn-outline-primary">
-                            Addressed posts
-                        </a>
-
-                        <hr />
-
-                        <a asp-controller="Profile" asp-action="UploadAvatar" class="btn btn-outline-primary">
-                            Upload avatar
-                        </a>
-                    </div>
-                </div>
-
-                <div class="card my-3">
-                    <div class="card-header">
                         Bridgy Fed
                     </div>
                     <div class="card-body text-center">
@@ -267,12 +251,12 @@
 
             <div class="col col-12 col-xl-4">
                 <h2>
-                    Atom/RSS
+                    Inbox sources
                 </h2>
 
                 <div class="card my-3">
                     <div class="card-header">
-                        Feeds
+                        Atom/RSS
                     </div>
                     <div class="card-body">
                         <form asp-action="AddFeed">
@@ -296,23 +280,6 @@
                         </form>
                     </div>
                 </div>
-            </div>
-
-            <div class="col col-12 col-xl-4">
-                <h2>
-                    Inbox targets
-                </h2>
-
-                <div class="card my-3">
-                    <div class="card-header">
-                        DeviantArt
-                    </div>
-                    <div class="card-body">
-                        <a asp-controller="DeviantArt" asp-action="HomeFeed" class="btn btn-outline-primary">
-                            View home feed
-                        </a>
-                    </div>
-                </div>
 
                 <div class="card my-3">
                     <div class="card-header">
@@ -325,6 +292,17 @@
 
                         <a asp-controller="ATProto" asp-action="Following" class="btn btn-outline-primary">
                             Following
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card my-3">
+                    <div class="card-header">
+                        DeviantArt
+                    </div>
+                    <div class="card-body">
+                        <a asp-controller="DeviantArt" asp-action="HomeFeed" class="btn btn-outline-primary">
+                            View home feed
                         </a>
                     </div>
                 </div>
@@ -350,9 +328,11 @@
                         </a>
                     </div>
                 </div>
+            </div>
 
+            <div class="col col-12 col-xl-4">
                 <h2>
-                    Monitoring targets
+                    Other favorites sources
                 </h2>
 
                 <div class="card my-3">

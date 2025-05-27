@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
@@ -139,6 +140,8 @@ namespace Pandacap.Controllers
             return await RenderAsync("All Posts", posts, count);
         }
 
+        [Obsolete]
+        [Authorize]
         public async Task<IActionResult> AddressedPosts(Guid? next, int? count)
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;

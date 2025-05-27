@@ -2,8 +2,8 @@
 
 <form asp-action="UploadAvatar" enctype="multipart/form-data">
     <div class="mb-3">
-        <label name="file" id="file" class="form-label"></label>
-        <input for="file" class="form-control" accept="image/png,image/jpeg" />
+        <label for="file" class="form-label"></label>
+        <input name="file" id="file" type="file" class="form-control" accept="image/png,image/jpeg" />
     </div>
     <button type="submit" class="btn btn-primary">Replace avatar</button>
 </form>
