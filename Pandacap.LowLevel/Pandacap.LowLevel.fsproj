@@ -21,6 +21,14 @@
     <Compile Include="FurAffinity\IFurAffinityCredentials.fs" />
     <Compile Include="FurAffinity\FA.fs" />
     <Compile Include="FurAffinity\FAExport.fs" />
+    <Compile Include="Twtxt\ReplyContext.fs" />
+    <Compile Include="Twtxt\Twt.fs" />
+    <Compile Include="Twtxt\Link.fs" />
+    <Compile Include="Twtxt\Metadata.fs" />
+    <Compile Include="Twtxt\Feed.fs" />
+    <Compile Include="Twtxt\HashGenerator.fs" />
+    <Compile Include="Twtxt\FeedBuilder.fs" />
+    <Compile Include="Twtxt\FeedReader.fs" />
     <Compile Include="ActivityPub\HostInformation.fs" />
     <Compile Include="ActivityPub\Serializer.fs" />
     <Compile Include="ActivityPub\IImage.fs" />
@@ -119,6 +127,8 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageReference Include="Microsoft.Net.Http.Headers" Version="8.0.10" />
     <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
+    <PackageReference Include="SimpleBase" Version="5.4.1" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
 
