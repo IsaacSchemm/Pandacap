@@ -114,6 +114,7 @@
     <Compile Include="Clients\FurryNetwork.fs" />
     <Compile Include="Clients\Lemmy.fs" />
     <Compile Include="Clients\Mastodon.fs" />
+    <Compile Include="Clients\TwtxtClient.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -36,18 +36,6 @@ namespace Pandacap.Controllers
                 .Select(c => c.DID)
                 .ToListAsync(cancellationToken);
 
-            var deviantArtUsernames = await context.DeviantArtCredentials
-                .Select(d => d.Username)
-                .ToListAsync(cancellationToken);
-
-            var furAffinityUsernames = await context.FurAffinityCredentials
-                .Select(c => c.Username)
-                .ToListAsync(cancellationToken);
-
-            var weasylUsernames = await context.WeasylCredentials
-                .Select(c => c.Login)
-                .ToListAsync(cancellationToken);
-
             string key = await keyProvider.GetPublicKeyAsync();
 
             var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
@@ -63,11 +51,8 @@ namespace Pandacap.Controllers
                         ? null
                         : $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}"),
                 bluesky: [.. blueskyDIDs],
-                deviantArt: [.. deviantArtUsernames],
-                furAffinity: [.. furAffinityUsernames],
                 publicKeyPem: key,
-                username: appInfo.Username,
-                weasyl: [.. weasylUsernames]);
+                username: appInfo.Username);
         }
 
         public async Task<IActionResult> Index(CancellationToken cancellationToken)

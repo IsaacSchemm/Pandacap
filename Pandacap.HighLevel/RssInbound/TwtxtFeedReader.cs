@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.Clients;
 using Pandacap.Data;
 
 namespace Pandacap.HighLevel.RssInbound
@@ -20,7 +21,7 @@ namespace Pandacap.HighLevel.RssInbound
             if (staleAt > DateTimeOffset.UtcNow)
                 return;
 
-            var results = await twtxtClient.ReadFeedAsync(new(feed.Url));
+            var results = await twtxtClient.ReadFeedAsync(new(feed.Url), CancellationToken.None);
 
             feed.Nick = results.metadata.nick.FirstOrDefault();
             feed.Avatar = results.metadata.avatar.FirstOrDefault();
@@ -70,7 +71,7 @@ namespace Pandacap.HighLevel.RssInbound
 
         public async Task AddFeedAsync(string url)
         {
-            var results = await twtxtClient.ReadFeedAsync(new(url));
+            var results = await twtxtClient.ReadFeedAsync(new(url), CancellationToken.None);
 
             var existing = await context.RssFeeds.Where(f => f.FeedUrl == url).ToListAsync();
             context.RemoveRange(existing);
