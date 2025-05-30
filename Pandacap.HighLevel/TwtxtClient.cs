@@ -7,7 +7,7 @@ namespace Pandacap.HighLevel
         ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory)
     {
-        public string MyFeedUrl => $"{appInfo.ApplicationHostname}/Twtxt";
+        public string MyFeedUrl => $"https://{appInfo.ApplicationHostname}/Twtxt";
 
         public async Task<Feed> ReadFeedAsync(Uri uri)
         {
