@@ -43,6 +43,16 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
+            var rssItems = context.RssFeedItems
+                .OrderByDescending(d => d.Timestamp)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
+            var twtxtFeedItems = context.TwtxtFeedItems
+                .OrderByDescending(d => d.Timestamp)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
             var weasylSubmissions = context.InboxWeasylSubmissions
                 .OrderByDescending(d => d.PostedAt)
                 .AsAsyncEnumerable()
@@ -50,11 +60,6 @@ namespace Pandacap.Controllers
 
             var weasylJournals = context.InboxWeasylJournals
                 .OrderByDescending(d => d.PostedAt)
-                .AsAsyncEnumerable()
-                .OfType<IInboxPost>();
-
-            var rssItems = context.RssFeedItems
-                .OrderByDescending(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
@@ -67,9 +72,10 @@ namespace Pandacap.Controllers
                     deviantArtText,
                     furAffinitySubmissions,
                     furAffinityJournals,
+                    rssItems,
+                    twtxtFeedItems,
                     weasylSubmissions,
-                    weasylJournals,
-                    rssItems
+                    weasylJournals
                 }
                 .MergeNewest(post => post.PostedAt)
                 .Where(post => post.DismissedAt == null);
@@ -228,6 +234,22 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
+                .RssFeedItems
+                .Where(item => guids.Contains(item.Id))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
+
+            await foreach (var item in context
+                .TwtxtFeedItems
+                .Where(item => guids.Contains(item.Id))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
+
+            await foreach (var item in context
                 .InboxWeasylSubmissions
                 .Where(x => guids.Contains(x.Id))
                 .AsAsyncEnumerable())
@@ -238,14 +260,6 @@ namespace Pandacap.Controllers
             await foreach (var item in context
                 .InboxWeasylJournals
                 .Where(x => guids.Contains(x.Id))
-                .AsAsyncEnumerable())
-            {
-                yield return item;
-            }
-
-            await foreach (var item in context
-                .RssFeedItems
-                .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
                 yield return item;

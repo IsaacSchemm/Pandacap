@@ -320,6 +320,33 @@
 
                 <div class="card my-3">
                     <div class="card-header">
+                        Twtxt
+                    </div>
+                    <div class="card-body">
+                        <form asp-controller="TwtxtFeed" asp-action="AddFeed">
+                            <div class="mb-3">
+                                <label for="url" class="form-label">
+                                    Follow twtxt feed URL
+                                </label>
+                                <input type="url" class="form-control" id="url" name="url" placeholder="https://" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Follow
+                            </button>
+
+                            <hr />
+
+                            <div class="text-center">
+                                <a asp-controller="TwtxtFeed" asp-action="Feeds" class="btn btn-outline-primary">
+                                    Manage feeds
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card my-3">
+                    <div class="card-header">
                         Weasyl
                     </div>
                     <div class="card-body">

@@ -53,6 +53,8 @@ namespace Pandacap.HighLevel
                 .AddScoped<ActivityPubCommunicationPrerequisites>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<StarpassAgent>()
+                .AddScoped<TwtxtClient>()
+                .AddScoped<TwtxtFeedReader>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WeasylNoteNotificationHandler>()
                 .AddScoped<WeasylNotificationHandler>();

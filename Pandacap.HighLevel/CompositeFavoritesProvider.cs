@@ -58,6 +58,11 @@ namespace Pandacap.HighLevel
                 .AsAsyncEnumerable()
                 .OfType<IFavorite>();
 
+            var twtxtFavorites = context.TwtxtFavorites
+                .OrderByDescending(post => post.FavoritedAt)
+                .AsAsyncEnumerable()
+                .OfType<IFavorite>();
+
             var weasylFavoriteSubmissions = context.WeasylFavoriteSubmissions
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
@@ -78,6 +83,7 @@ namespace Pandacap.HighLevel
                     redditUpvotedPosts,
                     rssFavorites,
                     sheezyArtFavorites,
+                    twtxtFavorites,
                     weasylFavoriteSubmissions
                 }
                 .MergeNewest(post => post.FavoritedAt)
