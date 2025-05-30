@@ -72,31 +72,18 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
-            var atProtoCredentials = await context.ATProtoCredentials.ToListAsync(cancellationToken);
-
-            var blueskyCrosspostDIDs = atProtoCredentials
-                .Where(c => c.CrosspostTargetSince != null)
-                .Select(c => c.DID);
-            var blueskyFavoritesDIDs = atProtoCredentials
+            var blueskyFavoritesDIDs = await context.ATProtoCredentials
                 .Where(c => c.FavoritesTargetSince != null)
-                .Select(c => c.DID);
+                .Select(c => c.DID)
+                .ToListAsync(cancellationToken);
 
-            var profiles = await blueskyResolver.GetAsync([
-                .. atProtoCredentials.Select(c => c.DID),
-                $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy"
-            ]);
-
-            var bridgedProfiles = profiles.Where(p => p.Handle.EndsWith(".ap.brid.gy"));
-            var blueskyCrosspostProfiles = profiles.Where(p => blueskyCrosspostDIDs.Contains(p.DID));
-            var blueskyFavoritesProfiles = profiles.Where(p => blueskyFavoritesDIDs.Contains(p.DID));
+            var blueskyFavoritesProfiles = await blueskyResolver.GetAsync(blueskyFavoritesDIDs);
 
             var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
             var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
             return View(new ProfileViewModel
             {
-                BlueskyBridgedProfiles = bridgedProfiles,
-                BlueskyCrosspostProfiles = blueskyCrosspostProfiles,
                 BlueskyFavoriteProfiles = blueskyFavoritesProfiles,
                 MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                 RecentArtwork = await context.Posts

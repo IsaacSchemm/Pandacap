@@ -1,17 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.FSharp.Collections;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
-using System.Reflection.Metadata;
-using System.Security.Cryptography;
 
-namespace Pandacap
+namespace Pandacap.HighLevel
 {
     public class BlueskyProfileResolver(
         ActivityPubRemoteActorService activityPubRemoteActorService,
-        ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory,
         IMemoryCache memoryCache)
     {
@@ -26,7 +22,7 @@ namespace Pandacap
             public required string DID { get; init; }
             public required string Handle { get; init; }
             public required Uri BlueskyUri { get; init; }
-            public required FSharpList<ActivityPubMirror> ActivityPubMirrors { get; init; }
+            public required FSharpList<ActivityPubMirror> BridgyFed { get; init; }
         }
 
         private async Task<FSharpList<ActivityPubMirror>> FindBridgesToActivityPub(string did)
@@ -66,7 +62,7 @@ namespace Pandacap
                         DID = profile.did,
                         Handle = profile.handle,
                         BlueskyUri = new Uri($"https://bsky.app/profile/{Uri.EscapeDataString(profile.handle)}"),
-                        ActivityPubMirrors = profile.handle.EndsWith("@bsky.brid.gy")
+                        BridgyFed = profile.handle.EndsWith("@bsky.brid.gy")
                             ? []
                             : await FindBridgesToActivityPub(profile.did)
                     }

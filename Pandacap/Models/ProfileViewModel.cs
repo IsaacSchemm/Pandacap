@@ -1,12 +1,11 @@
 ﻿using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.LowLevel.MyLinks;
 
 namespace Pandacap.Models
 {
     public class ProfileViewModel
     {
-        public IEnumerable<BlueskyProfileResolver.ProfileInformation> BlueskyBridgedProfiles { get; set; } = [];
-        public IEnumerable<BlueskyProfileResolver.ProfileInformation> BlueskyCrosspostProfiles { get; set; } = [];
         public IEnumerable<BlueskyProfileResolver.ProfileInformation> BlueskyFavoriteProfiles { get; set; } = [];
 
         public IEnumerable<MyLink> MyLinks { get; set; } = [];

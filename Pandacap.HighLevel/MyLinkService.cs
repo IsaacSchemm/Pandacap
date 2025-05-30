@@ -19,19 +19,23 @@ namespace Pandacap.HighLevel
 
         public async Task<FSharpList<MyLink>> GetLinksAsync(CancellationToken cancellationToken)
         {
-            return await memoryCache.GetOrCreateAsync<FSharpList<MyLink>>(
-                _cacheKey,
-                async cacheEntry =>
-                {
-                    try
-                    {
-                        return [.. await EnumerateLinks().ToListAsync(cancellationToken)];
-                    }
-                    catch (Exception)
-                    {
-                        return [];
-                    }
-                }) ?? [];
+            if (memoryCache.TryGetValue(_cacheKey, out var found) && found is FSharpList<MyLink> foundList)
+                return foundList;
+
+            try
+            {
+                return memoryCache.Set<FSharpList<MyLink>>(
+                    _cacheKey,
+                    [.. await EnumerateLinks().ToListAsync(cancellationToken)],
+                    DateTimeOffset.UtcNow.AddMinutes(30));
+            }
+            catch (Exception)
+            {
+                return memoryCache.Set<FSharpList<MyLink>>(
+                    _cacheKey,
+                    [],
+                    DateTimeOffset.UtcNow.AddMinutes(5));
+            }
         }
 
         private async IAsyncEnumerable<MyLink> EnumerateLinks()
@@ -41,21 +45,36 @@ namespace Pandacap.HighLevel
                 url: mapper.ActorId,
                 linkText: $"@{appInfo.Username}@{appInfo.HandleHostname}");
 
-            await foreach (var x in context.ATProtoCredentials)
+            var dids = await context.ATProtoCredentials
+                .Where(c => c.CrosspostTargetSince != null)
+                .Select(c => c.DID)
+                .ToListAsync();
+
+            var profiles = await blueskyProfileResolver.GetAsync(dids);
+
+            foreach (var profile in profiles)
             {
-                if (x.CrosspostTargetSince == null)
-                {
-                    continue;
-                }
-
-                var profiles = await blueskyProfileResolver.GetAsync([x.DID]);
-                var profile = profiles.DefaultIfEmpty(null).First();
-                var username = profile?.Handle ?? x.DID;
-
                 yield return new(
                     platformName: "Bluesky",
-                    url: $"https://bsky.app/profile/{username}",
-                    linkText: $"https://bsky.app/profile/{username}");
+                    url: $"https://bsky.app/profile/{profile.Handle}",
+                    linkText: $"@{profile.Handle}");
+
+                foreach (var mirror in profile.BridgyFed)
+                {
+                    yield return new(
+                        platformName: "ActivityPub",
+                        url: mirror.Id,
+                        linkText: mirror.Handle);
+                }
+            }
+
+            var bridgedProfiles = await blueskyProfileResolver.GetAsync([$"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy"]);
+            foreach (var profile in bridgedProfiles)
+            {
+                yield return new(
+                    platformName: "Bluesky",
+                    url: $"https://bsky.app/profile/{profile.Handle}",
+                    linkText: $"@{profile.Handle}");
             }
 
             await foreach (var x in context.DeviantArtCredentials)
