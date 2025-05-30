@@ -6,6 +6,7 @@ open System.Threading
 open Pandacap.ConfigurationObjects
 open Pandacap.Data
 open Pandacap.LowLevel.Txt
+open Pandacap.LowLevel.MyLinks
 
 type FeedType = Artwork | Text | All
 
@@ -38,7 +39,7 @@ type TwtxtClient(
         return feed
     }
 
-    member _.BuildFeed(avatars: Avatar list, blueskyDIDs: string list, following: TwtxtFeed list, posts: Post list) =
+    member _.BuildFeed(avatars: Avatar list, links: MyLink list, following: TwtxtFeed list, posts: Post list) =
         FeedBuilder.BuildFeed {
             metadata = {
                 url = [new Uri(myFeed)]
@@ -55,14 +56,9 @@ type TwtxtClient(
                     }
                 ]
                 link = [
-                    {
-                        url = new Uri($"https://{appInfo.ApplicationHostname}")
-                        text = "ActivityPub"
-                    }
-
-                    for did in blueskyDIDs do {
-                        url = new Uri($"https://bsky.app/profile/{did}")
-                        text = "Bluesky"
+                    for link in links do {
+                        url = new Uri(link.url)
+                        text = link.platformName
                     }
                 ]
                 refresh = []

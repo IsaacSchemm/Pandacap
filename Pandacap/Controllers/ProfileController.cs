@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.RssInbound;
+using Pandacap.LowLevel.MyLinks;
 using Pandacap.Models;
 using System.Diagnostics;
 using System.Text;
@@ -23,7 +25,8 @@ namespace Pandacap.Controllers
         CompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
-        ActivityPubCommunicationPrerequisites keyProvider,
+        IActivityPubCommunicationPrerequisites keyProvider,
+        IMyLinkService myLinkService,
         ActivityPub.ProfileTranslator profileTranslator,
         ActivityPub.RelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager) : Controller
@@ -50,7 +53,7 @@ namespace Pandacap.Controllers
                     avatar == null
                         ? null
                         : $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}"),
-                bluesky: [.. blueskyDIDs],
+                links: await myLinkService.GetLinksAsync(cancellationToken),
                 publicKeyPem: key,
                 username: appInfo.Username);
         }
@@ -87,22 +90,6 @@ namespace Pandacap.Controllers
             var blueskyCrosspostProfiles = profiles.Where(p => blueskyCrosspostDIDs.Contains(p.DID));
             var blueskyFavoritesProfiles = profiles.Where(p => blueskyFavoritesDIDs.Contains(p.DID));
 
-            var deviantArtUsernames = await context.DeviantArtCredentials
-                .Select(d => d.Username)
-                .ToListAsync(cancellationToken);
-
-            var furAffinityUsernames = await context.FurAffinityCredentials
-                .Select(c => c.Username)
-                .ToListAsync(cancellationToken);
-
-            var sheezyArtUsernames = await context.SheezyArtAccounts
-                .Select(c => c.Username)
-                .ToListAsync(cancellationToken);
-
-            var weasylUsernames = await context.WeasylCredentials
-                .Select(c => c.Login)
-                .ToListAsync(cancellationToken);
-
             var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
             var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
@@ -111,9 +98,7 @@ namespace Pandacap.Controllers
                 BlueskyBridgedProfiles = bridgedProfiles,
                 BlueskyCrosspostProfiles = blueskyCrosspostProfiles,
                 BlueskyFavoriteProfiles = blueskyFavoritesProfiles,
-                DeviantArtUsernames = deviantArtUsernames,
-                FurAffinityUsernames = furAffinityUsernames,
-                WeasylUsernames = weasylUsernames,
+                MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                 RecentArtwork = await context.Posts
                     .Where(post => post.Type == PostType.Artwork)
                     .Where(post => post.PublishedTime >= threeMonthsAgo)

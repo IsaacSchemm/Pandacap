@@ -1,4 +1,5 @@
 ﻿using Pandacap.Data;
+using Pandacap.LowLevel.MyLinks;
 
 namespace Pandacap.Models
 {
@@ -8,9 +9,7 @@ namespace Pandacap.Models
         public IEnumerable<BlueskyProfileResolver.ProfileInformation> BlueskyCrosspostProfiles { get; set; } = [];
         public IEnumerable<BlueskyProfileResolver.ProfileInformation> BlueskyFavoriteProfiles { get; set; } = [];
 
-        public IEnumerable<string> DeviantArtUsernames { get; set; } = [];
-        public IEnumerable<string> FurAffinityUsernames { get; set; } = [];
-        public IEnumerable<string> WeasylUsernames { get; set; } = [];
+        public IEnumerable<MyLink> MyLinks { get; set; } = [];
 
         public IEnumerable<Post> RecentArtwork { get; set; } = [];
         public IEnumerable<IPost> RecentFavorites { get; set; } = [];

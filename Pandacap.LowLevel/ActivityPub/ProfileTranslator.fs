@@ -19,9 +19,6 @@ type ProfileTranslator(hostInformation: HostInformation, mapper: Mapper) =
         pair "name" info.Username
         pair "summary" (String.concat "" [
             $"<p>Art gallery hosted by <a href='{hostInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(hostInformation.ApplicationName)}</a>.</p>"
-
-            for did in info.Bluesky do
-                $"<p>Bluesky: https://bsky.app/profile/{did}</p>"
         ])
         pair "url" mapper.ActorId
         pair "discoverable" true
@@ -38,20 +35,10 @@ type ProfileTranslator(hostInformation: HostInformation, mapper: Mapper) =
                 url = info.Avatar.Url
             |}
         pair "attachment" [
-            {|
+            for link in info.Links do {|
                 ``type`` = "PropertyValue"
-                name = "ActivityPub"
-                value = $"<a href='{mapper.ActorId}'>{WebUtility.HtmlEncode(mapper.ActorId)}</a>"
-            |}
-            for did in info.Bluesky do {|
-                ``type`` = "PropertyValue"
-                name = "Bluesky"
-                value = $"<a href='https://bsky.app/profile/{did}'>{WebUtility.HtmlEncode(did)}</a>"
-            |}
-            {|
-                ``type`` = "PropertyValue"
-                name = "Twtxt"
-                value = $"<a href='https://{hostInformation.ApplicationHostname}/Twtxt'>https://{WebUtility.HtmlEncode(hostInformation.ApplicationHostname)}/Twtxt</a>"
+                name = WebUtility.HtmlEncode(link.platformName)
+                value = $"<a href='{link.url}'>{WebUtility.HtmlEncode(link.linkText)}</a>"
             |}
         ]
     ]

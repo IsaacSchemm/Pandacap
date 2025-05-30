@@ -2,11 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Clients;
 using Pandacap.Data;
+using Pandacap.LowLevel.MyLinks;
 
 namespace Pandacap.Controllers
 {
     public class TwtxtController(
         PandacapDbContext context,
+        IMyLinkService myLinkService,
         TwtxtClient twtxtClient
     ) : Controller
     {
@@ -20,14 +22,9 @@ namespace Pandacap.Controllers
                 .Take(20)
                 .ToListAsync(cancellationToken);
 
-            var blueskyDIDs = await context.ATProtoCredentials
-                .Where(c => c.CrosspostTargetSince != null)
-                .Select(c => c.DID)
-                .ToListAsync(cancellationToken);
-
             var data = twtxtClient.BuildFeed(
                 [avatar],
-                [.. blueskyDIDs],
+                await myLinkService.GetLinksAsync(cancellationToken),
                 [.. feeds],
                 [.. posts]);
 

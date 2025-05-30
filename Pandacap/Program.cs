@@ -97,7 +97,6 @@ builder.Services
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
-    .AddScoped<BlueskyProfileResolver>()
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<DeliveryInboxCollector>()
     .AddScoped<MastodonVerifier>()

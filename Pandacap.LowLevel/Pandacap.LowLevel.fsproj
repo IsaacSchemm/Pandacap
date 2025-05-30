@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="MyLinks\MyLink.fs" />
+    <Compile Include="MyLinks\IMyLinkService.fs" />
     <Compile Include="ConfigurationObjects\ApplicationInformation.fs" />
     <Compile Include="ConfigurationObjects\RedditAppInformation.fs" />
     <Compile Include="ConfigurationObjects\UserAgentInformation.fs" />

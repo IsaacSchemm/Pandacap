@@ -9,6 +9,7 @@ using Pandacap.HighLevel.RssInbound;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.Weasyl;
 using Pandacap.Clients;
+using Pandacap.LowLevel.MyLinks;
 
 namespace Pandacap.HighLevel
 {
@@ -29,6 +30,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ActivityPub.PostTranslator>()
                 .AddScoped<ActivityPub.RelationshipTranslator>()
                 .AddScoped<ActivityPub.InteractionTranslator>()
+                .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
                 .AddScoped<ActivityPubNotificationHandler>()
                 .AddScoped<ActivityPubReplyNotificationHandler>()
                 .AddScoped<ActivityPubRequestHandler>()
@@ -37,6 +39,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ATProtoDIDResolver>()
                 .AddScoped<ATProtoNotificationHandler>()
                 .AddScoped<BlueskyAgent>()
+                .AddScoped<BlueskyProfileResolver>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<CompositeNotificationHandler>()
                 .AddScoped<ComputerVisionProvider>()
@@ -48,10 +51,9 @@ namespace Pandacap.HighLevel
                 .AddScoped<FurAffinityNoteNotificationHandler>()
                 .AddScoped<FurAffinityNotificationHandler>()
                 .AddScoped<FurryNetworkClient>()
-                .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
                 .AddScoped<JsonLdExpansionService>()
-                .AddScoped<ActivityPubCommunicationPrerequisites>()
                 .AddScoped<LemmyClient>()
+                .AddScoped<IMyLinkService, MyLinkService>()
                 .AddScoped<StarpassAgent>()
                 .AddScoped<TwtxtClient>()
                 .AddScoped<TwtxtFeedReader>()

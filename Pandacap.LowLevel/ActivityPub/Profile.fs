@@ -1,8 +1,10 @@
 ﻿namespace Pandacap.ActivityPub
 
+open Pandacap.LowLevel.MyLinks
+
 type Profile = {
     Avatar: Avatar
-    Bluesky: string list
+    Links: MyLink list
     PublicKeyPem: string
     Username: string
 }

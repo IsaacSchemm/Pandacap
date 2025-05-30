@@ -36,20 +36,16 @@
     <a href="/Gallery/Composite?format=atom" target="_blank">Atom</a>
     &middot;
     <a href="/Gallery/Composite?format=rss" target="_blank">RSS</a>
-    @foreach (var username in Model.DeviantArtUsernames)
+    @foreach (var link in Model.MyLinks)
     {
+        if (link.platformName == "ActivityPub"
+            || link.platformName == "Bluesky")
+        {
+            continue;
+        }
+
         @:&middot;
-        <a href="https://www.deviantart.com/@Uri.EscapeDataString(username)" target="_blank">DeviantArt</a>
-    }
-    @foreach (var username in Model.FurAffinityUsernames)
-    {
-        @:&middot;
-        <a href="https://www.furaffinity.net/user/@Uri.EscapeDataString(username)" target="_blank">Fur Affinity</a>
-    }
-    @foreach (var username in Model.WeasylUsernames)
-    {
-        @:&middot;
-        <a href="https://www.weasyl.com/~@username" target="_blank">Weasyl</a>
+        <a href="@link.url" target="_blank">@link.platformName</a>
     }
 </p>
 
