@@ -1,4 +1,4 @@
-﻿namespace Pandacap.LowLevel.Txt
+﻿namespace Pandacap.LowLevel.Twtxt
 
 open System
 

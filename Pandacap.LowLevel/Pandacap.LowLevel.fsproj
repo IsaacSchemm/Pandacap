@@ -31,6 +31,7 @@
     <Compile Include="Twtxt\HashGenerator.fs" />
     <Compile Include="Twtxt\FeedBuilder.fs" />
     <Compile Include="Twtxt\FeedReader.fs" />
+    <Compile Include="Twtxt\ImageExtractor.fs" />
     <Compile Include="ActivityPub\HostInformation.fs" />
     <Compile Include="ActivityPub\Serializer.fs" />
     <Compile Include="ActivityPub\IImage.fs" />

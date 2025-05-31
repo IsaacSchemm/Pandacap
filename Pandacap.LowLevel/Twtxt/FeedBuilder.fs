@@ -1,4 +1,4 @@
-﻿namespace Pandacap.LowLevel.Txt
+﻿namespace Pandacap.LowLevel.Twtxt
 
 open System.Text
 
@@ -15,10 +15,10 @@ module FeedBuilder =
                 $"# avatar = {x}"
 
             for f in feed.metadata.follow do
-                $"# follow = {f.text} {f.url.OriginalString}"
+                $"# follow = {f.text} {f.url}"
 
             for l in feed.metadata.link do
-                $"# link = {l.text} {l.url.OriginalString}"
+                $"# link = {l.text} {l.url}"
 
             for x in feed.metadata.refresh do
                 $"# refresh = {x}"

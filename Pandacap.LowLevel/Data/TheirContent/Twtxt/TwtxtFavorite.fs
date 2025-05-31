@@ -3,6 +3,7 @@
 open System
 open Pandacap.Html
 open Pandacap.PlatformBadges
+open Pandacap.LowLevel.Twtxt
 
 type TwtxtFavorite() =
     member val Id = Guid.Empty with get, set
@@ -26,7 +27,13 @@ type TwtxtFavorite() =
         member this.LinkUrl = $"/TwtxtFeedItem?id={this.Id}"
         member this.PostedAt = this.Timestamp
         member this.ProfileUrl = this.FeedUrl
-        member _.Thumbnails = []
+        member this.Thumbnails = [
+            for image in ImageExtractor.FromMarkdown(this.Text) do {
+                new IPostThumbnail with
+                    member _.AltText = image.text
+                    member _.Url = image.url
+            }
+        ]
         member this.Usericon = this.FeedAvatar
         member this.Username = this.FeedNick
 

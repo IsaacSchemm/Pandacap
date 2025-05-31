@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
-using Pandacap.LowLevel.Txt;
+using Microsoft.FSharp.Collections;
+using Pandacap.LowLevel.Twtxt;
 using System.Text;
 
 namespace Pandacap.Tests
@@ -91,6 +92,37 @@ namespace Pandacap.Tests
 
             feed.ToString().Should().Be(expected.ToString());
             feed.Should().Be(expected);
+        }
+
+        [TestMethod]
+        public void ImageExtractor_Test()
+        {
+            FSharpList<Link> expected = [
+                new("../simple.jpg", ""),
+                new("with-title.jpg", ""),
+                new("/with-alt-text.jpg", "Alt Text Here ")
+            ];
+
+            var actual = ImageExtractor.FromMarkdown(@"![](../simple.jpg)
+L
+
+P
+
+![](with-title.jpg ""Title"")
+![Alt Text Here ](/with-alt-text.jpg)");
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void ImageExtractor_Test_Empty()
+        {
+            var actual = ImageExtractor.FromMarkdown(@"Sample text
+abc
+
+zyx");
+
+            actual.IsEmpty.Should().BeTrue();
         }
     }
 }

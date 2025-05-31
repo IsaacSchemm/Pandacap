@@ -5,7 +5,7 @@ open System.Net.Http
 open System.Threading
 open Pandacap.ConfigurationObjects
 open Pandacap.Data
-open Pandacap.LowLevel.Txt
+open Pandacap.LowLevel.Twtxt
 open Pandacap.LowLevel.MyLinks
 
 type FeedType = Artwork | Text | All
@@ -53,13 +53,13 @@ type TwtxtClient(
                 ]
                 follow = [
                     for f in following do {
-                        url = new Uri(f.Url)
+                        url = f.Url
                         text = f.Nick
                     }
                 ]
                 link = [
                     for link in links do {
-                        url = new Uri(link.url)
+                        url = link.url
                         text = link.platformName
                     }
                 ]

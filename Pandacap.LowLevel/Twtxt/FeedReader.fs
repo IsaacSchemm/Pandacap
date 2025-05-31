@@ -1,4 +1,4 @@
-﻿namespace Pandacap.LowLevel.Txt
+﻿namespace Pandacap.LowLevel.Twtxt
 
 open System
 open System.IO
@@ -45,7 +45,6 @@ module FeedReader =
                 url =
                     arr
                     |> Seq.last
-                    |> Uri
             })
             |> Seq.toList
 

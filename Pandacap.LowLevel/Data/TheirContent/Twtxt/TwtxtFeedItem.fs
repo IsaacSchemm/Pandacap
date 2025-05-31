@@ -3,6 +3,7 @@
 open System
 open Pandacap.Html
 open Pandacap.PlatformBadges
+open Pandacap.LowLevel.Twtxt
 
 /// A post from an twtxt feed that is followed by the instance owner.
 type TwtxtFeedItem() =
@@ -32,6 +33,12 @@ type TwtxtFeedItem() =
         member this.LinkUrl = $"/TwtxtFeedItem?id={this.Id}"
         member this.PostedAt = this.Timestamp
         member this.ProfileUrl = this.FeedUrl
-        member _.Thumbnails = []
+        member this.Thumbnails = [
+            for image in ImageExtractor.FromMarkdown(this.Text) do {
+                new IPostThumbnail with
+                    member _.AltText = image.text
+                    member _.Url = image.url
+            }
+        ]
         member this.Usericon = this.FeedAvatar
         member this.Username = this.FeedNick

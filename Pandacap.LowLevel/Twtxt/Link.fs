@@ -1,8 +1,6 @@
-﻿namespace Pandacap.LowLevel.Txt
-
-open System
+﻿namespace Pandacap.LowLevel.Twtxt
 
 type Link = {
-    url: Uri
+    url: string
     text: string
 }
