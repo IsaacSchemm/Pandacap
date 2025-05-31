@@ -2,9 +2,13 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.Clients;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.RssOutbound;
+using Pandacap.LowLevel.MyLinks;
+using Pandacap.LowLevel.Twtxt;
 using Pandacap.Models;
 using System.Text;
 
@@ -12,8 +16,10 @@ namespace Pandacap.Controllers
 {
     public class GalleryController(
         PandacapDbContext context,
-        FeedBuilder feedBuilder,
-        ActivityPub.PostTranslator postTranslator) : Controller
+        Pandacap.HighLevel.RssOutbound.FeedBuilder feedBuilder,
+        IMyLinkService myLinkService,
+        ActivityPub.PostTranslator postTranslator,
+        TwtxtClient twtxtClient) : Controller
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
         {
@@ -47,6 +53,31 @@ namespace Pandacap.Controllers
                         Request.GetEncodedUrl()),
                     "application/atom+xml",
                     Encoding.UTF8);
+            }
+
+            if (Request.Query["format"] == "twtxt")
+            {
+                string url = new Uri(Request.GetEncodedUrl()).GetLeftPart(UriPartial.Path);
+
+                var avatars = await context.Avatars.Take(1).ToListAsync();
+
+                var links = await myLinkService.GetLinksAsync(CancellationToken.None);
+
+                var feeds = await context.TwtxtFeeds.ToListAsync();
+
+                var section = await posts.Take(take + 1).ToListAsync();
+                var page = section.Take(take);
+                var next = section.Skip(take);
+
+                var data = twtxtClient.BuildFeed(
+                    url,
+                    avatars,
+                    links.Where(link => link.platformName != "Twtxt"),
+                    feeds,
+                    page,
+                    next);
+
+                return File(data, "text/plain; charset=utf-8");
             }
 
             var listPage = await posts.AsListPage(take);

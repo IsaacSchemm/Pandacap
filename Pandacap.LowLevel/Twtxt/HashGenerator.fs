@@ -6,7 +6,7 @@ open Blake2Fast
 open SimpleBase
 
 module HashGenerator =
-    let GetDateTimeString (dt: DateTimeOffset) =
+    let getDateTimeString (dt: DateTimeOffset) =
         let str = dt.ToString("o")
         if str.Length <> 33 then
             failwith "ToString did not give expected date/time format"
@@ -18,13 +18,18 @@ module HashGenerator =
 
         String.concat "" [a; tz]
 
-    let GetHash (metadata: Metadata) (twt: Twt) =
-        String.concat "\n" [
-            metadata.url.Head.OriginalString
-            GetDateTimeString(twt.timestamp)
-            twt.text
-        ]
-        |> Encoding.UTF8.GetBytes
-        |> Blake2b.ComputeHash
-        |> Base32.Rfc4648.Encode
-        |> Hash
+    let computeHash (data: byte array) =
+        Blake2b.ComputeHash(32, data)
+
+    let getHash (url: string) (twt: Twt) =
+        let hashStr =
+            String.concat "\n" [
+                url
+                getDateTimeString(twt.timestamp)
+                twt.text
+            ]
+            |> Encoding.UTF8.GetBytes
+            |> computeHash
+            |> Base32.Rfc4648.Encode
+
+        hashStr.ToLowerInvariant().Substring(hashStr.Length - 7, 7)

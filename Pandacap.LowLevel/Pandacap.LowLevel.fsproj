@@ -26,6 +26,7 @@
     <Compile Include="Twtxt\ReplyContext.fs" />
     <Compile Include="Twtxt\Twt.fs" />
     <Compile Include="Twtxt\Link.fs" />
+    <Compile Include="Twtxt\Prev.fs" />
     <Compile Include="Twtxt\Metadata.fs" />
     <Compile Include="Twtxt\Feed.fs" />
     <Compile Include="Twtxt\HashGenerator.fs" />

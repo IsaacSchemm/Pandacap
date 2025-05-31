@@ -8,7 +8,31 @@ namespace Pandacap.Tests
     [TestClass]
     public class TwtxtTests
     {
-        private const char TAB = '\t';
+        [TestMethod]
+        public void HashGenerator_Test()
+        {
+            var actual = HashGenerator.getHash(
+                "http://0.0.0.0:8000/user/lizard-socks/twtxt.txt",
+                new(
+                    DateTimeOffset.Parse("2025-05-31T22:28:58Z"),
+                    "hi",
+                    ReplyContext.NoReplyContext));
+
+            actual.Should().Be("rrjhxea");
+        }
+
+        [TestMethod]
+        public void HashGenerator_Test_Multiline()
+        {
+            var actual = HashGenerator.getHash(
+                "http://0.0.0.0:8000/user/lizard-socks/twtxt.txt",
+                new(
+                    DateTimeOffset.Parse("2025-05-31T22:06:56Z"),
+                    "This is an example post\u2028Here is another line\u2028\u2028Here is another paragraph",
+                    ReplyContext.NoReplyContext));
+
+            actual.Should().Be("o6or74a");
+        }
 
         [TestMethod]
         public void FeedBuilder_Test()
@@ -29,7 +53,9 @@ namespace Pandacap.Tests
                         new(url: new("https://www.example.org/folder/file.png"), text: "A sample file"),
                         new(url: new("https://www.example.net"), text: "A website")
                     ],
-                    refresh: [60 * 60 * 6]),
+                    refresh: [60 * 60 * 6],
+                    prev: [
+                        new("abcdefg", "a/b.c?d=e")]),
                 twts: [
                     new(
                         new DateTimeOffset(1995, 12, 25, 23, 30, 0, 0, TimeSpan.FromHours(-6)),
@@ -50,8 +76,40 @@ namespace Pandacap.Tests
 # link = A sample file https://www.example.org/folder/file.png
 # link = A website https://www.example.net
 # refresh = 21600
-1995-12-25T23:30:00-06:00{TAB}(#abcdefg) This is a local time sample
-2025-04-01T08:20:55Z{TAB}This is a UTC sample";
+# prev = abcdefg a/b.c?d=e
+1995-12-25T23:30:00-06:00{'\t'}(#abcdefg) This is a local time sample
+2025-04-01T08:20:55Z{'\t'}This is a UTC sample";
+
+            expectedStr = expectedStr.Replace("\r", "");
+
+            Encoding.UTF8.GetString(feedData).Should().Be(expectedStr);
+        }
+
+        [TestMethod]
+        public void FeedBuilder_Minimal()
+        {
+            var feedData = FeedBuilder.BuildFeed(new(
+                metadata: new(
+                    url: [],
+                    nick: [],
+                    avatar: [],
+                    follow: [],
+                    link: [],
+                    refresh: [],
+                    prev: []),
+                twts: [
+                    new(
+                        new DateTimeOffset(1995, 12, 25, 23, 30, 0, 0, TimeSpan.FromHours(-6)),
+                        "This is a local time sample",
+                        ReplyContext.NewHash("abcdefg")),
+                    new Twt(
+                        new DateTimeOffset(2025, 4, 1, 8, 20, 55, 123, TimeSpan.Zero),
+                        "This is a UTC sample",
+                        ReplyContext.NoReplyContext)
+                ]));
+
+            string expectedStr = $@"1995-12-25T23:30:00-06:00{'\t'}(#abcdefg) This is a local time sample
+2025-04-01T08:20:55Z{'\t'}This is a UTC sample";
 
             expectedStr = expectedStr.Replace("\r", "");
 
@@ -78,7 +136,8 @@ namespace Pandacap.Tests
                         new(text: "support", url: new("http://0.0.0.0:8000/user/support/twtxt.txt"))
                     ],
                     link: [],
-                    refresh: []),
+                    refresh: [],
+                    prev: []),
                 twts: [
                     new(
                         DateTimeOffset.Parse("2025-05-29T23:12:05Z"),

@@ -50,7 +50,7 @@ module FeedReader =
 
         {
             metadata = {
-                url = get "url" |> List.map Uri
+                url = get "url"
                 nick = get "nick"
                 avatar = get "avatar"
                 follow = getLinks "follow"
@@ -61,6 +61,17 @@ module FeedReader =
                         match Int32.TryParse(str) with
                         | true, v -> v
                         | false, _ -> ()
+                ]
+
+                prev = [
+                    for str in get "prev" do
+                        match str.Split(' ') with
+                        | [| hash; url |] ->
+                            {
+                                hash = hash
+                                url = url
+                            }
+                        | _ -> ()
                 ]
             }
 

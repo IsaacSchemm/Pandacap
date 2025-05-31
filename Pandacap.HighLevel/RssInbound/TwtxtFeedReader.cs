@@ -81,9 +81,7 @@ namespace Pandacap.HighLevel.RssInbound
             context.TwtxtFeeds.Add(new()
             {
                 Id = id,
-                Url = results.metadata.url
-                    .Select(u => u.OriginalString)
-                    .First(),
+                Url = results.metadata.url.DefaultIfEmpty(url).First(),
                 Nick = results.metadata.nick.FirstOrDefault(),
                 Avatar = results.metadata.avatar.FirstOrDefault(),
                 Refresh = results.metadata.refresh

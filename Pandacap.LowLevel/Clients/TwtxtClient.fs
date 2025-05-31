@@ -8,22 +8,16 @@ open Pandacap.Data
 open Pandacap.LowLevel.Twtxt
 open Pandacap.LowLevel.MyLinks
 
-type FeedType = Artwork | Text | All
-
 type TwtxtClient(
     appInfo: ApplicationInformation,
     httpClientFactory: IHttpClientFactory
 ) =
-    let myFeed = $"https://{appInfo.ApplicationHostname}/twtxt.txt"
-
-    member _.MyFeed = myFeed
-
-    member _.ReadFeedAsync(uri: Uri, cancellationToken: CancellationToken) = task {
+    member _.ReadFeedAsync(uri: string, cancellationToken: CancellationToken) = task {
         let appName = UserAgentInformation.ApplicationName
         let ver = UserAgentInformation.VersionNumber
 
         use client = httpClientFactory.CreateClient()
-        client.DefaultRequestHeaders.UserAgent.ParseAdd($"{appName}/{ver} (+{myFeed}; @{appInfo.Username})")
+        client.DefaultRequestHeaders.UserAgent.ParseAdd($"{appName}/{ver} (+https://{appInfo.ApplicationHostname}/twtxt.txt; @{appInfo.Username})")
 
         use! resp = client.GetAsync(uri, cancellationToken)
 
@@ -41,15 +35,32 @@ type TwtxtClient(
         return feed
     }
 
-    member _.BuildFeed(avatars: Avatar list, links: MyLink list, following: TwtxtFeed list, posts: Post list) =
+    member _.BuildFeed(url: string, avatars: Avatar seq, links: MyLink seq, following: TwtxtFeed seq, posts: Post seq, next: Post seq) =
+        let twt (post: Post) = {
+            timestamp = post.PublishedTime
+            text = String.concat "\u2028" [
+                if isNull post.Title then
+                    post.Body
+                else
+                    post.Title
+
+                for i in post.Images do
+                    $"![{i.AltText}](https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{i.Blob.Id})"
+
+                String.concat " " [
+                    for t in post.Tags do $"#{t}"
+                ]
+            ]
+            replyContext = NoReplyContext
+        }
+
         FeedBuilder.BuildFeed {
             metadata = {
-                url = [new Uri(myFeed)]
+                url = [url]
                 nick = [appInfo.Username]
                 avatar = [
-                    match avatars with
-                    | [a] -> $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{a.Id}"
-                    | _ -> ()
+                    for a in avatars do
+                        $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{a.Id}"
                 ]
                 follow = [
                     for f in following do {
@@ -64,24 +75,12 @@ type TwtxtClient(
                     }
                 ]
                 refresh = []
+                prev = [
+                    for post in next do {
+                        hash = HashGenerator.getHash url (twt post)
+                        url = $"{(new Uri(url)).GetLeftPart(UriPartial.Path)}?format=twtxt&next={post.Id}"
+                    }
+                ]
             }
-            twts = [
-                for post in posts do {
-                    timestamp = post.PublishedTime
-                    text = String.concat "\u2028" [
-                        if isNull post.Title then
-                            post.Body
-                        else
-                            post.Title
-
-                        for i in post.Images do
-                            $"![{i.AltText}](https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{i.Blob.Id})"
-
-                        String.concat " " [
-                            for t in post.Tags do $"#{t}"
-                        ]
-                    ]
-                    replyContext = NoReplyContext
-                }
-            ]
+            twts = [for post in posts do twt post]
         }

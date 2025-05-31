@@ -6,7 +6,7 @@ module FeedBuilder =
     let BuildFeed (feed: Feed) =
         [
             for x in feed.metadata.url do
-                $"# url = {x.OriginalString}"
+                $"# url = {x}"
 
             for x in feed.metadata.nick do
                 $"# nick = {x}"
@@ -23,9 +23,12 @@ module FeedBuilder =
             for x in feed.metadata.refresh do
                 $"# refresh = {x}"
 
+            for p in feed.metadata.prev do
+                $"# prev = {p.hash} {p.url}"
+
             for twt in feed.twts do
                 String.concat "" [
-                    HashGenerator.GetDateTimeString(twt.timestamp)
+                    HashGenerator.getDateTimeString twt.timestamp
 
                     "\t"
 
