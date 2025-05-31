@@ -1,0 +1,42 @@
+﻿@using Pandacap.Data
+
+@model TwtxtFeedItem
+
+@{
+    ViewBag.Title = "View Twtxt Feed Item";
+}
+
+<h1>
+    <img height="50" src="@(Model.FeedAvatar ?? "/images/trgray.svg")" alt="" />
+    <span style="display: inline-block; vertical-align: top">
+        <strong>
+            <a href="@Model.FeedUrl" target="_blank">
+                @Model.FeedNick
+            </a>
+        </strong>
+    </span>
+</h1>
+
+@Html.Raw(
+    new Ganss.Xss.HtmlSanitizer().Sanitize(
+        CommonMark.CommonMarkConverter.Convert(
+            Model.Text)))
+
+<p class="text-muted">
+    <a href="@Model.FeedUrl" target="_blank">
+        @Model.Timestamp
+    </a>
+</p>
+
+<hr />
+
+<p>
+    <form asp-action="AddToFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to add this post to your favorites?')">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn btn-primary">Add to Favorites</button>
+    </form>
+    <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn btn-danger">Remove from Favorites</button>
+    </form>
+</p>

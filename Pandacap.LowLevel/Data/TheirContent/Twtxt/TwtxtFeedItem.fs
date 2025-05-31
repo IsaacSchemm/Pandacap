@@ -27,9 +27,9 @@ type TwtxtFeedItem() =
             | true, uri -> PostPlatform.GetBadge Twtxt |> Badge.WithParenthetical uri.Host
             | false, _ -> PostPlatform.GetBadge Twtxt
         ]
-        member this.DisplayTitle = ExcerptGenerator.FromText 60 this.Text // TODO: strip or clean up mentions
+        member this.DisplayTitle = ExcerptGenerator.FromText 60 this.Text
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"/TwtxtFeedItem?id={this.Id}" // TODO: render as HTML on this page
+        member this.LinkUrl = $"/TwtxtFeedItem?id={this.Id}"
         member this.PostedAt = this.Timestamp
         member this.ProfileUrl = this.FeedUrl
         member _.Thumbnails = []
