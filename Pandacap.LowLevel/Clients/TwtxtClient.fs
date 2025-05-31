@@ -73,6 +73,11 @@ type TwtxtClient(
                             post.Body
                         else
                             post.Title
+
+                        for i in post.Images do
+                            $"![{i.AltText}](https://{appInfo.ApplicationHostname}/Blobs/Thumbnails/{i.Blob.Id})"
+
+                        if post.Images.Count > 0 then
                             $"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}"
 
                         String.concat " " [
