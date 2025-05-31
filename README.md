@@ -1,6 +1,6 @@
 # Pandacap
 
-A single-user art gallery, feed reader, and ActivityPub server, built using F# and C# on ASP.NET Core and designed for Azure.
+A single-user art gallery, feed reader, and social media server, built using F# and C# on ASP.NET Core and designed for Azure.
 
 On the home page:
 
@@ -23,21 +23,17 @@ Features:
 
 ActivityPub features:
 
-* Follow or unfollow users
-* Hide images and/or reposts from specific users you follow
+* Hide images and/or reposts that come from specific users you follow
 * Create **addressed posts** (replies to other posts or top-level posts to communities)
-* Add posts to your favorites
 * Enable and disable Bridgy Fed
 
 RSS/Atom features:
 
-* Follow or unfollow feeds
-* Add posts to your favorites
 * Play or download podcasts
 
 Bluesky features:
 
-* Hide reposts and/or quote posts from specific users you follow
+* Hide reposts and/or quote posts that come from specific users you follow
 * On a second Bluesky account, automatically post **links** to your favorites (with an embedded title and thumbnail), and automatically delete these posts after 14 days
 
 Things Pandacap does **not** do:
@@ -62,7 +58,8 @@ Supported protocols:
 |               | Posts | Replies | Inbox | Notifications          | Add to Favorites
 | ------------- | ----- | ------- | ----- | ---------------------- | -----------------
 | ActivityPub   | ✓     | ✓       | ✓     | ✓ (Activites, Replies) | ✓ (sent as Likes)
-| RSS / Atom    | ✓     | ✓       | ✓     |                        | ✓
+| RSS / Atom    | ✓     |         | ✓     |                        | ✓
+| Twtxt         | ✓     |         | ✓     |                        | ✓
 
 Supported platforms:
 
