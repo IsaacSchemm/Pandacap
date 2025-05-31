@@ -75,7 +75,7 @@ type TwtxtClient(
                             post.Title
 
                         for i in post.Images do
-                            $"![{i.AltText}](https://{appInfo.ApplicationHostname}/Blobs/Thumbnails/{i.Blob.Id})"
+                            $"![{i.AltText}](https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{i.Blob.Id})"
 
                         if post.Images.Count > 0 then
                             $"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}"
