@@ -77,9 +77,6 @@ type TwtxtClient(
                         for i in post.Images do
                             $"![{i.AltText}](https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{i.Blob.Id})"
 
-                        if post.Images.Count > 0 then
-                            $"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}"
-
                         String.concat " " [
                             for t in post.Tags do $"#{t}"
                         ]
