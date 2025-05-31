@@ -58,8 +58,7 @@
     <a href="/Gallery/Composite?format=rss" target="_blank">RSS</a>
     @foreach (var link in Model.MyLinks
         .Where(link => link.platformName != "ActivityPub")
-        .Where(link => link.platformName != "Bluesky")
-        .Where(link => link.platformName != "Twtxt"))
+        .Where(link => link.platformName != "Bluesky"))
     {
         @:&middot;
         <a href="@link.url" target="_blank">@link.platformName</a>
@@ -102,27 +101,6 @@
             </td>
             <td valign="top">
                 <tt style="user-select: all">@link.linkText</tt>
-            </td>
-        </tr>
-    }
-    @foreach (var link in Model.MyLinks
-        .Where(link => link.platformName == "Twtxt"))
-    {
-        <tr>
-            <td valign="top">
-                <a href="@link.url" target="_blank" style="text-decoration: none">
-                    <img alt="Twtxt"
-                            src="/images/twtxt-logo.svg"
-                            width="16"
-                            height="16"
-                            style="margin-right: 0.5em"
-                            float="left" />
-                </a>
-            </td>
-            <td valign="top">
-                <tt>
-                    @@&lt;<span style="user-select: all">@link.url</span>&gt;
-                </tt>
             </td>
         </tr>
     }
@@ -220,6 +198,8 @@
         <a href="/Gallery/TextPosts?format=atom" target="_blank">Atom</a>
         &middot;
         <a href="/Gallery/TextPosts?format=rss" target="_blank">RSS</a>
+        &middot;
+        <a href="/Gallery/TextPosts?format=twtxt" target="_blank">Twtxt</a>
     </p>
 
     <partial name="_ListGroup" model="@Model.RecentTextPosts" />

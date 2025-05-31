@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.FSharp.Collections;
-using Pandacap.ActivityPub;
-using Pandacap.Clients;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.LowLevel.MyLinks;
@@ -92,11 +90,6 @@ namespace Pandacap.HighLevel
                     url: $"https://www.furaffinity.net/user/{x.Username}",
                     linkText: x.Username);
             }
-
-            yield return new(
-                platformName: "Twtxt",
-                url: $"https://{appInfo.ApplicationHostname}/twtxt.txt",
-                linkText: $"https://{appInfo.ApplicationHostname}/twtxt.txt");
 
             await foreach (var x in context.WeasylCredentials)
             {
