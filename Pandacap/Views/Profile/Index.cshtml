@@ -58,45 +58,75 @@
     <a href="/Gallery/Composite?format=rss" target="_blank">RSS</a>
     @foreach (var link in Model.MyLinks
         .Where(link => link.platformName != "ActivityPub")
-        .Where(link => link.platformName != "Bluesky"))
+        .Where(link => link.platformName != "Bluesky")
+        .Where(link => link.platformName != "Twtxt"))
     {
         @:&middot;
         <a href="@link.url" target="_blank">@link.platformName</a>
     }
 </p>
 
-<p>
+<table>
     @foreach (var link in Model.MyLinks
         .Where(link => link.platformName == "ActivityPub"))
     {
-        <a href="@link.url" target="_blank" style="text-decoration: none">
-            <img alt=""
-                    src="/images/Fediverse_logo.svg"
-                    width="16"
-                    height="16" />
-        </a>
-
-        <tt style="user-select: all">@link.linkText</tt>
-
-        <br />
+        <tr>
+            <td valign="top">
+                <a href="@link.url" target="_blank" style="text-decoration: none">
+                    <img alt="ActivityPub"
+                            src="/images/Fediverse_logo.svg"
+                            width="16"
+                            height="16"
+                            style="margin-right: 0.5em"
+                            float="left" />
+                </a>
+            </td>
+            <td valign="top">
+                <tt style="user-select: all">@link.linkText</tt>
+            </td>
+        </tr>
     }
-
     @foreach (var link in Model.MyLinks
         .Where(link => link.platformName == "Bluesky"))
     {
-        <a href="@link.url" target="_blank" style="text-decoration: none">
-            <img alt=""
-                    src="https://web-cdn.bsky.app/static/favicon-16x16.png"
-                    width="16"
-                    height="16" />
-            <span class="visually-hidden">View on Bluesky</span>
-        </a>
-
-        <tt style="user-select: all">@link.linkText</tt>
-
-        <br />
+        <tr>
+            <td valign="top">
+                <a href="@link.url" target="_blank" style="text-decoration: none">
+                    <img alt="Bluesky"
+                            src="https://web-cdn.bsky.app/static/favicon-16x16.png"
+                            width="16"
+                            height="16"
+                            style="margin-right: 0.5em"
+                            float="left" />
+                </a>
+            </td>
+            <td valign="top">
+                <tt style="user-select: all">@link.linkText</tt>
+            </td>
+        </tr>
     }
-</p>
+    @foreach (var link in Model.MyLinks
+        .Where(link => link.platformName == "Twtxt"))
+    {
+        <tr>
+            <td valign="top">
+                <a href="@link.url" target="_blank" style="text-decoration: none">
+                    <img alt="Twtxt"
+                            src="/images/twtxt-logo.svg"
+                            width="16"
+                            height="16"
+                            style="margin-right: 0.5em"
+                            float="left" />
+                </a>
+            </td>
+            <td valign="top">
+                <tt>
+                    @@&lt;<span style="user-select: all">@link.url</span>&gt;
+                </tt>
+            </td>
+        </tr>
+    }
+</table>
 
 <h2 class="my-4">
     Newest artwork

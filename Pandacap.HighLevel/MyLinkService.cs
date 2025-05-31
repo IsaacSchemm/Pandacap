@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.FSharp.Collections;
 using Pandacap.ActivityPub;
+using Pandacap.Clients;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.LowLevel.MyLinks;
@@ -13,7 +14,8 @@ namespace Pandacap.HighLevel
         BlueskyProfileResolver blueskyProfileResolver,
         PandacapDbContext context,
         Mapper mapper,
-        IMemoryCache memoryCache) : IMyLinkService
+        IMemoryCache memoryCache,
+        TwtxtClient twtxtClient) : IMyLinkService
     {
         private static readonly Guid _cacheKey = Guid.NewGuid();
 
@@ -92,6 +94,11 @@ namespace Pandacap.HighLevel
                     url: $"https://www.furaffinity.net/user/{x.Username}",
                     linkText: x.Username);
             }
+
+            yield return new(
+                platformName: "Twtxt",
+                url: twtxtClient.MyFeed,
+                linkText: twtxtClient.MyFeed);
 
             await foreach (var x in context.WeasylCredentials)
             {

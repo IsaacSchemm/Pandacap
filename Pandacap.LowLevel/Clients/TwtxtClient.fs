@@ -14,7 +14,9 @@ type TwtxtClient(
     appInfo: ApplicationInformation,
     httpClientFactory: IHttpClientFactory
 ) =
-    let myFeed = $"https://{appInfo.ApplicationHostname}/Twtxt"
+    let myFeed = $"https://{appInfo.ApplicationHostname}/twtxt.txt"
+
+    member _.MyFeed = myFeed
 
     member _.ReadFeedAsync(uri: Uri, cancellationToken: CancellationToken) = task {
         let appName = UserAgentInformation.ApplicationName

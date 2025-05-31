@@ -12,9 +12,13 @@ namespace Pandacap.Controllers
         TwtxtClient twtxtClient
     ) : Controller
     {
+        [Route("twtxt.txt")]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
+
+            var links = await myLinkService.GetLinksAsync(cancellationToken);
+
             var feeds = await context.TwtxtFeeds.ToListAsync(cancellationToken);
 
             var posts = await context.Posts
@@ -24,7 +28,7 @@ namespace Pandacap.Controllers
 
             var data = twtxtClient.BuildFeed(
                 [avatar],
-                await myLinkService.GetLinksAsync(cancellationToken),
+                [.. links.Where(link => link.platformName != "Twtxt")],
                 [.. feeds],
                 [.. posts]);
 

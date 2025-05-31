@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="MyLinks\MyLink.fs" />
-    <Compile Include="MyLinks\IMyLinkService.fs" />
     <Compile Include="ConfigurationObjects\ApplicationInformation.fs" />
     <Compile Include="ConfigurationObjects\RedditAppInformation.fs" />
     <Compile Include="ConfigurationObjects\UserAgentInformation.fs" />
+    <Compile Include="MyLinks\MyLink.fs" />
+    <Compile Include="MyLinks\IMyLinkService.fs" />
     <Compile Include="PlatformBadges\Badge.fs" />
     <Compile Include="PlatformBadges\NotificationPlatform.fs" />
     <Compile Include="PlatformBadges\PostPlatform.fs" />
