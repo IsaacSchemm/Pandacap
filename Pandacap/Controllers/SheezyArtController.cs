@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
 using Pandacap.Data;
 using Pandacap.Html;
 
 namespace Pandacap.Controllers
 {
     public class SheezyArtController(
-        PandacapDbContext context,
-        Mapper mapper) : Controller
+        PandacapDbContext context) : Controller
     {
         public async Task<IActionResult> Setup(CancellationToken cancellationToken)
         {
@@ -26,12 +24,6 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Setup(string username, CancellationToken cancellationToken)
         {
             var profile = await SheezyArtScraper.GetProfileAsync(username);
-
-            if (!Uri.TryCreate(mapper.ActorId, UriKind.Absolute, out Uri? actorId)
-                || !profile.socialLinks.Contains(actorId))
-            {
-                return Content($"You must add a social link to your Sheezy.Art profile with the Pandacap actor ID ({actorId}) as the URL.");
-            }
 
             var accounts = await context.SheezyArtAccounts.ToListAsync(cancellationToken);
             context.RemoveRange(accounts);

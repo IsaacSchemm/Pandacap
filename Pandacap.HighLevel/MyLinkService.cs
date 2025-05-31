@@ -13,9 +13,7 @@ namespace Pandacap.HighLevel
         ApplicationInformation appInfo,
         BlueskyProfileResolver blueskyProfileResolver,
         PandacapDbContext context,
-        Mapper mapper,
-        IMemoryCache memoryCache,
-        TwtxtClient twtxtClient) : IMyLinkService
+        IMemoryCache memoryCache) : IMyLinkService
     {
         private static readonly Guid _cacheKey = Guid.NewGuid();
 
@@ -44,7 +42,7 @@ namespace Pandacap.HighLevel
         {
             yield return new(
                 platformName: "ActivityPub",
-                url: mapper.ActorId,
+                url: $"https://{appInfo.ApplicationHostname}",
                 linkText: $"@{appInfo.Username}@{appInfo.HandleHostname}");
 
             var dids = await context.ATProtoCredentials
@@ -97,8 +95,8 @@ namespace Pandacap.HighLevel
 
             yield return new(
                 platformName: "Twtxt",
-                url: twtxtClient.MyFeed,
-                linkText: twtxtClient.MyFeed);
+                url: $"https://{appInfo.ApplicationHostname}/twtxt.txt",
+                linkText: $"https://{appInfo.ApplicationHostname}/twtxt.txt");
 
             await foreach (var x in context.WeasylCredentials)
             {
