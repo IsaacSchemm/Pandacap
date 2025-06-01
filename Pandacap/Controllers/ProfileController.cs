@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.ConfigurationObjects;
@@ -26,6 +27,7 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
         IActivityPubCommunicationPrerequisites keyProvider,
+        IMemoryCache memoryCache,
         IMyLinkService myLinkService,
         ActivityPub.ProfileTranslator profileTranslator,
         ActivityPub.RelationshipTranslator relationshipTranslator,
@@ -34,18 +36,9 @@ namespace Pandacap.Controllers
         private async Task<ActivityPub.Profile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
         {
-            var blueskyDIDs = await context.ATProtoCredentials
-                .Where(c => c.CrosspostTargetSince != null)
-                .Select(c => c.DID)
-                .ToListAsync(cancellationToken);
-
             string key = await keyProvider.GetPublicKeyAsync();
 
             var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
-
-            var followers = await context.Followers
-                .Select(f => f.ActorId)
-                .ToListAsync(cancellationToken);
 
             return new ActivityPub.Profile(
                 avatar: new ActivityPub.Avatar(
@@ -72,57 +65,75 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
-            var atProtoCredentials = await context.ATProtoCredentials.ToListAsync(cancellationToken);
+            return View(await getModel());
 
-            var blueskyCrosspostDIDs = atProtoCredentials
-                .Where(c => c.CrosspostTargetSince != null)
-                .Select(c => c.DID);
-            var blueskyFavoritesDIDs = atProtoCredentials
-                .Where(c => c.FavoritesTargetSince != null)
-                .Select(c => c.DID);
-
-            var profiles = await blueskyResolver.GetAsync([
-                .. atProtoCredentials.Select(c => c.DID),
-                $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy"
-            ]);
-
-            var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
-            var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
-
-            return View(new ProfileViewModel
+            async Task<ProfileViewModel> getModel()
             {
-                BlueskyBridgedProfiles = [.. profiles.Where(p => p.Handle.EndsWith(".ap.brid.gy"))],
-                BlueskyCrosspostProfiles = [.. profiles.Where(p => blueskyCrosspostDIDs.Contains(p.DID))],
-                BlueskyFavoriteProfiles = [.. profiles.Where(p => blueskyFavoritesDIDs.Contains(p.DID))],
-                MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
-                RecentArtwork = await context.Posts
-                    .Where(post => post.Type == PostType.Artwork)
-                    .Where(post => post.PublishedTime >= threeMonthsAgo)
-                    .OrderByDescending(post => post.PublishedTime)
-                    .Take(8)
-                    .ToListAsync(cancellationToken),
-                RecentFavorites = await compositeFavoritesProvider
-                    .GetAllAsync()
-                    .Where(post => post.Thumbnails.Any())
-                    .TakeWhile(post => post.FavoritedAt >= oneMonthAgo)
-                    .OrderByDescending(favorite => favorite.FavoritedAt.Date)
-                    .ThenByDescending(favorite => favorite.PostedAt)
-                    .Take(8)
-                    .ToListAsync(cancellationToken),
-                RecentTextPosts = await context.Posts
-                    .Where(post => post.Type != PostType.Artwork)
-                    .Where(post => post.PublishedTime >= threeMonthsAgo)
-                    .OrderByDescending(post => post.PublishedTime)
-                    .Take(5)
-                    .ToListAsync(cancellationToken),
-                FollowerCount =
-                    await context.Followers.CountAsync(cancellationToken)
-                    + await context.RssFeeds.CountAsync(cancellationToken)
-                    + await context.TwtxtFeeds.CountAsync(cancellationToken),
-                FollowingCount = await context.Follows.CountAsync(cancellationToken),
-                FavoritesCount = await context.ActivityPubLikes.CountAsync(cancellationToken),
-                CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync(cancellationToken)
-            });
+                if (User.Identity?.IsAuthenticated == true)
+                    return await buildModel();
+
+                string key = "91c08670-24f2-4160-8a27-a4108b657c42";
+
+                if (memoryCache.TryGetValue(key, out var found) && found is ProfileViewModel vm)
+                    return vm;
+
+                return memoryCache.Set(key, await buildModel(), DateTimeOffset.UtcNow.AddMinutes(10));
+            }
+
+            async Task<ProfileViewModel> buildModel()
+            {
+                var atProtoCredentials = await context.ATProtoCredentials.ToListAsync(cancellationToken);
+
+                var blueskyCrosspostDIDs = atProtoCredentials
+                    .Where(c => c.CrosspostTargetSince != null)
+                    .Select(c => c.DID);
+                var blueskyFavoritesDIDs = atProtoCredentials
+                    .Where(c => c.FavoritesTargetSince != null)
+                    .Select(c => c.DID);
+
+                var profiles = await blueskyResolver.GetAsync([
+                    .. atProtoCredentials.Select(c => c.DID),
+                    $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy"
+                ]);
+
+                var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
+                var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
+
+                return new ProfileViewModel
+                {
+                    BlueskyBridgedProfiles = [.. profiles.Where(p => p.Handle.EndsWith(".ap.brid.gy"))],
+                    BlueskyCrosspostProfiles = [.. profiles.Where(p => blueskyCrosspostDIDs.Contains(p.DID))],
+                    BlueskyFavoriteProfiles = [.. profiles.Where(p => blueskyFavoritesDIDs.Contains(p.DID))],
+                    MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
+                    RecentArtwork = await context.Posts
+                        .Where(post => post.Type == PostType.Artwork)
+                        .Where(post => post.PublishedTime >= threeMonthsAgo)
+                        .OrderByDescending(post => post.PublishedTime)
+                        .Take(8)
+                        .ToListAsync(cancellationToken),
+                    RecentFavorites = await compositeFavoritesProvider
+                        .GetAllAsync()
+                        .Where(post => post.Thumbnails.Any())
+                        .TakeWhile(post => post.FavoritedAt >= oneMonthAgo)
+                        .OrderByDescending(favorite => favorite.FavoritedAt.Date)
+                        .ThenByDescending(favorite => favorite.PostedAt)
+                        .Take(8)
+                        .ToListAsync(cancellationToken),
+                    RecentTextPosts = await context.Posts
+                        .Where(post => post.Type != PostType.Artwork)
+                        .Where(post => post.PublishedTime >= threeMonthsAgo)
+                        .OrderByDescending(post => post.PublishedTime)
+                        .Take(5)
+                        .ToListAsync(cancellationToken),
+                    FollowerCount =
+                        await context.Followers.CountAsync(cancellationToken)
+                        + await context.RssFeeds.CountAsync(cancellationToken)
+                        + await context.TwtxtFeeds.CountAsync(cancellationToken),
+                    FollowingCount = await context.Follows.CountAsync(cancellationToken),
+                    FavoritesCount = await context.ActivityPubLikes.CountAsync(cancellationToken),
+                    CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync(cancellationToken)
+                };
+            }
         }
 
         public async Task<IActionResult> Search(string? q, Guid? next, int? count)
