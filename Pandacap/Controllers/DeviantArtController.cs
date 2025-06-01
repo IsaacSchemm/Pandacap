@@ -32,7 +32,8 @@ namespace Pandacap.Controllers
 
         private record PostWrapper(Deviation Item) : IPost
         {
-            IEnumerable<Badge> IPost.Badges => [PostPlatformModule.GetBadge(PostPlatform.DeviantArt)];
+            PostPlatform IPost.Platform => PostPlatform.DeviantArt;
+            string IPost.Url => Item.url.OrNull();
             string IPost.DisplayTitle => Item.title.OrNull() ?? $"{Item.deviationid}";
             string IPost.Id => $"{Item.deviationid}";
             string? IPost.LinkUrl => Item.url.OrNull();

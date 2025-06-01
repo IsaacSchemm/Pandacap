@@ -18,6 +18,8 @@ type InboxFurAffinityJournal() =
     member val PostedAt = DateTimeOffset.MinValue with get, set
     member val DismissedAt = nullDateTimeOffset with get, set
 
+    member this.Link = $"https://www.furaffinity.net/journal/{this.JournalId}"
+
     interface IInboxPost with
         member this.DismissedAt
             with get () = this.DismissedAt
@@ -26,10 +28,11 @@ type InboxFurAffinityJournal() =
         member _.IsShare = false
 
     interface IPost with
-        member _.Badges = [PostPlatform.GetBadge FurAffinity]
+        member _.Platform = FurAffinity
+        member this.Url = this.Link
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"https://www.furaffinity.net/journal/{this.JournalId}"
+        member this.LinkUrl = this.Link
         member this.PostedAt = this.PostedAt
         member this.ProfileUrl = this.PostedBy.Url
         member _.Thumbnails = []

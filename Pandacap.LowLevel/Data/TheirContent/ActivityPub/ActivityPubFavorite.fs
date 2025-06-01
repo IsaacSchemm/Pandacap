@@ -36,11 +36,8 @@ type ActivityPubFavorite() =
         member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
-        member this.Badges = [
-            match Uri.TryCreate(this.CreatedBy, UriKind.Absolute) with
-            | true, uri -> { PostPlatform.GetBadge ActivityPub with Text = uri.Host }
-            | false, _ -> PostPlatform.GetBadge ActivityPub
-        ]
+        member _.Platform = ActivityPub
+        member this.Url = this.ObjectId
         member this.DisplayTitle =
             if not (String.IsNullOrWhiteSpace(this.Name)) then
                 this.Name

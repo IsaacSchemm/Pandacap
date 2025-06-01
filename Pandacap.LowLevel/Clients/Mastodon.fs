@@ -53,7 +53,8 @@ module Mastodon =
         return [
             for post in list do {
                 new IPost with
-                    member _.Badges = [PostPlatform.GetBadge ActivityPub]
+                    member _.Platform = ActivityPub
+                    member _.Url = post.uri
                     member _.DisplayTitle =
                         if post.sensitive then
                             $"[{post.spoiler_text}]"

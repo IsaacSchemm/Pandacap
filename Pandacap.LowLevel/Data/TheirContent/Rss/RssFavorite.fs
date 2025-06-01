@@ -26,11 +26,8 @@ type RssFavorite() =
     member val HiddenAt = nullDateTimeOffset with get, set
 
     interface IPost with
-        member this.Badges = [
-            match Uri.TryCreate(this.Url, UriKind.Absolute) with
-            | true, uri -> { PostPlatform.GetBadge RSS_Atom with Text = uri.Host }
-            | false, _ -> PostPlatform.GetBadge RSS_Atom
-        ]
+        member _.Platform = RSS_Atom
+        member this.Url = this.Url
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Url

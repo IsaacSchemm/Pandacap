@@ -46,7 +46,7 @@ else
 
                         <strong>@item.Username</strong>
 
-                        @foreach (var badge in item.Badges)
+                        @foreach (var badge in item.GetBadges())
                         {
                             <span class="badge" style="background-color: @badge.Background; color: @badge.Color; vertical-align: middle">
                                 @badge.Text

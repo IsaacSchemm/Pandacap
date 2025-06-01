@@ -37,11 +37,8 @@ type BlueskyFavorite() =
         member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
-        member this.Badges = [
-            match Option.ofObj this.CreatedBy.PDS with
-            | Some pds -> { PostPlatform.GetBadge Bluesky with Text = pds }
-            | None -> PostPlatform.GetBadge Bluesky
-        ]
+        member _.Platform = Bluesky
+        member this.Url = $"https://{this.CreatedBy.PDS}"
         member this.DisplayTitle = TitleGenerator.FromBody(this.Text)
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"https://bsky.app/profile/{this.CreatedBy.DID}/post/{this.RecordKey}"

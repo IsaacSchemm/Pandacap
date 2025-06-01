@@ -17,7 +17,8 @@ module PostThumbnail =
 
 /// A post to be shown in one of Pandacap's "paged" areas, like the gallery or inbox, using the "List" Razor view.
 type IPost =
-    abstract member Badges: Badge seq
+    abstract member Platform: PostPlatform
+    abstract member Url: string
     abstract member DisplayTitle: string
     abstract member Id: string
     abstract member LinkUrl: string

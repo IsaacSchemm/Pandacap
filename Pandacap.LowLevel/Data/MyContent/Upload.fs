@@ -1,6 +1,7 @@
 ﻿namespace Pandacap.Data
 
 open System
+open Pandacap.PlatformBadges
 
 type Upload() =
     member val Id = Guid.Empty with get, set
@@ -9,7 +10,8 @@ type Upload() =
     member val UploadedAt = DateTimeOffset.MinValue with get, set
 
     interface IPost with
-        member _.Badges = []
+        member _.Platform = Pandacap
+        member _.Url = null
         member this.DisplayTitle = String.concat " " [
             this.UploadedAt.Date.ToLongDateString()
             this.UploadedAt.Date.ToShortTimeString()

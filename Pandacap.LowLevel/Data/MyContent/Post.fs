@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations.Schema
+open Pandacap.PlatformBadges
 
 type PostType =
 | StatusUpdate = 0
@@ -80,7 +81,8 @@ type Post() =
     }
 
     interface IPost with
-        member _.Badges = []
+        member _.Platform = Pandacap
+        member _.Url = null
         member this.DisplayTitle =
             match this.Type with
             | PostType.StatusUpdate -> "Status update"

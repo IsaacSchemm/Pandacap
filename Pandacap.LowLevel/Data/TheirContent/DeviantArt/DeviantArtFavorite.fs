@@ -26,7 +26,8 @@ type DeviantArtFavorite() =
         member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
-        member _.Badges = [{ PostPlatform.GetBadge DeviantArt with Text = "deviantart.com" }]
+        member _.Platform = DeviantArt
+        member this.Url = this.LinkUrl
         member this.DisplayTitle = this.Title |> orString ""
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.LinkUrl

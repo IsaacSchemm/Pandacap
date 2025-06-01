@@ -33,7 +33,8 @@ type InboxWeasylSubmission() =
         member _.IsShare = false
 
     interface IPost with
-        member _.Badges = [PostPlatform.GetBadge Weasyl]
+        member _.Platform = Weasyl
+        member this.Url = this.Url
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Url

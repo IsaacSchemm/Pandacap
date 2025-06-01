@@ -28,7 +28,8 @@ type InboxDeviation() =
         member _.IsShare = false
 
     interface IPost with
-        member _.Badges = [PostPlatform.GetBadge DeviantArt]
+        member _.Platform = DeviantArt
+        member this.Url = this.LinkUrl
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.LinkUrl

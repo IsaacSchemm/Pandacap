@@ -26,7 +26,8 @@ type RedditUpvotedPost() =
         member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
-        member _.Badges = [{ PostPlatform.GetBadge Reddit with Text = "reddit.com" }]
+        member _.Platform = Reddit
+        member this.Url = this.URL
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.URL

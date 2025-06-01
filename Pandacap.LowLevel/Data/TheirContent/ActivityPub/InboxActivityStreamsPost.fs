@@ -40,11 +40,8 @@ type InboxActivityStreamsPost() =
         member this.IsShare = this.PostedBy.Id <> this.Author.Id
 
     interface IPost with
-        member this.Badges = [
-            match Uri.TryCreate(this.PostedBy.Id, UriKind.Absolute) with
-            | true, uri -> PostPlatform.GetBadge ActivityPub |> Badge.WithParenthetical uri.Host
-            | false, _ -> PostPlatform.GetBadge ActivityPub
-        ]
+        member _.Platform = ActivityPub
+        member this.Url = this.ObjectId
         member this.DisplayTitle = ExcerptGenerator.FromFirst 60 (seq {
             this.Name
             TextConverter.FromHtml this.Content

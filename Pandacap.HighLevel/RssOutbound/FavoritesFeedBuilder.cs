@@ -32,10 +32,7 @@ namespace Pandacap.HighLevel.RssOutbound
             foreach (var thumbnail in favorite.Thumbnails)
                 yield return $"<p>{linkify($"<img src='{thumbnail.Url}' height='250' alt='{thumbnail.AltText}' />", favorite.LinkUrl)}</p>";
 
-            string platformName = favorite.Badges
-                .Select(b => b.Text)
-                .DefaultIfEmpty("external site")
-                .First();
+            string platformName = favorite.Platform.ToString();
 
             if (favorite.LinkUrl is string url)
                 yield return $"<p><a href='{url}'>View on {WebUtility.HtmlEncode(platformName)}</a></p>";

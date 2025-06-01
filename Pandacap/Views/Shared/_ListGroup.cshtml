@@ -18,7 +18,7 @@
     </h1>
 }
 
-@foreach (var badge in Model.SelectMany(p => p.Badges).Distinct())
+@foreach (var badge in Model.SelectMany(p => p.GetBadges()).Distinct())
 {
     <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color">
         @badge.Text

@@ -3,6 +3,7 @@
 open System
 open System.ComponentModel.DataAnnotations.Schema
 open Pandacap.Html
+open Pandacap.PlatformBadges
 
 type AddressedPost() =
     member val Id = Guid.Empty with get, set
@@ -39,7 +40,8 @@ type AddressedPost() =
             |}
 
     interface IPost with
-        member _.Badges = []
+        member _.Platform = ActivityPub
+        member _.Url = null
         member this.DisplayTitle = ExcerptGenerator.FromFirst 120 (seq {
             this.Title
             TextConverter.FromHtml this.HtmlContent

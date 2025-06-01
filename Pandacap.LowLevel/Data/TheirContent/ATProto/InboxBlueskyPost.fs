@@ -40,11 +40,8 @@ type InboxBlueskyPost() =
         member this.IsShare = this.PostedBy.DID <> this.Author.DID
 
     interface IPost with
-        member this.Badges = [
-            match Option.ofObj this.PostedBy.PDS with
-            | Some pds -> PostPlatform.GetBadge Bluesky |> Badge.WithParenthetical pds
-            | None -> PostPlatform.GetBadge Bluesky
-        ]
+        member _.Platform = Bluesky
+        member this.Url = $"https://{this.PostedBy.PDS}"
         member this.DisplayTitle = ExcerptGenerator.FromText 60 this.Text
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"https://bsky.app/profile/{this.Author.DID}/post/{this.RecordKey}"

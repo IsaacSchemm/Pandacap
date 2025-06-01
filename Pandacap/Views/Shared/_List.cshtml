@@ -35,7 +35,7 @@
                         </a>
                     </div>
 
-                    @foreach (var badge in item.Badges)
+                    @foreach (var badge in item.GetBadges())
                     {
                         <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color; max-width: 100%; overflow-x: hidden; text-overflow: ellipsis;">
                             @badge.Text

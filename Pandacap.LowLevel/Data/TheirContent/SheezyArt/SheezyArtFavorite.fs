@@ -26,7 +26,8 @@ type SheezyArtFavorite() =
         member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
-        member _.Badges = [{ PostPlatform.GetBadge SheezyArt with Text = "sheezy.art" }]
+        member _.Platform = SheezyArt
+        member this.Url = this.Url
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Url

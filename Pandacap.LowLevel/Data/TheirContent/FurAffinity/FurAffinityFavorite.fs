@@ -31,7 +31,8 @@ type FurAffinityFavorite() =
         member this.FavoritedAt = this.FavoritedAt
 
     interface IPost with
-        member _.Badges = [{ PostPlatform.GetBadge FurAffinity with Text = "furaffinity.net" }]
+        member _.Platform = FurAffinity
+        member this.Url = this.Link
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
         member this.LinkUrl = this.Link
