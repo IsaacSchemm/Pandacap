@@ -1,19 +1,17 @@
 ﻿@model string
 
-<p>
-    <img src="~/images/feed-icon.svg" width="16" height="16" alt="" />
-    <a href="@Model?format=atom" target="_blank">Atom</a>
+<img src="~/images/feed-icon.svg" width="16" height="16" alt="" />
+<a href="@Model?format=atom" target="_blank">Atom</a>
 
-    &middot;
+&middot;
 
-    <img src="~/images/feed-icon.svg" width="16" height="16" alt="" />
-    <a href="@Model?format=rss" target="_blank">RSS</a>
+<img src="~/images/feed-icon.svg" width="16" height="16" alt="" />
+<a href="@Model?format=rss" target="_blank">RSS</a>
 
-    @if (Model.StartsWith("/Gallery/"))
-    {
-        @:&middot;
+@if (Model.StartsWith("/Gallery/"))
+{
+    @:&middot;
 
-        <img src="~/images/twtxt-logo.svg" width="16" height="16" alt="" />
-        <a href="@Model?format=twtxt" target="_blank">Twtxt</a>
-    }
-</p>
+    <img src="~/images/twtxt-logo.svg" width="16" height="16" alt="" />
+    <a href="@Model?format=twtxt" target="_blank">Twtxt</a>
+}

@@ -114,13 +114,13 @@ namespace Pandacap.Controllers
                         .OrderByDescending(post => post.PublishedTime)
                         .Take(5)
                         .ToListAsync(cancellationToken),
-                    FollowerCount =
-                        await context.Followers.CountAsync(cancellationToken)
-                        + await context.RssFeeds.CountAsync(cancellationToken)
-                        + await context.TwtxtFeeds.CountAsync(cancellationToken),
+                    FollowerCount = await context.Followers.CountAsync(cancellationToken),
                     FollowingCount = await context.Follows.CountAsync(cancellationToken),
                     FavoritesCount = await context.ActivityPubLikes.CountAsync(cancellationToken),
-                    CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync(cancellationToken)
+                    CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync(cancellationToken),
+                    FeedsCount =
+                        await context.RssFeeds.CountAsync(cancellationToken)
+                        + await context.TwtxtFeeds.CountAsync(cancellationToken)
                 };
             }
         }
@@ -183,15 +183,13 @@ namespace Pandacap.Controllers
             async IAsyncEnumerable<IFollow> getFollows()
             {
                 await foreach (var x in context.Follows) yield return x;
-                await foreach (var x in context.RssFeeds) yield return x;
-                await foreach (var x in context.TwtxtFeeds) yield return x;
             }
 
             var all = await getFollows()
                 .OrderBy(f => f.Username)
                 .ToListAsync(cancellationToken);
 
-            return View(all);
+            return View("FollowingAndFeeds", all);
         }
 
         [Authorize]
@@ -298,7 +296,7 @@ namespace Pandacap.Controllers
         {
             await atomRssFeedReader.AddFeedAsync(url);
 
-            return RedirectToAction(nameof(Following));
+            return RedirectToAction(nameof(Feeds));
         }
 
         [HttpPost]
@@ -308,7 +306,7 @@ namespace Pandacap.Controllers
         {
             await atomRssFeedReader.ReadFeedAsync(id);
 
-            return RedirectToAction(nameof(Following));
+            return RedirectToAction(nameof(Feeds));
         }
 
         [HttpPost]
@@ -321,12 +319,22 @@ namespace Pandacap.Controllers
 
             await context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Following));
+            return RedirectToAction(nameof(Feeds));
         }
 
-        public IActionResult Feeds()
+        public async Task<IActionResult> Feeds(CancellationToken cancellationToken)
         {
-            return RedirectToAction(nameof(Following));
+            async IAsyncEnumerable<IFollow> getFeeds()
+            {
+                await foreach (var x in context.RssFeeds) yield return x;
+                await foreach (var x in context.TwtxtFeeds) yield return x;
+            }
+
+            var all = await getFeeds()
+                .OrderBy(f => f.Username)
+                .ToListAsync(cancellationToken);
+
+            return View("FollowingAndFeeds", all);
         }
 
         [Authorize]
