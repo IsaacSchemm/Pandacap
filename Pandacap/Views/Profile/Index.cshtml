@@ -30,8 +30,27 @@
     <a asp-controller="CompositeFavorites" asp-action="Artwork" class="btn btn-outline-primary mb-1" style="min-width: 125px">
         Favorites
     </a>
+</p>
+
+<p>
+    <a href="https://@appInfo.ApplicationHostname" target="_blank" style="text-decoration: none">
+        <img alt=""
+             src="/images/Fediverse_logo.svg"
+             width="16"
+             height="16" />
+        <span class="visually-hidden">ActivityPub actor ID</span>
+    </a>
+
+    <tt style="user-select: all">@@@appInfo.Username@@@appInfo.HandleHostname</tt>
 
     <br />
+
+    @foreach (var profile in Model.BlueskyBridgedProfiles)
+    {
+        @await Html.PartialAsync("_BlueskyProfile", profile)
+
+        <br />
+    }
 
     @if (User.Identity?.IsAuthenticated == true)
     {
@@ -52,59 +71,33 @@
     }
 </p>
 
+@foreach (var profile in Model.BlueskyCrosspostProfiles)
+{
+    <p>
+        @await Html.PartialAsync("_BlueskyProfile", profile)
+    </p>
+}
+
 <p>
     <a href="/Gallery/Composite?format=atom" target="_blank">Atom</a>
     &middot;
     <a href="/Gallery/Composite?format=rss" target="_blank">RSS</a>
-    @foreach (var link in Model.MyLinks
-        .Where(link => link.platformName != "ActivityPub")
-        .Where(link => link.platformName != "Bluesky"))
+    &middot;
+    <a href="/Gallery/Composite?format=twtxt" target="_blank">Twtxt</a>
+
+    <br />
+
+    @for (int i = 0; i < Model.MyLinks.Count; i++)
     {
-        @:&middot;
+        if (i > 0)
+        {
+            @:&middot;
+        }
+
+        var link = Model.MyLinks[i];
         <a href="@link.url" target="_blank">@link.platformName</a>
     }
 </p>
-
-<table>
-    @foreach (var link in Model.MyLinks
-        .Where(link => link.platformName == "ActivityPub"))
-    {
-        <tr>
-            <td valign="top">
-                <a href="@link.url" target="_blank" style="text-decoration: none">
-                    <img alt="ActivityPub"
-                            src="/images/Fediverse_logo.svg"
-                            width="16"
-                            height="16"
-                            style="margin-right: 0.5em"
-                            float="left" />
-                </a>
-            </td>
-            <td valign="top">
-                <tt style="user-select: all">@link.linkText</tt>
-            </td>
-        </tr>
-    }
-    @foreach (var link in Model.MyLinks
-        .Where(link => link.platformName == "Bluesky"))
-    {
-        <tr>
-            <td valign="top">
-                <a href="@link.url" target="_blank" style="text-decoration: none">
-                    <img alt="Bluesky"
-                            src="https://web-cdn.bsky.app/static/favicon-16x16.png"
-                            width="16"
-                            height="16"
-                            style="margin-right: 0.5em"
-                            float="left" />
-                </a>
-            </td>
-            <td valign="top">
-                <tt style="user-select: all">@link.linkText</tt>
-            </td>
-        </tr>
-    }
-</table>
 
 <h2 class="my-4">
     Newest artwork
@@ -114,6 +107,8 @@
     <a href="/Gallery/Artwork?format=atom" target="_blank">Atom</a>
     &middot;
     <a href="/Gallery/Artwork?format=rss" target="_blank">RSS</a>
+    &middot;
+    <a href="/Gallery/Artwork?format=twtxt" target="_blank">Twtxt</a>
 </p>
 
 <form asp-action="Search" method="get">
@@ -152,30 +147,7 @@
     @foreach (var profile in Model.BlueskyFavoriteProfiles)
     {
         <p>
-            <a href="@profile.BlueskyUri" target="_blank" style="text-decoration: none">
-                <img alt=""
-                     src="https://web-cdn.bsky.app/static/favicon-16x16.png"
-                     width="16"
-                     height="16" />
-                <span class="visually-hidden">View on Bluesky</span>
-            </a>
-
-            <tt style="user-select: all">@@@profile.Handle</tt>
-
-            @foreach (var ap in profile.BridgyFed)
-            {
-                <br />
-
-                <a href="@ap.Id" target="_blank" style="text-decoration: none">
-                    <img alt=""
-                         src="/images/Fediverse_logo.svg"
-                         width="16"
-                         height="16" />
-                    <span class="visually-hidden">ActivityPub actor ID</span>
-                </a>
-
-                <tt style="user-select: all">@ap.Handle</tt>
-            }
+            @await Html.PartialAsync("_BlueskyProfile", profile)
         </p>
     }
 
@@ -288,33 +260,6 @@
 
                 <div class="card my-3">
                     <div class="card-header">
-                        Atom/RSS
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="AddFeed">
-                            <div class="mb-3">
-                                <label for="url" class="form-label">
-                                    Follow Atom/RSS feed URL
-                                </label>
-                                <input type="url" class="form-control" id="url" name="url" placeholder="https://" />
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                Follow
-                            </button>
-
-                            <hr />
-
-                            <div class="text-center">
-                                <a asp-action="Feeds" class="btn btn-outline-primary">
-                                    Manage feeds
-                                </a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="card my-3">
-                    <div class="card-header">
                         Bluesky
                     </div>
                     <div class="card-body">
@@ -347,33 +292,6 @@
                         <a asp-controller="FurAffinity" asp-action="Setup" class="btn btn-outline-primary">
                             Configure account
                         </a>
-                    </div>
-                </div>
-
-                <div class="card my-3">
-                    <div class="card-header">
-                        Twtxt
-                    </div>
-                    <div class="card-body">
-                        <form asp-controller="TwtxtFeed" asp-action="AddFeed">
-                            <div class="mb-3">
-                                <label for="url" class="form-label">
-                                    Follow twtxt feed URL
-                                </label>
-                                <input type="url" class="form-control" id="url" name="url" placeholder="https://" />
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                Follow
-                            </button>
-
-                            <hr />
-
-                            <div class="text-center">
-                                <a asp-controller="TwtxtFeed" asp-action="Feeds" class="btn btn-outline-primary">
-                                    Manage feeds
-                                </a>
-                            </div>
-                        </form>
                     </div>
                 </div>
 

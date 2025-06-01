@@ -6,14 +6,16 @@ namespace Pandacap.Models
 {
     public class ProfileViewModel
     {
-        public IEnumerable<BlueskyProfileResolver.ProfileInformation> BlueskyFavoriteProfiles { get; set; } = [];
+        public IReadOnlyList<BlueskyProfileResolver.ProfileInformation> BlueskyBridgedProfiles { get; set; } = [];
+        public IReadOnlyList<BlueskyProfileResolver.ProfileInformation> BlueskyCrosspostProfiles { get; set; } = [];
+        public IReadOnlyList<BlueskyProfileResolver.ProfileInformation> BlueskyFavoriteProfiles { get; set; } = [];
 
-        public IEnumerable<MyLink> MyLinks { get; set; } = [];
+        public IReadOnlyList<MyLink> MyLinks { get; set; } = [];
 
-        public IEnumerable<Post> RecentArtwork { get; set; } = [];
-        public IEnumerable<IPost> RecentFavorites { get; set; } = [];
+        public IReadOnlyList<Post> RecentArtwork { get; set; } = [];
+        public IReadOnlyList<IPost> RecentFavorites { get; set; } = [];
 
-        public IEnumerable<Post> RecentTextPosts { get; set; } = [];
+        public IReadOnlyList<Post> RecentTextPosts { get; set; } = [];
 
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }

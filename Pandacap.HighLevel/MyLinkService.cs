@@ -38,36 +38,15 @@ namespace Pandacap.HighLevel
 
         private async IAsyncEnumerable<MyLink> EnumerateLinks()
         {
-            yield return new(
-                platformName: "ActivityPub",
-                url: $"https://{appInfo.ApplicationHostname}",
-                linkText: $"@{appInfo.Username}@{appInfo.HandleHostname}");
-
-            var dids = await context.ATProtoCredentials
-                .Where(c => c.CrosspostTargetSince != null)
-                .Select(c => c.DID)
-                .ToListAsync();
-
-            var profiles = await blueskyProfileResolver.GetAsync(dids);
+            var profiles = await blueskyProfileResolver.GetAsync([
+                .. await context.ATProtoCredentials
+                    .Where(c => c.CrosspostTargetSince != null)
+                    .Select(c => c.DID)
+                    .ToListAsync(),
+                $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy"
+            ]);
 
             foreach (var profile in profiles)
-            {
-                yield return new(
-                    platformName: "Bluesky",
-                    url: $"https://bsky.app/profile/{profile.Handle}",
-                    linkText: $"@{profile.Handle}");
-
-                foreach (var mirror in profile.BridgyFed)
-                {
-                    yield return new(
-                        platformName: "ActivityPub",
-                        url: mirror.Id,
-                        linkText: mirror.Handle);
-                }
-            }
-
-            var bridgedProfiles = await blueskyProfileResolver.GetAsync([$"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy"]);
-            foreach (var profile in bridgedProfiles)
             {
                 yield return new(
                     platformName: "Bluesky",
