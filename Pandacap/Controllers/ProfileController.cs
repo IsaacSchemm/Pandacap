@@ -82,28 +82,17 @@ namespace Pandacap.Controllers
 
             async Task<ProfileViewModel> buildModel()
             {
-                var atProtoCredentials = await context.ATProtoCredentials.ToListAsync(cancellationToken);
-
-                var blueskyCrosspostDIDs = atProtoCredentials
-                    .Where(c => c.CrosspostTargetSince != null)
-                    .Select(c => c.DID);
-                var blueskyFavoritesDIDs = atProtoCredentials
+                var blueskyFavoritesDIDs = await context.ATProtoCredentials
                     .Where(c => c.FavoritesTargetSince != null)
-                    .Select(c => c.DID);
-
-                var profiles = await blueskyResolver.GetAsync([
-                    .. atProtoCredentials.Select(c => c.DID),
-                    $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy"
-                ]);
+                    .Select(c => c.DID)
+                    .ToListAsync(cancellationToken);
 
                 var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
                 var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
                 return new ProfileViewModel
                 {
-                    BlueskyBridgedProfiles = [.. profiles.Where(p => p.Handle.EndsWith(".ap.brid.gy"))],
-                    BlueskyCrosspostProfiles = [.. profiles.Where(p => blueskyCrosspostDIDs.Contains(p.DID))],
-                    BlueskyFavoriteProfiles = [.. profiles.Where(p => blueskyFavoritesDIDs.Contains(p.DID))],
+                    BlueskyFavoriteProfiles = await blueskyResolver.GetAsync(blueskyFavoritesDIDs),
                     MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                     RecentArtwork = await context.Posts
                         .Where(post => post.Type == PostType.Artwork)

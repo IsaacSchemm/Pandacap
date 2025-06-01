@@ -6,8 +6,6 @@ namespace Pandacap.Models
 {
     public class ProfileViewModel
     {
-        public IReadOnlyList<BlueskyProfileResolver.ProfileInformation> BlueskyBridgedProfiles { get; set; } = [];
-        public IReadOnlyList<BlueskyProfileResolver.ProfileInformation> BlueskyCrosspostProfiles { get; set; } = [];
         public IReadOnlyList<BlueskyProfileResolver.ProfileInformation> BlueskyFavoriteProfiles { get; set; } = [];
 
         public IReadOnlyList<MyLink> MyLinks { get; set; } = [];

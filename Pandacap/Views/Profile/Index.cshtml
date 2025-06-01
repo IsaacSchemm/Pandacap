@@ -62,13 +62,6 @@
 
     <br />
 
-    @foreach (var profile in Model.BlueskyBridgedProfiles)
-    {
-        @await Html.PartialAsync("_BlueskyProfile", profile)
-
-        <br />
-    }
-
     <a asp-action="Following">Following (@Model.FollowingCount)</a>
     &middot;
     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
@@ -83,13 +76,6 @@
         <a asp-controller="Favorites" asp-action="Index">Favorites (@Model.FavoritesCount)</a>
     }
 </p>
-
-@foreach (var profile in Model.BlueskyCrosspostProfiles)
-{
-    <p>
-        @await Html.PartialAsync("_BlueskyProfile", profile)
-    </p>
-}
 
 <h2 class="my-4">
     Newest artwork
