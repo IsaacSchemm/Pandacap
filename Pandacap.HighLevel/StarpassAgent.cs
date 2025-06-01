@@ -159,7 +159,7 @@ namespace Pandacap.HighLevel
 
             var toAdd = local
                 .Where(x => !remoteIds.Contains(x.Id))
-                .OrderBy(x => x.FavoritedAt)
+                .Reverse()
                 .Take(newPostLimit)
                 .ToList();
             var toRemove = remote
