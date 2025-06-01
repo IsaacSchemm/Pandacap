@@ -1,19 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.Models;
-using System.Text;
+using System.Net;
 
 namespace Pandacap.Controllers
 {
     public class CompositeFavoritesController(
         CompositeFavoritesProvider compositeFavoritesProvider,
-        PandacapDbContext context,
-        FavoritesFeedBuilder favoritesFeedBuilder) : Controller
+        PandacapDbContext context) : Controller
     {
         public async Task<IActionResult> Artwork(Guid? next, int? count)
         {
@@ -27,20 +24,7 @@ namespace Pandacap.Controllers
             if (Request.Query["format"] == "rss"
                 || Request.Query["format"] == "atom")
             {
-                var timeAgo = DateTimeOffset.UtcNow.AddDays(-30);
-
-                var visibleSubset = await composite
-                    .TakeWhile(post => post.FavoritedAt.Date > timeAgo)
-                    .ToListAsync();
-
-                return Content(
-                    favoritesFeedBuilder.ToAtomFeed(
-                        visibleSubset,
-                        Request.GetEncodedUrl()),
-                    Request.Query["format"] == "rss"
-                        ? "application/rss+xml"
-                        : "application/atom+xml",
-                    Encoding.UTF8);
+                return StatusCode(501);
             }
 
             var listPage = await composite.AsListPage(count ?? 20);

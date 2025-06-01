@@ -33,6 +33,23 @@
 </p>
 
 <p>
+    @await Html.PartialAsync("_FeedLinks", "/Gallery/Composite")
+</p>
+
+<p>
+    @for (int i = 0; i < Model.MyLinks.Count; i++)
+    {
+        if (i > 0)
+        {
+            @:&middot;
+        }
+
+        var link = Model.MyLinks[i];
+        <a href="@link.url" target="_blank">@link.platformName</a>
+    }
+</p>
+
+<p>
     <a href="https://@appInfo.ApplicationHostname" target="_blank" style="text-decoration: none">
         <img alt=""
              src="/images/Fediverse_logo.svg"
@@ -52,18 +69,14 @@
         <br />
     }
 
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <a asp-action="Followers">Followers (@Model.FollowerCount)</a>
-        @:&middot;
-    }
-
     <a asp-action="Following">Following (@Model.FollowingCount)</a>
     &middot;
     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
 
     @if (User.Identity?.IsAuthenticated == true)
     {
+        @:&middot;
+        <a asp-action="Followers">Followers (@Model.FollowerCount)</a>
         @:&middot;
         <a asp-controller="ActivityPubPosts" asp-action="Index">Posts</a>
         @:&middot;
@@ -78,38 +91,11 @@
     </p>
 }
 
-<p>
-    <a href="/Gallery/Composite?format=atom" target="_blank">Atom</a>
-    &middot;
-    <a href="/Gallery/Composite?format=rss" target="_blank">RSS</a>
-    &middot;
-    <a href="/Gallery/Composite?format=twtxt" target="_blank">Twtxt</a>
-
-    <br />
-
-    @for (int i = 0; i < Model.MyLinks.Count; i++)
-    {
-        if (i > 0)
-        {
-            @:&middot;
-        }
-
-        var link = Model.MyLinks[i];
-        <a href="@link.url" target="_blank">@link.platformName</a>
-    }
-</p>
-
 <h2 class="my-4">
     Newest artwork
 </h2>
 
-<p>
-    <a href="/Gallery/Artwork?format=atom" target="_blank">Atom</a>
-    &middot;
-    <a href="/Gallery/Artwork?format=rss" target="_blank">RSS</a>
-    &middot;
-    <a href="/Gallery/Artwork?format=twtxt" target="_blank">Twtxt</a>
-</p>
+@await Html.PartialAsync("_FeedLinks", "/Gallery/Artwork")
 
 <form asp-action="Search" method="get">
     <div class="input-group mb-3">
@@ -138,12 +124,6 @@
         Favorites
     </h2>
 
-    <p>
-        <a href="/CompositeFavorites/Artwork?format=atom" target="_blank">Atom</a>
-        &middot;
-        <a href="/CompositeFavorites/Artwork?format=rss" target="_blank">RSS</a>
-    </p>
-
     @foreach (var profile in Model.BlueskyFavoriteProfiles)
     {
         <p>
@@ -166,13 +146,7 @@
         Recent text posts
     </h2>
 
-    <p>
-        <a href="/Gallery/TextPosts?format=atom" target="_blank">Atom</a>
-        &middot;
-        <a href="/Gallery/TextPosts?format=rss" target="_blank">RSS</a>
-        &middot;
-        <a href="/Gallery/TextPosts?format=twtxt" target="_blank">Twtxt</a>
-    </p>
+    @await Html.PartialAsync("_FeedLinks", "/Gallery/TextPosts")
 
     <partial name="_ListGroup" model="@Model.RecentTextPosts" />
 
