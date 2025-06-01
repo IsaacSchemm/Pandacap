@@ -98,7 +98,10 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = title,
-                Items = listPage
+                Items = listPage,
+                RSS = true,
+                Atom = true,
+                Twtxt = true
             });
         }
 

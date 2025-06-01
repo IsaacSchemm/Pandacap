@@ -110,7 +110,7 @@ namespace Pandacap.Controllers
                         .ToListAsync(cancellationToken),
                     RecentTextPosts = await context.Posts
                         .Where(post => post.Type != PostType.Artwork)
-                        .Where(post => post.PublishedTime >= threeMonthsAgo)
+                        .Where(post => post.PublishedTime >= oneMonthAgo)
                         .OrderByDescending(post => post.PublishedTime)
                         .Take(5)
                         .ToListAsync(cancellationToken),

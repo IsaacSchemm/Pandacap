@@ -12,6 +12,10 @@
     <form id="dismissForm" asp-controller="Inbox" asp-action="Dismiss" method="post"></form>
 }
 
+<h1>@Model.Title</h1>
+
+@await Html.PartialAsync("_FeedLinks", Model)
+
 @if (!Model.Items.Current.Any())
 {
     <p>
