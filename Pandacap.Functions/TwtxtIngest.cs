@@ -1,7 +1,7 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.HighLevel.RssInbound;
+using Pandacap.HighLevel;
 
 namespace Pandacap.Functions
 {

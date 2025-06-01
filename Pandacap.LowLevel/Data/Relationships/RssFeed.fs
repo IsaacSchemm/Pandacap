@@ -1,7 +1,7 @@
 ﻿namespace Pandacap.Data
 
 open System
-open FSharp.Data
+open Pandacap.PlatformBadges
 
 /// An Atom or RSS feed followed by the instance owner.
 type RssFeed() =
@@ -11,3 +11,9 @@ type RssFeed() =
     member val FeedWebsiteUrl = nullString with get, set
     member val FeedIconUrl = nullString with get, set
     member val LastCheckedAt = DateTimeOffset.MinValue with get, set
+
+    interface IFollow with
+        member _.Platform = RSS_Atom
+        member this.IconUrl = this.FeedIconUrl
+        member this.Username = this.FeedTitle |> orString this.FeedUrl
+        member this.Url = this.FeedUrl

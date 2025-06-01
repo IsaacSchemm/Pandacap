@@ -1,6 +1,7 @@
 ﻿namespace Pandacap.Data
 
 open System
+open Pandacap.PlatformBadges
 
 /// An ActivityPub actor who this Pandacap actor is following.
 type Follow() =
@@ -14,3 +15,9 @@ type Follow() =
 
     interface Pandacap.ActivityPub.IFollow with
         member this.ActorId = this.ActorId
+
+    interface IFollow with
+        member _.Platform = ActivityPub
+        member this.IconUrl = this.IconUrl
+        member this.Username = this.PreferredUsername |> orString this.ActorId
+        member this.Url = this.ActorId

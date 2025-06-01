@@ -77,13 +77,14 @@
     <Compile Include="Data\MyContent\Post.fs" />
     <Compile Include="Data\MyContent\StarpassPost.fs" />
     <Compile Include="Data\MyContent\Upload.fs" />
-    <Compile Include="Data\Relationships\TwtxtFeed.fs" />
+    <Compile Include="Data\Relationships\IFollow.fs" />
     <Compile Include="Data\Relationships\BlueskyFollow.fs" />
     <Compile Include="Data\Relationships\RemoteActorRelationship.fs" />
     <Compile Include="Data\Relationships\CommunityBookmark.fs" />
     <Compile Include="Data\Relationships\Follow.fs" />
     <Compile Include="Data\Relationships\Follower.fs" />
     <Compile Include="Data\Relationships\RssFeed.fs" />
+    <Compile Include="Data\Relationships\TwtxtFeed.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\ActivityPubFavorite.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\ActivityPubAnnounce.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\ActivityPubLike.fs" />

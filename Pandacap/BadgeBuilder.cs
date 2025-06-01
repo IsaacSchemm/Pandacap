@@ -21,5 +21,8 @@ namespace Pandacap
 
         public static FSharpList<Badge> GetBadges(this IPost post) =>
             GetBadges(post.Platform, post.Url);
+
+        public static FSharpList<Badge> GetBadges(this IFollow follow) =>
+            GetBadges(follow.Platform, follow.Url);
     }
 }

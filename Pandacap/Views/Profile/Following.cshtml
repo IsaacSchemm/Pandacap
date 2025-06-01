@@ -2,7 +2,7 @@
 @using Pandacap.Clients
 @using Pandacap.HighLevel
 @using Pandacap.Models
-@model IEnumerable<Follow>
+@model IEnumerable<IFollow>
 
 @{
     ViewBag.Title = "Following";
@@ -11,35 +11,79 @@
 @if (!Model.Any())
 {
     <p>
-        This user does not follow any ActivityPub actors.
+        This user does not follow any other feeds or ActivityPub actors.
     </p>
 }
 else
 {
     @foreach (var item in Model)
     {
+        if (!Uri.TryCreate(item.Url, UriKind.Absolute, out Uri? uri))
+        {
+            continue;
+        }
+
         <div class="mb-3">
             <div>
                 <img height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" />
                 <span style="display: inline-block; vertical-align: top">
                     <strong>
-                        @(item.PreferredUsername ?? item.ActorId)
+                        <a href="@item.Url">
+                            @item.Username
+                        </a>
                     </strong>
+
                     <br />
-                    <a href="@item.ActorId">@item.ActorId</a>
-                    @if (!item.Accepted)
+
+                    @foreach (var badge in item.GetBadges())
                     {
-                        @:(pending)
+                        <span class="badge" style="background-color: @badge.Background; color: @badge.Color">
+                            @badge.Text
+                        </span>
+                    }
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        if (item is Follow f)
+                        {
+                            if (!f.Accepted)
+                            {
+                                @:(pending)
+                            }
+                            if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <a asp-action="UpdateFollow" asp-route-id="@f.ActorId" class="btn btn-outline-primary btn-sm py-0">
+                                    Options
+                                </a>
+                            }
+                        }
+                        else if (item is RssFeed r)
+                        {
+                            <form asp-action="RefreshFeed" class="d-inline">
+                                <input type="hidden" name="id" value="@r.Id" />
+                                <button type="submit" class="btn btn-outline-primary btn-sm py-0">Refresh</button>
+                            </form>
+
+                            <form asp-action="RemoveFeed" class="d-inline" onsubmit="return confirm('Are you sure you want to unfollow this feed?')">
+                                <input type="hidden" name="id" value="@r.Id" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm py-0">Unfollow</button>
+                            </form>
+                        }
+                        else if (item is TwtxtFeed t)
+                        {
+                            <form asp-controller="TwtxtFeed" asp-action="RefreshFeed" class="d-inline">
+                                <input type="hidden" name="id" value="@t.Id" />
+                                <button type="submit" class="btn btn-outline-primary btn-sm py-0">Refresh</button>
+                            </form>
+
+                            <form asp-controller="TwtxtFeed" asp-action="RemoveFeed" class="d-inline" onsubmit="return confirm('Are you sure you want to unfollow this feed?')">
+                                <input type="hidden" name="id" value="@t.Id" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm py-0">Unfollow</button>
+                            </form>
+                        }
                     }
                 </span>
             </div>
-
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <a asp-action="UpdateFollow" asp-route-id="@item.ActorId" class="small">
-                    Options
-                </a>
-            }
         </div>
     }
 
@@ -50,13 +94,41 @@ else
         <form asp-action="Follow">
             <div class="mb-3">
                 <label for="id" class="form-label">
-                    Actor ID (URL)
+                    ActivityPub actor ID (URL)
                 </label>
                 <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
                 <div class="form-text">Mastodon-style handles (of the form <tt>@@user@@hostname</tt>) are not supported.</div>
             </div>
             <button type="submit" class="btn btn-primary">
                 Send follow request
+            </button>
+        </form>
+
+        <hr />
+
+        <form asp-action="AddFeed">
+            <div class="mb-3">
+                <label for="url" class="form-label">
+                    Atom/RSS URL
+                </label>
+                <input type="url" class="form-control" id="url" name="url" placeholder="https://" />
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Add
+            </button>
+        </form>
+
+        <hr />
+
+        <form asp-controller="TwtxtFeed" asp-action="AddFeed">
+            <div class="mb-3">
+                <label for="url" class="form-label">
+                    Twtxt URL
+                </label>
+                <input type="url" class="form-control" id="url" name="url" placeholder="https://" />
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Add
             </button>
         </form>
     }

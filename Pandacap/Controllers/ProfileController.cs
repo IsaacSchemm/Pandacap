@@ -166,12 +166,20 @@ namespace Pandacap.Controllers
             });
         }
 
-        public async Task<IActionResult> Following()
+        public async Task<IActionResult> Following(CancellationToken cancellationToken)
         {
-            var follows = await context.Follows.ToListAsync();
+            async IAsyncEnumerable<IFollow> getFollows()
+            {
+                await foreach (var x in context.Follows) yield return x;
+                await foreach (var x in context.RssFeeds) yield return x;
+                await foreach (var x in context.TwtxtFeeds) yield return x;
+            }
 
-            return View(follows
-                .OrderBy(f => f.PreferredUsername?.ToLowerInvariant() ?? f.ActorId));
+            var all = await getFollows()
+                .OrderBy(f => f.Username)
+                .ToListAsync(cancellationToken);
+
+            return View(all);
         }
 
         [Authorize]
@@ -277,7 +285,8 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> AddFeed(string url)
         {
             await atomRssFeedReader.AddFeedAsync(url);
-            return RedirectToAction(nameof(Feeds));
+
+            return RedirectToAction(nameof(Following));
         }
 
         [HttpPost]
@@ -287,7 +296,7 @@ namespace Pandacap.Controllers
         {
             await atomRssFeedReader.ReadFeedAsync(id);
 
-            return RedirectToAction(nameof(Feeds));
+            return RedirectToAction(nameof(Following));
         }
 
         [HttpPost]
@@ -300,14 +309,12 @@ namespace Pandacap.Controllers
 
             await context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Feeds));
+            return RedirectToAction(nameof(Following));
         }
 
-        [Authorize]
-        public async Task<IActionResult> Feeds()
+        public IActionResult Feeds()
         {
-            var page = await context.RssFeeds.ToListAsync();
-            return View(page);
+            return RedirectToAction(nameof(Following));
         }
 
         [Authorize]

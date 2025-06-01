@@ -2,7 +2,7 @@
 using Pandacap.Clients;
 using Pandacap.Data;
 
-namespace Pandacap.HighLevel.RssInbound
+namespace Pandacap.HighLevel
 {
     public class TwtxtFeedReader(
         PandacapDbContext context,
@@ -15,10 +15,6 @@ namespace Pandacap.HighLevel.RssInbound
                 .FirstOrDefaultAsync();
 
             if (feed == null)
-                return;
-
-            var staleAt = feed.LastCheckedAt + feed.Refresh;
-            if (staleAt > DateTimeOffset.UtcNow)
                 return;
 
             var results = await twtxtClient.ReadFeedAsync(new(feed.Url), CancellationToken.None);

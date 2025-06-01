@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.HighLevel.RssInbound;
+using Pandacap.HighLevel;
 
 namespace Pandacap.Controllers
 {
@@ -16,7 +16,8 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> AddFeed(string url)
         {
             await twtxtFeedReader.AddFeedAsync(url);
-            return RedirectToAction(nameof(Feeds));
+
+            return RedirectToAction("Following", "Profile");
         }
 
         [HttpPost]
@@ -25,7 +26,7 @@ namespace Pandacap.Controllers
         {
             await twtxtFeedReader.ReadFeedAsync(id);
 
-            return RedirectToAction(nameof(Feeds));
+            return RedirectToAction("Following", "Profile");
         }
 
         [HttpPost]
@@ -37,13 +38,7 @@ namespace Pandacap.Controllers
 
             await context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Feeds));
-        }
-
-        public async Task<IActionResult> Feeds()
-        {
-            var page = await context.TwtxtFeeds.ToListAsync();
-            return View(page);
+            return RedirectToAction("Following", "Profile");
         }
     }
 }
