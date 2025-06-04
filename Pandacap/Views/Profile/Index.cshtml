@@ -30,12 +30,6 @@
     <a asp-controller="CompositeFavorites" asp-action="Artwork" class="btn btn-outline-primary mb-1" style="min-width: 125px">
         Favorites
     </a>
-
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        @:&middot;
-        <a asp-action="Feeds">Following (@Model.FeedsCount)</a>
-    }
 </p>
 
 <p>
@@ -64,7 +58,7 @@
 
     <br />
 
-    <a asp-action="Following">Following (@Model.FollowingCount)</a>
+    <a asp-action="FollowingAndFeeds">Following (@(Model.FollowingCount + Model.FeedsCount))</a>
     &middot;
     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
 

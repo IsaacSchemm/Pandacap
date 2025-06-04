@@ -337,6 +337,22 @@ namespace Pandacap.Controllers
             return View("FollowingAndFeeds", all);
         }
 
+        public async Task<IActionResult> FollowingAndFeeds(CancellationToken cancellationToken)
+        {
+            async IAsyncEnumerable<IFollow> getFollows()
+            {
+                await foreach (var x in context.Follows) yield return x;
+                await foreach (var x in context.RssFeeds) yield return x;
+                await foreach (var x in context.TwtxtFeeds) yield return x;
+            }
+
+            var all = await getFollows()
+                .OrderBy(f => f.Username)
+                .ToListAsync(cancellationToken);
+
+            return View("FollowingAndFeeds", all);
+        }
+
         [Authorize]
         public IActionResult UploadAvatar()
         {
