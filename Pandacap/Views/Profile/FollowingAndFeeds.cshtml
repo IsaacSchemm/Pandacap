@@ -28,7 +28,7 @@ else
                 <img height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" />
                 <span style="display: inline-block; vertical-align: top">
                     <strong>
-                        <a href="@item.Url">
+                        <a href="@(item.Url.Contains("auth=") ? null : item.Url)">
                             @item.Username
                         </a>
                     </strong>
