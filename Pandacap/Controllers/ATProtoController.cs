@@ -1,16 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Inbound;
+using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel.ATProto;
-using Pandacap.Clients.ATProto;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
+        ActivityPubRemoteActorService activityPubRemoteActorService,
         ATProtoCredentialProvider atProtoCredentialProvider,
         BlueskyAgent blueskyAgent,
         IHttpClientFactory httpClientFactory,
@@ -186,6 +188,80 @@ namespace Pandacap.Controllers
 
                 page = response.NextPage.Single();
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> FollowedProfileBridgeStates(CancellationToken cancellationToken)
+        {
+            Response.StatusCode = 200;
+            Response.ContentType = "text/plain";
+
+            using var sw = new StreamWriter(Response.Body);
+
+            using var client = httpClientFactory.CreateClient();
+
+            using var sem = new SemaphoreSlim(4, 4);
+
+            async Task<string> getLineAsync(BlueskyFollowModel f)
+            {
+                await sem.WaitAsync(cancellationToken);
+
+                try
+                {
+                    var addressee = await activityPubRemoteActorService.FetchAddresseeAsync(
+                        $"https://bsky.brid.gy/ap/{Uri.EscapeDataString(f.DID)}",
+                        cancellationToken);
+
+                    if (addressee is RemoteAddressee.Actor actor)
+                        return $"@{f.Handle} ({actor.Item.Id})";
+                    else
+                        return $"@{f.Handle}";
+                }
+                finally
+                {
+                    sem.Release();
+                }
+            }
+
+            var tasks = new List<Task<string>>();
+
+            await foreach (var f in CollectRemoteFollows().WithCancellation(cancellationToken))
+            {
+                tasks.Add(getLineAsync(f));
+            }
+
+            await sw.WriteLineAsync("----------------------------------------");
+            await sw.FlushAsync(cancellationToken);
+
+            foreach (var task in tasks)
+            {
+                await sw.WriteLineAsync(await task);
+                await sw.FlushAsync(cancellationToken);
+            }
+
+            await sw.WriteLineAsync("----------------------------------------");
+            await sw.FlushAsync(cancellationToken);
+
+            await foreach (var f in context.Follows)
+            {
+                await sw.WriteAsync(f.ActorId);
+
+                try
+                {
+                    var resp = await BlueskyFeed.GetAuthorFeedAsync(
+                        client,
+                        $"{f.PreferredUsername}.{new Uri(f.ActorId).Host}.ap.brid.gy",
+                        Page.FromStart);
+
+                    await sw.WriteAsync($" ({f.PreferredUsername}.{new Uri(f.ActorId).Host}.ap.brid.gy)");
+                }
+                catch (Exception) { }
+
+                await sw.WriteLineAsync();
+                await sw.FlushAsync(cancellationToken);
+            }
+
+            return new EmptyResult();
         }
 
         [HttpGet]
