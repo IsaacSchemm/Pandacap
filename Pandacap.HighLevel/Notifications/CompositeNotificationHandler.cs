@@ -3,7 +3,6 @@
     public class CompositeNotificationHandler(
         ActivityPubNotificationHandler activityPubNotificationHandler,
         ActivityPubReplyNotificationHandler activityPubNotificationReplyHandler,
-        ATProtoNotificationHandler atProtoNotificationHandler,
         DeviantArtFeedNotificationHandler deviantArtFeedNotificationHandler,
         DeviantArtNoteNotificationHandler deviantArtNoteNotificationHandler,
         FurAffinityNoteNotificationHandler furAffinityNoteNotificationHandler,
@@ -17,7 +16,6 @@
             {
                 activityPubNotificationHandler,
                 activityPubNotificationReplyHandler,
-                atProtoNotificationHandler,
                 deviantArtFeedNotificationHandler,
                 deviantArtNoteNotificationHandler,
                 furAffinityNoteNotificationHandler,

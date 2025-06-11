@@ -4,7 +4,6 @@ using Pandacap.Functions.FavoriteHandlers;
 namespace Pandacap.Functions
 {
     public class FavoriteIngest(
-        BlueskyFavoriteHandler blueskyFavoriteHandler,
         DeviantArtFavoriteHandler deviantArtFavoriteHandler,
         FurAffinityFavoriteHandler furAffinityFavoriteHandler,
         FurryNetworkFavoriteHandler furryNetworkFavoriteHandler,
@@ -29,8 +28,6 @@ namespace Pandacap.Functions
                 }
             }
 
-            await c(blueskyFavoriteHandler.ImportLikesAsync());
-            await c(blueskyFavoriteHandler.ImportRepostsAsync());
             await c(deviantArtFavoriteHandler.ImportFavoritesAsync());
             await c(furAffinityFavoriteHandler.ImportFavoritesAsync());
             await c(redditFavoriteHandler.ImportUpvotesAsync());

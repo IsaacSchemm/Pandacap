@@ -31,8 +31,6 @@ namespace Pandacap.Functions
                 }
             }
 
-            await c(blueskyInboxHandler.ImportPostsByUsersWeWatchAsync());
-
             await c(deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync());
             await c(deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync());
 
@@ -42,9 +40,13 @@ namespace Pandacap.Functions
             await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync());
             await c(weasylInboxHandler.ImportJournalsByUsersWeWatchAsync());
 
-            var feeds = await context.RssFeeds.Select(f => new { f.Id }).ToListAsync();
-            foreach (var feed in feeds)
+            var rssFeeds = await context.RssFeeds.Select(f => new { f.Id }).ToListAsync();
+            foreach (var feed in rssFeeds)
                 await c(atomRssFeedReader.ReadFeedAsync(feed.Id));
+
+            var blueskyFeeds = await context.BlueskyFeeds.Select(f => new { f.DID }).ToListAsync();
+            foreach (var feed in blueskyFeeds)
+                await c(blueskyInboxHandler.ReadFeedAsync(feed.DID));
 
             if (exceptions.Count > 0)
                 throw new AggregateException(exceptions);

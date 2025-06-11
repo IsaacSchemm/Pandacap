@@ -11,6 +11,7 @@ type BlueskyFeed() =
     member val IncludeImagePosts = false with get, set
     member val IncludeTextShares = false with get, set
     member val IncludeImageShares = false with get, set
+    member val IncludeReplies = false with get, set
     member val IncludeQuotePosts = false with get, set
 
     member val Handle = nullString with get, set

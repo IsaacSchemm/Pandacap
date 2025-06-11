@@ -82,17 +82,12 @@ namespace Pandacap.Controllers
 
             async Task<ProfileViewModel> buildModel()
             {
-                var blueskyFavoritesDIDs = await context.ATProtoCredentials
-                    .Where(c => c.FavoritesTargetSince != null)
-                    .Select(c => c.DID)
-                    .ToListAsync(cancellationToken);
-
                 var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
                 var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
                 return new ProfileViewModel
                 {
-                    BlueskyFavoriteProfiles = await blueskyResolver.GetAsync(blueskyFavoritesDIDs),
+                    BlueskyFavoriteProfiles = [],
                     MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                     RecentArtwork = await context.Posts
                         .Where(post => post.Type == PostType.Artwork)

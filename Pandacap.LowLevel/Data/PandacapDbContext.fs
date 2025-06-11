@@ -1,6 +1,5 @@
 ﻿namespace Pandacap.Data
 
-open System
 open Microsoft.AspNetCore.Identity
 open Microsoft.AspNetCore.Identity.EntityFrameworkCore
 open Microsoft.EntityFrameworkCore
@@ -8,7 +7,6 @@ open Microsoft.EntityFrameworkCore
 type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     inherit IdentityDbContext(options)
 
-    member this.ATProtoCredentials: DbSet<ATProtoCredentials> = this.Set()
     member this.DeviantArtCredentials: DbSet<DeviantArtCredentials> = this.Set()
     member this.FurAffinityCredentials: DbSet<FurAffinityCredentials> = this.Set()
     member this.RedditCredentials: DbSet<RedditCredentials> = this.Set()
@@ -40,13 +38,10 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.Followers: DbSet<Follower> = this.Set()
     member this.CommunityBookmarks: DbSet<CommunityBookmark> = this.Set()
     member this.BlueskyFeeds: DbSet<BlueskyFeed> = this.Set()
-    member this.BlueskyFollows: DbSet<BlueskyFollow> = this.Set()
     member this.RemoteActivityPubReplies: DbSet<RemoteActivityPubReply> = this.Set()
     member this.ActivityPubOutboundActivities: DbSet<ActivityPubOutboundActivity> = this.Set()
     member this.ActivityPubLikes: DbSet<ActivityPubLike> = this.Set()
     member this.ActivityPubAnnounces: DbSet<ActivityPubAnnounce> = this.Set()
-    member this.BlueskyLikes: DbSet<BlueskyLike> = this.Set()
-    member this.BlueskyReposts: DbSet<BlueskyRepost> = this.Set()
     member this.BlueskyFavorites: DbSet<BlueskyFavorite> = this.Set()
     member this.DeviantArtFavorites: DbSet<DeviantArtFavorite> = this.Set()
     member this.FurAffinityFavorites: DbSet<FurAffinityFavorite> = this.Set()

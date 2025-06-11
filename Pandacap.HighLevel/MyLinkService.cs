@@ -39,10 +39,6 @@ namespace Pandacap.HighLevel
         private async IAsyncEnumerable<MyLink> EnumerateLinks()
         {
             var profiles = await blueskyProfileResolver.GetAsync([
-                .. await context.ATProtoCredentials
-                    .Where(c => c.CrosspostTargetSince != null)
-                    .Select(c => c.DID)
-                    .ToListAsync(),
                 $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy"
             ]);
 

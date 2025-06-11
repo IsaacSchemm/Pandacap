@@ -1,15 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel.ATProto;
-using Pandacap.Clients.ATProto;
 using BlueskyFeed = Pandacap.Clients.ATProto.BlueskyFeed;
 
 namespace Pandacap.Functions.InboxHandlers
 {
     public class BlueskyInboxHandler(
         PandacapDbContext context,
-        ATProtoCredentialProvider credentialProvider,
         ATProtoDIDResolver didResolver,
         IHttpClientFactory httpClientFactory)
     {
@@ -42,68 +41,45 @@ namespace Pandacap.Functions.InboxHandlers
             }
         }
 
-        /// <summary>
-        /// Imports new posts from the past day that have not yet been added to the Pandacap inbox.
-        /// </summary>
-        /// <returns></returns>
-        public async Task ImportPostsByUsersWeWatchAsync()
+        public async Task ReadFeedAsync(string did)
         {
-            if (await credentialProvider.GetCrosspostingCredentialsAsync() is not IAutomaticRefreshCredentials credentials)
-                return;
-
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-1);
+            var feed = await context.BlueskyFeeds
+                .Where(f => f.DID == did)
+                .FirstAsync();
 
-            var existingPosts = await context.InboxBlueskyPosts
-                .Where(item => item.IndexedAt >= someTimeAgo)
-                .ToListAsync();
+            List<InboxBlueskyPost> newPosts = [];
 
-            var follows = await context.BlueskyFollows
-                .ToDictionaryAsync(f => f.DID);
-
-            await foreach (var feedItem in WrapAsync(page => BlueskyFeed.GetTimelineAsync(client, credentials, page)))
+            await foreach (var feedItem in WrapAsync(page => BlueskyFeed.GetAuthorFeedAsync(client, did, page)))
             {
-                if (feedItem.IndexedAt < someTimeAgo)
-                    break;
-
-                if (feedItem.post.record.InReplyTo.Length > 0)
-                {
-                    var inReplyToDIDs =
-                        feedItem.post.record.InReplyTo
-                        .SelectMany(r => new[] { r.parent, r.root })
-                        .Select(r => r.UriComponents.did)
-                        .Distinct();
-
-                    if (!inReplyToDIDs.Contains(credentials.DID))
-                        continue;
-                }
-
-                if (existingPosts.Any(e => e.CID == feedItem.post.cid && e.PostedBy.DID == feedItem.By.did))
+                if (feedItem.IndexedAt <= feed.LastCheckedAt)
                     continue;
 
-                if (feedItem.By.did == credentials.DID)
+                bool isRepost = feedItem.post.author != feedItem.By;
+                bool hasImages = !feedItem.post.Images.IsEmpty;
+
+                bool isQuotePost = !feedItem.post.EmbeddedRecords.IsEmpty;
+                if (isQuotePost && !feed.IncludeQuotePosts)
                     continue;
 
-                if (follows.TryGetValue(feedItem.By.did, out BlueskyFollow? follow))
+                bool isReply = !feedItem.post.record.InReplyTo.IsEmpty;
+                if (isReply && !feed.IncludeReplies)
+                    continue;
+
+                bool include = (isRepost, hasImages) switch
                 {
-                    bool isRepost = feedItem.post.author != feedItem.By;
-                    bool hasImages = !feedItem.post.Images.IsEmpty;
+                    (true, true) => feed.IncludeImageShares,
+                    (true, false) => feed.IncludeTextShares,
+                    (false, true) => feed.IncludeImagePosts,
+                    (false, false) => feed.IncludeTextPosts
+                };
 
-                    bool isQuotePost = !feedItem.post.EmbeddedRecords.IsEmpty;
+                if (!include)
+                    continue;
 
-                    if (follow.ExcludeImageShares && isRepost && hasImages)
-                        continue;
-
-                    if (follow.ExcludeTextShares && isRepost && !hasImages)
-                        continue;
-
-                    if (follow.ExcludeQuotePosts && isQuotePost)
-                        continue;
-                }
-
-                context.InboxBlueskyPosts.Add(new()
+                newPosts.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     CID = feedItem.post.cid,
@@ -142,7 +118,17 @@ namespace Pandacap.Functions.InboxHandlers
                         })
                     ]
                 });
+
+                if (newPosts.Count >= 20)
+                    break;
             }
+
+            context.InboxBlueskyPosts.AddRange(newPosts);
+
+            feed.LastCheckedAt = newPosts
+                .Select(f => f.IndexedAt)
+                .Concat([feed.LastCheckedAt])
+                .Max();
 
             await context.SaveChangesAsync();
         }

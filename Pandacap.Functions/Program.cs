@@ -68,7 +68,6 @@ var host = new HostBuilder()
                 handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
                 weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")))
             .AddScoped<BlueskyInboxHandler>()
-            .AddScoped<BlueskyFavoriteHandler>()
             .AddScoped<DeviantArtFavoriteHandler>()
             .AddScoped<DeviantArtInboxHandler>()
             .AddScoped<FurAffinityFavoriteHandler>()

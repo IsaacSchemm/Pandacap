@@ -64,7 +64,6 @@
     <Compile Include="Data\IFavorite.fs" />
     <Compile Include="Data\TitleGenerator.fs" />
     <Compile Include="Data\NullValues.fs" />
-    <Compile Include="Data\Credentials\ATProtoCredentials.fs" />
     <Compile Include="Data\Credentials\DeviantArtCredentials.fs" />
     <Compile Include="Data\Credentials\FurAffinityCredentials.fs" />
     <Compile Include="Data\Credentials\RedditCredentials.fs" />
@@ -79,7 +78,6 @@
     <Compile Include="Data\MyContent\Upload.fs" />
     <Compile Include="Data\Relationships\IFollow.fs" />
     <Compile Include="Data\Relationships\BlueskyFeed.fs" />
-    <Compile Include="Data\Relationships\BlueskyFollow.fs" />
     <Compile Include="Data\Relationships\RemoteActorRelationship.fs" />
     <Compile Include="Data\Relationships\CommunityBookmark.fs" />
     <Compile Include="Data\Relationships\Follow.fs" />
@@ -95,9 +93,6 @@
     <Compile Include="Data\TheirContent\Twtxt\TwtxtFavorite.fs" />
     <Compile Include="Data\TheirContent\Twtxt\TwtxtFeedItem.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyFavorite.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyFavoriteBase.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyLike.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyRepost.fs" />
     <Compile Include="Data\TheirContent\ATProto\InboxBlueskyPost.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\DeviantArtFavorite.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\DeviantArtTextPostCheckStatus.fs" />
