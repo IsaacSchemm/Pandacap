@@ -1,7 +1,9 @@
 ﻿namespace Pandacap.Data
 
+open System
 open System.ComponentModel.DataAnnotations
 
+[<Obsolete>]
 type BlueskyFollow() =
     [<Key>]
     member val DID = "" with get, set

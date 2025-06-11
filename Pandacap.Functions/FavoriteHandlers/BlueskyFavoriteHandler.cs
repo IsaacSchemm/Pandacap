@@ -4,6 +4,7 @@ using Pandacap.Data;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.Clients.ATProto;
 using Pandacap.HighLevel;
+using BlueskyFeed = Pandacap.Clients.ATProto.BlueskyFeed;
 
 namespace Pandacap.Functions.FavoriteHandlers
 {

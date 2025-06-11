@@ -1,4 +1,7 @@
 ﻿namespace Pandacap.Data
 
+open System
+
+[<Obsolete>]
 type BlueskyRepost() =
-    inherit BlueskyFavorite()
+    inherit BlueskyFavoriteBase()

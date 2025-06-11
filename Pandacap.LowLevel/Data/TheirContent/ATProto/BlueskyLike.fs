@@ -1,4 +1,7 @@
 ﻿namespace Pandacap.Data
 
+open System
+
+[<Obsolete>]
 type BlueskyLike() =
-    inherit BlueskyFavorite()
+    inherit BlueskyFavoriteBase()

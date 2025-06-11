@@ -3,6 +3,7 @@ using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.Clients.ATProto;
+using BlueskyFeed = Pandacap.Clients.ATProto.BlueskyFeed;
 
 namespace Pandacap.Functions.InboxHandlers
 {

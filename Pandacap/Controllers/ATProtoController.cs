@@ -27,6 +27,72 @@ namespace Pandacap.Controllers
             return View(accounts);
         }
 
+        public async Task Migrate(CancellationToken cancellationToken)
+        {
+            var favorites = await context.BlueskyFavorites.ToListAsync(cancellationToken);
+            if (favorites.Count == 0)
+            {
+                var likes = await context.BlueskyLikes.ToListAsync(cancellationToken);
+                var reposts = await context.BlueskyReposts.ToListAsync(cancellationToken);
+                var all = Enumerable.Empty<BlueskyFavoriteBase>()
+                    .Concat(likes)
+                    .Concat(reposts)
+                    .OrderBy(x => x.FavoritedAt);
+                foreach (var post in all)
+                {
+                    context.BlueskyFavorites.Add(new()
+                    {
+                        CID = post.CID,
+                        CreatedAt = post.CreatedAt,
+                        CreatedBy = new()
+                        {
+                            Avatar = post.CreatedBy.Avatar,
+                            DID = post.CreatedBy.DID,
+                            DisplayName = post.CreatedBy.DisplayName,
+                            Handle = post.CreatedBy.Handle,
+                            PDS = post.CreatedBy.PDS
+                        },
+                        FavoritedAt = post.FavoritedAt,
+                        HiddenAt = post.HiddenAt,
+                        Id = post.Id,
+                        Images = [.. post.Images.Select(image => new BlueskyFavoriteImage
+                        {
+                            Alt = image.Alt,
+                            Fullsize = image.Fullsize,
+                            Thumb = image.Thumb
+                        })],
+                        RecordKey = post.RecordKey,
+                        Text = post.Text
+                    });
+                }
+                await context.SaveChangesAsync(cancellationToken);
+            }
+
+            var feeds = await context.BlueskyFeeds.ToListAsync(cancellationToken);
+            if (feeds.Count == 0) {
+                await foreach (var follow in CollectRemoteFollows())
+                {
+                    var local = await context.BlueskyFollows
+                        .Where(f => f.DID == follow.DID)
+                        .FirstOrDefaultAsync(cancellationToken);
+
+                    context.BlueskyFeeds.Add(new()
+                    {
+                        DID = follow.DID,
+                        Handle = follow.Handle,
+                        Avatar = follow.Avatar,
+                        IncludeImagePosts = true,
+                        IncludeTextPosts = follow == null || !follow.ExcludeTextShares,
+                        IncludeImageShares = follow == null || !follow.ExcludeImageShares,
+                        IncludeTextShares = follow == null || !follow.ExcludeTextShares,
+                        IncludeQuotePosts = follow == null || !follow.ExcludeQuotePosts,
+                        LastCheckedAt = DateTimeOffset.UtcNow
+                    });
+                }
+                await context.SaveChangesAsync(cancellationToken);
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Setup(string pds, string did, string password)
@@ -248,7 +314,7 @@ namespace Pandacap.Controllers
 
                 try
                 {
-                    var resp = await BlueskyFeed.GetAuthorFeedAsync(
+                    var resp = await Clients.ATProto.BlueskyFeed.GetAuthorFeedAsync(
                         client,
                         $"{f.PreferredUsername}.{new Uri(f.ActorId).Host}.ap.brid.gy",
                         Page.FromStart);
