@@ -9,9 +9,9 @@ namespace Pandacap.Functions
     public class InboxIngest(
         AtomRssFeedReader atomRssFeedReader,
         BlueskyInboxHandler blueskyInboxHandler,
-        FurAffinityInboxHandler furAffinityInboxHandler,
         PandacapDbContext context,
         DeviantArtInboxHandler deviantArtInboxHandler,
+        FurAffinityInboxHandler furAffinityInboxHandler,
         WeasylInboxHandler weasylInboxHandler)
     {
         [Function("InboxIngest")]
@@ -44,9 +44,7 @@ namespace Pandacap.Functions
             foreach (var feed in rssFeeds)
                 await c(atomRssFeedReader.ReadFeedAsync(feed.Id));
 
-            var blueskyFeeds = await context.BlueskyFeeds.Select(f => new { f.DID }).ToListAsync();
-            foreach (var feed in blueskyFeeds)
-                await c(blueskyInboxHandler.ReadFeedAsync(feed.DID));
+            await c(blueskyInboxHandler.ReadFeedsAsync());
 
             if (exceptions.Count > 0)
                 throw new AggregateException(exceptions);

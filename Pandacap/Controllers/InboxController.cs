@@ -18,7 +18,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
-            var bluesky = context.InboxBlueskyPosts
+            var bluesky = context.BlueskyFeedItems
                 .OrderByDescending(d => d.IndexedAt)
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
@@ -210,7 +210,7 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .InboxBlueskyPosts
+                .BlueskyFeedItems
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {

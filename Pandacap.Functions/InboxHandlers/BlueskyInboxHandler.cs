@@ -41,96 +41,109 @@ namespace Pandacap.Functions.InboxHandlers
             }
         }
 
-        public async Task ReadFeedAsync(string did)
+        public async Task ReadFeedsAsync(DateTimeOffset? skipFeedsInactiveSince = null)
         {
-            var client = httpClientFactory.CreateClient();
+            using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var feed = await context.BlueskyFeeds
-                .Where(f => f.DID == did)
-                .FirstAsync();
+            var feeds = await context.BlueskyFeeds
+                .OrderBy(feed => feed.LastRefreshedAt)
+                .ToListAsync();
 
-            List<InboxBlueskyPost> newPosts = [];
-
-            await foreach (var feedItem in WrapAsync(page => BlueskyFeed.GetAuthorFeedAsync(client, did, page)))
+            foreach (var feed in feeds)
             {
-                if (feedItem.IndexedAt <= feed.LastCheckedAt)
+                if (skipFeedsInactiveSince is DateTimeOffset cutoff && feed.LastPostedAt < cutoff)
                     continue;
 
-                bool isRepost = feedItem.post.author != feedItem.By;
-                bool hasImages = !feedItem.post.Images.IsEmpty;
+                List<BlueskyFeedItem> newItems = [];
 
-                bool isQuotePost = !feedItem.post.EmbeddedRecords.IsEmpty;
-                if (isQuotePost && !feed.IncludeQuotePosts)
-                    continue;
+                feed.IncludeReplies ??= false;
 
-                bool isReply = !feedItem.post.record.InReplyTo.IsEmpty;
-                if (isReply && !feed.IncludeReplies)
-                    continue;
+                feed.LastRefreshedAt = DateTimeOffset.UtcNow;
 
-                bool include = (isRepost, hasImages) switch
+                await foreach (var feedItem in WrapAsync(page => BlueskyFeed.GetAuthorFeedAsync(client, feed.DID, page)))
                 {
-                    (true, true) => feed.IncludeImageShares,
-                    (true, false) => feed.IncludeTextShares,
-                    (false, true) => feed.IncludeImagePosts,
-                    (false, false) => feed.IncludeTextPosts
-                };
+                    if (feedItem.IndexedAt <= feed.LastPostedAt)
+                        continue;
 
-                if (!include)
-                    continue;
+                    if (feedItem.IndexedAt <= DateTimeOffset.UtcNow.AddDays(-7))
+                        continue;
 
-                newPosts.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    CID = feedItem.post.cid,
-                    RecordKey = feedItem.post.RecordKey,
-                    Author = new()
+                    bool isRepost = feedItem.post.author != feedItem.By;
+                    bool hasImages = !feedItem.post.Images.IsEmpty;
+
+                    bool isQuotePost = !feedItem.post.EmbeddedRecords.IsEmpty;
+                    if (isQuotePost && !feed.IncludeQuotePosts)
+                        continue;
+
+                    bool isReply = !feedItem.post.record.InReplyTo.IsEmpty;
+                    if (isReply && feed.IncludeReplies != true)
+                        continue;
+
+                    bool include = (isRepost, hasImages) switch
                     {
-                        DID = feedItem.post.author.did,
-                        PDS = await didResolver.GetPDSAsync(feedItem.post.author.did),
-                        DisplayName = feedItem.post.author.DisplayNameOrNull,
-                        Handle = feedItem.post.author.handle,
-                        Avatar = feedItem.post.author.AvatarOrNull
-                    },
-                    PostedBy = new()
+                        (true, true) => feed.IncludeImageShares,
+                        (true, false) => feed.IncludeTextShares,
+                        (false, true) => feed.IncludeImagePosts,
+                        (false, false) => feed.IncludeTextPosts
+                    };
+
+                    if (!include)
+                        continue;
+
+                    newItems.Add(new()
                     {
-                        DID = feedItem.By.did,
-                        PDS = await didResolver.GetPDSAsync(feedItem.By.did),
-                        DisplayName = feedItem.By.DisplayNameOrNull,
-                        Handle = feedItem.By.handle,
-                        Avatar = feedItem.By.AvatarOrNull
-                    },
-                    CreatedAt = feedItem.post.record.createdAt,
-                    IndexedAt = feedItem.IndexedAt,
-                    IsAdultContent =
-                        feedItem.post.labels
-                        .Where(l => l.src == feedItem.post.author.did || l.src == BlueskyModerationService)
-                        .Select(l => l.val)
-                        .Intersect(BlueskyModerationServiceAdultContentLabels)
-                        .Any(),
-                    Text = feedItem.post.record.text,
-                    Images = [
-                        .. feedItem.post.Images.Select(image => new InboxBlueskyImage
+                        Id = Guid.NewGuid(),
+                        CID = feedItem.post.cid,
+                        RecordKey = feedItem.post.RecordKey,
+                        Author = new()
+                        {
+                            DID = feedItem.post.author.did,
+                            PDS = await didResolver.GetPDSAsync(feedItem.post.author.did),
+                            DisplayName = feedItem.post.author.DisplayNameOrNull,
+                            Handle = feedItem.post.author.handle,
+                            Avatar = feedItem.post.author.AvatarOrNull
+                        },
+                        PostedBy = new()
+                        {
+                            DID = feedItem.By.did,
+                            PDS = await didResolver.GetPDSAsync(feedItem.By.did),
+                            DisplayName = feedItem.By.DisplayNameOrNull,
+                            Handle = feedItem.By.handle,
+                            Avatar = feedItem.By.AvatarOrNull
+                        },
+                        CreatedAt = feedItem.post.record.createdAt,
+                        IndexedAt = feedItem.IndexedAt,
+                        IsAdultContent =
+                            feedItem.post.labels
+                            .Where(l => l.src == feedItem.post.author.did || l.src == BlueskyModerationService)
+                            .Select(l => l.val)
+                            .Intersect(BlueskyModerationServiceAdultContentLabels)
+                            .Any(),
+                        Text = feedItem.post.record.text,
+                        Images = [
+                            .. feedItem.post.Images.Select(image => new BlueskyFeedItemImage
                         {
                             Thumb = image.thumb,
                             Fullsize = image.fullsize,
                             Alt = image.alt
                         })
-                    ]
-                });
+                        ]
+                    });
 
-                if (newPosts.Count >= 20)
-                    break;
+                    if (newItems.Count >= 25)
+                        break;
+                }
+
+                context.BlueskyFeedItems.AddRange(newItems);
+
+                feed.LastPostedAt = newItems
+                    .Select(f => f.IndexedAt)
+                    .Concat([feed.LastPostedAt ?? DateTimeOffset.UtcNow])
+                    .Max();
+
+                await context.SaveChangesAsync();
             }
-
-            context.InboxBlueskyPosts.AddRange(newPosts);
-
-            feed.LastCheckedAt = newPosts
-                .Select(f => f.IndexedAt)
-                .Concat([feed.LastCheckedAt])
-                .Max();
-
-            await context.SaveChangesAsync();
         }
     }
 }

@@ -5,31 +5,31 @@ open System.ComponentModel.DataAnnotations
 open Pandacap.Html
 open Pandacap.PlatformBadges
 
-type InboxBlueskyUser() =
+type BlueskyFeedItemUser() =
     member val DID = "" with get, set
     member val PDS = nullString with get, set
     member val DisplayName = nullString with get, set
     member val Handle = "" with get, set
     member val Avatar = nullString with get, set
 
-type InboxBlueskyImage() =
+type BlueskyFeedItemImage() =
     member val Thumb = "" with get, set
     member val Fullsize = "" with get, set
     member val Alt = "" with get, set
 
-type InboxBlueskyPost() =
+type BlueskyFeedItem() =
     [<Key>]
     member val Id = Guid.Empty with get, set
 
     member val CID = "" with get, set
     member val RecordKey = "" with get, set
-    member val Author = new InboxBlueskyUser() with get, set
-    member val PostedBy = new InboxBlueskyUser() with get, set
+    member val Author = new BlueskyFeedItemUser() with get, set
+    member val PostedBy = new BlueskyFeedItemUser() with get, set
     member val CreatedAt = DateTimeOffset.MinValue with get, set
     member val IndexedAt = DateTimeOffset.MinValue with get, set
     member val IsAdultContent = false with get, set
     member val Text = "" with get, set
-    member val Images = new ResizeArray<InboxBlueskyImage>() with get, set
+    member val Images = new ResizeArray<BlueskyFeedItemImage>() with get, set
     member val DismissedAt = nullDateTimeOffset with get, set
 
     interface IInboxPost with
