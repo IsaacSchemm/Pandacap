@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
+using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -26,6 +27,7 @@ namespace Pandacap.Controllers
         CompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
+        IHttpClientFactory httpClientFactory,
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
         IMyLinkService myLinkService,
@@ -85,9 +87,23 @@ namespace Pandacap.Controllers
                 var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
                 var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
+                using var client = httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+                string? handle = null;
+
+                try
+                {
+                    var profile = await Profile.GetProfileAsync(
+                        client,
+                        $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy");
+
+                    handle = profile.handle;
+                } catch (Exception) { }
+
                 return new ProfileViewModel
                 {
-                    BlueskyFavoriteProfiles = [],
+                    BridgyFedHandle = handle,
                     MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                     RecentArtwork = await context.Posts
                         .Where(post => post.Type == PostType.Artwork)

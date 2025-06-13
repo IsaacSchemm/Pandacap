@@ -58,6 +58,20 @@
 
     <br />
 
+    @if (Model.BridgyFedHandle != null)
+    {
+        <a href="https://bsky.app/profile/@Model.BridgyFedHandle" target="_blank" style="text-decoration: none">
+            <img alt="Bluesky"
+                 src="https://web-cdn.bsky.app/static/favicon-16x16.png"
+                 width="16"
+                 height="16" />
+        </a>
+
+        <tt style="user-select: all">@@@Model.BridgyFedHandle</tt>
+
+        <br />
+    }
+
     <a asp-action="FollowingAndFeeds">Following (@(Model.FollowingCount + Model.FeedsCount))</a>
     &middot;
     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
@@ -103,13 +117,6 @@
     <h2 class="my-4">
         Favorites
     </h2>
-
-    @foreach (var profile in Model.BlueskyFavoriteProfiles)
-    {
-        <p>
-            @await Html.PartialAsync("_BlueskyProfile", profile)
-        </p>
-    }
 
     <partial name="_List" model="@Model.RecentFavorites" />
 

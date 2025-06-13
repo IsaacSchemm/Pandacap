@@ -1,15 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.FSharp.Collections;
-using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.LowLevel.MyLinks;
 
 namespace Pandacap.HighLevel
 {
     internal class MyLinkService(
-        ApplicationInformation appInfo,
-        BlueskyProfileResolver blueskyProfileResolver,
         PandacapDbContext context,
         IMemoryCache memoryCache) : IMyLinkService
     {
@@ -38,18 +35,6 @@ namespace Pandacap.HighLevel
 
         private async IAsyncEnumerable<MyLink> EnumerateLinks()
         {
-            var profiles = await blueskyProfileResolver.GetAsync([
-                $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy"
-            ]);
-
-            foreach (var profile in profiles)
-            {
-                yield return new(
-                    platformName: "Bluesky",
-                    url: $"https://bsky.app/profile/{profile.Handle}",
-                    linkText: $"@{profile.Handle}");
-            }
-
             await foreach (var x in context.DeviantArtCredentials)
             {
                 yield return new(

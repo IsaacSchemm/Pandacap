@@ -1,12 +1,11 @@
 ﻿using Pandacap.Data;
-using Pandacap.HighLevel;
 using Pandacap.LowLevel.MyLinks;
 
 namespace Pandacap.Models
 {
     public class ProfileViewModel
     {
-        public IReadOnlyList<BlueskyProfileResolver.ProfileInformation> BlueskyFavoriteProfiles { get; set; } = [];
+        public string? BridgyFedHandle { get; set; }
 
         public IReadOnlyList<MyLink> MyLinks { get; set; } = [];
 
