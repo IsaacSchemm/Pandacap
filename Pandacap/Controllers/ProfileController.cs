@@ -67,21 +67,6 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
-            return View(await getModel());
-
-            async Task<ProfileViewModel> getModel()
-            {
-                if (User.Identity?.IsAuthenticated == true)
-                    return await buildModel();
-
-                string key = "91c08670-24f2-4160-8a27-a4108b657c42";
-
-                if (memoryCache.TryGetValue(key, out var found) && found is ProfileViewModel vm)
-                    return vm;
-
-                return memoryCache.Set(key, await buildModel(), DateTimeOffset.UtcNow.AddMinutes(10));
-            }
-
             async Task<string?> getBridgyFedHandle()
             {
                 try
@@ -139,6 +124,21 @@ namespace Pandacap.Controllers
                         + await context.TwtxtFeeds.CountAsync(cancellationToken)
                 };
             }
+
+            async Task<ProfileViewModel> getModel()
+            {
+                if (User.Identity?.IsAuthenticated == true)
+                    return await buildModel();
+
+                string key = "91c08670-24f2-4160-8a27-a4108b657c42";
+
+                if (memoryCache.TryGetValue(key, out var found) && found is ProfileViewModel vm)
+                    return vm;
+
+                return memoryCache.Set(key, await buildModel(), DateTimeOffset.UtcNow.AddMinutes(10));
+            }
+
+            return View(await getModel());
         }
 
         public async Task<IActionResult> Search(string? q, Guid? next, int? count)
