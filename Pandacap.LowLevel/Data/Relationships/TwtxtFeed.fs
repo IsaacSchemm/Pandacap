@@ -13,7 +13,9 @@ type TwtxtFeed() =
     member val LastCheckedAt = DateTimeOffset.MinValue with get, set
 
     interface IFollow with
+        member _.Filtered = false
         member _.Platform = Twtxt
+        member this.LinkUrl = this.Url
         member this.IconUrl = this.Avatar
         member this.Username = this.Nick |> orString this.Url
         member this.Url = this.Url

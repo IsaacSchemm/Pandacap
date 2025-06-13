@@ -13,7 +13,9 @@ type RssFeed() =
     member val LastCheckedAt = DateTimeOffset.MinValue with get, set
 
     interface IFollow with
+        member _.Filtered = false
         member _.Platform = RSS_Atom
+        member this.LinkUrl = this.FeedUrl
         member this.IconUrl = this.FeedIconUrl
         member this.Username = this.FeedTitle |> orString this.FeedUrl
         member this.Url = this.FeedUrl

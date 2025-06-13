@@ -23,23 +23,12 @@
     <div class="mb-3 form-check">
         <input type="checkbox"
                class="form-check-input"
-               id="IncludeTextPosts"
-               name="IncludeTextPosts"
+               id="IgnoreImages"
+               name="IgnoreImages"
                value="true"
-               @(Model.IncludeTextPosts == true ? "checked" : "")>
-        <label class="form-check-label" for="IncludeTextPosts">
-            Include text posts
-        </label>
-    </div>
-    <div class="mb-3 form-check">
-        <input type="checkbox"
-               class="form-check-input"
-               id="IncludeImagePosts"
-               name="IncludeImagePosts"
-               value="true"
-               @(Model.IncludeImagePosts == true ? "checked" : "")>
-        <label class="form-check-label" for="IncludeImagePosts">
-            Include image posts
+               @(Model.IgnoreImages == true ? "checked" : "")>
+        <label class="form-check-label" for="IgnoreImages">
+            Ignore images
         </label>
     </div>
     <div class="mb-3 form-check">
@@ -73,17 +62,6 @@
                @(Model.IncludeQuotePosts == true ? "checked" : "")>
         <label class="form-check-label" for="IncludeQuotePosts">
             Include quote posts
-        </label>
-    </div>
-    <div class="mb-3 form-check">
-        <input type="checkbox"
-               class="form-check-input"
-               id="IncludeReplies"
-               name="IncludeReplies"
-               value="true"
-               @(Model.IncludeReplies == true ? "checked" : "")>
-        <label class="form-check-label" for="IncludeReplies">
-            Include replies
         </label>
     </div>
     <hr />

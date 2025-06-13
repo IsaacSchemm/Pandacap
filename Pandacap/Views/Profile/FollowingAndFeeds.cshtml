@@ -31,6 +31,11 @@ else
                         <a href="@(item.Url.Contains("auth=") ? null : item.Url)">
                             @item.Username
                         </a>
+                        @if (User.Identity?.IsAuthenticated == true
+                            && item.Filtered)
+                        {
+                            <i class="text-info">(filtered)</i>
+                        }
                     </strong>
 
                     <br />

@@ -11,11 +11,9 @@ type BlueskyFeed() =
 
     member val PDS = "public.api.bsky.app" with get, set
 
-    member val IncludeTextPosts = false with get, set
-    member val IncludeImagePosts = false with get, set
+    member val IgnoreImages = Nullable false with get, set
     member val IncludeTextShares = false with get, set
     member val IncludeImageShares = false with get, set
-    member val IncludeReplies = false with get, set
     member val IncludeQuotePosts = false with get, set
 
     member val Handle = nullString with get, set
@@ -30,7 +28,7 @@ type BlueskyFeed() =
         let sincePost = DateTimeOffset.UtcNow - this.LastPostedAt
 
         let timeToWait =
-            if sincePost < TimeSpan.FromDays(3) then TimeSpan.FromHours(1)
+            if sincePost < TimeSpan.FromDays(7) then TimeSpan.Zero
             else if sincePost < TimeSpan.FromDays(28) then TimeSpan.FromDays(1)
             else TimeSpan.FromDays(7)
 
@@ -39,7 +37,12 @@ type BlueskyFeed() =
         sinceRefresh > timeToWait
 
     interface IFollow with
+        member this.Filtered =
+            not this.IncludeTextShares
+            || not this.IncludeImageShares
+            || not this.IncludeQuotePosts
         member _.Platform = Bluesky
         member this.IconUrl = this.Avatar
-        member this.Username = this.DisplayName |> orString this.Handle
-        member this.Url = $"https://{this.PDS}/xrpc/app.bsky.actor.getProfile?actor={this.DID}"//$"https://bsky.app/profile/{Uri.EscapeDataString(this.DID)}"
+        member this.LinkUrl = $"https://bsky.app/profile/{this.Handle}"
+        member this.Username = this.Handle
+        member this.Url = $"https://{this.PDS}/xrpc/app.bsky.actor.getProfile?actor={this.DID}"

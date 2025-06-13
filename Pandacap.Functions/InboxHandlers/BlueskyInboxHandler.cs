@@ -64,27 +64,26 @@ namespace Pandacap.Functions.InboxHandlers
                     if (feedItem.IndexedAt <= feed.LastPostedAt)
                         break;
 
-                    bool isRepost = feedItem.post.author != feedItem.By;
-                    bool hasImages = !feedItem.post.Images.IsEmpty;
-
                     bool isQuotePost = !feedItem.post.EmbeddedRecords.IsEmpty;
                     if (isQuotePost && !feed.IncludeQuotePosts)
                         continue;
 
                     bool isReply = !feedItem.post.record.InReplyTo.IsEmpty;
-                    if (isReply && feed.IncludeReplies != true)
+                    if (isReply)
                         continue;
 
-                    bool include = (isRepost, hasImages) switch
+                    bool isRepost = feedItem.post.author != feedItem.By;
+                    if (isRepost)
                     {
-                        (true, true) => feed.IncludeImageShares,
-                        (true, false) => feed.IncludeTextShares,
-                        (false, true) => feed.IncludeImagePosts,
-                        (false, false) => feed.IncludeTextPosts
-                    };
+                        bool hasImages = !feedItem.post.Images.IsEmpty;
 
-                    if (!include)
-                        continue;
+                        bool include = hasImages
+                            ? feed.IncludeImageShares
+                            : feed.IncludeTextShares;
+
+                        if (!include)
+                            continue;
+                    }
 
                     feed.Avatar = feedItem.post.author.AvatarOrNull;
                     feed.DisplayName = feedItem.post.author.DisplayNameOrNull;
@@ -120,14 +119,16 @@ namespace Pandacap.Functions.InboxHandlers
                             .Intersect(BlueskyModerationServiceAdultContentLabels)
                             .Any(),
                         Text = feedItem.post.record.text,
-                        Images = [
-                            .. feedItem.post.Images.Select(image => new BlueskyFeedItemImage
-                            {
-                                Thumb = image.thumb,
-                                Fullsize = image.fullsize,
-                                Alt = image.alt
-                            })
-                        ]
+                        Images = feed.IgnoreImages
+                            ? []
+                            : [
+                                .. feedItem.post.Images.Select(image => new BlueskyFeedItemImage
+                                {
+                                    Thumb = image.thumb,
+                                    Fullsize = image.fullsize,
+                                    Alt = image.alt
+                                })
+                            ]
                     });
 
                     if (newItems.Count >= 20)

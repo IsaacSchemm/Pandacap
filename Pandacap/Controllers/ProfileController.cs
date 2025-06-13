@@ -328,11 +328,9 @@ namespace Pandacap.Controllers
                 .Where(f => f.DID == did)
                 .AsAsyncEnumerable())
             {
-                follow.IncludeTextPosts = model.IncludeTextPosts;
-                follow.IncludeImagePosts = model.IncludeImagePosts;
+                follow.IgnoreImages = model.IgnoreImages;
                 follow.IncludeTextShares = model.IncludeTextShares;
                 follow.IncludeImageShares = model.IncludeImageShares;
-                follow.IncludeReplies = model.IncludeReplies;
                 follow.IncludeQuotePosts = model.IncludeQuotePosts;
             }
 
@@ -415,6 +413,15 @@ namespace Pandacap.Controllers
             var all = await getFollows()
                 .OrderBy(f => f.Username)
                 .ToListAsync(cancellationToken);
+
+            foreach (var x in all)
+            {
+                if (x is Data.BlueskyFeed b && b.IgnoreImages == null)
+                {
+                    b.IgnoreImages = true;
+                    await context.SaveChangesAsync(cancellationToken);
+                }
+            }
 
             return View("FollowingAndFeeds", all);
         }

@@ -17,7 +17,11 @@ type Follow() =
         member this.ActorId = this.ActorId
 
     interface IFollow with
+        member this.Filtered =
+            not this.IncludeImageShares
+            || not this.IncludeTextShares
         member _.Platform = ActivityPub
+        member this.LinkUrl = this.ActorId
         member this.IconUrl = this.IconUrl
         member this.Username = this.PreferredUsername |> orString this.ActorId
         member this.Url = this.ActorId
