@@ -59,7 +59,7 @@ namespace Pandacap.Functions.InboxHandlers
 
                 feed.LastRefreshedAt = DateTimeOffset.UtcNow;
 
-                await foreach (var feedItem in WrapAsync(page => BlueskyFeed.GetAuthorFeedAsync(client, feed.DID, page)))
+                await foreach (var feedItem in WrapAsync(page => BlueskyFeed.GetAuthorFeedAsync(client, feed.PDS, feed.DID, page)))
                 {
                     if (feedItem.IndexedAt <= feed.LastPostedAt)
                         break;

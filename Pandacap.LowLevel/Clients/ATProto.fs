@@ -1,15 +1,8 @@
 ﻿namespace Pandacap.Clients.ATProto
 
 open System
-open System.Net
 open System.Net.Http
 open System.Net.Http.Json
-
-type IHost =
-    abstract member PDS: string
-
-module Host =
-    let Public = { new IHost with member _.PDS = "public.api.bsky.app" }
 
 module RecordKey =
     let Extract (uri: string) =
@@ -23,8 +16,8 @@ module Requests =
             $"{Uri.EscapeDataString(key)}={Uri.EscapeDataString(value)}"
     ]
 
-    let getAsync<'T> (httpClient: HttpClient) procedureName parameters = task {
-        use! resp = httpClient.GetAsync($"https://public.api.bsky.app/xrpc/{Uri.EscapeDataString(procedureName)}?{buildQueryString parameters}")
+    let getAsync<'T> (httpClient: HttpClient) (pds: string) procedureName parameters = task {
+        use! resp = httpClient.GetAsync($"https://{pds}/xrpc/{Uri.EscapeDataString(procedureName)}?{buildQueryString parameters}")
         return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<'T>()
     }
 
@@ -40,8 +33,8 @@ module Profile =
         description: string
     }
 
-    let GetProfileAsync httpClient actor =
-        Requests.getAsync<ProfileResponse> httpClient "app.bsky.actor.getProfile" [
+    let GetProfileAsync httpClient pds actor =
+        Requests.getAsync<ProfileResponse> httpClient pds "app.bsky.actor.getProfile" [
             "actor", actor
         ]
 
@@ -152,8 +145,8 @@ module BlueskyFeed =
             |> Option.map FromCursor
             |> Option.toList
 
-    let GetActorLikesAsync httpClient actor page =
-        Requests.getAsync<FeedResponse> httpClient "app.bsky.feed.getActorLikes" [
+    let GetActorLikesAsync httpClient pds actor page =
+        Requests.getAsync<FeedResponse> httpClient pds "app.bsky.feed.getActorLikes" [
             "actor", actor
 
             match page with
@@ -161,8 +154,8 @@ module BlueskyFeed =
             | FromStart -> ()
         ]
 
-    let GetAuthorFeedAsync httpClient actor page =
-        Requests.getAsync<FeedResponse> httpClient "app.bsky.feed.getAuthorFeed" [
+    let GetAuthorFeedAsync httpClient pds actor page =
+        Requests.getAsync<FeedResponse> httpClient pds "app.bsky.feed.getAuthorFeed" [
             "actor", actor
 
             match page with

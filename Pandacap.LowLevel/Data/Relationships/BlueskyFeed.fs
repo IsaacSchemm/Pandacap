@@ -9,6 +9,8 @@ type BlueskyFeed() =
     [<Key>]
     member val DID = "" with get, set
 
+    member val PDS = "public.api.bsky.app" with get, set
+
     member val IncludeTextPosts = false with get, set
     member val IncludeImagePosts = false with get, set
     member val IncludeTextShares = false with get, set
@@ -40,4 +42,4 @@ type BlueskyFeed() =
         member _.Platform = Bluesky
         member this.IconUrl = this.Avatar
         member this.Username = this.DisplayName |> orString this.Handle
-        member this.Url = $"https://bsky.app/profile/{Uri.EscapeDataString(this.DID)}"
+        member this.Url = $"https://{this.PDS}/xrpc/app.bsky.actor.getProfile?actor={this.DID}"//$"https://bsky.app/profile/{Uri.EscapeDataString(this.DID)}"

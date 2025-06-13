@@ -76,6 +76,7 @@ namespace Pandacap.Controllers
 
                     var profile = await Profile.GetProfileAsync(
                         client,
+                        "public.api.bsky.app",
                         $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy");
 
                     return profile.handle;
