@@ -1,0 +1,98 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model BlueskyFeed
+
+@{
+    IFollow follow = Model;
+}
+
+<div>
+    <img height="50" src="@follow.IconUrl" alt="" />
+    <span style="display: inline-block; vertical-align: top">
+        <strong>
+            @follow.Username
+        </strong>
+        <br />
+        <a href="@follow.Url">@Model.DID</a>
+    </span>
+</div>
+
+<form asp-action="UpdateBlueskyFeed" class="mt-3">
+    <input type="hidden" name="did" value="@Model.DID" />
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               id="IncludeTextPosts"
+               name="IncludeTextPosts"
+               value="true"
+               @(Model.IncludeTextPosts == true ? "checked" : "")>
+        <label class="form-check-label" for="IncludeTextPosts">
+            Include text posts
+        </label>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               id="IncludeImagePosts"
+               name="IncludeImagePosts"
+               value="true"
+               @(Model.IncludeImagePosts == true ? "checked" : "")>
+        <label class="form-check-label" for="IncludeImagePosts">
+            Include image posts
+        </label>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               id="IncludeTextShares"
+               name="IncludeTextShares"
+               value="true"
+               @(Model.IncludeTextShares == true ? "checked" : "")>
+        <label class="form-check-label" for="IncludeTextShares">
+            Include text shares
+        </label>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               id="IncludeImageShares"
+               name="IncludeImageShares"
+               value="true"
+               @(Model.IncludeImageShares == true ? "checked" : "")>
+        <label class="form-check-label" for="IncludeImageShares">
+            Include image shares
+        </label>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               id="IncludeQuotePosts"
+               name="IncludeQuotePosts"
+               value="true"
+               @(Model.IncludeQuotePosts == true ? "checked" : "")>
+        <label class="form-check-label" for="IncludeQuotePosts">
+            Include quote posts
+        </label>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               id="IncludeReplies"
+               name="IncludeReplies"
+               value="true"
+               @(Model.IncludeReplies == true ? "checked" : "")>
+        <label class="form-check-label" for="IncludeReplies">
+            Include replies
+        </label>
+    </div>
+    <hr />
+    <button type="submit" class="btn btn-outline-primary">Save changes</button>
+</form>
+
+<hr />
+
+<form asp-action="RemoveBlueskyFeed">
+    <input type="hidden" name="did" value="@Model.DID" />
+    <button type="submit" class="btn btn-outline-danger">Unfollow @(follow.Username)</button>
+</form>

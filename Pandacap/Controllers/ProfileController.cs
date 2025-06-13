@@ -306,6 +306,54 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(Following));
         }
 
+        [Authorize]
+        public async Task<IActionResult> UpdateBlueskyFeed(
+            string did)
+        {
+            var follow = await context.BlueskyFeeds
+                .Where(f => f.DID == did)
+                .FirstOrDefaultAsync();
+
+            return View(follow);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateBlueskyFeed(
+            string did,
+            [FromBody] Data.BlueskyFeed model)
+        {
+            await foreach (var follow in context.BlueskyFeeds
+                .Where(f => f.DID == did)
+                .AsAsyncEnumerable())
+            {
+                follow.IncludeTextPosts = model.IncludeTextPosts;
+                follow.IncludeImagePosts = model.IncludeImagePosts;
+                follow.IncludeTextShares = model.IncludeTextShares;
+                follow.IncludeImageShares = model.IncludeImageShares;
+                follow.IncludeReplies = model.IncludeReplies;
+                follow.IncludeQuotePosts = model.IncludeQuotePosts;
+            }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Following));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveBlueskyFeed(string did)
+        {
+            await foreach (var feed in context.BlueskyFeeds.Where(f => f.DID == did).AsAsyncEnumerable())
+                context.BlueskyFeeds.Remove(feed);
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Feeds));
+        }
+
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
