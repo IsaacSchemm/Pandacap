@@ -41,7 +41,7 @@ namespace Pandacap.Functions.InboxHandlers
             }
         }
 
-        public async Task ReadFeedsAsync(DateTimeOffset? skipFeedsInactiveSince = null)
+        public async Task ReadFeedsAsync()
         {
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
@@ -52,22 +52,17 @@ namespace Pandacap.Functions.InboxHandlers
 
             foreach (var feed in feeds)
             {
-                if (skipFeedsInactiveSince is DateTimeOffset cutoff && feed.LastPostedAt < cutoff)
+                if (!feed.ShouldRefresh)
                     continue;
 
                 List<BlueskyFeedItem> newItems = [];
-
-                feed.IncludeReplies ??= false;
 
                 feed.LastRefreshedAt = DateTimeOffset.UtcNow;
 
                 await foreach (var feedItem in WrapAsync(page => BlueskyFeed.GetAuthorFeedAsync(client, feed.DID, page)))
                 {
                     if (feedItem.IndexedAt <= feed.LastPostedAt)
-                        continue;
-
-                    if (feedItem.IndexedAt <= DateTimeOffset.UtcNow.AddDays(-7))
-                        continue;
+                        break;
 
                     bool isRepost = feedItem.post.author != feedItem.By;
                     bool hasImages = !feedItem.post.Images.IsEmpty;
@@ -90,6 +85,8 @@ namespace Pandacap.Functions.InboxHandlers
 
                     if (!include)
                         continue;
+
+                    // TODO: update display name, avatar?
 
                     newItems.Add(new()
                     {
@@ -139,7 +136,7 @@ namespace Pandacap.Functions.InboxHandlers
 
                 feed.LastPostedAt = newItems
                     .Select(f => f.IndexedAt)
-                    .Concat([feed.LastPostedAt ?? DateTimeOffset.UtcNow])
+                    .Concat([feed.LastPostedAt])
                     .Max();
 
                 await context.SaveChangesAsync();

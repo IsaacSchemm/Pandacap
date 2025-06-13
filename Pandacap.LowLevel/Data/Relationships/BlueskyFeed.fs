@@ -1,6 +1,8 @@
 ﻿namespace Pandacap.Data
 
+open System
 open System.ComponentModel.DataAnnotations
+open System.ComponentModel.DataAnnotations.Schema
 
 type BlueskyFeed() =
     [<Key>]
@@ -10,11 +12,21 @@ type BlueskyFeed() =
     member val IncludeImagePosts = false with get, set
     member val IncludeTextShares = false with get, set
     member val IncludeImageShares = false with get, set
-    member val IncludeReplies = System.Nullable false with get, set
+    member val IncludeReplies = false with get, set
     member val IncludeQuotePosts = false with get, set
 
     member val Handle = nullString with get, set
     member val Avatar = nullString with get, set
 
-    member val LastRefreshedAt = nullDateTimeOffset with get, set
-    member val LastPostedAt = nullDateTimeOffset with get, set
+    member val LastRefreshedAt = DateTimeOffset.MinValue with get, set
+    member val LastPostedAt = DateTimeOffset.MinValue with get, set
+
+    [<NotMapped>]
+    member this.ShouldRefresh =
+        let timeSincePosted = DateTimeOffset.UtcNow - this.LastPostedAt
+        let timeSinceRefreshed = DateTimeOffset.UtcNow - this.LastRefreshedAt
+
+        let activeUser = timeSincePosted < TimeSpan.FromDays(7)
+        let stale = timeSinceRefreshed > TimeSpan.FromDays(1)
+
+        activeUser || stale
