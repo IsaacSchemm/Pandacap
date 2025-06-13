@@ -14,6 +14,7 @@ using Pandacap.HighLevel.RssInbound;
 using Pandacap.LowLevel.MyLinks;
 using Pandacap.Models;
 using System.Diagnostics;
+using System.Reflection.Metadata;
 using System.Text;
 
 namespace Pandacap.Controllers
@@ -23,7 +24,6 @@ namespace Pandacap.Controllers
         ApplicationInformation appInfo,
         AtomRssFeedReader atomRssFeedReader,
         BlobServiceClient blobServiceClient,
-        BlueskyProfileResolver blueskyResolver,
         CompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
@@ -82,28 +82,33 @@ namespace Pandacap.Controllers
                 return memoryCache.Set(key, await buildModel(), DateTimeOffset.UtcNow.AddMinutes(10));
             }
 
+            async Task<string?> getBridgyFedHandle()
+            {
+                try
+                {
+                    using var client = httpClientFactory.CreateClient();
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+                    var profile = await Profile.GetProfileAsync(
+                        client,
+                        $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy");
+
+                    return profile.handle;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+
             async Task<ProfileViewModel> buildModel()
             {
                 var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
                 var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
-                using var client = httpClientFactory.CreateClient();
-                client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
-
-                string? handle = null;
-
-                try
-                {
-                    var profile = await Profile.GetProfileAsync(
-                        client,
-                        $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy");
-
-                    handle = profile.handle;
-                } catch (Exception) { }
-
                 return new ProfileViewModel
                 {
-                    BridgyFedHandle = handle,
+                    BridgyFedHandle = await getBridgyFedHandle(),
                     MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                     RecentArtwork = await context.Posts
                         .Where(post => post.Type == PostType.Artwork)

@@ -36,7 +36,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoDIDResolver>()
-                .AddScoped<BlueskyProfileResolver>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<CompositeNotificationHandler>()
                 .AddScoped<ComputerVisionProvider>()
