@@ -120,12 +120,32 @@ else
 
         <hr />
 
+        <form asp-action="AddBlueskyFeed">
+            <div class="mb-3">
+                <label for="handle" class="form-label">
+                    Bluesky handle or DID
+                </label>
+                <input type="text" class="form-control" id="handle" name="handle" />
+            </div>
+            <div class="mb-3">
+                <label for="pds" class="form-label">
+                    PDS
+                </label>
+                <input type="text" class="form-control" id="pds" name="pds" value="public.api.bsky.app" />
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Add
+            </button>
+        </form>
+
+        <hr />
+
         <form asp-action="AddFeed">
             <div class="mb-3">
-                <label for="url" class="form-label">
+                <label for="rssurl" class="form-label">
                     Atom/RSS URL
                 </label>
-                <input type="url" class="form-control" id="url" name="url" placeholder="https://" />
+                <input type="url" class="form-control" id="rssurl" name="url" placeholder="https://" />
             </div>
             <button type="submit" class="btn btn-primary">
                 Add
@@ -136,10 +156,10 @@ else
 
         <form asp-controller="TwtxtFeed" asp-action="AddFeed">
             <div class="mb-3">
-                <label for="url" class="form-label">
+                <label for="twtxturl" class="form-label">
                     Twtxt URL
                 </label>
-                <input type="url" class="form-control" id="url" name="url" placeholder="https://" />
+                <input type="url" class="form-control" id="twtxturl" name="url" placeholder="https://" />
             </div>
             <button type="submit" class="btn btn-primary">
                 Add

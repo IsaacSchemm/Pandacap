@@ -11,10 +11,11 @@ type BlueskyFeed() =
 
     member val PDS = "public.api.bsky.app" with get, set
 
-    member val IgnoreImages = Nullable false with get, set
-    member val IncludeTextShares = false with get, set
-    member val IncludeImageShares = false with get, set
-    member val IncludeQuotePosts = false with get, set
+    member val IgnoreImages = false with get, set
+
+    member val IncludeTextShares = true with get, set
+    member val IncludeImageShares = true with get, set
+    member val IncludeQuotePosts = true with get, set
 
     member val Handle = nullString with get, set
     member val DisplayName = nullString with get, set

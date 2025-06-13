@@ -85,9 +85,9 @@ namespace Pandacap.Functions.InboxHandlers
                             continue;
                     }
 
-                    feed.Avatar = feedItem.post.author.AvatarOrNull;
-                    feed.DisplayName = feedItem.post.author.DisplayNameOrNull;
-                    feed.Handle = feedItem.post.author.handle;
+                    feed.Avatar = feedItem.By.AvatarOrNull;
+                    feed.DisplayName = feedItem.By.DisplayNameOrNull;
+                    feed.Handle = feedItem.By.handle;
 
                     newItems.Add(new()
                     {

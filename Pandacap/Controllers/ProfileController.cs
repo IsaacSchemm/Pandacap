@@ -306,6 +306,33 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(Following));
         }
 
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddBlueskyFeed(string handle, string pds)
+        {
+            var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var profile = await Profile.GetProfileAsync(
+                client,
+                pds,
+                handle);
+
+            context.BlueskyFeeds.Add(new()
+            {
+                Avatar = profile.avatar,
+                DID = profile.did,
+                DisplayName = profile.displayName,
+                Handle = profile.handle,
+                PDS = pds
+            });
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(UpdateBlueskyFeed), new { profile.did });
+        }
+
         [Authorize]
         public async Task<IActionResult> UpdateBlueskyFeed(
             string did)
@@ -413,15 +440,6 @@ namespace Pandacap.Controllers
             var all = await getFollows()
                 .OrderBy(f => f.Username)
                 .ToListAsync(cancellationToken);
-
-            foreach (var x in all)
-            {
-                if (x is Data.BlueskyFeed b && b.IgnoreImages == null)
-                {
-                    b.IgnoreImages = true;
-                    await context.SaveChangesAsync(cancellationToken);
-                }
-            }
 
             return View("FollowingAndFeeds", all);
         }
