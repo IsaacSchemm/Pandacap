@@ -16,6 +16,7 @@ type BlueskyFeed() =
     member val IncludeQuotePosts = false with get, set
 
     member val Handle = nullString with get, set
+    member val DisplayName = nullString with get, set
     member val Avatar = nullString with get, set
 
     member val LastRefreshedAt = DateTimeOffset.MinValue with get, set
@@ -23,10 +24,13 @@ type BlueskyFeed() =
 
     [<NotMapped>]
     member this.ShouldRefresh =
-        let timeSincePosted = DateTimeOffset.UtcNow - this.LastPostedAt
-        let timeSinceRefreshed = DateTimeOffset.UtcNow - this.LastRefreshedAt
+        let sincePost = DateTimeOffset.UtcNow - this.LastPostedAt
 
-        let activeUser = timeSincePosted < TimeSpan.FromDays(7)
-        let stale = timeSinceRefreshed > TimeSpan.FromDays(1)
+        let timeToWait =
+            if sincePost < TimeSpan.FromDays(3) then TimeSpan.FromHours(1)
+            else if sincePost < TimeSpan.FromDays(28) then TimeSpan.FromDays(1)
+            else TimeSpan.FromDays(7)
 
-        activeUser || stale
+        let sinceRefresh = DateTimeOffset.UtcNow - this.LastRefreshedAt
+
+        sinceRefresh > timeToWait

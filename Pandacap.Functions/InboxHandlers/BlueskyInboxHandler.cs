@@ -86,7 +86,9 @@ namespace Pandacap.Functions.InboxHandlers
                     if (!include)
                         continue;
 
-                    // TODO: update display name, avatar?
+                    feed.Avatar = feedItem.post.author.AvatarOrNull;
+                    feed.DisplayName = feedItem.post.author.DisplayNameOrNull;
+                    feed.Handle = feedItem.post.author.handle;
 
                     newItems.Add(new()
                     {
@@ -120,15 +122,15 @@ namespace Pandacap.Functions.InboxHandlers
                         Text = feedItem.post.record.text,
                         Images = [
                             .. feedItem.post.Images.Select(image => new BlueskyFeedItemImage
-                        {
-                            Thumb = image.thumb,
-                            Fullsize = image.fullsize,
-                            Alt = image.alt
-                        })
+                            {
+                                Thumb = image.thumb,
+                                Fullsize = image.fullsize,
+                                Alt = image.alt
+                            })
                         ]
                     });
 
-                    if (newItems.Count >= 25)
+                    if (newItems.Count >= 20)
                         break;
                 }
 
