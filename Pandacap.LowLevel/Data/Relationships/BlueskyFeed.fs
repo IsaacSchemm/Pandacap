@@ -3,6 +3,7 @@
 open System
 open System.ComponentModel.DataAnnotations
 open System.ComponentModel.DataAnnotations.Schema
+open Pandacap.PlatformBadges
 
 type BlueskyFeed() =
     [<Key>]
@@ -34,3 +35,9 @@ type BlueskyFeed() =
         let sinceRefresh = DateTimeOffset.UtcNow - this.LastRefreshedAt
 
         sinceRefresh > timeToWait
+
+    interface IFollow with
+        member _.Platform = Bluesky
+        member this.IconUrl = this.Avatar
+        member this.Username = this.DisplayName |> orString this.Handle
+        member this.Url = $"https://bsky.app/profile/{Uri.EscapeDataString(this.DID)}"

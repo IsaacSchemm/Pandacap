@@ -19,8 +19,6 @@ namespace Pandacap.Models
         public int FavoritesCount { get; set; }
         public int CommunityBookmarksCount { get; set; }
 
-        public int FeedsCount { get; set; }
-
         public Post? MostRecentPost => Enumerable.Empty<Post>()
             .Concat(RecentArtwork)
             .Concat(RecentTextPosts)

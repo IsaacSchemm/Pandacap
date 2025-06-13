@@ -116,12 +116,12 @@ namespace Pandacap.Controllers
                         .Take(5)
                         .ToListAsync(cancellationToken),
                     FollowerCount = await context.Followers.CountAsync(cancellationToken),
-                    FollowingCount = await context.Follows.CountAsync(cancellationToken),
-                    FavoritesCount = await context.ActivityPubLikes.CountAsync(cancellationToken),
-                    CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync(cancellationToken),
-                    FeedsCount =
-                        await context.RssFeeds.CountAsync(cancellationToken)
+                    FollowingCount = await context.Follows.CountAsync(cancellationToken)
+                        + await context.RssFeeds.CountAsync(cancellationToken)
                         + await context.TwtxtFeeds.CountAsync(cancellationToken)
+                        + await context.BlueskyFeeds.CountAsync(cancellationToken),
+                    FavoritesCount = await context.ActivityPubLikes.CountAsync(cancellationToken),
+                    CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync(cancellationToken)
                 };
             }
 
@@ -357,6 +357,7 @@ namespace Pandacap.Controllers
         {
             async IAsyncEnumerable<IFollow> getFollows()
             {
+                await foreach (var x in context.BlueskyFeeds) yield return x;
                 await foreach (var x in context.Follows) yield return x;
                 await foreach (var x in context.RssFeeds) yield return x;
                 await foreach (var x in context.TwtxtFeeds) yield return x;

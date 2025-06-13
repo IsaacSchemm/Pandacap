@@ -72,7 +72,7 @@
         <br />
     }
 
-    <a asp-action="FollowingAndFeeds">Following (@(Model.FollowingCount + Model.FeedsCount))</a>
+    <a asp-action="FollowingAndFeeds">Following (@Model.FollowingCount)</a>
     &middot;
     <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
 
