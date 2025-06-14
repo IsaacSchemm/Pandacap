@@ -80,10 +80,6 @@ builder.Services.AddSingleton(new DeviantArtApp(
     builder.Configuration["DeviantArtClientId"]!,
     builder.Configuration["DeviantArtClientSecret"]!));
 
-builder.Services.AddSingleton(new RedditAppInformation(
-    builder.Configuration["RedditAppId"]!,
-    builder.Configuration["RedditAppSecret"]!));
-
 builder.Services.AddSingleton(new ComputerVisionConfiguration(
     builder.Configuration["ComputerVisionEndpoint"],
     builder.Configuration["Authentication:Microsoft:TenantId"]));
