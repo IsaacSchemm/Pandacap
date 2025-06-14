@@ -93,7 +93,6 @@ builder.Services
         applicationHostname: builder.Configuration["ApplicationHostname"],
         username: builder.Configuration["ActivityPubUsername"],
         keyVaultHostname: builder.Configuration["KeyVaultHostname"],
-        handleHostname: builder.Configuration["ApplicationHostname"],
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()

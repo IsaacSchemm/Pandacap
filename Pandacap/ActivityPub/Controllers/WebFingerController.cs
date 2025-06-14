@@ -12,15 +12,14 @@ namespace Pandacap.Controllers
         [Route(".well-known/webfinger")]
         public IActionResult WebFinger(string resource)
         {
-            string handle = $"acct:{appInfo.Username}@{appInfo.HandleHostname}";
-            string alternate = $"acct:{appInfo.Username}@{appInfo.ApplicationHostname}";
+            string handle = $"acct:{appInfo.Username}@{appInfo.ApplicationHostname}";
 
-            if (resource == handle || resource == alternate || resource == mapper.ActorId)
+            if (resource == handle || resource == mapper.ActorId)
             {
                 return Json(new
                 {
                     subject = handle,
-                    aliases = new[] { alternate, mapper.ActorId }.Except([handle]),
+                    aliases = new[] { mapper.ActorId },
                     links = new[]
                     {
                         new

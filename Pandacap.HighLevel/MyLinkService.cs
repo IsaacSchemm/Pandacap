@@ -43,7 +43,7 @@ namespace Pandacap.HighLevel
                     .Where(c => c.CrosspostTargetSince != null)
                     .Select(c => c.DID)
                     .ToListAsync(),
-                $"{appInfo.Username}.{appInfo.HandleHostname}.ap.brid.gy"
+                $"{appInfo.Username}.{appInfo.ApplicationHostname}.ap.brid.gy"
             ]);
 
             foreach (var profile in profiles)
