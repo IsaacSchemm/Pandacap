@@ -28,13 +28,6 @@
         <a href="@Context.Request.Path?format=rss" target="_blank">RSS</a>
         @:&nbsp;
     }
-
-    @if (Model.Twtxt)
-    {
-        <img src="~/images/twtxt-logo.svg" width="16" height="16" alt="" />
-        <a href="@Context.Request.Path?format=twtxt" target="_blank">Twtxt</a>
-        @:&nbsp;
-    }
 </p>
 
 @if (!Model.Items.Current.Any())

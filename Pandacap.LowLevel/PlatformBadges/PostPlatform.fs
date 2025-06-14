@@ -11,7 +11,6 @@ type PostPlatform =
 | Reddit
 | RSS_Atom
 | SheezyArt
-| Twtxt
 | Weasyl
 
 module PostPlatform =
@@ -27,5 +26,4 @@ module PostPlatform =
         | Reddit -> Badge.Create "Reddit" "#ff4500" "white"
         | RSS_Atom -> Badge.Create "RSS / Atom" "#f99000" "white"
         | SheezyArt -> Badge.Create "Sheezy.Art" "rgb(91, 118, 145)" "rgb(201, 216, 225)"
-        | Twtxt -> Badge.Create "Twtxt" "black" "white"
         | Weasyl -> Badge.Create "Weasyl" "#990000" "white"

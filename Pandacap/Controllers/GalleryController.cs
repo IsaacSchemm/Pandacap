@@ -8,7 +8,6 @@ using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.LowLevel.MyLinks;
-using Pandacap.LowLevel.Twtxt;
 using Pandacap.Models;
 using System.Text;
 
@@ -17,9 +16,7 @@ namespace Pandacap.Controllers
     public class GalleryController(
         PandacapDbContext context,
         Pandacap.HighLevel.RssOutbound.FeedBuilder feedBuilder,
-        IMyLinkService myLinkService,
-        ActivityPub.PostTranslator postTranslator,
-        TwtxtClient twtxtClient) : Controller
+        ActivityPub.PostTranslator postTranslator) : Controller
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
         {
@@ -55,31 +52,6 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
-            if (Request.Query["format"] == "twtxt")
-            {
-                string url = new Uri(Request.GetEncodedUrl()).GetLeftPart(UriPartial.Path);
-
-                var avatars = await context.Avatars.Take(1).ToListAsync();
-
-                var links = await myLinkService.GetLinksAsync(CancellationToken.None);
-
-                var feeds = await context.TwtxtFeeds.ToListAsync();
-
-                var section = await posts.Take(take + 1).ToListAsync();
-                var page = section.Take(take);
-                var next = section.Skip(take);
-
-                var data = twtxtClient.BuildFeed(
-                    url,
-                    avatars,
-                    links.Where(link => link.platformName != "Twtxt"),
-                    feeds,
-                    page,
-                    next);
-
-                return File(data, "text/plain; charset=utf-8");
-            }
-
             var listPage = await posts.AsListPage(take);
 
             if (Request.IsActivityPub())
@@ -100,8 +72,7 @@ namespace Pandacap.Controllers
                 Title = title,
                 Items = listPage,
                 RSS = true,
-                Atom = true,
-                Twtxt = true
+                Atom = true
             });
         }
 

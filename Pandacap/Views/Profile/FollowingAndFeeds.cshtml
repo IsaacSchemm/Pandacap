@@ -84,18 +84,6 @@ else
                                 <button type="submit" class="btn btn-outline-danger btn-sm py-0">Unfollow</button>
                             </form>
                         }
-                        else if (item is TwtxtFeed t)
-                        {
-                            <form asp-controller="TwtxtFeed" asp-action="RefreshFeed" class="d-inline">
-                                <input type="hidden" name="id" value="@t.Id" />
-                                <button type="submit" class="btn btn-outline-primary btn-sm py-0">Refresh</button>
-                            </form>
-
-                            <form asp-controller="TwtxtFeed" asp-action="RemoveFeed" class="d-inline" onsubmit="return confirm('Are you sure you want to unfollow this feed?')">
-                                <input type="hidden" name="id" value="@t.Id" />
-                                <button type="submit" class="btn btn-outline-danger btn-sm py-0">Unfollow</button>
-                            </form>
-                        }
                     }
                 </span>
             </div>
@@ -147,20 +135,6 @@ else
                     Atom/RSS URL
                 </label>
                 <input type="url" class="form-control" id="rssurl" name="url" placeholder="https://" />
-            </div>
-            <button type="submit" class="btn btn-primary">
-                Add
-            </button>
-        </form>
-
-        <hr />
-
-        <form asp-controller="TwtxtFeed" asp-action="AddFeed">
-            <div class="mb-3">
-                <label for="twtxturl" class="form-label">
-                    Twtxt URL
-                </label>
-                <input type="url" class="form-control" id="twtxturl" name="url" placeholder="https://" />
             </div>
             <button type="submit" class="btn btn-primary">
                 Add

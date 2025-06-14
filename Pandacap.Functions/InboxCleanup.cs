@@ -86,22 +86,6 @@ namespace Pandacap.Functions
                 }
             }
 
-            var twtxtFavorites = await context.TwtxtFavorites
-                .Where(t => t.FavoritedAt > twoWeeksAgo)
-                .Select(t => t.Id)
-                .ToListAsync();
-
-            await foreach (var inboxItem in context.TwtxtFeedItems
-                .Where(d => d.DismissedAt != null)
-                .Where(d => d.Timestamp < weekAgo)
-                .AsAsyncEnumerable())
-            {
-                if (!twtxtFavorites.Contains(inboxItem.Id))
-                {
-                    context.Remove(inboxItem);
-                }
-            }
-
             await context.SaveChangesAsync();
         }
     }

@@ -42,7 +42,8 @@ Things Pandacap does **not** do:
 
 * Act as an OAuth server.
 * Host more than one user account.
-* Connect to your Bluesky account or allow you to send likes or replies. (This was removed in Pandacap 10 in favor of a more minimal, "feed reader" integration.)
+* Crosspost to Bluesky or allow you to send likes or replies. (removed in Pandacap 10).
+* Create or follow twtxt feeds (removed in Pandacap 10).
 * Create a post with more than one attached image.
 * Automatically crosspost your image posts or text posts to DeviantArt, FA, or Weasyl. (This must be done manually.)
 * Delete posts that you *manually* crosspost to DeviantArt, FA, or Weasyl (even when you delete them from Pandacap).
@@ -58,12 +59,11 @@ To log in, the instance owner must use a Microsoft account that they have explic
 
 Supported protocols:
 
-|                           | Create Posts | Reply | Inbox | Notifications | Repost | Add to Favorites
-| ------------------------- | ------------ | ----- | ----- | ------------- | ------ | ---------------------
-| ActivityPub               | ✓            | ✓     | ✓     | ✓             |        | ✓ (also sends a Like)
-| atproto (Bluesky lexicon) |              |       | ✓     |               |        | ✓
-| RSS / Atom                | ✓            |       | ✓     |               |        | ✓
-| Twtxt                     | ✓            |       | ✓     |               |        | ✓
+|                           | Your Posts | Reply | Inbox | Notifications | Repost | Add to Favorites
+| ------------------------- | ---------- | ----- | ----- | ------------- | ------ | ---------------------
+| ActivityPub               | ✓          | ✓     | ✓     | ✓             |        | ✓ (also sends a Like)
+| atproto (Bluesky lexicon) |            |       | ✓     |               |        | ✓
+| RSS / Atom                | ✓          |       | ✓     |               |        | ✓
 
 Supported platforms:
 

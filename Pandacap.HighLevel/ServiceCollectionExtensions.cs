@@ -48,8 +48,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<IMyLinkService, MyLinkService>()
-                .AddScoped<TwtxtClient>()
-                .AddScoped<TwtxtFeedReader>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WeasylNoteNotificationHandler>()
                 .AddScoped<WeasylNotificationHandler>();

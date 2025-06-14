@@ -11,7 +11,5 @@
         public bool RSS { get; set; }
 
         public bool Atom { get; set; }
-
-        public bool Twtxt { get; set; }
     }
 }

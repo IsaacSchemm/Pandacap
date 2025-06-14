@@ -48,11 +48,6 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
-            var twtxtFeedItems = context.TwtxtFeedItems
-                .OrderByDescending(d => d.Timestamp)
-                .AsAsyncEnumerable()
-                .OfType<IInboxPost>();
-
             var weasylSubmissions = context.InboxWeasylSubmissions
                 .OrderByDescending(d => d.PostedAt)
                 .AsAsyncEnumerable()
@@ -73,7 +68,6 @@ namespace Pandacap.Controllers
                     furAffinitySubmissions,
                     furAffinityJournals,
                     rssItems,
-                    twtxtFeedItems,
                     weasylSubmissions,
                     weasylJournals
                 }
@@ -235,14 +229,6 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .RssFeedItems
-                .Where(item => guids.Contains(item.Id))
-                .AsAsyncEnumerable())
-            {
-                yield return item;
-            }
-
-            await foreach (var item in context
-                .TwtxtFeedItems
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {
