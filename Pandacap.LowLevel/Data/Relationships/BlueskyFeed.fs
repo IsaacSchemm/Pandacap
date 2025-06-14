@@ -29,9 +29,9 @@ type BlueskyFeed() =
         let sincePost = DateTimeOffset.UtcNow - this.LastPostedAt
 
         let timeToWait =
-            if sincePost < TimeSpan.FromDays(7) then TimeSpan.Zero
-            else if sincePost < TimeSpan.FromDays(28) then TimeSpan.FromDays(1)
-            else TimeSpan.FromDays(7)
+            if sincePost < TimeSpan.FromDays(7)
+            then TimeSpan.Zero
+            else TimeSpan.FromDays(1)
 
         let sinceRefresh = DateTimeOffset.UtcNow - this.LastRefreshedAt
 
