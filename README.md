@@ -6,7 +6,7 @@ On the home page:
 
 * Your avatar and username
 * Links to your attached accounts
-* Your ActivityPub handle, and links to users you follow and communities you've bookmarked
+* Your ActivityPub handle, bridged Bluesky handle (if any), and links to users you follow and communities you've bookmarked
 * Links to RSS/Atom feeds
 * Your **image posts**
 * Image posts from your **favorites**
@@ -15,7 +15,7 @@ On the home page:
 Features:
 
 * Create **image posts** and **text posts**, which are available on the site, via RSS/Atom, and via ActivityPub
-* Crosspost your image posts and text posts to attached Bluesky, DeviantArt, Fur Affinity, or Weasyl accounts
+* Crosspost your image posts and text posts to attached DeviantArt, Fur Affinity, or Weasyl accounts
 * View posts from users or feeds you follow in the **inbox**, split among **image posts**, **text posts**, **shares**, and **podcasts**, and grouped by author
     * Non-ActivityPub posts are periodically imported (~3 times per day)
 * View **notifications** from activity on your posts or from your attached accounts
@@ -23,7 +23,8 @@ Features:
 
 ActivityPub features:
 
-* Hide images and/or reposts that come from specific users you follow
+* Hide reposts by specific users
+* Treat all posts from specific users as text posts
 * Create **addressed posts** (replies to other posts or top-level posts to communities)
 * Enable and disable Bridgy Fed
 
@@ -33,17 +34,19 @@ RSS/Atom features:
 
 Bluesky features:
 
-* Hide reposts and/or quote posts that come from specific users you follow
-* On a second Bluesky account, automatically post **links** to your favorites (with an embedded title and thumbnail), and automatically delete these posts after 14 days
+* Follow users without a Bluesky account
+* Hide reposts by specific users
+* Hide quote posts by specific users
 
 Things Pandacap does **not** do:
 
 * Act as an OAuth server.
 * Host more than one user account.
-* Automatically crosspost your image posts or text posts to Bluesky, DeviantArt, etc.
-* Automatically delete posts that you *manually* crosspost to Bluesky, DeviantArt, etc., even when you delete them from Pandacap.
-* Allow you to add more than one image to an image post.
-* Allow you to repost / "boost" / `Announce` an ActivityPub post.
+* Connect to your Bluesky account or allow you to send likes or replies. (This was removed in Pandacap 10 in favor of a more minimal, "feed reader" integration.)
+* Create a post with more than one attached image.
+* Automatically crosspost your image posts or text posts to DeviantArt, FA, or Weasyl. (This must be done manually.)
+* Delete posts that you *manually* crosspost to DeviantArt, FA, or Weasyl (even when you delete them from Pandacap).
+* Let you "repost" / "boost" someone else's post.
 
 ## Techincal Information
 
@@ -55,11 +58,12 @@ To log in, the instance owner must use a Microsoft account that they have explic
 
 Supported protocols:
 
-|               | Posts | Replies | Inbox | Notifications          | Add to Favorites
-| ------------- | ----- | ------- | ----- | ---------------------- | -----------------
-| ActivityPub   | ✓     | ✓       | ✓     | ✓ (Activites, Replies) | ✓ (sent as Likes)
-| RSS / Atom    | ✓     |         | ✓     |                        | ✓
-| Twtxt         | ✓     |         | ✓     |                        | ✓
+|                           | Create Posts | Reply | Inbox | Notifications | Repost | Add to Favorites
+| ------------------------- | ------------ | ----- | ----- | ------------- | ------ | ---------------------
+| ActivityPub               | ✓            | ✓     | ✓     | ✓             |        | ✓ (also sends a Like)
+| atproto (Bluesky lexicon) |              |       | ✓     |               |        | ✓
+| RSS / Atom                | ✓            |       | ✓     |               |        | ✓
+| Twtxt                     | ✓            |       | ✓     |               |        | ✓
 
 Supported platforms:
 
@@ -121,8 +125,6 @@ Function app responsibilities:
     * remove unsent outbound ActivityPub messages that have been pending for more than 7 days
 * `SendOutbound`
     * attempt to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
-* `StarpassSync`
-    * posts links (with image embeds) to favorites to an associated Bluesky account (once per run), and removes old (14+ days) posts
 
 ### Authorization
 
