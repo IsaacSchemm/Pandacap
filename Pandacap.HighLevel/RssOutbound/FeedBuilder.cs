@@ -60,7 +60,7 @@ namespace Pandacap.HighLevel.RssOutbound
             var feed = new SyndicationFeed
             {
                 Id = url,
-                Title = new TextSyndicationContent($"@{appInfo.Username}@{appInfo.HandleHostname}", TextSyndicationContentKind.Plaintext),
+                Title = new TextSyndicationContent($"@{appInfo.Username}@{appInfo.ApplicationHostname}", TextSyndicationContentKind.Plaintext),
                 Description = new TextSyndicationContent($"Pandacap posts from {appInfo.Username}", TextSyndicationContentKind.Plaintext),
                 Copyright = new TextSyndicationContent($"{appInfo.Username}", TextSyndicationContentKind.Plaintext),
                 LastUpdatedTime = posts.Select(x => x.PublishedTime).Max(),

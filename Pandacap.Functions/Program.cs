@@ -4,8 +4,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.Functions;
 using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.Functions.InboxHandlers;
@@ -65,7 +65,6 @@ var host = new HostBuilder()
                 applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
                 username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
                 keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
-                handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
                 weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")))
             .AddScoped<BlueskyInboxHandler>()
             .AddScoped<DeviantArtFavoriteHandler>()

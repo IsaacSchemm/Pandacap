@@ -80,10 +80,6 @@ builder.Services.AddSingleton(new DeviantArtApp(
     builder.Configuration["DeviantArtClientId"]!,
     builder.Configuration["DeviantArtClientSecret"]!));
 
-builder.Services.AddSingleton(new RedditAppInformation(
-    builder.Configuration["RedditAppId"]!,
-    builder.Configuration["RedditAppSecret"]!));
-
 builder.Services.AddSingleton(new ComputerVisionConfiguration(
     builder.Configuration["ComputerVisionEndpoint"],
     builder.Configuration["Authentication:Microsoft:TenantId"]));
@@ -93,7 +89,6 @@ builder.Services
         applicationHostname: builder.Configuration["ApplicationHostname"],
         username: builder.Configuration["ActivityPubUsername"],
         keyVaultHostname: builder.Configuration["KeyVaultHostname"],
-        handleHostname: builder.Configuration["ApplicationHostname"],
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
