@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ConfigurationObjects;
-using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.HighLevel.Lemmy;
 using Pandacap.HighLevel.Notifications;
@@ -35,7 +34,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<ActivityPubReplyNotificationHandler>()
                 .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<AtomRssFeedReader>()
-                .AddScoped<ATProtoDIDResolver>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<CompositeNotificationHandler>()
                 .AddScoped<ComputerVisionProvider>()

@@ -25,16 +25,21 @@ else
 
         <div class="mb-3">
             <div>
-                <img height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" />
+                <a href="@item.LinkUrl"><img height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" /></a>
                 <span style="display: inline-block; vertical-align: top">
                     <strong>
-                        <a href="@(item.Url.Contains("auth=") ? null : item.Url)">
-                            @item.Username
-                        </a>
+                        <a href="@item.LinkUrl">@item.Username</a>
                         @if (User.Identity?.IsAuthenticated == true
                             && item.Filtered)
                         {
                             <i class="text-info">(filtered)</i>
+                            if (item is Follow f)
+                            {
+                                if (!f.Accepted)
+                                {
+                                    @:(pending)
+                                }
+                            }
                         }
                     </strong>
 
@@ -51,10 +56,6 @@ else
                     {
                         if (item is Follow f)
                         {
-                            if (!f.Accepted)
-                            {
-                                @:(pending)
-                            }
                             if (User.Identity?.IsAuthenticated == true)
                             {
                                 <a asp-action="UpdateFollow" asp-route-id="@f.ActorId" class="btn btn-outline-primary btn-sm py-0">
