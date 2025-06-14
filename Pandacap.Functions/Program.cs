@@ -65,7 +65,6 @@ var host = new HostBuilder()
                 applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
                 username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
                 keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
-                handleHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
                 weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")))
             .AddScoped<BlueskyInboxHandler>()
             .AddScoped<BlueskyFavoriteHandler>()
