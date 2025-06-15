@@ -44,6 +44,7 @@ type InboxActivityStreamsPost() =
         member this.Url = this.ObjectId
         member this.DisplayTitle = ExcerptGenerator.FromFirst 60 (seq {
             this.Name
+            this.Summary
             TextConverter.FromHtml this.Content
         })
         member this.Id = $"{this.Id}"
