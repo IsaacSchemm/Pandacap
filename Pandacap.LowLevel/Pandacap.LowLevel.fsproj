@@ -51,6 +51,7 @@
     <Compile Include="Data\IPost.fs" />
     <Compile Include="Data\IInboxPost.fs" />
     <Compile Include="Data\IFavorite.fs" />
+    <Compile Include="Data\IBlueskyPost.fs" />
     <Compile Include="Data\TitleGenerator.fs" />
     <Compile Include="Data\NullValues.fs" />
     <Compile Include="Data\Credentials\DeviantArtCredentials.fs" />

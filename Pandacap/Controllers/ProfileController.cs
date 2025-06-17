@@ -337,12 +337,10 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateBlueskyFeed(
-            string did,
-            [FromBody] Data.BlueskyFeed model)
+        public async Task<IActionResult> UpdateBlueskyFeed(Data.BlueskyFeed model)
         {
             await foreach (var follow in context.BlueskyFeeds
-                .Where(f => f.DID == did)
+                .Where(f => f.DID == model.DID)
                 .AsAsyncEnumerable())
             {
                 follow.IgnoreImages = model.IgnoreImages;

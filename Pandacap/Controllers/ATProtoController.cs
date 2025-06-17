@@ -1,0 +1,125 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Pandacap.ConfigurationObjects;
+using Pandacap.Data;
+using Pandacap.Models;
+
+namespace Pandacap.Controllers
+{
+    [Authorize]
+    public class ATProtoController(
+        PandacapDbContext context,
+        IHttpClientFactory httpClientFactory) : Controller
+    {
+        public async Task<IActionResult> ViewBlueskyPost(
+            Guid id,
+            CancellationToken cancellationToken)
+        {
+            IBlueskyPost? dbPost = null;
+            
+            dbPost ??= await context.BlueskyFavorites
+                .Where(f => f.Id == id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            dbPost ??= await context.BlueskyFeedItems
+                .Where(f => f.Id == id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (dbPost == null)
+                return NotFound();
+
+            using var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var profile = await Clients.ATProto.Profile.GetProfileAsync(
+                client,
+                dbPost.PDS,
+                dbPost.DID);
+
+            var posts = await Clients.ATProto.BlueskyFeed.GetPostsAsync(
+                client,
+                dbPost.PDS,
+                [$"at://{dbPost.DID}/app.bsky.feed.post/{dbPost.RecordKey}"]);
+
+            var post = posts.posts.Single();
+
+            return View(
+                new BlueskyPostViewModel(
+                    id,
+                    profile,
+                    post));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToFavorites([FromForm] Guid id, CancellationToken cancellationToken)
+        {
+            var feedItem = await context.BlueskyFeedItems
+                .Where(i => i.Id == id)
+                .SingleOrDefaultAsync(cancellationToken);
+            if (feedItem == null)
+                return BadRequest();
+
+            var existing = await context.BlueskyFavorites
+                .Where(f => f.CID == feedItem.CID)
+                .SingleOrDefaultAsync(cancellationToken);
+            if (existing != null)
+                return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
+
+            IInboxPost inboxItem = feedItem;
+
+            context.BlueskyFavorites.Add(new()
+            {
+                CID = feedItem.CID,
+                CreatedAt = feedItem.CreatedAt,
+                CreatedBy = new()
+                {
+                    Avatar = feedItem.Author.Avatar,
+                    DID = feedItem.Author.DID,
+                    DisplayName = feedItem.Author.DisplayName,
+                    Handle = feedItem.Author.Handle,
+                    PDS = feedItem.Author.PDS
+                },
+                FavoritedAt = DateTimeOffset.UtcNow,
+                Id = feedItem.Id,
+                Images = [.. feedItem.Images.Select(image => new BlueskyFavoriteImage{
+                    Alt = image.Alt,
+                    Fullsize = image.Fullsize,
+                    Thumb = image.Thumb
+                })],
+                RecordKey = feedItem.RecordKey,
+                Text = feedItem.Text
+            });
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveFromFavorites([FromForm] Guid id, CancellationToken cancellationToken)
+        {
+            var feedItem = await context.BlueskyFeedItems
+                .Where(i => i.Id == id)
+                .SingleOrDefaultAsync(cancellationToken);
+            if (feedItem == null)
+                return BadRequest();
+
+            var existing = await context.BlueskyFavorites
+                .Where(f => f.CID == feedItem.CID)
+                .SingleOrDefaultAsync(cancellationToken);
+            if (existing == null)
+                return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
+
+            context.BlueskyFavorites.Remove(existing);
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
+        }
+    }
+}

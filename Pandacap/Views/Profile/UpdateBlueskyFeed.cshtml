@@ -18,49 +18,37 @@
     </span>
 </div>
 
-<form asp-action="UpdateBlueskyFeed" class="mt-3">
-    <input type="hidden" name="did" value="@Model.DID" />
+<form asp-action="UpdateBlueskyFeed" method="post" class="mt-3">
+    <input type="hidden" asp-for="DID" />
     <div class="mb-3 form-check">
         <input type="checkbox"
                class="form-check-input"
-               id="IgnoreImages"
-               name="IgnoreImages"
-               value="true"
-               @(Model.IgnoreImages == true ? "checked" : "")>
-        <label class="form-check-label" for="IgnoreImages">
+               asp-for="IgnoreImages">
+        <label class="form-check-label" asp-for="IgnoreImages">
             Ignore images
         </label>
     </div>
     <div class="mb-3 form-check">
         <input type="checkbox"
                class="form-check-input"
-               id="IncludeTextShares"
-               name="IncludeTextShares"
-               value="true"
-               @(Model.IncludeTextShares == true ? "checked" : "")>
-        <label class="form-check-label" for="IncludeTextShares">
+               asp-for="IncludeTextShares">
+        <label class="form-check-label" asp-for="IncludeTextShares">
             Include text shares
         </label>
     </div>
     <div class="mb-3 form-check">
         <input type="checkbox"
                class="form-check-input"
-               id="IncludeImageShares"
-               name="IncludeImageShares"
-               value="true"
-               @(Model.IncludeImageShares == true ? "checked" : "")>
-        <label class="form-check-label" for="IncludeImageShares">
+               asp-for="IncludeImageShares">
+        <label class="form-check-label" asp-for="IncludeImageShares">
             Include image shares
         </label>
     </div>
     <div class="mb-3 form-check">
         <input type="checkbox"
                class="form-check-input"
-               id="IncludeQuotePosts"
-               name="IncludeQuotePosts"
-               value="true"
-               @(Model.IncludeQuotePosts == true ? "checked" : "")>
-        <label class="form-check-label" for="IncludeQuotePosts">
+               asp-for="IncludeQuotePosts">
+        <label class="form-check-label" asp-for="IncludeQuotePosts">
             Include quote posts
         </label>
     </div>

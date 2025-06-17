@@ -1,0 +1,86 @@
+﻿@model BlueskyPostViewModel
+
+@{
+    ViewBag.Title = "View Bluesky Post";
+}
+
+<h1>
+    <img height="50" src="@(Model.ProfileResponse.avatar ?? "/images/trgray.svg")" alt="" />
+    <span style="display: inline-block; vertical-align: top">
+        <strong>
+            <a href="https://bsky.app/profile/@Model.ProfileResponse.did" target="_blank">
+                @Model.ProfileResponse.handle
+            </a>
+        </strong>
+    </span>
+</h1>
+
+<hr />
+
+@foreach (var reply in Model.Post.record.InReplyTo)
+{
+    <p>
+        in reply to:
+        <a href="@reply.parent.uri" target="_blank">
+            @reply.parent.uri
+        </a>
+    </p>
+}
+
+@foreach (var quoted in Model.Post.EmbeddedRecords)
+{
+    <p>
+        quotes:
+        <a href="@quoted.uri" target="_blank">
+            @quoted.uri
+        </a>
+    </p>
+}
+
+<div>
+    @Model.Post.record.text
+</div>
+
+<style type="text/css">
+    .contentImage {
+        width: 400px;
+        height: 400px;
+        max-width: calc(100vw - 100px);
+        max-height: calc(100vh - 100px);
+        background-color: rgba(128, 128, 128, 0.25);
+        object-fit: contain;
+    }
+</style>
+
+@if (Model.Post.Images.Any())
+{
+    <p>
+        @foreach (var image in Model.Post.Images)
+        {
+            <a href="@image.fullsize">
+                <img src="@(image.thumb ?? image.fullsize)"
+                     alt="@image.alt"
+                     class="contentImage" />
+            </a>
+        }
+    </p>
+}
+
+<p class="text-muted">
+    <a href="https://bsky.app/profile/@Model.ProfileResponse.did/post/@Model.Post.RecordKey" target="_blank">
+        @Model.Post.indexedAt
+    </a>
+</p>
+
+<hr />
+
+<p>
+    <form asp-action="AddToFavorites" class="d-inline">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn btn-primary">Add to Favorites</button>
+    </form>
+    <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn btn-danger">Remove from Favorites</button>
+    </form>
+</p>

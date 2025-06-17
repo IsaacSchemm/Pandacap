@@ -91,7 +91,7 @@ module BlueskyFeed =
         bridgyOriginalUrl: string option
     } with
         member this.InReplyTo = Option.toList this.reply
-        member this.OtherUrls = Option.toList this.bridgyOriginalUrl
+        member this.ActivityPubUrls = Option.toList this.bridgyOriginalUrl
 
     type Label = {
         src: string
@@ -117,6 +117,16 @@ module BlueskyFeed =
             this.embed
             |> Option.bind (fun e -> e.record)
             |> Option.toList
+
+    type PostsResponse = {
+        posts: Post list
+    }
+
+    let GetPostsAsync httpClient pds uris =
+        Requests.getAsync<PostsResponse> httpClient pds "app.bsky.feed.getPosts" [
+            for uri in uris do
+                "uris", uri
+        ]
 
     type Reason = {
         ``$type``: string

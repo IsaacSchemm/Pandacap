@@ -29,6 +29,11 @@ type BlueskyFavorite() =
     member val Text = "" with get, set
     member val Images = new ResizeArray<BlueskyFavoriteImage>() with get, set
 
+    interface IBlueskyPost with
+        member this.DID = this.CreatedBy.DID
+        member this.PDS = this.CreatedBy.PDS
+        member this.RecordKey = this.RecordKey
+
     interface IFavorite with
         member this.HiddenAt
             with get () = this.HiddenAt

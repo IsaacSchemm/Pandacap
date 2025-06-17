@@ -32,6 +32,11 @@ type BlueskyFeedItem() =
     member val Images = new ResizeArray<BlueskyFeedItemImage>() with get, set
     member val DismissedAt = nullDateTimeOffset with get, set
 
+    interface IBlueskyPost with
+        member this.DID = this.Author.DID
+        member this.PDS = this.Author.PDS
+        member this.RecordKey = this.RecordKey
+
     interface IInboxPost with
         member this.DismissedAt
             with get () = this.DismissedAt
@@ -44,7 +49,7 @@ type BlueskyFeedItem() =
         member this.Url = $"https://{this.PostedBy.PDS}"
         member this.DisplayTitle = ExcerptGenerator.FromText 60 this.Text
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"https://bsky.app/profile/{this.Author.DID}/post/{this.RecordKey}"
+        member this.LinkUrl = $"/ATProto/ViewBlueskyPost?id={this.Id}"
         member this.PostedAt = this.CreatedAt
         member this.ProfileUrl = $"https://bsky.app/profile/{this.PostedBy.DID}"
         member this.Thumbnails = [
