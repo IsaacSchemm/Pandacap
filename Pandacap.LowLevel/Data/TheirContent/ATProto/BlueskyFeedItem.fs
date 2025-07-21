@@ -47,7 +47,9 @@ type BlueskyFeedItem() =
     interface IPost with
         member _.Platform = Bluesky
         member this.Url = $"https://{this.PostedBy.PDS}"
-        member this.DisplayTitle = ExcerptGenerator.FromText 60 this.Text
+        member this.DisplayTitle =
+            ExcerptGenerator.FromText 60 this.Text
+            |> TitleGenerator.FromBody
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/ATProto/ViewBlueskyPost?id={this.Id}"
         member this.PostedAt = this.CreatedAt

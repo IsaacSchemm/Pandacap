@@ -45,7 +45,7 @@ type InboxActivityStreamsPost() =
         member this.DisplayTitle = ExcerptGenerator.FromFirst 60 (seq {
             this.Name
             this.Summary
-            TextConverter.FromHtml this.Content
+            TitleGenerator.FromBody this.TextContent
         })
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
