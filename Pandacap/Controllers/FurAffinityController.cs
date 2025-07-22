@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.FurAffinity;
 using Pandacap.Models;
+using System.Linq;
 
 namespace Pandacap.Controllers
 {
@@ -122,10 +123,10 @@ namespace Pandacap.Controllers
             {
                 Id = id,
                 AvailableFolders = folders.Select(f => new SelectListItem(f.Name, $"{f.FolderId}")).ToList(),
-                AvailableCategories = options.Categories.Select(x => new SelectListItem(x.Name, $"{x.Value:d}")).ToList(),
-                AvailableGenders = options.Genders.Select(x => new SelectListItem(x.Name, $"{x.Value:d}")).ToList(),
-                AvailableSpecies = options.Species.Select(x => new SelectListItem(x.Name, $"{x.Value:d}")).ToList(),
-                AvailableTypes = options.Types.Select(x => new SelectListItem(x.Name, $"{x.Value:d}")).ToList()
+                AvailableCategories = options.Categories.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
+                AvailableGenders = options.Genders.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
+                AvailableSpecies = options.Species.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
+                AvailableTypes = options.Types.Select(x => new SelectListItem(x.Name, x.Value)).ToList()
             });
         }
 
