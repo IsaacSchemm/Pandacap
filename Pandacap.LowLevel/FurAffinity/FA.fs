@@ -24,7 +24,7 @@ module FA =
         folder_ids: Set<int64>
     }
 
-    let private handler = lazy new SocketsHttpHandler(UseCookies = false, PooledConnectionLifetime = TimeSpan.FromMinutes(5))
+    let private handler = lazy new SocketsHttpHandler(UseCookies = false, PooledConnectionLifetime = TimeSpan.FromMinutes(5L))
 
     let private getClient (credentials: IFurAffinityCredentials) =
         let client = new HttpClient(handler.Value, disposeHandler = false)

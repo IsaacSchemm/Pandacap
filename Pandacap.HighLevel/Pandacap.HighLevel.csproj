@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -14,11 +14,11 @@
     <PackageReference Include="DeviantArtFs" Version="11.0.0" />
     <PackageReference Include="json-ld.net" Version="1.0.7" />
     <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="14.7.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.7" />
     <PackageReference Include="NSign.SignatureProviders" Version="1.2.0" />
     <PackageReference Include="System.Linq.Async" Version="6.0.3" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="8.0.0" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="9.0.7" />
   </ItemGroup>
 
   <ItemGroup>

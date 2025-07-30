@@ -17,7 +17,7 @@ module SheezyArtScraper =
         |  [| a; b |] -> Some (a, b)
         | _ -> None
 
-    let GetProfileAsync(username) = task {
+    let GetProfileAsync(username: string) = task {
         let url = $"https://sheezy.art/{Uri.EscapeDataString(username)}"
         let uri = new Uri(url)
 

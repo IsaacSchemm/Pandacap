@@ -16,7 +16,7 @@ module Requests =
             $"{Uri.EscapeDataString(key)}={Uri.EscapeDataString(value)}"
     ]
 
-    let getAsync<'T> (httpClient: HttpClient) (pds: string) procedureName parameters = task {
+    let getAsync<'T> (httpClient: HttpClient) (pds: string) (procedureName: string) parameters = task {
         use! resp = httpClient.GetAsync($"https://{pds}/xrpc/{Uri.EscapeDataString(procedureName)}?{buildQueryString parameters}")
         return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<'T>()
     }

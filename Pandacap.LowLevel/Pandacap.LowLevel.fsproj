@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
@@ -113,12 +113,11 @@
     <PackageReference Include="FSharp.Data.Html.Core" Version="6.6.0" />
     <PackageReference Include="HtmlSanitizer" Version="9.0.886" />
     <PackageReference Include="json-ld.net" Version="1.0.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="8.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.18" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Net.Http.Headers" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Net.Http.Headers" Version="9.0.7" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
     <PackageReference Include="SimpleBase" Version="5.4.1" />

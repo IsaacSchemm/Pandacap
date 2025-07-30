@@ -105,7 +105,8 @@ Libraries:
 
 This application runs on the following Azure resources:
 
-* A Cosmos DB NoSQL database
+* A Cosmos DB NoSQL database (for data storage)
+* An Azure SQL database (for ASP.NET Core Identity)
 * An Azure Functions app
 * A web app
 * A Key Vault

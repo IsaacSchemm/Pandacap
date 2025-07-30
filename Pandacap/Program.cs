@@ -22,18 +22,10 @@ if (builder.Configuration["CosmosDBAccountEndpoint"] is string cosmosDBAccountEn
             cosmosDBAccountEndpoint,
             cosmosDBAccountKey,
             databaseName: "Pandacap"));
-        builder.Services.AddDbContext<PandacapDbContext>(options => options.UseCosmos(
-            cosmosDBAccountEndpoint,
-            cosmosDBAccountKey,
-            databaseName: "Pandacap"));
     }
     else
     {
         builder.Services.AddDbContextFactory<PandacapDbContext>(options => options.UseCosmos(
-            cosmosDBAccountEndpoint,
-            new DefaultAzureCredential(),
-            databaseName: "Pandacap"));
-        builder.Services.AddDbContext<PandacapDbContext>(options => options.UseCosmos(
             cosmosDBAccountEndpoint,
             new DefaultAzureCredential(),
             databaseName: "Pandacap"));

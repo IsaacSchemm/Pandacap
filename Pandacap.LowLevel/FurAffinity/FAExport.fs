@@ -19,7 +19,7 @@ module FAExport =
         full_name: string
     }
 
-    let GetUserAsync factory credentials name cancellationToken = task {
+    let GetUserAsync factory credentials (name: string) cancellationToken = task {
         use client = getClient factory credentials
         use! resp = client.GetAsync($"/user/{Uri.EscapeDataString(name)}.json", cancellationToken = cancellationToken)
         return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<User>(cancellationToken)
@@ -41,7 +41,7 @@ module FAExport =
     | After of int
     | Before of int
 
-    let GetFavoritesAsync factory credentials name sfw pagination cancellationToken = task {
+    let GetFavoritesAsync factory credentials (name: string) sfw pagination cancellationToken = task {
         let qs = String.concat "&" [
             "full=1"
 
@@ -169,7 +169,7 @@ module FAExport =
         posted_at: DateTime
     }
 
-    let GetNotesAsync factory credentials folder cancellationToken = task {
+    let GetNotesAsync factory credentials (folder: string) cancellationToken = task {
         use client = getClient factory credentials
         use! resp = client.GetAsync($"/notes/{Uri.EscapeDataString(folder)}.json", cancellationToken = cancellationToken)
         return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Note list>()

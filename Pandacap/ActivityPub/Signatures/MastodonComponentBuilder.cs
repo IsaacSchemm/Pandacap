@@ -26,7 +26,8 @@ public class MastodonComponentBuilder(HttpRequest _message) : ISignatureComponen
                 fieldName.Equals("content-digest", StringComparison.InvariantCultureIgnoreCase)
                     ? "digest"
                     : fieldName;
-            _paramsValues.Add($"{mastodonHeader}: {string.Join(", ", values!)}");
+            string value = values!;
+            _paramsValues.Add($"{mastodonHeader}: {string.Join(", ", value)}");
         }
         else
         {

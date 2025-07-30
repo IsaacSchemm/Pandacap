@@ -19,7 +19,7 @@ type FurryNetworkClient(factory: IHttpClientFactory) =
         return JsonSerializer.Deserialize<'T>(json)
     }
 
-    member _.GetProfileAsync name = task {
+    member _.GetProfileAsync (name: string) = task {
         use client = createClient ()
         use! resp = client |> getAsync $"https://furrynetwork.com/api/character/{Uri.EscapeDataString(name)}/profile"
         return! resp.EnsureSuccessStatusCode().Content |> readAsAsync {|
@@ -30,7 +30,7 @@ type FurryNetworkClient(factory: IHttpClientFactory) =
         |}
     }
 
-    member _.GetPromotesAsync name (size: int) (from: int) = task {
+    member _.GetPromotesAsync (name: string) (size: int) (from: int) = task {
         use client = createClient ()
         use! resp = client |> getAsync $"https://furrynetwork.com/api/search/{Uri.EscapeDataString(name)}/promotes?size={size}&from={from}"
         return! resp.EnsureSuccessStatusCode().Content |> readAsAsync {|
