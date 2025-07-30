@@ -44,3 +44,11 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.RedditUpvotedPosts: DbSet<RedditUpvotedPost> = this.Set()
     member this.SheezyArtFavorites: DbSet<SheezyArtFavorite> = this.Set()
     member this.WeasylFavoriteSubmissions: DbSet<WeasylFavoriteSubmission> = this.Set()
+
+    override _.OnModelCreating(builder) =
+        base.OnModelCreating(builder)
+        ignore [
+            builder.HasEmbeddedDiscriminatorName("Discriminator")
+            builder.HasDiscriminatorInJsonIds()
+            builder.HasShadowIds()
+        ]
