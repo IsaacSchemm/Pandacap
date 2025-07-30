@@ -40,6 +40,11 @@ if (builder.Configuration["CosmosDBAccountEndpoint"] is string cosmosDBAccountEn
     }
 }
 
+if (builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING") is string connStr)
+{
+    builder.Services.AddDbContextFactory<PandacapIdentityDbContext>(options => options.UseSqlServer(connStr));
+}
+
 builder.Services.AddAzureClients(clientBuilder =>
 {
     clientBuilder.AddBlobServiceClient(new Uri($"https://{builder.Configuration["StorageAccountHostname"]}"));
@@ -106,7 +111,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services
     .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<PandacapDbContext>();
+    .AddEntityFrameworkStores<PandacapIdentityDbContext>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

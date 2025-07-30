@@ -33,6 +33,7 @@ namespace Pandacap.Controllers
         IMyLinkService myLinkService,
         ActivityPub.ProfileTranslator profileTranslator,
         ActivityPub.RelationshipTranslator relationshipTranslator,
+        PandacapIdentityDbContext pandacapIdentityDbContext,
         UserManager<IdentityUser> userManager) : Controller
     {
         private async Task<ActivityPub.Profile> GetActivityPubProfileAsync(

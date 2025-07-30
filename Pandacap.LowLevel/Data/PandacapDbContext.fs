@@ -1,11 +1,9 @@
 ﻿namespace Pandacap.Data
 
-open Microsoft.AspNetCore.Identity
-open Microsoft.AspNetCore.Identity.EntityFrameworkCore
 open Microsoft.EntityFrameworkCore
 
 type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
-    inherit IdentityDbContext(options)
+    inherit DbContext(options)
 
     member this.DeviantArtCredentials: DbSet<DeviantArtCredentials> = this.Set()
     member this.FurAffinityCredentials: DbSet<FurAffinityCredentials> = this.Set()
@@ -46,10 +44,3 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.RedditUpvotedPosts: DbSet<RedditUpvotedPost> = this.Set()
     member this.SheezyArtFavorites: DbSet<SheezyArtFavorite> = this.Set()
     member this.WeasylFavoriteSubmissions: DbSet<WeasylFavoriteSubmission> = this.Set()
-
-    override _.OnModelCreating(builder) =
-        base.OnModelCreating(builder)
-        ignore [
-            builder.Entity<IdentityRole>().Property(fun b -> b.ConcurrencyStamp).IsETagConcurrency()
-            builder.Entity<IdentityUser>().Property(fun b -> b.ConcurrencyStamp).IsETagConcurrency()
-        ]
