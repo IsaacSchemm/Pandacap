@@ -42,10 +42,13 @@ type InboxActivityStreamsPost() =
     interface IPost with
         member _.Platform = ActivityPub
         member this.Url = this.ObjectId
-        member this.DisplayTitle = ExcerptGenerator.FromFirst 60 (seq {
-            this.Name
-            TextConverter.FromHtml this.Content
-        })
+        member this.DisplayTitle =
+            if not (String.IsNullOrEmpty(this.Summary)) then
+                $"[{this.Summary}]"
+            else if not (String.IsNullOrEmpty(this.Name)) then
+                this.Name
+            else
+                ExcerptGenerator.FromText 60 this.TextContent
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
         member this.PostedAt = this.PostedAt

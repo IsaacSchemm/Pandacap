@@ -28,7 +28,7 @@
     <p>
         @foreach (var attachment in Model.Attachments)
         {
-            if (attachment.mediaType?.StartsWith("image/") == true)
+            if (attachment.mediaType?.StartsWith("image/") != false)
             {
                 <a href="@attachment.url">
                     <img src="@attachment.url"

@@ -99,10 +99,10 @@ module FA =
                 for x in getDescendants select do
                     match (HtmlNode.name x).ToLowerInvariant() with
                     | "option" ->
-                        {| Value = getValue x |> int; Name = getName x |}
+                        {| Value = getValue x; Name = getName x |}
                     | "optgroup" ->
                         for y in getDescendants x do
-                            {| Value = getValue y |> int; Name = getName y |}
+                            {| Value = getValue y; Name = getName y |}
                     | _ -> ()
         ]
 
