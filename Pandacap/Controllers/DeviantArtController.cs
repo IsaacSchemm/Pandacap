@@ -136,6 +136,7 @@ namespace Pandacap.Controllers
 
                     return RedirectToAction("Index", "UserPosts", new { id });
                 case PostType.Artwork:
+                case PostType.Scraps:
                     return RedirectToAction(nameof(CrosspostArtwork), new { id });
                 default:
                     throw new NotImplementedException($"Cannot crosspost {post.Type} posts to DeviantArt");
@@ -151,7 +152,7 @@ namespace Pandacap.Controllers
             if (post == null)
                 return NotFound();
 
-            if (post.Type != PostType.Artwork)
+            if (post.IsTextPost)
                 throw new Exception("Not an artwork post");
 
             if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var token, var user))
@@ -187,7 +188,7 @@ namespace Pandacap.Controllers
             if (post == null)
                 return NotFound();
 
-            if (post.Type != PostType.Artwork)
+            if (post.IsTextPost)
                 throw new Exception("Not an artwork post");
 
             if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var token, var user))

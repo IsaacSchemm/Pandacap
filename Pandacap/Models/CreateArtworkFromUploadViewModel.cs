@@ -25,7 +25,12 @@ namespace Pandacap.Models
         [DisplayName("Crop image at top (instead of at center) in Mastodon")]
         public bool FocusTop { get; set; }
 
-        PostType PostCreator.IViewModel.PostType => PostType.Artwork;
+        [DisplayName("Post to scraps")]
+        public bool Scraps { get; set; }
+
+        PostType PostCreator.IViewModel.PostType => Scraps
+            ? PostType.Scraps
+            : PostType.Artwork;
 
         Guid? PostCreator.IViewModel.UploadId => UploadId;
     }

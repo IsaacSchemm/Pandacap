@@ -8,6 +8,7 @@ type PostType =
 | StatusUpdate = 0
 | JournalEntry = 1
 | Artwork = 2
+| Scraps = 3
 
 type PostBlobRef() =
     member val Id = Guid.Empty with get, set
@@ -67,6 +68,13 @@ type Post() =
 
     member val WeasylSubmitId = Nullable<int>() with get, set
     member val WeasylJournalId = Nullable<int>() with get, set
+
+    [<NotMapped>]
+    member this.IsTextPost =
+        match this.Type with
+        | PostType.JournalEntry
+        | PostType.StatusUpdate -> true
+        | _ -> false
 
     [<NotMapped>]
     member this.Html =

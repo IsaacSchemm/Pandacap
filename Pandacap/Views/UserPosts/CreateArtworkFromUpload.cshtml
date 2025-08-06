@@ -30,6 +30,10 @@
                     <label asp-for="@Model.Tags" class="form-label"></label>
                     <input asp-for="@Model.Tags" class="form-control" />
                 </div>
+                <div class="mb-3 form-check px-0">
+                    <input asp-for="@Model.Scraps">
+                    <label asp-for="@Model.Scraps" class="form-check-label"></label>
+                </div>
                 <button type="submit" class="btn btn-primary">Create new post</button>
             </form>
         </div>

@@ -94,7 +94,7 @@ namespace Pandacap.Controllers
             if (post.WeasylSubmitId != null || post.WeasylJournalId != null)
                 throw new Exception("Already posted to Weasyl");
 
-            if (post.Type == PostType.Artwork)
+            if (!post.IsTextPost)
             {
                 if (post.Images.Count != 1)
                     throw new NotImplementedException("Crossposted Weasyl submissions must have exactly one image");

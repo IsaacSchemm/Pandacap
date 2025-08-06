@@ -9,6 +9,7 @@ using Pandacap.HighLevel;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.LowLevel.MyLinks;
 using Pandacap.Models;
+using System.Net;
 using System.Text;
 
 namespace Pandacap.Controllers
@@ -90,13 +91,30 @@ namespace Pandacap.Controllers
             return await RenderAsync("Gallery", posts, count);
         }
 
+        public async Task<IActionResult> Scraps(Guid? next, int? count)
+        {
+            if (Request.IsActivityPub())
+                return StatusCode((int)HttpStatusCode.NotAcceptable);
+
+            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
+
+            var posts = context.Posts
+                .Where(d => d.PublishedTime <= startTime)
+                .Where(d => d.Type == PostType.Scraps)
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == next || next == null);
+
+            return await RenderAsync("Scraps", posts, count);
+        }
+
         public async Task<IActionResult> TextPosts(Guid? next, int? count)
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type != PostType.Artwork)
+                .Where(d => d.Type == PostType.StatusUpdate || d.Type == PostType.JournalEntry)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);

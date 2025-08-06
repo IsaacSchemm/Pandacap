@@ -31,18 +31,19 @@ namespace Pandacap
         {
             Guid id = Guid.NewGuid();
 
+            var tags = (model.Tags ?? "")
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(tag => tag.TrimStart('#'))
+                .Select(tag => tag.TrimEnd(','))
+                .Distinct();
+
             var post = new Post
             {
                 Body = model.MarkdownBody,
                 Id = id,
                 Images = [],
                 PublishedTime = DateTimeOffset.UtcNow,
-                Tags = (model.Tags ?? "")
-                    .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(tag => tag.TrimStart('#'))
-                    .Select(tag => tag.TrimEnd(','))
-                    .Distinct()
-                    .ToList(),
+                Tags = [.. tags],
                 Title = model.Title,
                 Type = model.PostType
             };
@@ -73,19 +74,22 @@ namespace Pandacap
 
             context.Posts.Add(post);
 
-            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                isCreate: true,
-                cancellationToken: cancellationToken))
+            if (post.Type != PostType.Scraps)
             {
-                context.ActivityPubOutboundActivities.Add(new()
+                foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                    isCreate: true,
+                    cancellationToken: cancellationToken))
                 {
-                    Id = Guid.NewGuid(),
-                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
-                        postTranslator.BuildObjectCreate(
-                            post)),
-                    Inbox = inbox,
-                    StoredAt = DateTimeOffset.UtcNow
-                });
+                    context.ActivityPubOutboundActivities.Add(new()
+                    {
+                        Id = Guid.NewGuid(),
+                        JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                            postTranslator.BuildObjectCreate(
+                                post)),
+                        Inbox = inbox,
+                        StoredAt = DateTimeOffset.UtcNow
+                    });
+                }
             }
 
             await context.SaveChangesAsync(cancellationToken);

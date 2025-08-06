@@ -33,7 +33,6 @@ namespace Pandacap.Controllers
         IMyLinkService myLinkService,
         ActivityPub.ProfileTranslator profileTranslator,
         ActivityPub.RelationshipTranslator relationshipTranslator,
-        PandacapIdentityDbContext pandacapIdentityDbContext,
         UserManager<IdentityUser> userManager) : Controller
     {
         private async Task<ActivityPub.Profile> GetActivityPubProfileAsync(
@@ -112,7 +111,7 @@ namespace Pandacap.Controllers
                         .Take(8)
                         .ToListAsync(cancellationToken),
                     RecentTextPosts = await context.Posts
-                        .Where(post => post.Type != PostType.Artwork)
+                        .Where(post => post.Type == PostType.StatusUpdate || post.Type == PostType.JournalEntry)
                         .Where(post => post.PublishedTime >= oneMonthAgo)
                         .OrderByDescending(post => post.PublishedTime)
                         .Take(5)

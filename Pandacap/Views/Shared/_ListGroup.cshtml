@@ -75,9 +75,10 @@
         {
             <div class="small text-muted">
                 @(myPost.Type == PostType.JournalEntry ? "✏️ journal entry"
-                            : myPost.Type == PostType.StatusUpdate ? "💬 status update"
-                            : myPost.Type == PostType.Artwork ? "🖌 artwork"
-                            : "")
+                    : myPost.Type == PostType.StatusUpdate ? "💬 status update"
+                    : myPost.Type == PostType.Artwork ? "🖌 artwork"
+                    : myPost.Type == PostType.Scraps ? "✎ scraps"
+                    : "")
             </div>
         }
         else if (item is AddressedPost addressedPost)

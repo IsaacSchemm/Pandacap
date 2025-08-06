@@ -79,7 +79,7 @@ namespace Pandacap.Controllers
                 .Where(p => p.Id == id)
                 .SingleAsync(cancellationToken);
 
-            if (post.Type == PostType.Artwork)
+            if (!post.IsTextPost)
                 return RedirectToAction(nameof(CrosspostArtwork), new { id });
 
             var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
@@ -114,7 +114,7 @@ namespace Pandacap.Controllers
             var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
                 ?? throw new Exception("Fur Affinity connection not available");
 
-            if (post.Type != PostType.Artwork)
+            if (post.IsTextPost)
                 throw new Exception("Not an artwork post");
 
             var folders = await FA.ListGalleryFoldersAsync(credentials, cancellationToken);
@@ -127,7 +127,8 @@ namespace Pandacap.Controllers
                 AvailableCategories = options.Categories.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
                 AvailableGenders = options.Genders.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
                 AvailableSpecies = options.Species.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
-                AvailableTypes = options.Types.Select(x => new SelectListItem(x.Name, x.Value)).ToList()
+                AvailableTypes = options.Types.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
+                Scraps = post.Type == PostType.Scraps
             });
         }
 
