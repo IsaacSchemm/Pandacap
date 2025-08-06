@@ -36,7 +36,7 @@ namespace Pandacap.Functions.FavoriteHandlers
 
                         int count = await context.FurryNetworkFavorites
                             .Where(f => f.Url == submission.url)
-                            .CountAsync();
+                            .DocumentCountAsync();
 
                         if (count > 0)
                             break;

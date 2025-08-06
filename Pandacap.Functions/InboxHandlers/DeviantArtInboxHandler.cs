@@ -3,6 +3,7 @@ using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.HighLevel.DeviantArt;
 
 namespace Pandacap.Functions.InboxHandlers
@@ -136,7 +137,7 @@ namespace Pandacap.Functions.InboxHandlers
 
                     int existingCount = await context.InboxTextDeviations
                         .Where(d => d.Id == deviation.deviationid)
-                        .CountAsync();
+                        .DocumentCountAsync();
 
                     if (existingCount > 0)
                         continue;

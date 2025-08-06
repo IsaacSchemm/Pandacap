@@ -49,7 +49,7 @@ namespace Pandacap.Functions.FavoriteHandlers
             {
                 var existing = await context.FurAffinityFavorites
                     .Where(item => item.SubmissionId == submission.id)
-                    .CountAsync();
+                    .DocumentCountAsync();
                 if (existing > 0)
                     break;
 

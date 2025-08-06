@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 
 namespace Pandacap
 {
@@ -23,7 +24,7 @@ namespace Pandacap
         {
             int count = await context.Follows
                 .Where(f => f.ActorId == sendingActor.Id && f.IgnoreImages == false)
-                .CountAsync();
+                .DocumentCountAsync();
 
             if (count > 0)
             {
@@ -57,7 +58,7 @@ namespace Pandacap
             int existing = await context.InboxActivityStreamsPosts
                 .Where(p => p.ObjectId == id)
                 .Where(p => p.PostedBy.Id == sendingActor.Id)
-                .CountAsync();
+                .DocumentCountAsync();
             if (existing > 0)
                 return;
 

@@ -116,12 +116,12 @@ namespace Pandacap.Controllers
                         .OrderByDescending(post => post.PublishedTime)
                         .Take(5)
                         .ToListAsync(cancellationToken),
-                    FollowerCount = await context.Followers.CountAsync(cancellationToken),
-                    FollowingCount = await context.Follows.CountAsync(cancellationToken)
-                        + await context.RssFeeds.CountAsync(cancellationToken)
-                        + await context.BlueskyFeeds.CountAsync(cancellationToken),
-                    FavoritesCount = await context.ActivityPubLikes.CountAsync(cancellationToken),
-                    CommunityBookmarksCount = await context.CommunityBookmarks.CountAsync(cancellationToken)
+                    FollowerCount = await context.Followers.DocumentCountAsync(cancellationToken),
+                    FollowingCount = await context.Follows.DocumentCountAsync(cancellationToken)
+                        + await context.RssFeeds.DocumentCountAsync(cancellationToken)
+                        + await context.BlueskyFeeds.DocumentCountAsync(cancellationToken),
+                    FavoritesCount = await context.ActivityPubLikes.DocumentCountAsync(cancellationToken),
+                    CommunityBookmarksCount = await context.CommunityBookmarks.DocumentCountAsync(cancellationToken)
                 };
             }
 

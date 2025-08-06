@@ -3,6 +3,7 @@ using Microsoft.Azure.Cosmos.Linq;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.Models;
 using System.Net;
 
@@ -34,7 +35,7 @@ namespace Pandacap.Controllers
                 RemotePost = post,
                 IsInFavorites = await context.ActivityPubLikes
                     .Where(r => r.ObjectId == post.Id)
-                    .CountAsync(cancellationToken) > 0
+                    .DocumentCountAsync(cancellationToken) > 0
             });
         }
 

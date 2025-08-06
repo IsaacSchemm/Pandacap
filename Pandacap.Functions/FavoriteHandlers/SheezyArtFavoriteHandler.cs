@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.Html;
 
 namespace Pandacap.Functions.FavoriteHandlers
@@ -17,7 +18,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                 {
                     int count = await context.SheezyArtFavorites
                         .Where(f => f.Url == submission.url)
-                        .CountAsync();
+                        .DocumentCountAsync();
 
                     if (count > 0)
                         continue;

@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.Signatures;
 using System.Text;
 
@@ -26,7 +27,7 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> Followers()
         {
-            int followers = await context.Followers.CountAsync();
+            int followers = await context.Followers.DocumentCountAsync();
 
             return Content(
                 ActivityPub.Serializer.SerializeWithContext(
@@ -50,7 +51,7 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Liked()
         {
             int posts = await context.ActivityPubLikes
-                .CountAsync();
+                .DocumentCountAsync();
 
             return Content(
                 ActivityPub.Serializer.SerializeWithContext(
@@ -377,7 +378,7 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Outbox()
         {
-            int count = await context.Posts.CountAsync();
+            int count = await context.Posts.DocumentCountAsync();
             return Content(
                 ActivityPub.Serializer.SerializeWithContext(
                     postTranslator.BuildOutboxCollection(
