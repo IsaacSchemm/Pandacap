@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.Models;
 using System.Runtime.CompilerServices;
 
@@ -22,7 +23,7 @@ namespace Pandacap
             using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
             int count = await context.RemoteActivityPubReplies
                 .Where(r => r.ObjectId == id)
-                .CountAsync(cancellationToken);
+                .DocumentCountAsync(cancellationToken);
             if (count > 0)
                 return true;
 

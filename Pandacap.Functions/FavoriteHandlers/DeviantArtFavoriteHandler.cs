@@ -39,7 +39,7 @@ namespace Pandacap.Functions.FavoriteHandlers
 
                 var existing = await context.DeviantArtFavorites
                     .Where(item => item.Id == deviation.deviationid)
-                    .CountAsync();
+                    .DocumentCountAsync();
                 if (existing > 0)
                     break;
 

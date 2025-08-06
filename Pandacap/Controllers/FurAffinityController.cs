@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.FurAffinity;
+using Pandacap.HighLevel;
 using Pandacap.Models;
 using System.Linq;
 
@@ -34,7 +35,7 @@ namespace Pandacap.Controllers
             string b,
             CancellationToken cancellationToken)
         {
-            int count = await context.FurAffinityCredentials.CountAsync(cancellationToken);
+            int count = await context.FurAffinityCredentials.DocumentCountAsync(cancellationToken);
             if (count > 0)
                 return Conflict();
 
