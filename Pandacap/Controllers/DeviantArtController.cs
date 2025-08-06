@@ -14,6 +14,7 @@ using Pandacap.Clients;
 using Pandacap.Models;
 using Pandacap.PlatformBadges;
 using Stash = DeviantArtFs.Api.Stash;
+using Pandacap.Html;
 
 namespace Pandacap.Controllers
 {
@@ -206,7 +207,10 @@ namespace Pandacap.Controllers
                 token,
                 Stash.SubmissionDestination.Default,
                 new Stash.SubmissionParameters(
-                    Stash.SubmissionTitle.NewSubmissionTitle(post.Title),
+                    Stash.SubmissionTitle.NewSubmissionTitle(
+                        ExcerptGenerator.FromText(
+                            50,
+                            post.Title)),
                     Stash.ArtistComments.NewArtistComments(post.Body),
                     Stash.TagList.Create(post.Tags),
                     Stash.OriginalUrl.NewOriginalUrl($"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}"),
