@@ -1,12 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Storage.Blobs;
+using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using System;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Pandacap
 {
     public class PostCreator(
+        BlobServiceClient blobServiceClient,
         DeliveryInboxCollector deliveryInboxCollector,
         PandacapDbContext context,
-        ActivityPub.PostTranslator postTranslator)
+        ActivityPub.PostTranslator postTranslator,
+        SvgRenderer svgRenderer)
     {
         public interface IViewModel
         {
@@ -56,13 +61,43 @@ namespace Pandacap
 
                 context.Remove(upload);
 
+                List<PostBlobRef> renditions = [new()
+                {
+                    Id = upload.Id,
+                    ContentType = upload.ContentType
+                }];
+
+                if (upload.ContentType == "image/svg+xml")
+                {
+                    var response = await blobServiceClient
+                        .GetBlobContainerClient("blobs")
+                        .GetBlobClient($"{upload.Id}")
+                        .DownloadStreamingAsync(cancellationToken: cancellationToken);
+
+                    using var svgStream = response.Value.Content;
+                    using var pngStream = new MemoryStream();
+
+                    svgRenderer.RenderPng(svgStream, pngStream);
+
+                    pngStream.Position = 0;
+
+                    var pngBlobId = Guid.NewGuid();
+
+                    await blobServiceClient
+                        .GetBlobContainerClient("blobs")
+                        .GetBlobClient($"{pngBlobId}")
+                        .UploadAsync(pngStream, cancellationToken);
+
+                    renditions.Add(new()
+                    {
+                        Id = pngBlobId,
+                        ContentType = "image/png"
+                    });
+                }
+
                 post.Images = [new()
                 {
-                    Renditions = [new()
-                    {
-                        Id = upload.Id,
-                        ContentType = upload.ContentType
-                    }],
+                    Renditions = renditions,
                     AltText = model.AltText ?? upload.AltText,
                     FocalPoint = new()
                     {

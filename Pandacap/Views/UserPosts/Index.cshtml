@@ -41,15 +41,26 @@
 
 @foreach (var image in Model.Post.Images)
 {
-    <p>
-        <picture>
-            <source srcset="/Blobs/UserPosts/@Model.Post.Id/@image.Primary.Id" type="@image.Primary.ContentType" />
-            <img src="/Blobs/UserPosts/@Model.Post.Id/@image.Raster.Id"
-                 alt="@image.AltText"
-                 title="@image.AltText"
-                 style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
-        </picture>
-    </p>
+    <div style="text-align: center">
+        <p>
+            <picture>
+                <source srcset="/Blobs/UserPosts/@Model.Post.Id/@image.Primary.Id" type="@image.Primary.ContentType" />
+                <img src="/Blobs/UserPosts/@Model.Post.Id/@image.Raster.Id"
+                     alt="@image.AltText"
+                     title="@image.AltText"
+                     style="width: 100%; max-width: 640px; max-height: 320px; object-fit: contain" />
+            </picture>
+        </p>
+
+        <p>
+            @foreach (var rendition in image.Renditions)
+            {
+                <a href="/Blobs/UserPosts/@Model.Post.Id/@rendition.Id" target="_blank" class="btn btn-outline-primary btn-sm">
+                    View (@rendition.ContentType)
+                </a>
+            }
+        </p>
+    </div>
 }
 
 @Html.Raw(Model.Post.Html)
