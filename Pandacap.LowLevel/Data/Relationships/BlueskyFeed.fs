@@ -24,6 +24,8 @@ type BlueskyFeed() =
     member val LastRefreshedAt = DateTimeOffset.MinValue with get, set
     member val LastPostedAt = DateTimeOffset.MinValue with get, set
 
+    member val MostRecentCIDs = new ResizeArray<string>() with get, set
+
     [<NotMapped>]
     member this.ShouldRefresh =
         let sincePost = DateTimeOffset.UtcNow - this.LastPostedAt

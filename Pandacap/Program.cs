@@ -90,6 +90,7 @@ builder.Services
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<CompositeFavoritesProvider>()
+    .AddScoped<ComputerVisionProvider>()
     .AddScoped<DeliveryInboxCollector>()
     .AddScoped<MastodonVerifier>()
     .AddScoped<PostCreator>()

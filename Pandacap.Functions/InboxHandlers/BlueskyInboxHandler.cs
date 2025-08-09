@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CodeHollow.FeedReader;
+using Microsoft.EntityFrameworkCore;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -10,6 +11,8 @@ namespace Pandacap.Functions.InboxHandlers
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
+        private const int MAX_POSTS_PER_USER_PER_RUN = 50;
+
         private const string BlueskyModerationService = "did:plc:ar7c4by46qjdydhdevvrndac";
 
         private static readonly IReadOnlyList<string> BlueskyModerationServiceAdultContentLabels = [
@@ -47,8 +50,12 @@ namespace Pandacap.Functions.InboxHandlers
         {
             await foreach (var feedItem in GetAuthorFeedAsync(client, feed.PDS, feed.DID))
             {
-                if (feedItem.IndexedAt <= feed.LastPostedAt)
+                if (feed.MostRecentCIDs != null
+                    && feed.MostRecentCIDs.Count > 0
+                    && feed.MostRecentCIDs.Contains(feedItem.post.cid))
+                {
                     break;
+                }
 
                 bool isQuotePost = !feedItem.post.EmbeddedRecords.IsEmpty;
                 if (isQuotePost && !feed.IncludeQuotePosts)
@@ -129,9 +136,11 @@ namespace Pandacap.Functions.InboxHandlers
                 if (!feed.ShouldRefresh)
                     continue;
 
-                int max = feed.LastRefreshedAt == DateTime.MinValue
+                feed.MostRecentCIDs ??= [];
+
+                int max = feed.MostRecentCIDs.Count == 0
                     ? 5
-                    : 25;
+                    : MAX_POSTS_PER_USER_PER_RUN;
 
                 var newItems = await CollectInboxItems(client, feed)
                     .Take(max)
@@ -151,6 +160,13 @@ namespace Pandacap.Functions.InboxHandlers
                         .Select(item => item.IndexedAt)
                         .Max();
                 }
+
+                IEnumerable<string> mostRecent = [
+                    .. newItems.OrderByDescending(i => i.IndexedAt).Select(i => i.CID),
+                    .. feed.MostRecentCIDs
+                ];
+
+                feed.MostRecentCIDs = [.. mostRecent.Take(5)];
 
                 feed.LastRefreshedAt = DateTimeOffset.UtcNow;
 

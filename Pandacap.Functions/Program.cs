@@ -26,18 +26,10 @@ var host = new HostBuilder()
                     cosmosDBAccountEndpoint,
                     cosmosDBAccountKey,
                     databaseName: "Pandacap"));
-                services.AddDbContext<PandacapDbContext>(options => options.UseCosmos(
-                    cosmosDBAccountEndpoint,
-                    cosmosDBAccountKey,
-                    databaseName: "Pandacap"));
             }
             else
             {
                 services.AddDbContextFactory<PandacapDbContext>(options => options.UseCosmos(
-                    cosmosDBAccountEndpoint,
-                    new DefaultAzureCredential(),
-                    databaseName: "Pandacap"));
-                services.AddDbContext<PandacapDbContext>(options => options.UseCosmos(
                     cosmosDBAccountEndpoint,
                     new DefaultAzureCredential(),
                     databaseName: "Pandacap"));
