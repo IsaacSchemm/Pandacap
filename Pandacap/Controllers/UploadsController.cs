@@ -115,14 +115,6 @@ namespace Pandacap.Controllers
                         .UploadAsync(ms, cancellationToken);
                 }
 
-                if (model.GenerateAltText)
-                {
-                    model.AltText = await computerVisionProvider.AnalyzeImageAsync(
-                        data,
-                        cancellationToken);
-                    model.GenerateAltText = false;
-                }
-
                 context.Uploads.Add(new()
                 {
                     Id = raster.Value,
@@ -130,14 +122,6 @@ namespace Pandacap.Controllers
                     AltText = model.AltText,
                     UploadedAt = DateTimeOffset.UtcNow
                 });
-            }
-
-            if (model.GenerateAltText)
-            {
-                model.AltText = await computerVisionProvider.AnalyzeImageAsync(
-                    buffer,
-                    cancellationToken);
-                model.GenerateAltText = false;
             }
 
             context.Uploads.Add(new()
