@@ -36,6 +36,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<CompositeNotificationHandler>()
+                .AddScoped<ComputerVisionProvider>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtFeedNotificationHandler>()
                 .AddScoped<DeviantArtNoteNotificationHandler>()
