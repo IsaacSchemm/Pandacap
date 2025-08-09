@@ -197,7 +197,7 @@ namespace Pandacap.Controllers
             if (post.Images.Count != 1)
                 throw new NotImplementedException($"Cannot crosspost artwork posts wih more or less than 1 image to DeviantArt");
 
-            var blob = post.Images.Single().Blob;
+            var blob = post.Images.Single().Raster;
 
             var blobResponse = await blobServiceClient
                 .GetBlobContainerClient("blobs")

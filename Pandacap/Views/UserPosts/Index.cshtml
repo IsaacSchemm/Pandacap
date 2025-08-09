@@ -42,10 +42,13 @@
 @foreach (var image in Model.Post.Images)
 {
     <p>
-        <img src="/Blobs/UserPosts/@Model.Post.Id/@image.Blob.Id"
-             alt="@image.AltText"
-             title="@image.AltText"
-             style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
+        <picture>
+            <source srcset="/Blobs/UserPosts/@Model.Post.Id/@image.Primary.Id" type="@image.Primary.ContentType" />
+            <img src="/Blobs/UserPosts/@Model.Post.Id/@image.Raster.Id"
+                 alt="@image.AltText"
+                 title="@image.AltText"
+                 style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
+        </picture>
     </p>
 }
 

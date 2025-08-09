@@ -24,9 +24,6 @@ type PostImageFocalPoint() =
     member val Vertical = 0m with get, set
 
 type PostImage() =
-    [<Obsolete>] member val Blob = new PostBlobRef() with get, set
-    [<Obsolete>] member val Thumbnails = new ResizeArray<PostBlobRef>() with get, set
-
     member val Renditions = new ResizeArray<PostBlobRef>() with get, set
     member val AltText = nullString with get, set
 
@@ -34,21 +31,21 @@ type PostImage() =
 
     [<NotMapped>]
     member this.Primary =
-        this.Renditions
-        |> Seq.head
+        Seq.head this.Renditions
 
     [<NotMapped>]
-    member this.Raster =
-        this.Renditions
-        |> Seq.sortBy (fun b -> if b.IsRaster then 1 else 2)
-        |> Seq.head
-
-    [<NotMapped>]
-    member this.SiteThumbnail =
+    member this.PrimaryThumbnail =
         this.Renditions
         |> Seq.where (fun b -> not b.IsRaster)
         |> Seq.tryHead
         |> Option.defaultValue (Seq.last this.Renditions)
+
+    [<NotMapped>]
+    member this.Raster =
+        this.Renditions
+        |> Seq.where (fun b -> b.IsRaster)
+        |> Seq.tryHead
+        |> Option.defaultValue (Seq.head this.Renditions)
 
     interface Pandacap.ActivityPub.IImage with
         member this.BlobId = this.Raster.Id
@@ -119,7 +116,7 @@ type Post() =
             for image in this.Images do {
                 new IPostThumbnail with
                     member _.AltText = image.AltText
-                    member _.Url = $"/Blobs/UserPosts/{this.Id}/{image.SiteThumbnail.Id}"
+                    member _.Url = $"/Blobs/UserPosts/{this.Id}/{image.PrimaryThumbnail.Id}"
             }
         }
         member _.Usericon = null

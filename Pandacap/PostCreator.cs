@@ -58,11 +58,11 @@ namespace Pandacap
 
                 post.Images = [new()
                 {
-                    Blob = new()
+                    Renditions = [new()
                     {
                         Id = upload.Id,
                         ContentType = upload.ContentType
-                    },
+                    }],
                     AltText = model.AltText ?? upload.AltText,
                     FocalPoint = new()
                     {

@@ -14,7 +14,6 @@ using Pandacap.HighLevel.RssInbound;
 using Pandacap.LowLevel.MyLinks;
 using Pandacap.Models;
 using System.Diagnostics;
-using System.Reflection.Metadata;
 using System.Text;
 
 namespace Pandacap.Controllers
@@ -138,34 +137,7 @@ namespace Pandacap.Controllers
                 return memoryCache.Set(key, await buildModel(), DateTimeOffset.UtcNow.AddMinutes(10));
             }
 
-            //return View(await getModel());
-
-            async Task<long> getSizeAsync(Guid id)
-            {
-                var properties = await blobServiceClient
-                    .GetBlobContainerClient("blobs")
-                    .GetBlobClient($"{id}")
-                    .GetPropertiesAsync(cancellationToken: cancellationToken);
-
-                Console.WriteLine($"{id}: {properties.Value.ContentLength}");
-
-                return properties.Value.ContentLength;
-            }
-
-            await foreach (var post in context.Posts)
-            {
-                foreach (var image in post.Images)
-                {
-                    if (image.Renditions == null || image.Renditions.Count == 0)
-                    {
-                        image.Renditions = [image.Blob, .. image.Thumbnails];
-                    }
-                }
-            }
-
-            await context.SaveChangesAsync(cancellationToken);
-
-            throw new NotImplementedException();
+            return View(await getModel());
         }
 
         public async Task<IActionResult> Search(string? q, Guid? next, int? count)

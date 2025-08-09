@@ -31,8 +31,8 @@
         <meta property="og:url" content="https://@appInfo.ApplicationHostname/UserPosts/@up.Id" />
         if (up.Images.DefaultIfEmpty(null).First() is PostImage image)
         {
-            <meta property="og:image" content="https://@appInfo.ApplicationHostname/Blobs/UserPosts/@up.Id/@image.Blob.Id" />
-            <meta property="twitter:image" content="https://@appInfo.ApplicationHostname/Blobs/UserPosts/@up.Id/@image.Blob.Id" />
+            <meta property="og:image" content="https://@appInfo.ApplicationHostname/Blobs/UserPosts/@up.Id/@image.Raster.Id" />
+            <meta property="twitter:image" content="https://@appInfo.ApplicationHostname/Blobs/UserPosts/@up.Id/@image.Raster.Id" />
             <meta property="twitter:card" content="summary_large_image" />
         }
     }

@@ -152,7 +152,7 @@ namespace Pandacap.Controllers
             if (post.Images.Count != 1)
                 throw new NotImplementedException("Crossposted Fur Affinity submissions must have exactly one image");
 
-            var blobRef = post.Images.Single().Blob;
+            var blobRef = post.Images.Single().Raster;
 
             var blob = await blobServiceClient
                 .GetBlobContainerClient("blobs")

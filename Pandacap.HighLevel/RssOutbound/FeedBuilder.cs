@@ -19,7 +19,7 @@ namespace Pandacap.HighLevel.RssOutbound
         private IEnumerable<string> GetHtml(Post post)
         {
             foreach (var image in post.Images)
-                yield return $"<p><img src='https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.Blob.Id}' height='250' /></p>";
+                yield return $"<p><img src='https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.Raster.Id}' height='250' /></p>";
             if (post.Html != null)
                 yield return post.Html;
         }

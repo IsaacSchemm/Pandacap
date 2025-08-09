@@ -67,40 +67,6 @@ namespace Pandacap.Controllers
                 upload.ContentType);
         }
 
-        [Route("Blobs/Images/{id}")]
-        [Obsolete("No longer used in newly serialized ActivityPub objects")]
-        public async Task<IActionResult> Images(Guid id)
-        {
-            var post = await context.Posts.Where(p => p.Id == id).SingleOrDefaultAsync();
-
-            if (post == null)
-                return NotFound();
-
-            var image = post.Images.FirstOrDefault();
-
-            if (image == null)
-                return NotFound();
-
-            return await ProxyAsync(post, image.Blob.Id);
-        }
-
-        [Route("Blobs/Thumbnails/{id}")]
-        [Obsolete("No longer used in newly serialized ActivityPub objects")]
-        public async Task<IActionResult> Thumbnails(Guid id)
-        {
-            var post = await context.Posts.Where(p => p.Id == id).SingleOrDefaultAsync();
-
-            if (post == null)
-                return NotFound();
-
-            var image = post.Images.SelectMany(i => i.Thumbnails).FirstOrDefault();
-
-            if (image == null)
-                return NotFound();
-
-            return await ProxyAsync(post, image.Id);
-        }
-
         [Route("Blobs/Avatar")]
         public async Task<IActionResult> Avatar()
         {

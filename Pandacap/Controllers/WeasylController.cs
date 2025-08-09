@@ -100,7 +100,7 @@ namespace Pandacap.Controllers
                     throw new NotImplementedException("Crossposted Weasyl submissions must have exactly one image");
 
                 post.WeasylSubmitId = await client.UploadVisualAsync(
-                    $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{post.Images[0].Blob.Id}",
+                    $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{post.Images[0].Raster.Id}",
                     post.Title,
                     SubmissionType.Other,
                     null,
