@@ -8,15 +8,27 @@ namespace Pandacap
     {
         public static FSharpList<Badge> GetBadges(PostPlatform platform, string url)
         {
-            var defaultBadge = PostPlatformModule.GetBadge(platform);
-
-            if (url != null && Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
-                return [new(uri.Host, defaultBadge.Background, defaultBadge.Color)];
-
             if (platform == PostPlatform.Pandacap)
                 return [];
 
-            return [defaultBadge];
+            var defaultBadge = PostPlatformModule.GetBadge(platform);
+
+            if (url == null)
+                return [defaultBadge];
+
+            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
+                return [defaultBadge];
+
+            if (uri.Host == "bsky.brid.gy")
+                return [new(
+                    uri.Host,
+                    "white",
+                    "#3c8fff")];
+
+            return [new(
+                uri.Host,
+                defaultBadge.Background,
+                defaultBadge.Color)];
         }
 
         public static FSharpList<Badge> GetBadges(this IPost post) =>
