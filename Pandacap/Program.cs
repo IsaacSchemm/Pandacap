@@ -96,6 +96,7 @@ builder.Services
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>()
     .AddScoped<SvgRenderer>()
+    .AddScoped<Uploader>()
     .AddScoped<WmaZipSplitter>();
 
 builder.Services.AddHttpClient();

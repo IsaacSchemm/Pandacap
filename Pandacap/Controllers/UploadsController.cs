@@ -11,7 +11,6 @@ namespace Pandacap.Controllers
     [Authorize]
     [Route("Uploads")]
     public class UploadsController(
-        ComputerVisionProvider computerVisionProvider,
         PandacapDbContext context,
         Uploader uploader) : Controller
     {
@@ -85,6 +84,13 @@ namespace Pandacap.Controllers
                 model.File,
                 model.AltText,
                 cancellationToken);
+
+            if (model.GenerateAltText)
+            {
+                await uploader.GenerateAltTextAsync(
+                    id,
+                    cancellationToken);
+            }
 
             return model.Destination switch
             {

@@ -41,26 +41,24 @@
 
 @foreach (var image in Model.Post.Images)
 {
-    <div style="text-align: center">
-        <p>
-            <picture>
-                <source srcset="/Blobs/UserPosts/@Model.Post.Id/@image.Primary.Id" type="@image.Primary.ContentType" />
-                <img src="/Blobs/UserPosts/@Model.Post.Id/@image.Raster.Id"
-                     alt="@image.AltText"
-                     title="@image.AltText"
-                     style="width: 100%; max-width: 640px; max-height: 320px; object-fit: contain" />
-            </picture>
-        </p>
+    <p align="center">
+        <picture>
+            <source srcset="/Blobs/UserPosts/@Model.Post.Id/@image.Primary.Id" type="@image.Primary.ContentType" />
+            <img src="/Blobs/UserPosts/@Model.Post.Id/@image.Raster.Id"
+                    alt="@image.AltText"
+                    title="@image.AltText"
+                    style="width: 100%; max-width: 640px; max-height: 480px; object-fit: contain" />
+        </picture>
+    </p>
 
-        <p>
-            @foreach (var rendition in image.Renditions)
-            {
-                <a href="/Blobs/UserPosts/@Model.Post.Id/@rendition.Id" target="_blank" class="btn btn-outline-primary btn-sm">
-                    View (@rendition.ContentType)
-                </a>
-            }
-        </p>
-    </div>
+    <p align="center">
+        @foreach (var rendition in image.Renditions)
+        {
+            <a href="/Blobs/UserPosts/@Model.Post.Id/@rendition.Id" target="_blank" class="btn btn-outline-primary btn-sm">
+                View (@rendition.ContentType)
+            </a>
+        }
+    </p>
 }
 
 @Html.Raw(Model.Post.Html)

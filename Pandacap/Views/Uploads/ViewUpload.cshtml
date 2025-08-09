@@ -11,24 +11,22 @@
 </p>
 
 <p>
-    <tt>
-        <a href="/Blobs/Uploads/@Model.Id" target="_blank">
-            /Blobs/Uploads/@Model.Id
-        </a>
-    </tt>
+    <tt>@Model.ContentType</tt>
 </p>
 
-<p>
-    <img src="/Blobs/Uploads/@Model.Id"
-         alt="@Model.AltText"
-         title="@Model.AltText"
-         style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
+<p align="center">
+    <a href="/Blobs/Uploads/@Model.Id" target="_blank">
+        <img src="/Blobs/Uploads/@Model.Id"
+             alt="@Model.AltText"
+             title="@Model.AltText"
+             style="width: 100%; max-width: 640px; max-height: 320px; object-fit: contain" />
+    </a>
 </p>
 
 @if (Model.Raster is Guid r)
 {
     <p>
-        <a asp-controller="Upload" asp-action="ViewUpload" asp-route-id="@r" class="btn btn-outline-primary">
+        <a asp-controller="Uploads" asp-action="ViewUpload" asp-route-id="@r" class="btn btn-outline-primary">
             View raster image
         </a>
     </p>

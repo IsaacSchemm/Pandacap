@@ -1,14 +1,13 @@
 ﻿using Azure.Storage.Blobs;
-using JsonLD.Core;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.Clients;
 using Pandacap.Data;
-using Pandacap.Models;
-using System.Threading;
 
 namespace Pandacap
 {
     public class Uploader(
         BlobServiceClient blobServiceClient,
+        ComputerVisionProvider computerVisionProvider,
         PandacapDbContext context,
         SvgRenderer svgRenderer)
     {
@@ -91,6 +90,35 @@ namespace Pandacap
             await context.SaveChangesAsync(cancellationToken);
 
             return upload.Id;
+        }
+
+        public async Task GenerateAltTextAsync(
+            Guid id,
+            CancellationToken cancellationToken)
+        {
+            var original = await context.Uploads
+                .Where(i => i.Id == id)
+                .SingleAsync(cancellationToken);
+
+            var raster = original.Raster is Guid r
+                ? await context.Uploads
+                    .Where(i => i.Id == r)
+                    .SingleAsync(cancellationToken)
+                : original;
+
+            var data = await blobServiceClient
+               .GetBlobContainerClient("blobs")
+               .GetBlobClient($"{raster.Id}")
+               .DownloadContentAsync(cancellationToken);
+
+            var altText = await computerVisionProvider.AnalyzeImageAsync(
+                data.Value.Content.ToArray(),
+                cancellationToken);
+
+            original.AltText = altText;
+            raster.AltText = altText;
+
+            await context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task DeleteIfExistsAsync(
