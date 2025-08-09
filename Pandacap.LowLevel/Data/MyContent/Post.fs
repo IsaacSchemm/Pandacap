@@ -14,31 +14,49 @@ type PostBlobRef() =
     member val Id = Guid.Empty with get, set
     member val ContentType = "application/octet-stream" with get, set
 
+    [<NotMapped>]
+    member this.IsRaster =
+        this.ContentType <> "image/svg+xml"
+
 [<AllowNullLiteral>]
 type PostImageFocalPoint() =
     member val Horizontal = 0m with get, set
     member val Vertical = 0m with get, set
 
 type PostImage() =
-    member val Blob = new PostBlobRef() with get, set
-    member val Thumbnails = new ResizeArray<PostBlobRef>() with get, set
+    [<Obsolete>] member val Blob = new PostBlobRef() with get, set
+    [<Obsolete>] member val Thumbnails = new ResizeArray<PostBlobRef>() with get, set
+
+    member val Renditions = new ResizeArray<PostBlobRef>() with get, set
     member val AltText = nullString with get, set
 
     member val FocalPoint: PostImageFocalPoint = null with get, set
 
     [<NotMapped>]
-    member this.Thumbnail =
-        this.Thumbnails
+    member this.Primary =
+        this.Renditions
+        |> Seq.head
+
+    [<NotMapped>]
+    member this.Raster =
+        this.Renditions
+        |> Seq.sortBy (fun b -> if b.IsRaster then 1 else 2)
+        |> Seq.head
+
+    [<NotMapped>]
+    member this.SiteThumbnail =
+        this.Renditions
+        |> Seq.where (fun b -> not b.IsRaster)
         |> Seq.tryHead
-        |> Option.defaultValue this.Blob
+        |> Option.defaultValue (Seq.last this.Renditions)
 
     interface Pandacap.ActivityPub.IImage with
-        member this.BlobId = this.Blob.Id
+        member this.BlobId = this.Raster.Id
         member this.HorizontalFocalPoint =
             this.FocalPoint
             |> Option.ofObj
             |> Option.map (fun f -> f.Horizontal)
-        member this.MediaType = this.Blob.ContentType
+        member this.MediaType = this.Raster.ContentType
         member this.VerticalFocalPoint =
             this.FocalPoint
             |> Option.ofObj
@@ -82,11 +100,9 @@ type Post() =
         else CommonMark.CommonMarkConverter.Convert this.Body
 
     [<NotMapped>]
-    member this.Blobs = seq {
-        for i in this.Images do
-            yield i.Blob
-            yield! i.Thumbnails
-    }
+    member this.Blobs =
+        this.Images
+        |> Seq.collect (fun i -> i.Renditions)
 
     interface IPost with
         member _.Platform = Pandacap
@@ -103,7 +119,7 @@ type Post() =
             for image in this.Images do {
                 new IPostThumbnail with
                     member _.AltText = image.AltText
-                    member _.Url = $"/Blobs/UserPosts/{this.Id}/{image.Thumbnail.Id}"
+                    member _.Url = $"/Blobs/UserPosts/{this.Id}/{image.SiteThumbnail.Id}"
             }
         }
         member _.Usericon = null
