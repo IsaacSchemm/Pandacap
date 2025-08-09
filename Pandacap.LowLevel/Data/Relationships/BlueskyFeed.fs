@@ -21,23 +21,7 @@ type BlueskyFeed() =
     member val DisplayName = nullString with get, set
     member val Avatar = nullString with get, set
 
-    member val LastRefreshedAt = DateTimeOffset.MinValue with get, set
-    member val LastPostedAt = DateTimeOffset.MinValue with get, set
-
     member val MostRecentCIDs = new ResizeArray<string>() with get, set
-
-    [<NotMapped>]
-    member this.ShouldRefresh =
-        let sincePost = DateTimeOffset.UtcNow - this.LastPostedAt
-
-        let timeToWait =
-            if sincePost < TimeSpan.FromDays(7)
-            then TimeSpan.Zero
-            else TimeSpan.FromDays(1)
-
-        let sinceRefresh = DateTimeOffset.UtcNow - this.LastRefreshedAt
-
-        sinceRefresh > timeToWait
 
     interface IFollow with
         member this.Filtered =

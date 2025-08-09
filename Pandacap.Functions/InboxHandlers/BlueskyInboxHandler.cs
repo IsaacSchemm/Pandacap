@@ -128,14 +128,11 @@ namespace Pandacap.Functions.InboxHandlers
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var feeds = await context.BlueskyFeeds
-                .OrderBy(feed => feed.LastRefreshedAt)
+                .OrderBy(feed => feed.DID)
                 .ToListAsync();
 
             foreach (var feed in feeds)
             {
-                if (!feed.ShouldRefresh)
-                    continue;
-
                 feed.MostRecentCIDs ??= [];
 
                 int max = feed.MostRecentCIDs.Count == 0
@@ -155,10 +152,6 @@ namespace Pandacap.Functions.InboxHandlers
                     feed.Avatar = firstItem.PostedBy.Avatar;
                     feed.DisplayName = firstItem.PostedBy.DisplayName;
                     feed.Handle = firstItem.PostedBy.Handle;
-
-                    feed.LastPostedAt = newItems
-                        .Select(item => item.IndexedAt)
-                        .Max();
                 }
 
                 IEnumerable<string> mostRecent = [
@@ -167,11 +160,9 @@ namespace Pandacap.Functions.InboxHandlers
                 ];
 
                 feed.MostRecentCIDs = [.. mostRecent.Take(5)];
-
-                feed.LastRefreshedAt = DateTimeOffset.UtcNow;
-
-                await context.SaveChangesAsync();
             }
+
+            await context.SaveChangesAsync();
         }
     }
 }
