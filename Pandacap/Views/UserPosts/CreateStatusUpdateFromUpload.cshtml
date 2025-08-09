@@ -7,7 +7,8 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col col-lg-8">
+        <div class="col col-12 col-lg-8">
+            <h1>Metadata</h1>
             <form asp-action="CreateStatusUpdateFromUpload" enctype="multipart/form-data">
                 <input asp-for="@Model.UploadId" type="hidden" />
                 <div class="mb-3">
@@ -25,9 +26,16 @@
                 <button type="submit" class="btn btn-primary">Create new post</button>
             </form>
         </div>
-        <div class="col col-lg-4">
+        <div class="col col-12 col-lg-4">
+            <h1>Primary</h1>
             <img src="/Blobs/Uploads/@Model.UploadId"
-                 style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
+                 style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain"
+                 title="Primary" />
+
+            <h1>Raster</h1>
+            <img src="/Blobs/Uploads/@Model.UploadId/Raster"
+                 style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain"
+                 title="Raster" />
         </div>
     </div>
 </div>

@@ -6,6 +6,7 @@ open Pandacap.PlatformBadges
 type Upload() =
     member val Id = Guid.Empty with get, set
     member val ContentType = "application/octet-stream" with get, set
+    member val Raster = Nullable<Guid>() with get, set
     member val AltText = "" with get, set
     member val UploadedAt = DateTimeOffset.MinValue with get, set
 
@@ -13,8 +14,8 @@ type Upload() =
         member _.Platform = Pandacap
         member _.Url = null
         member this.DisplayTitle = String.concat " " [
-            this.UploadedAt.Date.ToLongDateString()
-            this.UploadedAt.Date.ToShortTimeString()
+            this.UploadedAt.UtcDateTime.ToLongDateString()
+            this.UploadedAt.UtcDateTime.ToShortTimeString()
         ]
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/Uploads/{this.Id}"

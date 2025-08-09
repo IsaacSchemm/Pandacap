@@ -48,7 +48,7 @@ namespace Pandacap.Controllers
 
         [Route("Blobs/Uploads/{id}")]
         [ResponseCache(Duration = 604800, Location = ResponseCacheLocation.Any)]
-        public async Task<IActionResult> PhotoBin(Guid id)
+        public async Task<IActionResult> Uploads(Guid id)
         {
             var upload = await context.Uploads
                 .Where(p => p.Id == id)
@@ -65,6 +65,20 @@ namespace Pandacap.Controllers
             return File(
                 blob.Value.Content,
                 upload.ContentType);
+        }
+
+        [Route("Blobs/Uploads/{id}/Raster")]
+        [ResponseCache(Duration = 604800, Location = ResponseCacheLocation.Any)]
+        public async Task<IActionResult> UploadsRaster(Guid id)
+        {
+            var upload = await context.Uploads
+                .Where(p => p.Id == id)
+                .SingleOrDefaultAsync();
+
+            if (upload == null)
+                return NotFound();
+
+            return RedirectToAction(nameof(Uploads), new { id = upload.Raster ?? id });
         }
 
         [Route("Blobs/Avatar")]

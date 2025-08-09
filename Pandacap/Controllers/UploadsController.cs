@@ -1,10 +1,11 @@
 ﻿using Azure.Storage.Blobs;
+using DeviantArtFs.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.Clients;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.Clients;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
@@ -14,7 +15,8 @@ namespace Pandacap.Controllers
     public class UploadsController(
         BlobServiceClient blobServiceClient,
         ComputerVisionProvider computerVisionProvider,
-        PandacapDbContext context) : Controller
+        PandacapDbContext context,
+        SvgRenderer svgRenderer) : Controller
     {
         public async Task<IActionResult> Index(int? count, Guid? next)
         {
@@ -95,13 +97,55 @@ namespace Pandacap.Controllers
                     .UploadBlobAsync($"{id}", bufferStream, cancellationToken);
             }
 
+            Guid? raster = null;
+
+            if (model.File.ContentType == "image/svg+xml")
+            {
+                using var svgStream = new MemoryStream(buffer, writable: false);
+
+                byte[] data = svgRenderer.RenderPng(svgStream);
+
+                raster = Guid.NewGuid();
+
+                using (var ms = new MemoryStream(data, writable: false))
+                {
+                    await blobServiceClient
+                        .GetBlobContainerClient("blobs")
+                        .GetBlobClient($"{raster}")
+                        .UploadAsync(ms, cancellationToken);
+                }
+
+                if (model.GenerateAltText)
+                {
+                    model.AltText = await computerVisionProvider.AnalyzeImageAsync(
+                        data,
+                        cancellationToken);
+                    model.GenerateAltText = false;
+                }
+
+                context.Uploads.Add(new()
+                {
+                    Id = raster.Value,
+                    ContentType = "image/png",
+                    AltText = model.AltText,
+                    UploadedAt = DateTimeOffset.UtcNow
+                });
+            }
+
+            if (model.GenerateAltText)
+            {
+                model.AltText = await computerVisionProvider.AnalyzeImageAsync(
+                    buffer,
+                    cancellationToken);
+                model.GenerateAltText = false;
+            }
+
             context.Uploads.Add(new()
             {
                 Id = id,
                 ContentType = model.File.ContentType,
-                AltText = model.GenerateAltText
-                    ? await computerVisionProvider.AnalyzeImageAsync(buffer, cancellationToken)
-                    : model.AltText,
+                Raster = raster,
+                AltText = model.AltText,
                 UploadedAt = DateTimeOffset.UtcNow
             });
 

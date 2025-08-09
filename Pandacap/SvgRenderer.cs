@@ -34,5 +34,12 @@ namespace Pandacap
 
             data.SaveTo(output);
         }
+
+        public byte[] RenderPng(Stream input)
+        {
+            using var ms = new MemoryStream();
+            RenderPng(input, ms);
+            return ms.ToArray();
+        }
     }
 }

@@ -1,17 +1,12 @@
-﻿using Azure.Storage.Blobs;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using System;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Pandacap
 {
     public class PostCreator(
-        BlobServiceClient blobServiceClient,
         DeliveryInboxCollector deliveryInboxCollector,
         PandacapDbContext context,
-        ActivityPub.PostTranslator postTranslator,
-        SvgRenderer svgRenderer)
+        ActivityPub.PostTranslator postTranslator)
     {
         public interface IViewModel
         {
@@ -67,31 +62,16 @@ namespace Pandacap
                     ContentType = upload.ContentType
                 }];
 
-                if (upload.ContentType == "image/svg+xml")
+                if (upload.Raster is Guid r)
                 {
-                    var response = await blobServiceClient
-                        .GetBlobContainerClient("blobs")
-                        .GetBlobClient($"{upload.Id}")
-                        .DownloadStreamingAsync(cancellationToken: cancellationToken);
-
-                    using var svgStream = response.Value.Content;
-                    using var pngStream = new MemoryStream();
-
-                    svgRenderer.RenderPng(svgStream, pngStream);
-
-                    pngStream.Position = 0;
-
-                    var pngBlobId = Guid.NewGuid();
-
-                    await blobServiceClient
-                        .GetBlobContainerClient("blobs")
-                        .GetBlobClient($"{pngBlobId}")
-                        .UploadAsync(pngStream, cancellationToken);
+                    var raster = await context.Uploads
+                        .Where(i => i.Id == r)
+                        .SingleAsync(cancellationToken);
 
                     renditions.Add(new()
                     {
-                        Id = pngBlobId,
-                        ContentType = "image/png"
+                        Id = raster.Id,
+                        ContentType = raster.ContentType
                     });
                 }
 
