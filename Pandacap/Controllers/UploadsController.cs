@@ -1,9 +1,7 @@
 ﻿using Azure.Storage.Blobs;
-using DeviantArtFs.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Clients;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Models;
@@ -13,10 +11,9 @@ namespace Pandacap.Controllers
     [Authorize]
     [Route("Uploads")]
     public class UploadsController(
-        BlobServiceClient blobServiceClient,
         ComputerVisionProvider computerVisionProvider,
         PandacapDbContext context,
-        SvgRenderer svgRenderer) : Controller
+        Uploader uploader) : Controller
     {
         public async Task<IActionResult> Index(int? count, Guid? next)
         {
@@ -81,59 +78,13 @@ namespace Pandacap.Controllers
             UploadViewModel model,
             CancellationToken cancellationToken)
         {
-            Guid id = Guid.NewGuid();
+            if (model.File == null)
+                return BadRequest();
 
-            byte[] buffer = new byte[model.File!.Length];
-            using (var stream = model.File!.OpenReadStream())
-            {
-                using var ms = new MemoryStream(buffer, writable: true);
-                await stream.CopyToAsync(ms, cancellationToken);
-            }
-
-            using (var bufferStream = new MemoryStream(buffer, writable: false))
-            {
-                await blobServiceClient
-                    .GetBlobContainerClient("blobs")
-                    .UploadBlobAsync($"{id}", bufferStream, cancellationToken);
-            }
-
-            Guid? raster = null;
-
-            if (model.File.ContentType == "image/svg+xml")
-            {
-                using var svgStream = new MemoryStream(buffer, writable: false);
-
-                byte[] data = svgRenderer.RenderPng(svgStream);
-
-                raster = Guid.NewGuid();
-
-                using (var ms = new MemoryStream(data, writable: false))
-                {
-                    await blobServiceClient
-                        .GetBlobContainerClient("blobs")
-                        .GetBlobClient($"{raster}")
-                        .UploadAsync(ms, cancellationToken);
-                }
-
-                context.Uploads.Add(new()
-                {
-                    Id = raster.Value,
-                    ContentType = "image/png",
-                    AltText = model.AltText,
-                    UploadedAt = DateTimeOffset.UtcNow
-                });
-            }
-
-            context.Uploads.Add(new()
-            {
-                Id = id,
-                ContentType = model.File.ContentType,
-                Raster = raster,
-                AltText = model.AltText,
-                UploadedAt = DateTimeOffset.UtcNow
-            });
-
-            await context.SaveChangesAsync(cancellationToken);
+            var id = await uploader.UploadAndRenderAsync(
+                model.File,
+                model.AltText,
+                cancellationToken);
 
             return model.Destination switch
             {
@@ -149,20 +100,7 @@ namespace Pandacap.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            var upload = await context.Uploads
-                .Where(i => i.Id == id)
-                .SingleOrDefaultAsync(cancellationToken);
-
-            if (upload == null)
-                return NotFound();
-
-            await blobServiceClient
-               .GetBlobContainerClient("blobs")
-               .DeleteBlobIfExistsAsync($"{upload.Id}", cancellationToken: cancellationToken);
-
-            context.Remove(upload);
-
-            await context.SaveChangesAsync(cancellationToken);
+            await uploader.DeleteIfExistsAsync(id, cancellationToken);
 
             return RedirectToAction(nameof(Index));
         }

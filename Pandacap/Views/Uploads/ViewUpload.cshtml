@@ -25,6 +25,15 @@
          style="width: 100%; max-width: 640px; max-height: 640px; object-fit: contain" />
 </p>
 
+@if (Model.Raster is Guid r)
+{
+    <p>
+        <a asp-controller="Upload" asp-action="ViewUpload" asp-route-id="@r" class="btn btn-outline-primary">
+            View raster image
+        </a>
+    </p>
+}
+
 <p>
     <a asp-controller="UserPosts" asp-action="CreateArtworkFromUpload" asp-route-id="@Model.Id" class="btn btn-outline-primary">
         Post as artwork
