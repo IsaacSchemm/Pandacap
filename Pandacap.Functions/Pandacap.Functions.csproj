@@ -21,7 +21,6 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="9.0.7" />
     <PackageReference Include="Reddit" Version="1.5.2" />
-    <PackageReference Include="RestSharp" Version="112.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.HighLevel\Pandacap.HighLevel.csproj" />
