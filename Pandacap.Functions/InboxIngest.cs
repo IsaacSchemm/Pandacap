@@ -15,7 +15,7 @@ namespace Pandacap.Functions
         WeasylInboxHandler weasylInboxHandler)
     {
         [Function("InboxIngest")]
-        public async Task Run([TimerTrigger("0 10 */3 * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("40 46 * * * *")] TimerInfo myTimer)
         {
             List<Exception> exceptions = [];
 
@@ -31,18 +31,18 @@ namespace Pandacap.Functions
                 }
             }
 
-            await c(deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync());
-            await c(deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync());
+            //await c(deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync());
+            //await c(deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync());
 
-            await c(furAffinityInboxHandler.ImportSubmissionsAsync());
-            await c(furAffinityInboxHandler.ImportJournalsAsync());
+            //await c(furAffinityInboxHandler.ImportSubmissionsAsync());
+            //await c(furAffinityInboxHandler.ImportJournalsAsync());
 
-            await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync());
-            await c(weasylInboxHandler.ImportJournalsByUsersWeWatchAsync());
+            //await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync());
+            //await c(weasylInboxHandler.ImportJournalsByUsersWeWatchAsync());
 
-            var rssFeeds = await context.RssFeeds.Select(f => new { f.Id }).ToListAsync();
-            foreach (var feed in rssFeeds)
-                await c(atomRssFeedReader.ReadFeedAsync(feed.Id));
+            //var rssFeeds = await context.RssFeeds.Select(f => new { f.Id }).ToListAsync();
+            //foreach (var feed in rssFeeds)
+            //    await c(atomRssFeedReader.ReadFeedAsync(feed.Id));
 
             await c(blueskyInboxHandler.ReadFeedsAsync());
 

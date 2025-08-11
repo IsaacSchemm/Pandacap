@@ -1,17 +1,147 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.HighLevel.ATProto;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
+        BlueskyAgent blueskyAgent,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
     {
+        public async Task<IActionResult> Setup()
+        {
+            var accounts = await context.ATProtoCredentials
+                .AsNoTracking()
+                .ToListAsync();
+
+            return View(accounts);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Setup(string pds, string did, string password)
+        {
+            var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var credentials = await context.ATProtoCredentials
+                .Where(c => c.DID == did)
+                .FirstOrDefaultAsync();
+
+            if (credentials == null)
+            {
+                var session = await Auth.CreateSessionAsync(client, pds, did, password);
+
+                credentials = new()
+                {
+                    PDS = pds,
+                    DID = session.did,
+                    AccessToken = session.accessJwt,
+                    RefreshToken = session.refreshJwt
+                };
+                context.ATProtoCredentials.Add(credentials);
+            }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Setup));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Remove(string did)
+        {
+            var accounts = await context.ATProtoCredentials
+                .Where(a => a.DID == did)
+                .ToListAsync();
+            context.RemoveRange(accounts);
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Setup));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetCrosspostTarget(string did)
+        {
+            var accounts = await context.ATProtoCredentials
+                .Where(a => a.DID == did || a.CrosspostTargetSince != null)
+                .ToListAsync();
+
+            foreach (var account in accounts)
+            {
+                account.CrosspostTargetSince = account.DID == did
+                    ? DateTimeOffset.UtcNow
+                    : null;
+            }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Setup));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetFavoritesTarget(string did)
+        {
+            var accounts = await context.ATProtoCredentials
+                .Where(a => a.DID == did || a.FavoritesTargetSince != null)
+                .ToListAsync();
+
+            foreach (var account in accounts)
+            {
+                account.FavoritesTargetSince = account.DID == did
+                    ? DateTimeOffset.UtcNow
+                    : null;
+            }
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Setup));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Crosspost(Guid id)
+        {
+            var post = await context.Posts
+                .Where(p => p.Id == id)
+                .SingleAsync();
+
+            if (post.BlueskyRecordKey != null)
+                throw new Exception("Already posted to atproto");
+
+            await blueskyAgent.CreateBlueskyPostsAsync(post);
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "UserPosts", new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Detach(Guid id)
+        {
+            var post = await context.Posts
+                .Where(p => p.Id == id)
+                .SingleAsync();
+
+            post.BlueskyDID = null;
+            post.BlueskyRecordKey = null;
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "UserPosts", new { id });
+        }
+
         public async Task<IActionResult> ViewBlueskyPost(
             Guid id,
             CancellationToken cancellationToken)
