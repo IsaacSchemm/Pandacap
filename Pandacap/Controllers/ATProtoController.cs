@@ -13,6 +13,7 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
+        ApplicationInformation appInfo,
         BlueskyAgent blueskyAgent,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
@@ -110,9 +111,8 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(Setup));
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crosspost(Guid id)
+        [HttpGet]
+        public async Task<IActionResult> CrosspostToBluesky(Guid id)
         {
             var post = await context.Posts
                 .Where(p => p.Id == id)
@@ -121,11 +121,30 @@ namespace Pandacap.Controllers
             if (post.BlueskyRecordKey != null)
                 throw new Exception("Already posted to atproto");
 
-            await blueskyAgent.CreateBlueskyPostsAsync(post);
+            return View(new BlueskyCrosspostViewModel
+            {
+                Post = post,
+                Id = id,
+                TextContent = $"{post.Title}\n\n{post.Body?.Trim()}"
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CrosspostToBluesky(BlueskyCrosspostViewModel model)
+        {
+            var post = await context.Posts
+                .Where(p => p.Id == model.Id)
+                .SingleAsync();
+
+            if (post.BlueskyRecordKey != null)
+                throw new Exception("Already posted to atproto");
+
+            await blueskyAgent.CreateBlueskyPostAsync(post, model.TextContent);
 
             await context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "UserPosts", new { id });
+            return RedirectToAction("Index", "UserPosts", new { id = model.Id });
         }
 
         [HttpPost]

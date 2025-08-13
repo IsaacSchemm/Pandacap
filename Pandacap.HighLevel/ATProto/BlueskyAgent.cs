@@ -33,7 +33,7 @@ namespace Pandacap.HighLevel.ATProto
             submission.BlueskyRecordKey = null;
         }
 
-        public async Task CreateBlueskyPostsAsync(Post submission)
+        public async Task CreateBlueskyPostAsync(Post submission, string text)
         {
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
@@ -61,13 +61,6 @@ namespace Pandacap.HighLevel.ATProto
                         image.Raster.ContentType,
                         image.AltText);
                 }
-            }
-
-            string text = submission.Body;
-            int codepoints = text.Where(c => !char.IsLowSurrogate(c)).Count();
-            if (codepoints >= 300)
-            {
-                text = $"{submission.Title}\n\nhttps://{appInfo.ApplicationHostname}/UserPosts/{submission.Id}";
             }
 
             var post = await Repo.CreateRecordAsync(

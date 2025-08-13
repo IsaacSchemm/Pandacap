@@ -42,8 +42,8 @@ namespace Pandacap.HighLevel
 
                 yield return new(
                     platformName: "Bluesky",
-                    url: $"https://www.deviantart.com/{x.DID}",
-                    linkText: x.DID);
+                    url: $"https://bsky.app/profile/{x.Handle ?? x.DID}",
+                    linkText: x.Handle ?? x.DID);
             }
 
             await foreach (var x in context.DeviantArtCredentials)
