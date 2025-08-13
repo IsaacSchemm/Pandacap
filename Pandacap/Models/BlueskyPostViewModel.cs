@@ -1,4 +1,4 @@
-﻿using Pandacap.Clients.ATProto;
+﻿using Pandacap.Clients.ATProto.Public;
 
 namespace Pandacap.Models
 {

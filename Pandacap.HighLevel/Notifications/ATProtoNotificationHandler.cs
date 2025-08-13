@@ -1,9 +1,10 @@
 ﻿using DeviantArtFs.Extensions;
 using Microsoft.FSharp.Core;
-using Pandacap.Clients.ATProto;
+using Pandacap.Clients.ATProto.Private;
 using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.PlatformBadges;
+using ATProtoNotifications = Pandacap.Clients.ATProto.Private.Notifications;
 
 namespace Pandacap.HighLevel.Notifications
 {
@@ -32,7 +33,7 @@ namespace Pandacap.HighLevel.Notifications
 
             while (true)
             {
-                var result = await Clients.ATProto.Notifications.ListNotificationsAsync(
+                var result = await ATProtoNotifications.ListNotificationsAsync(
                     client,
                     credentials,
                     page);

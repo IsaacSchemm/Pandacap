@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Clients.ATProto;
+using Pandacap.Clients.ATProto.Private;
+using Pandacap.Clients.ATProto.Public;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.Models;
+using BlueskyFeed = Pandacap.Clients.ATProto.Public.BlueskyFeed;
 
 namespace Pandacap.Controllers
 {
@@ -162,12 +164,12 @@ namespace Pandacap.Controllers
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var profile = await Clients.ATProto.Profile.GetProfileAsync(
+            var profile = await Profile.GetProfileAsync(
                 client,
                 dbPost.PDS,
                 dbPost.DID);
 
-            var posts = await Clients.ATProto.BlueskyFeed.GetPostsAsync(
+            var posts = await BlueskyFeed.GetPostsAsync(
                 client,
                 dbPost.PDS,
                 [$"at://{dbPost.DID}/app.bsky.feed.post/{dbPost.RecordKey}"]);
