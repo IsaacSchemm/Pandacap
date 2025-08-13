@@ -24,7 +24,7 @@ namespace Pandacap.HighLevel.Notifications
         }
 
         private async IAsyncEnumerable<Notification> GetNotificationsAsync(
-            IAutomaticRefreshCredentials credentials)
+            ICredentials credentials)
         {
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);

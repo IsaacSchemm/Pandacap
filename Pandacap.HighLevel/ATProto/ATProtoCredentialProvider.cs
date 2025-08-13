@@ -8,7 +8,7 @@ namespace Pandacap.HighLevel.ATProto
     {
         public class AutomaticRefreshCredentials(
             PandacapDbContext context,
-            ATProtoCredentials credentials) : IAutomaticRefreshCredentials
+            ATProtoCredentials credentials) : ICredentials
         {
             public string DID => credentials.DID;
             public string PDS => credentials.PDS;
@@ -19,10 +19,10 @@ namespace Pandacap.HighLevel.ATProto
 
             public string RefreshToken { get; private set; } = credentials.RefreshToken;
 
-            public async Task UpdateTokensAsync(ITokenPair newCredentials)
+            public async Task UpdateTokensAsync(Tokens tokens)
             {
-                AccessToken = newCredentials.AccessToken;
-                RefreshToken = newCredentials.RefreshToken;
+                AccessToken = tokens.accessJwt;
+                RefreshToken = tokens.refreshJwt;
 
                 await foreach (var dbRecord in context.ATProtoCredentials.Where(a => a.DID == credentials.DID).AsAsyncEnumerable())
                 {
