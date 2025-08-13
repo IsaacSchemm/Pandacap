@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
 using Pandacap.Clients.ATProto.Private;
+using Pandacap.Data;
+using System.Reflection.Metadata;
 
 namespace Pandacap.HighLevel.ATProto
 {
@@ -16,18 +17,20 @@ namespace Pandacap.HighLevel.ATProto
             public bool FavoritesTarget => credentials.FavoritesTargetSince != null;
 
             public string AccessToken { get; private set; } = credentials.AccessToken;
-
             public string RefreshToken { get; private set; } = credentials.RefreshToken;
+            public string Handle { get; private set; } = credentials.RefreshToken;
 
             public async Task UpdateTokensAsync(Tokens tokens)
             {
                 AccessToken = tokens.accessJwt;
                 RefreshToken = tokens.refreshJwt;
+                Handle = tokens.handle;
 
                 await foreach (var dbRecord in context.ATProtoCredentials.Where(a => a.DID == credentials.DID).AsAsyncEnumerable())
                 {
                     dbRecord.AccessToken = AccessToken;
                     dbRecord.RefreshToken = RefreshToken;
+                    dbRecord.Handle = Handle;
                     await context.SaveChangesAsync();
                 }
             }

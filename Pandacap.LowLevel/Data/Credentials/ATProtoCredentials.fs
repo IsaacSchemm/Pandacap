@@ -11,5 +11,7 @@ type ATProtoCredentials() =
     member val AccessToken = "" with get, set
     member val RefreshToken = "" with get, set
 
+    member val Handle = nullString with get, set
+
     member val CrosspostTargetSince = nullDateTimeOffset with get, set
     member val FavoritesTargetSince = nullDateTimeOffset with get, set
