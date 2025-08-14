@@ -38,6 +38,8 @@ type BlueskyFavorite() =
         member this.DID = this.CreatedBy.DID
         member this.PDS = this.CreatedBy.PDS
         member this.RecordKey = this.RecordKey
+        member this.Liked = this.Likes.Count > 0
+        member _.InFavorites = true
 
     interface IFavorite with
         member this.HiddenAt

@@ -82,7 +82,7 @@ namespace Pandacap
             });
         }
 
-        public async Task UnlikeBlueskyPostsAsync(BlueskyFavorite favorite)
+        public async Task UnlikeBlueskyPostAsync(BlueskyFavorite favorite)
         {
             favorite.Likes ??= [];
 

@@ -74,13 +74,40 @@
 
 <hr />
 
-<p>
-    <form asp-action="AddToFavorites" class="d-inline">
-        <input type="hidden" name="id" value="@Model.Id" />
-        <button class="btn btn-primary">Like and add to Favorites</button>
-    </form>
-    <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
-        <input type="hidden" name="id" value="@Model.Id" />
-        <button class="btn btn-danger">Undo like and remove from Favorites</button>
-    </form>
-</p>
+@if (!Model.IsInFavorites)
+{
+    <p>
+        <form asp-action="AddToFavorites">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn btn-primary">Add to Favorites</button>
+        </form>
+    </p>
+}
+else
+{
+    if (Model.Liked)
+    {
+        <p>
+            <form asp-action="Unlike">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button class="btn btn-danger btn-sm">Unlike</button>
+            </form>
+        </p>
+    }
+    else
+    {
+        <p>
+            <form asp-action="Like">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button class="btn btn-primary btn-sm">Like</button>
+            </form>
+        </p>
+    }
+
+    <p>
+        <form asp-action="RemoveFromFavorites" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn btn-danger btn-sm">Remove from Favorites</button>
+        </form>
+    </p>
+}

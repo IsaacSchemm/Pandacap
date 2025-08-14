@@ -5,6 +5,7 @@ using Pandacap.Clients.ATProto.Private;
 using Pandacap.Clients.ATProto.Public;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.Models;
 using BlueskyFeed = Pandacap.Clients.ATProto.Public.BlueskyFeed;
@@ -179,7 +180,9 @@ namespace Pandacap.Controllers
                 new BlueskyPostViewModel(
                     id,
                     profile,
-                    post));
+                    post,
+                    dbPost.Liked,
+                    dbPost.InFavorites));
         }
 
         [HttpPost]
@@ -228,7 +231,34 @@ namespace Pandacap.Controllers
             context.BlueskyFavorites.Add(favorite);
             await context.SaveChangesAsync(cancellationToken);
 
+            return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Like([FromForm] Guid id, CancellationToken cancellationToken)
+        {
+            var favorite = await context.BlueskyFavorites
+                .Where(f => f.Id == id)
+                .SingleAsync(cancellationToken);
+
             await blueskyAgent.LikeBlueskyPostAsync(favorite);
+            await context.SaveChangesAsync(cancellationToken);
+
+            return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unlike([FromForm] Guid id, CancellationToken cancellationToken)
+        {
+            var favorite = await context.BlueskyFavorites
+                .Where(f => f.Id == id)
+                .SingleAsync(cancellationToken);
+
+            await blueskyAgent.UnlikeBlueskyPostAsync(favorite);
             await context.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
@@ -250,9 +280,6 @@ namespace Pandacap.Controllers
                 .SingleOrDefaultAsync(cancellationToken);
             if (existing == null)
                 return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
-
-            await blueskyAgent.UnlikeBlueskyPostsAsync(existing);
-            await context.SaveChangesAsync(cancellationToken);
 
             context.BlueskyFavorites.Remove(existing);
             await context.SaveChangesAsync(cancellationToken);

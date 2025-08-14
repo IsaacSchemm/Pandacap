@@ -5,5 +5,7 @@ namespace Pandacap.Models
     public record BlueskyPostViewModel(
         Guid Id,
         Profile.ProfileResponse ProfileResponse,
-        BlueskyFeed.Post Post);
+        BlueskyFeed.Post Post,
+        bool Liked,
+        bool IsInFavorites);
 }
