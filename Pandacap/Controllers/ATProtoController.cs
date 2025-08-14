@@ -91,26 +91,6 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(Setup));
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetFavoritesTarget(string did)
-        {
-            var accounts = await context.ATProtoCredentials
-                .Where(a => a.DID == did || a.FavoritesTargetSince != null)
-                .ToListAsync();
-
-            foreach (var account in accounts)
-            {
-                account.FavoritesTargetSince = account.DID == did
-                    ? DateTimeOffset.UtcNow
-                    : null;
-            }
-
-            await context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Setup));
-        }
-
         [HttpGet]
         public async Task<IActionResult> CrosspostToBluesky(Guid id)
         {

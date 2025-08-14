@@ -15,7 +15,7 @@ On the home page:
 Features:
 
 * Create **image posts** and **text posts**, which are available on the site, via RSS/Atom, and via ActivityPub
-* Crosspost your image posts and text posts to attached DeviantArt, Fur Affinity, or Weasyl accounts
+* Crosspost your image posts and text posts to attached Bluesky, DeviantArt, Fur Affinity, or Weasyl accounts
 * View posts from users or feeds you follow in the **inbox**, split among **image posts**, **text posts**, **shares**, and **podcasts**, and grouped by author
     * Non-ActivityPub posts are periodically imported (~3 times per day)
 * View **notifications** from activity on your posts or from your attached accounts
@@ -34,7 +34,7 @@ RSS/Atom features:
 
 Bluesky features:
 
-* Follow users without a Bluesky account
+* Follow users without using your Bluesky account
 * Hide reposts by specific users
 * Hide quote posts by specific users
 
@@ -42,11 +42,11 @@ Things Pandacap does **not** do:
 
 * Act as an OAuth server.
 * Host more than one user account.
-* Crosspost to Bluesky or allow you to send likes or replies. (removed in Pandacap 10).
-* Create or follow twtxt feeds (removed in Pandacap 10).
+* Show posts from your Bluesky timeline.
+* Perform a "like" on Bluesky when you add a post to your Favorites (this may be added later).
 * Create a post with more than one attached image.
-* Automatically crosspost your image posts or text posts to DeviantArt, FA, or Weasyl. (This must be done manually.)
-* Delete posts that you *manually* crosspost to DeviantArt, FA, or Weasyl (even when you delete them from Pandacap).
+* Automatically crosspost your image posts or text posts to Bluesky, DeviantArt, FA, or Weasyl. (This must be done manually.)
+* Delete posts that you *manually* crosspost to Bluesky, DeviantArt, FA, or Weasyl (even when you delete them from Pandacap).
 * Let you "repost" / "boost" someone else's post.
 
 ## Techincal Information
@@ -59,17 +59,17 @@ To log in, the instance owner must use a Microsoft account that they have explic
 
 Supported protocols:
 
-|                           | Your Posts | Reply | Inbox | Notifications | Repost | Add to Favorites
-| ------------------------- | ---------- | ----- | ----- | ------------- | ------ | ---------------------
-| ActivityPub               | ✓          | ✓     | ✓     | ✓             |        | ✓ (also sends a Like)
-| atproto (Bluesky lexicon) |            |       | ✓     |               |        | ✓
-| RSS / Atom                | ✓          |       | ✓     |               |        | ✓
+|                   | Your Posts | Reply | Inbox | Notifications | Repost | Add to Favorites
+| ----------------- | ---------- | ----- | ----- | ------------- | ------ | ---------------------
+| ActivityPub       | ✓          | ✓     | ✓     | ✓             |        | ✓ (also sends a Like)
+| atproto (Bluesky) |            |       | ✓     |               |        | ✓
+| RSS / Atom        | ✓          |       | ✓     |               |        | ✓
 
 Supported platforms:
 
 |               | Crosspost  | Inbox | Notifications       | Imported Favorites   | Authentication
 | ------------- | ---------- | ----- | ------------------- | -------------------- | --------------------
-| Bluesky       | ✓          | ✓     | ✓                   | Likes, Reposts       | PDS / DID / Password
+| Bluesky       | ✓          |       | ✓                   |                      | PDS / DID / Password
 | DeviantArt    | ✓          | ✓     | ✓ (Messages, Notes) | Favorites            | OAuth
 | Fur Affinity  | ✓          | ✓     | ✓ (Messages, Notes) | Favorites            | Manual cookie entry
 | Furry Network |            |       |                     | Favorites            |

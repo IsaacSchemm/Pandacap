@@ -13,8 +13,8 @@ namespace Pandacap.HighLevel.ATProto
         {
             public string DID => credentials.DID;
             public string PDS => credentials.PDS;
+
             public bool CrosspostTarget => credentials.CrosspostTargetSince != null;
-            public bool FavoritesTarget => credentials.FavoritesTargetSince != null;
 
             public string AccessToken { get; private set; } = credentials.AccessToken;
             public string RefreshToken { get; private set; } = credentials.RefreshToken;
@@ -61,14 +61,6 @@ namespace Pandacap.HighLevel.ATProto
             var credentials = await AllCredentials.Value;
             return credentials
                 .Where(c => c.CrosspostTarget)
-                .FirstOrDefault();
-        }
-
-        public async Task<AutomaticRefreshCredentials?> GetStarpassCredentialsAsync()
-        {
-            var credentials = await AllCredentials.Value;
-            return credentials
-                .Where(c => c.FavoritesTarget)
                 .FirstOrDefault();
         }
     }

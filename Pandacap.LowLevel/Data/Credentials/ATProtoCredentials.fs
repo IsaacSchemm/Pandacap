@@ -14,4 +14,3 @@ type ATProtoCredentials() =
     member val Handle = nullString with get, set
 
     member val CrosspostTargetSince = nullDateTimeOffset with get, set
-    member val FavoritesTargetSince = nullDateTimeOffset with get, set
