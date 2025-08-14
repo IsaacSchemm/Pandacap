@@ -73,14 +73,24 @@ else
 <hr />
 
 <p>
-    <form asp-controller="Favorites" asp-action="Add" class="d-inline">
-        <input type="hidden" name="id" value="@post.Id" />
-        <button class="btn btn-primary">Add to Favorites</button>
-    </form>
-    <form asp-controller="Favorites" asp-action="Remove" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
-        <input type="hidden" name="id" value="@post.Id" />
-        <button class="btn btn-danger">Remove from Favorites</button>
-    </form>
+    @if (!Model.IsInFavorites)
+    {
+        <form asp-controller="Favorites" asp-action="Add" class="d-inline">
+            <input type="hidden" name="id" value="@post.Id" />
+            <button class="btn btn-primary">Add to Favorites</button>
+        </form>
+
+        <br />
+
+        <span class="small text-muted">A <tt>Like</tt> activity will be sent.</span>
+    }
+    else
+    {
+        <form asp-controller="Favorites" asp-action="Remove" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
+            <input type="hidden" name="id" value="@post.Id" />
+            <button class="btn btn-danger">Remove from Favorites</button>
+        </form>
+    }
 </p>
 
 <hr />
