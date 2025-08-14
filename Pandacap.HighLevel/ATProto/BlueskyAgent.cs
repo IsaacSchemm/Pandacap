@@ -2,37 +2,15 @@
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.Clients.ATProto.Private;
+using Microsoft.FSharp.Collections;
 
 namespace Pandacap.HighLevel.ATProto
 {
     public class BlueskyAgent(
-        ApplicationInformation appInfo,
         ATProtoCredentialProvider atProtoCredentialProvider,
         BlobServiceClient blobServiceClient,
         IHttpClientFactory httpClientFactory)
     {
-        public async Task DeleteBlueskyPostsAsync(Post submission)
-        {
-            if (submission.BlueskyRecordKey == null)
-                return;
-
-            using var httpClient = httpClientFactory.CreateClient();
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
-
-            var wrapper = await atProtoCredentialProvider.GetCrosspostingCredentialsAsync();
-
-            if (wrapper?.DID != submission.BlueskyDID)
-                throw new Exception("Cannot delete post from a non-connected atproto account");
-
-            await Repo.DeleteRecordAsync(
-                httpClient,
-                wrapper,
-                submission.BlueskyRecordKey);
-
-            submission.BlueskyDID = null;
-            submission.BlueskyRecordKey = null;
-        }
-
         public async Task CreateBlueskyPostAsync(Post submission, string text)
         {
             using var httpClient = httpClientFactory.CreateClient();
@@ -78,6 +56,51 @@ namespace Pandacap.HighLevel.ATProto
 
             submission.BlueskyDID = wrapper.DID;
             submission.BlueskyRecordKey = post.RecordKey;
+        }
+
+        public async Task LikeBlueskyPostAsync(BlueskyFavorite favorite)
+        {
+            using var httpClient = httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var wrapper = await atProtoCredentialProvider.GetCrosspostingCredentialsAsync();
+            if (wrapper == null)
+                return;
+
+            var like = await Repo.CreateRecordAsync(
+                httpClient,
+                wrapper,
+                Repo.Record.NewLike(new(
+                    uri: $"at://{favorite.CreatedBy.DID}/app.bsky.feed.post/{favorite.RecordKey}",
+                    cid: favorite.CID)));
+
+            favorite.Likes ??= [];
+            favorite.Likes.Add(new()
+            {
+                DID = wrapper.DID,
+                RecordKey = like.RecordKey
+            });
+        }
+
+        public async Task UnlikeBlueskyPostsAsync(BlueskyFavorite favorite)
+        {
+            favorite.Likes ??= [];
+
+            using var httpClient = httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            foreach (var like in favorite.Likes)
+            {
+                var wrapper = await atProtoCredentialProvider.GetCredentialsAsync(like.DID);
+                if (wrapper != null)
+                    await Repo.DeleteRecordAsync(
+                        httpClient,
+                        wrapper,
+                        "app.bsky.feed.like",
+                        like.RecordKey);
+            }
+
+            favorite.Likes = [];
         }
     }
 }

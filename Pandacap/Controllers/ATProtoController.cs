@@ -13,7 +13,7 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
-        ApplicationInformation appInfo,
+        ATProtoCredentialProvider atProtoCredentialProvider,
         BlueskyAgent blueskyAgent,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
@@ -201,7 +201,7 @@ namespace Pandacap.Controllers
 
             IInboxPost inboxItem = feedItem;
 
-            context.BlueskyFavorites.Add(new()
+            BlueskyFavorite favorite = new()
             {
                 CID = feedItem.CID,
                 CreatedAt = feedItem.CreatedAt,
@@ -215,15 +215,20 @@ namespace Pandacap.Controllers
                 },
                 FavoritedAt = DateTimeOffset.UtcNow,
                 Id = feedItem.Id,
-                Images = [.. feedItem.Images.Select(image => new BlueskyFavoriteImage{
+                Images = [.. feedItem.Images.Select(image => new BlueskyFavoriteImage
+                {
                     Alt = image.Alt,
                     Fullsize = image.Fullsize,
                     Thumb = image.Thumb
                 })],
                 RecordKey = feedItem.RecordKey,
                 Text = feedItem.Text
-            });
+            };
 
+            context.BlueskyFavorites.Add(favorite);
+            await context.SaveChangesAsync(cancellationToken);
+
+            await blueskyAgent.LikeBlueskyPostAsync(favorite);
             await context.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
@@ -246,8 +251,10 @@ namespace Pandacap.Controllers
             if (existing == null)
                 return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
 
-            context.BlueskyFavorites.Remove(existing);
+            await blueskyAgent.UnlikeBlueskyPostsAsync(existing);
+            await context.SaveChangesAsync(cancellationToken);
 
+            context.BlueskyFavorites.Remove(existing);
             await context.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");

@@ -269,13 +269,16 @@ module Repo =
         Uri: string
     }
 
-    type Record = Post of Post | EmptyThreadGate of ThreadGate
-
-    type NewRecord = {
+    type MinimalRecord = {
         uri: string
         cid: string
     } with
         member this.RecordKey = RecordKey.Extract this.uri
+
+    type Record =
+    | Post of Post
+    | EmptyThreadGate of ThreadGate
+    | Like of MinimalRecord
 
     let CreateRecordAsync httpClient (credentials: ICredentials) (record: Record) = task {
         return!
@@ -342,13 +345,23 @@ module Repo =
                                 ]
                             | NoEmbed -> ()
                         ]
+                    | Like subject ->
+                        "collection", "app.bsky.feed.like"
+                        "record", dict [
+                            "$type", "app.bsky.feed.like" :> obj
+                            "createdAt", DateTimeOffset.UtcNow.ToString("o")
+                            "subject", dict [
+                                "cid", subject.cid
+                                "uri", subject.uri
+                            ]
+                        ]
                 ]
             }
             |> Requests.performRequestAsync httpClient
-            |> Requests.thenReadAsync<NewRecord>
+            |> Requests.thenReadAsync<MinimalRecord>
     }
 
-    let DeleteRecordAsync httpClient (credentials: ICredentials) (rkey: string) =
+    let DeleteRecordAsync httpClient (credentials: ICredentials) (collection: string) (rkey: string) =
         {
             method = HttpMethod.Post
             pds = credentials.PDS
@@ -357,7 +370,7 @@ module Repo =
             credentials = RequestCredentials credentials
             body = JsonBody [
                 "repo", credentials.DID
-                "collection", "app.bsky.feed.post"
+                "collection", collection
                 "rkey", rkey
             ]
         }
