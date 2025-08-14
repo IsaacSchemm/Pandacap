@@ -2,9 +2,9 @@
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.Clients.ATProto.Private;
-using Microsoft.FSharp.Collections;
+using Pandacap.HighLevel.ATProto;
 
-namespace Pandacap.HighLevel.ATProto
+namespace Pandacap
 {
     public class BlueskyAgent(
         ATProtoCredentialProvider atProtoCredentialProvider,

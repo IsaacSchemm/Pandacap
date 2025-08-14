@@ -108,7 +108,7 @@ namespace Pandacap.Controllers
                         .TakeWhile(post => post.FavoritedAt >= oneMonthAgo)
                         .OrderByDescending(favorite => favorite.FavoritedAt.Date)
                         .ThenByDescending(favorite => favorite.PostedAt)
-                        .Take(8)
+                        .Take(12)
                         .ToListAsync(cancellationToken),
                     RecentTextPosts = await context.Posts
                         .Where(post => post.Type == PostType.StatusUpdate || post.Type == PostType.JournalEntry)
