@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -30,12 +31,15 @@ namespace Pandacap.Controllers
 
             var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
 
+            var favorite = await context.ActivityPubLikes
+                .Where(r => r.ObjectId == post.Id)
+                .SingleOrDefaultAsync(cancellationToken);
+
             return View(new RemotePostViewModel
             {
                 RemotePost = post,
-                IsInFavorites = await context.ActivityPubLikes
-                    .Where(r => r.ObjectId == post.Id)
-                    .DocumentCountAsync(cancellationToken) > 0
+                Liked = favorite?.LikedAt != null,
+                IsInFavorites = favorite != null
             });
         }
 

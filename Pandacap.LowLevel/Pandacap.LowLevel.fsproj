@@ -73,8 +73,6 @@
     <Compile Include="Data\Relationships\Follow.fs" />
     <Compile Include="Data\Relationships\Follower.fs" />
     <Compile Include="Data\Relationships\RssFeed.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\ActivityPubFavorite.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\ActivityPubAnnounce.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\ActivityPubLike.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\PostActivity.fs" />

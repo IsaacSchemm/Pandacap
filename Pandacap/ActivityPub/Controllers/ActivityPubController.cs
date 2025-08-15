@@ -333,9 +333,6 @@ namespace Pandacap.Controllers
                     var likes = await context.ActivityPubLikes.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
                     context.RemoveRange(likes);
 
-                    var announces = await context.ActivityPubAnnounces.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
-                    context.RemoveRange(likes);
-
                     var replies = await context.RemoteActivityPubReplies.Where(reply => reply.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
                     context.RemoveRange(replies);
 
