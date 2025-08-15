@@ -6,6 +6,8 @@ namespace Pandacap.Models
         Guid Id,
         Profile.ProfileResponse ProfileResponse,
         BlueskyFeed.Post Post,
+        bool CanLike,
         bool Liked,
-        bool IsInFavorites);
+        bool IsInFavorites,
+        string? BridgyFedObjectId);
 }

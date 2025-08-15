@@ -79,7 +79,7 @@
     <p>
         <form asp-action="AddToFavorites">
             <input type="hidden" name="id" value="@Model.Id" />
-            <button class="btn btn-primary">Add to Favorites</button>
+            <button class="btn btn-primary btn-sm">Add to Favorites</button>
         </form>
     </p>
 }
@@ -94,7 +94,7 @@ else
             </form>
         </p>
     }
-    else
+    else if (Model.CanLike)
     {
         <p>
             <form asp-action="Like">
@@ -109,5 +109,14 @@ else
             <input type="hidden" name="id" value="@Model.Id" />
             <button class="btn btn-danger btn-sm">Remove from Favorites</button>
         </form>
+    </p>
+}
+
+@if (Model.BridgyFedObjectId is string objectId)
+{
+    <p>
+        <a asp-controller="RemotePosts" asp-action="Index" asp-route-id="@objectId" class="btn btn-outline-primary btn-sm">
+            View and reply with ActivityPub
+        </a>
     </p>
 }

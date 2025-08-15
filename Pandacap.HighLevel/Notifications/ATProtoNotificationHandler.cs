@@ -44,7 +44,7 @@ namespace Pandacap.HighLevel.Notifications
                     {
                         Platform = new NotificationPlatform(
                             "Bluesky",
-                            PostPlatformModule.GetBadge(PostPlatform.ATProto),
+                            PostPlatformModule.GetBadge(PostPlatform.Bluesky),
                             "https://bsky.app/notifications"),
                         ActivityName = item.reason,
                         Url = item.RecordKey != null && item.reason == "reply"

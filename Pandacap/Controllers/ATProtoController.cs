@@ -161,8 +161,18 @@ namespace Pandacap.Controllers
             if (dbPost == null)
                 return NotFound();
 
+            var hasCredentials = await context.ATProtoCredentials
+                .Where(c => c.CrosspostTargetSince != null)
+                .DocumentCountAsync() > 0;
+
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var bridgyFedObjectId = $"https://bsky.brid.gy/convert/ap/at://{dbPost.DID}/app.bsky.feed.post/{dbPost.RecordKey}";
+
+            var bridgyFedResponseTask = client.GetAsync(
+                bridgyFedObjectId,
+                cancellationToken);
 
             var profile = await Profile.GetProfileAsync(
                 client,
@@ -176,13 +186,19 @@ namespace Pandacap.Controllers
 
             var post = posts.posts.Single();
 
+            using var bridgyFedResponse = await bridgyFedResponseTask;
+
             return View(
                 new BlueskyPostViewModel(
                     id,
                     profile,
                     post,
-                    dbPost.Liked,
-                    dbPost.InFavorites));
+                    CanLike: hasCredentials,
+                    Liked: dbPost.Liked,
+                    IsInFavorites: dbPost.InFavorites,
+                    BridgyFedObjectId: bridgyFedResponse.IsSuccessStatusCode
+                        ? bridgyFedObjectId
+                        : null));
         }
 
         [HttpPost]
