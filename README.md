@@ -19,10 +19,13 @@ Features:
 * View posts from users or feeds you follow in the **inbox**, split among **image posts**, **text posts**, **shares**, and **podcasts**, and grouped by author
     * Non-ActivityPub posts are periodically imported (~3 times per day)
 * View **notifications** from activity on your posts or from your attached accounts
-* Automatically import **favorites** from attached accounts
+* Follow Bluesky users (whose posts are public) without a Bluesky account
+* Add ActivityPub and Bluesky posts to your **favorites**
+* Automatically import **favorites** from DeviantArt, Fur Affinity, and Weasyl
 
 ActivityPub features:
 
+* Send **likes** on posts you've added to your favorites
 * Hide reposts by specific users
 * Treat all posts from specific users as text posts
 * Create **addressed posts** (replies to other posts or top-level posts to communities)
@@ -42,8 +45,6 @@ Things Pandacap does **not** do:
 
 * Act as an OAuth server.
 * Host more than one user account.
-* Show posts from your Bluesky timeline.
-* Perform a "like" on Bluesky when you add a post to your Favorites (this may be added later).
 * Create a post with more than one attached image.
 * Automatically crosspost your image posts or text posts to Bluesky, DeviantArt, FA, or Weasyl. (This must be done manually.)
 * Delete posts that you *manually* crosspost to Bluesky, DeviantArt, FA, or Weasyl (even when you delete them from Pandacap).
@@ -59,11 +60,11 @@ To log in, the instance owner must use a Microsoft account that they have explic
 
 Supported protocols:
 
-|                   | Your Posts | Reply | Inbox | Notifications | Repost | Add to Favorites
-| ----------------- | ---------- | ----- | ----- | ------------- | ------ | ---------------------
-| ActivityPub       | ✓          | ✓     | ✓     | ✓             |        | ✓ (also sends a Like)
-| atproto (Bluesky) |            |       | ✓     |               |        | ✓
-| RSS / Atom        | ✓          |       | ✓     |               |        | ✓
+|                           | Your Posts | Reply | Inbox | Notifications | Like | Add to Favorites
+| ------------------------- | ---------- | ----- | ----- | ------------- | ---- | ---------------------
+| ActivityPub               | ✓          | ✓     | ✓     | ✓             | ✓    | ✓
+| atproto (Bluesky lexicon) |            |       | ✓     |               |      | ✓
+| RSS / Atom                | ✓          |       | ✓     |               |      | ✓
 
 Supported platforms:
 

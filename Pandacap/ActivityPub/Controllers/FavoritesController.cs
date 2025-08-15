@@ -19,7 +19,8 @@ namespace Pandacap.Controllers
             var activityPubLikes = context.ActivityPubLikes
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
-                .SkipUntil(post => post.LikeGuid == next || next == null);
+                .SkipUntil(post => post.LikeGuid == next || next == null)
+                .Where(post => post.LikedAt != null);
 
             var listPage = await activityPubLikes.AsListPage(count ?? 20);
 
@@ -51,7 +52,35 @@ namespace Pandacap.Controllers
                 await remoteActivityPubPostHandler.AddRemoteFavoriteAsync(idStr);
             }
 
-            return RedirectToAction(nameof(Index));
+            return id.Count() == 1
+                ? RedirectToAction("Index", "RemotePosts", new { id })
+                : RedirectToAction(nameof(Index));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Like([FromForm] IEnumerable<string> id)
+        {
+            foreach (string idStr in id)
+                await remoteActivityPubPostHandler.LikeRemoteFavoriteAsync(idStr);
+
+            return id.Count() == 1
+                ? RedirectToAction("Index", "RemotePosts", new { id })
+                : RedirectToAction(nameof(Index));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unlike([FromForm] IEnumerable<string> id)
+        {
+            foreach (string idStr in id)
+                await remoteActivityPubPostHandler.UnlikeRemoteFavoriteAsync(idStr);
+
+            return id.Count() == 1
+                ? RedirectToAction("Index", "RemotePosts", new { id })
+                : RedirectToAction("Index");
         }
 
         [Authorize]
@@ -61,7 +90,9 @@ namespace Pandacap.Controllers
         {
             await remoteActivityPubPostHandler.RemoveRemoteFavoritesAsync(id);
 
-            return RedirectToAction("Index");
+            return id.Count() == 1
+                ? RedirectToAction("Index", "RemotePosts", new { id })
+                : RedirectToAction("Index");
         }
     }
 }
