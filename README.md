@@ -48,6 +48,7 @@ Things Pandacap does **not** do:
 * Create a post with more than one attached image.
 * Automatically crosspost your image posts or text posts to Bluesky, DeviantArt, FA, or Weasyl. (This must be done manually.)
 * Delete posts that you *manually* crosspost to Bluesky, DeviantArt, FA, or Weasyl (even when you delete them from Pandacap).
+* Let you "like" a post that is not already in your Favorites.
 * Let you "repost" / "boost" someone else's post.
 
 ## Techincal Information
@@ -60,13 +61,13 @@ To log in, the instance owner must use a Microsoft account that they have explic
 
 Supported protocols:
 
-|                           | Your Posts | Reply | Inbox | Notifications | Like | Add to Favorites
-| ------------------------- | ---------- | ----- | ----- | ------------- | ---- | ---------------------
-| ActivityPub               | ✓          | ✓     | ✓     | ✓             | ✓    | ✓
-| atproto (Bluesky lexicon) |            |       | ✓     |               |      | ✓
-| RSS / Atom                | ✓          |       | ✓     |               |      | ✓
+|                 | Your Posts | Reply | Inbox | Notifications | Add to Favorites | Like
+| --------------- | ---------- | ----- | ----- | ------------- | ---------------- | ----
+| ActivityPub     | ✓          | ✓     | ✓     | ✓             | ✓                | ✓
+| Bluesky atproto |            |       | ✓     |               | ✓                | Requires an attached account
+| RSS / Atom      | ✓          |       | ✓     |               | ✓                |
 
-Supported platforms:
+Supported account types:
 
 |               | Crosspost  | Inbox | Notifications       | Imported Favorites   | Authentication
 | ------------- | ---------- | ----- | ------------------- | -------------------- | --------------------
