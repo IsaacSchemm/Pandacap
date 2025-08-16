@@ -8,6 +8,7 @@ using Pandacap.FurAffinity;
 using Pandacap.HighLevel;
 using Pandacap.Models;
 using System.Linq;
+using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -67,6 +68,98 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Setup));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewArtwork(
+            int id,
+            CancellationToken cancellationToken)
+        {
+            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
+                ?? throw new Exception("Fur Affinity connection not available");
+
+            var submission = await FAExport.GetSubmissionAsync(
+                httpClientFactory,
+                credentials,
+                id,
+                cancellationToken);
+
+            ViewBag.Id = id;
+
+            return View(submission);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToFavorites(
+            int id,
+            CancellationToken cancellationToken)
+        {
+            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
+                ?? throw new Exception("Fur Affinity connection not available");
+
+            var submission = await FAExport.GetSubmissionAsync(
+                httpClientFactory,
+                credentials,
+                id,
+                cancellationToken);
+
+            await FA.FavAsync(
+                credentials,
+                id,
+                submission.fav_key,
+                cancellationToken);
+
+            context.FurAffinityFavorites.Add(new()
+            {
+                Id = Guid.NewGuid(),
+                SubmissionId = id,
+                Title = submission.title,
+                Thumbnail = submission.thumbnail,
+                Link = submission.link,
+                PostedBy = new()
+                {
+                    Name = submission.name,
+                    ProfileName = submission.profile_name,
+                    Url = submission.profile
+                },
+                PostedAt = submission.posted_at,
+                FavoritedAt = DateTime.UtcNow.Date
+            });
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction(nameof(ViewArtwork), new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveFromFavorites(
+            int id,
+            CancellationToken cancellationToken)
+        {
+            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
+                ?? throw new Exception("Fur Affinity connection not available");
+
+            var submission = await FAExport.GetSubmissionAsync(
+                httpClientFactory,
+                credentials,
+                id,
+                cancellationToken);
+
+            await FA.UnfavAsync(
+                credentials,
+                id,
+                submission.fav_key,
+                cancellationToken);
+
+            context.FurAffinityFavorites.RemoveRange(
+                context.FurAffinityFavorites.Where(
+                    f => f.SubmissionId == id));
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction(nameof(ViewArtwork), new { id });
         }
 
         [HttpPost]

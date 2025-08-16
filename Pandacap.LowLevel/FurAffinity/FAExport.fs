@@ -25,6 +25,28 @@ module FAExport =
         return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<User>(cancellationToken)
     }
 
+    type SubmissionDetail = {
+        title: string
+        description: string
+        name: string
+        profile: string
+        profile_name: string
+        avatar: string
+        link: string
+        posted_at: DateTimeOffset
+        download: string
+        thumbnail: string
+        keywords: string list
+        fav_status: bool
+        fav_key: string
+    }
+
+    let GetSubmissionAsync factory credentials (id: int) cancellationToken = task {
+        use client = getClient factory credentials
+        use! resp = client.GetAsync($"/submission/{id}.json", cancellationToken = cancellationToken)
+        return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<SubmissionDetail>(cancellationToken)
+    }
+
     type Submission = {
         id: int
         title: string

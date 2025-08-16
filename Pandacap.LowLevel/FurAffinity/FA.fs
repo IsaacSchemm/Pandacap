@@ -80,6 +80,18 @@ module FA =
         })
     }
 
+    let FavAsync credentials id (key: string) cancellationToken = task {
+        use client = getClient credentials
+        use! resp = client.GetAsync($"/fav/{id}/?key={Uri.EscapeDataString(key)}", cancellationToken = cancellationToken)
+        ignore (resp.EnsureSuccessStatusCode())
+    }
+
+    let UnfavAsync credentials id (key: string) cancellationToken = task {
+        use client = getClient credentials
+        use! resp = client.GetAsync($"/unfav/{id}/?key={Uri.EscapeDataString(key)}", cancellationToken = cancellationToken)
+        ignore (resp.EnsureSuccessStatusCode())
+    }
+
     module private Scraper =
         let getName node =
             node

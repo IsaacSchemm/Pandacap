@@ -1,0 +1,73 @@
+﻿@model Pandacap.FurAffinity.FAExport.SubmissionDetail
+
+@{
+    ViewBag.Title = "View Fur Affinity Artwork";
+}
+
+<h1>
+    <img height="50" src="@(Model.avatar ?? "/images/trgray.svg")" alt="" />
+    <span style="display: inline-block; vertical-align: top">
+        <strong>
+            <a href="@Model.profile" target="_blank">
+                @Model.profile_name
+            </a>
+        </strong>
+    </span>
+</h1>
+
+<hr />
+
+<h1>
+    <strong>@Model.title</strong>
+</h1>
+
+<style type="text/css">
+    .contentImage {
+        width: 400px;
+        height: 400px;
+        max-width: calc(100vw - 100px);
+        max-height: calc(100vh - 100px);
+        background-color: rgba(128, 128, 128, 0.25);
+        object-fit: contain;
+    }
+</style>
+
+@if (Model.thumbnail != null)
+{
+    <p>
+        <a href="@Model.download">
+            <img src="@Model.thumbnail"
+                 alt=""
+                 class="contentImage" />
+        </a>
+    </p>
+}
+
+<p>
+    @Html.Raw(new Ganss.Xss.HtmlSanitizer().Sanitize(Model.description))
+</p>
+
+<p class="text-muted">
+    <a href="@Model.link" target="_blank">
+        @Model.posted_at
+    </a>
+</p>
+
+<hr />
+
+<p>
+    @if (Model.fav_status)
+    {
+        <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
+            <input type="hidden" name="id" value="@ViewBag.Id" />
+            <button class="btn btn-danger btn-sm">Remove from Favorites</button>
+        </form>
+    }
+    else
+    {
+        <form asp-action="AddToFavorites" class="d-inline">
+            <input type="hidden" name="id" value="@ViewBag.Id" />
+            <button class="btn btn-primary btn-sm">Add to Favorites</button>
+        </form>
+    }
+</p>
