@@ -13,17 +13,8 @@ namespace Pandacap
 
             var defaultBadge = PostPlatformModule.GetBadge(platform);
 
-            if (url == null)
+            if (url == null || !Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
                 return [defaultBadge];
-
-            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
-                return [defaultBadge];
-
-            if (uri.Host == "bsky.brid.gy")
-                return [new(
-                    uri.Host,
-                    "white",
-                    "#3c8fff")];
 
             return [new(
                 uri.Host,
