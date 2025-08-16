@@ -33,6 +33,10 @@
                             <p>
                                 @foreach (var provider in Model.ExternalLogins!)
                                 {
+                                    if (provider.Name != "Microsoft")
+                                    {
+                                        continue;
+                                    }
                                     <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
                                 }
                             </p>

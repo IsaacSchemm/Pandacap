@@ -7,11 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using System.Text;
 
 namespace Pandacap.Areas.Identity.Pages.Account
@@ -23,25 +21,19 @@ namespace Pandacap.Areas.Identity.Pages.Account
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
-        private readonly ApplicationInformation _applicationInformation;
-        private readonly PandacapDbContext _context;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
             SignInManager<IdentityUser> signInManager,
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
-            ILogger<ExternalLoginModel> logger,
-            ApplicationInformation applicationInformation,
-            PandacapDbContext context)
+            ILogger<ExternalLoginModel> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _logger = logger;
-            _applicationInformation = applicationInformation;
-            _context = context;
         }
 
         /// <summary>
@@ -130,8 +122,6 @@ namespace Pandacap.Areas.Identity.Pages.Account
                     info.LoginProvider,
                     info.ProviderKey);
 
-                await UpdateTokensAsync(user, info);
-
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
                 return LocalRedirect(returnUrl);
             }
@@ -176,8 +166,6 @@ namespace Pandacap.Areas.Identity.Pages.Account
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
-                        await UpdateTokensAsync(user, info);
-
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
                         var userId = await _userManager.GetUserIdAsync(user);
@@ -231,56 +219,6 @@ namespace Pandacap.Areas.Identity.Pages.Account
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<IdentityUser>)_userStore;
-        }
-
-        private async Task UpdateTokensAsync(IdentityUser user, ExternalLoginInfo info)
-        {
-            if (info.LoginProvider == "DeviantArt")
-            {
-                var credentials = await _context.DeviantArtCredentials
-                    .Where(c => c.Username == info.Principal.Identity.Name)
-                    .FirstOrDefaultAsync();
-                if (credentials == null)
-                {
-                    credentials = new DeviantArtCredentials
-                    {
-                        Username = info.Principal.Identity.Name
-                    };
-                    _context.DeviantArtCredentials.Add(credentials);
-                }
-                credentials.AccessToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "access_token")
-                    .Select(t => t.Value)
-                    .Single();
-                credentials.RefreshToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "refresh_token")
-                    .Select(t => t.Value)
-                    .Single();
-                await _context.SaveChangesAsync();
-            }
-            else if (info.LoginProvider == "Reddit")
-            {
-                var credentials = await _context.RedditCredentials
-                    .Where(c => c.Username == info.Principal.Identity.Name)
-                    .FirstOrDefaultAsync();
-                if (credentials == null)
-                {
-                    credentials = new RedditCredentials
-                    {
-                        Username = info.Principal.Identity.Name
-                    };
-                    _context.RedditCredentials.Add(credentials);
-                }
-                credentials.AccessToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "access_token")
-                    .Select(t => t.Value)
-                    .Single();
-                credentials.RefreshToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "refresh_token")
-                    .Select(t => t.Value)
-                    .Single();
-                await _context.SaveChangesAsync();
-            }
         }
     }
 }
