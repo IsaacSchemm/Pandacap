@@ -33,10 +33,7 @@ if (builder.Configuration["CosmosDBAccountEndpoint"] is string cosmosDBAccountEn
     }
 }
 
-if (builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING") is string connStr)
-{
-    builder.Services.AddDbContextFactory<PandacapIdentityDbContext>(options => options.UseSqlServer(connStr));
-}
+builder.Services.AddDbContextFactory<PandacapIdentityDbContext>(options => options.UseInMemoryDatabase(nameof(PandacapIdentityDbContext)));
 
 builder.Services.AddAzureClients(clientBuilder =>
 {
