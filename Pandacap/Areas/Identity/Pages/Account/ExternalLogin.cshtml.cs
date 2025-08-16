@@ -146,7 +146,7 @@ namespace Pandacap.Areas.Identity.Pages.Account
                 ProviderDisplayName = info.ProviderDisplayName;
                 Input = new InputModel
                 {
-                    UserName = info.Principal.FindFirstValue(ClaimTypes.Name)
+                    UserName = "admin"
                 };
                 return Page();
             }
