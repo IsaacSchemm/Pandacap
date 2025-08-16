@@ -108,11 +108,12 @@ Libraries:
 This application runs on the following Azure resources:
 
 * A Cosmos DB NoSQL database (for data storage)
-* An Azure SQL database (for ASP.NET Core Identity)
 * An Azure Functions app
 * A web app
 * A Key Vault
 * A blob storage account
+
+ASP.NET Core Identity is backed by an in-memory database (since 11.1.0); the only allowed login method is via Microsoft account, but DeviantArt and Reddit accounts can be added in user management (which will connect these accounts to Pandacap's main database).
 
 The web app and function app must have the appropriate IAM permissions to access the storage account (Storage Blob Data Contributor) and the key vault (Key Vault Crypto User).
 
