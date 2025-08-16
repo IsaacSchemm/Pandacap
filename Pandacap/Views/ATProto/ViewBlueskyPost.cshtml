@@ -74,13 +74,49 @@
 
 <hr />
 
-<p>
-    <form asp-action="AddToFavorites" class="d-inline">
-        <input type="hidden" name="id" value="@Model.Id" />
-        <button class="btn btn-primary">Add to Favorites</button>
-    </form>
-    <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
-        <input type="hidden" name="id" value="@Model.Id" />
-        <button class="btn btn-danger">Remove from Favorites</button>
-    </form>
-</p>
+@if (!Model.IsInFavorites)
+{
+    <p>
+        <form asp-action="AddToFavorites">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn btn-primary btn-sm">Add to Favorites</button>
+        </form>
+    </p>
+}
+else
+{
+    if (Model.Liked)
+    {
+        <p>
+            <form asp-action="Unlike">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button class="btn btn-danger btn-sm">Unlike</button>
+            </form>
+        </p>
+    }
+    else if (Model.CanLike)
+    {
+        <p>
+            <form asp-action="Like">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button class="btn btn-primary btn-sm">Like</button>
+            </form>
+        </p>
+    }
+
+    <p>
+        <form asp-action="RemoveFromFavorites" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn btn-danger btn-sm">Remove from Favorites</button>
+        </form>
+    </p>
+}
+
+@if (Model.BridgyFedObjectId is string objectId)
+{
+    <p>
+        <a asp-controller="RemotePosts" asp-action="Index" asp-route-id="@objectId" class="btn btn-outline-primary btn-sm">
+            View and reply with ActivityPub
+        </a>
+    </p>
+}

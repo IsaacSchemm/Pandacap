@@ -5,12 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Pandacap;
 using Pandacap.ActivityPub.Inbound;
+using Pandacap.Clients;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.Clients;
-using Pandacap.Signatures;
+using Pandacap.HighLevel.ATProto;
 using Pandacap.Podcasts;
+using Pandacap.Signatures;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,7 @@ builder.Services
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
+    .AddScoped<BlueskyAgent>()
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<ComputerVisionProvider>()
     .AddScoped<DeliveryInboxCollector>()

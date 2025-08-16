@@ -1,9 +1,8 @@
-﻿using CodeHollow.FeedReader;
-using Microsoft.EntityFrameworkCore;
-using Pandacap.Clients.ATProto;
+﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.Clients.ATProto.Public;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using BlueskyFeed = Pandacap.Clients.ATProto.BlueskyFeed;
+using BlueskyFeed = Pandacap.Clients.ATProto.Public.BlueskyFeed;
 
 namespace Pandacap.Functions.InboxHandlers
 {

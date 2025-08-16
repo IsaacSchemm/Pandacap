@@ -1,13 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pandacap.ActivityPub.Communication;
+using Pandacap.Clients;
 using Pandacap.ConfigurationObjects;
+using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.HighLevel.Lemmy;
 using Pandacap.HighLevel.Notifications;
 using Pandacap.HighLevel.RssInbound;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.Weasyl;
-using Pandacap.Clients;
 using Pandacap.LowLevel.MyLinks;
 
 namespace Pandacap.HighLevel
@@ -34,6 +35,8 @@ namespace Pandacap.HighLevel
                 .AddScoped<ActivityPubReplyNotificationHandler>()
                 .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<AtomRssFeedReader>()
+                .AddScoped<ATProtoCredentialProvider>()
+                .AddScoped<ATProtoNotificationHandler>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<CompositeNotificationHandler>()
                 .AddScoped<DeviantArtCredentialProvider>()

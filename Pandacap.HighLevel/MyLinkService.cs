@@ -35,6 +35,17 @@ namespace Pandacap.HighLevel
 
         private async IAsyncEnumerable<MyLink> EnumerateLinks()
         {
+            await foreach (var x in context.ATProtoCredentials)
+            {
+                if (x.CrosspostTargetSince == null)
+                    continue;
+
+                yield return new(
+                    platformName: "Bluesky",
+                    url: $"https://bsky.app/profile/{x.Handle ?? x.DID}",
+                    linkText: x.Handle ?? x.DID);
+            }
+
             await foreach (var x in context.DeviantArtCredentials)
             {
                 yield return new(

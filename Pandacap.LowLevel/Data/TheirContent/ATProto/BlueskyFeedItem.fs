@@ -36,6 +36,8 @@ type BlueskyFeedItem() =
         member this.DID = this.Author.DID
         member this.PDS = this.Author.PDS
         member this.RecordKey = this.RecordKey
+        member _.Liked = false
+        member _.InFavorites = false
 
     interface IInboxPost with
         member this.DismissedAt

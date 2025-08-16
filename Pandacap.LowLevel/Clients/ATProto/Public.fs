@@ -1,4 +1,4 @@
-﻿namespace Pandacap.Clients.ATProto
+﻿namespace Pandacap.Clients.ATProto.Public
 
 open System
 open System.Net.Http

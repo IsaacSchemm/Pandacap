@@ -122,6 +122,25 @@
     <details>
         <summary class="mb-3">Actions</summary>
 
+        @if (Model.Post.BlueskyRecordKey == null)
+        {
+            <form asp-action="CrosspostToBluesky" asp-controller="ATProto" method="get" class="mb-3">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-success">
+                    Post to Bluesky
+                </button>
+            </form>
+        }
+        else
+        {
+            <form asp-action="Detach" asp-controller="ATProto" class="mb-3" onsubmit="This will remove the 'View on Bluesky' button; it will not delete the post from Bluesky.">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-warning">
+                    Detach Bluesky post
+                </button>
+            </form>
+        }
+
         @if (Model.Post.DeviantArtId == null)
         {
             <form asp-action="Crosspost" asp-controller="DeviantArt" class="mb-3">
