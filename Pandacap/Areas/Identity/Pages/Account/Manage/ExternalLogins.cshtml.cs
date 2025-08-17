@@ -86,6 +86,8 @@ namespace Pandacap.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
+            await UpdateTokensAsync(loginProvider, null);
+
             var result = await _userManager.RemoveLoginAsync(user, loginProvider, providerKey);
             if (!result.Succeeded)
             {
@@ -131,7 +133,7 @@ namespace Pandacap.Areas.Identity.Pages.Account.Manage
                 return RedirectToPage();
             }
 
-            await UpdateTokensAsync(user, info);
+            await UpdateTokensAsync(info.LoginProvider, info);
 
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
@@ -140,52 +142,66 @@ namespace Pandacap.Areas.Identity.Pages.Account.Manage
             return RedirectToPage();
         }
 
-        private async Task UpdateTokensAsync(IdentityUser user, ExternalLoginInfo info)
+        private async Task UpdateTokensAsync(string loginProvider, ExternalLoginInfo info)
         {
-            if (info.LoginProvider == "DeviantArt")
+            if (loginProvider == "DeviantArt")
             {
-                var credentials = await _context.DeviantArtCredentials
-                    .Where(c => c.Username == info.Principal.Identity.Name)
-                    .FirstOrDefaultAsync();
-                if (credentials == null)
+                if (info != null)
                 {
-                    credentials = new DeviantArtCredentials
+                    var credentials = await _context.DeviantArtCredentials
+                        .Where(c => c.Username == info.Principal.Identity.Name)
+                        .FirstOrDefaultAsync();
+                    if (credentials == null)
                     {
-                        Username = info.Principal.Identity.Name
-                    };
-                    _context.DeviantArtCredentials.Add(credentials);
+                        credentials = new DeviantArtCredentials
+                        {
+                            Username = info.Principal.Identity.Name
+                        };
+                        _context.DeviantArtCredentials.Add(credentials);
+                    }
+                    credentials.AccessToken = info.AuthenticationTokens
+                        .Where(t => t.Name == "access_token")
+                        .Select(t => t.Value)
+                        .Single();
+                    credentials.RefreshToken = info.AuthenticationTokens
+                        .Where(t => t.Name == "refresh_token")
+                        .Select(t => t.Value)
+                        .Single();
                 }
-                credentials.AccessToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "access_token")
-                    .Select(t => t.Value)
-                    .Single();
-                credentials.RefreshToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "refresh_token")
-                    .Select(t => t.Value)
-                    .Single();
+                else
+                {
+                    _context.RemoveRange(_context.DeviantArtCredentials);
+                }
                 await _context.SaveChangesAsync();
             }
-            else if (info.LoginProvider == "Reddit")
+            else if (loginProvider == "Reddit")
             {
-                var credentials = await _context.RedditCredentials
-                    .Where(c => c.Username == info.Principal.Identity.Name)
-                    .FirstOrDefaultAsync();
-                if (credentials == null)
+                if (info != null)
                 {
-                    credentials = new RedditCredentials
+                    var credentials = await _context.RedditCredentials
+                        .Where(c => c.Username == info.Principal.Identity.Name)
+                        .FirstOrDefaultAsync();
+                    if (credentials == null)
                     {
-                        Username = info.Principal.Identity.Name
-                    };
-                    _context.RedditCredentials.Add(credentials);
+                        credentials = new RedditCredentials
+                        {
+                            Username = info.Principal.Identity.Name
+                        };
+                        _context.RedditCredentials.Add(credentials);
+                    }
+                    credentials.AccessToken = info.AuthenticationTokens
+                        .Where(t => t.Name == "access_token")
+                        .Select(t => t.Value)
+                        .Single();
+                    credentials.RefreshToken = info.AuthenticationTokens
+                        .Where(t => t.Name == "refresh_token")
+                        .Select(t => t.Value)
+                        .Single();
                 }
-                credentials.AccessToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "access_token")
-                    .Select(t => t.Value)
-                    .Single();
-                credentials.RefreshToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "refresh_token")
-                    .Select(t => t.Value)
-                    .Single();
+                else
+                {
+                    _context.RemoveRange(_context.RedditCredentials);
+                }
                 await _context.SaveChangesAsync();
             }
         }
