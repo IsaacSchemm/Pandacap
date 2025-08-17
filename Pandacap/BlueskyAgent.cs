@@ -3,12 +3,14 @@ using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.Clients.ATProto.Private;
 using Pandacap.HighLevel.ATProto;
+using Microsoft.EntityFrameworkCore;
 
 namespace Pandacap
 {
     public class BlueskyAgent(
         ATProtoCredentialProvider atProtoCredentialProvider,
         BlobServiceClient blobServiceClient,
+        PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
         public async Task CreateBlueskyPostAsync(Post submission, string text)
@@ -58,8 +60,14 @@ namespace Pandacap
             submission.BlueskyRecordKey = post.RecordKey;
         }
 
-        public async Task LikeBlueskyPostAsync(BlueskyFavorite favorite, string did)
+        public async Task LikeBlueskyPostAsync(Guid id, string did)
         {
+            IBlueskyPost? dbPost =
+                await context.BlueskyFavorites.SingleOrDefaultAsync(b => b.Id == id)
+                ?? await context.BlueskyFeedItems.SingleOrDefaultAsync(b => b.Id == id)
+                ?? (IBlueskyPost?)null
+                ?? throw new Exception("Post not found in Favorites or Inbox");
+
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
@@ -71,36 +79,41 @@ namespace Pandacap
                 httpClient,
                 wrapper,
                 Repo.Record.NewLike(new(
-                    uri: $"at://{favorite.CreatedBy.DID}/app.bsky.feed.post/{favorite.RecordKey}",
-                    cid: favorite.CID)));
+                    uri: $"at://{dbPost.DID}/app.bsky.feed.post/{dbPost.RecordKey}",
+                    cid: dbPost.CID)));
 
-            favorite.Likes ??= [];
-            favorite.Likes.Add(new()
+            context.BlueskyLikes.Add(new()
             {
-                DID = wrapper.DID,
-                RecordKey = like.RecordKey
+                Id = Guid.NewGuid(),
+                DID = did,
+                SubjectCID = dbPost.CID,
+                SubjectRecordKey = dbPost.RecordKey,
+                LikeCID = like.cid,
+                LikeRecordKey = like.RecordKey
             });
+
+            await context.SaveChangesAsync();
         }
 
-        public async Task UnlikeBlueskyPostAsync(BlueskyFavorite favorite, string did)
+        public async Task UnlikeBlueskyPostAsync(Guid id, string did)
         {
-            favorite.Likes ??= [];
+            IBlueskyPost? dbPost =
+                await context.BlueskyFavorites.SingleOrDefaultAsync(b => b.Id == id)
+                ?? await context.BlueskyFeedItems.SingleOrDefaultAsync(b => b.Id == id)
+                ?? (IBlueskyPost?)null
+                ?? throw new Exception("Post not found in Favorites or Inbox");
 
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            foreach (var like in favorite.Likes)
+            await foreach (var like in context.BlueskyLikes
+                .Where(l => l.SubjectCID == dbPost.CID)
+                .AsAsyncEnumerable())
             {
-                var wrapper = await atProtoCredentialProvider.GetCredentialsAsync(did);
-                if (wrapper != null)
-                    await Repo.DeleteRecordAsync(
-                        httpClient,
-                        wrapper,
-                        "app.bsky.feed.like",
-                        like.RecordKey);
+                context.Remove(like);
             }
 
-            favorite.Likes = [];
+            await context.SaveChangesAsync();
         }
     }
 }

@@ -33,10 +33,10 @@ type BlueskyFeedItem() =
     member val DismissedAt = nullDateTimeOffset with get, set
 
     interface IBlueskyPost with
+        member this.CID = this.CID
         member this.DID = this.Author.DID
         member this.PDS = this.Author.PDS
         member this.RecordKey = this.RecordKey
-        member _.LikedBy = Seq.empty
         member _.InFavorites = false
 
     interface IInboxPost with
@@ -50,8 +50,8 @@ type BlueskyFeedItem() =
         member _.Platform = Bluesky
         member this.Url = $"https://{this.PostedBy.PDS}"
         member this.DisplayTitle =
-            ExcerptGenerator.FromText 60 this.Text
-            |> TitleGenerator.FromBody
+            TitleGenerator.FromBody this.Text
+            |> ExcerptGenerator.FromText 60
         member this.Id = $"{this.Id}"
         member this.LinkUrl = $"/ATProto/ViewBlueskyPost?id={this.Id}"
         member this.PostedAt = this.CreatedAt

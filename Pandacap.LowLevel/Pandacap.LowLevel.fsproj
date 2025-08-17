@@ -78,6 +78,7 @@
     <Compile Include="Data\TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\PostActivity.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\RemoteActivityPubReply.fs" />
+    <Compile Include="Data\TheirContent\ATProto\BlueskyLike.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyFavorite.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyFeedItem.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\DeviantArtFavorite.fs" />

@@ -16,10 +16,6 @@ type BlueskyFavoriteImage() =
     member val Fullsize = "" with get, set
     member val Alt = "" with get, set
 
-type BlueskyFavoriteLike() =
-    member val DID = "" with get, set
-    member val RecordKey = "" with get, set
-
 type BlueskyFavorite() =
     [<Key>]
     member val Id = Guid.Empty with get, set
@@ -32,13 +28,12 @@ type BlueskyFavorite() =
     member val HiddenAt = nullDateTimeOffset with get, set
     member val Text = "" with get, set
     member val Images = new ResizeArray<BlueskyFavoriteImage>() with get, set
-    member val Likes = new ResizeArray<BlueskyFavoriteLike>() with get, set
 
     interface IBlueskyPost with
+        member this.CID = this.CID
         member this.DID = this.CreatedBy.DID
         member this.PDS = this.CreatedBy.PDS
         member this.RecordKey = this.RecordKey
-        member this.LikedBy = seq { for l in this.Likes do l.DID }
         member _.InFavorites = true
 
     interface IFavorite with

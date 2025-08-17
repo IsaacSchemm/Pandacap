@@ -192,6 +192,11 @@ namespace Pandacap.Controllers
 
             var bridgyFedHandle = await bridgyFedHandleTask;
 
+            var likedBy = await context.BlueskyLikes
+                .Where(like => like.SubjectCID == dbPost.CID)
+                .Select(like => like.DID)
+                .ToHashSetAsync(cancellationToken);
+
             var myProfiles = await context.ATProtoCredentials
                 .Select(c => new
                 {
@@ -202,7 +207,7 @@ namespace Pandacap.Controllers
                 .Select(c => new BlueskyPostInteractorViewModel(
                     c.DID,
                     c.Handle ?? c.DID,
-                    dbPost.LikedBy.Contains(profile.did)))
+                    likedBy.Contains(c.DID)))
                 .ToListAsync(cancellationToken);
 
             return View(
@@ -270,30 +275,18 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Like([FromForm] Guid id, string did, CancellationToken cancellationToken)
+        public async Task<IActionResult> Like([FromForm] Guid id, string did)
         {
-            var favorite = await context.BlueskyFavorites
-                .Where(f => f.Id == id)
-                .SingleAsync(cancellationToken);
-
-            await blueskyAgent.LikeBlueskyPostAsync(favorite, did);
-            await context.SaveChangesAsync(cancellationToken);
-
+            await blueskyAgent.LikeBlueskyPostAsync(id, did);
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Unlike([FromForm] Guid id, string did, CancellationToken cancellationToken)
+        public async Task<IActionResult> Unlike([FromForm] Guid id, string did)
         {
-            var favorite = await context.BlueskyFavorites
-                .Where(f => f.Id == id)
-                .SingleAsync(cancellationToken);
-
-            await blueskyAgent.UnlikeBlueskyPostAsync(favorite, did);
-            await context.SaveChangesAsync(cancellationToken);
-
+            await blueskyAgent.UnlikeBlueskyPostAsync(id, did);
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
         }
 
