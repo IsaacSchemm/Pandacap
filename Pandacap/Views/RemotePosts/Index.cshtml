@@ -32,6 +32,18 @@
 
 <hr />
 
+<h1>@post.Name</h1>
+
+<p>
+    <a href="@(post.Url ?? post.Id)">
+        @post.PostedAt.UtcDateTime.ToLongDateString()
+        @post.PostedAt.UtcDateTime.ToShortTimeString()</a>
+
+    <span class="badge" style="background-color: navy; color: white">
+        @post.Type?.Replace("https://www.w3.org/ns/activitystreams#", "")
+    </span>
+</p>
+
 @if (post.InReplyTo.Any())
 {
     <p>
@@ -44,10 +56,6 @@
         }
     </p>
 }
-
-<span class="badge" style="background-color: navy; color: white">
-    @post.Type?.Replace("https://www.w3.org/ns/activitystreams#", "")
-</span>
 
 @if (post.HasVisibleSummary || post.Sensitive)
 {
@@ -63,12 +71,6 @@ else
 {
     <partial name="_Content" model="@post" />
 }
-
-<p class="text-muted">
-    <a href="@(post.Url ?? post.Id)" target="_blank">
-        @post.PostedAt
-    </a>
-</p>
 
 <hr />
 
@@ -106,13 +108,6 @@ else
 
 <hr />
 
-@if (post.IsBridgyFed)
-{
-    <p>
-        Bridgy Fed must be enabled to send replies to this user.
-    </p>
-}
-
 <p>
     <form method="post" asp-action="Reply">
         <input type="hidden" name="id" value="@post.Id" />
@@ -127,14 +122,3 @@ else
         </div>
     </form>
 </p>
-
-@if (post.IsBridgyFed)
-{
-    <hr />
-
-    <p>
-        <div class="form-group">
-            <a class="btn btn-outline-primary" href="@post.Url">View and reply on Bluesky</a>
-        </div>
-    </p>
-}

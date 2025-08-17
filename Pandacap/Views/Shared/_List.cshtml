@@ -7,6 +7,22 @@
     <div class="row">
         @foreach (var item in Model)
         {
+            string url = item.LinkUrl;
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                if (item is ActivityPubLike a)
+                {
+                    url = Url.Action(action: "Index", controller: "RemotePosts", new { id = a.ObjectId })
+                        ?? item.LinkUrl;
+                }
+                else if (item is BlueskyFavorite b)
+                {
+                    url = Url.Action(action: "ViewBlueskyPost", controller: "ATProto", new { id = b.Id })
+                        ?? item.LinkUrl;
+                }
+            }
+
             var thumbnails = item.Thumbnails
                 .Take(1)
                 .DefaultIfEmpty(PostThumbnail.Empty);
@@ -14,7 +30,7 @@
             {
                 <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
                     <div class="card">
-                        <a href="@item.LinkUrl" style="text-decoration: none">
+                        <a href="@url" style="text-decoration: none">
                             <img src="@thumbnail.Url"
                             alt="@thumbnail.AltText"
                             referrerpolicy="no-referrer"
@@ -23,7 +39,7 @@
                     </div>
 
                     <label style="max-width: 100%; height: 3rem; overflow: hidden">
-                        <a href="@item.LinkUrl">@item.DisplayTitle</a>
+                        <a href="@url">@item.DisplayTitle</a>
                     </label>
 
                     <div class="mb-2">

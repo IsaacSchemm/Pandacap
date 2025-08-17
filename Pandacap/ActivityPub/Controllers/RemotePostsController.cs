@@ -7,6 +7,7 @@ using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Models;
 using System.Net;
+using System.Security.Authentication;
 
 namespace Pandacap.Controllers
 {
@@ -29,18 +30,25 @@ namespace Pandacap.Controllers
             if (User.Identity?.IsAuthenticated != true)
                 return Redirect(uri.AbsoluteUri);
 
-            var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
-
-            var favorite = await context.ActivityPubLikes
-                .Where(r => r.ObjectId == post.Id)
-                .SingleOrDefaultAsync(cancellationToken);
-
-            return View(new RemotePostViewModel
+            try
             {
-                RemotePost = post,
-                Liked = favorite?.LikedAt != null,
-                IsInFavorites = favorite != null
-            });
+                var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
+
+                var favorite = await context.ActivityPubLikes
+                    .Where(r => r.ObjectId == post.Id)
+                    .SingleOrDefaultAsync(cancellationToken);
+
+                return View(new RemotePostViewModel
+                {
+                    RemotePost = post,
+                    Liked = favorite?.LikedAt != null,
+                    IsInFavorites = favorite != null
+                });
+            }
+            catch (HttpRequestException ex) when (ex.InnerException is AuthenticationException)
+            {
+                return Redirect(uri.AbsoluteUri);
+            }
         }
 
         [HttpPost]

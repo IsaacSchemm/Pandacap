@@ -40,6 +40,22 @@ else
         <div class="row">
             @foreach (var item in Model.Items.Current)
             {
+                string url = item.LinkUrl;
+
+                if (User.Identity?.IsAuthenticated == true)
+                {
+                    if (item is ActivityPubLike a)
+                    {
+                        url = Url.Action(action: "Index", controller: "RemotePosts", new { id = a.ObjectId })
+                            ?? item.LinkUrl;
+                    }
+                    else if (item is BlueskyFavorite b)
+                    {
+                        url = Url.Action(action: "ViewBlueskyPost", controller: "ATProto", new { id = b.Id })
+                            ?? item.LinkUrl;
+                    }
+                }
+
                 <div class="col-12">
                     <div class="mb-2">
                         <img height="25" src="@item.Usericon" alt="" />
@@ -81,7 +97,7 @@ else
                     </div>
 
                     <p align="right" class="small text-muted">
-                        <a href="@item.LinkUrl">@item.PostedAt.Date.ToLongDateString()</a>
+                        <a href="@url">@item.PostedAt.Date.ToLongDateString()</a>
                     </p>
                 </div>
             }

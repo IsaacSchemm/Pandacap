@@ -59,25 +59,48 @@ To log in, the instance owner must use a Microsoft account that they have explic
 > **Any authenticated user can access the same data**.
 > This means authorization is the sole reponsibility of your Entra ID registration, so only one user account should be allowed access.
 
-Supported protocols:
+Supported protocols and platforms:
 
-|                 | Your Posts | Reply | Inbox | Notifications | Add to Favorites | Like
-| --------------- | ---------- | ----- | ----- | ------------- | ---------------- | ----
-| ActivityPub     | ✓          | ✓     | ✓     | ✓             | ✓                | ✓
-| Bluesky atproto |            |       | ✓     |               | ✓                | Requires an attached account
-| RSS / Atom      | ✓          |       | ✓     |               | ✓                |
+* ActivityPub
+    * Make your posts available automatically
+    * Send replies
+    * Follow users and view their posts in the inbox
+    * View notifications
+    * Add posts to Favorites
+    * Send likes
+* Bluesky
+    * Follow users and view their public posts in the inbox
+    * Add posts to Favorites
+* Furry Network
+    * Automatically import favorites from a specific account
+* RSS / Atom
+    * Make your posts available automatically
+    * Follow feeds and view their posts in the inbox
+    * Add posts to Favorites
+* Sheezy.Art
+    * Automatically import favorites from a specific account
 
-Supported account types:
+Supported protocols and platforms *through an external account*:
 
-|               | Crosspost  | Inbox | Notifications       | Imported Favorites   | Authentication
-| ------------- | ---------- | ----- | ------------------- | -------------------- | --------------------
-| Bluesky       | ✓          |       | ✓                   |                      | PDS / DID / Password
-| DeviantArt    | ✓          | ✓     | ✓ (Messages, Notes) | Favorites            | OAuth
-| Fur Affinity  | ✓          | ✓     | ✓ (Messages, Notes) | Favorites            | Manual cookie entry
-| Furry Network |            |       |                     | Favorites            |
-| Reddit        |            |       |                     | Upvotes              | OAuth
-| Sheezy.Art    |            |       |                     | Favorites            |
-| Weasyl        | ✓          | ✓     | ✓                   | Favorite Submissions | API key
+* Bluesky
+    * Crosspost
+    * View notifications
+    * Send likes
+* DeviantArt
+    * Crosspost
+    * View notifications (messages and notes)
+    * View posts from users you already follow in the Inbox
+    * Automatically import favorites
+* Fur Affinity
+    * Crosspost
+    * View notifications (messages and notes)
+    * View posts from users you already follow in the Inbox
+    * Automatically import favorites
+* Weasyl
+    * Crosspost
+    * View notifications
+    * View posts from users you already follow in the Inbox
+    * Automatically import favorites (submissions only)
 
 Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions, and Weasyl support relies on a PHP proxy script (included in this repository).
 
