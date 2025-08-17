@@ -24,6 +24,7 @@ namespace Pandacap.Controllers
         ApplicationInformation appInfo,
         AtomRssFeedReader atomRssFeedReader,
         BlobServiceClient blobServiceClient,
+        BridgyFedHandleProvider bridgyFedHandleProvider,
         CompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
@@ -79,26 +80,6 @@ namespace Pandacap.Controllers
                 await context.SaveChangesAsync(cancellationToken);
             }
 
-            async Task<string?> getBridgyFedHandle()
-            {
-                try
-                {
-                    using var client = httpClientFactory.CreateClient();
-                    client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
-
-                    var profile = await Profile.GetProfileAsync(
-                        client,
-                        "public.api.bsky.app",
-                        $"{appInfo.Username}.{appInfo.ApplicationHostname}.ap.brid.gy");
-
-                    return profile.handle;
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
-            }
-
             async Task<ProfileViewModel> buildModel()
             {
                 var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
@@ -106,7 +87,7 @@ namespace Pandacap.Controllers
 
                 return new ProfileViewModel
                 {
-                    BridgyFedHandle = await getBridgyFedHandle(),
+                    BridgyFedHandle = await bridgyFedHandleProvider.GetHandleAsync(),
                     MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                     RecentArtwork = await context.Posts
                         .Where(post => post.Type == PostType.Artwork)

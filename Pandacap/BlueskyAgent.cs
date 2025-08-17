@@ -58,12 +58,12 @@ namespace Pandacap
             submission.BlueskyRecordKey = post.RecordKey;
         }
 
-        public async Task LikeBlueskyPostAsync(BlueskyFavorite favorite)
+        public async Task LikeBlueskyPostAsync(BlueskyFavorite favorite, string did)
         {
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var wrapper = await atProtoCredentialProvider.GetCrosspostingCredentialsAsync();
+            var wrapper = await atProtoCredentialProvider.GetCredentialsAsync(did);
             if (wrapper == null)
                 return;
 
@@ -82,7 +82,7 @@ namespace Pandacap
             });
         }
 
-        public async Task UnlikeBlueskyPostAsync(BlueskyFavorite favorite)
+        public async Task UnlikeBlueskyPostAsync(BlueskyFavorite favorite, string did)
         {
             favorite.Likes ??= [];
 
@@ -91,7 +91,7 @@ namespace Pandacap
 
             foreach (var like in favorite.Likes)
             {
-                var wrapper = await atProtoCredentialProvider.GetCredentialsAsync(like.DID);
+                var wrapper = await atProtoCredentialProvider.GetCredentialsAsync(did);
                 if (wrapper != null)
                     await Repo.DeleteRecordAsync(
                         httpClient,

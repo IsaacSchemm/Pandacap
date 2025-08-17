@@ -38,7 +38,7 @@ type BlueskyFavorite() =
         member this.DID = this.CreatedBy.DID
         member this.PDS = this.CreatedBy.PDS
         member this.RecordKey = this.RecordKey
-        member this.Liked = this.Likes.Count > 0
+        member this.LikedBy = seq { for l in this.Likes do l.DID }
         member _.InFavorites = true
 
     interface IFavorite with

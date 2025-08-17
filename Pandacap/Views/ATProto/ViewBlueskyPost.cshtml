@@ -84,21 +84,6 @@
     }
     else
     {
-        if (Model.Liked)
-        {
-            <form asp-action="Unlike" class="d-inline">
-                <input type="hidden" name="id" value="@Model.Id" />
-                <button class="btn btn-danger btn-sm">Unlike</button>
-            </form>
-        }
-        else if (Model.CanLike)
-        {
-            <form asp-action="Like" class="d-inline">
-                <input type="hidden" name="id" value="@Model.Id"/>
-                <button class="btn btn-primary btn-sm">Like</button>
-            </form>
-        }
-
         <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
             <input type="hidden" name="id" value="@Model.Id" />
             <button class="btn btn-danger btn-sm">Remove from Favorites</button>
@@ -106,11 +91,61 @@
     }
 </p>
 
-@if (Model.BridgyFedObjectId is string objectId)
+@foreach (var profile in Model.MyProfiles)
 {
-    <p>
-        <a asp-controller="RemotePosts" asp-action="Index" asp-route-id="@objectId" class="btn btn-outline-primary btn-sm">
-            View and reply with ActivityPub
-        </a>
-    </p>
+    <hr />
+
+    <h2 class="visually-hidden">
+        Interact with this post as @profile.AccountName
+    </h2>
+
+    <details open>
+        <summary>
+            <strong>
+                @@@profile.AccountName
+            </strong>
+        </summary>
+
+        <div class="my-2">
+            @if (profile.Liked)
+            {
+                <form asp-action="Unlike" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="did" value="@profile.DID" />
+                    <button class="btn btn-danger btn-sm">Unlike</button>
+                </form>
+            }
+            else
+            {
+                <form asp-action="Like" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="did" value="@profile.DID" />
+                    <button class="btn btn-primary btn-sm">Like</button>
+                </form>
+            }
+
+            <a href="https://bsky.app/profile/@Model.ProfileResponse.did/post/@Model.Post.RecordKey" class="btn btn-outline-primary btn-sm">
+                View and reply on Bluesky
+            </a>
+        </div>
+    </details>
+}
+
+@if (Model.BridgyFedHandle is string handle && Model.BridgyFedObjectId is string objectId)
+{
+    <hr />
+
+    <details open>
+        <summary>
+            <strong>
+                @@@handle
+            </strong>
+        </summary>
+
+        <div class="my-2">
+            <a asp-controller="RemotePosts" asp-action="Index" asp-route-id="@Model.BridgyFedObjectId" class="btn btn-outline-primary btn-sm">
+                View and reply
+            </a>
+        </div>
+    </details>
 }

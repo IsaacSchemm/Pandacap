@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Pandacap.Clients.ATProto.Private;
 using Pandacap.Clients.ATProto.Public;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.ATProto;
 using Pandacap.Models;
 using BlueskyFeed = Pandacap.Clients.ATProto.Public.BlueskyFeed;
 
@@ -14,8 +14,8 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
-        ATProtoCredentialProvider atProtoCredentialProvider,
         BlueskyAgent blueskyAgent,
+        BridgyFedHandleProvider bridgyFedHandleProvider,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
     {
@@ -163,7 +163,7 @@ namespace Pandacap.Controllers
 
             var hasCredentials = await context.ATProtoCredentials
                 .Where(c => c.CrosspostTargetSince != null)
-                .DocumentCountAsync() > 0;
+                .DocumentCountAsync(cancellationToken) > 0;
 
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
@@ -173,6 +173,8 @@ namespace Pandacap.Controllers
             var bridgyFedResponseTask = client.GetAsync(
                 bridgyFedObjectId,
                 cancellationToken);
+
+            var bridgyFedHandleTask = bridgyFedHandleProvider.GetHandleAsync();
 
             var profile = await Profile.GetProfileAsync(
                 client,
@@ -188,17 +190,32 @@ namespace Pandacap.Controllers
 
             using var bridgyFedResponse = await bridgyFedResponseTask;
 
+            var bridgyFedHandle = await bridgyFedHandleTask;
+
+            var myProfiles = await context.ATProtoCredentials
+                .Select(c => new
+                {
+                    c.DID,
+                    c.Handle
+                })
+                .AsAsyncEnumerable()
+                .Select(c => new BlueskyPostInteractorViewModel(
+                    c.DID,
+                    c.Handle ?? c.DID,
+                    dbPost.LikedBy.Contains(profile.did)))
+                .ToListAsync(cancellationToken);
+
             return View(
                 new BlueskyPostViewModel(
-                    id,
-                    profile,
-                    post,
-                    CanLike: hasCredentials,
-                    Liked: dbPost.Liked,
+                    Id: id,
+                    ProfileResponse: profile,
+                    Post: post,
                     IsInFavorites: dbPost.InFavorites,
+                    MyProfiles: [.. myProfiles],
                     BridgyFedObjectId: bridgyFedResponse.IsSuccessStatusCode
                         ? bridgyFedObjectId
-                        : null));
+                        : null,
+                    BridgyFedHandle: bridgyFedHandle));
         }
 
         [HttpPost]
@@ -253,13 +270,13 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Like([FromForm] Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Like([FromForm] Guid id, string did, CancellationToken cancellationToken)
         {
             var favorite = await context.BlueskyFavorites
                 .Where(f => f.Id == id)
                 .SingleAsync(cancellationToken);
 
-            await blueskyAgent.LikeBlueskyPostAsync(favorite);
+            await blueskyAgent.LikeBlueskyPostAsync(favorite, did);
             await context.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
@@ -268,13 +285,13 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Unlike([FromForm] Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Unlike([FromForm] Guid id, string did, CancellationToken cancellationToken)
         {
             var favorite = await context.BlueskyFavorites
                 .Where(f => f.Id == id)
                 .SingleAsync(cancellationToken);
 
-            await blueskyAgent.UnlikeBlueskyPostAsync(favorite);
+            await blueskyAgent.UnlikeBlueskyPostAsync(favorite, did);
             await context.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
