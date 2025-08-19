@@ -6,6 +6,7 @@ using Pandacap.Clients.ATProto.Public;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using Pandacap.HighLevel.ATProto;
 using Pandacap.Models;
 using BlueskyFeed = Pandacap.Clients.ATProto.Public.BlueskyFeed;
 
@@ -13,7 +14,8 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
-        BlueskyAgent blueskyAgent,
+        ATProtoCredentialProvider atProtoCredentialProvider,
+        BlobServiceClient blobServiceClient,
         BridgyFedHandleProvider bridgyFedHandleProvider,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
@@ -126,14 +128,56 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrosspostToBluesky(BlueskyCrosspostViewModel model)
         {
-            var post = await context.Posts
+            var submission = await context.Posts
                 .Where(p => p.Id == model.Id)
                 .SingleAsync();
 
-            if (post.BlueskyRecordKey != null)
+            if (submission.BlueskyRecordKey != null)
                 throw new Exception("Already posted to atproto");
 
-            await blueskyAgent.CreateBlueskyPostAsync(post, model.TextContent);
+            using var httpClient = httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var wrapper = await atProtoCredentialProvider.GetCrosspostingCredentialsAsync();
+            if (wrapper == null)
+                return Forbid();
+
+            if (wrapper.DID == submission.BlueskyDID)
+                return NoContent();
+
+            async IAsyncEnumerable<Repo.PostImage> downloadImagesAsync()
+            {
+                foreach (var image in submission.Images)
+                {
+                    var blob = await blobServiceClient
+                        .GetBlobContainerClient("blobs")
+                        .GetBlobClient($"{image.Raster.Id}")
+                        .DownloadContentAsync();
+
+                    yield return await Repo.UploadBlobAsync(
+                        httpClient,
+                        wrapper,
+                        blob.Value.Content.ToArray(),
+                        image.Raster.ContentType,
+                        image.AltText);
+                }
+            }
+
+            var post = await Repo.CreateRecordAsync(
+                httpClient,
+                wrapper,
+                Repo.Record.NewPost(new(
+                    text: model.TextContent,
+                    createdAt: submission.PublishedTime,
+                    embed: Repo.PostEmbed.NewImages([
+                        .. await downloadImagesAsync().ToListAsync()
+                    ]),
+                    pandacapMetadata: [
+                        Repo.PandacapMetadata.NewPostId(submission.Id)
+                    ])));
+
+            submission.BlueskyDID = wrapper.DID;
+            submission.BlueskyRecordKey = post.RecordKey;
 
             await context.SaveChangesAsync();
 
@@ -286,7 +330,34 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Like(string pds, string author_did, string rkey, string my_did)
         {
-            await blueskyAgent.LikeBlueskyPostAsync(pds, author_did, rkey, my_did);
+            var post = await FetchBlueskyPostAsync(pds, author_did, rkey);
+
+            using var httpClient = httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var wrapper = await atProtoCredentialProvider.GetCredentialsAsync(my_did);
+            if (wrapper == null)
+                return Forbid();
+
+            var like = await Repo.CreateRecordAsync(
+                httpClient,
+                wrapper,
+                Repo.Record.NewLike(new(
+                    uri: post.uri,
+                    cid: post.cid)));
+
+            context.BlueskyLikes.Add(new()
+            {
+                Id = Guid.NewGuid(),
+                DID = my_did,
+                SubjectCID = post.cid,
+                SubjectRecordKey = post.RecordKey,
+                LikeCID = like.cid,
+                LikeRecordKey = like.RecordKey
+            });
+
+            await context.SaveChangesAsync();
+
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
         }
 
@@ -295,7 +366,27 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unlike(string rkey, string my_did)
         {
-            await blueskyAgent.UnlikeBlueskyPostAsync(rkey, my_did);
+            using var httpClient = httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var credentials = await atProtoCredentialProvider.GetCredentialsAsync(my_did);
+
+            await foreach (var like in context.BlueskyLikes
+                .Where(l => l.DID == my_did)
+                .Where(l => l.SubjectRecordKey == rkey)
+                .AsAsyncEnumerable())
+            {
+                if (credentials != null)
+                    await Repo.DeleteRecordAsync(
+                        httpClient,
+                        credentials,
+                        "app.bsky.feed.like",
+                        rkey);
+
+                context.Remove(like);
+                await context.SaveChangesAsync();
+            }
+
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
         }
 
