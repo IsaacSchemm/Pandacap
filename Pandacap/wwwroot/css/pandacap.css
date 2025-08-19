@@ -32,7 +32,7 @@
 }
 
 .comment .actions {
-    padding: 0.5rem 0;
+    display: none;
 }
 
 .comment .actions summary {

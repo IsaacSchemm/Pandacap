@@ -42,20 +42,22 @@
     <span class="badge" style="background-color: navy; color: white">
         @post.Type?.Replace("https://www.w3.org/ns/activitystreams#", "")
     </span>
-</p>
 
-@if (post.InReplyTo.Any())
-{
-    <p>
-        in reply to:
-        @foreach (string id in post.InReplyTo)
-        {
-            <a href="@id" target="_blank">
-                @id
-            </a>
-        }
-    </p>
-}
+    @if (post.InReplyTo.Any())
+    {
+        <br />
+
+        <span class="small">
+            in reply to:
+            @foreach (string id in post.InReplyTo)
+            {
+                <a href="@id" target="_blank">
+                    @id
+                </a>
+            }
+        </span>
+    }
+</p>
 
 @if (post.HasVisibleSummary || post.Sensitive)
 {
