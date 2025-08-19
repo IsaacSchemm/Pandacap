@@ -128,6 +128,22 @@ module BlueskyFeed =
                 "uris", uri
         ]
 
+    type PostThread = {
+        post: Post
+        replies: PostThread list option
+    } with
+        member this.RepliesOrEmpty = this.replies |> Option.defaultValue []
+
+    type PostThreadResponse = {
+        thread: PostThread
+    }
+
+    let GetPostThreadAsync httpClient pds uri =
+        Requests.getAsync<PostThreadResponse> httpClient pds "app.bsky.feed.getPostThread" [
+            "uri", uri
+            "depth", "2"
+        ]
+
     type Reason = {
         ``$type``: string
         by: Author

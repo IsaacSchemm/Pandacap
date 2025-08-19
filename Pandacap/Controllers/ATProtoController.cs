@@ -207,14 +207,19 @@ namespace Pandacap.Controllers
             string rkey,
             CancellationToken cancellationToken)
         {
-            var post = await FetchBlueskyPostAsync(pds, did, rkey);
+            using var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var threadResponse = await BlueskyFeed.GetPostThreadAsync(
+                client,
+                pds,
+                $"at://{did}/app.bsky.feed.post/{rkey}");
+
+            var thread = threadResponse.thread;
 
             var hasCredentials = await context.ATProtoCredentials
                 .Where(c => c.CrosspostTargetSince != null)
                 .DocumentCountAsync(cancellationToken) > 0;
-
-            using var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var bridgyFedObjectId = $"https://bsky.brid.gy/convert/ap/at://{did}/app.bsky.feed.post/{rkey}";
 
@@ -224,17 +229,12 @@ namespace Pandacap.Controllers
 
             var bridgyFedHandleTask = bridgyFedHandleProvider.GetHandleAsync();
 
-            var profile = await Profile.GetProfileAsync(
-                client,
-                pds,
-                did);
-
             using var bridgyFedResponse = await bridgyFedResponseTask;
 
             var bridgyFedHandle = await bridgyFedHandleTask;
 
             var likedBy = await context.BlueskyLikes
-                .Where(like => like.SubjectCID == post.cid)
+                .Where(like => like.SubjectCID == thread.post.cid)
                 .Select(like => like.DID)
                 .ToHashSetAsync(cancellationToken);
 
@@ -252,14 +252,13 @@ namespace Pandacap.Controllers
                 .ToListAsync(cancellationToken);
 
             var inFavorites = await context.BlueskyFavorites
-                .Where(f => f.CID == post.cid)
+                .Where(f => f.CID == thread.post.cid)
                 .DocumentCountAsync(cancellationToken) > 0;
 
             return View(
                 new BlueskyPostViewModel(
                     PDS: pds,
-                    ProfileResponse: profile,
-                    Post: post,
+                    Thread: thread,
                     IsInFavorites: inFavorites,
                     MyProfiles: [.. myProfiles],
                     BridgyFedObjectId: bridgyFedResponse.IsSuccessStatusCode
