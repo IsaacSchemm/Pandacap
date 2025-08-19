@@ -37,7 +37,8 @@ namespace Pandacap.Controllers
             string IPost.Url => Item.url.OrNull();
             string IPost.DisplayTitle => Item.title.OrNull() ?? $"{Item.deviationid}";
             string IPost.Id => $"{Item.deviationid}";
-            string? IPost.LinkUrl => Item.url.OrNull();
+            string? IPost.InternalUrl => Item.url.OrNull();
+            string? IPost.ExternalUrl => Item.url.OrNull();
             DateTimeOffset IPost.PostedAt => Item.published_time.OrNull() ?? DateTimeOffset.MinValue;
             string? IPost.ProfileUrl => null;
             IEnumerable<IPostThumbnail> IPost.Thumbnails => Item.thumbs.OrEmpty()

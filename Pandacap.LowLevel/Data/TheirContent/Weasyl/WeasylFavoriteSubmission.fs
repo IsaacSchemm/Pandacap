@@ -38,7 +38,8 @@ type WeasylFavoriteSubmission() =
         member this.Url = this.Url
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = this.Url
+        member this.InternalUrl = this.Url
+        member this.ExternalUrl = this.Url
         member this.ProfileUrl = $"https://www.weasyl.com/~{Uri.EscapeDataString(this.PostedBy.Login)}"
         member this.Thumbnails = [
             for thumb in this.Thumbnails do {

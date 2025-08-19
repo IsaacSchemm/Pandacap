@@ -42,7 +42,8 @@ type RssFeedItem() =
         member this.Url = this.Url
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"/RssFeedItem?id={this.Id}"
+        member this.InternalUrl = $"/RssFeedItem?id={this.Id}"
+        member this.ExternalUrl = this.Url
         member this.PostedAt = this.Timestamp
         member this.ProfileUrl = this.FeedWebsiteUrl
         member this.Thumbnails =

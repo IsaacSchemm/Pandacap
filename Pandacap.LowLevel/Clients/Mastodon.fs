@@ -64,7 +64,8 @@ module Mastodon =
                             |> TitleGenerator.FromBody
                             |> ExcerptGenerator.FromText 60
                     member _.Id = post.id
-                    member _.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(post.uri)}"
+                    member _.InternalUrl = $"/RemotePosts?id={Uri.EscapeDataString(post.uri)}"
+                    member _.ExternalUrl = post.uri
                     member _.PostedAt = post.created_at
                     member _.ProfileUrl = post.account.url
                     member _.Thumbnails = [

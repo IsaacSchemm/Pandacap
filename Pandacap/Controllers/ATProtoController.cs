@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Clients.ATProto.Private;
@@ -198,28 +199,6 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction("Index", "UserPosts", new { id });
-        }
-
-        public async Task<IActionResult> ViewKnownBlueskyPost(
-            Guid id,
-            CancellationToken cancellationToken)
-        {
-            var dbPost =
-                await context.BlueskyFavorites.Where(b => b.Id == id).SingleOrDefaultAsync(cancellationToken)
-                ?? await context.BlueskyFeedItems.Where(b => b.Id == id).SingleOrDefaultAsync(cancellationToken)
-                ?? (IBlueskyPost?)null;
-
-            if (dbPost == null)
-                return NotFound();
-
-            return RedirectToAction(
-                nameof(ViewBlueskyPost),
-                new
-                {
-                    pds = dbPost.PDS,
-                    did = dbPost.DID,
-                    rkey = dbPost.RecordKey
-                });
         }
 
         public async Task<IActionResult> ViewBlueskyPost(

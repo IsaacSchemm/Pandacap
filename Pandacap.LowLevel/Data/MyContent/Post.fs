@@ -109,7 +109,8 @@ type Post() =
             | PostType.StatusUpdate -> "Status update"
             | _ -> this.Title
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"/UserPosts/{this.Id}"
+        member this.InternalUrl = $"/UserPosts/{this.Id}"
+        member this.ExternalUrl = $"/UserPosts/{this.Id}"
         member this.PostedAt = this.PublishedTime
         member _.ProfileUrl = null
         member this.Thumbnails = seq {

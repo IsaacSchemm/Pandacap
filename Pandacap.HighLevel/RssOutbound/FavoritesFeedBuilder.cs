@@ -30,11 +30,11 @@ namespace Pandacap.HighLevel.RssOutbound
                 yield return $"<p>by {linkify(WebUtility.HtmlEncode(favorite.Username), favorite.ProfileUrl)}</p>";
 
             foreach (var thumbnail in favorite.Thumbnails)
-                yield return $"<p>{linkify($"<img src='{thumbnail.Url}' height='250' alt='{thumbnail.AltText}' />", favorite.LinkUrl)}</p>";
+                yield return $"<p>{linkify($"<img src='{thumbnail.Url}' height='250' alt='{thumbnail.AltText}' />", favorite.ExternalUrl)}</p>";
 
             string platformName = favorite.Platform.ToString();
 
-            if (favorite.LinkUrl is string url)
+            if (favorite.ExternalUrl is string url)
                 yield return $"<p><a href='{url}'>View on {WebUtility.HtmlEncode(platformName)}</a></p>";
         }
 

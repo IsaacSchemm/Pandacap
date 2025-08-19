@@ -18,7 +18,8 @@ type Upload() =
             this.UploadedAt.UtcDateTime.ToShortTimeString()
         ]
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"/Uploads/{this.Id}"
+        member this.InternalUrl = $"/Uploads/{this.Id}"
+        member this.ExternalUrl = $"/Uploads/{this.Id}"
         member this.PostedAt = this.UploadedAt
         member _.ProfileUrl = null
         member this.Thumbnails = [{

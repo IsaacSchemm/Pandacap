@@ -47,7 +47,8 @@ type AddressedPost() =
             TextConverter.FromHtml this.HtmlContent
         })
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"/AddressedPosts/{this.Id}"
+        member this.InternalUrl = $"/AddressedPosts/{this.Id}"
+        member this.ExternalUrl = $"/AddressedPosts/{this.Id}"
         member this.PostedAt = this.PublishedTime
         member _.ProfileUrl = null
         member _.Thumbnails = []

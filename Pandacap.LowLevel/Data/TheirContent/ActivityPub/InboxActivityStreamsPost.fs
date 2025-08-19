@@ -50,7 +50,8 @@ type InboxActivityStreamsPost() =
             else
                 ExcerptGenerator.FromText 60 this.TextContent
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
+        member this.InternalUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
+        member this.ExternalUrl = $"{this.ObjectId}"
         member this.PostedAt = this.PostedAt
         member this.ProfileUrl = this.PostedBy.Id
         member this.Thumbnails = [

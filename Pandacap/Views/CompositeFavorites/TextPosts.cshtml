@@ -40,21 +40,9 @@ else
         <div class="row">
             @foreach (var item in Model.Items.Current)
             {
-                string url = item.LinkUrl;
-
-                if (User.Identity?.IsAuthenticated == true)
-                {
-                    if (item is ActivityPubLike a)
-                    {
-                        url = Url.Action(action: "Index", controller: "RemotePosts", new { id = a.ObjectId })
-                            ?? item.LinkUrl;
-                    }
-                    else if (item is BlueskyFavorite b)
-                    {
-                        url = Url.Action(action: "ViewKnownBlueskyPost", controller: "ATProto", new { id = b.Id })
-                            ?? item.LinkUrl;
-                    }
-                }
+                string url = User.Identity?.IsAuthenticated == true
+                    ? item.InternalUrl
+                    : item.ExternalUrl;
 
                 <div class="col-12">
                     <div class="mb-2">

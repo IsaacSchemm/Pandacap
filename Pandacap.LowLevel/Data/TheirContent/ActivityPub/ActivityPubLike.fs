@@ -53,7 +53,8 @@ type ActivityPubLike() =
                 |> TextConverter.FromHtml
                 |> TitleGenerator.FromBody
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"{this.ObjectId}"
+        member this.InternalUrl = $"/RemotePosts?id={Uri.EscapeDataString(this.ObjectId)}"
+        member this.ExternalUrl = $"{this.ObjectId}"
         member this.PostedAt = this.CreatedAt
         member this.ProfileUrl = this.CreatedBy
         member this.Thumbnails = [

@@ -30,7 +30,8 @@ type SheezyArtFavorite() =
         member this.Url = this.Url
         member this.DisplayTitle = this.Title
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = this.Url
+        member this.InternalUrl = this.Url
+        member this.ExternalUrl = this.Url
         member this.ProfileUrl = this.ProfileUrl
         member this.Thumbnails = [{
             new IPostThumbnail with

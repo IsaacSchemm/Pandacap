@@ -21,7 +21,8 @@ type IPost =
     abstract member Url: string
     abstract member DisplayTitle: string
     abstract member Id: string
-    abstract member LinkUrl: string
+    abstract member InternalUrl: string
+    abstract member ExternalUrl: string
     abstract member PostedAt: DateTimeOffset
     abstract member ProfileUrl: string
     abstract member Thumbnails: IPostThumbnail seq

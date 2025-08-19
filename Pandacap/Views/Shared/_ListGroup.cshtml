@@ -34,16 +34,20 @@
     <div class="row">
         @foreach (var item in withThumbnails)
         {
+            string url = User.Identity?.IsAuthenticated == true
+                ? item.InternalUrl
+                : item.ExternalUrl;
+
             var thumbnail = item.Thumbnails.FirstOrDefault();
             <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
                 @if (thumbnail != null)
                 {
                     <div class="card">
-                        <a href="@item.LinkUrl" style="text-decoration: none">
+                        <a href="@url" style="text-decoration: none">
                             <img src="@thumbnail.Url"
-                            alt="@thumbnail.AltText"
-                            referrerpolicy="no-referrer"
-                            class="feed-image" />
+                                 alt="@thumbnail.AltText"
+                                 referrerpolicy="no-referrer"
+                                 class="feed-image" />
                         </a>
                     </div>
                 }
@@ -60,7 +64,7 @@
                         {
                             <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
                         }
-                        <a href="@item.LinkUrl">@item.DisplayTitle</a>
+                        <a href="@url">@item.DisplayTitle</a>
                     </label>
                 }
             </div>
@@ -70,6 +74,10 @@
 
 @foreach (var item in withoutThumbnails)
 {
+    string url = User.Identity?.IsAuthenticated == true
+        ? item.InternalUrl
+        : item.ExternalUrl;
+
     <div class="mb-3">
         @if (item is Post myPost)
         {
@@ -115,7 +123,7 @@
         }
 
         <div class="small">
-            <a href="@item.LinkUrl">
+            <a href="@url">
                 @item.PostedAt.UtcDateTime.ToLongDateString()
             </a>
         </div>
