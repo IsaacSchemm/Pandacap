@@ -51,7 +51,7 @@
             in reply to:
             @foreach (string id in post.InReplyTo)
             {
-                <a href="@id" target="_blank">
+                <a asp-controller="RemotePosts" asp-action="Index" asp-route-id="@id" target="_blank">
                     @id
                 </a>
             }

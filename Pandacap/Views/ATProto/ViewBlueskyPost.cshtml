@@ -21,9 +21,22 @@
 {
     <p>
         in reply to:
-        <a href="@reply.parent.uri" target="_blank">
-            @reply.parent.uri
-        </a>
+
+        @{
+            try
+            {
+                var components = reply.parent.UriComponents;
+                <a asp-controller="ATProto" asp-action="ViewBlueskyPost" asp-route-pds="@Model.PDS" asp-route-did="@components.did" asp-route-rkey="@components.rkey">
+                    @reply.parent.uri
+                </a>
+            } 
+            catch (Exception)
+            {
+                <span>
+                    @reply.parent.uri
+                </span>
+            }
+        }
     </p>
 }
 
