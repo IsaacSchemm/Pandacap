@@ -258,22 +258,28 @@ module Repo =
 
     type PandacapMetadata = PostId of Guid | FavoriteId of string
 
+    type MinimalRecord = {
+        uri: string
+        cid: string
+    } with
+        member this.RecordKey = RecordKey.Extract this.uri
+
+    type InReplyTo = {
+        root: MinimalRecord
+        parent: MinimalRecord
+    }
+
     type Post = {
         Text: string
         CreatedAt: DateTimeOffset
         Embed: PostEmbed
+        InReplyTo: InReplyTo list
         PandacapMetadata: PandacapMetadata list
     }
 
     type ThreadGate = {
         Uri: string
     }
-
-    type MinimalRecord = {
-        uri: string
-        cid: string
-    } with
-        member this.RecordKey = RecordKey.Extract this.uri
 
     type Record =
     | Post of Post
@@ -307,6 +313,12 @@ module Repo =
                             "$type", "app.bsky.feed.post" :> obj
                             "text", post.Text
                             "createdAt", post.CreatedAt.ToString("o")
+
+                            for r in post.InReplyTo do
+                                "reply", dict [
+                                    "root", r.root
+                                    "parent", r.parent
+                                ]
 
                             for pm in post.PandacapMetadata do
                                 match pm with
