@@ -53,7 +53,7 @@ type BlueskyFeedItem() =
             TitleGenerator.FromBody this.Text
             |> ExcerptGenerator.FromText 60
         member this.Id = $"{this.Id}"
-        member this.LinkUrl = $"/ATProto/ViewBlueskyPost?id={this.Id}"
+        member this.LinkUrl = $"/ATProto/ViewKnownBlueskyPost?id={this.Id}"
         member this.PostedAt = this.CreatedAt
         member this.ProfileUrl = $"https://bsky.app/profile/{this.PostedBy.DID}"
         member this.Thumbnails = [

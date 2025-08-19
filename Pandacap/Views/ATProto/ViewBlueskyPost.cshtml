@@ -78,14 +78,16 @@
     @if (!Model.IsInFavorites)
     {
         <form asp-action="AddToFavorites" class="d-inline">
-            <input type="hidden" name="id" value="@Model.Id" />
+            <input type="hidden" name="pds" value="@Model.PDS" />
+            <input type="hidden" name="did" value="@Model.Post.author.did />
+            <input type="hidden" name="rkey" value="@Model.Post.RecordKey" />
             <button class="btn btn-primary btn-sm">Add to Favorites</button>
         </form>
     }
     else
     {
         <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
-            <input type="hidden" name="id" value="@Model.Id" />
+            <input type="hidden" name="cid" value="@Model.Post.cid" />
             <button class="btn btn-danger btn-sm">Remove from Favorites</button>
         </form>
     }
@@ -110,23 +112,21 @@
             @if (profile.Liked)
             {
                 <form asp-action="Unlike" class="d-inline">
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <input type="hidden" name="did" value="@profile.DID" />
+                    <input type="hidden" name="rkey" value="@Model.Post.RecordKey" />
+                    <input type="hidden" name="my_did" value="@profile.DID" />
                     <button class="btn btn-danger btn-sm">Unlike</button>
                 </form>
             }
             else
             {
                 <form asp-action="Like" class="d-inline">
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <input type="hidden" name="did" value="@profile.DID" />
+                    <input type="hidden" name="pds" value="@Model.PDS" />
+                    <input type="hidden" name="author_did" value="@Model.Post.author.did" />
+                    <input type="hidden" name="rkey" value="@Model.Post.RecordKey" />
+                    <input type="hidden" name="my_did" value="@profile.DID" />
                     <button class="btn btn-primary btn-sm">Like</button>
                 </form>
             }
-
-            <a href="https://bsky.app/profile/@Model.ProfileResponse.did/post/@Model.Post.RecordKey" class="btn btn-outline-primary btn-sm">
-                View and reply on Bluesky
-            </a>
         </div>
     </details>
 }

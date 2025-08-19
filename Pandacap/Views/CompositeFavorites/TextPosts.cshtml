@@ -51,7 +51,7 @@ else
                     }
                     else if (item is BlueskyFavorite b)
                     {
-                        url = Url.Action(action: "ViewBlueskyPost", controller: "ATProto", new { id = b.Id })
+                        url = Url.Action(action: "ViewKnownBlueskyPost", controller: "ATProto", new { id = b.Id })
                             ?? item.LinkUrl;
                     }
                 }

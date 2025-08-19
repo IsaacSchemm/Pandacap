@@ -1,9 +1,9 @@
 ﻿using Azure.Storage.Blobs;
+using Microsoft.EntityFrameworkCore;
+using Pandacap.Clients.ATProto.Private;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using Pandacap.Clients.ATProto.Private;
 using Pandacap.HighLevel.ATProto;
-using Microsoft.EntityFrameworkCore;
 
 namespace Pandacap
 {
@@ -13,6 +13,19 @@ namespace Pandacap
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
+        private async Task<Clients.ATProto.Public.BlueskyFeed.Post> FetchBlueskyPostAsync(string pds, string did, string rkey)
+        {
+            var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var posts = await Clients.ATProto.Public.BlueskyFeed.GetPostsAsync(
+                client,
+                pds,
+                [$"at://{did}/app.bsky.feed.post/{rkey}"]);
+
+            return posts.posts.Single();
+        }
+
         public async Task CreateBlueskyPostAsync(Post submission, string text)
         {
             using var httpClient = httpClientFactory.CreateClient();
@@ -60,18 +73,14 @@ namespace Pandacap
             submission.BlueskyRecordKey = post.RecordKey;
         }
 
-        public async Task LikeBlueskyPostAsync(Guid id, string did)
+        public async Task LikeBlueskyPostAsync(string pds, string author_did, string rkey, string my_did)
         {
-            IBlueskyPost? dbPost =
-                await context.BlueskyFavorites.SingleOrDefaultAsync(b => b.Id == id)
-                ?? await context.BlueskyFeedItems.SingleOrDefaultAsync(b => b.Id == id)
-                ?? (IBlueskyPost?)null
-                ?? throw new Exception("Post not found in Favorites or Inbox");
+            var post = await FetchBlueskyPostAsync(pds, author_did, rkey);
 
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var wrapper = await atProtoCredentialProvider.GetCredentialsAsync(did);
+            var wrapper = await atProtoCredentialProvider.GetCredentialsAsync(my_did);
             if (wrapper == null)
                 return;
 
@@ -79,15 +88,15 @@ namespace Pandacap
                 httpClient,
                 wrapper,
                 Repo.Record.NewLike(new(
-                    uri: $"at://{dbPost.DID}/app.bsky.feed.post/{dbPost.RecordKey}",
-                    cid: dbPost.CID)));
+                    uri: post.uri,
+                    cid: post.cid)));
 
             context.BlueskyLikes.Add(new()
             {
                 Id = Guid.NewGuid(),
-                DID = did,
-                SubjectCID = dbPost.CID,
-                SubjectRecordKey = dbPost.RecordKey,
+                DID = my_did,
+                SubjectCID = post.cid,
+                SubjectRecordKey = post.RecordKey,
                 LikeCID = like.cid,
                 LikeRecordKey = like.RecordKey
             });
@@ -95,25 +104,28 @@ namespace Pandacap
             await context.SaveChangesAsync();
         }
 
-        public async Task UnlikeBlueskyPostAsync(Guid id, string did)
+        public async Task UnlikeBlueskyPostAsync(string rkey, string my_did)
         {
-            IBlueskyPost? dbPost =
-                await context.BlueskyFavorites.SingleOrDefaultAsync(b => b.Id == id)
-                ?? await context.BlueskyFeedItems.SingleOrDefaultAsync(b => b.Id == id)
-                ?? (IBlueskyPost?)null
-                ?? throw new Exception("Post not found in Favorites or Inbox");
-
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
+            var credentials = await atProtoCredentialProvider.GetCredentialsAsync(my_did);
+
             await foreach (var like in context.BlueskyLikes
-                .Where(l => l.SubjectCID == dbPost.CID)
+                .Where(l => l.DID == my_did)
+                .Where(l => l.SubjectRecordKey == rkey)
                 .AsAsyncEnumerable())
             {
-                context.Remove(like);
-            }
+                if (credentials != null)
+                    await Repo.DeleteRecordAsync(
+                        httpClient,
+                        credentials,
+                        "app.bsky.feed.like",
+                        rkey);
 
-            await context.SaveChangesAsync();
+                context.Remove(like);
+                await context.SaveChangesAsync();
+            }
         }
     }
 }
