@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub;
 using Pandacap.Clients.ATProto.Private;
 using Pandacap.Clients.ATProto.Public;
 using Pandacap.ConfigurationObjects;
@@ -173,6 +174,7 @@ namespace Pandacap.Controllers
                     embed: Repo.PostEmbed.NewImages([
                         .. await downloadImagesAsync().ToListAsync()
                     ]),
+                    inReplyTo: [],
                     pandacapMetadata: [
                         Repo.PandacapMetadata.NewPostId(submission.Id)
                     ])));
@@ -207,14 +209,19 @@ namespace Pandacap.Controllers
             string rkey,
             CancellationToken cancellationToken)
         {
-            var post = await FetchBlueskyPostAsync(pds, did, rkey);
+            using var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var threadResponse = await BlueskyFeed.GetPostThreadAsync(
+                client,
+                pds,
+                $"at://{did}/app.bsky.feed.post/{rkey}");
+
+            var thread = threadResponse.thread;
 
             var hasCredentials = await context.ATProtoCredentials
                 .Where(c => c.CrosspostTargetSince != null)
                 .DocumentCountAsync(cancellationToken) > 0;
-
-            using var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var bridgyFedObjectId = $"https://bsky.brid.gy/convert/ap/at://{did}/app.bsky.feed.post/{rkey}";
 
@@ -224,17 +231,12 @@ namespace Pandacap.Controllers
 
             var bridgyFedHandleTask = bridgyFedHandleProvider.GetHandleAsync();
 
-            var profile = await Profile.GetProfileAsync(
-                client,
-                pds,
-                did);
-
             using var bridgyFedResponse = await bridgyFedResponseTask;
 
             var bridgyFedHandle = await bridgyFedHandleTask;
 
             var likedBy = await context.BlueskyLikes
-                .Where(like => like.SubjectCID == post.cid)
+                .Where(like => like.SubjectCID == thread.post.cid)
                 .Select(like => like.DID)
                 .ToHashSetAsync(cancellationToken);
 
@@ -252,14 +254,13 @@ namespace Pandacap.Controllers
                 .ToListAsync(cancellationToken);
 
             var inFavorites = await context.BlueskyFavorites
-                .Where(f => f.CID == post.cid)
+                .Where(f => f.CID == thread.post.cid)
                 .DocumentCountAsync(cancellationToken) > 0;
 
             return View(
                 new BlueskyPostViewModel(
                     PDS: pds,
-                    ProfileResponse: profile,
-                    Post: post,
+                    Thread: thread,
                     IsInFavorites: inFavorites,
                     MyProfiles: [.. myProfiles],
                     BridgyFedObjectId: bridgyFedResponse.IsSuccessStatusCode
@@ -384,6 +385,85 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PostReply(string pds, string author_did, string rkey, string my_did, string content)
+        {
+            var post = await FetchBlueskyPostAsync(pds, author_did, rkey);
+
+            var parent = new Repo.MinimalRecord(
+                post.uri,
+                post.cid);
+
+            var root = post.record.InReplyTo.IsEmpty
+                ? parent
+                : new Repo.MinimalRecord(
+                    post.record.InReplyTo[0].root.uri,
+                    post.record.InReplyTo[0].root.cid);
+
+            var credentials = await atProtoCredentialProvider.GetCredentialsAsync(my_did);
+            if (credentials == null)
+                return Forbid();
+
+            using var httpClient = httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var reply = await Repo.CreateRecordAsync(
+                httpClient,
+                credentials,
+                Repo.Record.NewPost(
+                    new(
+                        content,
+                        DateTimeOffset.UtcNow,
+                        Repo.PostEmbed.NoEmbed,
+                        inReplyTo: [new(
+                            root: root,
+                            parent: parent)],
+                        pandacapMetadata: [])));
+
+            return RedirectToAction(
+                nameof(ViewBlueskyPost),
+                new
+                {
+                    pds,
+                    did = credentials.DID,
+                    rkey = reply.RecordKey
+                });
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePost(string did, string rkey)
+        {
+            var credentials = await atProtoCredentialProvider.GetCredentialsAsync(did);
+            if (credentials == null)
+                return Forbid();
+
+            var post = await FetchBlueskyPostAsync("public.api.bsky.app", did, rkey);
+
+            using var httpClient = httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            await Repo.DeleteRecordAsync(
+                httpClient,
+                credentials,
+                "app.bsky.feed.post",
+                rkey);
+
+            return post.record.InReplyTo.IsEmpty
+                ? Redirect("/")
+                : RedirectToAction(
+                    nameof(ViewBlueskyPost),
+                    new
+                    {
+                        pds = "public.api.bsky.app",
+                        post.record.InReplyTo[0].parent.UriComponents.did,
+                        post.record.InReplyTo[0].parent.UriComponents.rkey
+                    });
         }
     }
 }

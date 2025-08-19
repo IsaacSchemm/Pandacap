@@ -5,11 +5,11 @@
 }
 
 <h1>
-    <img height="50" src="@(Model.ProfileResponse.avatar ?? "/images/trgray.svg")" alt="" />
+    <img height="50" src="@(Model.Thread.post.author.AvatarOrNull ?? "/images/trgray.svg")" alt="" />
     <span style="display: inline-block; vertical-align: top">
         <strong>
-            <a href="https://bsky.app/profile/@Model.ProfileResponse.did" target="_blank">
-                @Model.ProfileResponse.handle
+            <a href="https://bsky.app/profile/@Model.Thread.post.author.did" target="_blank">
+                @@@Model.Thread.post.author.handle
             </a>
         </strong>
     </span>
@@ -17,17 +17,30 @@
 
 <hr />
 
-@foreach (var reply in Model.Post.record.InReplyTo)
+@foreach (var reply in Model.Thread.post.record.InReplyTo)
 {
     <p>
         in reply to:
-        <a href="@reply.parent.uri" target="_blank">
-            @reply.parent.uri
-        </a>
+
+        @{
+            try
+            {
+                var components = reply.parent.UriComponents;
+                <a asp-controller="ATProto" asp-action="ViewBlueskyPost" asp-route-pds="@Model.PDS" asp-route-did="@components.did" asp-route-rkey="@components.rkey">
+                    @reply.parent.uri
+                </a>
+            } 
+            catch (Exception)
+            {
+                <span>
+                    @reply.parent.uri
+                </span>
+            }
+        }
     </p>
 }
 
-@foreach (var quoted in Model.Post.EmbeddedRecords)
+@foreach (var quoted in Model.Thread.post.EmbeddedRecords)
 {
     <p>
         quotes:
@@ -38,9 +51,9 @@
 }
 
 <p>
-    <a href="https://bsky.app/profile/@Model.ProfileResponse.did/post/@Model.Post.RecordKey" target="_blank">
-        @Model.Post.indexedAt.UtcDateTime.ToLongDateString()
-        @Model.Post.indexedAt.UtcDateTime.ToShortTimeString()
+    <a href="https://bsky.app/profile/@Model.Thread.post.author.did/post/@Model.Thread.post.RecordKey" target="_blank">
+        @Model.Thread.post.indexedAt.UtcDateTime.ToLongDateString()
+        @Model.Thread.post.indexedAt.UtcDateTime.ToShortTimeString()
     </a>
 </p>
 
@@ -54,10 +67,10 @@
     }
 </style>
 
-@if (Model.Post.Images.Any())
+@if (Model.Thread.post.Images.Any())
 {
     <p align="center">
-        @foreach (var image in Model.Post.Images)
+        @foreach (var image in Model.Thread.post.Images)
         {
             <a href="@image.fullsize">
                 <img src="@(image.thumb ?? image.fullsize)"
@@ -69,7 +82,7 @@
 }
 
 <p>
-    @Model.Post.record.text
+    @Model.Thread.post.record.text
 </p>
 
 <hr />
@@ -79,15 +92,15 @@
     {
         <form asp-action="AddToFavorites" class="d-inline">
             <input type="hidden" name="pds" value="@Model.PDS" />
-            <input type="hidden" name="did" value="@Model.Post.author.did />
-            <input type="hidden" name="rkey" value="@Model.Post.RecordKey" />
+            <input type="hidden" name="did" value="@Model.Thread.post.author.did  />
+            <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
             <button class="btn btn-primary btn-sm">Add to Favorites</button>
         </form>
     }
     else
     {
         <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
-            <input type="hidden" name="cid" value="@Model.Post.cid" />
+            <input type="hidden" name="cid" value="@Model.Thread.post.cid" />
             <button class="btn btn-danger btn-sm">Remove from Favorites</button>
         </form>
     }
@@ -112,22 +125,49 @@
             @if (profile.Liked)
             {
                 <form asp-action="Unlike" class="d-inline">
-                    <input type="hidden" name="rkey" value="@Model.Post.RecordKey" />
+                    <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
                     <input type="hidden" name="my_did" value="@profile.DID" />
                     <button class="btn btn-danger btn-sm">Unlike</button>
                 </form>
             }
-            else
+            else if (profile.DID != Model.Thread.post.author.did)
             {
                 <form asp-action="Like" class="d-inline">
                     <input type="hidden" name="pds" value="@Model.PDS" />
-                    <input type="hidden" name="author_did" value="@Model.Post.author.did" />
-                    <input type="hidden" name="rkey" value="@Model.Post.RecordKey" />
+                    <input type="hidden" name="author_did" value="@Model.Thread.post.author.did" />
+                    <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
                     <input type="hidden" name="my_did" value="@profile.DID" />
                     <button class="btn btn-primary btn-sm">Like</button>
                 </form>
             }
+
+            @if (profile.DID == Model.Thread.post.author.did)
+            {
+                <form asp-action="DeletePost" class="d-inline">
+                    <input type="hidden" name="did" value="@profile.DID" />
+                    <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
+                    <button class="btn btn-danger btn-sm">Delete from PDS</button>
+                </form>
+            }
         </div>
+
+        <p>
+            <form method="post" asp-action="PostReply">
+                <input type="hidden" name="pds" value="@Model.PDS" />
+                <input type="hidden" name="author_did" value="@Model.Thread.post.author.did" />
+                <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
+                <input type="hidden" name="my_did" value="@profile.DID" />
+
+                <div class="form-group">
+                    <label for="replyContent" class="form-label">Write reply (plain text)</label>
+                    <textarea name="content" id="replyContent" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="form-group mt-3 text-end">
+                    <button class="btn btn-outline-primary">Send</button>
+                </div>
+            </form>
+        </p>
     </details>
 }
 
@@ -147,5 +187,19 @@
                 View and reply
             </a>
         </div>
+    </details>
+}
+
+@if (!Model.Thread.RepliesOrEmpty.IsEmpty)
+{
+    <hr />
+
+    <details>
+        <summary>View replies</summary>
+
+        @foreach (var reply in Model.Thread.RepliesOrEmpty)
+        {
+            <partial name="_ViewReply" model="@reply" />
+        }
     </details>
 }

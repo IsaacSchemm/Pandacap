@@ -13,8 +13,12 @@
 
         <span style="display: inline-block; vertical-align: top">
             <strong>
-                <a href="@Model.CreatedBy" target="_blank">@username</a>
+                @username
             </strong>
+
+            <a class="small" asp-controller="RemotePosts" asp-action="Index" asp-route-id="@Model.ObjectId">
+                @Model.CreatedAt.UtcDateTime.ToString("MMM d")
+            </a>
         </span>
     </div>
 

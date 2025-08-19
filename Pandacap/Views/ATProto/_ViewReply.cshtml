@@ -1,0 +1,42 @@
+﻿@model Pandacap.Clients.ATProto.Public.BlueskyFeed.PostThread
+
+<section aria-label="Reply" class="comment">
+    <p>
+        <img height="25" src="@(Model.post.author.AvatarOrNull ?? "/images/trgray.svg")" alt="" />
+        <span style="display: inline-block; vertical-align: top">
+            <strong>
+                @@@Model.post.author.handle
+            </strong>
+
+            <a class="small" asp-controller="ATProto" asp-action="ViewBlueskyPost" asp-route-pds="public.api.bsky.app" asp-route-did="@Model.post.author.did" asp-route-rkey="@Model.post.RecordKey">
+                @Model.post.indexedAt.UtcDateTime.ToString("MMM d")
+            </a>
+        </span>
+    </p>
+
+    @if (Model.post.Images.Any())
+    {
+        <p>
+            @foreach (var image in Model.post.Images)
+            {
+                if (String.IsNullOrWhiteSpace(image.alt))
+                {
+                    @:[Image]
+                }
+                else
+                {
+                    @:[@image.alt]
+                }
+            }
+        </p>
+    }
+
+    <p>
+        @Model.post.record.text
+    </p>
+
+    @foreach (var thread in Model.RepliesOrEmpty)
+    {
+        <partial name="_ViewReply" model="@thread" />
+    }
+</section>

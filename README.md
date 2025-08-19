@@ -8,9 +8,9 @@ On the home page:
 * Links to your attached accounts
 * Your ActivityPub handle, bridged Bluesky handle (if any), and links to users you follow and communities you've bookmarked
 * Links to RSS/Atom feeds
-* Your **image posts**
-* Image posts from your **favorites**
-* Your **text posts**
+* Up to 8 of your **image posts**
+* Up to 12 image posts from your **favorites**
+* Up to 5 of your **text posts**
 
 Features:
 
@@ -19,16 +19,16 @@ Features:
 * View posts from users or feeds you follow in the **inbox**, split among **image posts**, **text posts**, **shares**, and **podcasts**, and grouped by author
     * Non-ActivityPub posts are periodically imported (~3 times per day)
 * View **notifications** from activity on your posts or from your attached accounts
-* Follow Bluesky users (whose posts are public) without a Bluesky account
 * Add ActivityPub and Bluesky posts to your **favorites**
 * Automatically import **favorites** from DeviantArt, Fur Affinity, and Weasyl
 
 ActivityPub features:
 
-* Send **likes** on posts you've added to your favorites
+* Follow users
 * Hide reposts by specific users
-* Treat all posts from specific users as text posts
-* Create **addressed posts** (replies to other posts or top-level posts to communities)
+* Like and unlike posts
+* Reply to posts
+* Post to Lemmy communities
 * Enable and disable Bridgy Fed
 
 RSS/Atom features:
@@ -37,18 +37,21 @@ RSS/Atom features:
 
 Bluesky features:
 
-* Follow users without using your Bluesky account
-* Hide reposts by specific users
-* Hide quote posts by specific users
+* Without an account:
+    * Follow users
+    * Hide reposts by specific users
+    * Hide quote posts by specific users
+* With an account:
+    * Like and unlike posts
+    * Create and delete replies
 
 Things Pandacap does **not** do:
 
 * Act as an OAuth server.
 * Host more than one user account.
 * Create a post with more than one attached image.
-* Automatically crosspost your image posts or text posts to Bluesky, DeviantArt, FA, or Weasyl. (This must be done manually.)
-* Delete posts that you *manually* crosspost to Bluesky, DeviantArt, FA, or Weasyl (even when you delete them from Pandacap).
-* Let you "like" a post that is not already in your Favorites.
+* Attach images to replies.
+* Automatically create or delete crossposts to Bluesky, DeviantArt, FA, or Weasyl. (This can be done manually through the Pandacap user interface.)
 * Let you "repost" / "boost" someone else's post.
 
 ## Techincal Information
@@ -86,6 +89,7 @@ Supported protocols and platforms *through an external account*:
     * Crosspost
     * View notifications
     * Send likes
+    * Send replies
 * DeviantArt
     * Crosspost
     * View notifications (messages and notes)
