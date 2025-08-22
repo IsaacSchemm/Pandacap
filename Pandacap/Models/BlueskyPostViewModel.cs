@@ -10,7 +10,7 @@ namespace Pandacap.Models
 
     public record BlueskyPostViewModel(
         string PDS,
-        BlueskyFeed.PostThread Thread,
+        Bluesky.Feed.PostThread Thread,
         bool IsInFavorites,
         FSharpList<BlueskyPostInteractorViewModel> MyProfiles,
         string? BridgyFedObjectId,

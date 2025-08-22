@@ -165,52 +165,53 @@ module Auth =
         return! resp.Content.ReadFromJsonAsync<Tokens>()
     }
 
-/// Lists notifications on the user's Bluesky account.
-module Notifications =
-    type Author = {
-        did: string
-        handle: string
-        displayName: string option
-    }
+module Bluesky =
+    /// Lists notifications on the user's Bluesky account.
+    module Notifications =
+        type Author = {
+            did: string
+            handle: string
+            displayName: string option
+        }
 
-    type Notification = {
-        uri: string
-        cid: string
-        author: Author
-        reason: string
-        reasonSubject: string
-        isRead: bool
-        indexedAt: DateTimeOffset
-    } with
-        member this.RecordKey = RecordKey.Extract this.uri
-        member this.ReasonSubjectRecordKey = RecordKey.Extract this.reasonSubject
+        type Notification = {
+            uri: string
+            cid: string
+            author: Author
+            reason: string
+            reasonSubject: string
+            isRead: bool
+            indexedAt: DateTimeOffset
+        } with
+            member this.RecordKey = RecordKey.Extract this.uri
+            member this.ReasonSubjectRecordKey = RecordKey.Extract this.reasonSubject
 
-    type NotificationList = {
-        cursor: string option
-        notifications: Notification list
-    } with
-        member this.NextPage =
-            this.cursor
-            |> Option.map FromCursor
-            |> Option.toList
+        type NotificationList = {
+            cursor: string option
+            notifications: Notification list
+        } with
+            member this.NextPage =
+                this.cursor
+                |> Option.map FromCursor
+                |> Option.toList
 
-    let ListNotificationsAsync httpClient (credentials: ICredentials) page = task {
-        return!
-            {
-                method = HttpMethod.Get
-                pds = credentials.PDS
-                procedureName = "app.bsky.notification.listNotifications"
-                parameters = [
-                    match page with
-                    | FromCursor c -> "cursor", c
-                    | FromStart -> ()
-                ]
-                credentials = RequestCredentials credentials
-                body = NoBody
-            }
-            |> Requests.performRequestAsync httpClient
-            |> Requests.thenReadAsync<NotificationList>
-    }
+        let ListNotificationsAsync httpClient (credentials: ICredentials) page = task {
+            return!
+                {
+                    method = HttpMethod.Get
+                    pds = credentials.PDS
+                    procedureName = "app.bsky.notification.listNotifications"
+                    parameters = [
+                        match page with
+                        | FromCursor c -> "cursor", c
+                        | FromStart -> ()
+                    ]
+                    credentials = RequestCredentials credentials
+                    body = NoBody
+                }
+                |> Requests.performRequestAsync httpClient
+                |> Requests.thenReadAsync<NotificationList>
+        }
 
 /// Handles creating and deleting records in the repo, e.g. Bluesky posts.
 module Repo =

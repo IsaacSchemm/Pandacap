@@ -2,15 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
 using Pandacap.Clients.ATProto.Private;
-using Pandacap.Clients.ATProto.Public;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.Models;
-using BlueskyFeed = Pandacap.Clients.ATProto.Public.BlueskyFeed;
 
 namespace Pandacap.Controllers
 {
@@ -22,12 +19,12 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
     {
-        private async Task<BlueskyFeed.Post> FetchBlueskyPostAsync(string pds, string did, string rkey)
+        private async Task<Clients.ATProto.Public.Bluesky.Feed.Post> FetchBlueskyPostAsync(string pds, string did, string rkey)
         {
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var posts = await BlueskyFeed.GetPostsAsync(
+            var posts = await Clients.ATProto.Public.Bluesky.Feed.GetPostsAsync(
                 client,
                 pds,
                 [$"at://{did}/app.bsky.feed.post/{rkey}"]);
@@ -212,7 +209,7 @@ namespace Pandacap.Controllers
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var threadResponse = await BlueskyFeed.GetPostThreadAsync(
+            var threadResponse = await Clients.ATProto.Public.Bluesky.Feed.GetPostThreadAsync(
                 client,
                 pds,
                 $"at://{did}/app.bsky.feed.post/{rkey}");

@@ -2,7 +2,6 @@
 using Pandacap.Clients.ATProto.Public;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using BlueskyFeed = Pandacap.Clients.ATProto.Public.BlueskyFeed;
 
 namespace Pandacap.Functions.InboxHandlers
 {
@@ -22,7 +21,7 @@ namespace Pandacap.Functions.InboxHandlers
             "graphic-media"
         ];
 
-        private static async IAsyncEnumerable<BlueskyFeed.FeedItem> GetAuthorFeedAsync(
+        private static async IAsyncEnumerable<Bluesky.Feed.FeedItem> GetAuthorFeedAsync(
             HttpClient client,
             string pds,
             string did)
@@ -31,7 +30,7 @@ namespace Pandacap.Functions.InboxHandlers
 
             while (true)
             {
-                var results = await BlueskyFeed.GetAuthorFeedAsync(client, pds, did, page);
+                var results = await Bluesky.Feed.GetAuthorFeedAsync(client, pds, did, page);
 
                 foreach (var item in results.feed)
                     yield return item;

@@ -22,7 +22,7 @@ namespace Pandacap
                         using var client = httpClientFactory.CreateClient();
                         client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-                        var profile = await Profile.GetProfileAsync(
+                        var profile = await Bluesky.Profile.GetProfileAsync(
                             client,
                             "public.api.bsky.app",
                             $"{appInfo.Username}.{appInfo.ApplicationHostname}.ap.brid.gy");
