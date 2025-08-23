@@ -27,8 +27,7 @@
         @{
             try
             {
-                var components = reply.parent.UriComponents;
-                <a asp-controller="ATProto" asp-action="ViewBlueskyPost" asp-route-did="@components.DID" asp-route-rkey="@components.RecordKey">
+                <a asp-controller="ATProto" asp-action="ViewBlueskyPost" asp-route-did="@reply.parent.DID" asp-route-rkey="@reply.parent.RecordKey">
                     @reply.parent.uri
                 </a>
             } 

@@ -4,6 +4,7 @@ open System
 open System.Net.Http
 open System.Net.Http.Headers
 open System.Net.Http.Json
+open System.Text.Json.Serialization
 open System.Threading.Tasks
 
 module ATProtoClient =
@@ -20,15 +21,16 @@ module ATProtoClient =
         cid: string
         uri: string
     } with
-        member this.UriComponents =
+        [<JsonIgnore>]
+        member this.DID =
             match this.uri.Split('/') with
-            | [| "at:"; ""; did; "app.bsky.feed.post"; rkey |] ->
-                {|
-                    DID = Uri.UnescapeDataString(did)
-                    RecordKey = Uri.UnescapeDataString(rkey)
-                |}
-            | _ ->
-                failwith "Cannot extract record key from URI"
+            | [| "at:"; ""; did; "app.bsky.feed.post"; _ |] -> Uri.UnescapeDataString(did)
+            | _ -> failwith "Cannot extract DID from URI"
+        [<JsonIgnore>]
+        member this.RecordKey =
+            match this.uri.Split('/') with
+            | [| "at:"; ""; _; "app.bsky.feed.post"; rkey |] -> Uri.UnescapeDataString(rkey)
+            | _ -> failwith "Cannot extract record key from URI"
 
     type IServer =
         abstract member PDS: string
@@ -201,8 +203,11 @@ module ATProtoClient =
             avatar: string option
             description: string option
         } with
+            [<JsonIgnore>]
             member this.DisplayName = Option.toObj this.displayName
+            [<JsonIgnore>]
             member this.Avatar = Option.toObj this.avatar
+            [<JsonIgnore>]
             member this.Description = Option.toObj this.description
 
         module Actor =
@@ -229,7 +234,9 @@ module ATProtoClient =
                 isRead: bool
                 indexedAt: DateTimeOffset
             } with
+                [<JsonIgnore>]
                 member this.RecordKey = extractRecordKey this.uri
+                [<JsonIgnore>]
                 member this.ReasonSubject = {|
                     RecordKey = extractRecordKey this.reasonSubject
                 |}
@@ -238,6 +245,7 @@ module ATProtoClient =
                 cursor: string option
                 notifications: Notification list
             } with
+                [<JsonIgnore>]
                 member this.NextPage =
                     this.cursor
                     |> Option.map FromCursor
@@ -281,7 +289,9 @@ module ATProtoClient =
                 reply: Reply option
                 bridgyOriginalUrl: string option
             } with
+                [<JsonIgnore>]
                 member this.InReplyTo = Option.toObj this.reply
+                [<JsonIgnore>]
                 member this.ActivityPubUrl = Option.toObj this.bridgyOriginalUrl
 
             type Label = {
@@ -298,12 +308,15 @@ module ATProtoClient =
                 indexedAt: DateTimeOffset
                 labels: Label list
             } with
+                [<JsonIgnore>]
                 member this.RecordKey =
                     extractRecordKey this.uri
+                [<JsonIgnore>]
                 member this.Images =
                     this.embed
                     |> Option.bind (fun e -> e.images)
                     |> Option.defaultValue []
+                [<JsonIgnore>]
                 member this.EmbeddedRecord =
                     this.embed
                     |> Option.bind (fun e -> e.record)
@@ -331,6 +344,7 @@ module ATProtoClient =
                 post: Post
                 replies: PostThread list option
             } with
+                [<JsonIgnore>]
                 member this.Replies =
                     this.replies
                     |> Option.defaultValue []
@@ -363,10 +377,12 @@ module ATProtoClient =
                 post: Post
                 reason: Reason option
             } with
+                [<JsonIgnore>]
                 member this.By =
                     match this.reason with
                     | Some r when r.``$type`` = "app.bsky.feed.defs#reasonRepost" -> r.by
                     | _ -> this.post.author
+                [<JsonIgnore>]
                 member this.IndexedAt =
                     match this.reason with
                     | Some r when r.``$type`` = "app.bsky.feed.defs#reasonRepost" -> r.indexedAt
@@ -376,6 +392,7 @@ module ATProtoClient =
                 cursor: string option
                 feed: FeedItem list
             } with
+                [<JsonIgnore>]
                 member this.NextPage =
                     this.cursor
                     |> Option.map FromCursor

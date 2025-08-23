@@ -176,8 +176,8 @@ namespace Pandacap.Controllers
                         ATProtoClient.Repo.PandacapMetadata.NewPostId(submission.Id)
                     ])));
 
-            submission.BlueskyDID = wrapper.DID;
-            submission.BlueskyRecordKey = post.UriComponents.RecordKey;
+            submission.BlueskyDID = post.DID;
+            submission.BlueskyRecordKey = post.RecordKey;
 
             await context.SaveChangesAsync();
 
@@ -328,7 +328,7 @@ namespace Pandacap.Controllers
                 SubjectCID = post.cid,
                 SubjectRecordKey = post.RecordKey,
                 LikeCID = like.cid,
-                LikeRecordKey = like.UriComponents.RecordKey
+                LikeRecordKey = like.RecordKey
             });
 
             await context.SaveChangesAsync();
@@ -419,8 +419,8 @@ namespace Pandacap.Controllers
                 nameof(ViewBlueskyPost),
                 new
                 {
-                    did = credentials.DID,
-                    rkey = reply.UriComponents.RecordKey
+                    did = reply.DID,
+                    rkey = reply.RecordKey
                 });
         }
 
@@ -450,8 +450,8 @@ namespace Pandacap.Controllers
                     nameof(ViewBlueskyPost),
                     new
                     {
-                        did = post.record.InReplyTo.parent.UriComponents.DID,
-                        rkey = post.record.InReplyTo.parent.UriComponents.RecordKey
+                        did = post.record.InReplyTo.parent.DID,
+                        rkey = post.record.InReplyTo.parent.RecordKey
                     });
         }
     }
