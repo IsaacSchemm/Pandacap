@@ -1,4 +1,5 @@
 ﻿@model BlueskyPostViewModel
+@inject Pandacap.ActivityPub.Mapper mapper
 
 @{
     ViewBag.Title = "View Bluesky Post";
@@ -171,23 +172,15 @@
     </details>
 }
 
-@if (Model.BridgyFedHandle is string handle && Model.BridgyFedObjectId is string objectId)
+@if (Model.BridgyFedObjectId is string objectId)
 {
     <hr />
 
-    <details open>
-        <summary>
-            <strong>
-                @@@handle
-            </strong>
-        </summary>
-
-        <div class="my-2">
-            <a asp-controller="RemotePosts" asp-action="Index" asp-route-id="@Model.BridgyFedObjectId" class="btn btn-outline-primary btn-sm">
-                View and reply
-            </a>
-        </div>
-    </details>
+    <div class="my-2">
+        <a asp-controller="RemotePosts" asp-action="Index" asp-route-id="@Model.BridgyFedObjectId" class="btn btn-outline-primary btn-sm">
+            View with Bridgy Fed
+        </a>
+    </div>
 }
 
 @if (!Model.Thread.Replies.IsEmpty)

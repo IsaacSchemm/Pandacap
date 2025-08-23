@@ -15,7 +15,6 @@ namespace Pandacap.Controllers
     public class ATProtoController(
         ATProtoCredentialProvider atProtoCredentialProvider,
         BlobServiceClient blobServiceClient,
-        BridgyFedHandleProvider bridgyFedHandleProvider,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
     {
@@ -221,15 +220,9 @@ namespace Pandacap.Controllers
 
             var bridgyFedObjectId = $"https://bsky.brid.gy/convert/ap/at://{did}/app.bsky.feed.post/{rkey}";
 
-            var bridgyFedResponseTask = client.GetAsync(
+            using var bridgyFedResponse = await client.GetAsync(
                 bridgyFedObjectId,
                 cancellationToken);
-
-            var bridgyFedHandleTask = bridgyFedHandleProvider.GetHandleAsync();
-
-            using var bridgyFedResponse = await bridgyFedResponseTask;
-
-            var bridgyFedHandle = await bridgyFedHandleTask;
 
             var likedBy = await context.BlueskyLikes
                 .Where(like => like.SubjectCID == thread.post.cid)
@@ -260,8 +253,7 @@ namespace Pandacap.Controllers
                     MyProfiles: [.. myProfiles],
                     BridgyFedObjectId: bridgyFedResponse.IsSuccessStatusCode
                         ? bridgyFedObjectId
-                        : null,
-                    BridgyFedHandle: bridgyFedHandle));
+                        : null));
         }
 
         [HttpPost]

@@ -12,6 +12,5 @@ namespace Pandacap.Models
         ATProtoClient.Bluesky.Feed.PostThread Thread,
         bool IsInFavorites,
         FSharpList<BlueskyPostInteractorViewModel> MyProfiles,
-        string? BridgyFedObjectId,
-        string? BridgyFedHandle);
+        string? BridgyFedObjectId);
 }
