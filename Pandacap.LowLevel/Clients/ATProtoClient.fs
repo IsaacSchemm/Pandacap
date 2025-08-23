@@ -24,13 +24,13 @@ module ATProtoClient =
         [<JsonIgnore>]
         member this.DID =
             match this.uri.Split('/') with
-            | [| "at:"; ""; did; "app.bsky.feed.post"; _ |] -> Uri.UnescapeDataString(did)
-            | _ -> failwith "Cannot extract DID from URI"
+            | [| "at:"; ""; did; _; _ |] -> Uri.UnescapeDataString(did)
+            | _ -> failwithf "Cannot extract DID from URI: %s" this.uri
         [<JsonIgnore>]
         member this.RecordKey =
             match this.uri.Split('/') with
-            | [| "at:"; ""; _; "app.bsky.feed.post"; rkey |] -> Uri.UnescapeDataString(rkey)
-            | _ -> failwith "Cannot extract record key from URI"
+            | [| "at:"; ""; _; _; rkey |] -> Uri.UnescapeDataString(rkey)
+            | _ -> failwithf "Cannot extract record key from URI: %s" this.uri
 
     type IServer =
         abstract member PDS: string

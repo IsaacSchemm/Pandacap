@@ -95,7 +95,7 @@
     @if (!Model.IsInFavorites)
     {
         <form asp-action="AddToFavorites" class="d-inline">
-            <input type="hidden" name="did" value="@Model.Thread.post.author.did  />
+            <input type="hidden" name="did" value="@Model.Thread.post.author.did" />
             <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
             <button class="btn btn-primary btn-sm">Add to Favorites</button>
         </form>
