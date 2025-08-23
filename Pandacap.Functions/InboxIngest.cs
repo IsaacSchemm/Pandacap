@@ -15,7 +15,7 @@ namespace Pandacap.Functions
         WeasylInboxHandler weasylInboxHandler)
     {
         [Function("InboxIngest")]
-        public async Task Run([TimerTrigger("0 */8 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 0 */8 * * *")] TimerInfo myTimer)
         {
             List<Exception> exceptions = [];
 
