@@ -69,12 +69,12 @@ module ATProtoClient =
         body: Body
     }
 
-    module internal Requests =
-        type XrpcError = {
-            error: string
-            message: string
-        }
+    type XrpcError = {
+        error: string
+        message: string
+    }
 
+    module internal Requests =
         exception XrpcException of XrpcError
 
         let sendAsync (httpClient: HttpClient) (request: Request) = task {
