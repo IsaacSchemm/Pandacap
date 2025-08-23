@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Clients.ATProto.Private;
+using Pandacap.Clients;
 using Pandacap.Data;
 
 namespace Pandacap.HighLevel.ATProto
@@ -8,7 +8,7 @@ namespace Pandacap.HighLevel.ATProto
     {
         public class AutomaticRefreshCredentials(
             PandacapDbContext context,
-            ATProtoCredentials credentials) : ICredentials
+            ATProtoCredentials credentials) : ATProtoClient.IRefreshCredentials
         {
             public string DID => credentials.DID;
             public string PDS => credentials.PDS;
@@ -19,7 +19,7 @@ namespace Pandacap.HighLevel.ATProto
             public string RefreshToken { get; private set; } = credentials.RefreshToken;
             public string Handle { get; private set; } = credentials.RefreshToken;
 
-            public async Task UpdateTokensAsync(Tokens tokens)
+            public async Task UpdateTokensAsync(ATProtoClient.Tokens tokens)
             {
                 AccessToken = tokens.accessJwt;
                 RefreshToken = tokens.refreshJwt;

@@ -1,6 +1,6 @@
 ﻿using DeviantArtFs.Extensions;
 using Microsoft.FSharp.Core;
-using Pandacap.Clients.ATProto.Private;
+using Pandacap.Clients;
 using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.PlatformBadges;
@@ -16,23 +16,23 @@ namespace Pandacap.HighLevel.Notifications
         {
             var allCredentials = await atProtoCredentialProvider.GetAllCredentialsAsync();
             var results = allCredentials
-                .Select(GetNotificationsAsync)
+                .Select(GetNotificationsByUserAsync)
                 .MergeNewest(post => post.Timestamp);
             await foreach (var result in results)
                 yield return result;
         }
 
-        private async IAsyncEnumerable<Notification> GetNotificationsAsync(
-            ICredentials credentials)
+        private async IAsyncEnumerable<Notification> GetNotificationsByUserAsync(
+            ATProtoClient.ICredentials credentials)
         {
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var page = Page.FromStart;
+            var page = ATProtoClient.Page.FromStart;
 
             while (true)
             {
-                var result = await Bluesky.Notifications.ListNotificationsAsync(
+                var result = await ATProtoClient.Bluesky.Notification.ListNotificationsAsync(
                     client,
                     credentials,
                     page);
@@ -51,15 +51,15 @@ namespace Pandacap.HighLevel.Notifications
                             : null,
                         UserName = item.author.displayName.OrNull() ?? item.author.handle,
                         UserUrl = $"https://bsky.app/profile/{item.author.did}",
-                        PostUrl = item.ReasonSubjectRecordKey != null
-                            ? $"https://bsky.app/profile/{credentials.DID}/post/{Uri.EscapeDataString(item.ReasonSubjectRecordKey)}"
+                        PostUrl = item.ReasonSubject.RecordKey != null
+                            ? $"https://bsky.app/profile/{credentials.DID}/post/{Uri.EscapeDataString(item.ReasonSubject.RecordKey)}"
                             : null,
                         Timestamp = item.indexedAt.ToUniversalTime()
                     };
                 }
 
                 if (OptionModule.ToObj(result.cursor) is string next)
-                    page = Page.NewFromCursor(next);
+                    page = ATProtoClient.Page.NewFromCursor(next);
                 else
                     yield break;
             }

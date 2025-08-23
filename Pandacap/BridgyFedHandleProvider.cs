@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Pandacap.Clients.ATProto.Public;
+using Pandacap.Clients;
 using Pandacap.ConfigurationObjects;
 
 namespace Pandacap
@@ -22,9 +22,9 @@ namespace Pandacap
                         using var client = httpClientFactory.CreateClient();
                         client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-                        var profile = await Bluesky.Profile.GetProfileAsync(
+                        var profile = await ATProtoClient.Bluesky.Actor.GetProfileAsync(
                             client,
-                            "public.api.bsky.app",
+                            ATProtoClient.Credentials.Bluesky.PublicAppView,
                             $"{appInfo.Username}.{appInfo.ApplicationHostname}.ap.brid.gy");
 
                         return profile.handle;

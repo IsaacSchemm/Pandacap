@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
-using Pandacap.Clients.ATProto;
-using Pandacap.Clients.ATProto.Public;
+using Pandacap.Clients;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -297,16 +296,16 @@ namespace Pandacap.Controllers
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var profile = await Bluesky.Profile.GetProfileAsync(
+            var profile = await ATProtoClient.Bluesky.Actor.GetProfileAsync(
                 client,
-                pds,
+                ATProtoClient.Credentials.Bluesky.PublicAppView,
                 handle);
 
             context.BlueskyFeeds.Add(new()
             {
-                Avatar = profile.avatar,
+                Avatar = profile.Avatar,
                 DID = profile.did,
-                DisplayName = profile.displayName,
+                DisplayName = profile.DisplayName,
                 Handle = profile.handle,
                 PDS = pds
             });

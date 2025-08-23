@@ -1,5 +1,5 @@
 ﻿using Microsoft.FSharp.Collections;
-using Pandacap.Clients.ATProto.Public;
+using Pandacap.Clients;
 
 namespace Pandacap.Models
 {
@@ -9,8 +9,7 @@ namespace Pandacap.Models
         bool Liked);
 
     public record BlueskyPostViewModel(
-        string PDS,
-        Bluesky.Feed.PostThread Thread,
+        ATProtoClient.Bluesky.Feed.PostThread Thread,
         bool IsInFavorites,
         FSharpList<BlueskyPostInteractorViewModel> MyProfiles,
         string? BridgyFedObjectId,

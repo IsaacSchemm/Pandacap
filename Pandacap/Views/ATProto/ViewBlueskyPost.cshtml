@@ -5,7 +5,7 @@
 }
 
 <h1>
-    <img height="50" src="@(Model.Thread.post.author.AvatarOrNull ?? "/images/trgray.svg")" alt="" />
+    <img height="50" src="@(Model.Thread.post.author.Avatar ?? "/images/trgray.svg")" alt="" />
     <span style="display: inline-block; vertical-align: top">
         <strong>
             <a href="https://bsky.app/profile/@Model.Thread.post.author.did" target="_blank">
@@ -17,8 +17,10 @@
 
 <hr />
 
-@foreach (var reply in Model.Thread.post.record.InReplyTo)
+@if (Model.Thread.post.record.InReplyTo != null)
 {
+    var reply = Model.Thread.post.record.InReplyTo;
+
     <p>
         in reply to:
 
@@ -26,7 +28,7 @@
             try
             {
                 var components = reply.parent.UriComponents;
-                <a asp-controller="ATProto" asp-action="ViewBlueskyPost" asp-route-pds="@Model.PDS" asp-route-did="@components.did" asp-route-rkey="@components.rkey">
+                <a asp-controller="ATProto" asp-action="ViewBlueskyPost" asp-route-did="@components.DID" asp-route-rkey="@components.RecordKey">
                     @reply.parent.uri
                 </a>
             } 
@@ -40,8 +42,10 @@
     </p>
 }
 
-@foreach (var quoted in Model.Thread.post.EmbeddedRecords)
+@if (Model.Thread.post.EmbeddedRecord != null)
 {
+    var quoted = Model.Thread.post.EmbeddedRecord;
+
     <p>
         quotes:
         <a href="@quoted.uri" target="_blank">
@@ -91,7 +95,6 @@
     @if (!Model.IsInFavorites)
     {
         <form asp-action="AddToFavorites" class="d-inline">
-            <input type="hidden" name="pds" value="@Model.PDS" />
             <input type="hidden" name="did" value="@Model.Thread.post.author.did  />
             <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
             <button class="btn btn-primary btn-sm">Add to Favorites</button>
@@ -133,7 +136,6 @@
             else if (profile.DID != Model.Thread.post.author.did)
             {
                 <form asp-action="Like" class="d-inline">
-                    <input type="hidden" name="pds" value="@Model.PDS" />
                     <input type="hidden" name="author_did" value="@Model.Thread.post.author.did" />
                     <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
                     <input type="hidden" name="my_did" value="@profile.DID" />
@@ -153,7 +155,6 @@
 
         <p>
             <form method="post" asp-action="PostReply">
-                <input type="hidden" name="pds" value="@Model.PDS" />
                 <input type="hidden" name="author_did" value="@Model.Thread.post.author.did" />
                 <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
                 <input type="hidden" name="my_did" value="@profile.DID" />
@@ -190,14 +191,14 @@
     </details>
 }
 
-@if (!Model.Thread.RepliesOrEmpty.IsEmpty)
+@if (!Model.Thread.Replies.IsEmpty)
 {
     <hr />
 
     <details>
         <summary>View replies</summary>
 
-        @foreach (var reply in Model.Thread.RepliesOrEmpty)
+        @foreach (var reply in Model.Thread.Replies)
         {
             <partial name="_ViewReply" model="@reply" />
         }

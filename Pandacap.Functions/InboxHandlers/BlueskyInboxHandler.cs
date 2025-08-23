@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Clients.ATProto.Public;
+using Pandacap.Clients;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 
@@ -21,16 +21,19 @@ namespace Pandacap.Functions.InboxHandlers
             "graphic-media"
         ];
 
-        private static async IAsyncEnumerable<Bluesky.Feed.FeedItem> GetAuthorFeedAsync(
+        private static async IAsyncEnumerable<ATProtoClient.Bluesky.Feed.FeedItem> GetAuthorFeedAsync(
             HttpClient client,
-            string pds,
             string did)
         {
-            var page = Page.FromStart;
+            var page = ATProtoClient.Page.FromStart;
 
             while (true)
             {
-                var results = await Bluesky.Feed.GetAuthorFeedAsync(client, pds, did, page);
+                var results = await ATProtoClient.Bluesky.Feed.GetAuthorFeedAsync(
+                    client,
+                    ATProtoClient.Credentials.Bluesky.PublicAppView,
+                    did,
+                    page);
 
                 foreach (var item in results.feed)
                     yield return item;
@@ -44,9 +47,9 @@ namespace Pandacap.Functions.InboxHandlers
 
         private static async IAsyncEnumerable<BlueskyFeedItem> CollectInboxItems(
             HttpClient client,
-            Data.BlueskyFeed feed)
+            BlueskyFeed feed)
         {
-            await foreach (var feedItem in GetAuthorFeedAsync(client, feed.PDS, feed.DID))
+            await foreach (var feedItem in GetAuthorFeedAsync(client, feed.DID))
             {
                 if (feed.MostRecentCIDs != null
                     && feed.MostRecentCIDs.Count > 0
@@ -55,11 +58,11 @@ namespace Pandacap.Functions.InboxHandlers
                     break;
                 }
 
-                bool isQuotePost = !feedItem.post.EmbeddedRecords.IsEmpty;
+                bool isQuotePost = feedItem.post.EmbeddedRecord != null;
                 if (isQuotePost && !feed.IncludeQuotePosts)
                     continue;
 
-                bool isReply = !feedItem.post.record.InReplyTo.IsEmpty;
+                bool isReply = feedItem.post.record.InReplyTo != null;
                 if (isReply)
                     continue;
 
@@ -85,17 +88,17 @@ namespace Pandacap.Functions.InboxHandlers
                     {
                         DID = feedItem.post.author.did,
                         PDS = feed.PDS,
-                        DisplayName = feedItem.post.author.DisplayNameOrNull,
+                        DisplayName = feedItem.post.author.DisplayName,
                         Handle = feedItem.post.author.handle,
-                        Avatar = feedItem.post.author.AvatarOrNull
+                        Avatar = feedItem.post.author.Avatar
                     },
                     PostedBy = new()
                     {
                         DID = feedItem.By.did,
                         PDS = feed.PDS,
-                        DisplayName = feedItem.By.DisplayNameOrNull,
+                        DisplayName = feedItem.By.DisplayName,
                         Handle = feedItem.By.handle,
-                        Avatar = feedItem.By.AvatarOrNull
+                        Avatar = feedItem.By.Avatar
                     },
                     CreatedAt = feedItem.post.record.createdAt,
                     IndexedAt = feedItem.IndexedAt,

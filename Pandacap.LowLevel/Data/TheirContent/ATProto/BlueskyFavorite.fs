@@ -48,7 +48,7 @@ type BlueskyFavorite() =
         member this.Url = $"https://{this.CreatedBy.PDS}"
         member this.DisplayTitle = TitleGenerator.FromBody(this.Text)
         member this.Id = $"{this.Id}"
-        member this.InternalUrl = $"/ATProto/ViewBlueskyPost?pds={this.CreatedBy.PDS}&did={this.CreatedBy.DID}&rkey={this.RecordKey}"
+        member this.InternalUrl = $"/ATProto/ViewBlueskyPost?did={this.CreatedBy.DID}&rkey={this.RecordKey}"
         member this.ExternalUrl = $"https://bsky.app/profile/{this.CreatedBy.DID}/post/{this.RecordKey}"
         member this.ProfileUrl = $"https://bsky.app/profile/{this.CreatedBy.DID}"
         member this.Thumbnails = [
