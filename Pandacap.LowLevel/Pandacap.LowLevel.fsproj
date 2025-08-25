@@ -68,6 +68,7 @@
     <Compile Include="Data\MyContent\StarpassPost.fs" />
     <Compile Include="Data\MyContent\Upload.fs" />
     <Compile Include="Data\Relationships\IFollow.fs" />
+    <Compile Include="Data\Relationships\ATProtoFeed.fs" />
     <Compile Include="Data\Relationships\BlueskyFeed.fs" />
     <Compile Include="Data\Relationships\RemoteActorRelationship.fs" />
     <Compile Include="Data\Relationships\CommunityBookmark.fs" />

@@ -166,7 +166,7 @@ namespace Pandacap.Controllers
             var post = await ATProtoClient.Repo.CreateRecordAsync(
                 httpClient,
                 wrapper,
-                ATProtoClient.Repo.Record.NewPost(new(
+                ATProtoClient.Repo.RecordToCreate.NewPost(new(
                     text: model.TextContent,
                     createdAt: submission.PublishedTime,
                     embed: ATProtoClient.Repo.PostEmbed.NewImages([.. images]),
@@ -309,7 +309,7 @@ namespace Pandacap.Controllers
             var like = await ATProtoClient.Repo.CreateRecordAsync(
                 httpClient,
                 wrapper,
-                ATProtoClient.Repo.Record.NewLike(new(
+                ATProtoClient.Repo.RecordToCreate.NewLike(new(
                     uri: post.uri,
                     cid: post.cid)));
 
@@ -397,7 +397,7 @@ namespace Pandacap.Controllers
             var reply = await ATProtoClient.Repo.CreateRecordAsync(
                 httpClient,
                 credentials,
-                ATProtoClient.Repo.Record.NewPost(
+                ATProtoClient.Repo.RecordToCreate.NewPost(
                     new(
                         content,
                         DateTimeOffset.UtcNow,

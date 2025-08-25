@@ -8,6 +8,18 @@ open System.Text.Json.Serialization
 open System.Threading.Tasks
 
 module ATProtoClient =
+    module NSIDs =
+        module Bluesky =
+            module Actor =
+                let Profile = "app.bsky.actor.profile"
+            module Feed =
+                let Post = "app.bsky.feed.post"
+                let Repost = "app.bsky.feed.repost"
+
+        module WhiteWind =
+            module Blog =
+                let Entry = "com.whtwnd.blog.entry"
+
     type Page = FromStart | FromCursor of string
 
     type Tokens = {
@@ -50,6 +62,11 @@ module ATProtoClient =
         abstract member UpdateTokensAsync: newCredentials: Tokens -> Task
 
     module Credentials =
+        let Unauthenticated host = {
+            new IServer with
+                member _.PDS = host
+        }
+
         module Bluesky =
             let PublicAppView = {
                 new IServer with
@@ -285,6 +302,7 @@ module ATProtoClient =
 
             type Record = {
                 createdAt: DateTimeOffset
+                embed: Embed option
                 text: string
                 reply: Reply option
                 bridgyOriginalUrl: string option
@@ -495,12 +513,12 @@ module ATProtoClient =
             Uri: string
         }
 
-        type Record =
+        type RecordToCreate =
         | Post of Post
         | EmptyThreadGate of ThreadGate
         | Like of MinimalRecord
 
-        let CreateRecordAsync httpClient (credentials: ICredentials) (record: Record) = task {
+        let CreateRecordAsync httpClient (credentials: ICredentials) (record: RecordToCreate) = task {
             return!
                 {
                     method = HttpMethod.Post
@@ -600,3 +618,122 @@ module ATProtoClient =
             }
             |> Requests.performRequestAsync httpClient
             |> Requests.thenIgnoreAsync
+
+        type RecordListItem<'T> = {
+            uri: string
+            cid: string
+            value: 'T
+        }
+
+        type RecordList<'T> = {
+            records: RecordListItem<'T> list
+        }
+
+        module Schemas =
+            type BlobRef = {
+                ``$link``: string
+            }
+
+            type Blob = {
+                ref: BlobRef
+                mimeType: string
+                size: int
+            }
+
+            module Bluesky =
+                module Feed =
+                    type EmbedImage = {
+                        alt: string option
+                        image: Blob
+                    }
+
+                    type Embed = {
+                        images: EmbedImage list option
+                    }
+
+                    type Post = {
+                        text: string
+                        embed: Embed option
+                        createdAt: DateTimeOffset
+                    }
+
+                    type Repost = {
+                        createdAt: DateTimeOffset
+                        subject: MinimalRecord
+                    }
+
+                module Actor =
+                    type Profile = {
+                        avatar: Blob option
+                        displayName: string option
+                        description: string option
+                    } with
+                        [<JsonIgnore>]
+                        member this.DisplayName = Option.toObj this.displayName
+                        [<JsonIgnore>]
+                        member this.Description = Option.toObj this.description
+
+        let GetRecordAsync<'T> httpClient credentials did collection rkey =
+            {
+                method = HttpMethod.Get
+                procedureName = "com.atproto.repo.getRecord"
+                parameters = [
+                    "repo", did
+                    "collection", collection
+                    "rkey", rkey
+                ]
+                credentials = credentials
+                body = NoBody
+            }
+            |> Requests.performRequestAsync httpClient
+            |> Requests.thenReadAsync<'T>
+
+        let ListRecordsAsync<'T> httpClient credentials did collection =
+            {
+                method = HttpMethod.Get
+                procedureName = "com.atproto.repo.listRecords"
+                parameters = [
+                    "repo", did
+                    "collection", collection
+                ]
+                credentials = credentials
+                body = NoBody
+            }
+            |> Requests.performRequestAsync httpClient
+            |> Requests.thenReadAsync<RecordList<'T>>
+
+        let ListBlueskyFeedPostsAsync httpClient credentials did =
+            ListRecordsAsync<Schemas.Bluesky.Feed.Post> httpClient credentials did NSIDs.Bluesky.Feed.Post
+
+        let ListBlueskyFeedRepostsAsync httpClient credentials did =
+            ListRecordsAsync<Schemas.Bluesky.Feed.Repost> httpClient credentials did NSIDs.Bluesky.Feed.Repost
+
+        let ListBlueskyActorProfilesAsync httpClient credentials did =
+            ListRecordsAsync<Schemas.Bluesky.Actor.Profile> httpClient credentials did NSIDs.Bluesky.Actor.Profile
+
+        let GetBlobAsync httpClient credentials did cid = task {
+            use! resp = Requests.performRequestAsync httpClient {
+                method = HttpMethod.Get
+                procedureName = "com.atproto.sync.getBlob"
+                parameters = [
+                    "did", did
+                    "cid", cid
+                ]
+                credentials = credentials
+                body = NoBody
+            }
+
+            use! stream = resp.EnsureSuccessStatusCode().Content.ReadAsStreamAsync()
+
+            use ms = new System.IO.MemoryStream()
+            do! stream.CopyToAsync(ms)
+
+            return {|
+                data = ms.ToArray()
+                contentType =
+                    resp.Content.Headers.ContentType
+                    |> Option.ofObj
+                    |> Option.map (fun c -> c.MediaType)
+                    |> Option.defaultValue "application/octet-stream"
+            |}
+        }
