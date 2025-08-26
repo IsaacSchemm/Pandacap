@@ -31,7 +31,7 @@ namespace Pandacap.Functions.InboxHandlers
             {
                 var results = await ATProtoClient.Bluesky.Feed.GetAuthorFeedAsync(
                     client,
-                    ATProtoClient.Credentials.Bluesky.PublicAppView,
+                    ATProtoClient.Host.Bluesky.PublicAppView,
                     did,
                     page);
 

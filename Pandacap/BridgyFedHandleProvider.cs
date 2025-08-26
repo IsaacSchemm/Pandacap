@@ -24,7 +24,7 @@ namespace Pandacap
 
                         var profile = await ATProtoClient.Bluesky.Actor.GetProfileAsync(
                             client,
-                            ATProtoClient.Credentials.Bluesky.PublicAppView,
+                            ATProtoClient.Host.Bluesky.PublicAppView,
                             $"{appInfo.Username}.{appInfo.ApplicationHostname}.ap.brid.gy");
 
                         return profile.handle;

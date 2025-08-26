@@ -18,14 +18,14 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
     {
-        private async Task<ATProtoClient.Bluesky.Feed.Post> FetchBlueskyPostAsync(ATProtoClient.IServer server, string did, string rkey)
+        private async Task<ATProtoClient.Bluesky.Feed.Post> FetchBlueskyPostAsync(ATProtoClient.IHost host, string did, string rkey)
         {
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var posts = await ATProtoClient.Bluesky.Feed.GetPostsAsync(
                 client,
-                server,
+                host,
                 [$"at://{did}/app.bsky.feed.post/{rkey}"]);
 
             return posts.posts.Single();
@@ -209,7 +209,7 @@ namespace Pandacap.Controllers
 
             var threadResponse = await ATProtoClient.Bluesky.Feed.GetPostThreadAsync(
                 client,
-                ATProtoClient.Credentials.Bluesky.PublicAppView,
+                ATProtoClient.Host.Bluesky.PublicAppView,
                 $"at://{did}/app.bsky.feed.post/{rkey}");
 
             var thread = threadResponse.thread;
@@ -261,7 +261,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToFavorites(string did, string rkey, CancellationToken cancellationToken)
         {
-            var post = await FetchBlueskyPostAsync(ATProtoClient.Credentials.Bluesky.PublicAppView, did, rkey);
+            var post = await FetchBlueskyPostAsync(ATProtoClient.Host.Bluesky.PublicAppView, did, rkey);
 
             context.BlueskyFavorites.Add(new()
             {
@@ -273,7 +273,7 @@ namespace Pandacap.Controllers
                     DID = post.author.did,
                     DisplayName = post.author.DisplayName,
                     Handle = post.author.handle,
-                    PDS = ATProtoClient.Credentials.Bluesky.PublicAppView.PDS
+                    PDS = ATProtoClient.Host.Bluesky.PublicAppView.PDS
                 },
                 FavoritedAt = DateTimeOffset.UtcNow,
                 Id = Guid.NewGuid(),
@@ -297,7 +297,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Like(string author_did, string rkey, string my_did)
         {
-            var post = await FetchBlueskyPostAsync(ATProtoClient.Credentials.Bluesky.PublicAppView, author_did, rkey);
+            var post = await FetchBlueskyPostAsync(ATProtoClient.Host.Bluesky.PublicAppView, author_did, rkey);
 
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
@@ -379,7 +379,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PostReply(string author_did, string rkey, string my_did, string content)
         {
-            var post = await FetchBlueskyPostAsync(ATProtoClient.Credentials.Bluesky.PublicAppView, author_did, rkey);
+            var post = await FetchBlueskyPostAsync(ATProtoClient.Host.Bluesky.PublicAppView, author_did, rkey);
 
             var parent = new ATProtoClient.MinimalRecord(
                 post.uri,
@@ -425,7 +425,7 @@ namespace Pandacap.Controllers
             if (credentials == null)
                 return Forbid();
 
-            var post = await FetchBlueskyPostAsync(ATProtoClient.Credentials.Bluesky.PublicAppView, did, rkey);
+            var post = await FetchBlueskyPostAsync(ATProtoClient.Host.Bluesky.PublicAppView, did, rkey);
 
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);

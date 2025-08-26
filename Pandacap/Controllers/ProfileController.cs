@@ -298,7 +298,7 @@ namespace Pandacap.Controllers
 
             var profile = await ATProtoClient.Bluesky.Actor.GetProfileAsync(
                 client,
-                ATProtoClient.Credentials.Bluesky.PublicAppView,
+                ATProtoClient.Host.Bluesky.PublicAppView,
                 handle);
 
             context.BlueskyFeeds.Add(new()

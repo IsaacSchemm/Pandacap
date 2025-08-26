@@ -44,15 +44,15 @@ module ATProtoClient =
             | [| "at:"; ""; _; _; rkey |] -> Uri.UnescapeDataString(rkey)
             | _ -> failwithf "Cannot extract record key from URI: %s" this.uri
 
-    type IServer =
+    type IHost =
         abstract member PDS: string
 
     type IToken =
-        inherit IServer
+        inherit IHost
         abstract member Token: string
 
     type ICredentials =
-        inherit IServer
+        inherit IHost
         abstract member DID: string
         abstract member AccessToken: string
 
@@ -61,15 +61,15 @@ module ATProtoClient =
         abstract member RefreshToken: string
         abstract member UpdateTokensAsync: newCredentials: Tokens -> Task
 
-    module Credentials =
+    module Host =
         let Unauthenticated host = {
-            new IServer with
+            new IHost with
                 member _.PDS = host
         }
 
         module Bluesky =
             let PublicAppView = {
-                new IServer with
+                new IHost with
                     member _.PDS = "public.api.bsky.app"
             }
 
@@ -82,7 +82,7 @@ module ATProtoClient =
         method: HttpMethod
         procedureName: string
         parameters: (string * string) list
-        credentials: IServer
+        credentials: IHost
         body: Body
     }
 
@@ -188,10 +188,7 @@ module ATProtoClient =
                 method = HttpMethod.Post
                 procedureName = "com.atproto.server.createSession"
                 parameters = []
-                credentials = {
-                    new IServer with
-                        member _.PDS = hostname
-                }
+                credentials = Host.Unauthenticated hostname
                 body = JsonBody [
                     "identifier", identifier
                     "password", password
