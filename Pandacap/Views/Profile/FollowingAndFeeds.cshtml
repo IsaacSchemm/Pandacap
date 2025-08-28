@@ -63,6 +63,18 @@ else
                                 </a>
                             }
                         }
+                        else if (item is ATProtoFeed a)
+                        {
+                            if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <form asp-action="RemoveATProtoFeed" class="d-inline" onsubmit="return confirm('Are you sure you want to unfollow this feed?')">
+                                    <input type="hidden" name="did" value="@a.DID" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm py-0">Unfollow</button>
+                                </form>
+
+                                <pre>@System.Text.Json.JsonSerializer.Serialize(a)</pre>
+                            }
+                        }
                         else if (item is BlueskyFeed b)
                         {
                             if (User.Identity?.IsAuthenticated == true)
@@ -104,6 +116,20 @@ else
             </div>
             <button type="submit" class="btn btn-primary">
                 Send follow request
+            </button>
+        </form>
+
+        <hr />
+
+        <form asp-action="AddATProtoFeed">
+            <div class="mb-3">
+                <label for="did" class="form-label">
+                    ATProto handle
+                </label>
+                <input type="text" class="form-control" id="handle" name="handle" />
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Add
             </button>
         </form>
 

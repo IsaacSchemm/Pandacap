@@ -6,15 +6,48 @@ open System.Net.Http.Headers
 open System.Net.Http.Json
 open System.Text.Json.Serialization
 open System.Threading.Tasks
+open FSharp.Control
 
 module ATProtoClient =
+    type DIDDocumentService = {
+        id: string
+        ``type``: string
+        serviceEndpoint: string
+    }
+
+    type DIDDocument = {
+        id: string
+        alsoKnownAs: string list
+        service: DIDDocumentService list
+    } with
+        [<JsonIgnore>]
+        member this.Handle =
+            this.alsoKnownAs
+            |> Seq.where (fun str -> str.StartsWith("at://"))
+            |> Seq.map (fun str -> str.Substring(5))
+            |> Seq.head
+        [<JsonIgnore>]
+        member this.PDS =
+            this.service
+            |> Seq.where (fun service -> service.``type`` = "AtprotoPersonalDataServer")
+            |> Seq.choose (fun service ->
+                match Uri.TryCreate(service.serviceEndpoint, UriKind.Absolute) with
+                | true, u -> Some u.Host
+                | false, _ -> None)
+            |> Seq.head
+
+    module PLCDirectory =
+        let ResolveAsync (httpClient: HttpClient) (did: string) = task {
+            use! resp = httpClient.GetAsync($"https://plc.directory/{Uri.EscapeDataString(did)}")
+            return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<DIDDocument>()
+        }
+
     module NSIDs =
         module Bluesky =
             module Actor =
                 let Profile = "app.bsky.actor.profile"
             module Feed =
                 let Post = "app.bsky.feed.post"
-                let Repost = "app.bsky.feed.repost"
 
         module WhiteWind =
             module Blog =
@@ -181,6 +214,19 @@ module ATProtoClient =
             use! response = t
             return! response.Content.ReadFromJsonAsync<'T>()
         }
+
+    module Identity =
+        let ResolveHandleAsync httpClient credentials handle =
+            Requests.sendAsync httpClient {
+                method = HttpMethod.Get
+                procedureName = "com.atproto.identity.resolveHandle"
+                parameters = [
+                    "handle", handle
+                ]
+                credentials = credentials
+                body = NoBody
+            }
+            |> Requests.thenReadAsAsync {| did = "" |}
 
     module Server =
         let CreateSessionAsync httpClient hostname identifier password = task {
@@ -616,14 +662,38 @@ module ATProtoClient =
             |> Requests.performRequestAsync httpClient
             |> Requests.thenIgnoreAsync
 
+        type RepoDescription = {
+            handle: string
+            did: string
+            didDoc: DIDDocument
+            collections: string list
+        }
+
+        let DescribeRepoAsync httpClient credentials (repo: string) =
+            {
+                method = HttpMethod.Get
+                procedureName = "com.atproto.repo.describeRepo"
+                parameters = [
+                    "repo", repo
+                ]
+                credentials = credentials
+                body = NoBody
+            }
+            |> Requests.performRequestAsync httpClient
+            |> Requests.thenReadAsync<RepoDescription>
+
         type RecordListItem<'T> = {
             uri: string
             cid: string
             value: 'T
-        }
+        } with
+            [<JsonIgnore>]
+            member this.RecordKey =
+                extractRecordKey this.uri
 
         type RecordList<'T> = {
             records: RecordListItem<'T> list
+            cursor: string option
         }
 
         module Schemas =
@@ -646,13 +716,37 @@ module ATProtoClient =
 
                     type Embed = {
                         images: EmbedImage list option
+                        record: MinimalRecord option
+                    }
+
+                    type Reply = {
+                        parent: MinimalRecord
+                        root: MinimalRecord
                     }
 
                     type Post = {
                         text: string
                         embed: Embed option
+                        reply: Reply option
+                        bridgyOriginalUrl: string option
                         createdAt: DateTimeOffset
-                    }
+                    } with
+                        [<JsonIgnore>]
+                        member this.Images =
+                            this.embed
+                            |> Option.bind (fun e -> e.images)
+                            |> Option.defaultValue []
+                        [<JsonIgnore>]
+                        member this.EmbeddedRecord =
+                            this.embed
+                            |> Option.bind (fun e -> e.record)
+                            |> Option.toObj
+                        [<JsonIgnore>]
+                        member this.InReplyTo =
+                            Option.toObj this.reply
+                        [<JsonIgnore>]
+                        member this.ActivityPubUrl =
+                            Option.toObj this.bridgyOriginalUrl
 
                     type Repost = {
                         createdAt: DateTimeOffset
@@ -665,6 +759,8 @@ module ATProtoClient =
                         displayName: string option
                         description: string option
                     } with
+                        [<JsonIgnore>]
+                        member this.AvatarCID = this.avatar |> Option.map (fun a -> a.ref.``$link``) |> Option.toObj
                         [<JsonIgnore>]
                         member this.DisplayName = Option.toObj this.displayName
                         [<JsonIgnore>]
@@ -685,13 +781,17 @@ module ATProtoClient =
             |> Requests.performRequestAsync httpClient
             |> Requests.thenReadAsync<'T>
 
-        let ListRecordsAsync<'T> httpClient credentials did collection =
+        let ListRecordsAsync<'T> httpClient credentials did collection cursor =
             {
                 method = HttpMethod.Get
                 procedureName = "com.atproto.repo.listRecords"
                 parameters = [
                     "repo", did
                     "collection", collection
+
+                    match cursor with
+                    | Some c -> "cursor", c
+                    | None -> ()
                 ]
                 credentials = credentials
                 body = NoBody
@@ -699,14 +799,26 @@ module ATProtoClient =
             |> Requests.performRequestAsync httpClient
             |> Requests.thenReadAsync<RecordList<'T>>
 
-        let ListBlueskyFeedPostsAsync httpClient credentials did =
-            ListRecordsAsync<Schemas.Bluesky.Feed.Post> httpClient credentials did NSIDs.Bluesky.Feed.Post
+        let EnumerateRecordsAsync<'T> httpClient credentials did collection = taskSeq {
+            let mutable finished = false
+            let mutable cursor = None
+            while not finished do
+                let! page = ListRecordsAsync<'T> httpClient credentials did collection cursor
+                for item in page.records do item
+                if List.isEmpty page.records then
+                    finished <- true
+                else
+                    cursor <- page.cursor 
+        }
 
-        let ListBlueskyFeedRepostsAsync httpClient credentials did =
-            ListRecordsAsync<Schemas.Bluesky.Feed.Repost> httpClient credentials did NSIDs.Bluesky.Feed.Repost
+        let EnumerateBlueskyFeedPostsAsync httpClient credentials did =
+            EnumerateRecordsAsync<Schemas.Bluesky.Feed.Post> httpClient credentials did NSIDs.Bluesky.Feed.Post
 
-        let ListBlueskyActorProfilesAsync httpClient credentials did =
-            ListRecordsAsync<Schemas.Bluesky.Actor.Profile> httpClient credentials did NSIDs.Bluesky.Actor.Profile
+        //let EnumerateBlueskyFeedRepostsAsync httpClient credentials did =
+        //    EnumerateRecordsAsync<Schemas.Bluesky.Feed.Repost> httpClient credentials did NSIDs.Bluesky.Feed.Repost
+
+        let EnumerateBlueskyActorProfilesAsync httpClient credentials did =
+            EnumerateRecordsAsync<Schemas.Bluesky.Actor.Profile> httpClient credentials did NSIDs.Bluesky.Actor.Profile
 
         let GetBlobAsync httpClient credentials did cid = task {
             use! resp = Requests.performRequestAsync httpClient {

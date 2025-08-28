@@ -10,6 +10,7 @@ using Pandacap.Clients;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.RssInbound;
 using Pandacap.LowLevel.MyLinks;
 using Pandacap.Models;
@@ -22,6 +23,7 @@ namespace Pandacap.Controllers
         ActivityPubRemoteActorService activityPubRemoteActorService,
         ApplicationInformation appInfo,
         AtomRssFeedReader atomRssFeedReader,
+        ATProtoFeedReader atProtoFeedReader,
         BlobServiceClient blobServiceClient,
         BridgyFedHandleProvider bridgyFedHandleProvider,
         CompositeFavoritesProvider compositeFavoritesProvider,
@@ -359,6 +361,79 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
 
+        private class ResolutionResponse
+        {
+            public string did { get; set; } = "";
+        }
+
+        private class DirectoryResponse
+        {
+            public List<string> alsoKnownAs { get; set; } = [];
+            public List<Service> service { get; set; } = [];
+
+            public class Service
+            {
+                public string type { get; set; } = "";
+                public string serviceEndpoint { get; set; } = "";
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddATProtoFeed(string handle)
+        {
+            var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var handleResolution = await ATProtoClient.Identity.ResolveHandleAsync(
+                client,
+                ATProtoClient.Host.Bluesky.PublicAppView,
+                handle);
+
+            var did = handleResolution.did;
+
+            var document = await ATProtoClient.PLCDirectory.ResolveAsync(
+                client,
+                did);
+
+            var repo = await ATProtoClient.Repo.DescribeRepoAsync(
+                client,
+                ATProtoClient.Host.Unauthenticated(document.PDS),
+                did);
+
+            context.ATProtoFeeds.Add(new ATProtoFeed
+            {
+                Collections = [.. repo.collections
+                    .Select(c => new ATProtoFeedCollection
+                    {
+                        NSID = c
+                    })],
+                DID = did,
+                Handle = document.Handle,
+                PDS = document.PDS
+            });
+
+            await context.SaveChangesAsync();
+
+            await atProtoFeedReader.RefreshFeedAsync(did);
+
+            return RedirectToAction(nameof(FollowingAndFeeds));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveATProtoFeed(string did)
+        {
+            await foreach (var feed in context.ATProtoFeeds.Where(f => f.DID == did).AsAsyncEnumerable())
+                context.ATProtoFeeds.Remove(feed);
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(FollowingAndFeeds));
+        }
+
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -401,6 +476,7 @@ namespace Pandacap.Controllers
         {
             async IAsyncEnumerable<IFollow> getFollows()
             {
+                await foreach (var x in context.ATProtoFeeds) yield return x;
                 await foreach (var x in context.BlueskyFeeds) yield return x;
                 await foreach (var x in context.Follows) yield return x;
                 await foreach (var x in context.RssFeeds) yield return x;

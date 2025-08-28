@@ -36,6 +36,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoCredentialProvider>()
+                .AddScoped<ATProtoFeedReader>()
                 .AddScoped<ATProtoNotificationHandler>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<CompositeNotificationHandler>()

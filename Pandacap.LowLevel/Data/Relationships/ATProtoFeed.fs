@@ -31,14 +31,17 @@ type ATProtoFeed() =
 
     member val Handle = nullString with get, set
     member val DisplayName = nullString with get, set
-    member val Avatar = nullString with get, set
+    member val AvatarCID = nullString with get, set
 
     interface IFollow with
         member this.Filtered =
             this.Collections
             |> Seq.exists (fun c -> c.Filters.SkipAny)
         member _.Platform = ATProto
-        member this.IconUrl = this.Avatar
+        member this.IconUrl =
+            if isNull this.AvatarCID
+            then null
+            else $"https://{this.PDS}/xrpc/com.atproto.sync.getBlob?did={this.DID}&cid={this.AvatarCID}"
         member this.LinkUrl = $"https://bsky.app/profile/{this.Handle}"
         member this.Username = this.Handle
         member this.Url = $"https://{this.PDS}/xrpc/app.bsky.actor.getProfile?actor={this.DID}"
