@@ -1,25 +1,11 @@
 ﻿namespace Pandacap.Data
 
 open System.ComponentModel.DataAnnotations
-open System.ComponentModel.DataAnnotations.Schema
 open Pandacap.PlatformBadges
-
-type ATProtoFeedFilters() =
-    member val IgnoreImages = false with get, set
-    member val SkipPostsWithoutImages = false with get, set
-    member val SkipReplies = false with get, set
-    member val SkipQuotePosts = false with get, set
-
-    [<NotMapped>]
-    member this.SkipAny =
-        this.SkipPostsWithoutImages
-        || this.SkipReplies
-        || this.SkipQuotePosts
 
 type ATProtoFeedCollection() =
     member val NSID = "" with get, set
     member val LastSeenCIDs = new ResizeArray<string>() with get, set
-    member val Filters = new ATProtoFeedFilters() with get, set
 
 type ATProtoFeed() =
     [<Key>]
@@ -29,14 +15,19 @@ type ATProtoFeed() =
 
     member val Collections = new ResizeArray<ATProtoFeedCollection>() with get, set
 
+    member val IncludePostsWithoutImages = true with get, set
+    member val IncludeReplies = false with get, set
+    member val IncludeQuotePosts = true with get, set
+
+    member val IgnoreImages = false with get, set
+
     member val Handle = nullString with get, set
     member val DisplayName = nullString with get, set
     member val AvatarCID = nullString with get, set
 
     interface IFollow with
         member this.Filtered =
-            this.Collections
-            |> Seq.exists (fun c -> c.Filters.SkipAny)
+            not this.IncludePostsWithoutImages || not this.IncludeQuotePosts
         member _.Platform = ATProto
         member this.IconUrl =
             if isNull this.AvatarCID

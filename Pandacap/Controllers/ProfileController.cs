@@ -416,7 +416,38 @@ namespace Pandacap.Controllers
 
             await context.SaveChangesAsync();
 
-            await atProtoFeedReader.RefreshFeedAsync(did);
+            //await atProtoFeedReader.RefreshFeedAsync(did);
+
+            return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
+        }
+
+        [Authorize]
+        public async Task<IActionResult> UpdateATProtoFeed(
+            string did)
+        {
+            var follow = await context.ATProtoFeeds
+                .Where(f => f.DID == did)
+                .FirstOrDefaultAsync();
+
+            return View(follow);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateATProtoFeed(ATProtoFeed model)
+        {
+            await foreach (var follow in context.ATProtoFeeds
+                .Where(f => f.DID == model.DID)
+                .AsAsyncEnumerable())
+            {
+                follow.IgnoreImages = model.IgnoreImages;
+                follow.IncludePostsWithoutImages = model.IncludePostsWithoutImages;
+                follow.IncludeReplies = model.IncludeReplies;
+                follow.IncludeQuotePosts = model.IncludeQuotePosts;
+            }
+
+            await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }

@@ -32,9 +32,7 @@ namespace Pandacap.HighLevel.ATProto
                         }
 
                         feed.DisplayName = profile.value.DisplayName;
-                        feed.AvatarCID = trackedCollection.Filters.IgnoreImages
-                            ? null
-                            : profile.value.AvatarCID;
+                        feed.AvatarCID = profile.value.AvatarCID;
 
                         trackedCollection.LastSeenCIDs = [profile.cid, ..trackedCollection.LastSeenCIDs.Take(4)];
                     }
@@ -52,11 +50,14 @@ namespace Pandacap.HighLevel.ATProto
                         }
 
                         bool isQuotePost = post.value.EmbeddedRecord != null;
-                        if (isQuotePost && trackedCollection.Filters.SkipQuotePosts)
+                        if (isQuotePost && !feed.IncludeQuotePosts)
                             continue;
 
                         bool isReply = post.value.InReplyTo != null;
-                        if (isReply && trackedCollection.Filters.SkipReplies)
+                        if (isReply && !feed.IncludeReplies)
+                            continue;
+
+                        if (post.value.Images.IsEmpty && !feed.IncludePostsWithoutImages)
                             continue;
 
                         var existing = await context.BlueskyPostFeedItems.FindAsync(post.cid);
@@ -76,7 +77,7 @@ namespace Pandacap.HighLevel.ATProto
                             CID = post.cid,
                             CreatedAt = post.value.createdAt,
                             Labels = [.. post.value.Labels],
-                            Images = trackedCollection.Filters.IgnoreImages
+                            Images = feed.IgnoreImages
                                 ? []
                                 : [.. post.value.Images.Select(i => new BlueskyPostFeedItemImage
                                 {
