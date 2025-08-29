@@ -18,8 +18,8 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
-            var bluesky = context.BlueskyFeedItems
-                .OrderByDescending(d => d.IndexedAt)
+            var bluesky = context.BlueskyPostFeedItems
+                .OrderByDescending(d => d.CreatedAt)
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
@@ -204,8 +204,8 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .BlueskyFeedItems
-                .Where(item => guids.Contains(item.Id))
+                .BlueskyPostFeedItems
+                .Where(item => ids.Contains(item.CID))
                 .AsAsyncEnumerable())
             {
                 yield return item;

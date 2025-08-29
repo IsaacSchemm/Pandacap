@@ -24,7 +24,7 @@ namespace Pandacap.HighLevel.ATProto
                     await foreach (var profile in ATProtoClient.Repo.EnumerateBlueskyActorProfilesAsync(
                         client,
                         ATProtoClient.Host.Unauthenticated(feed.PDS),
-                        did))
+                        did).Take(1))
                     {
                         if (trackedCollection.LastSeenCIDs.Contains(profile.cid))
                         {
@@ -44,7 +44,7 @@ namespace Pandacap.HighLevel.ATProto
                     await foreach (var post in ATProtoClient.Repo.EnumerateBlueskyFeedPostsAsync(
                         client,
                         ATProtoClient.Host.Unauthenticated(feed.PDS),
-                        did))
+                        did).Take(25))
                     {
                         if (trackedCollection.LastSeenCIDs.Contains(post.cid))
                         {
@@ -59,8 +59,33 @@ namespace Pandacap.HighLevel.ATProto
                         if (isReply && trackedCollection.Filters.SkipReplies)
                             continue;
 
-                        //if (trackedCollection.Filters.IgnoreImages)
-                        //    throw new NotImplementedException();
+                        var existing = await context.BlueskyPostFeedItems.FindAsync(post.cid);
+                        if (existing != null)
+                            context.BlueskyPostFeedItems.Remove(existing);
+
+                        context.BlueskyPostFeedItems.Add(new()
+                        {
+                            Author = new()
+                            {
+                                AvatarCID = feed.AvatarCID,
+                                DID = feed.DID,
+                                DisplayName = feed.DisplayName,
+                                Handle = feed.Handle,
+                                PDS = feed.PDS
+                            },
+                            CID = post.cid,
+                            CreatedAt = post.value.createdAt,
+                            Labels = [.. post.value.Labels],
+                            Images = trackedCollection.Filters.IgnoreImages
+                                ? []
+                                : [.. post.value.Images.Select(i => new BlueskyPostFeedItemImage
+                                {
+                                    Alt = i.Alt,
+                                    CID = i.BlobCID
+                                })],
+                            RecordKey = post.RecordKey,
+                            Text = post.value.text
+                        });
 
                         trackedCollection.LastSeenCIDs = [post.cid, .. trackedCollection.LastSeenCIDs.Take(4)];
                     }

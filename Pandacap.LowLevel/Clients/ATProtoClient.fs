@@ -712,7 +712,11 @@ module ATProtoClient =
                     type EmbedImage = {
                         alt: string option
                         image: Blob
-                    }
+                    } with
+                        [<JsonIgnore>]
+                        member this.Alt = this.alt |> Option.toObj
+                        [<JsonIgnore>]
+                        member this.BlobCID = this.image.ref.``$link``
 
                     type Embed = {
                         images: EmbedImage list option
@@ -724,11 +728,20 @@ module ATProtoClient =
                         root: MinimalRecord
                     }
 
+                    type Label = {
+                        ``val``: string
+                    }
+
+                    type Labels = {
+                        values: Label list
+                    }
+
                     type Post = {
                         text: string
                         embed: Embed option
                         reply: Reply option
                         bridgyOriginalUrl: string option
+                        labels: Labels option
                         createdAt: DateTimeOffset
                     } with
                         [<JsonIgnore>]
@@ -744,6 +757,12 @@ module ATProtoClient =
                         [<JsonIgnore>]
                         member this.InReplyTo =
                             Option.toObj this.reply
+                        [<JsonIgnore>]
+                        member this.Labels =
+                            this.labels
+                            |> Option.map (fun ls -> ls.values)
+                            |> Option.defaultValue []
+                            |> Seq.map (fun l -> l.``val``)
                         [<JsonIgnore>]
                         member this.ActivityPubUrl =
                             Option.toObj this.bridgyOriginalUrl
