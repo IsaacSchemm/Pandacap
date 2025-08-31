@@ -161,11 +161,15 @@ module ATProtoClient =
             let! resp = sendAsync httpClient req
 
             let! error = task {
-                if resp.IsSuccessStatusCode then
-                    return None
-                else
+                let isJson =
+                    resp.Content.Headers.ContentType
+                    |> Option.ofObj
+                    |> Option.exists (fun c -> c.MediaType = "application/json")
+                if not resp.IsSuccessStatusCode && isJson then
                     let! err = resp.Content.ReadFromJsonAsync<XrpcError>()
                     return Some err
+                else
+                    return None
             }
 
             match error, req.credentials with
@@ -198,7 +202,7 @@ module ATProtoClient =
             | Some err, _ ->
                 return raise (XrpcException err)
             | None, _ ->
-                return resp
+                return resp.EnsureSuccessStatusCode()
         }
 
         let thenIgnoreAsync (t: Task<HttpResponseMessage>) = task {
@@ -555,7 +559,7 @@ module ATProtoClient =
             parent: MinimalRecord
         }
 
-        type Post = {
+        type PostToCreate = {
             Text: string
             CreatedAt: DateTimeOffset
             Embed: PostEmbed
@@ -568,7 +572,7 @@ module ATProtoClient =
         }
 
         type RecordToCreate =
-        | Post of Post
+        | Post of PostToCreate
         | EmptyThreadGate of ThreadGate
         | Like of MinimalRecord
 
@@ -847,15 +851,6 @@ module ATProtoClient =
                     cursor <- page.cursor 
         }
 
-        let EnumerateBlueskyFeedPostsAsync httpClient credentials did =
-            EnumerateRecordsAsync<Schemas.Bluesky.Feed.Post> httpClient credentials did NSIDs.Bluesky.Feed.Post
-
-        let EnumerateBlueskyFeedRepostsAsync httpClient credentials did =
-            EnumerateRecordsAsync<Schemas.Bluesky.Feed.Repost> httpClient credentials did NSIDs.Bluesky.Feed.Repost
-
-        let EnumerateBlueskyActorProfilesAsync httpClient credentials did =
-            EnumerateRecordsAsync<Schemas.Bluesky.Actor.Profile> httpClient credentials did NSIDs.Bluesky.Actor.Profile
-
         let GetBlobAsync httpClient credentials did cid = task {
             use! resp = Requests.performRequestAsync httpClient {
                 method = HttpMethod.Get
@@ -882,3 +877,34 @@ module ATProtoClient =
                     |> Option.defaultValue "application/octet-stream"
             |}
         }
+
+        module AsynchronousEnumeration =
+            let private isNotIn y x = not (Seq.contains x.cid y)
+
+            let EnumerateBlueskyFeedPostsAsync httpClient credentials did until =
+                EnumerateRecordsAsync<Schemas.Bluesky.Feed.Post> httpClient credentials did NSIDs.Bluesky.Feed.Post
+                |> TaskSeq.takeWhile (isNotIn until)
+
+            let EnumerateBlueskyFeedRepostsAsync httpClient credentials did until =
+                EnumerateRecordsAsync<Schemas.Bluesky.Feed.Repost> httpClient credentials did NSIDs.Bluesky.Feed.Repost
+                |> TaskSeq.takeWhile (isNotIn until)
+                |> TaskSeq.chooseAsync (fun repost -> task {
+                    try
+                        let subject = repost.value.subject
+
+                        let! doc = PLCDirectory.ResolveAsync httpClient repost.DID
+                        let pds = doc.PDS
+
+                        let! post = GetBlueskyFeedPostAsync httpClient (Host.Unauthenticated pds) subject.DID subject.RecordKey
+
+                        return Some {|
+                            Original = post
+                            Repost = repost
+                            OriginalPDS = pds
+                        |}
+                    with :? XrpcException -> return None
+                })
+
+            let EnumerateBlueskyActorProfilesAsync httpClient credentials did until =
+                EnumerateRecordsAsync<Schemas.Bluesky.Actor.Profile> httpClient credentials did NSIDs.Bluesky.Actor.Profile
+                |> TaskSeq.takeWhile (isNotIn until)
