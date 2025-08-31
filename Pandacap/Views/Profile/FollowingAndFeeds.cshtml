@@ -56,30 +56,26 @@ else
                     {
                         if (item is Follow f)
                         {
-                            if (User.Identity?.IsAuthenticated == true)
-                            {
-                                <a asp-action="UpdateFollow" asp-route-id="@f.ActorId" class="btn btn-outline-primary btn-sm py-0">
-                                    Options
-                                </a>
-                            }
+                            <a asp-action="UpdateFollow" asp-route-id="@f.ActorId" class="btn btn-outline-primary btn-sm py-0">
+                                Options
+                            </a>
                         }
                         else if (item is ATProtoFeed a)
                         {
-                            if (User.Identity?.IsAuthenticated == true)
-                            {
-                                <a asp-action="UpdateATProtoFeed" asp-route-did="@a.DID" class="btn btn-outline-primary btn-sm py-0">
-                                    Options
-                                </a>
-                            }
+                            <form asp-action="RefreshATProtoFeed" class="d-inline">
+                                <input type="hidden" name="did" value="@a.DID" />
+                                <button type="submit" class="btn btn-outline-primary btn-sm py-0">Refresh</button>
+                            </form>
+
+                            <a asp-action="UpdateATProtoFeed" asp-route-did="@a.DID" class="btn btn-outline-primary btn-sm py-0">
+                                Options
+                            </a>
                         }
                         else if (item is BlueskyFeed b)
                         {
-                            if (User.Identity?.IsAuthenticated == true)
-                            {
-                                <a asp-action="UpdateBlueskyFeed" asp-route-did="@b.DID" class="btn btn-outline-primary btn-sm py-0">
-                                    Options
-                                </a>
-                            }
+                            <a asp-action="UpdateBlueskyFeed" asp-route-did="@b.DID" class="btn btn-outline-primary btn-sm py-0">
+                                Options
+                            </a>
                         }
                         else if (item is RssFeed r)
                         {

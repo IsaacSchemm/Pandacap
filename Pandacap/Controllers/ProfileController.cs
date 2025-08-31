@@ -416,8 +416,6 @@ namespace Pandacap.Controllers
 
             await context.SaveChangesAsync();
 
-            //await atProtoFeedReader.RefreshFeedAsync(did);
-
             return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
         }
 
@@ -425,11 +423,26 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> UpdateATProtoFeed(
             string did)
         {
-            var follow = await context.ATProtoFeeds
+            var feed = await context.ATProtoFeeds
                 .Where(f => f.DID == did)
                 .FirstOrDefaultAsync();
 
-            return View(follow);
+            return View(feed);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RefreshATProtoFeed(
+            string did)
+        {
+            var feed = await context.ATProtoFeeds
+                .Where(f => f.DID == did)
+                .FirstOrDefaultAsync();
+
+            await atProtoFeedReader.RefreshFeedAsync(did);
+
+            return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
         }
 
         [HttpPost]

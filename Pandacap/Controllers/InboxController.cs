@@ -18,8 +18,13 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
-            var bluesky = context.BlueskyPostFeedItems
+            var bluesky1 = context.BlueskyPostFeedItems
                 .OrderByDescending(d => d.CreatedAt)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
+            var bluesky2 = context.BlueskyRepostFeedItems
+                .OrderByDescending(d => d.RepostedAt)
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
@@ -62,7 +67,8 @@ namespace Pandacap.Controllers
                 new[]
                 {
                     activityPub,
-                    bluesky,
+                    bluesky1,
+                    bluesky2,
                     deviantArtImages,
                     deviantArtText,
                     furAffinitySubmissions,
@@ -205,6 +211,14 @@ namespace Pandacap.Controllers
 
             await foreach (var item in context
                 .BlueskyPostFeedItems
+                .Where(item => ids.Contains(item.CID))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
+
+            await foreach (var item in context
+                .BlueskyRepostFeedItems
                 .Where(item => ids.Contains(item.CID))
                 .AsAsyncEnumerable())
             {

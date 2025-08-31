@@ -48,6 +48,7 @@ module ATProtoClient =
                 let Profile = "app.bsky.actor.profile"
             module Feed =
                 let Post = "app.bsky.feed.post"
+                let Repost = "app.bsky.feed.repost"
 
         module WhiteWind =
             module Blog =
@@ -124,9 +125,9 @@ module ATProtoClient =
         message: string
     }
 
-    module internal Requests =
-        exception XrpcException of XrpcError
+    exception XrpcException of XrpcError
 
+    module internal Requests =
         let sendAsync (httpClient: HttpClient) (request: Request) = task {
             let queryString = String.concat "&" [
                 for key, value in request.parameters do
@@ -249,6 +250,16 @@ module ATProtoClient =
 
             return! resp.Content.ReadFromJsonAsync<Tokens>()
         }
+
+    let extractDID (uri: string) =
+        if not (isNull uri) && uri.StartsWith("at://") then
+            let split = uri.Split('/')
+            if split[2].StartsWith("did:") then
+                split[2]
+            else
+                null
+        else
+            null
 
     let extractRecordKey (uri: string) =
         match uri with
@@ -688,6 +699,9 @@ module ATProtoClient =
             value: 'T
         } with
             [<JsonIgnore>]
+            member this.DID =
+                extractDID this.uri
+            [<JsonIgnore>]
             member this.RecordKey =
                 extractRecordKey this.uri
 
@@ -798,7 +812,10 @@ module ATProtoClient =
                 body = NoBody
             }
             |> Requests.performRequestAsync httpClient
-            |> Requests.thenReadAsync<'T>
+            |> Requests.thenReadAsync<RecordListItem<'T>>
+
+        let GetBlueskyFeedPostAsync httpClient credentials did rkey =
+            GetRecordAsync<Schemas.Bluesky.Feed.Post> httpClient credentials did NSIDs.Bluesky.Feed.Post rkey
 
         let ListRecordsAsync<'T> httpClient credentials did collection cursor =
             {
@@ -833,8 +850,8 @@ module ATProtoClient =
         let EnumerateBlueskyFeedPostsAsync httpClient credentials did =
             EnumerateRecordsAsync<Schemas.Bluesky.Feed.Post> httpClient credentials did NSIDs.Bluesky.Feed.Post
 
-        //let EnumerateBlueskyFeedRepostsAsync httpClient credentials did =
-        //    EnumerateRecordsAsync<Schemas.Bluesky.Feed.Repost> httpClient credentials did NSIDs.Bluesky.Feed.Repost
+        let EnumerateBlueskyFeedRepostsAsync httpClient credentials did =
+            EnumerateRecordsAsync<Schemas.Bluesky.Feed.Repost> httpClient credentials did NSIDs.Bluesky.Feed.Repost
 
         let EnumerateBlueskyActorProfilesAsync httpClient credentials did =
             EnumerateRecordsAsync<Schemas.Bluesky.Actor.Profile> httpClient credentials did NSIDs.Bluesky.Actor.Profile
