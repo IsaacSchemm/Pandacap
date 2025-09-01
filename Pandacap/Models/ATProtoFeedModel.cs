@@ -15,6 +15,8 @@
 
         public bool IgnoreImages { get; init; }
 
+        public bool IncludeBlueskyProfile { get; init; }
+        public bool IncludeBlueskyLikes { get; init; }
         public bool IncludeBlueskyPosts { get; init; }
         public bool IncludeBlueskyReposts { get; init; }
     }

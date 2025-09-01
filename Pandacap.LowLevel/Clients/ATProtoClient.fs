@@ -46,6 +46,7 @@ module ATProtoClient =
             module Actor =
                 let Profile = "app.bsky.actor.profile"
             module Feed =
+                let Like = "app.bsky.feed.like"
                 let Post = "app.bsky.feed.post"
                 let Repost = "app.bsky.feed.repost"
 
@@ -786,10 +787,22 @@ module ATProtoClient =
                         member this.ActivityPubUrl =
                             Option.toObj this.bridgyOriginalUrl
 
+                    type IHasSubject =
+                        abstract member Subject: MinimalRecord
+
+                    type Like = {
+                        createdAt: DateTimeOffset
+                        subject: MinimalRecord
+                    } with
+                        interface IHasSubject with
+                            member this.Subject = this.subject
+
                     type Repost = {
                         createdAt: DateTimeOffset
                         subject: MinimalRecord
-                    }
+                    } with
+                        interface IHasSubject with
+                            member this.Subject = this.subject
 
                 module Actor =
                     type Profile = {

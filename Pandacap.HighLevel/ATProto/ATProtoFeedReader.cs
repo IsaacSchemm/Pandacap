@@ -27,26 +27,26 @@ namespace Pandacap.HighLevel.ATProto
             return true;
         }
 
-        private record RepostSubject(
+        private record SubjectData(
             ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> Subject,
             string PDS);
 
-        private static async Task<RepostSubject?> FetchSubjectAsync(
+        private static async Task<SubjectData?> FetchSubjectAsync<T>(
             HttpClient client,
-            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Repost> repost)
+            ATProtoClient.Repo.RecordListItem<T> repost) where T : ATProtoClient.Repo.Schemas.Bluesky.Feed.IHasSubject
         {
             try
             {
                 var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
                     client,
-                    repost.value.subject.DID);
+                    repost.value.Subject.DID);
 
                 var subject = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
                     client,
                     ATProtoClient.Host.Unauthenticated(doc.PDS),
-                    repost.value.subject.DID,
+                    repost.value.Subject.DID,
                     ATProtoClient.NSIDs.Bluesky.Feed.Post,
-                    repost.value.subject.RecordKey);
+                    repost.value.Subject.RecordKey);
 
                 return new(subject, doc.PDS);
             }
@@ -54,6 +54,46 @@ namespace Pandacap.HighLevel.ATProto
             {
                 return null;
             }
+        }
+
+        private void AddToContext(
+            ATProtoFeed feed,
+            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Like> like,
+            SubjectData subjectData)
+        {
+            var subject = subjectData.Subject;
+            var pds = subjectData.PDS;
+
+            context.BlueskyRepostFeedItems.Add(new()
+            {
+                CID = like.cid,
+                CreatedAt = subject.value.createdAt,
+                Labels = [.. subject.value.Labels],
+                Images = feed.IgnoreImages
+                    ? []
+                    : [.. subject.value.Images.Select(i => new BlueskyRepostFeedItemImage
+                    {
+                        Alt = i.Alt,
+                        CID = i.BlobCID
+                    })],
+                Original = new()
+                {
+                    CID = subject.cid,
+                    DID = subject.DID,
+                    PDS = pds,
+                    RecordKey = subject.RecordKey
+                },
+                RepostedAt = like.value.createdAt,
+                RepostedBy = new()
+                {
+                    AvatarCID = feed.AvatarCID,
+                    DID = feed.DID,
+                    DisplayName = feed.DisplayName,
+                    Handle = feed.Handle,
+                    PDS = feed.PDS
+                },
+                Text = subject.value.text
+            });
         }
 
         private void AddToContext(
@@ -88,10 +128,10 @@ namespace Pandacap.HighLevel.ATProto
         private void AddToContext(
             ATProtoFeed feed,
             ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Repost> repost,
-            RepostSubject repostSubject)
+            SubjectData subjectData)
         {
-            var subject = repostSubject.Subject;
-            var pds = repostSubject.PDS;
+            var subject = subjectData.Subject;
+            var pds = subjectData.PDS;
 
             context.BlueskyRepostFeedItems.Add(new()
             {
@@ -151,6 +191,52 @@ namespace Pandacap.HighLevel.ATProto
                     feed.DisplayName = profile.value.DisplayName;
                     feed.AvatarCID = profile.value.AvatarCID;
                 }
+            }
+
+            if (feed.NSIDs.Contains(ATProtoClient.NSIDs.Bluesky.Feed.Like))
+            {
+                if (!feed.Cursors.ContainsKey(ATProtoClient.NSIDs.Bluesky.Feed.Like))
+                {
+                    var page = await ATProtoClient.Repo.ListRecordsAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Like>(
+                        client,
+                        ATProtoClient.Host.Unauthenticated(feed.PDS),
+                        did,
+                        ATProtoClient.NSIDs.Bluesky.Feed.Like,
+                        21,
+                        null,
+                        ATProtoClient.Repo.Direction.Forward);
+
+                    feed.Cursors[ATProtoClient.NSIDs.Bluesky.Feed.Like] = page.Cursor;
+                }
+
+                var cursor = feed.Cursors[ATProtoClient.NSIDs.Bluesky.Feed.Like];
+
+                var likes = await ATProtoClient.Repo.ListRecordsAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Like>(
+                    client,
+                    ATProtoClient.Host.Unauthenticated(feed.PDS),
+                    did,
+                    ATProtoClient.NSIDs.Bluesky.Feed.Like,
+                    100,
+                    cursor,
+                    ATProtoClient.Repo.Direction.Reverse);
+
+                foreach (var like in likes.records)
+                {
+                    var existing = await context.BlueskyLikeFeedItems.FindAsync(like.cid);
+                    if (existing != null)
+                        context.BlueskyLikeFeedItems.Remove(existing);
+
+                    if (await FetchSubjectAsync(client, like) is not SubjectData info)
+                        continue;
+
+                    if (!PostMatchesFilters(feed, info.Subject))
+                        continue;
+
+                    AddToContext(feed, like, info);
+                }
+
+                if (likes.Cursor is string next)
+                    feed.Cursors[ATProtoClient.NSIDs.Bluesky.Feed.Like] = next;
             }
 
             if (feed.NSIDs.Contains(ATProtoClient.NSIDs.Bluesky.Feed.Post))
@@ -229,7 +315,7 @@ namespace Pandacap.HighLevel.ATProto
                     if (existing != null)
                         context.BlueskyRepostFeedItems.Remove(existing);
 
-                    if (await FetchSubjectAsync(client, repost) is not RepostSubject info)
+                    if (await FetchSubjectAsync(client, repost) is not SubjectData info)
                         continue;
 
                     if (!PostMatchesFilters(feed, info.Subject))
