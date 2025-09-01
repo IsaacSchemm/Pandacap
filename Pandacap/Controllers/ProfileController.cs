@@ -404,11 +404,6 @@ namespace Pandacap.Controllers
 
             context.ATProtoFeeds.Add(new ATProtoFeed
             {
-                Collections = [.. repo.collections
-                    .Select(c => new ATProtoFeedCollection
-                    {
-                        NSID = c
-                    })],
                 DID = did,
                 Handle = document.Handle,
                 PDS = document.PDS

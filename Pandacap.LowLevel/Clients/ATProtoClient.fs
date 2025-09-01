@@ -6,7 +6,6 @@ open System.Net.Http.Headers
 open System.Net.Http.Json
 open System.Text.Json.Serialization
 open System.Threading.Tasks
-open FSharp.Control
 
 module ATProtoClient =
     type DIDDocumentService = {
@@ -622,7 +621,7 @@ module ATProtoClient =
                                         "images", [
                                             for i in images do dict [
                                                 "image", i.Blob
-                                                "alt", i.AltText
+                                                "alt", i.AltText |> Option.ofObj |> Option.defaultValue "" :> obj
                                                 match i.Dimensions with
                                                 | None -> ()
                                                 | Some (width, height) ->
@@ -818,9 +817,6 @@ module ATProtoClient =
             |> Requests.performRequestAsync httpClient
             |> Requests.thenReadAsync<RecordListItem<'T>>
 
-        let GetBlueskyFeedPostAsync httpClient credentials did rkey =
-            GetRecordAsync<Schemas.Bluesky.Feed.Post> httpClient credentials did NSIDs.Bluesky.Feed.Post rkey
-
         let ListRecordsAsync<'T> httpClient credentials did collection cursor =
             {
                 method = HttpMethod.Get
@@ -838,18 +834,6 @@ module ATProtoClient =
             }
             |> Requests.performRequestAsync httpClient
             |> Requests.thenReadAsync<RecordList<'T>>
-
-        let EnumerateRecordsAsync<'T> httpClient credentials did collection = taskSeq {
-            let mutable finished = false
-            let mutable cursor = None
-            while not finished do
-                let! page = ListRecordsAsync<'T> httpClient credentials did collection cursor
-                for item in page.records do item
-                if List.isEmpty page.records then
-                    finished <- true
-                else
-                    cursor <- page.cursor 
-        }
 
         let GetBlobAsync httpClient credentials did cid = task {
             use! resp = Requests.performRequestAsync httpClient {
@@ -877,34 +861,3 @@ module ATProtoClient =
                     |> Option.defaultValue "application/octet-stream"
             |}
         }
-
-        module AsynchronousEnumeration =
-            let private isNotIn y x = not (Seq.contains x.cid y)
-
-            let EnumerateBlueskyFeedPostsAsync httpClient credentials did until =
-                EnumerateRecordsAsync<Schemas.Bluesky.Feed.Post> httpClient credentials did NSIDs.Bluesky.Feed.Post
-                |> TaskSeq.takeWhile (isNotIn until)
-
-            let EnumerateBlueskyFeedRepostsAsync httpClient credentials did until =
-                EnumerateRecordsAsync<Schemas.Bluesky.Feed.Repost> httpClient credentials did NSIDs.Bluesky.Feed.Repost
-                |> TaskSeq.takeWhile (isNotIn until)
-                |> TaskSeq.chooseAsync (fun repost -> task {
-                    try
-                        let subject = repost.value.subject
-
-                        let! doc = PLCDirectory.ResolveAsync httpClient repost.DID
-                        let pds = doc.PDS
-
-                        let! post = GetBlueskyFeedPostAsync httpClient (Host.Unauthenticated pds) subject.DID subject.RecordKey
-
-                        return Some {|
-                            Original = post
-                            Repost = repost
-                            OriginalPDS = pds
-                        |}
-                    with :? XrpcException -> return None
-                })
-
-            let EnumerateBlueskyActorProfilesAsync httpClient credentials did until =
-                EnumerateRecordsAsync<Schemas.Bluesky.Actor.Profile> httpClient credentials did NSIDs.Bluesky.Actor.Profile
-                |> TaskSeq.takeWhile (isNotIn until)

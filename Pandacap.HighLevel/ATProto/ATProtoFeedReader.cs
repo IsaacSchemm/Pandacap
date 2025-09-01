@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.FSharp.Core;
 using Pandacap.Clients;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -9,6 +10,149 @@ namespace Pandacap.HighLevel.ATProto
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
+        private static async IAsyncEnumerable<ATProtoClient.Repo.RecordListItem<T>> EnumerateAsync<T>(
+            HttpClient client,
+            ATProtoClient.IHost host,
+            string did,
+            string collection)
+        {
+            var cursor = FSharpOption<string>.None;
+
+            while (true)
+            {
+                var page = await ATProtoClient.Repo.ListRecordsAsync<T>(
+                    client,
+                    host,
+                    did,
+                    collection,
+                    cursor);
+
+                foreach (var item in page.records)
+                {
+                    yield return item;
+                }
+
+                if (page.records.IsEmpty)
+                    yield break;
+
+                cursor = page.cursor;
+            }
+        }
+
+        private static bool PostMatchesFilters(
+            ATProtoFeed feed,
+            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> post)
+        {
+            bool isQuotePost = post.value.EmbeddedRecord != null;
+            if (isQuotePost && !feed.IncludeQuotePosts)
+                return false;
+
+            bool isReply = post.value.InReplyTo != null;
+            if (isReply && !feed.IncludeReplies)
+                return false;
+
+            if (post.value.Images.IsEmpty && !feed.IncludePostsWithoutImages)
+                return false;
+
+            return true;
+        }
+
+        private record RepostSubject(
+            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> Subject,
+            string PDS);
+
+        private static async Task<RepostSubject?> FetchSubjectAsync(
+            HttpClient client,
+            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Repost> repost)
+        {
+            try
+            {
+                var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
+                    client,
+                    repost.value.subject.DID);
+
+                var subject = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+                    client,
+                    ATProtoClient.Host.Unauthenticated(doc.PDS),
+                    repost.value.subject.DID,
+                    ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                    repost.value.subject.RecordKey);
+
+                return new(subject, doc.PDS);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private void Add(
+            ATProtoFeed feed,
+            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> post)
+        {
+            context.BlueskyPostFeedItems.Add(new()
+            {
+                Author = new()
+                {
+                    AvatarCID = feed.AvatarCID,
+                    DID = feed.DID,
+                    DisplayName = feed.DisplayName,
+                    Handle = feed.Handle,
+                    PDS = feed.PDS
+                },
+                CID = post.cid,
+                CreatedAt = post.value.createdAt,
+                Labels = [.. post.value.Labels],
+                Images = feed.IgnoreImages
+                    ? []
+                    : [.. post.value.Images.Select(i => new BlueskyPostFeedItemImage
+                        {
+                            Alt = i.Alt,
+                            CID = i.BlobCID
+                        })],
+                RecordKey = post.RecordKey,
+                Text = post.value.text
+            });
+        }
+
+        private void Add(
+            ATProtoFeed feed,
+            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Repost> repost,
+            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> subject,
+            string pds)
+        {
+            context.BlueskyRepostFeedItems.Add(new()
+            {
+                CID = repost.cid,
+                CreatedAt = subject.value.createdAt,
+                Labels = [.. subject.value.Labels],
+                Images = feed.IgnoreImages
+                    ? []
+                    : [.. subject.value.Images.Select(i => new BlueskyRepostFeedItemImage
+                    {
+                        Alt = i.Alt,
+                        CID = i.BlobCID
+                    })],
+                Original = new()
+                {
+                    CID = subject.cid,
+                    DID = subject.DID,
+                    PDS = pds,
+                    RecordKey = subject.RecordKey
+                },
+                RepostedAt = repost.value.createdAt,
+                RepostedBy = new()
+                {
+                    AvatarCID = feed.AvatarCID,
+                    DID = feed.DID,
+                    DisplayName = feed.DisplayName,
+                    Handle = feed.Handle,
+                    PDS = feed.PDS
+                },
+                Text = subject.value.text
+            });
+        }
+
         public async Task RefreshFeedAsync(
             string did)
         {
@@ -17,144 +161,102 @@ namespace Pandacap.HighLevel.ATProto
 
             var feed = await context.ATProtoFeeds.SingleAsync(f => f.DID == did);
 
-            bool postMatchesFilters(
-                ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> post)
+            async IAsyncEnumerable<ATProtoClient.Repo.RecordListItem<T>> enumerateAndFilterAsync<T>(
+                string nsid,
+                int minCount)
             {
-                bool isQuotePost = post.value.EmbeddedRecord != null;
-                if (isQuotePost && !feed.IncludeQuotePosts)
-                    return false;
+                var remaining = minCount;
+                var foundKnownItem = false;
 
-                bool isReply = post.value.InReplyTo != null;
-                if (isReply && !feed.IncludeReplies)
-                    return false;
+                await foreach (var item in EnumerateAsync<T>(
+                    client,
+                    ATProtoClient.Host.Unauthenticated(feed.PDS),
+                    did,
+                    nsid))
+                {
+                    if (foundKnownItem && remaining <= 0)
+                        yield break;
 
-                if (post.value.Images.IsEmpty && !feed.IncludePostsWithoutImages)
-                    return false;
+                    yield return item;
 
-                return true;
+                    if (remaining > 0)
+                        remaining--;
+
+                    foundKnownItem |= feed.LastSeen.Contains(item.cid);
+                }
             }
 
-            var credential = ATProtoClient.Host.Unauthenticated(feed.PDS);
+            var isNewFeed = feed.LastSeen.Count == 0;
 
-            foreach (var trackedCollection in feed.Collections)
+            var tracker = new List<string>();
+
+            var blueskyProfiles =
+                enumerateAndFilterAsync<ATProtoClient.Repo.Schemas.Bluesky.Actor.Profile>(
+                    ATProtoClient.NSIDs.Bluesky.Actor.Profile,
+                    minCount: 1)
+                .Take(1);
+
+            await foreach (var profile in blueskyProfiles)
             {
-                List<string> newItems = [];
+                tracker.Add(profile.cid);
 
-                if (trackedCollection.NSID == ATProtoClient.NSIDs.Bluesky.Actor.Profile)
-                {
-                    await foreach (var profile in ATProtoClient.Repo.AsynchronousEnumeration
-                        .EnumerateBlueskyActorProfilesAsync(
-                            client,
-                            credential,
-                            did,
-                            until: trackedCollection.LastSeenCIDs)
-                        .Take(1))
-                    {
-                        newItems.Add(profile.cid);
+                if (feed.LastSeen.Contains(profile.cid))
+                    continue;
 
-                        feed.DisplayName = profile.value.DisplayName;
-                        feed.AvatarCID = profile.value.AvatarCID;
-                    }
-                }
-                else if (trackedCollection.NSID == ATProtoClient.NSIDs.Bluesky.Feed.Post)
-                {
-                    await foreach (var post in ATProtoClient.Repo.AsynchronousEnumeration
-                        .EnumerateBlueskyFeedPostsAsync(
-                            client,
-                            credential,
-                            did,
-                            until: trackedCollection.LastSeenCIDs)
-                        .Where(postMatchesFilters)
-                        .Take(10))
-                    {
-                        newItems.Add(post.cid);
-
-                        var existing = await context.BlueskyPostFeedItems.FindAsync(post.cid);
-                        if (existing != null)
-                            context.BlueskyPostFeedItems.Remove(existing);
-
-                        context.BlueskyPostFeedItems.Add(new()
-                        {
-                            Author = new()
-                            {
-                                AvatarCID = feed.AvatarCID,
-                                DID = feed.DID,
-                                DisplayName = feed.DisplayName,
-                                Handle = feed.Handle,
-                                PDS = feed.PDS
-                            },
-                            CID = post.cid,
-                            CreatedAt = post.value.createdAt,
-                            Labels = [.. post.value.Labels],
-                            Images = feed.IgnoreImages
-                                ? []
-                                : [.. post.value.Images.Select(i => new BlueskyPostFeedItemImage
-                                {
-                                    Alt = i.Alt,
-                                    CID = i.BlobCID
-                                })],
-                            RecordKey = post.RecordKey,
-                            Text = post.value.text
-                        });
-                    }
-                }
-                else if (trackedCollection.NSID == ATProtoClient.NSIDs.Bluesky.Feed.Repost)
-                {
-                    await foreach (var item in ATProtoClient.Repo.AsynchronousEnumeration
-                        .EnumerateBlueskyFeedRepostsAsync(
-                            client,
-                            credential,
-                            did,
-                            until: trackedCollection.LastSeenCIDs)
-                        .Where(x => postMatchesFilters(x.Original))
-                        .Take(10))
-                    {
-                        newItems.Add(item.Repost.cid);
-
-                        var existing = await context.BlueskyRepostFeedItems.FindAsync(item.Repost.cid);
-                        if (existing != null)
-                            context.BlueskyRepostFeedItems.Remove(existing);
-
-                        context.BlueskyRepostFeedItems.Add(new()
-                        {
-                            CID = item.Repost.cid,
-                            CreatedAt = item.Original.value.createdAt,
-                            Labels = [.. item.Original.value.Labels],
-                            Images = feed.IgnoreImages
-                                ? []
-                                : [.. item.Original.value.Images.Select(i => new BlueskyRepostFeedItemImage
-                                {
-                                    Alt = i.Alt,
-                                    CID = i.BlobCID
-                                })],
-                            Original = new()
-                            {
-                                CID = item.Original.cid,
-                                DID = item.Original.DID,
-                                PDS = item.OriginalPDS,
-                                RecordKey = item.Original.RecordKey
-                            },
-                            RepostedAt = item.Repost.value.createdAt,
-                            RepostedBy = new()
-                            {
-                                AvatarCID = feed.AvatarCID,
-                                DID = feed.DID,
-                                DisplayName = feed.DisplayName,
-                                Handle = feed.Handle,
-                                PDS = feed.PDS
-                            },
-                            Text = item.Original.value.text
-                        });
-                    }
-                }
-
-                trackedCollection.LastSeenCIDs = [..
-                    Enumerable.Empty<string>()
-                    .Concat(newItems)
-                    .Concat(trackedCollection.LastSeenCIDs)
-                    .Take(5)
-                ];
+                feed.DisplayName = profile.value.DisplayName;
+                feed.AvatarCID = profile.value.AvatarCID;
             }
+
+            var blueskyPosts =
+                enumerateAndFilterAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+                    ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                    minCount: 5)
+                .Take(isNewFeed ? 20 : 100);
+
+            await foreach (var post in blueskyPosts)
+            {
+                tracker.Add(post.cid);
+
+                if (feed.LastSeen.Contains(post.cid))
+                    continue;
+
+                if (!PostMatchesFilters(feed, post))
+                    continue;
+
+                var existing = await context.BlueskyPostFeedItems.FindAsync(post.cid);
+                if (existing != null)
+                    context.BlueskyPostFeedItems.Remove(existing);
+
+                Add(feed, post);
+            }
+
+            var blueskyReposts =
+                enumerateAndFilterAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Repost>(
+                    ATProtoClient.NSIDs.Bluesky.Feed.Repost,
+                    minCount: 5)
+                .Take(isNewFeed ? 20 : 100);
+
+            await foreach (var repost in blueskyReposts)
+            {
+                tracker.Add(repost.cid);
+
+                if (feed.LastSeen.Contains(repost.cid))
+                    continue;
+
+                var existing = await context.BlueskyRepostFeedItems.FindAsync(repost.cid);
+                if (existing != null)
+                    context.BlueskyRepostFeedItems.Remove(existing);
+
+                if (await FetchSubjectAsync(client, repost) is not RepostSubject info)
+                    continue;
+
+                if (!PostMatchesFilters(feed, info.Subject))
+                    continue;
+
+                Add(feed, repost, info.Subject, info.PDS);
+            }
+
+            feed.LastSeen = tracker;
 
             await context.SaveChangesAsync();
         }

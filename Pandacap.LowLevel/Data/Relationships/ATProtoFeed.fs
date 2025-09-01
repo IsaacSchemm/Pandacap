@@ -3,17 +3,11 @@
 open System.ComponentModel.DataAnnotations
 open Pandacap.PlatformBadges
 
-type ATProtoFeedCollection() =
-    member val NSID = "" with get, set
-    member val LastSeenCIDs = new ResizeArray<string>() with get, set
-
 type ATProtoFeed() =
     [<Key>]
     member val DID = "" with get, set
 
     member val PDS = "" with get, set
-
-    member val Collections = new ResizeArray<ATProtoFeedCollection>() with get, set
 
     member val IncludePostsWithoutImages = true with get, set
     member val IncludeReplies = false with get, set
@@ -24,6 +18,8 @@ type ATProtoFeed() =
     member val Handle = nullString with get, set
     member val DisplayName = nullString with get, set
     member val AvatarCID = nullString with get, set
+
+    member val LastSeen = new ResizeArray<string>() with get, set
 
     interface IFollow with
         member this.Filtered =
