@@ -9,7 +9,10 @@ namespace Pandacap.Models
         bool Liked);
 
     public record BlueskyPostViewModel(
-        ATProtoClient.Bluesky.Feed.PostThread Thread,
+        string DID,
+        string Handle,
+        string? AvatarCID,
+        ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> Record,
         bool IsInFavorites,
         FSharpList<BlueskyPostInteractorViewModel> MyProfiles,
         string? BridgyFedObjectId);

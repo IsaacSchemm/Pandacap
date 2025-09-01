@@ -22,12 +22,14 @@ namespace Pandacap
                         using var client = httpClientFactory.CreateClient();
                         client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-                        var profile = await ATProtoClient.Bluesky.Actor.GetProfileAsync(
+                        var handle = $"{appInfo.Username}.{appInfo.ApplicationHostname}.ap.brid.gy";
+
+                        var handleResolution = await ATProtoClient.Identity.ResolveHandleAsync(
                             client,
                             ATProtoClient.Host.Bluesky.PublicAppView,
-                            $"{appInfo.Username}.{appInfo.ApplicationHostname}.ap.brid.gy");
+                            handle);
 
-                        return profile.handle;
+                        return handle;
                     }
                     catch (Exception)
                     {

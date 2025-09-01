@@ -26,26 +26,26 @@ namespace Pandacap.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetBlob(string did, string cid)
         {
-            //if (User.Identity?.IsAuthenticated == true)
-            //{
-            //    var client = httpClientFactory.CreateClient();
-            //    client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var client = httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            //    var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
-            //        client,
-            //        did);
+                var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
+                    client,
+                    did);
 
-            //    var blob = await ATProtoClient.Repo.GetBlobAsync(
-            //        client,
-            //        ATProtoClient.Host.Unauthenticated(doc.PDS),
-            //        did,
-            //        cid);
+                var blob = await ATProtoClient.Repo.GetBlobAsync(
+                    client,
+                    ATProtoClient.Host.Unauthenticated(doc.PDS),
+                    did,
+                    cid);
 
-            //    return File(
-            //        blob.data,
-            //        blob.contentType);
-            //}
-            //else
+                return File(
+                    blob.data,
+                    blob.contentType);
+            }
+            else
             {
                 return Redirect($"https://cdn.bsky.app/img/feed_thumbnail/plain/{Uri.EscapeDataString(did)}/{Uri.EscapeDataString(cid)}@jpeg");
             }
@@ -132,7 +132,7 @@ namespace Pandacap.Controllers
                 .SingleAsync();
 
             if (post.BlueskyRecordKey != null)
-                throw new Exception("Already posted to atproto");
+                throw new Exception("Already posted to Bluesky");
 
             return View(new BlueskyCrosspostViewModel
             {
@@ -151,7 +151,7 @@ namespace Pandacap.Controllers
                 .SingleAsync();
 
             if (submission.BlueskyRecordKey != null)
-                throw new Exception("Already posted to atproto");
+                throw new Exception("Already posted to Bluesky");
 
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
@@ -227,12 +227,25 @@ namespace Pandacap.Controllers
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var threadResponse = await ATProtoClient.Bluesky.Feed.GetPostThreadAsync(
+            var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
                 client,
-                ATProtoClient.Host.Bluesky.PublicAppView,
-                $"at://{did}/app.bsky.feed.post/{rkey}");
+                did);
 
-            var thread = threadResponse.thread;
+            var post = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+                client,
+                ATProtoClient.Host.Unauthenticated(doc.PDS),
+                did,
+                ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                rkey);
+
+            var profiles = await ATProtoClient.Repo.ListRecordsAsync<ATProtoClient.Repo.Schemas.Bluesky.Actor.Profile>(
+                client,
+                ATProtoClient.Host.Unauthenticated(doc.PDS),
+                did,
+                ATProtoClient.NSIDs.Bluesky.Actor.Profile,
+                1,
+                null,
+                ATProtoClient.Repo.Direction.Forward);
 
             var hasCredentials = await context.ATProtoCredentials
                 .Where(c => c.CrosspostTargetSince != null)
@@ -245,7 +258,7 @@ namespace Pandacap.Controllers
                 cancellationToken);
 
             var likedBy = await context.BlueskyLikes
-                .Where(like => like.SubjectCID == thread.post.cid)
+                .Where(like => like.SubjectCID == post.cid)
                 .Select(like => like.DID)
                 .ToHashSetAsync(cancellationToken);
 
@@ -264,15 +277,18 @@ namespace Pandacap.Controllers
 
             var inFavorites =
                 await context.BlueskyFavorites
-                    .Where(f => f.CID == thread.post.cid)
+                    .Where(f => f.CID == post.cid)
                     .DocumentCountAsync(cancellationToken) > 0
                 || await context.BlueskyPostFavorites
-                    .Where(f => f.CID == thread.post.cid)
+                    .Where(f => f.CID == post.cid)
                     .DocumentCountAsync(cancellationToken) > 0;
 
             return View(
                 new BlueskyPostViewModel(
-                    Thread: thread,
+                    DID: did,
+                    Handle: doc.Handle,
+                    AvatarCID: profiles.records.Select(r => r.value.AvatarCID).FirstOrDefault(),
+                    Record: post,
                     IsInFavorites: inFavorites,
                     MyProfiles: [.. myProfiles],
                     BridgyFedObjectId: bridgyFedResponse.IsSuccessStatusCode

@@ -3,14 +3,19 @@
 
 @{
     ViewBag.Title = "View Bluesky Post";
+
+    var post = Model.Record.value;
 }
 
 <h1>
-    <img height="50" src="@(Model.Thread.post.author.Avatar ?? "/images/trgray.svg")" alt="" />
+    @if (Model.AvatarCID != null)
+    {
+        <img height="50" src="/ATProto/GetBlob?did=@Model.DID&cid=@Model.AvatarCID" alt="" />
+    }
     <span style="display: inline-block; vertical-align: top">
         <strong>
-            <a href="https://bsky.app/profile/@Model.Thread.post.author.did" target="_blank">
-                @@@Model.Thread.post.author.handle
+            <a href="https://bsky.app/profile/@Model.DID" target="_blank">
+                @@@Model.Handle
             </a>
         </strong>
     </span>
@@ -18,9 +23,9 @@
 
 <hr />
 
-@if (Model.Thread.post.record.InReplyTo != null)
+@if (post.InReplyTo != null)
 {
-    var reply = Model.Thread.post.record.InReplyTo;
+    var reply = post.InReplyTo;
 
     <p>
         in reply to:
@@ -42,22 +47,22 @@
     </p>
 }
 
-@if (Model.Thread.post.EmbeddedRecord != null)
+@if (post.EmbeddedRecord != null)
 {
-    var quoted = Model.Thread.post.EmbeddedRecord;
+    var quoted = post.EmbeddedRecord;
 
     <p>
         quotes:
-        <a href="@quoted.uri" target="_blank">
+        <a asp-action="ViewBlueskyPost" asp-route-did="@quoted.DID" asp-route-rkey="@quoted.RecordKey" href="@quoted.uri" target="_blank">
             @quoted.uri
         </a>
     </p>
 }
 
 <p>
-    <a href="https://bsky.app/profile/@Model.Thread.post.author.did/post/@Model.Thread.post.RecordKey" target="_blank">
-        @Model.Thread.post.indexedAt.UtcDateTime.ToLongDateString()
-        @Model.Thread.post.indexedAt.UtcDateTime.ToShortTimeString()
+    <a href="https://bsky.app/profile/@Model.DID/post/@Model.Record.RecordKey" target="_blank">
+        @post.createdAt.UtcDateTime.ToLongDateString()
+        @post.createdAt.UtcDateTime.ToShortTimeString()
     </a>
 </p>
 
@@ -71,13 +76,13 @@
     }
 </style>
 
-@if (Model.Thread.post.Images.Any())
+@if (post.Images.Any())
 {
     <p align="center">
-        @foreach (var image in Model.Thread.post.Images)
+        @foreach (var image in post.Images)
         {
-            <a href="@image.fullsize">
-                <img src="@(image.thumb ?? image.fullsize)"
+            <a href="/ATProto/GetBlob?did=@Model.DID&cid=@image.BlobCID">
+                <img src="/ATProto/GetBlob?did=@Model.DID&cid=@image.BlobCID"
                      alt="@image.alt"
                      class="contentImage" />
             </a>
@@ -86,7 +91,7 @@
 }
 
 <p>
-    @Model.Thread.post.record.text
+    @post.text
 </p>
 
 <hr />
@@ -95,15 +100,15 @@
     @if (!Model.IsInFavorites)
     {
         <form asp-action="AddToFavorites" class="d-inline">
-            <input type="hidden" name="did" value="@Model.Thread.post.author.did" />
-            <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
+            <input type="hidden" name="did" value="@Model.DID" />
+            <input type="hidden" name="rkey" value="@Model.Record.RecordKey" />
             <button class="btn btn-primary btn-sm">Add to Favorites</button>
         </form>
     }
     else
     {
         <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
-            <input type="hidden" name="cid" value="@Model.Thread.post.cid" />
+            <input type="hidden" name="cid" value="@Model.Record.cid" />
             <button class="btn btn-danger btn-sm">Remove from Favorites</button>
         </form>
     }
@@ -128,26 +133,26 @@
             @if (profile.Liked)
             {
                 <form asp-action="Unlike" class="d-inline">
-                    <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
+                    <input type="hidden" name="rkey" value="@Model.Record.RecordKey" />
                     <input type="hidden" name="my_did" value="@profile.DID" />
                     <button class="btn btn-danger btn-sm">Unlike</button>
                 </form>
             }
-            else if (profile.DID != Model.Thread.post.author.did)
+            else if (profile.DID != Model.DID)
             {
                 <form asp-action="Like" class="d-inline">
-                    <input type="hidden" name="author_did" value="@Model.Thread.post.author.did" />
-                    <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
+                    <input type="hidden" name="author_did" value="@Model.DID" />
+                    <input type="hidden" name="rkey" value="@Model.Record.RecordKey" />
                     <input type="hidden" name="my_did" value="@profile.DID" />
                     <button class="btn btn-primary btn-sm">Like</button>
                 </form>
             }
 
-            @if (profile.DID == Model.Thread.post.author.did)
+            @if (profile.DID == Model.DID)
             {
                 <form asp-action="DeletePost" class="d-inline">
                     <input type="hidden" name="did" value="@profile.DID" />
-                    <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
+                    <input type="hidden" name="rkey" value="@Model.Record.RecordKey" />
                     <button class="btn btn-danger btn-sm">Delete from PDS</button>
                 </form>
             }
@@ -155,8 +160,8 @@
 
         <p>
             <form method="post" asp-action="PostReply">
-                <input type="hidden" name="author_did" value="@Model.Thread.post.author.did" />
-                <input type="hidden" name="rkey" value="@Model.Thread.post.RecordKey" />
+                <input type="hidden" name="author_did" value="@Model.DID" />
+                <input type="hidden" name="rkey" value="@Model.Record.RecordKey" />
                 <input type="hidden" name="my_did" value="@profile.DID" />
 
                 <div class="form-group">
@@ -181,18 +186,4 @@
             View with Bridgy Fed
         </a>
     </div>
-}
-
-@if (!Model.Thread.Replies.IsEmpty)
-{
-    <hr />
-
-    <details>
-        <summary>View replies</summary>
-
-        @foreach (var reply in Model.Thread.Replies)
-        {
-            <partial name="_ViewReply" model="@reply" />
-        }
-    </details>
 }

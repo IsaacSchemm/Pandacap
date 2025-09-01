@@ -2,13 +2,14 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.Functions.InboxHandlers;
+using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.RssInbound;
 
 namespace Pandacap.Functions
 {
     public class InboxIngest(
         AtomRssFeedReader atomRssFeedReader,
-        BlueskyInboxHandler blueskyInboxHandler,
+        ATProtoFeedReader atProtoFeedReader,
         PandacapDbContext context,
         DeviantArtInboxHandler deviantArtInboxHandler,
         FurAffinityInboxHandler furAffinityInboxHandler,
@@ -44,7 +45,9 @@ namespace Pandacap.Functions
             foreach (var feed in rssFeeds)
                 await c(atomRssFeedReader.ReadFeedAsync(feed.Id));
 
-            await c(blueskyInboxHandler.ReadFeedsAsync());
+            var atProtoFeeds = await context.ATProtoFeeds.Select(f => new { f.DID }).ToListAsync();
+            foreach (var feed in atProtoFeeds)
+                await c(atProtoFeedReader.RefreshFeedAsync(feed.DID));
 
             if (exceptions.Count > 0)
                 throw new AggregateException(exceptions);

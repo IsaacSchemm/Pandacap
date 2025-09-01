@@ -113,7 +113,8 @@ namespace Pandacap.Controllers
                     FollowerCount = await context.Followers.DocumentCountAsync(cancellationToken),
                     FollowingCount = await context.Follows.DocumentCountAsync(cancellationToken)
                         + await context.RssFeeds.DocumentCountAsync(cancellationToken)
-                        + await context.BlueskyFeeds.DocumentCountAsync(cancellationToken),
+                        + await context.BlueskyFeeds.DocumentCountAsync(cancellationToken)
+                        + await context.ATProtoFeeds.DocumentCountAsync(cancellationToken),
                     FavoritesCount = await context.ActivityPubLikes.DocumentCountAsync(cancellationToken),
                     CommunityBookmarksCount = await context.CommunityBookmarks.DocumentCountAsync(cancellationToken)
                 };
@@ -293,105 +294,26 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddBlueskyFeed(string handle, string pds)
-        {
-            var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
-
-            var profile = await ATProtoClient.Bluesky.Actor.GetProfileAsync(
-                client,
-                ATProtoClient.Host.Bluesky.PublicAppView,
-                handle);
-
-            context.BlueskyFeeds.Add(new()
-            {
-                Avatar = profile.Avatar,
-                DID = profile.did,
-                DisplayName = profile.DisplayName,
-                Handle = profile.handle,
-                PDS = pds
-            });
-
-            await context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(UpdateBlueskyFeed), new { profile.did });
-        }
-
-        [Authorize]
-        public async Task<IActionResult> UpdateBlueskyFeed(
-            string did)
-        {
-            var follow = await context.BlueskyFeeds
-                .Where(f => f.DID == did)
-                .FirstOrDefaultAsync();
-
-            return View(follow);
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateBlueskyFeed(Data.BlueskyFeed model)
-        {
-            await foreach (var follow in context.BlueskyFeeds
-                .Where(f => f.DID == model.DID)
-                .AsAsyncEnumerable())
-            {
-                follow.IgnoreImages = model.IgnoreImages;
-                follow.IncludeTextShares = model.IncludeTextShares;
-                follow.IncludeImageShares = model.IncludeImageShares;
-                follow.IncludeQuotePosts = model.IncludeQuotePosts;
-            }
-
-            await context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(FollowingAndFeeds));
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveBlueskyFeed(string did)
-        {
-            await foreach (var feed in context.BlueskyFeeds.Where(f => f.DID == did).AsAsyncEnumerable())
-                context.BlueskyFeeds.Remove(feed);
-
-            await context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(FollowingAndFeeds));
-        }
-
-        private class ResolutionResponse
-        {
-            public string did { get; set; } = "";
-        }
-
-        private class DirectoryResponse
-        {
-            public List<string> alsoKnownAs { get; set; } = [];
-            public List<Service> service { get; set; } = [];
-
-            public class Service
-            {
-                public string type { get; set; } = "";
-                public string serviceEndpoint { get; set; } = "";
-            }
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddATProtoFeed(string handle)
         {
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var handleResolution = await ATProtoClient.Identity.ResolveHandleAsync(
-                client,
-                ATProtoClient.Host.Bluesky.PublicAppView,
-                handle);
+            string did;
 
-            var did = handleResolution.did;
+            if (handle.StartsWith("did:"))
+            {
+                var handleResolution = await ATProtoClient.Identity.ResolveHandleAsync(
+                    client,
+                    ATProtoClient.Host.Bluesky.PublicAppView,
+                    handle);
+
+                did = handleResolution.did;
+            }
+            else
+            {
+                did = handle;
+            }
 
             var document = await ATProtoClient.PLCDirectory.ResolveAsync(
                 client,
