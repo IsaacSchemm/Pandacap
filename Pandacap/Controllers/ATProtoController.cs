@@ -8,6 +8,7 @@ using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.Models;
+using System.Security.Cryptography;
 
 namespace Pandacap.Controllers
 {
@@ -18,17 +19,36 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
     {
-        private async Task<ATProtoClient.Bluesky.Feed.Post> FetchBlueskyPostAsync(ATProtoClient.IHost host, string did, string rkey)
+        private record PostInformation(
+            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> Post,
+            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Actor.Profile> Profile);
+
+        [AllowAnonymous]
+        public async Task<IActionResult> GetBlob(string did, string cid)
         {
-            var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+            //if (User.Identity?.IsAuthenticated == true)
+            //{
+            //    var client = httpClientFactory.CreateClient();
+            //    client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var posts = await ATProtoClient.Bluesky.Feed.GetPostsAsync(
-                client,
-                host,
-                [$"at://{did}/app.bsky.feed.post/{rkey}"]);
+            //    var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
+            //        client,
+            //        did);
 
-            return posts.posts.Single();
+            //    var blob = await ATProtoClient.Repo.GetBlobAsync(
+            //        client,
+            //        ATProtoClient.Host.Unauthenticated(doc.PDS),
+            //        did,
+            //        cid);
+
+            //    return File(
+            //        blob.data,
+            //        blob.contentType);
+            //}
+            //else
+            {
+                return Redirect($"https://cdn.bsky.app/img/feed_thumbnail/plain/{Uri.EscapeDataString(did)}/{Uri.EscapeDataString(cid)}@jpeg");
+            }
         }
 
         public async Task<IActionResult> Setup()
@@ -242,9 +262,13 @@ namespace Pandacap.Controllers
                     likedBy.Contains(c.DID)))
                 .ToListAsync(cancellationToken);
 
-            var inFavorites = await context.BlueskyFavorites
-                .Where(f => f.CID == thread.post.cid)
-                .DocumentCountAsync(cancellationToken) > 0;
+            var inFavorites =
+                await context.BlueskyFavorites
+                    .Where(f => f.CID == thread.post.cid)
+                    .DocumentCountAsync(cancellationToken) > 0
+                || await context.BlueskyPostFavorites
+                    .Where(f => f.CID == thread.post.cid)
+                    .DocumentCountAsync(cancellationToken) > 0;
 
             return View(
                 new BlueskyPostViewModel(
@@ -261,30 +285,48 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToFavorites(string did, string rkey, CancellationToken cancellationToken)
         {
-            var post = await FetchBlueskyPostAsync(ATProtoClient.Host.Bluesky.PublicAppView, did, rkey);
+            var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            context.BlueskyFavorites.Add(new()
+            var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
+                client,
+                did);
+
+            var post = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+                client,
+                ATProtoClient.Host.Unauthenticated(doc.PDS),
+                did,
+                ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                rkey);
+
+            var profiles = await ATProtoClient.Repo.ListRecordsAsync<ATProtoClient.Repo.Schemas.Bluesky.Actor.Profile>(
+                client,
+                ATProtoClient.Host.Unauthenticated(doc.PDS),
+                did,
+                ATProtoClient.NSIDs.Bluesky.Actor.Profile,
+                1,
+                null,
+                ATProtoClient.Repo.Direction.Forward);
+
+            context.BlueskyPostFavorites.Add(new()
             {
                 CID = post.cid,
-                CreatedAt = post.record.createdAt,
+                CreatedAt = post.value.createdAt,
                 CreatedBy = new()
                 {
-                    Avatar = post.author.Avatar,
-                    DID = post.author.did,
-                    DisplayName = post.author.DisplayName,
-                    Handle = post.author.handle,
-                    PDS = ATProtoClient.Host.Bluesky.PublicAppView.PDS
+                    DID = did,
+                    PDS = ATProtoClient.Host.Bluesky.PublicAppView.PDS,
+                    Handle = doc.Handle
                 },
                 FavoritedAt = DateTimeOffset.UtcNow,
                 Id = Guid.NewGuid(),
-                Images = [.. post.Images.Select(image => new BlueskyFavoriteImage
+                Images = [.. post.value.Images.Select(image => new BlueskyPostFavoriteImage
                 {
-                    Alt = image.alt,
-                    Fullsize = image.fullsize,
-                    Thumb = image.thumb
+                    Alt = image.Alt,
+                    CID = image.BlobCID
                 })],
                 RecordKey = post.RecordKey,
-                Text = post.record.text
+                Text = post.value.text
             });
 
             await context.SaveChangesAsync(cancellationToken);
@@ -297,7 +339,19 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Like(string author_did, string rkey, string my_did)
         {
-            var post = await FetchBlueskyPostAsync(ATProtoClient.Host.Bluesky.PublicAppView, author_did, rkey);
+            var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
+                client,
+                author_did);
+
+            var post = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+                client,
+                ATProtoClient.Host.Unauthenticated(doc.PDS),
+                author_did,
+                ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                rkey);
 
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
@@ -362,13 +416,18 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFromFavorites(string cid, CancellationToken cancellationToken)
         {
-            var existing = await context.BlueskyFavorites
+            var existing1 = await context.BlueskyFavorites
                 .Where(f => f.CID == cid)
                 .SingleOrDefaultAsync(cancellationToken);
-            if (existing == null)
-                return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
+            if (existing1 != null)
+                context.BlueskyFavorites.Remove(existing1);
 
-            context.BlueskyFavorites.Remove(existing);
+            var existing2 = await context.BlueskyPostFavorites
+                .Where(f => f.CID == cid)
+                .SingleOrDefaultAsync(cancellationToken);
+            if (existing2 != null)
+                context.BlueskyPostFavorites.Remove(existing2);
+
             await context.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
@@ -379,20 +438,25 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PostReply(string author_did, string rkey, string my_did, string content)
         {
-            var post = await FetchBlueskyPostAsync(ATProtoClient.Host.Bluesky.PublicAppView, author_did, rkey);
-
-            var parent = new ATProtoClient.MinimalRecord(
-                post.uri,
-                post.cid);
-
-            var root = post.record.InReplyTo?.root ?? parent;
-
             var credentials = await atProtoCredentialProvider.GetCredentialsAsync(my_did);
             if (credentials == null)
                 return Forbid();
 
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var post = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+                httpClient,
+                credentials,
+                author_did,
+                ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                rkey);
+
+            var parent = new ATProtoClient.MinimalRecord(
+                post.uri,
+                post.cid);
+
+            var root = post.value.InReplyTo?.root ?? parent;
 
             var reply = await ATProtoClient.Repo.CreateRecordAsync(
                 httpClient,
@@ -425,10 +489,15 @@ namespace Pandacap.Controllers
             if (credentials == null)
                 return Forbid();
 
-            var post = await FetchBlueskyPostAsync(ATProtoClient.Host.Bluesky.PublicAppView, did, rkey);
-
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var post = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+                httpClient,
+                credentials,
+                did,
+                ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                rkey);
 
             await ATProtoClient.Repo.DeleteRecordAsync(
                 httpClient,
@@ -436,14 +505,14 @@ namespace Pandacap.Controllers
                 "app.bsky.feed.post",
                 rkey);
 
-            return post.record.InReplyTo == null
+            return post.value.InReplyTo == null
                 ? Redirect("/")
                 : RedirectToAction(
                     nameof(ViewBlueskyPost),
                     new
                     {
-                        did = post.record.InReplyTo.parent.DID,
-                        rkey = post.record.InReplyTo.parent.RecordKey
+                        did = post.value.InReplyTo.parent.DID,
+                        rkey = post.value.InReplyTo.parent.RecordKey
                     });
         }
     }

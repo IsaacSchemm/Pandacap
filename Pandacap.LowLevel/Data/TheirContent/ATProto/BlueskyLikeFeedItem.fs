@@ -80,8 +80,8 @@ type BlueskyLikeFeedItem() =
                 for image in this.Images do {
                     new IPostThumbnail with
                         member _.AltText = image.Alt
-                        member _.Url = $"https://{this.Original.PDS}/xrpc/com.atproto.sync.getBlob?did={this.Original.DID}&cid={image.CID}"
+                        member _.Url = $"/ATProto/GetBlob?did={this.Original.DID}&cid={image.CID}"
                 }
         ]
-        member this.Usericon = $"https://{this.LikedBy.PDS}/xrpc/com.atproto.sync.getBlob?did={this.LikedBy.DID}&cid={this.LikedBy.AvatarCID}"
+        member this.Usericon = $"/ATProto/GetBlob?did={this.LikedBy.DID}&cid={this.LikedBy.AvatarCID}"
         member this.Username = this.LikedBy.Handle

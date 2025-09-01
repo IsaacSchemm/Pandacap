@@ -80,8 +80,8 @@ type BlueskyRepostFeedItem() =
                 for image in this.Images do {
                     new IPostThumbnail with
                         member _.AltText = image.Alt
-                        member _.Url = $"https://{this.Original.PDS}/xrpc/com.atproto.sync.getBlob?did={this.Original.DID}&cid={image.CID}"
+                        member _.Url = $"/ATProto/GetBlob?did={this.Original.DID}&cid={image.CID}"
                 }
         ]
-        member this.Usericon = $"https://{this.RepostedBy.PDS}/xrpc/com.atproto.sync.getBlob?did={this.RepostedBy.DID}&cid={this.RepostedBy.AvatarCID}"
+        member this.Usericon = $"/ATProto/GetBlob?did={this.RepostedBy.DID}&cid={this.RepostedBy.AvatarCID}"
         member this.Username = this.RepostedBy.Handle

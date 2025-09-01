@@ -73,8 +73,8 @@ type BlueskyPostFeedItem() =
                 for image in this.Images do {
                     new IPostThumbnail with
                         member _.AltText = image.Alt
-                        member _.Url = $"https://{this.Author.PDS}/xrpc/com.atproto.sync.getBlob?did={this.Author.DID}&cid={image.CID}"
+                        member _.Url = $"/ATProto/GetBlob?did={this.Author.DID}&cid={image.CID}"
                 }
         ]
-        member this.Usericon = $"https://{this.Author.PDS}/xrpc/com.atproto.sync.getBlob?did={this.Author.DID}&cid={this.Author.AvatarCID}"
+        member this.Usericon = $"/ATProto/GetBlob?did={this.Author.DID}&cid={this.Author.AvatarCID}"
         member this.Username = this.Author.Handle

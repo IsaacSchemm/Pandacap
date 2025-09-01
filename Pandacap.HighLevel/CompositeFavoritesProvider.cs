@@ -18,6 +18,11 @@ namespace Pandacap.HighLevel
                 .AsAsyncEnumerable()
                 .OfType<IFavorite>();
 
+            var blueskyPostFavorites = context.BlueskyPostFavorites
+                .OrderByDescending(post => post.FavoritedAt)
+                .AsAsyncEnumerable()
+                .OfType<IFavorite>();
+
             var deviantArtFavorites = context.DeviantArtFavorites
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
@@ -60,6 +65,7 @@ namespace Pandacap.HighLevel
                 {
                     activityPubLikes,
                     blueskyFavorites,
+                    blueskyPostFavorites,
                     deviantArtFavorites,
                     furAffinityFavorites,
                     furryNetworkFavorites,
