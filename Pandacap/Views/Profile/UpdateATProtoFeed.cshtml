@@ -1,25 +1,38 @@
 ﻿@using Pandacap.Data
 @using Pandacap.HighLevel
 @using Pandacap.Models
-@model ATProtoFeed
-
-@{
-    IFollow follow = Model;
-}
+@model ATProtoFeedModel
 
 <div>
-    <img height="50" src="@follow.IconUrl" alt="" />
+    <img height="50" src="@Model.Avatar" alt="" />
     <span style="display: inline-block; vertical-align: top">
         <strong>
-            @follow.Username
+            @Model.Handle
         </strong>
         <br />
-        <a href="@follow.Url">@Model.DID</a>
+        <tt>@Model.DID</tt>
     </span>
 </div>
 
 <form asp-action="UpdateATProtoFeed" method="post" class="mt-3">
     <input type="hidden" asp-for="DID" />
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               asp-for="IncludeBlueskyPosts">
+        <label class="form-check-label" asp-for="IncludeBlueskyPosts">
+            Include Bluesky posts
+        </label>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               asp-for="IncludeBlueskyReposts">
+        <label class="form-check-label" asp-for="IncludeBlueskyPosts">
+            Include Bluesky reposts
+        </label>
+    </div>
+    <hr />
     <div class="mb-3 form-check">
         <input type="checkbox"
                class="form-check-input"
@@ -44,6 +57,7 @@
             Include quote posts
         </label>
     </div>
+    <hr />
     <div class="mb-3 form-check">
         <input type="checkbox"
                class="form-check-input"
@@ -67,5 +81,5 @@
 
 <form asp-action="RemoveATProtoFeed">
     <input type="hidden" name="did" value="@Model.DID" />
-    <button type="submit" class="btn btn-danger">Unfollow @(follow.Username)</button>
+    <button type="submit" class="btn btn-danger">Unfollow @Model.Handle</button>
 </form>

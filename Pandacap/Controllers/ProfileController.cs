@@ -406,7 +406,14 @@ namespace Pandacap.Controllers
             {
                 DID = did,
                 Handle = document.Handle,
-                PDS = document.PDS
+                PDS = document.PDS,
+                NSIDs = [
+                    .. repo.collections.Intersect([
+                        ATProtoClient.NSIDs.Bluesky.Actor.Profile,
+                        ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                        ATProtoClient.NSIDs.Bluesky.Feed.Repost
+                    ])
+                ]
             });
 
             await context.SaveChangesAsync();
@@ -420,9 +427,23 @@ namespace Pandacap.Controllers
         {
             var feed = await context.ATProtoFeeds
                 .Where(f => f.DID == did)
-                .FirstOrDefaultAsync();
+                .FirstAsync();
 
-            return View(feed);
+            IFollow follow = feed;
+
+            return View(new ATProtoFeedModel
+            {
+                DID = feed.DID,
+                PDS = feed.PDS,
+                Handle = feed.Handle,
+                Avatar = follow.IconUrl,
+                IncludePostsWithoutImages = feed.IncludePostsWithoutImages,
+                IncludeReplies = feed.IncludeReplies,
+                IncludeQuotePosts = feed.IncludeQuotePosts,
+                IgnoreImages = feed.IgnoreImages,
+                IncludeBlueskyPosts = feed.NSIDs.Contains(ATProtoClient.NSIDs.Bluesky.Feed.Post),
+                IncludeBlueskyReposts = feed.NSIDs.Contains(ATProtoClient.NSIDs.Bluesky.Feed.Repost)
+            });
         }
 
         [HttpPost]
@@ -443,16 +464,28 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateATProtoFeed(ATProtoFeed model)
+        public async Task<IActionResult> UpdateATProtoFeed(ATProtoFeedModel model)
         {
             await foreach (var follow in context.ATProtoFeeds
                 .Where(f => f.DID == model.DID)
                 .AsAsyncEnumerable())
             {
+                follow.PDS = model.PDS;
+
                 follow.IgnoreImages = model.IgnoreImages;
                 follow.IncludePostsWithoutImages = model.IncludePostsWithoutImages;
                 follow.IncludeReplies = model.IncludeReplies;
                 follow.IncludeQuotePosts = model.IncludeQuotePosts;
+
+                if (model.IncludeBlueskyPosts)
+                    follow.NSIDs.Add(ATProtoClient.NSIDs.Bluesky.Feed.Post);
+                else
+                    follow.NSIDs.Remove(ATProtoClient.NSIDs.Bluesky.Feed.Post);
+
+                if (model.IncludeBlueskyReposts)
+                    follow.NSIDs.Add(ATProtoClient.NSIDs.Bluesky.Feed.Repost);
+                else
+                    follow.NSIDs.Remove(ATProtoClient.NSIDs.Bluesky.Feed.Repost);
             }
 
             await context.SaveChangesAsync();

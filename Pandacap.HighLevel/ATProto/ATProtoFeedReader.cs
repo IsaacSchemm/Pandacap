@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.FSharp.Core;
 using Pandacap.Clients;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -10,35 +9,6 @@ namespace Pandacap.HighLevel.ATProto
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
-        private static async IAsyncEnumerable<ATProtoClient.Repo.RecordListItem<T>> EnumerateAsync<T>(
-            HttpClient client,
-            ATProtoClient.IHost host,
-            string did,
-            string collection)
-        {
-            var cursor = FSharpOption<string>.None;
-
-            while (true)
-            {
-                var page = await ATProtoClient.Repo.ListRecordsAsync<T>(
-                    client,
-                    host,
-                    did,
-                    collection,
-                    cursor);
-
-                foreach (var item in page.records)
-                {
-                    yield return item;
-                }
-
-                if (page.records.IsEmpty)
-                    yield break;
-
-                cursor = page.cursor;
-            }
-        }
-
         private static bool PostMatchesFilters(
             ATProtoFeed feed,
             ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> post)
@@ -86,7 +56,7 @@ namespace Pandacap.HighLevel.ATProto
             }
         }
 
-        private void Add(
+        private void AddToContext(
             ATProtoFeed feed,
             ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> post)
         {
@@ -115,12 +85,14 @@ namespace Pandacap.HighLevel.ATProto
             });
         }
 
-        private void Add(
+        private void AddToContext(
             ATProtoFeed feed,
             ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Repost> repost,
-            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> subject,
-            string pds)
+            RepostSubject repostSubject)
         {
+            var subject = repostSubject.Subject;
+            var pds = repostSubject.PDS;
+
             context.BlueskyRepostFeedItems.Add(new()
             {
                 CID = repost.cid,
@@ -161,102 +133,124 @@ namespace Pandacap.HighLevel.ATProto
 
             var feed = await context.ATProtoFeeds.SingleAsync(f => f.DID == did);
 
-            async IAsyncEnumerable<ATProtoClient.Repo.RecordListItem<T>> enumerateAndFilterAsync<T>(
-                string nsid,
-                int minCount)
-            {
-                var remaining = minCount;
-                var foundKnownItem = false;
+            feed.Cursors ??= [];
 
-                await foreach (var item in EnumerateAsync<T>(
+            if (feed.NSIDs.Contains(ATProtoClient.NSIDs.Bluesky.Actor.Profile))
+            {
+                var blueskyProfiles = await ATProtoClient.Repo.ListRecordsAsync<ATProtoClient.Repo.Schemas.Bluesky.Actor.Profile>(
                     client,
                     ATProtoClient.Host.Unauthenticated(feed.PDS),
                     did,
-                    nsid))
+                    ATProtoClient.NSIDs.Bluesky.Actor.Profile,
+                    1,
+                    null,
+                    ATProtoClient.Repo.Direction.Forward);
+
+                foreach (var profile in blueskyProfiles.records)
                 {
-                    if (foundKnownItem && remaining <= 0)
-                        yield break;
-
-                    yield return item;
-
-                    if (remaining > 0)
-                        remaining--;
-
-                    foundKnownItem |= feed.LastSeen.Contains(item.cid);
+                    feed.DisplayName = profile.value.DisplayName;
+                    feed.AvatarCID = profile.value.AvatarCID;
                 }
             }
 
-            var isNewFeed = feed.LastSeen.Count == 0;
-
-            var tracker = new List<string>();
-
-            var blueskyProfiles =
-                enumerateAndFilterAsync<ATProtoClient.Repo.Schemas.Bluesky.Actor.Profile>(
-                    ATProtoClient.NSIDs.Bluesky.Actor.Profile,
-                    minCount: 1)
-                .Take(1);
-
-            await foreach (var profile in blueskyProfiles)
+            if (feed.NSIDs.Contains(ATProtoClient.NSIDs.Bluesky.Feed.Post))
             {
-                tracker.Add(profile.cid);
+                if (!feed.Cursors.ContainsKey(ATProtoClient.NSIDs.Bluesky.Feed.Post))
+                {
+                    var page = await ATProtoClient.Repo.ListRecordsAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+                        client,
+                        ATProtoClient.Host.Unauthenticated(feed.PDS),
+                        did,
+                        ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                        21,
+                        null,
+                        ATProtoClient.Repo.Direction.Forward);
 
-                if (feed.LastSeen.Contains(profile.cid))
-                    continue;
+                    feed.Cursors[ATProtoClient.NSIDs.Bluesky.Feed.Post] = page.Cursor;
+                }
 
-                feed.DisplayName = profile.value.DisplayName;
-                feed.AvatarCID = profile.value.AvatarCID;
+                for (var i = 0; i < 10; i++)
+                {
+                    var cursor = feed.Cursors[ATProtoClient.NSIDs.Bluesky.Feed.Post];
+
+                    var page = await ATProtoClient.Repo.ListRecordsAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+                        client,
+                        ATProtoClient.Host.Unauthenticated(feed.PDS),
+                        did,
+                        ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                        100,
+                        cursor,
+                        ATProtoClient.Repo.Direction.Reverse);
+
+                    foreach (var post in page.records)
+                    {
+                        if (!PostMatchesFilters(feed, post))
+                            continue;
+
+                        var existing = await context.BlueskyPostFeedItems.FindAsync(post.cid);
+                        if (existing != null)
+                            context.BlueskyPostFeedItems.Remove(existing);
+
+                        AddToContext(feed, post);
+                    }
+
+                    if (page.Cursor is string next)
+                        feed.Cursors[ATProtoClient.NSIDs.Bluesky.Feed.Post] = next;
+                    else
+                        break;
+                }
             }
 
-            var blueskyPosts =
-                enumerateAndFilterAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
-                    ATProtoClient.NSIDs.Bluesky.Feed.Post,
-                    minCount: 5)
-                .Take(isNewFeed ? 20 : 100);
-
-            await foreach (var post in blueskyPosts)
+            if (feed.NSIDs.Contains(ATProtoClient.NSIDs.Bluesky.Feed.Repost))
             {
-                tracker.Add(post.cid);
+                if (!feed.Cursors.ContainsKey(ATProtoClient.NSIDs.Bluesky.Feed.Repost))
+                {
+                    var page = await ATProtoClient.Repo.ListRecordsAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Repost>(
+                        client,
+                        ATProtoClient.Host.Unauthenticated(feed.PDS),
+                        did,
+                        ATProtoClient.NSIDs.Bluesky.Feed.Repost,
+                        21,
+                        null,
+                        ATProtoClient.Repo.Direction.Forward);
 
-                if (feed.LastSeen.Contains(post.cid))
-                    continue;
+                    feed.Cursors[ATProtoClient.NSIDs.Bluesky.Feed.Repost] = page.Cursor;
+                }
 
-                if (!PostMatchesFilters(feed, post))
-                    continue;
+                for (var i = 0; i < 10; i++)
+                {
+                    var cursor = feed.Cursors[ATProtoClient.NSIDs.Bluesky.Feed.Repost];
 
-                var existing = await context.BlueskyPostFeedItems.FindAsync(post.cid);
-                if (existing != null)
-                    context.BlueskyPostFeedItems.Remove(existing);
+                    var page = await ATProtoClient.Repo.ListRecordsAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Repost>(
+                        client,
+                        ATProtoClient.Host.Unauthenticated(feed.PDS),
+                        did,
+                        ATProtoClient.NSIDs.Bluesky.Feed.Repost,
+                        100,
+                        cursor,
+                        ATProtoClient.Repo.Direction.Reverse);
 
-                Add(feed, post);
+                    foreach (var repost in page.records)
+                    {
+                        var existing = await context.BlueskyRepostFeedItems.FindAsync(repost.cid);
+                        if (existing != null)
+                            context.BlueskyRepostFeedItems.Remove(existing);
+
+                        if (await FetchSubjectAsync(client, repost) is not RepostSubject info)
+                            continue;
+
+                        if (!PostMatchesFilters(feed, info.Subject))
+                            continue;
+
+                        AddToContext(feed, repost, info);
+                    }
+
+                    if (page.Cursor is string next)
+                        feed.Cursors[ATProtoClient.NSIDs.Bluesky.Feed.Repost] = next;
+                    else
+                        break;
+                }
             }
-
-            var blueskyReposts =
-                enumerateAndFilterAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Repost>(
-                    ATProtoClient.NSIDs.Bluesky.Feed.Repost,
-                    minCount: 5)
-                .Take(isNewFeed ? 20 : 100);
-
-            await foreach (var repost in blueskyReposts)
-            {
-                tracker.Add(repost.cid);
-
-                if (feed.LastSeen.Contains(repost.cid))
-                    continue;
-
-                var existing = await context.BlueskyRepostFeedItems.FindAsync(repost.cid);
-                if (existing != null)
-                    context.BlueskyRepostFeedItems.Remove(existing);
-
-                if (await FetchSubjectAsync(client, repost) is not RepostSubject info)
-                    continue;
-
-                if (!PostMatchesFilters(feed, info.Subject))
-                    continue;
-
-                Add(feed, repost, info.Subject, info.PDS);
-            }
-
-            feed.LastSeen = tracker;
 
             await context.SaveChangesAsync();
         }

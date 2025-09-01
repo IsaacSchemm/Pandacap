@@ -711,7 +711,9 @@ module ATProtoClient =
         type RecordList<'T> = {
             records: RecordListItem<'T> list
             cursor: string option
-        }
+        } with
+            [<JsonIgnore>]
+            member this.Cursor = Option.toObj this.cursor
 
         module Schemas =
             type BlobRef = {
@@ -817,7 +819,9 @@ module ATProtoClient =
             |> Requests.performRequestAsync httpClient
             |> Requests.thenReadAsync<RecordListItem<'T>>
 
-        let ListRecordsAsync<'T> httpClient credentials did collection cursor =
+        type Direction = Forward | Reverse
+
+        let ListRecordsAsync<'T> httpClient credentials did collection limit cursor direction =
             {
                 method = HttpMethod.Get
                 procedureName = "com.atproto.repo.listRecords"
@@ -825,9 +829,14 @@ module ATProtoClient =
                     "repo", did
                     "collection", collection
 
-                    match cursor with
-                    | Some c -> "cursor", c
-                    | None -> ()
+                    "limit", sprintf "%d" limit
+
+                    if not (isNull cursor) then
+                        "cursor", cursor
+
+                    match direction with
+                    | Forward -> ()
+                    | Reverse -> "reverse", "true"
                 ]
                 credentials = credentials
                 body = NoBody
