@@ -1,5 +1,4 @@
 ﻿using Microsoft.FSharp.Collections;
-using Pandacap.Clients;
 using Pandacap.Clients.ATProto;
 
 namespace Pandacap.Models
@@ -13,7 +12,7 @@ namespace Pandacap.Models
         string DID,
         string Handle,
         string? AvatarCID,
-        Lexicon.IRecord<Lexicon.App.Bsky.Feed.Post> Record,
+        ATProtoRecord<BlueskyPost> Record,
         bool IsInFavorites,
         FSharpList<BlueskyPostInteractorViewModel> MyProfiles,
         string? BridgyFedObjectId);

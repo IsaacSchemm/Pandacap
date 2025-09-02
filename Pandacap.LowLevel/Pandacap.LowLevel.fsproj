@@ -49,7 +49,7 @@
     <Compile Include="ActivityPub\Inbound\ActivityPubRemotePostService.fs" />
     <Compile Include="ATProto\DIDResolver.fs" />
     <Compile Include="ATProto\NSIDs.fs" />
-    <Compile Include="ATProto\Lexicon.fs" />
+    <Compile Include="ATProto\Types.fs" />
     <Compile Include="ATProto\XRPC.fs" />
     <Compile Include="Podcasts\WmaZipSplitter.fs" />
     <Compile Include="Data\IPost.fs" />

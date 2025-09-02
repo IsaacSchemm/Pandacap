@@ -34,7 +34,7 @@ module XRPC =
     type IRefreshCredentials =
         inherit ICredentials
         abstract member RefreshToken: string
-        abstract member UpdateTokensAsync: newCredentials: Lexicon.ITokens -> Task
+        abstract member UpdateTokensAsync: newCredentials: ATProtoTokens -> Task
 
     type XrpcError = {
         error: string
@@ -86,6 +86,21 @@ module XRPC =
             return! httpClient.SendAsync(req)
         }
 
+        let thenIgnoreAsync (t: Task<HttpResponseMessage>) = task {
+            use! response = t
+            ignore response
+        }
+
+        let thenReadAsAsync (_: 'T) (t: Task<HttpResponseMessage>) = task {
+            use! response = t
+            return! response.Content.ReadFromJsonAsync<'T>()
+        }
+
+        let thenMapAsync (f: 'T -> 'U) (t: Task<'T>) = task {
+            let! o = t
+            return f o
+        }
+
         let rec performRequestAsync (httpClient: HttpClient) (req: Request): Task<HttpResponseMessage> = task {
             let! resp = sendAsync httpClient req
 
@@ -115,9 +130,22 @@ module XRPC =
                     body = NoBody
                 }
 
-                tokenResponse.EnsureSuccessStatusCode() |> ignore
+                let! tokens =
+                    tokenResponse.EnsureSuccessStatusCode()
+                    |> Task.FromResult
+                    |> thenReadAsAsync {|
+                        accessJwt = ""
+                        refreshJwt = ""
+                        handle = ""
+                        did = ""
+                    |}
+                    |> thenMapAsync (fun x -> {
+                        AccessToken = x.accessJwt
+                        RefreshToken = x.refreshJwt
+                        Handle = x.handle
+                        DID = x.did
+                    })
 
-                let! tokens = tokenResponse.Content.ReadFromJsonAsync<Lexicon.Com.Atproto.Server.RefreshSession>()
                 do! credentials.UpdateTokensAsync(tokens)
 
                 return! performRequestAsync httpClient {
@@ -125,28 +153,13 @@ module XRPC =
                         credentials = {
                             new IToken with
                                 member _.PDS = credentials.PDS
-                                member _.Token = tokens.accessJwt
+                                member _.Token = tokens.AccessToken
                         }
                 }
             | Some err, _ ->
                 return raise (XrpcException err)
             | None, _ ->
                 return resp.EnsureSuccessStatusCode()
-        }
-
-        let thenIgnoreAsync (t: Task<HttpResponseMessage>) = task {
-            use! response = t
-            ignore response
-        }
-
-        let thenReadAsync<'T> (t: Task<HttpResponseMessage>) = task {
-            use! response = t
-            return! response.Content.ReadFromJsonAsync<'T>()
-        }
-
-        let thenReadAsAsync<'T> (_: 'T) (t: Task<HttpResponseMessage>) = task {
-            use! response = t
-            return! response.Content.ReadFromJsonAsync<'T>()
         }
 
     module Com =
@@ -178,28 +191,7 @@ module XRPC =
                         blob = null :> obj
                     |}
 
-                type EmbeddedImage = {
-                    Blob: obj
-                    Alt: string
-                    Width: int
-                    Height: int
-                }
-
-                type EmbeddedContent = Images of EmbeddedImage list | NoEmbed
-
-                type PostParameters = {
-                    Text: string
-                    CreatedAt: DateTimeOffset
-                    Embed: EmbeddedContent
-                    InReplyTo: Lexicon.App.Bsky.Feed.Post.Reply list
-                    PandacapPost: Nullable<Guid>
-                }
-
-                type RecordToCreate =
-                | Post of PostParameters
-                | Like of Lexicon.Com.Atproto.Repo.StrongRef
-
-                let CreateRecordAsync httpClient (credentials: ICredentials) record =
+                let CreateRecordAsync httpClient (credentials: ICredentials) (record: ATProtoCreateParameters) =
                     {
                         method = HttpMethod.Post
                         procedureName = "com.atproto.repo.createRecord"
@@ -209,7 +201,7 @@ module XRPC =
                             "repo", credentials.DID
 
                             match record with
-                            | Post post ->
+                            | BlueskyPost post ->
                                 "collection", NSIDs.App.Bsky.Feed.Post
                                 "record", dict [
                                     "$type", NSIDs.App.Bsky.Feed.Post :> obj
@@ -218,21 +210,25 @@ module XRPC =
 
                                     for r in post.InReplyTo do
                                         "reply", dict [
-                                            "root", r.root
-                                            "parent", r.parent
+                                            "root", dict [
+                                                "cid", r.Root.CID
+                                                "uri", r.Root.Uri.Raw
+                                            ]
+                                            "parent", dict [
+                                                "cid", r.Parent.CID
+                                                "uri", r.Parent.Uri.Raw
+                                            ]
                                         ]
 
                                     match Option.ofNullable post.PandacapPost with
                                     | Some id -> "pandacapPost", id
                                     | None -> ()
 
-                                    match post.Embed with
-                                    | NoEmbed -> ()
-                                    | Images images ->
+                                    if not (List.isEmpty post.Images) then
                                         "embed", dict [
                                             "$type", "app.bsky.embed.images" :> obj
                                             "images", [
-                                                for i in images do dict [
+                                                for i in post.Images do dict [
                                                     "image", i.Blob
                                                     "alt", i.Alt
 
@@ -246,20 +242,27 @@ module XRPC =
                                         ]
                                 ]
 
-                            | Like subject ->
+                            | BlueskyLike subject ->
                                 "collection", NSIDs.App.Bsky.Feed.Like
                                 "record", dict [
                                     "$type", NSIDs.App.Bsky.Feed.Like :> obj
                                     "createdAt", DateTimeOffset.UtcNow.ToString("o")
                                     "subject", dict [
-                                        "cid", subject.cid
-                                        "uri", subject.uri
+                                        "cid", subject.CID
+                                        "uri", subject.Uri.Raw
                                     ]
                                 ]
                         ]
                     }
                     |> Requests.performRequestAsync httpClient
-                    |> Requests.thenReadAsync<Lexicon.Com.Atproto.Repo.StrongRef>
+                    |> Requests.thenReadAsAsync {|
+                        cid = ""
+                        uri = ""
+                    |}
+                    |> Requests.thenMapAsync (fun r -> {
+                        CID = r.cid
+                        Uri = { Raw = r.uri }
+                    })
 
                 let DeleteRecordAsync httpClient (credentials: ICredentials) (collection: string) (rkey: string) =
                     {
@@ -293,7 +296,7 @@ module XRPC =
                         collections = [""]
                     |}
 
-                let GetRecordAsync<'T> httpClient credentials did collection rkey =
+                let private getRecordAsync httpClient credentials did collection rkey sample =
                     {
                         method = HttpMethod.Get
                         procedureName = "com.atproto.repo.getRecord"
@@ -306,11 +309,13 @@ module XRPC =
                         body = NoBody
                     }
                     |> Requests.performRequestAsync httpClient
-                    |> Requests.thenReadAsync<Lexicon.Com.Atproto.Repo.GetRecord<'T>>
+                    |> Requests.thenReadAsAsync {|
+                        uri = ""
+                        cid = ""
+                        value = sample
+                    |}
 
-                type Direction = Forward | Reverse
-
-                let ListRecordsAsync<'T> httpClient credentials did collection limit cursor direction =
+                let private listRecordsAsync httpClient credentials did collection limit cursor direction sample =
                     {
                         method = HttpMethod.Get
                         procedureName = "com.atproto.repo.listRecords"
@@ -331,7 +336,285 @@ module XRPC =
                         body = NoBody
                     }
                     |> Requests.performRequestAsync httpClient
-                    |> Requests.thenReadAsync<Lexicon.Com.Atproto.Repo.ListRecords<'T>>
+                    |> Requests.thenReadAsAsync {|
+                        cursor = Some ""
+                        records = [{|
+                            uri = ""
+                            cid = ""
+                            value = sample
+                        |}]
+                    |}
+
+                module BlueskyProfile =
+                    let ListRecordsAsync httpClient credentials did limit cursor direction =
+                        listRecordsAsync httpClient credentials did NSIDs.App.Bsky.Actor.Profile limit cursor direction {|
+                            avatar = Some {|
+                                ref = Some {|
+                                    ``$link`` = ""
+                                |}
+                                mimeType = ""
+                                size = Some 0
+                                cid = Some ""
+                            |}
+                            displayName = Some ""
+                            description = Some ""
+                        |}
+                        |> Requests.thenMapAsync (fun l -> {
+                            Cursor = Option.toObj l.cursor
+                            Items = [
+                                for x in l.records do {
+                                    Ref = {
+                                        CID = x.cid
+                                        Uri = { Raw = x.uri }
+                                    }
+                                    Value = {
+                                        AvatarCID =
+                                            x.value.avatar
+                                            |> Option.bind (fun a ->
+                                                a.ref
+                                                |> Option.map (fun r -> r.``$link``)
+                                                |> Option.orElse a.cid)
+                                            |> Option.toObj
+                                        DisplayName = Option.toObj x.value.displayName
+                                        Description = Option.toObj x.value.description
+                                    }
+                                }
+                            ]
+                        })
+
+                module BlueskyPost =
+                    let GetRecordAsync httpClient credentials did rkey =
+                        getRecordAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post rkey {|
+                            text = ""
+                            embed = {|
+                                images = Some [{|
+                                    alt = Some ""
+                                    blob = {|
+                                        ref = Some {|
+                                            ``$link`` = ""
+                                        |}
+                                        mimeType = ""
+                                        size = Some 0
+                                        cid = Some ""
+                                    |}
+                                |}]
+                                record = Some {|
+                                    cid = ""
+                                    uri = ""
+                                |}
+                            |}
+                            reply = Some {|
+                                parent = {|
+                                    cid = ""
+                                    uri = ""
+                                |}
+                                root = {|
+                                    cid = ""
+                                    uri = ""
+                                |}
+                            |}
+                            bridgyOriginalUrl = Some ""
+                            labels = Some {|
+                                values = [{|
+                                    ``val`` = ""
+                                |}]
+                            |}
+                            createdAt = DateTimeOffset.MinValue
+                        |}
+                        |> Requests.thenMapAsync (fun x -> {
+                            Ref = {
+                                CID = x.cid
+                                Uri = { Raw = x.uri }
+                            }
+                            Value = {
+                                Text = x.value.text
+                                Images =
+                                    x.value.embed.images
+                                    |> Option.defaultValue []
+                                    |> List.map (fun image -> {
+                                        CID =
+                                            image.blob.ref
+                                            |> Option.map (fun r -> r.``$link``)
+                                            |> Option.orElse image.blob.cid
+                                            |> Option.get
+                                        Alt = image.alt |> Option.defaultValue ""
+                                    })
+                                Quoted =
+                                    x.value.embed.record
+                                    |> Option.map (fun r -> {
+                                        CID = r.cid
+                                        Uri = { Raw = r.uri }
+                                    })
+                                    |> Option.toList
+                                InReplyTo =
+                                    x.value.reply
+                                    |> Option.map (fun r -> {
+                                        Parent = {
+                                            CID = r.parent.cid
+                                            Uri = { Raw = r.parent.uri }
+                                        }
+                                        Root = {
+                                            CID = r.root.cid
+                                            Uri = { Raw = r.root.uri }
+                                        }
+                                    })
+                                    |> Option.toList
+                                BridgyOriginalUrl = Option.toObj x.value.bridgyOriginalUrl
+                                Labels =
+                                    x.value.labels
+                                    |> Option.map (fun l -> l.values)
+                                    |> Option.defaultValue []
+                                    |> List.map (fun v -> v.``val``)
+                                CreatedAt = x.value.createdAt
+                            }
+                        })
+
+                    let ListRecordsAsync httpClient credentials did limit cursor direction =
+                        listRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post limit cursor direction {|
+                            text = ""
+                            embed = {|
+                                images = Some [{|
+                                    alt = Some ""
+                                    blob = {|
+                                        ref = Some {|
+                                            ``$link`` = ""
+                                        |}
+                                        mimeType = ""
+                                        size = Some 0
+                                        cid = Some ""
+                                    |}
+                                |}]
+                                record = Some {|
+                                    cid = ""
+                                    uri = ""
+                                |}
+                            |}
+                            reply = Some {|
+                                parent = {|
+                                    cid = ""
+                                    uri = ""
+                                |}
+                                root = {|
+                                    cid = ""
+                                    uri = ""
+                                |}
+                            |}
+                            bridgyOriginalUrl = Some ""
+                            labels = Some {|
+                                values = [{|
+                                    ``val`` = ""
+                                |}]
+                            |}
+                            createdAt = DateTimeOffset.MinValue
+                        |}
+                        |> Requests.thenMapAsync (fun l -> {
+                            Cursor = Option.toObj l.cursor
+                            Items = [
+                                for x in l.records do {
+                                    Ref = {
+                                        CID = x.cid
+                                        Uri = { Raw = x.uri }
+                                    }
+                                    Value = {
+                                        Text = x.value.text
+                                        Images =
+                                            x.value.embed.images
+                                            |> Option.defaultValue []
+                                            |> List.map (fun image -> {
+                                                CID =
+                                                    image.blob.ref
+                                                    |> Option.map (fun r -> r.``$link``)
+                                                    |> Option.orElse image.blob.cid
+                                                    |> Option.get
+                                                Alt = image.alt |> Option.defaultValue ""
+                                            })
+                                        Quoted =
+                                            x.value.embed.record
+                                            |> Option.map (fun r -> {
+                                                CID = r.cid
+                                                Uri = { Raw = r.uri }
+                                            })
+                                            |> Option.toList
+                                        InReplyTo =
+                                            x.value.reply
+                                            |> Option.map (fun r -> {
+                                                Parent = {
+                                                    CID = r.parent.cid
+                                                    Uri = { Raw = r.parent.uri }
+                                                }
+                                                Root = {
+                                                    CID = r.root.cid
+                                                    Uri = { Raw = r.root.uri }
+                                                }
+                                            })
+                                            |> Option.toList
+                                        BridgyOriginalUrl = Option.toObj x.value.bridgyOriginalUrl
+                                        Labels =
+                                            x.value.labels
+                                            |> Option.map (fun l -> l.values)
+                                            |> Option.defaultValue []
+                                            |> List.map (fun v -> v.``val``)
+                                        CreatedAt = x.value.createdAt
+                                    }
+                                }
+                            ]
+                        })
+
+                module BlueskyLike =
+                    let ListRecordsAsync httpClient credentials did limit cursor direction =
+                        listRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Like limit cursor direction {|
+                            createdAt = DateTimeOffset.MinValue
+                            subject = {|
+                                uri = ""
+                                cid = ""
+                            |}
+                        |}
+                        |> Requests.thenMapAsync (fun l -> {
+                            Cursor = Option.toObj l.cursor
+                            Items = [
+                                for x in l.records do {
+                                    Ref = {
+                                        CID = x.cid
+                                        Uri = { Raw = x.uri }
+                                    }
+                                    Value = {
+                                        CreatedAt = x.value.createdAt
+                                        Subject = {
+                                            CID = x.cid
+                                            Uri = { Raw = x.uri }
+                                        }
+                                    }
+                                }
+                            ]
+                        })
+
+                module BlueskyRepost =
+                    let ListRecordsAsync httpClient credentials did limit cursor direction =
+                        listRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Repost limit cursor direction {|
+                            createdAt = DateTimeOffset.MinValue
+                            subject = {|
+                                uri = ""
+                                cid = ""
+                            |}
+                        |}
+                        |> Requests.thenMapAsync (fun l -> {
+                            Cursor = Option.toObj l.cursor
+                            Items = [
+                                for x in l.records do {
+                                    Ref = {
+                                        CID = x.cid
+                                        Uri = { Raw = x.uri }
+                                    }
+                                    Value = {
+                                        CreatedAt = x.value.createdAt
+                                        Subject = {
+                                            CID = x.cid
+                                            Uri = { Raw = x.uri }
+                                        }
+                                    }
+                                }
+                            ]
+                        })
 
                 let GetBlobAsync httpClient credentials did cid = task {
                     use! resp = Requests.performRequestAsync httpClient {
@@ -377,7 +660,20 @@ module XRPC =
                         let! string = resp.Content.ReadAsStringAsync()
                         failwith string
 
-                    return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Lexicon.Com.Atproto.Server.RefreshSession>()
+                    return! resp.EnsureSuccessStatusCode()
+                        |> Task.FromResult
+                        |> Requests.thenReadAsAsync {|
+                            accessJwt = ""
+                            refreshJwt = ""
+                            handle = ""
+                            did = ""
+                        |}
+                        |> Requests.thenMapAsync (fun x -> {
+                            AccessToken = x.accessJwt
+                            RefreshToken = x.refreshJwt
+                            Handle = x.handle
+                            DID = x.did
+                        })
                 }
 
     module App =
@@ -395,4 +691,39 @@ module XRPC =
                         body = NoBody
                     }
                     |> Requests.performRequestAsync httpClient
-                    |> Requests.thenReadAsync<Lexicon.App.Bsky.Notification.ListNotifications>
+                    |> Requests.thenReadAsAsync {|
+                        cursor = Some ""
+                        notifications = [{|
+                            uri = ""
+                            cid = ""
+                            actor = {|
+                                did = ""
+                                handle = ""
+                                displayName = Some ""
+                            |}
+                            reason = ""
+                            reasonSubject = ""
+                            isRead = false
+                            indexedAt = DateTimeOffset.MinValue
+                        |}]
+                    |}
+                    |> Requests.thenMapAsync (fun l -> {
+                        Cursor = Option.toObj l.cursor
+                        Items = [
+                            for x in l.notifications do {
+                                Ref = {
+                                    CID = x.cid
+                                    Uri = { Raw = x.uri }
+                                }
+                                Actor = {
+                                    DID = x.actor.did
+                                    Handle = x.actor.handle
+                                    DisplayName = Option.toObj x.actor.displayName
+                                }
+                                Reason = x.reason
+                                ReasonSubject = { Raw = x.reasonSubject }
+                                IsRead = x.isRead
+                                IndexedAt = x.indexedAt
+                            }
+                        ]
+                    })

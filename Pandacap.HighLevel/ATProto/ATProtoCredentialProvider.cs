@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Clients;
 using Pandacap.Clients.ATProto;
 using Pandacap.Data;
 
@@ -20,7 +19,7 @@ namespace Pandacap.HighLevel.ATProto
             public string RefreshToken { get; private set; } = credentials.RefreshToken;
             public string Handle { get; private set; } = credentials.RefreshToken;
 
-            public async Task UpdateTokensAsync(Lexicon.ITokens tokens)
+            public async Task UpdateTokensAsync(ATProtoTokens tokens)
             {
                 AccessToken = tokens.AccessToken;
                 RefreshToken = tokens.RefreshToken;

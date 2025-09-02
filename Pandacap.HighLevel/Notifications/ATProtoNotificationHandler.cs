@@ -38,7 +38,7 @@ namespace Pandacap.HighLevel.Notifications
                     credentials,
                     cursor);
 
-                foreach (var item in result.notifications)
+                foreach (var item in result.Items)
                 {
                     var rs = item.ReasonSubject;
 
@@ -48,16 +48,16 @@ namespace Pandacap.HighLevel.Notifications
                             "Bluesky",
                             PostPlatformModule.GetBadge(PostPlatform.Bluesky),
                             "https://bsky.app/notifications"),
-                        ActivityName = item.reason,
-                        Url = item.reason == "reply"
-                            ? $"https://bsky.app/profile/{item.author.did}/post/{Uri.EscapeDataString(item.RecordKey)}"
+                        ActivityName = item.Reason,
+                        Url = item.Reason == "reply"
+                            ? $"https://bsky.app/profile/{item.Actor.DID}/post/{Uri.EscapeDataString(item.Ref.Uri.Components.RecordKey)}"
                             : null,
-                        UserName = item.author.DisplayName ?? item.author.handle,
-                        UserUrl = $"https://bsky.app/profile/{item.author.did}",
-                        PostUrl = item.ReasonSubject.Collection == NSIDs.App.Bsky.Feed.Post
-                            ? $"https://bsky.app/profile/{credentials.DID}/post/{Uri.EscapeDataString(item.ReasonSubject.RecordKey)}"
+                        UserName = item.Actor.DisplayName ?? item.Actor.Handle,
+                        UserUrl = $"https://bsky.app/profile/{item.Actor.DID}",
+                        PostUrl = item.ReasonSubject.Components.Collection == NSIDs.App.Bsky.Feed.Post
+                            ? $"https://bsky.app/profile/{item.ReasonSubject.Components.DID}/post/{Uri.EscapeDataString(item.ReasonSubject.Components.Collection)}"
                             : null,
-                        Timestamp = item.indexedAt.ToUniversalTime()
+                        Timestamp = item.IndexedAt.ToUniversalTime()
                     };
                 }
 

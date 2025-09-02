@@ -20,10 +20,6 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
     {
-        private record PostInformation(
-            Lexicon.IRecord<Lexicon.App.Bsky.Feed.Post> Post,
-            Lexicon.IRecord<Lexicon.App.Bsky.Actor.Profile> Profile);
-
         [AllowAnonymous]
         public async Task<IActionResult> GetBlob(string did, string cid, bool full = false)
         {
@@ -79,9 +75,9 @@ namespace Pandacap.Controllers
                 credentials = new()
                 {
                     PDS = pds,
-                    DID = session.did,
-                    AccessToken = session.accessJwt,
-                    RefreshToken = session.refreshJwt
+                    DID = session.DID,
+                    AccessToken = session.AccessToken,
+                    RefreshToken = session.RefreshToken
                 };
                 context.ATProtoCredentials.Add(credentials);
             }
@@ -164,7 +160,7 @@ namespace Pandacap.Controllers
             if (wrapper.DID == submission.BlueskyDID)
                 return NoContent();
 
-            async IAsyncEnumerable<XRPC.Com.Atproto.Repo.EmbeddedImage> downloadImagesAsync()
+            async IAsyncEnumerable<BlueskyEmbeddedImageParameters> downloadImagesAsync()
             {
                 foreach (var image in submission.Images)
                 {
@@ -199,15 +195,15 @@ namespace Pandacap.Controllers
             var post = await XRPC.Com.Atproto.Repo.CreateRecordAsync(
                 httpClient,
                 wrapper,
-                XRPC.Com.Atproto.Repo.RecordToCreate.NewPost(new(
+                ATProtoCreateParameters.NewBlueskyPost(new(
                     text: model.TextContent,
                     createdAt: submission.PublishedTime,
-                    embed: XRPC.Com.Atproto.Repo.EmbeddedContent.NewImages([.. images]),
+                    images: [.. images],
                     inReplyTo: [],
                     pandacapPost: submission.Id)));
 
-            submission.BlueskyDID = post.DID;
-            submission.BlueskyRecordKey = post.RecordKey;
+            submission.BlueskyDID = post.Uri.Components.DID;
+            submission.BlueskyRecordKey = post.Uri.Components.RecordKey;
 
             await context.SaveChangesAsync();
 
@@ -242,21 +238,19 @@ namespace Pandacap.Controllers
                 client,
                 did);
 
-            var post = await XRPC.Com.Atproto.Repo.GetRecordAsync<Lexicon.App.Bsky.Feed.Post>(
+            var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
                 client,
                 XRPC.Host.Unauthenticated(doc.PDS),
                 did,
-                NSIDs.App.Bsky.Feed.Post,
                 rkey);
 
-            var profiles = await XRPC.Com.Atproto.Repo.ListRecordsAsync<Lexicon.App.Bsky.Actor.Profile>(
+            var profiles = await XRPC.Com.Atproto.Repo.BlueskyProfile.ListRecordsAsync(
                 client,
                 XRPC.Host.Unauthenticated(doc.PDS),
                 did,
-                NSIDs.App.Bsky.Actor.Profile,
                 1,
                 null,
-                XRPC.Com.Atproto.Repo.Direction.Forward);
+                ATProtoListDirection.Forward);
 
             var hasCredentials = await context.ATProtoCredentials
                 .Where(c => c.CrosspostTargetSince != null)
@@ -269,7 +263,7 @@ namespace Pandacap.Controllers
                 cancellationToken);
 
             var likedBy = await context.BlueskyLikes
-                .Where(like => like.SubjectCID == post.cid)
+                .Where(like => like.SubjectCID == post.Ref.CID)
                 .Select(like => like.DID)
                 .ToHashSetAsync(cancellationToken);
 
@@ -288,17 +282,17 @@ namespace Pandacap.Controllers
 
             var inFavorites =
                 await context.BlueskyFavorites
-                    .Where(f => f.CID == post.cid)
+                    .Where(f => f.CID == post.Ref.CID)
                     .DocumentCountAsync(cancellationToken) > 0
                 || await context.BlueskyPostFavorites
-                    .Where(f => f.CID == post.cid)
+                    .Where(f => f.CID == post.Ref.CID)
                     .DocumentCountAsync(cancellationToken) > 0;
 
             return View(
                 new BlueskyPostViewModel(
                     DID: did,
                     Handle: doc.Handle,
-                    AvatarCID: profiles.records.Select(r => r.value.Avatar.CID).FirstOrDefault(),
+                    AvatarCID: profiles.Items.Select(r => r.Value.AvatarCID).FirstOrDefault(),
                     Record: post,
                     IsInFavorites: inFavorites,
                     MyProfiles: [.. myProfiles],
@@ -319,26 +313,24 @@ namespace Pandacap.Controllers
                 client,
                 did);
 
-            var post = await XRPC.Com.Atproto.Repo.GetRecordAsync<Lexicon.App.Bsky.Feed.Post>(
+            var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
                 client,
                 XRPC.Host.Unauthenticated(doc.PDS),
                 did,
-                NSIDs.App.Bsky.Feed.Post,
                 rkey);
 
-            var profiles = await XRPC.Com.Atproto.Repo.ListRecordsAsync<Lexicon.App.Bsky.Actor.Profile>(
+            var profiles = await XRPC.Com.Atproto.Repo.BlueskyProfile.ListRecordsAsync(
                 client,
                 XRPC.Host.Unauthenticated(doc.PDS),
                 did,
-                NSIDs.App.Bsky.Actor.Profile,
                 1,
                 null,
-                XRPC.Com.Atproto.Repo.Direction.Forward);
+                ATProtoListDirection.Forward);
 
             context.BlueskyPostFavorites.Add(new()
             {
-                CID = post.cid,
-                CreatedAt = post.value.createdAt,
+                CID = post.Ref.CID,
+                CreatedAt = post.Value.CreatedAt,
                 CreatedBy = new()
                 {
                     DID = did,
@@ -347,13 +339,13 @@ namespace Pandacap.Controllers
                 },
                 FavoritedAt = DateTimeOffset.UtcNow,
                 Id = Guid.NewGuid(),
-                Images = [.. post.value.Images.Select(image => new BlueskyPostFavoriteImage
+                Images = [.. post.Value.Images.Select(image => new BlueskyPostFavoriteImage
                 {
                     Alt = image.Alt,
-                    CID = image.image.CID
+                    CID = image.CID
                 })],
-                RecordKey = post.RecordKey,
-                Text = post.value.text
+                RecordKey = post.Ref.Uri.Components.RecordKey,
+                Text = post.Value.Text
             });
 
             await context.SaveChangesAsync(cancellationToken);
@@ -373,11 +365,10 @@ namespace Pandacap.Controllers
                 client,
                 author_did);
 
-            var post = await XRPC.Com.Atproto.Repo.GetRecordAsync<Lexicon.App.Bsky.Feed.Post>(
+            var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
                 client,
                 XRPC.Host.Unauthenticated(doc.PDS),
                 author_did,
-                NSIDs.App.Bsky.Feed.Post,
                 rkey);
 
             using var httpClient = httpClientFactory.CreateClient();
@@ -390,18 +381,16 @@ namespace Pandacap.Controllers
             var like = await XRPC.Com.Atproto.Repo.CreateRecordAsync(
                 httpClient,
                 wrapper,
-                XRPC.Com.Atproto.Repo.RecordToCreate.NewLike(new(
-                    uri: post.uri,
-                    cid: post.cid)));
+                ATProtoCreateParameters.NewBlueskyLike(post.Ref));
 
             context.BlueskyLikes.Add(new()
             {
                 Id = Guid.NewGuid(),
                 DID = my_did,
-                SubjectCID = post.cid,
-                SubjectRecordKey = post.RecordKey,
-                LikeCID = like.cid,
-                LikeRecordKey = like.RecordKey
+                SubjectCID = post.Ref.CID,
+                SubjectRecordKey = post.Ref.Uri.Components.RecordKey,
+                LikeCID = like.CID,
+                LikeRecordKey = like.Uri.Components.RecordKey
             });
 
             await context.SaveChangesAsync();
@@ -428,7 +417,7 @@ namespace Pandacap.Controllers
                     await XRPC.Com.Atproto.Repo.DeleteRecordAsync(
                         httpClient,
                         credentials,
-                        "app.bsky.feed.like",
+                        NSIDs.App.Bsky.Feed.Like,
                         rkey);
 
                 context.Remove(like);
@@ -472,27 +461,26 @@ namespace Pandacap.Controllers
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var post = await XRPC.Com.Atproto.Repo.GetRecordAsync<Lexicon.App.Bsky.Feed.Post>(
+            var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
                 httpClient,
                 credentials,
                 author_did,
-                NSIDs.App.Bsky.Feed.Post,
                 rkey);
 
-            var parent = new Lexicon.Com.Atproto.Repo.StrongRef(
-                post.uri,
-                post.cid);
+            var parent = post.Ref;
 
-            var root = post.value.InReplyTo?.root ?? parent;
+            var root = post.Value.InReplyTo.IsEmpty
+                ? parent
+                : post.Value.InReplyTo[0].Root;
 
             var reply = await XRPC.Com.Atproto.Repo.CreateRecordAsync(
                 httpClient,
                 credentials,
-                XRPC.Com.Atproto.Repo.RecordToCreate.NewPost(
+                ATProtoCreateParameters.NewBlueskyPost(
                     new(
                         text: content,
                         createdAt: DateTimeOffset.UtcNow,
-                        embed: XRPC.Com.Atproto.Repo.EmbeddedContent.NoEmbed,
+                        images: [],
                         inReplyTo: [new(
                             root: root,
                             parent: parent)],
@@ -502,8 +490,8 @@ namespace Pandacap.Controllers
                 nameof(ViewBlueskyPost),
                 new
                 {
-                    did = reply.DID,
-                    rkey = reply.RecordKey
+                    did = reply.Uri.Components.DID,
+                    rkey = reply.Uri.Components.RecordKey
                 });
         }
 
@@ -519,27 +507,26 @@ namespace Pandacap.Controllers
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var post = await XRPC.Com.Atproto.Repo.GetRecordAsync<Lexicon.App.Bsky.Feed.Post>(
+            var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
                 httpClient,
                 credentials,
                 did,
-                NSIDs.App.Bsky.Feed.Post,
                 rkey);
 
             await XRPC.Com.Atproto.Repo.DeleteRecordAsync(
                 httpClient,
                 credentials,
-                "app.bsky.feed.post",
+                NSIDs.App.Bsky.Feed.Post,
                 rkey);
 
-            return post.value.InReplyTo == null
+            return post.Value.InReplyTo.IsEmpty
                 ? Redirect("/")
                 : RedirectToAction(
                     nameof(ViewBlueskyPost),
                     new
                     {
-                        did = post.value.InReplyTo.parent.DID,
-                        rkey = post.value.InReplyTo.parent.RecordKey
+                        did = post.Value.InReplyTo[0].Parent.Uri.Components.DID,
+                        rkey = post.Value.InReplyTo[0].Parent.Uri.Components.RecordKey
                     });
         }
     }

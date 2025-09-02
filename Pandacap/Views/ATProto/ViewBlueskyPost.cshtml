@@ -23,46 +23,31 @@
 
 <hr />
 
-@if (post.InReplyTo != null)
+@foreach (var reply in post.InReplyTo)
 {
-    var reply = post.InReplyTo;
-
     <p>
         in reply to:
 
-        @{
-            try
-            {
-                <a asp-controller="ATProto" asp-action="ViewBlueskyPost" asp-route-did="@reply.parent.DID" asp-route-rkey="@reply.parent.RecordKey">
-                    @reply.parent.uri
-                </a>
-            } 
-            catch (Exception)
-            {
-                <span>
-                    @reply.parent.uri
-                </span>
-            }
-        }
+        <a asp-controller="ATProto" asp-action="ViewBlueskyPost" asp-route-did="@reply.Parent.Uri.Components.DID" asp-route-rkey="@reply.Parent.Uri.Components.RecordKey">
+            @reply.Parent.Uri
+        </a>
     </p>
 }
 
-@if (post.EmbeddedRecord != null)
+@foreach (var quoted in post.Quoted)
 {
-    var quoted = post.EmbeddedRecord;
-
     <p>
         quotes:
-        <a asp-action="ViewBlueskyPost" asp-route-did="@quoted.DID" asp-route-rkey="@quoted.RecordKey" href="@quoted.uri" target="_blank">
-            @quoted.uri
+        <a asp-action="ViewBlueskyPost" asp-route-did="@quoted.Uri.Components.DID" asp-route-rkey="@quoted.Uri.Components.RecordKey">
+            @quoted.Uri
         </a>
     </p>
 }
 
 <p>
-    <a href="https://bsky.app/profile/@Model.DID/post/@Model.Record.RecordKey" target="_blank">
-        @post.createdAt.UtcDateTime.ToLongDateString()
-        @post.createdAt.UtcDateTime.ToShortTimeString()
+    <a href="https://bsky.app/profile/@Model.DID/post/@Model.Record.Ref.Uri.Components.RecordKey" target="_blank">
+        @post.CreatedAt.UtcDateTime.ToLongDateString()
+        @post.CreatedAt.UtcDateTime.ToShortTimeString()
     </a>
 </p>
 
@@ -81,8 +66,8 @@
     <p align="center">
         @foreach (var image in post.Images)
         {
-            <a href="/ATProto/GetBlob?did=@Model.DID&cid=@image.image.CID&full=true">
-                <img src="/ATProto/GetBlob?did=@Model.DID&cid=@image.image.CID"
+            <a href="/ATProto/GetBlob?did=@Model.DID&cid=@image.CID&full=true">
+                <img src="/ATProto/GetBlob?did=@Model.DID&cid=@image.CID"
                      alt="@image.Alt"
                      class="contentImage" />
             </a>
@@ -91,7 +76,7 @@
 }
 
 <p>
-    @post.text
+    @post.Text
 </p>
 
 <hr />
@@ -101,14 +86,14 @@
     {
         <form asp-action="AddToFavorites" class="d-inline">
             <input type="hidden" name="did" value="@Model.DID" />
-            <input type="hidden" name="rkey" value="@Model.Record.RecordKey" />
+            <input type="hidden" name="rkey" value="@Model.Record.Ref.Uri.Components.RecordKey" />
             <button class="btn btn-primary btn-sm">Add to Favorites</button>
         </form>
     }
     else
     {
         <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
-            <input type="hidden" name="cid" value="@Model.Record.CID" />
+            <input type="hidden" name="cid" value="@Model.Record.Ref.CID" />
             <button class="btn btn-danger btn-sm">Remove from Favorites</button>
         </form>
     }
@@ -133,7 +118,7 @@
             @if (profile.Liked)
             {
                 <form asp-action="Unlike" class="d-inline">
-                    <input type="hidden" name="rkey" value="@Model.Record.RecordKey" />
+                    <input type="hidden" name="rkey" value="@Model.Record.Ref.Uri.Components.RecordKey" />
                     <input type="hidden" name="my_did" value="@profile.DID" />
                     <button class="btn btn-danger btn-sm">Unlike</button>
                 </form>
@@ -142,7 +127,7 @@
             {
                 <form asp-action="Like" class="d-inline">
                     <input type="hidden" name="author_did" value="@Model.DID" />
-                    <input type="hidden" name="rkey" value="@Model.Record.RecordKey" />
+                    <input type="hidden" name="rkey" value="@Model.Record.Ref.Uri.Components.RecordKey" />
                     <input type="hidden" name="my_did" value="@profile.DID" />
                     <button class="btn btn-primary btn-sm">Like</button>
                 </form>
@@ -152,7 +137,7 @@
             {
                 <form asp-action="DeletePost" class="d-inline">
                     <input type="hidden" name="did" value="@profile.DID" />
-                    <input type="hidden" name="rkey" value="@Model.Record.RecordKey" />
+                    <input type="hidden" name="rkey" value="@Model.Record.Ref.Uri.Components.RecordKey" />
                     <button class="btn btn-danger btn-sm">Delete from PDS</button>
                 </form>
             }
@@ -161,7 +146,7 @@
         <p>
             <form method="post" asp-action="PostReply">
                 <input type="hidden" name="author_did" value="@Model.DID" />
-                <input type="hidden" name="rkey" value="@Model.Record.RecordKey" />
+                <input type="hidden" name="rkey" value="@Model.Record.Ref.Uri.Components.RecordKey" />
                 <input type="hidden" name="my_did" value="@profile.DID" />
 
                 <div class="form-group">

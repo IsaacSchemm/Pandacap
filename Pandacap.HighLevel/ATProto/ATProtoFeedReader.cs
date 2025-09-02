@@ -11,13 +11,13 @@ namespace Pandacap.HighLevel.ATProto
     {
         private static bool PostMatchesFilters(
             ATProtoFeed feed,
-            Lexicon.IRecord<Lexicon.App.Bsky.Feed.Post> post)
+            ATProtoRecord<BlueskyPost> post)
         {
-            bool isQuotePost = post.Value.EmbeddedRecord != null;
+            bool isQuotePost = !post.Value.Quoted.IsEmpty;
             if (isQuotePost && !feed.IncludeQuotePosts)
                 return false;
 
-            bool isReply = post.Value.InReplyTo != null;
+            bool isReply = !post.Value.InReplyTo.IsEmpty;
             if (isReply && !feed.IncludeReplies)
                 return false;
 
@@ -28,25 +28,24 @@ namespace Pandacap.HighLevel.ATProto
         }
 
         private record SubjectData(
-            Lexicon.IRecord<Lexicon.App.Bsky.Feed.Post> Subject,
+            ATProtoRecord<BlueskyPost> Subject,
             string PDS);
 
-        private static async Task<SubjectData?> FetchSubjectAsync<T>(
+        private static async Task<SubjectData?> FetchSubjectAsync(
             HttpClient client,
-            Lexicon.IRecord<T> repost) where T : Lexicon.IHasSubject
+            ATProtoRecord<BlueskyInteraction> interaction)
         {
             try
             {
                 var doc = await DIDResolver.ResolveAsync(
                     client,
-                    repost.Value.Subject.DID);
+                    interaction.Value.Subject.Uri.Components.DID);
 
-                var subject = await XRPC.Com.Atproto.Repo.GetRecordAsync<Lexicon.App.Bsky.Feed.Post>(
+                var subject = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
                     client,
                     XRPC.Host.Unauthenticated(doc.PDS),
-                    repost.Value.Subject.DID,
-                    NSIDs.App.Bsky.Feed.Post,
-                    repost.Value.Subject.RecordKey);
+                    interaction.Value.Subject.Uri.Components.DID,
+                    interaction.Value.Subject.Uri.Components.RecordKey);
 
                 return new(subject, doc.PDS);
             }
@@ -56,9 +55,9 @@ namespace Pandacap.HighLevel.ATProto
             }
         }
 
-        private void AddToContext(
+        private void AddLikeToContext(
             ATProtoFeed feed,
-            Lexicon.IRecord<Lexicon.App.Bsky.Feed.Like> like,
+            ATProtoRecord<BlueskyInteraction> like,
             SubjectData subjectData)
         {
             var subject = subjectData.Subject;
@@ -66,24 +65,24 @@ namespace Pandacap.HighLevel.ATProto
 
             context.BlueskyRepostFeedItems.Add(new()
             {
-                CID = like.CID,
-                CreatedAt = subject.Value.createdAt,
+                CID = like.Ref.CID,
+                CreatedAt = subject.Value.CreatedAt,
                 Labels = [.. subject.Value.Labels],
                 Images = feed.IgnoreImages
                     ? []
                     : [.. subject.Value.Images.Select(i => new BlueskyRepostFeedItemImage
                     {
                         Alt = i.Alt,
-                        CID = i.image.CID
+                        CID = i.CID
                     })],
                 Original = new()
                 {
-                    CID = subject.CID,
-                    DID = subject.DID,
+                    CID = subject.Ref.CID,
+                    DID = subject.Ref.Uri.Components.DID,
                     PDS = pds,
-                    RecordKey = subject.RecordKey
+                    RecordKey = subject.Ref.Uri.Components.RecordKey
                 },
-                RepostedAt = like.Value.createdAt,
+                RepostedAt = like.Value.CreatedAt,
                 RepostedBy = new()
                 {
                     AvatarCID = feed.AvatarCID,
@@ -92,13 +91,13 @@ namespace Pandacap.HighLevel.ATProto
                     Handle = feed.Handle,
                     PDS = feed.PDS
                 },
-                Text = subject.Value.text
+                Text = subject.Value.Text
             });
         }
 
         private void AddToContext(
             ATProtoFeed feed,
-            Lexicon.IRecord<Lexicon.App.Bsky.Feed.Post> post)
+            ATProtoRecord<BlueskyPost> post)
         {
             context.BlueskyPostFeedItems.Add(new()
             {
@@ -110,24 +109,24 @@ namespace Pandacap.HighLevel.ATProto
                     Handle = feed.Handle,
                     PDS = feed.PDS
                 },
-                CID = post.CID,
-                CreatedAt = post.Value.createdAt,
+                CID = post.Ref.CID,
+                CreatedAt = post.Value.CreatedAt,
                 Labels = [.. post.Value.Labels],
                 Images = feed.IgnoreImages
                     ? []
                     : [.. post.Value.Images.Select(i => new BlueskyPostFeedItemImage
                         {
                             Alt = i.Alt,
-                            CID = i.image.CID
+                            CID = i.CID
                         })],
-                RecordKey = post.RecordKey,
-                Text = post.Value.text
+                RecordKey = post.Ref.Uri.Components.RecordKey,
+                Text = post.Value.Text
             });
         }
 
-        private void AddToContext(
+        private void AddRepostToContext(
             ATProtoFeed feed,
-            Lexicon.IRecord<Lexicon.App.Bsky.Feed.Repost> repost,
+            ATProtoRecord<BlueskyInteraction> repost,
             SubjectData subjectData)
         {
             var subject = subjectData.Subject;
@@ -135,24 +134,24 @@ namespace Pandacap.HighLevel.ATProto
 
             context.BlueskyRepostFeedItems.Add(new()
             {
-                CID = repost.CID,
-                CreatedAt = subject.Value.createdAt,
+                CID = repost.Ref.CID,
+                CreatedAt = subject.Value.CreatedAt,
                 Labels = [.. subject.Value.Labels],
                 Images = feed.IgnoreImages
                     ? []
                     : [.. subject.Value.Images.Select(i => new BlueskyRepostFeedItemImage
                     {
                         Alt = i.Alt,
-                        CID = i.image.CID
+                        CID = i.CID
                     })],
                 Original = new()
                 {
-                    CID = subject.CID,
-                    DID = subject.DID,
+                    CID = subject.Ref.CID,
+                    DID = subject.Ref.Uri.Components.DID,
                     PDS = pds,
-                    RecordKey = subject.RecordKey
+                    RecordKey = subject.Ref.Uri.Components.RecordKey
                 },
-                RepostedAt = repost.Value.createdAt,
+                RepostedAt = repost.Value.CreatedAt,
                 RepostedBy = new()
                 {
                     AvatarCID = feed.AvatarCID,
@@ -161,7 +160,7 @@ namespace Pandacap.HighLevel.ATProto
                     Handle = feed.Handle,
                     PDS = feed.PDS
                 },
-                Text = subject.Value.text
+                Text = subject.Value.Text
             });
         }
 
@@ -177,52 +176,49 @@ namespace Pandacap.HighLevel.ATProto
 
             if (feed.NSIDs.Contains(NSIDs.App.Bsky.Actor.Profile))
             {
-                var blueskyProfiles = await XRPC.Com.Atproto.Repo.ListRecordsAsync<Lexicon.App.Bsky.Actor.Profile>(
+                var blueskyProfiles = await XRPC.Com.Atproto.Repo.BlueskyProfile.ListRecordsAsync(
                     client,
                     XRPC.Host.Unauthenticated(feed.PDS),
                     did,
-                    NSIDs.App.Bsky.Actor.Profile,
                     1,
                     null,
-                    XRPC.Com.Atproto.Repo.Direction.Forward);
+                    ATProtoListDirection.Forward);
 
-                foreach (var profile in blueskyProfiles.records)
+                foreach (var profile in blueskyProfiles.Items)
                 {
-                    feed.DisplayName = profile.value.DisplayName;
-                    feed.AvatarCID = profile.value.Avatar.CID;
+                    feed.DisplayName = profile.Value.DisplayName;
+                    feed.AvatarCID = profile.Value.AvatarCID;
                 }
             }
 
             if (feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Like))
             {
-                if (!feed.Cursors.ContainsKey(NSIDs.App.Bsky.Feed.Like))
+                if (!feed.Cursors.TryGetValue(NSIDs.App.Bsky.Feed.Like, out var _))
                 {
-                    var page = await XRPC.Com.Atproto.Repo.ListRecordsAsync<Lexicon.App.Bsky.Feed.Like>(
+                    var page = await XRPC.Com.Atproto.Repo.BlueskyLike.ListRecordsAsync(
                         client,
                         XRPC.Host.Unauthenticated(feed.PDS),
                         did,
-                        NSIDs.App.Bsky.Feed.Like,
                         21,
                         null,
-                        XRPC.Com.Atproto.Repo.Direction.Forward);
+                        ATProtoListDirection.Forward);
 
                     feed.Cursors[NSIDs.App.Bsky.Feed.Like] = page.Cursor;
                 }
 
                 var cursor = feed.Cursors[NSIDs.App.Bsky.Feed.Like];
 
-                var likes = await XRPC.Com.Atproto.Repo.ListRecordsAsync<Lexicon.App.Bsky.Feed.Like>(
+                var likes = await XRPC.Com.Atproto.Repo.BlueskyLike.ListRecordsAsync(
                     client,
                     XRPC.Host.Unauthenticated(feed.PDS),
                     did,
-                    NSIDs.App.Bsky.Feed.Like,
                     100,
                     cursor,
-                    XRPC.Com.Atproto.Repo.Direction.Reverse);
+                    ATProtoListDirection.Reverse);
 
-                foreach (var like in likes.records)
+                foreach (var like in likes.Items)
                 {
-                    var existing = await context.BlueskyLikeFeedItems.FindAsync(like.cid);
+                    var existing = await context.BlueskyLikeFeedItems.FindAsync(like.Ref.CID);
                     if (existing != null)
                         context.BlueskyLikeFeedItems.Remove(existing);
 
@@ -232,7 +228,7 @@ namespace Pandacap.HighLevel.ATProto
                     if (!PostMatchesFilters(feed, info.Subject))
                         continue;
 
-                    AddToContext(feed, like, info);
+                    AddLikeToContext(feed, like, info);
                 }
 
                 if (likes.Cursor is string next)
@@ -241,37 +237,35 @@ namespace Pandacap.HighLevel.ATProto
 
             if (feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Post))
             {
-                if (!feed.Cursors.ContainsKey(NSIDs.App.Bsky.Feed.Post))
+                if (!feed.Cursors.TryGetValue(NSIDs.App.Bsky.Feed.Post, out var _))
                 {
-                    var page = await XRPC.Com.Atproto.Repo.ListRecordsAsync<Lexicon.App.Bsky.Feed.Post>(
+                    var page = await XRPC.Com.Atproto.Repo.BlueskyPost.ListRecordsAsync(
                         client,
                         XRPC.Host.Unauthenticated(feed.PDS),
                         did,
-                        NSIDs.App.Bsky.Feed.Post,
                         21,
                         null,
-                        XRPC.Com.Atproto.Repo.Direction.Forward);
+                        ATProtoListDirection.Forward);
 
                     feed.Cursors[NSIDs.App.Bsky.Feed.Post] = page.Cursor;
                 }
 
                 var cursor = feed.Cursors[NSIDs.App.Bsky.Feed.Post];
 
-                var posts = await XRPC.Com.Atproto.Repo.ListRecordsAsync<Lexicon.App.Bsky.Feed.Post>(
+                var posts = await XRPC.Com.Atproto.Repo.BlueskyPost.ListRecordsAsync(
                     client,
                     XRPC.Host.Unauthenticated(feed.PDS),
                     did,
-                    NSIDs.App.Bsky.Feed.Post,
                     100,
                     cursor,
-                    XRPC.Com.Atproto.Repo.Direction.Reverse);
+                    ATProtoListDirection.Reverse);
 
-                foreach (var post in posts.records)
+                foreach (var post in posts.Items)
                 {
                     if (!PostMatchesFilters(feed, post))
                         continue;
 
-                    var existing = await context.BlueskyPostFeedItems.FindAsync(post.cid);
+                    var existing = await context.BlueskyPostFeedItems.FindAsync(post.Ref.CID);
                     if (existing != null)
                         context.BlueskyPostFeedItems.Remove(existing);
 
@@ -284,34 +278,32 @@ namespace Pandacap.HighLevel.ATProto
 
             if (feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Repost))
             {
-                if (!feed.Cursors.ContainsKey(NSIDs.App.Bsky.Feed.Repost))
+                if (!feed.Cursors.TryGetValue(NSIDs.App.Bsky.Feed.Repost, out var _))
                 {
-                    var page = await XRPC.Com.Atproto.Repo.ListRecordsAsync<Lexicon.App.Bsky.Feed.Repost>(
+                    var page = await XRPC.Com.Atproto.Repo.BlueskyRepost.ListRecordsAsync(
                         client,
                         XRPC.Host.Unauthenticated(feed.PDS),
                         did,
-                        NSIDs.App.Bsky.Feed.Repost,
                         21,
                         null,
-                        XRPC.Com.Atproto.Repo.Direction.Forward);
+                        ATProtoListDirection.Forward);
 
                     feed.Cursors[NSIDs.App.Bsky.Feed.Repost] = page.Cursor;
                 }
 
                 var cursor = feed.Cursors[NSIDs.App.Bsky.Feed.Repost];
 
-                var reposts = await XRPC.Com.Atproto.Repo.ListRecordsAsync<Lexicon.App.Bsky.Feed.Repost>(
+                var reposts = await XRPC.Com.Atproto.Repo.BlueskyRepost.ListRecordsAsync(
                     client,
                     XRPC.Host.Unauthenticated(feed.PDS),
                     did,
-                    NSIDs.App.Bsky.Feed.Repost,
                     100,
                     cursor,
-                    XRPC.Com.Atproto.Repo.Direction.Reverse);
+                    ATProtoListDirection.Reverse);
 
-                foreach (var repost in reposts.records)
+                foreach (var repost in reposts.Items)
                 {
-                    var existing = await context.BlueskyRepostFeedItems.FindAsync(repost.cid);
+                    var existing = await context.BlueskyRepostFeedItems.FindAsync(repost.Ref.CID);
                     if (existing != null)
                         context.BlueskyRepostFeedItems.Remove(existing);
 
@@ -321,7 +313,7 @@ namespace Pandacap.HighLevel.ATProto
                     if (!PostMatchesFilters(feed, info.Subject))
                         continue;
 
-                    AddToContext(feed, repost, info);
+                    AddRepostToContext(feed, repost, info);
                 }
 
                 if (reposts.Cursor is string next)
