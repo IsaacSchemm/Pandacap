@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Clients;
+using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -303,9 +304,9 @@ namespace Pandacap.Controllers
 
             if (handle.StartsWith("did:"))
             {
-                var handleResolution = await ATProtoClient.Identity.ResolveHandleAsync(
+                var handleResolution = await XRPC.Com.Atproto.Identity.ResolveHandleAsync(
                     client,
-                    ATProtoClient.Host.Bluesky.PublicAppView,
+                    XRPC.Host.Bluesky.PublicAppView,
                     handle);
 
                 did = handleResolution.did;
@@ -315,13 +316,13 @@ namespace Pandacap.Controllers
                 did = handle;
             }
 
-            var document = await ATProtoClient.PLCDirectory.ResolveAsync(
+            var document = await DIDResolver.ResolveAsync(
                 client,
                 did);
 
-            var repo = await ATProtoClient.Repo.DescribeRepoAsync(
+            var repo = await XRPC.Com.Atproto.Repo.DescribeRepoAsync(
                 client,
-                ATProtoClient.Host.Unauthenticated(document.PDS),
+                XRPC.Host.Unauthenticated(document.PDS),
                 did);
 
             context.ATProtoFeeds.Add(new ATProtoFeed
@@ -331,9 +332,9 @@ namespace Pandacap.Controllers
                 PDS = document.PDS,
                 NSIDs = [
                     .. repo.collections.Intersect([
-                        ATProtoClient.NSIDs.Bluesky.Actor.Profile,
-                        ATProtoClient.NSIDs.Bluesky.Feed.Post,
-                        ATProtoClient.NSIDs.Bluesky.Feed.Repost
+                        NSIDs.App.Bsky.Actor.Profile,
+                        NSIDs.App.Bsky.Feed.Post,
+                        NSIDs.App.Bsky.Feed.Repost
                     ])
                 ]
             });
@@ -363,10 +364,10 @@ namespace Pandacap.Controllers
                 IncludeReplies = feed.IncludeReplies,
                 IncludeQuotePosts = feed.IncludeQuotePosts,
                 IgnoreImages = feed.IgnoreImages,
-                IncludeBlueskyProfile = feed.NSIDs.Contains(ATProtoClient.NSIDs.Bluesky.Actor.Profile),
-                IncludeBlueskyLikes = feed.NSIDs.Contains(ATProtoClient.NSIDs.Bluesky.Feed.Like),
-                IncludeBlueskyPosts = feed.NSIDs.Contains(ATProtoClient.NSIDs.Bluesky.Feed.Post),
-                IncludeBlueskyReposts = feed.NSIDs.Contains(ATProtoClient.NSIDs.Bluesky.Feed.Repost)
+                IncludeBlueskyProfile = feed.NSIDs.Contains(NSIDs.App.Bsky.Actor.Profile),
+                IncludeBlueskyLikes = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Like),
+                IncludeBlueskyPosts = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Post),
+                IncludeBlueskyReposts = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Repost)
             });
         }
 
@@ -402,24 +403,24 @@ namespace Pandacap.Controllers
                 follow.IncludeQuotePosts = model.IncludeQuotePosts;
 
                 if (model.IncludeBlueskyProfile)
-                    follow.NSIDs.Add(ATProtoClient.NSIDs.Bluesky.Actor.Profile);
+                    follow.NSIDs.Add(NSIDs.App.Bsky.Actor.Profile);
                 else
-                    follow.NSIDs.Remove(ATProtoClient.NSIDs.Bluesky.Actor.Profile);
+                    follow.NSIDs.Remove(NSIDs.App.Bsky.Actor.Profile);
 
                 if (model.IncludeBlueskyLikes)
-                    follow.NSIDs.Add(ATProtoClient.NSIDs.Bluesky.Feed.Like);
+                    follow.NSIDs.Add(NSIDs.App.Bsky.Feed.Like);
                 else
-                    follow.NSIDs.Remove(ATProtoClient.NSIDs.Bluesky.Feed.Like);
+                    follow.NSIDs.Remove(NSIDs.App.Bsky.Feed.Like);
 
                 if (model.IncludeBlueskyPosts)
-                    follow.NSIDs.Add(ATProtoClient.NSIDs.Bluesky.Feed.Post);
+                    follow.NSIDs.Add(NSIDs.App.Bsky.Feed.Post);
                 else
-                    follow.NSIDs.Remove(ATProtoClient.NSIDs.Bluesky.Feed.Post);
+                    follow.NSIDs.Remove(NSIDs.App.Bsky.Feed.Post);
 
                 if (model.IncludeBlueskyReposts)
-                    follow.NSIDs.Add(ATProtoClient.NSIDs.Bluesky.Feed.Repost);
+                    follow.NSIDs.Add(NSIDs.App.Bsky.Feed.Repost);
                 else
-                    follow.NSIDs.Remove(ATProtoClient.NSIDs.Bluesky.Feed.Repost);
+                    follow.NSIDs.Remove(NSIDs.App.Bsky.Feed.Repost);
             }
 
             await context.SaveChangesAsync();

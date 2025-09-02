@@ -1,10 +1,10 @@
 ﻿@model BlueskyPostViewModel
-@inject Pandacap.ActivityPub.Mapper mapper
+@using Pandacap.Clients.ATProto
 
 @{
     ViewBag.Title = "View Bluesky Post";
 
-    var post = Model.Record.value;
+    var post = Model.Record.Value;
 }
 
 <h1>
@@ -81,9 +81,9 @@
     <p align="center">
         @foreach (var image in post.Images)
         {
-            <a href="/ATProto/GetBlob?did=@Model.DID&cid=@image.BlobCID">
-                <img src="/ATProto/GetBlob?did=@Model.DID&cid=@image.BlobCID"
-                     alt="@image.alt"
+            <a href="/ATProto/GetBlob?did=@Model.DID&cid=@image.image.CID&full=true">
+                <img src="/ATProto/GetBlob?did=@Model.DID&cid=@image.image.CID"
+                     alt="@image.Alt"
                      class="contentImage" />
             </a>
         }
@@ -108,7 +108,7 @@
     else
     {
         <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
-            <input type="hidden" name="cid" value="@Model.Record.cid" />
+            <input type="hidden" name="cid" value="@Model.Record.CID" />
             <button class="btn btn-danger btn-sm">Remove from Favorites</button>
         </form>
     }

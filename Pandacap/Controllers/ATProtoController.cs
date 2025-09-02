@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Clients;
+using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.Models;
-using System.Security.Cryptography;
+using System.Drawing;
 
 namespace Pandacap.Controllers
 {
@@ -20,30 +21,30 @@ namespace Pandacap.Controllers
         IHttpClientFactory httpClientFactory) : Controller
     {
         private record PostInformation(
-            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post> Post,
-            ATProtoClient.Repo.RecordListItem<ATProtoClient.Repo.Schemas.Bluesky.Actor.Profile> Profile);
+            Lexicon.IRecord<Lexicon.App.Bsky.Feed.Post> Post,
+            Lexicon.IRecord<Lexicon.App.Bsky.Actor.Profile> Profile);
 
         [AllowAnonymous]
-        public async Task<IActionResult> GetBlob(string did, string cid)
+        public async Task<IActionResult> GetBlob(string did, string cid, bool full = false)
         {
-            if (User.Identity?.IsAuthenticated == true)
+            if (User.Identity?.IsAuthenticated == true && full)
             {
                 var client = httpClientFactory.CreateClient();
                 client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-                var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
+                var doc = await DIDResolver.ResolveAsync(
                     client,
                     did);
 
-                var blob = await ATProtoClient.Repo.GetBlobAsync(
+                var blob = await XRPC.Com.Atproto.Repo.GetBlobAsync(
                     client,
-                    ATProtoClient.Host.Unauthenticated(doc.PDS),
+                    XRPC.Host.Unauthenticated(doc.PDS),
                     did,
                     cid);
 
                 return File(
-                    blob.data,
-                    blob.contentType);
+                    blob.Data,
+                    blob.ContentType);
             }
             else
             {
@@ -73,7 +74,7 @@ namespace Pandacap.Controllers
 
             if (credentials == null)
             {
-                var session = await ATProtoClient.Server.CreateSessionAsync(client, pds, did, password);
+                var session = await XRPC.Com.Atproto.Server.CreateSessionAsync(client, pds, did, password);
 
                 credentials = new()
                 {
@@ -163,37 +164,47 @@ namespace Pandacap.Controllers
             if (wrapper.DID == submission.BlueskyDID)
                 return NoContent();
 
-            async IAsyncEnumerable<ATProtoClient.Repo.UploadedBlob> downloadImagesAsync()
+            async IAsyncEnumerable<XRPC.Com.Atproto.Repo.EmbeddedImage> downloadImagesAsync()
             {
                 foreach (var image in submission.Images)
                 {
-                    var blob = await blobServiceClient
+                    var myBlob = await blobServiceClient
                         .GetBlobContainerClient("blobs")
                         .GetBlobClient($"{image.Raster.Id}")
                         .DownloadContentAsync();
 
-                    yield return await ATProtoClient.Repo.UploadBlobAsync(
+                    var atBlob = await XRPC.Com.Atproto.Repo.UploadBlobAsync(
                         httpClient,
                         wrapper,
-                        blob.Value.Content.ToArray(),
-                        image.Raster.ContentType,
-                        image.AltText);
+                        myBlob.Value.Content.ToArray(),
+                        image.Raster.ContentType);
+
+                    int width = 0, height = 0;
+
+                    try
+                    {
+                        using var stream = myBlob.Value.Content.ToStream();
+                        using var bitmap = Image.FromStream(stream);
+                        width = bitmap.Width;
+                        height = bitmap.Height;
+                    }
+                    catch (Exception) { }
+
+                    yield return new(atBlob.blob, image.AltText, width, height);
                 }
             }
 
             var images = await downloadImagesAsync().ToListAsync();
 
-            var post = await ATProtoClient.Repo.CreateRecordAsync(
+            var post = await XRPC.Com.Atproto.Repo.CreateRecordAsync(
                 httpClient,
                 wrapper,
-                ATProtoClient.Repo.RecordToCreate.NewPost(new(
+                XRPC.Com.Atproto.Repo.RecordToCreate.NewPost(new(
                     text: model.TextContent,
                     createdAt: submission.PublishedTime,
-                    embed: ATProtoClient.Repo.PostEmbed.NewImages([.. images]),
+                    embed: XRPC.Com.Atproto.Repo.EmbeddedContent.NewImages([.. images]),
                     inReplyTo: [],
-                    pandacapMetadata: [
-                        ATProtoClient.Repo.PandacapMetadata.NewPostId(submission.Id)
-                    ])));
+                    pandacapPost: submission.Id)));
 
             submission.BlueskyDID = post.DID;
             submission.BlueskyRecordKey = post.RecordKey;
@@ -227,25 +238,25 @@ namespace Pandacap.Controllers
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
+            var doc = await DIDResolver.ResolveAsync(
                 client,
                 did);
 
-            var post = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+            var post = await XRPC.Com.Atproto.Repo.GetRecordAsync<Lexicon.App.Bsky.Feed.Post>(
                 client,
-                ATProtoClient.Host.Unauthenticated(doc.PDS),
+                XRPC.Host.Unauthenticated(doc.PDS),
                 did,
-                ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                NSIDs.App.Bsky.Feed.Post,
                 rkey);
 
-            var profiles = await ATProtoClient.Repo.ListRecordsAsync<ATProtoClient.Repo.Schemas.Bluesky.Actor.Profile>(
+            var profiles = await XRPC.Com.Atproto.Repo.ListRecordsAsync<Lexicon.App.Bsky.Actor.Profile>(
                 client,
-                ATProtoClient.Host.Unauthenticated(doc.PDS),
+                XRPC.Host.Unauthenticated(doc.PDS),
                 did,
-                ATProtoClient.NSIDs.Bluesky.Actor.Profile,
+                NSIDs.App.Bsky.Actor.Profile,
                 1,
                 null,
-                ATProtoClient.Repo.Direction.Forward);
+                XRPC.Com.Atproto.Repo.Direction.Forward);
 
             var hasCredentials = await context.ATProtoCredentials
                 .Where(c => c.CrosspostTargetSince != null)
@@ -287,7 +298,7 @@ namespace Pandacap.Controllers
                 new BlueskyPostViewModel(
                     DID: did,
                     Handle: doc.Handle,
-                    AvatarCID: profiles.records.Select(r => r.value.AvatarCID).FirstOrDefault(),
+                    AvatarCID: profiles.records.Select(r => r.value.Avatar.CID).FirstOrDefault(),
                     Record: post,
                     IsInFavorites: inFavorites,
                     MyProfiles: [.. myProfiles],
@@ -304,25 +315,25 @@ namespace Pandacap.Controllers
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
+            var doc = await DIDResolver.ResolveAsync(
                 client,
                 did);
 
-            var post = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+            var post = await XRPC.Com.Atproto.Repo.GetRecordAsync<Lexicon.App.Bsky.Feed.Post>(
                 client,
-                ATProtoClient.Host.Unauthenticated(doc.PDS),
+                XRPC.Host.Unauthenticated(doc.PDS),
                 did,
-                ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                NSIDs.App.Bsky.Feed.Post,
                 rkey);
 
-            var profiles = await ATProtoClient.Repo.ListRecordsAsync<ATProtoClient.Repo.Schemas.Bluesky.Actor.Profile>(
+            var profiles = await XRPC.Com.Atproto.Repo.ListRecordsAsync<Lexicon.App.Bsky.Actor.Profile>(
                 client,
-                ATProtoClient.Host.Unauthenticated(doc.PDS),
+                XRPC.Host.Unauthenticated(doc.PDS),
                 did,
-                ATProtoClient.NSIDs.Bluesky.Actor.Profile,
+                NSIDs.App.Bsky.Actor.Profile,
                 1,
                 null,
-                ATProtoClient.Repo.Direction.Forward);
+                XRPC.Com.Atproto.Repo.Direction.Forward);
 
             context.BlueskyPostFavorites.Add(new()
             {
@@ -331,7 +342,7 @@ namespace Pandacap.Controllers
                 CreatedBy = new()
                 {
                     DID = did,
-                    PDS = ATProtoClient.Host.Bluesky.PublicAppView.PDS,
+                    PDS = XRPC.Host.Bluesky.PublicAppView.PDS,
                     Handle = doc.Handle
                 },
                 FavoritedAt = DateTimeOffset.UtcNow,
@@ -339,7 +350,7 @@ namespace Pandacap.Controllers
                 Images = [.. post.value.Images.Select(image => new BlueskyPostFavoriteImage
                 {
                     Alt = image.Alt,
-                    CID = image.BlobCID
+                    CID = image.image.CID
                 })],
                 RecordKey = post.RecordKey,
                 Text = post.value.text
@@ -358,15 +369,15 @@ namespace Pandacap.Controllers
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var doc = await ATProtoClient.PLCDirectory.ResolveAsync(
+            var doc = await DIDResolver.ResolveAsync(
                 client,
                 author_did);
 
-            var post = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+            var post = await XRPC.Com.Atproto.Repo.GetRecordAsync<Lexicon.App.Bsky.Feed.Post>(
                 client,
-                ATProtoClient.Host.Unauthenticated(doc.PDS),
+                XRPC.Host.Unauthenticated(doc.PDS),
                 author_did,
-                ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                NSIDs.App.Bsky.Feed.Post,
                 rkey);
 
             using var httpClient = httpClientFactory.CreateClient();
@@ -376,10 +387,10 @@ namespace Pandacap.Controllers
             if (wrapper == null)
                 return Forbid();
 
-            var like = await ATProtoClient.Repo.CreateRecordAsync(
+            var like = await XRPC.Com.Atproto.Repo.CreateRecordAsync(
                 httpClient,
                 wrapper,
-                ATProtoClient.Repo.RecordToCreate.NewLike(new(
+                XRPC.Com.Atproto.Repo.RecordToCreate.NewLike(new(
                     uri: post.uri,
                     cid: post.cid)));
 
@@ -414,7 +425,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable())
             {
                 if (credentials != null)
-                    await ATProtoClient.Repo.DeleteRecordAsync(
+                    await XRPC.Com.Atproto.Repo.DeleteRecordAsync(
                         httpClient,
                         credentials,
                         "app.bsky.feed.like",
@@ -461,31 +472,31 @@ namespace Pandacap.Controllers
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var post = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+            var post = await XRPC.Com.Atproto.Repo.GetRecordAsync<Lexicon.App.Bsky.Feed.Post>(
                 httpClient,
                 credentials,
                 author_did,
-                ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                NSIDs.App.Bsky.Feed.Post,
                 rkey);
 
-            var parent = new ATProtoClient.MinimalRecord(
+            var parent = new Lexicon.Com.Atproto.Repo.StrongRef(
                 post.uri,
                 post.cid);
 
             var root = post.value.InReplyTo?.root ?? parent;
 
-            var reply = await ATProtoClient.Repo.CreateRecordAsync(
+            var reply = await XRPC.Com.Atproto.Repo.CreateRecordAsync(
                 httpClient,
                 credentials,
-                ATProtoClient.Repo.RecordToCreate.NewPost(
+                XRPC.Com.Atproto.Repo.RecordToCreate.NewPost(
                     new(
-                        content,
-                        DateTimeOffset.UtcNow,
-                        ATProtoClient.Repo.PostEmbed.NoEmbed,
+                        text: content,
+                        createdAt: DateTimeOffset.UtcNow,
+                        embed: XRPC.Com.Atproto.Repo.EmbeddedContent.NoEmbed,
                         inReplyTo: [new(
                             root: root,
                             parent: parent)],
-                        pandacapMetadata: [])));
+                        pandacapPost: null)));
 
             return RedirectToAction(
                 nameof(ViewBlueskyPost),
@@ -508,14 +519,14 @@ namespace Pandacap.Controllers
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var post = await ATProtoClient.Repo.GetRecordAsync<ATProtoClient.Repo.Schemas.Bluesky.Feed.Post>(
+            var post = await XRPC.Com.Atproto.Repo.GetRecordAsync<Lexicon.App.Bsky.Feed.Post>(
                 httpClient,
                 credentials,
                 did,
-                ATProtoClient.NSIDs.Bluesky.Feed.Post,
+                NSIDs.App.Bsky.Feed.Post,
                 rkey);
 
-            await ATProtoClient.Repo.DeleteRecordAsync(
+            await XRPC.Com.Atproto.Repo.DeleteRecordAsync(
                 httpClient,
                 credentials,
                 "app.bsky.feed.post",

@@ -47,6 +47,10 @@
     <Compile Include="ActivityPub\Inbound\Attachment.fs" />
     <Compile Include="ActivityPub\Inbound\RemotePost.fs" />
     <Compile Include="ActivityPub\Inbound\ActivityPubRemotePostService.fs" />
+    <Compile Include="ATProto\DIDResolver.fs" />
+    <Compile Include="ATProto\NSIDs.fs" />
+    <Compile Include="ATProto\Lexicon.fs" />
+    <Compile Include="ATProto\XRPC.fs" />
     <Compile Include="Podcasts\WmaZipSplitter.fs" />
     <Compile Include="Data\IPost.fs" />
     <Compile Include="Data\IInboxPost.fs" />
@@ -103,7 +107,6 @@
     <Compile Include="Data\TheirContent\Weasyl\InboxWeasylSubmission.fs" />
     <Compile Include="Data\TheirContent\Weasyl\WeasylFavoriteSubmission.fs" />
     <Compile Include="Data\PandacapDbContext.fs" />
-    <Compile Include="Clients\ATProtoClient.fs" />
     <Compile Include="Clients\FurryNetwork.fs" />
     <Compile Include="Clients\Lemmy.fs" />
     <Compile Include="Clients\Mastodon.fs" />
@@ -127,7 +130,5 @@
     <PackageReference Include="SimpleBase" Version="5.4.1" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.8" />
   </ItemGroup>
-
-  <ItemGroup />
 
 </Project>

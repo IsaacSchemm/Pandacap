@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Pandacap.Clients;
+using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 
 namespace Pandacap
@@ -24,9 +25,9 @@ namespace Pandacap
 
                         var handle = $"{appInfo.Username}.{appInfo.ApplicationHostname}.ap.brid.gy";
 
-                        var handleResolution = await ATProtoClient.Identity.ResolveHandleAsync(
+                        var handleResolution = await XRPC.Com.Atproto.Identity.ResolveHandleAsync(
                             client,
-                            ATProtoClient.Host.Bluesky.PublicAppView,
+                            XRPC.Host.Bluesky.PublicAppView,
                             handle);
 
                         return handle;

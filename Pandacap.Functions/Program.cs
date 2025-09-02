@@ -58,7 +58,6 @@ var host = new HostBuilder()
                 username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
                 keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
                 weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")))
-            .AddScoped<ATProtoInboxHandler>()
             .AddScoped<DeviantArtFavoriteHandler>()
             .AddScoped<DeviantArtInboxHandler>()
             .AddScoped<FurAffinityFavoriteHandler>()
