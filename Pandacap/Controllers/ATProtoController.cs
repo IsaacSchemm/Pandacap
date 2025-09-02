@@ -17,9 +17,76 @@ namespace Pandacap.Controllers
     public class ATProtoController(
         ATProtoCredentialProvider atProtoCredentialProvider,
         BlobServiceClient blobServiceClient,
+        DIDResolver didResolver,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
     {
+        //public async Task<IActionResult> Migrate()
+        //{
+        //    var newFeeds = await context.ATProtoFeeds
+        //        .Select(f => f.DID)
+        //        .ToListAsync();
+
+        //    await foreach (var feed in context.BlueskyFeeds)
+        //    {
+        //        if (newFeeds.Contains(feed.DID))
+        //            continue;
+
+        //        var doc = await didResolver.ResolveAsync(feed.DID);
+
+        //        context.ATProtoFeeds.Add(new()
+        //        {
+        //            DID = feed.DID,
+        //            Handle = doc.Handle,
+        //            IgnoreImages = feed.IgnoreImages,
+        //            IncludePostsWithoutImages = true,
+        //            IncludeQuotePosts = feed.IncludeQuotePosts,
+        //            NSIDs = [
+        //                NSIDs.App.Bsky.Actor.Profile,
+        //                NSIDs.App.Bsky.Feed.Post,
+        //                .. feed.IncludeTextShares
+        //                    ? [NSIDs.App.Bsky.Feed.Repost]
+        //                    : Enumerable.Empty<string>()
+        //            ],
+        //            CurrentPDS = doc.PDS
+        //        });
+        //    }
+
+        //    var newFavorites = await context.BlueskyPostFavorites
+        //        .Select(f => f.CID)
+        //        .ToListAsync();
+
+        //    await foreach (var favorite in context.BlueskyFavorites)
+        //    {
+        //        if (newFavorites.Contains(favorite.CID))
+        //            continue;
+
+        //        context.BlueskyPostFavorites.Add(new()
+        //        {
+        //            CID = favorite.CID,
+        //            CreatedAt = favorite.CreatedAt,
+        //            CreatedBy = new()
+        //            {
+        //                DID = favorite.CreatedBy.DID,
+        //                Handle = favorite.CreatedBy.Handle
+        //            },
+        //            FavoritedAt = favorite.FavoritedAt,
+        //            HiddenAt = favorite.HiddenAt,
+        //            Id = favorite.Id,
+        //            Images = [.. favorite.Images.Select(i => new BlueskyPostFavoriteImage {
+        //                Alt = i.Alt,
+        //                CID = i.Fullsize.Split('/').Last().Replace("@jpeg", "")
+        //            })],
+        //            RecordKey = favorite.RecordKey,
+        //            Text = favorite.Text
+        //        });
+        //    }
+
+        //    await context.SaveChangesAsync();
+
+        //    return RedirectToAction("FollowingAndFeeds", "Profile");
+        //}
+
         [AllowAnonymous]
         public async Task<IActionResult> GetBlob(string did, string cid, bool full = false)
         {
@@ -28,9 +95,7 @@ namespace Pandacap.Controllers
                 var client = httpClientFactory.CreateClient();
                 client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-                var doc = await DIDResolver.ResolveAsync(
-                    client,
-                    did);
+                var doc = await didResolver.ResolveAsync(did);
 
                 var blob = await XRPC.Com.Atproto.Repo.GetBlobAsync(
                     client,
@@ -234,9 +299,7 @@ namespace Pandacap.Controllers
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var doc = await DIDResolver.ResolveAsync(
-                client,
-                did);
+            var doc = await didResolver.ResolveAsync(did);
 
             var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
                 client,
@@ -280,13 +343,9 @@ namespace Pandacap.Controllers
                     likedBy.Contains(c.DID)))
                 .ToListAsync(cancellationToken);
 
-            var inFavorites =
-                await context.BlueskyFavorites
-                    .Where(f => f.CID == post.Ref.CID)
-                    .DocumentCountAsync(cancellationToken) > 0
-                || await context.BlueskyPostFavorites
-                    .Where(f => f.CID == post.Ref.CID)
-                    .DocumentCountAsync(cancellationToken) > 0;
+            var inFavorites = await context.BlueskyPostFavorites
+                .Where(f => f.CID == post.Ref.CID)
+                .DocumentCountAsync(cancellationToken) > 0;
 
             return View(
                 new BlueskyPostViewModel(
@@ -309,9 +368,7 @@ namespace Pandacap.Controllers
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var doc = await DIDResolver.ResolveAsync(
-                client,
-                did);
+            var doc = await didResolver.ResolveAsync(did);
 
             var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
                 client,
@@ -334,7 +391,6 @@ namespace Pandacap.Controllers
                 CreatedBy = new()
                 {
                     DID = did,
-                    PDS = XRPC.Host.Bluesky.PublicAppView.PDS,
                     Handle = doc.Handle
                 },
                 FavoritedAt = DateTimeOffset.UtcNow,
@@ -361,9 +417,7 @@ namespace Pandacap.Controllers
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var doc = await DIDResolver.ResolveAsync(
-                client,
-                author_did);
+            var doc = await didResolver.ResolveAsync(author_did);
 
             var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
                 client,
@@ -432,17 +486,11 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFromFavorites(string cid, CancellationToken cancellationToken)
         {
-            var existing1 = await context.BlueskyFavorites
+            var existing = await context.BlueskyPostFavorites
                 .Where(f => f.CID == cid)
                 .SingleOrDefaultAsync(cancellationToken);
-            if (existing1 != null)
-                context.BlueskyFavorites.Remove(existing1);
-
-            var existing2 = await context.BlueskyPostFavorites
-                .Where(f => f.CID == cid)
-                .SingleOrDefaultAsync(cancellationToken);
-            if (existing2 != null)
-                context.BlueskyPostFavorites.Remove(existing2);
+            if (existing != null)
+                context.BlueskyPostFavorites.Remove(existing);
 
             await context.SaveChangesAsync(cancellationToken);
 

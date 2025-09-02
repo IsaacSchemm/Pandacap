@@ -4,8 +4,6 @@
     {
         public required string DID { get; init; }
 
-        public required string PDS { get; init; }
-
         public string? Handle { get; init; }
         public string? Avatar { get; init; }
 

@@ -6,7 +6,6 @@ open Pandacap.PlatformBadges
 
 type BlueskyPostFavoriteUser() =
     member val DID = "" with get, set
-    member val PDS = nullString with get, set
     member val Handle = "" with get, set
 
 type BlueskyPostFavoriteImage() =
@@ -26,13 +25,6 @@ type BlueskyPostFavorite() =
     member val Text = "" with get, set
     member val Images = new ResizeArray<BlueskyPostFavoriteImage>() with get, set
 
-    interface IBlueskyPost with
-        member this.CID = this.CID
-        member this.DID = this.CreatedBy.DID
-        member this.PDS = this.CreatedBy.PDS
-        member this.RecordKey = this.RecordKey
-        member _.InFavorites = true
-
     interface IFavorite with
         member this.HiddenAt
             with get () = this.HiddenAt
@@ -42,7 +34,7 @@ type BlueskyPostFavorite() =
 
     interface IPost with
         member _.Platform = Bluesky
-        member this.Url = $"https://{this.CreatedBy.PDS}"
+        member this.Url = $"https://bsky.app/profile/{this.CreatedBy.DID}/post/{this.RecordKey}"
         member this.DisplayTitle = TitleGenerator.FromBody(this.Text)
         member this.Id = $"{this.Id}"
         member this.InternalUrl = $"/ATProto/ViewBlueskyPost?did={this.CreatedBy.DID}&rkey={this.RecordKey}"

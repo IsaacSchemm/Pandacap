@@ -386,10 +386,10 @@ module XRPC =
                     let GetRecordAsync httpClient credentials did rkey =
                         getRecordAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post rkey {|
                             text = ""
-                            embed = {|
+                            embed = Some {|
                                 images = Some [{|
                                     alt = Some ""
-                                    blob = {|
+                                    image = {|
                                         ref = Some {|
                                             ``$link`` = ""
                                         |}
@@ -429,18 +429,20 @@ module XRPC =
                             Value = {
                                 Text = x.value.text
                                 Images =
-                                    x.value.embed.images
+                                    x.value.embed
+                                    |> Option.bind (fun e -> e.images)
                                     |> Option.defaultValue []
                                     |> List.map (fun image -> {
                                         CID =
-                                            image.blob.ref
+                                            image.image.ref
                                             |> Option.map (fun r -> r.``$link``)
-                                            |> Option.orElse image.blob.cid
+                                            |> Option.orElse image.image.cid
                                             |> Option.get
                                         Alt = image.alt |> Option.defaultValue ""
                                     })
                                 Quoted =
-                                    x.value.embed.record
+                                    x.value.embed
+                                    |> Option.bind (fun e -> e.record)
                                     |> Option.map (fun r -> {
                                         CID = r.cid
                                         Uri = { Raw = r.uri }
@@ -472,10 +474,10 @@ module XRPC =
                     let ListRecordsAsync httpClient credentials did limit cursor direction =
                         listRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post limit cursor direction {|
                             text = ""
-                            embed = {|
+                            embed = Some {|
                                 images = Some [{|
                                     alt = Some ""
-                                    blob = {|
+                                    image = {|
                                         ref = Some {|
                                             ``$link`` = ""
                                         |}
@@ -518,18 +520,20 @@ module XRPC =
                                     Value = {
                                         Text = x.value.text
                                         Images =
-                                            x.value.embed.images
+                                            x.value.embed
+                                            |> Option.bind (fun e -> e.images)
                                             |> Option.defaultValue []
                                             |> List.map (fun image -> {
                                                 CID =
-                                                    image.blob.ref
+                                                    image.image.ref
                                                     |> Option.map (fun r -> r.``$link``)
-                                                    |> Option.orElse image.blob.cid
+                                                    |> Option.orElse image.image.cid
                                                     |> Option.get
                                                 Alt = image.alt |> Option.defaultValue ""
                                             })
                                         Quoted =
-                                            x.value.embed.record
+                                            x.value.embed
+                                            |> Option.bind (fun e -> e.record)
                                             |> Option.map (fun r -> {
                                                 CID = r.cid
                                                 Uri = { Raw = r.uri }
@@ -580,8 +584,8 @@ module XRPC =
                                     Value = {
                                         CreatedAt = x.value.createdAt
                                         Subject = {
-                                            CID = x.cid
-                                            Uri = { Raw = x.uri }
+                                            CID = x.value.subject.cid
+                                            Uri = { Raw = x.value.subject.uri }
                                         }
                                     }
                                 }
@@ -608,8 +612,8 @@ module XRPC =
                                     Value = {
                                         CreatedAt = x.value.createdAt
                                         Subject = {
-                                            CID = x.cid
-                                            Uri = { Raw = x.uri }
+                                            CID = x.value.subject.cid
+                                            Uri = { Raw = x.value.subject.uri }
                                         }
                                     }
                                 }

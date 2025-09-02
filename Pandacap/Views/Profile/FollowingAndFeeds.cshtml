@@ -25,14 +25,16 @@ else
 
         <div class="mb-3">
             <div>
-                <a href="@item.LinkUrl"><img height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" /></a>
+                <a href="@item.LinkUrl"><img width="50" height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" /></a>
                 <span style="display: inline-block; vertical-align: top">
                     <strong>
                         <a href="@item.LinkUrl">@item.Username</a>
-                        @if (User.Identity?.IsAuthenticated == true
-                            && item.Filtered)
+                        @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <i class="text-info">(filtered)</i>
+                            if (item.Filtered)
+                            {
+                                <i class="text-info">(filtered)</i>
+                            }
                             if (item is Follow f)
                             {
                                 if (!f.Accepted)
@@ -70,9 +72,6 @@ else
                             <a asp-action="UpdateATProtoFeed" asp-route-did="@a.DID" class="btn btn-outline-primary btn-sm py-0">
                                 Options
                             </a>
-                        }
-                        else if (item is BlueskyFeed b)
-                        {
                         }
                         else if (item is RssFeed r)
                         {

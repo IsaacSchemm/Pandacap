@@ -4,7 +4,8 @@ open System
 open System.Net.Http
 open System.Net.Http.Json
 open System.Text.Json.Serialization
-open System.Threading
+open Microsoft.Extensions.Caching.Memory
+open Pandacap.ConfigurationObjects
 
 module DIDResolver =
     type Service = {
@@ -50,3 +51,17 @@ module DIDResolver =
 
         return document
     }
+
+type DIDResolver(
+    httpClientFactory: IHttpClientFactory,
+    memoryCache: IMemoryCache
+) =
+    member _.ResolveAsync(did) = memoryCache.GetOrCreateAsync(
+        $"2a6b9ef9-f403-4316-b331-4fff8746c56e-{did}",
+        fun _ -> task {
+            use client = httpClientFactory.CreateClient()
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent)
+
+            return! DIDResolver.ResolveAsync client did
+        },
+        new MemoryCacheEntryOptions(AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)))

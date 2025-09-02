@@ -8,7 +8,7 @@ type ATProtoFeed() =
     [<Key>]
     member val DID = "" with get, set
 
-    member val PDS = "" with get, set
+    member val CurrentPDS = "" with get, set
 
     member val IncludePostsWithoutImages = true with get, set
     member val IncludeReplies = false with get, set
@@ -30,7 +30,7 @@ type ATProtoFeed() =
         member this.IconUrl =
             if isNull this.AvatarCID
             then null
-            else $"https://{this.PDS}/xrpc/com.atproto.sync.getBlob?did={this.DID}&cid={this.AvatarCID}"
+            else $"https://{this.CurrentPDS}/xrpc/com.atproto.sync.getBlob?did={this.DID}&cid={this.AvatarCID}"
         member this.LinkUrl = $"https://bsky.app/profile/{this.Handle}"
         member this.Username = this.Handle
-        member this.Url = $"https://{this.PDS}/xrpc/app.bsky.actor.getProfile?actor={this.DID}"
+        member this.Url = $"https://{this.CurrentPDS}/xrpc/app.bsky.actor.getProfile?actor={this.DID}"

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.Clients;
+using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
@@ -43,6 +44,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DeviantArtFeedNotificationHandler>()
                 .AddScoped<DeviantArtNoteNotificationHandler>()
+                .AddScoped<DIDResolver>()
                 .AddScoped<FavoritesFeedBuilder>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<FurAffinityNoteNotificationHandler>()

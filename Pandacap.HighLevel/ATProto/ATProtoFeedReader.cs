@@ -7,6 +7,7 @@ namespace Pandacap.HighLevel.ATProto
 {
     public class ATProtoFeedReader(
         PandacapDbContext context,
+        DIDResolver didResolver,
         IHttpClientFactory httpClientFactory)
     {
         private static bool PostMatchesFilters(
@@ -31,14 +32,13 @@ namespace Pandacap.HighLevel.ATProto
             ATProtoRecord<BlueskyPost> Subject,
             string PDS);
 
-        private static async Task<SubjectData?> FetchSubjectAsync(
+        private async Task<SubjectData?> FetchSubjectAsync(
             HttpClient client,
             ATProtoRecord<BlueskyInteraction> interaction)
         {
             try
             {
-                var doc = await DIDResolver.ResolveAsync(
-                    client,
+                var doc = await didResolver.ResolveAsync(
                     interaction.Value.Subject.Uri.Components.DID);
 
                 var subject = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
@@ -89,7 +89,7 @@ namespace Pandacap.HighLevel.ATProto
                     DID = feed.DID,
                     DisplayName = feed.DisplayName,
                     Handle = feed.Handle,
-                    PDS = feed.PDS
+                    PDS = feed.CurrentPDS
                 },
                 Text = subject.Value.Text
             });
@@ -107,7 +107,7 @@ namespace Pandacap.HighLevel.ATProto
                     DID = feed.DID,
                     DisplayName = feed.DisplayName,
                     Handle = feed.Handle,
-                    PDS = feed.PDS
+                    PDS = feed.CurrentPDS
                 },
                 CID = post.Ref.CID,
                 CreatedAt = post.Value.CreatedAt,
@@ -158,7 +158,7 @@ namespace Pandacap.HighLevel.ATProto
                     DID = feed.DID,
                     DisplayName = feed.DisplayName,
                     Handle = feed.Handle,
-                    PDS = feed.PDS
+                    PDS = feed.CurrentPDS
                 },
                 Text = subject.Value.Text
             });
@@ -171,14 +171,20 @@ namespace Pandacap.HighLevel.ATProto
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var feed = await context.ATProtoFeeds.SingleAsync(f => f.DID == did);
-
             feed.Cursors ??= [];
+
+            var doc = await didResolver.ResolveAsync(did);
+
+            feed.CurrentPDS = doc.PDS;
+            feed.Handle = doc.Handle;
+
+            var pds = XRPC.Host.Unauthenticated(doc.PDS);
 
             if (feed.NSIDs.Contains(NSIDs.App.Bsky.Actor.Profile))
             {
                 var blueskyProfiles = await XRPC.Com.Atproto.Repo.BlueskyProfile.ListRecordsAsync(
                     client,
-                    XRPC.Host.Unauthenticated(feed.PDS),
+                    pds,
                     did,
                     1,
                     null,
@@ -197,7 +203,7 @@ namespace Pandacap.HighLevel.ATProto
                 {
                     var page = await XRPC.Com.Atproto.Repo.BlueskyLike.ListRecordsAsync(
                         client,
-                        XRPC.Host.Unauthenticated(feed.PDS),
+                        pds,
                         did,
                         21,
                         null,
@@ -210,7 +216,7 @@ namespace Pandacap.HighLevel.ATProto
 
                 var likes = await XRPC.Com.Atproto.Repo.BlueskyLike.ListRecordsAsync(
                     client,
-                    XRPC.Host.Unauthenticated(feed.PDS),
+                    pds,
                     did,
                     100,
                     cursor,
@@ -241,7 +247,7 @@ namespace Pandacap.HighLevel.ATProto
                 {
                     var page = await XRPC.Com.Atproto.Repo.BlueskyPost.ListRecordsAsync(
                         client,
-                        XRPC.Host.Unauthenticated(feed.PDS),
+                        pds,
                         did,
                         21,
                         null,
@@ -254,7 +260,7 @@ namespace Pandacap.HighLevel.ATProto
 
                 var posts = await XRPC.Com.Atproto.Repo.BlueskyPost.ListRecordsAsync(
                     client,
-                    XRPC.Host.Unauthenticated(feed.PDS),
+                    pds,
                     did,
                     100,
                     cursor,
@@ -282,7 +288,7 @@ namespace Pandacap.HighLevel.ATProto
                 {
                     var page = await XRPC.Com.Atproto.Repo.BlueskyRepost.ListRecordsAsync(
                         client,
-                        XRPC.Host.Unauthenticated(feed.PDS),
+                        pds,
                         did,
                         21,
                         null,
@@ -295,7 +301,7 @@ namespace Pandacap.HighLevel.ATProto
 
                 var reposts = await XRPC.Com.Atproto.Repo.BlueskyRepost.ListRecordsAsync(
                     client,
-                    XRPC.Host.Unauthenticated(feed.PDS),
+                    pds,
                     did,
                     100,
                     cursor,

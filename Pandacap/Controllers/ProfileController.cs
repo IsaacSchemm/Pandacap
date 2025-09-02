@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
-using Pandacap.Clients;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -28,6 +27,7 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         BridgyFedHandleProvider bridgyFedHandleProvider,
         CompositeFavoritesProvider compositeFavoritesProvider,
+        DIDResolver didResolver,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
         IHttpClientFactory httpClientFactory,
@@ -114,7 +114,6 @@ namespace Pandacap.Controllers
                     FollowerCount = await context.Followers.DocumentCountAsync(cancellationToken),
                     FollowingCount = await context.Follows.DocumentCountAsync(cancellationToken)
                         + await context.RssFeeds.DocumentCountAsync(cancellationToken)
-                        + await context.BlueskyFeeds.DocumentCountAsync(cancellationToken)
                         + await context.ATProtoFeeds.DocumentCountAsync(cancellationToken),
                     FavoritesCount = await context.ActivityPubLikes.DocumentCountAsync(cancellationToken),
                     CommunityBookmarksCount = await context.CommunityBookmarks.DocumentCountAsync(cancellationToken)
@@ -316,9 +315,7 @@ namespace Pandacap.Controllers
                 did = handle;
             }
 
-            var document = await DIDResolver.ResolveAsync(
-                client,
-                did);
+            var document = await didResolver.ResolveAsync(did);
 
             var repo = await XRPC.Com.Atproto.Repo.DescribeRepoAsync(
                 client,
@@ -329,7 +326,7 @@ namespace Pandacap.Controllers
             {
                 DID = did,
                 Handle = document.Handle,
-                PDS = document.PDS,
+                CurrentPDS = document.PDS,
                 NSIDs = [
                     .. repo.collections.Intersect([
                         NSIDs.App.Bsky.Actor.Profile,
@@ -357,7 +354,6 @@ namespace Pandacap.Controllers
             return View(new ATProtoFeedModel
             {
                 DID = feed.DID,
-                PDS = feed.PDS,
                 Handle = feed.Handle,
                 Avatar = follow.IconUrl,
                 IncludePostsWithoutImages = feed.IncludePostsWithoutImages,
@@ -395,8 +391,6 @@ namespace Pandacap.Controllers
                 .Where(f => f.DID == model.DID)
                 .AsAsyncEnumerable())
             {
-                follow.PDS = model.PDS;
-
                 follow.IgnoreImages = model.IgnoreImages;
                 follow.IncludePostsWithoutImages = model.IncludePostsWithoutImages;
                 follow.IncludeReplies = model.IncludeReplies;
@@ -484,7 +478,6 @@ namespace Pandacap.Controllers
             async IAsyncEnumerable<IFollow> getFollows()
             {
                 await foreach (var x in context.ATProtoFeeds) yield return x;
-                await foreach (var x in context.BlueskyFeeds) yield return x;
                 await foreach (var x in context.Follows) yield return x;
                 await foreach (var x in context.RssFeeds) yield return x;
             }
