@@ -175,11 +175,11 @@ module XRPC =
                     }
                     |> Requests.performRequestAsync httpClient
                     |> Requests.thenReadAsAsync {|
-                        blob = Unchecked.defaultof<Lexicon.Blob>
+                        blob = null :> obj
                     |}
 
                 type EmbeddedImage = {
-                    Blob: Lexicon.Blob
+                    Blob: obj
                     Alt: string
                     Width: int
                     Height: int
@@ -233,7 +233,7 @@ module XRPC =
                                             "$type", "app.bsky.embed.images" :> obj
                                             "images", [
                                                 for i in images do dict [
-                                                    "image", i.Blob :> obj
+                                                    "image", i.Blob
                                                     "alt", i.Alt
 
                                                     if i.Width > 0 && i.Height > 0 then
