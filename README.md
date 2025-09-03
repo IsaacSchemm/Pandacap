@@ -55,13 +55,10 @@ Posts from users you follow are sent to the appropriate section of the Pandacap 
 
 When you click on an ActivityPub post as a logged-in user, Pandacap will always fetch the post from its original instance.
 
-Both activities (such as `Like`, `Dislike`, `Announce`) and replies to your posts are shown in the Notifications section.
+Activities (such as `Like`, `Dislike`, `Announce`) and replies to your posts are shown in the Notifications section. (Mentions that are not replies go to the Pandacap inbox.)
 You can also add "likes" of your own on others' ActivityPub posts, but you must first add the post to your Favorites.
 
 ### ATProto
-
-Pandacap talks directly to the PDS for most operations, and only uses the Bluesky AppView for populating the Notifications section.
-(Bluesky's CDN is used for thumbnails and avatars.)
 
 Pandacap allows you to follow atproto accounts as feeds, without your own atproto account.
 For each user, you can choose whether to follow Bluesky posts, Bluesky reposts, and/or Bluesky likes.
@@ -73,6 +70,9 @@ When you click on a Bluesky post as a logged-in user, Pandacap will always fetch
 
 Pandacap also allows you to attach an atproto account. This can be used to crosspost to Bluesky, in roughly the same way crossposting to other platforms works in Pandacap.
 It also adds Bluesky notifications to the Notifications section, and allows you to add "likes" on Bluesky posts or reply to them.
+
+Pandacap talks directly to the PDS for most operations, and only uses the Bluesky AppView for populating the Notifications section.
+(Bluesky's CDN is used for thumbnails and avatars.)
 
 ### DeviantArt / Fur Affinity / Weasyl
 
