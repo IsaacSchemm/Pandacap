@@ -83,5 +83,8 @@ type BlueskyLikeFeedItem() =
                         member _.Url = $"/ATProto/GetBlob?did={this.Original.DID}&cid={image.CID}"
                 }
         ]
-        member this.Usericon = $"/ATProto/GetBlob?did={this.LikedBy.DID}&cid={this.LikedBy.AvatarCID}"
+        member this.Usericon =
+            if not (isNull this.LikedBy.AvatarCID)
+            then $"/ATProto/GetBlob?did={this.LikedBy.DID}&cid={this.LikedBy.AvatarCID}"
+            else null
         member this.Username = this.LikedBy.Handle

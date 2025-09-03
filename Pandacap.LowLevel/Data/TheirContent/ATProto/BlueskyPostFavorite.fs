@@ -48,5 +48,5 @@ type BlueskyPostFavorite() =
             }
         ]
         member this.PostedAt = this.CreatedAt
-        member this.Usericon = null
+        member _.Usericon = null
         member this.Username = this.CreatedBy.Handle

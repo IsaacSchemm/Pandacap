@@ -83,5 +83,8 @@ type BlueskyRepostFeedItem() =
                         member _.Url = $"/ATProto/GetBlob?did={this.Original.DID}&cid={image.CID}"
                 }
         ]
-        member this.Usericon = $"/ATProto/GetBlob?did={this.RepostedBy.DID}&cid={this.RepostedBy.AvatarCID}"
+        member this.Usericon =
+            if not (isNull this.RepostedBy.AvatarCID)
+            then $"/ATProto/GetBlob?did={this.RepostedBy.DID}&cid={this.RepostedBy.AvatarCID}"
+            else null
         member this.Username = this.RepostedBy.Handle

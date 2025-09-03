@@ -40,8 +40,8 @@ type WhiteWindBlogEntryFeedItem() =
                 TitleGenerator.FromBody this.Content
                 |> ExcerptGenerator.FromText 60)
         member this.Id = $"{this.CID}"
-        member this.InternalUrl = $"/ATProto/ViewWhiteWindBlogEntry?did={this.Author.DID}&rkey={this.RecordKey}"
-        member this.ExternalUrl = $"https://whtwnd.com/{this.Author.DID}/post/{this.RecordKey}"
+        member this.InternalUrl = $"https://whtwnd.com/{this.Author.DID}/{this.RecordKey}"
+        member this.ExternalUrl = $"https://whtwnd.com/{this.Author.DID}/{this.RecordKey}"
         member this.PostedAt = this.CreatedAt
         member this.ProfileUrl = $"https://whtwnd.com/{this.Author.DID}"
         member _.Thumbnails = []

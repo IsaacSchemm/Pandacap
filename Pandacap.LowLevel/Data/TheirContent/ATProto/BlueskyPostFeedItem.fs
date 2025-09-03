@@ -76,5 +76,8 @@ type BlueskyPostFeedItem() =
                         member _.Url = $"/ATProto/GetBlob?did={this.Author.DID}&cid={image.CID}"
                 }
         ]
-        member this.Usericon = $"/ATProto/GetBlob?did={this.Author.DID}&cid={this.Author.AvatarCID}"
+        member this.Usericon =
+            if not (isNull this.Author.AvatarCID)
+            then $"/ATProto/GetBlob?did={this.Author.DID}&cid={this.Author.AvatarCID}"
+            else null
         member this.Username = this.Author.Handle
