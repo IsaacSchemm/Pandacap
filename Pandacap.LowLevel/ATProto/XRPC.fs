@@ -383,132 +383,103 @@ module XRPC =
                         })
 
                 module BlueskyPost =
-                    let GetRecordAsync httpClient credentials did rkey =
-                        getRecordAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post rkey {|
-                            text = ""
-                            embed = Some {|
-                                images = Some [{|
-                                    alt = Some ""
-                                    image = {|
-                                        ref = Some {|
-                                            ``$link`` = ""
-                                        |}
-                                        mimeType = ""
-                                        size = Some 0
-                                        cid = Some ""
+                    let private sample = {|
+                        text = ""
+                        embed = Some {|
+                            images = Some [{|
+                                alt = Some ""
+                                image = {|
+                                    ref = Some {|
+                                        ``$link`` = ""
                                     |}
-                                |}]
-                                record = Some {|
-                                    cid = ""
-                                    uri = ""
+                                    mimeType = ""
+                                    size = Some 0
+                                    cid = Some ""
                                 |}
+                            |}]
+                            record = Some {|
+                                cid = ""
+                                uri = ""
                             |}
-                            reply = Some {|
-                                parent = {|
-                                    cid = ""
-                                    uri = ""
-                                |}
-                                root = {|
-                                    cid = ""
-                                    uri = ""
-                                |}
-                            |}
-                            bridgyOriginalUrl = Some ""
-                            labels = Some {|
-                                values = [{|
-                                    ``val`` = ""
-                                |}]
-                            |}
-                            createdAt = DateTimeOffset.MinValue
                         |}
+                        reply = Some {|
+                            parent = {|
+                                cid = ""
+                                uri = ""
+                            |}
+                            root = {|
+                                cid = ""
+                                uri = ""
+                            |}
+                        |}
+                        bridgyOriginalUrl = Some ""
+                        labels = Some {|
+                            values = [{|
+                                ``val`` = ""
+                            |}]
+                        |}
+                        createdAt = DateTimeOffset.MinValue
+                    |}
+
+                    let private translate item =
+                        let _ = [item; sample]
+
+                        {
+                            Text = item.text
+                            Images =
+                                item.embed
+                                |> Option.bind (fun e -> e.images)
+                                |> Option.defaultValue []
+                                |> List.map (fun image -> {
+                                    CID =
+                                        image.image.ref
+                                        |> Option.map (fun r -> r.``$link``)
+                                        |> Option.orElse image.image.cid
+                                        |> Option.get
+                                    Alt = image.alt |> Option.defaultValue ""
+                                })
+                            Quoted =
+                                item.embed
+                                |> Option.bind (fun e -> e.record)
+                                |> Option.map (fun r -> {
+                                    CID = r.cid
+                                    Uri = { Raw = r.uri }
+                                })
+                                |> Option.toList
+                            InReplyTo =
+                                item.reply
+                                |> Option.map (fun r -> {
+                                    Parent = {
+                                        CID = r.parent.cid
+                                        Uri = { Raw = r.parent.uri }
+                                    }
+                                    Root = {
+                                        CID = r.root.cid
+                                        Uri = { Raw = r.root.uri }
+                                    }
+                                })
+                                |> Option.toList
+                            BridgyOriginalUrl = Option.toObj item.bridgyOriginalUrl
+                            Labels =
+                                item.labels
+                                |> Option.map (fun l -> l.values)
+                                |> Option.defaultValue []
+                                |> List.map (fun v -> v.``val``)
+                            CreatedAt = item.createdAt
+                        }
+
+                    let GetRecordAsync httpClient credentials did rkey =
+                        getRecordAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post rkey sample
                         |> Requests.thenMapAsync (fun x -> {
                             Ref = {
                                 CID = x.cid
                                 Uri = { Raw = x.uri }
                             }
-                            Value = {
-                                Text = x.value.text
-                                Images =
-                                    x.value.embed
-                                    |> Option.bind (fun e -> e.images)
-                                    |> Option.defaultValue []
-                                    |> List.map (fun image -> {
-                                        CID =
-                                            image.image.ref
-                                            |> Option.map (fun r -> r.``$link``)
-                                            |> Option.orElse image.image.cid
-                                            |> Option.get
-                                        Alt = image.alt |> Option.defaultValue ""
-                                    })
-                                Quoted =
-                                    x.value.embed
-                                    |> Option.bind (fun e -> e.record)
-                                    |> Option.map (fun r -> {
-                                        CID = r.cid
-                                        Uri = { Raw = r.uri }
-                                    })
-                                    |> Option.toList
-                                InReplyTo =
-                                    x.value.reply
-                                    |> Option.map (fun r -> {
-                                        Parent = {
-                                            CID = r.parent.cid
-                                            Uri = { Raw = r.parent.uri }
-                                        }
-                                        Root = {
-                                            CID = r.root.cid
-                                            Uri = { Raw = r.root.uri }
-                                        }
-                                    })
-                                    |> Option.toList
-                                BridgyOriginalUrl = Option.toObj x.value.bridgyOriginalUrl
-                                Labels =
-                                    x.value.labels
-                                    |> Option.map (fun l -> l.values)
-                                    |> Option.defaultValue []
-                                    |> List.map (fun v -> v.``val``)
-                                CreatedAt = x.value.createdAt
-                            }
+                            Value = translate x.value
                         })
 
                     let ListRecordsAsync httpClient credentials did limit cursor direction =
-                        listRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post limit cursor direction {|
-                            text = ""
-                            embed = Some {|
-                                images = Some [{|
-                                    alt = Some ""
-                                    image = {|
-                                        ref = Some {|
-                                            ``$link`` = ""
-                                        |}
-                                        mimeType = ""
-                                        size = Some 0
-                                        cid = Some ""
-                                    |}
-                                |}]
-                                record = Some {|
-                                    cid = ""
-                                    uri = ""
-                                |}
-                            |}
-                            reply = Some {|
-                                parent = {|
-                                    cid = ""
-                                    uri = ""
-                                |}
-                                root = {|
-                                    cid = ""
-                                    uri = ""
-                                |}
-                            |}
-                            bridgyOriginalUrl = Some ""
-                            labels = Some {|
-                                values = [{|
-                                    ``val`` = ""
-                                |}]
-                            |}
-                            createdAt = DateTimeOffset.MinValue
-                        |}
+                        listRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post limit cursor direction sample
                         |> Requests.thenMapAsync (fun l -> {
                             Cursor = Option.toObj l.cursor
                             Items = [
@@ -517,49 +488,7 @@ module XRPC =
                                         CID = x.cid
                                         Uri = { Raw = x.uri }
                                     }
-                                    Value = {
-                                        Text = x.value.text
-                                        Images =
-                                            x.value.embed
-                                            |> Option.bind (fun e -> e.images)
-                                            |> Option.defaultValue []
-                                            |> List.map (fun image -> {
-                                                CID =
-                                                    image.image.ref
-                                                    |> Option.map (fun r -> r.``$link``)
-                                                    |> Option.orElse image.image.cid
-                                                    |> Option.get
-                                                Alt = image.alt |> Option.defaultValue ""
-                                            })
-                                        Quoted =
-                                            x.value.embed
-                                            |> Option.bind (fun e -> e.record)
-                                            |> Option.map (fun r -> {
-                                                CID = r.cid
-                                                Uri = { Raw = r.uri }
-                                            })
-                                            |> Option.toList
-                                        InReplyTo =
-                                            x.value.reply
-                                            |> Option.map (fun r -> {
-                                                Parent = {
-                                                    CID = r.parent.cid
-                                                    Uri = { Raw = r.parent.uri }
-                                                }
-                                                Root = {
-                                                    CID = r.root.cid
-                                                    Uri = { Raw = r.root.uri }
-                                                }
-                                            })
-                                            |> Option.toList
-                                        BridgyOriginalUrl = Option.toObj x.value.bridgyOriginalUrl
-                                        Labels =
-                                            x.value.labels
-                                            |> Option.map (fun l -> l.values)
-                                            |> Option.defaultValue []
-                                            |> List.map (fun v -> v.``val``)
-                                        CreatedAt = x.value.createdAt
-                                    }
+                                    Value = translate x.value
                                 }
                             ]
                         })
