@@ -94,6 +94,13 @@ type BlueskyAppViewNotification = {
     IndexedAt: DateTimeOffset
 }
 
+type WhitewindBlogEntry = {
+    Title: string
+    Content: string
+    CreatedAt: Nullable<DateTimeOffset>
+    Public: bool
+}
+
 type BlueskyEmbeddedImageParameters = {
     Blob: obj
     Alt: string

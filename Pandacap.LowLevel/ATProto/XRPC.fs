@@ -549,6 +549,32 @@ module XRPC =
                             ]
                         })
 
+                module WhitewindBlogEntry =
+                    let ListRecordsAsync httpClient credentials did limit cursor direction =
+                        listRecordsAsync httpClient credentials did NSIDs.Com.Whtwnd.Blog.Entry limit cursor direction {|
+                            content = ""
+                            createdAt = Some DateTimeOffset.MinValue
+                            title = Some ""
+                            visibility = Some ""
+                        |}
+                        |> Requests.thenMapAsync (fun l -> {
+                            Cursor = Option.toObj l.cursor
+                            Items = [
+                                for x in l.records do {
+                                    Ref = {
+                                        CID = x.cid
+                                        Uri = { Raw = x.uri }
+                                    }
+                                    Value = {
+                                        Title = Option.toObj x.value.title
+                                        Content = x.value.content
+                                        CreatedAt = Option.toNullable x.value.createdAt
+                                        Public = x.value.visibility = Some "public"
+                                    }
+                                }
+                            ]
+                        })
+
                 let GetBlobAsync httpClient credentials did cid = task {
                     use! resp = Requests.performRequestAsync httpClient {
                         method = HttpMethod.Get

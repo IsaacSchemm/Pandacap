@@ -68,6 +68,11 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
+            var whiteWind = context.WhiteWindBlogEntryFeedItems
+                .OrderByDescending(d => d.CreatedAt)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
             return
                 new[]
                 {
@@ -81,7 +86,8 @@ namespace Pandacap.Controllers
                     furAffinityJournals,
                     rssItems,
                     weasylSubmissions,
-                    weasylJournals
+                    weasylJournals,
+                    whiteWind
                 }
                 .MergeNewest(post => post.PostedAt)
                 .Where(post => post.DismissedAt == null);
@@ -274,6 +280,14 @@ namespace Pandacap.Controllers
             await foreach (var item in context
                 .InboxWeasylJournals
                 .Where(x => guids.Contains(x.Id))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
+
+            await foreach (var item in context
+                .WhiteWindBlogEntryFeedItems
+                .Where(x => ids.Contains(x.CID))
                 .AsAsyncEnumerable())
             {
                 yield return item;

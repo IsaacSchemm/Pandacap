@@ -90,6 +90,7 @@
     <Compile Include="Data\TheirContent\ATProto\BlueskyLikeFeedItem.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyPostFeedItem.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyRepostFeedItem.fs" />
+    <Compile Include="Data\TheirContent\ATProto\WhiteWindBlogEntryFeedItem.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\DeviantArtFavorite.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\DeviantArtTextPostCheckStatus.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\InboxDeviation.fs" />

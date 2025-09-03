@@ -12,6 +12,7 @@ type PostPlatform =
 | RSS_Atom
 | SheezyArt
 | Weasyl
+| WhiteWind
 
 module PostPlatform =
     let GetBadge platform =
@@ -27,3 +28,4 @@ module PostPlatform =
         | RSS_Atom -> Badge.Create "RSS / Atom" "#f99000" "white"
         | SheezyArt -> Badge.Create "Sheezy.Art" "rgb(91, 118, 145)" "rgb(201, 216, 225)"
         | Weasyl -> Badge.Create "Weasyl" "#990000" "white"
+        | WhiteWind -> Badge.Create "WhiteWind" "rgb(243, 244, 246)" "rgb(55, 65, 81)" 

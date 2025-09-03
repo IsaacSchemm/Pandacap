@@ -19,6 +19,14 @@
     <div class="mb-3 form-check">
         <input type="checkbox"
                class="form-check-input"
+               asp-for="IncludeBlueskyProfile">
+        <label class="form-check-label" asp-for="IncludeBlueskyProfile">
+            Include Bluesky profile
+        </label>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
                asp-for="IncludeBlueskyPosts">
         <label class="form-check-label" asp-for="IncludeBlueskyPosts">
             Include Bluesky posts
@@ -28,7 +36,7 @@
         <input type="checkbox"
                class="form-check-input"
                asp-for="IncludeBlueskyReposts">
-        <label class="form-check-label" asp-for="IncludeBlueskyPosts">
+        <label class="form-check-label" asp-for="IncludeBlueskyReposts">
             Include Bluesky reposts
         </label>
     </div>
@@ -40,13 +48,21 @@
             Include Bluesky likes
         </label>
     </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               asp-for="IncludeWhiteWindBlogEntries">
+        <label class="form-check-label" asp-for="IncludeWhiteWindBlogEntries">
+            Include WhiteWind blog entries
+        </label>
+    </div>
     <hr />
     <div class="mb-3 form-check">
         <input type="checkbox"
                class="form-check-input"
                asp-for="IncludePostsWithoutImages">
         <label class="form-check-label" asp-for="IncludePostsWithoutImages">
-            Include posts that do not contain images
+            Include Bluesky posts that do not contain images
         </label>
     </div>
     <div class="mb-3 form-check">
@@ -54,7 +70,7 @@
                class="form-check-input"
                asp-for="IncludeReplies">
         <label class="form-check-label" asp-for="IncludeReplies">
-            Include replies
+            Include Bluesky replies
         </label>
     </div>
     <div class="mb-3 form-check">
@@ -62,7 +78,7 @@
                class="form-check-input"
                asp-for="IncludeQuotePosts">
         <label class="form-check-label" asp-for="IncludeQuotePosts">
-            Include quote posts
+            Include Bluesky quote posts
         </label>
     </div>
     <hr />

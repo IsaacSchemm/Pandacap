@@ -55,6 +55,57 @@ namespace Pandacap.HighLevel.ATProto
             }
         }
 
+        private void AddToContext(
+            ATProtoFeed feed,
+            ATProtoRecord<BlueskyPost> post)
+        {
+            context.BlueskyPostFeedItems.Add(new()
+            {
+                Author = new()
+                {
+                    AvatarCID = feed.AvatarCID,
+                    DID = feed.DID,
+                    DisplayName = feed.DisplayName,
+                    Handle = feed.Handle,
+                    PDS = feed.CurrentPDS
+                },
+                CID = post.Ref.CID,
+                CreatedAt = post.Value.CreatedAt,
+                Labels = [.. post.Value.Labels],
+                Images = feed.IgnoreImages
+                    ? []
+                    : [.. post.Value.Images.Select(i => new BlueskyPostFeedItemImage
+                        {
+                            Alt = i.Alt,
+                            CID = i.CID
+                        })],
+                RecordKey = post.Ref.Uri.Components.RecordKey,
+                Text = post.Value.Text
+            });
+        }
+
+        private void AddToContext(
+            ATProtoFeed feed,
+            ATProtoRecord<WhitewindBlogEntry> entry)
+        {
+            context.WhiteWindBlogEntryFeedItems.Add(new()
+            {
+                Author = new()
+                {
+                    AvatarCID = feed.AvatarCID,
+                    DID = feed.DID,
+                    DisplayName = feed.DisplayName,
+                    Handle = feed.Handle,
+                    PDS = feed.CurrentPDS
+                },
+                CID = entry.Ref.CID,
+                Content = entry.Value.Content,
+                CreatedAt = entry.Value.CreatedAt ?? DateTimeOffset.UtcNow,
+                RecordKey = entry.Ref.Uri.Components.RecordKey,
+                Title = entry.Value.Title
+            });
+        }
+
         private void AddLikeToContext(
             ATProtoFeed feed,
             ATProtoRecord<BlueskyInteraction> like,
@@ -92,35 +143,6 @@ namespace Pandacap.HighLevel.ATProto
                     PDS = feed.CurrentPDS
                 },
                 Text = subject.Value.Text
-            });
-        }
-
-        private void AddToContext(
-            ATProtoFeed feed,
-            ATProtoRecord<BlueskyPost> post)
-        {
-            context.BlueskyPostFeedItems.Add(new()
-            {
-                Author = new()
-                {
-                    AvatarCID = feed.AvatarCID,
-                    DID = feed.DID,
-                    DisplayName = feed.DisplayName,
-                    Handle = feed.Handle,
-                    PDS = feed.CurrentPDS
-                },
-                CID = post.Ref.CID,
-                CreatedAt = post.Value.CreatedAt,
-                Labels = [.. post.Value.Labels],
-                Images = feed.IgnoreImages
-                    ? []
-                    : [.. post.Value.Images.Select(i => new BlueskyPostFeedItemImage
-                        {
-                            Alt = i.Alt,
-                            CID = i.CID
-                        })],
-                RecordKey = post.Ref.Uri.Components.RecordKey,
-                Text = post.Value.Text
             });
         }
 
@@ -336,6 +358,44 @@ namespace Pandacap.HighLevel.ATProto
 
                 if (reposts.Cursor is string next)
                     feed.Cursors[NSIDs.App.Bsky.Feed.Repost] = next;
+            }
+
+            if (feed.NSIDs.Contains(NSIDs.Com.Whtwnd.Blog.Entry))
+            {
+                if (!feed.Cursors.TryGetValue(NSIDs.Com.Whtwnd.Blog.Entry, out var _))
+                {
+                    var page = await XRPC.Com.Atproto.Repo.WhitewindBlogEntry.ListRecordsAsync(
+                        client,
+                        pds,
+                        did,
+                        21,
+                        null,
+                        ATProtoListDirection.Forward);
+
+                    feed.Cursors[NSIDs.Com.Whtwnd.Blog.Entry] = page.Cursor;
+                }
+
+                var cursor = feed.Cursors[NSIDs.Com.Whtwnd.Blog.Entry];
+
+                var blogEntries = await XRPC.Com.Atproto.Repo.WhitewindBlogEntry.ListRecordsAsync(
+                    client,
+                    pds,
+                    did,
+                    100,
+                    cursor,
+                    ATProtoListDirection.Reverse);
+
+                foreach (var blogEntry in blogEntries.Items)
+                {
+                    var existing = await context.WhiteWindBlogEntryFeedItems.FindAsync(blogEntry.Ref.CID);
+                    if (existing != null)
+                        context.WhiteWindBlogEntryFeedItems.Remove(existing);
+
+                    AddToContext(feed, blogEntry);
+                }
+
+                if (blogEntries.Cursor is string next)
+                    feed.Cursors[NSIDs.Com.Whtwnd.Blog.Entry] = next;
             }
 
             await context.SaveChangesAsync();

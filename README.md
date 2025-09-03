@@ -61,7 +61,7 @@ You can also add "likes" of your own on others' ActivityPub posts, but you must 
 ### ATProto
 
 Pandacap allows you to follow atproto accounts as feeds, without your own atproto account.
-For each user, you can choose whether to follow Bluesky posts, Bluesky reposts, and/or Bluesky likes.
+For each user, you can choose whether to follow Bluesky posts, Bluesky reposts, Bluesky likes, and/or WhiteWind blog entries.
 Pandacap will also look for Bluesky profile data for each user when refreshing the feed.
 
 You can add Bluesky posts to your Favorites.

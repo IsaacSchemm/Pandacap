@@ -38,6 +38,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.BlueskyLikeFeedItems: DbSet<BlueskyLikeFeedItem> = this.Set()
     member this.BlueskyPostFeedItems: DbSet<BlueskyPostFeedItem> = this.Set()
     member this.BlueskyRepostFeedItems: DbSet<BlueskyRepostFeedItem> = this.Set()
+    member this.WhiteWindBlogEntryFeedItems: DbSet<WhiteWindBlogEntryFeedItem> = this.Set()
     member this.BlueskyLikes: DbSet<BlueskyLike> = this.Set()
     member this.RemoteActivityPubReplies: DbSet<RemoteActivityPubReply> = this.Set()
     member this.ActivityPubOutboundActivities: DbSet<ActivityPubOutboundActivity> = this.Set()
