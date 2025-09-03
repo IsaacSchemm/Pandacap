@@ -576,6 +576,22 @@ module XRPC =
                     |}
                 }
 
+                let GetLatestCommitAsync httpClient credentials did =
+                    {
+                        method = HttpMethod.Get
+                        procedureName = "com.atproto.sync.getLatestCommit"
+                        parameters = [
+                            "did", did
+                        ]
+                        credentials = credentials
+                        body = NoBody
+                    }
+                    |> Requests.performRequestAsync httpClient
+                    |> Requests.thenReadAsAsync {|
+                        cid = ""
+                        rev = ""
+                    |}
+
             module Server =
                 let CreateSessionAsync httpClient hostname identifier password = task {
                     use! resp = Requests.sendAsync httpClient {

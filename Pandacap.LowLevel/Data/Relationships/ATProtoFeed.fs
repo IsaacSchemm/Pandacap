@@ -23,6 +23,8 @@ type ATProtoFeed() =
     member val NSIDs = new ResizeArray<string>() with get, set
     member val Cursors = new Dictionary<string, string>() with get, set
 
+    member val LastCommitCID = nullString with get, set
+
     interface IFollow with
         member this.Filtered =
             not this.IncludePostsWithoutImages || not this.IncludeQuotePosts

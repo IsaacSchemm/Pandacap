@@ -175,10 +175,22 @@ namespace Pandacap.HighLevel.ATProto
 
             var doc = await didResolver.ResolveAsync(did);
 
+            var pds = XRPC.Host.Unauthenticated(doc.PDS);
+
+            var commit = await XRPC.Com.Atproto.Repo.GetLatestCommitAsync(
+                client,
+                pds,
+                did);
+
+            if (feed.LastCommitCID == commit.cid)
+            {
+                return;
+            }
+
+            feed.LastCommitCID = commit.cid;
+
             feed.CurrentPDS = doc.PDS;
             feed.Handle = doc.Handle;
-
-            var pds = XRPC.Host.Unauthenticated(doc.PDS);
 
             if (feed.NSIDs.Contains(NSIDs.App.Bsky.Actor.Profile))
             {
