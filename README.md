@@ -1,13 +1,13 @@
 # Pandacap
 
-A single-user art gallery, feed reader, and social media server, built using F# and C# on ASP.NET Core and designed for Azure.
+A single-user art gallery, feed reader, and social media server, built using F# and C#.
 
 On the home page:
 
 * Your avatar and username
 * Links to your attached accounts
-* Your ActivityPub handle, bridged Bluesky handle (if any), and links to users you follow and communities you've bookmarked
-* Links to RSS/Atom feeds
+* Your ActivityPub handle
+* Links to users and feeds you follow
 * Up to 8 of your **image posts**
 * Up to 12 image posts from your **favorites**
 * Up to 5 of your **text posts**
@@ -22,36 +22,14 @@ Features:
 * Add ActivityPub and Bluesky posts to your **favorites**
 * Automatically import **favorites** from DeviantArt, Fur Affinity, and Weasyl
 
-ActivityPub features:
-
-* Follow users
-* Hide reposts by specific users
-* Like and unlike posts
-* Reply to posts
-* Post to Lemmy communities
-* Enable and disable Bridgy Fed
-
-RSS/Atom features:
-
-* Play or download podcasts
-
-Bluesky features:
-
-* Without an account:
-    * Follow users
-    * Hide reposts by specific users
-    * Hide quote posts by specific users
-* With an account:
-    * Like and unlike posts
-    * Create and delete replies
-
-Things Pandacap does **not** do:
+Some of the things Pandacap does **not** do:
 
 * Act as an OAuth server.
 * Host more than one user account.
-* Create a post with more than one attached image.
+* Host any public-facing content that is not intentionally placed there by the server admin.
+* Create posts with more than one attached image.
 * Attach images to replies.
-* Automatically create or delete crossposts to Bluesky, DeviantArt, FA, or Weasyl. (This can be done manually through the Pandacap user interface.)
+* Automatically crosspost to Bluesky, DeviantArt, FA, or Weasyl. (This is done manually through the Pandacap user interface.)
 * Let you "repost" / "boost" someone else's post.
 
 ## Techincal Information
@@ -64,49 +42,59 @@ To log in, the instance owner must use a Microsoft account that they have explic
 
 Supported protocols and platforms:
 
-* ActivityPub
-    * Make your posts available automatically
-    * Send replies
-    * Follow users and view their posts in the inbox
-    * View notifications
-    * Add posts to Favorites
-    * Send likes
-* Bluesky
-    * Follow users and view their public posts in the inbox
-    * Add posts to Favorites
-* Furry Network
-    * Automatically import favorites from a specific account
-* RSS / Atom
-    * Make your posts available automatically
-    * Follow feeds and view their posts in the inbox
-    * Add posts to Favorites
-* Sheezy.Art
-    * Automatically import favorites from a specific account
+### ActivityPub
 
-Supported protocols and platforms *through an external account*:
+Pandacap acts as an ActivityPub S2S server, hosting a single actor.
 
-* Bluesky
-    * Crosspost
-    * View notifications
-    * Send likes
-    * Send replies
-* DeviantArt
-    * Crosspost
-    * View notifications (messages and notes)
-    * View posts from users you already follow in the Inbox
-    * Automatically import favorites
-* Fur Affinity
-    * Crosspost
-    * View notifications (messages and notes)
-    * View posts from users you already follow in the Inbox
-    * Automatically import favorites
-* Weasyl
-    * Crosspost
-    * View notifications
-    * View posts from users you already follow in the Inbox
-    * Automatically import favorites (submissions only)
+Most public posts are sent to followers via ActivityPub.
+Journal entries are federated using the `Article` type; artwork and status updates use `Note`. (Scraps are not federated.)
+Pandacap also has the concept of an "addressed post", an unlisted message with specific recipients; these are used for ActivityPub replies and for top-level posts to Lemmy communities.
+
+Pandacap allows you to follow ActivityPub users. This is implemented in the typical way, with `Follow` activites and an inbox path at `/ActivityPub/Inbox`.
+Posts from users you follow are sent to the appropriate section of the Pandacap inbox, and you can choose to ignore boosts or to treat all posts from the user as text posts.
+
+When you click on an ActivityPub post as a logged-in user, Pandacap will always fetch the post from its original instance.
+
+Both activities (such as `Like`, `Dislike`, `Announce`) and replies to your posts are shown in the Notifications section.
+You can also add "likes" of your own on others' ActivityPub posts, but you must first add the post to your Favorites.
+
+### ATProto
+
+Pandacap talks directly to the PDS for most operations, and only uses the Bluesky AppView for populating the Notifications section.
+(Bluesky's CDN is used for thumbnails and avatars.)
+
+Pandacap allows you to follow atproto accounts as feeds, without your own atproto account.
+For each user, you can choose whether to follow Bluesky posts, Bluesky reposts, and/or Bluesky likes.
+Pandacap will also look for Bluesky profile data for each user when refreshing the feed.
+
+You can add Bluesky posts to your Favorites.
+
+When you click on a Bluesky post as a logged-in user, Pandacap will always fetch the post from its original PDS.
+
+Pandacap also allows you to attach an atproto account. This can be used to crosspost to Bluesky, in roughly the same way crossposting to other platforms works in Pandacap.
+It also adds Bluesky notifications to the Notifications section, and allows you to add "likes" on Bluesky posts or reply to them.
+
+### DeviantArt / Fur Affinity / Weasyl
+
+Pandacap interacts with these platforms through a combination of scraping and APIs, and requires valid account credentials.
+You can crosspost to any or all of these platforms and view their notifications in the Notifications section.
+
+Posts from users you follow on these platforms will appear in the Pandacap inbox, and posts you add to your favorites on these platforms will appear in Pandacap's Favorites automatically.
 
 Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions, and Weasyl support relies on a PHP proxy script (included in this repository).
+
+### Furry Network / Reddit / Sheezy.Art
+
+Pandacap can monitor accounts on these platforms and automatically add new favorites (or in Reddit's case, upvotes of top-level posts) to its Favorites section.
+No other integration with these platforms is currently available.
+
+### RSS / Atom
+
+Pandacap can follow RSS and Atom feeds. New posts are added to the appropriate section of the Pandacap inbox.
+
+Posts with `audio/mpeg` attachments are sent to the Podcasts section, where you can download the file or play it in a pop-up window.
+
+Pandacap also makes your own posts available over RSS and Atom; the Gallery and Text Posts pages have links to these feeds.
 
 ## Software Architecture
 
@@ -125,9 +113,10 @@ Libraries:
     * **ActivityPub**: Creates objects representing posts, favorites, the user profile, etc., which can be sent to, or retrieved by, other servers via ActivityPub.
         * **Communication**: Sends and retrieves objects to/from remote servers via ActivityPub.
         * **Inbound**: Parses objects recieved or retrieved via ActivityPub (posts and actors), converting them into an abstracted form.
+    * **ATProto**: Contains atproto client code and abstractions.
     * **Podcasts**: Code for splitting and re-encoding podcasts for transfer to an audio CD.
     * **Data**: Contains the EF Core data models that are used in the Cosmos DB database to store the user's data.
-    * **Clients**: Contains API clients for ATProto (Bluesky), Lemmy, and Azure AI Vision, among others.
+    * **Clients**: Contains miscellaneous small API clients.
 * **Pandacap.HighLevel**: Contains shared Pandacap code, including Bluesky and Weasyl abstractions, RSS/Atom feed support, and code to assemble the user's notifications and favorites into composite lists.
 
 ## Deployment
