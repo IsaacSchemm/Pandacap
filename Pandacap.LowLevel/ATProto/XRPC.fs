@@ -700,7 +700,7 @@ module XRPC =
                         notifications = [{|
                             uri = ""
                             cid = ""
-                            actor = {|
+                            author = {|
                                 did = ""
                                 handle = ""
                                 displayName = Some ""
@@ -719,10 +719,10 @@ module XRPC =
                                     CID = x.cid
                                     Uri = { Raw = x.uri }
                                 }
-                                Actor = {
-                                    DID = x.actor.did
-                                    Handle = x.actor.handle
-                                    DisplayName = Option.toObj x.actor.displayName
+                                Author = {
+                                    DID = x.author.did
+                                    Handle = x.author.handle
+                                    DisplayName = Option.toObj x.author.displayName
                                 }
                                 Reason = x.reason
                                 ReasonSubject = { Raw = x.reasonSubject }

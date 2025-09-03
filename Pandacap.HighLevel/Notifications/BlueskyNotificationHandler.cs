@@ -1,14 +1,11 @@
-﻿using DeviantArtFs.Extensions;
-using Microsoft.FSharp.Core;
-using Pandacap.Clients;
-using Pandacap.Clients.ATProto;
+﻿using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.PlatformBadges;
 
 namespace Pandacap.HighLevel.Notifications
 {
-    public class ATProtoNotificationHandler(
+    public class BlueskyNotificationHandler(
         ATProtoCredentialProvider atProtoCredentialProvider,
         IHttpClientFactory httpClientFactory
     ) : INotificationHandler
@@ -50,10 +47,10 @@ namespace Pandacap.HighLevel.Notifications
                             "https://bsky.app/notifications"),
                         ActivityName = item.Reason,
                         Url = item.Reason == "reply"
-                            ? $"https://bsky.app/profile/{item.Actor.DID}/post/{Uri.EscapeDataString(item.Ref.Uri.Components.RecordKey)}"
+                            ? $"https://bsky.app/profile/{item.Author.DID}/post/{Uri.EscapeDataString(item.Ref.Uri.Components.RecordKey)}"
                             : null,
-                        UserName = item.Actor.DisplayName ?? item.Actor.Handle,
-                        UserUrl = $"https://bsky.app/profile/{item.Actor.DID}",
+                        UserName = item.Author.DisplayName ?? item.Author.Handle,
+                        UserUrl = $"https://bsky.app/profile/{item.Author.DID}",
                         PostUrl = item.ReasonSubject.Components.Collection == NSIDs.App.Bsky.Feed.Post
                             ? $"https://bsky.app/profile/{item.ReasonSubject.Components.DID}/post/{Uri.EscapeDataString(item.ReasonSubject.Components.Collection)}"
                             : null,

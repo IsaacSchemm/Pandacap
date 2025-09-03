@@ -12,6 +12,9 @@ type ATProtoTokens = {
 type ATProtoRefUri = {
     Raw: string
 } with
+    override this.ToString() =
+        this.Raw
+
     member this.Components =
         let split =
             this.Raw
@@ -76,7 +79,7 @@ type BlueskyInteraction = {
     Subject: ATProtoRef
 }
 
-type BlueskyAppViewNotificationActor = {
+type BlueskyAppViewNotificationAuthor = {
     DID: string
     Handle: string
     DisplayName: string
@@ -84,7 +87,7 @@ type BlueskyAppViewNotificationActor = {
 
 type BlueskyAppViewNotification = {
     Ref: ATProtoRef
-    Actor: BlueskyAppViewNotificationActor
+    Author: BlueskyAppViewNotificationAuthor
     Reason: string
     ReasonSubject: ATProtoRefUri
     IsRead: bool
