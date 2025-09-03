@@ -362,7 +362,6 @@ namespace Pandacap.Controllers
                 IncludeReplies = feed.IncludeReplies,
                 IncludeQuotePosts = feed.IncludeQuotePosts,
                 IgnoreImages = feed.IgnoreImages,
-                IncludeBlueskyProfile = feed.NSIDs.Contains(NSIDs.App.Bsky.Actor.Profile),
                 IncludeBlueskyLikes = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Like),
                 IncludeBlueskyPosts = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Post),
                 IncludeBlueskyReposts = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Repost),
@@ -398,11 +397,6 @@ namespace Pandacap.Controllers
                 follow.IncludePostsWithoutImages = model.IncludePostsWithoutImages;
                 follow.IncludeReplies = model.IncludeReplies;
                 follow.IncludeQuotePosts = model.IncludeQuotePosts;
-
-                if (model.IncludeBlueskyProfile)
-                    follow.NSIDs.Add(NSIDs.App.Bsky.Actor.Profile);
-                else
-                    follow.NSIDs.Remove(NSIDs.App.Bsky.Actor.Profile);
 
                 if (model.IncludeBlueskyLikes)
                     follow.NSIDs.Add(NSIDs.App.Bsky.Feed.Like);

@@ -214,21 +214,18 @@ namespace Pandacap.HighLevel.ATProto
             feed.CurrentPDS = doc.PDS;
             feed.Handle = doc.Handle;
 
-            if (feed.NSIDs.Contains(NSIDs.App.Bsky.Actor.Profile))
-            {
-                var blueskyProfiles = await XRPC.Com.Atproto.Repo.BlueskyProfile.ListRecordsAsync(
-                    client,
-                    pds,
-                    did,
-                    1,
-                    null,
-                    ATProtoListDirection.Forward);
+            var blueskyProfiles = await XRPC.Com.Atproto.Repo.BlueskyProfile.ListRecordsAsync(
+                client,
+                pds,
+                did,
+                1,
+                null,
+                ATProtoListDirection.Forward);
 
-                foreach (var profile in blueskyProfiles.Items)
-                {
-                    feed.DisplayName = profile.Value.DisplayName;
-                    feed.AvatarCID = profile.Value.AvatarCID;
-                }
+            foreach (var profile in blueskyProfiles.Items)
+            {
+                feed.DisplayName = profile.Value.DisplayName;
+                feed.AvatarCID = profile.Value.AvatarCID;
             }
 
             if (feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Like))
