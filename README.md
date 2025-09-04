@@ -68,7 +68,7 @@ You can add Bluesky posts to your Favorites.
 
 When you click on a Bluesky post as a logged-in user, Pandacap will always fetch the post from its original PDS.
 
-Pandacap also allows you to attach an atproto account. This can be used to crosspost to Bluesky, in roughly the same way crossposting to other platforms works in Pandacap.
+Pandacap also allows you to attach an atproto account. This can be used to crosspost to Bluesky or WhiteWind, in roughly the same way crossposting to other platforms works in Pandacap.
 It also adds Bluesky notifications to the Notifications section, and allows you to add "likes" on Bluesky posts or reply to them.
 
 Pandacap talks directly to the PDS for most operations, and only uses the Bluesky AppView for populating the Notifications section.

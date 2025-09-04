@@ -116,6 +116,14 @@ type BlueskyPostParameters = {
     PandacapPost: Nullable<Guid>
 }
 
+type WhiteWindBlogEntryParameters = {
+    Title: string
+    Content: string
+    CreatedAt: DateTimeOffset
+    PandacapPost: Nullable<Guid>
+}
+
 type ATProtoCreateParameters =
 | BlueskyPost of BlueskyPostParameters
 | BlueskyLike of ATProtoRef
+| WhiteWindBlogEntry of WhiteWindBlogEntryParameters

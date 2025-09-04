@@ -115,6 +115,13 @@
             View on Weasyl
         </a>
     }
+
+    @if (Model.Post.WhiteWindDID is string wdid && Model.Post.WhiteWindRecordKey is string wrkey)
+    {
+        <a href="https://whtwnd.com/@(wdid)/@(wrkey)" class="btn btn-outline-primary" target="_blank">
+            View on WhiteWind
+        </a>
+    }
 </div>
 
 @if (User.Identity?.IsAuthenticated == true)
@@ -133,7 +140,7 @@
         }
         else
         {
-            <form asp-action="Detach" asp-controller="ATProto" class="mb-3" onsubmit="This will remove the 'View on Bluesky' button; it will not delete the post from Bluesky.">
+            <form asp-action="DetachFromBluesky" asp-controller="ATProto" class="mb-3" onsubmit="This will remove the 'View on Bluesky' button; it will not delete the post from your PDS.">
                 <input type="hidden" name="id" value="@Model.Post.Id" />
                 <button type="submit" class="btn btn-warning">
                     Detach Bluesky post
@@ -194,6 +201,25 @@
                 <input type="hidden" name="id" value="@Model.Post.Id" />
                 <button type="submit" class="btn btn-warning">
                     Detach Weasyl post
+                </button>
+            </form>
+        }
+
+        @if (Model.Post.WhiteWindRecordKey == null)
+        {
+            <form asp-action="CrosspostToWhiteWind" asp-controller="ATProto" class="mb-3">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-success">
+                    Post to WhiteWind
+                </button>
+            </form>
+        }
+        else
+        {
+            <form asp-action="DetachFromWhiteWind" asp-controller="ATProto" class="mb-3" onsubmit="This will remove the 'View on WhiteWind' button; it will not delete the post from your PDS.">
+                <input type="hidden" name="id" value="@Model.Post.Id" />
+                <button type="submit" class="btn btn-warning">
+                    Detach WhiteWind post
                 </button>
             </form>
         }

@@ -252,6 +252,17 @@ module XRPC =
                                         "uri", subject.Uri.Raw
                                     ]
                                 ]
+
+                            | WhiteWindBlogEntry entry ->
+                                "collection", NSIDs.Com.Whtwnd.Blog.Entry
+                                "record", dict [
+                                    "$type", NSIDs.Com.Whtwnd.Blog.Entry :> obj
+                                    if not (isNull entry.Title) then
+                                        "title", entry.Title
+                                    "content", entry.Content
+                                    "createdAt", entry.CreatedAt.ToString("o")
+                                    "visibility", "public"
+                                ]
                         ]
                     }
                     |> Requests.performRequestAsync httpClient

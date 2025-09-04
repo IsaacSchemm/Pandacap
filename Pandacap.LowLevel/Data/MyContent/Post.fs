@@ -75,6 +75,9 @@ type Post() =
     member val BlueskyDID = nullString with get, set
     member val BlueskyRecordKey = nullString with get, set
 
+    member val WhiteWindDID = nullString with get, set
+    member val WhiteWindRecordKey = nullString with get, set
+
     member val DeviantArtId = Nullable<Guid>() with get, set
     member val DeviantArtUrl = nullString with get, set
 

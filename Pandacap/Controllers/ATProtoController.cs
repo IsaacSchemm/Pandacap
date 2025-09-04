@@ -21,72 +21,6 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
     {
-        //public async Task<IActionResult> Migrate()
-        //{
-        //    var newFeeds = await context.ATProtoFeeds
-        //        .Select(f => f.DID)
-        //        .ToListAsync();
-
-        //    await foreach (var feed in context.BlueskyFeeds)
-        //    {
-        //        if (newFeeds.Contains(feed.DID))
-        //            continue;
-
-        //        var doc = await didResolver.ResolveAsync(feed.DID);
-
-        //        context.ATProtoFeeds.Add(new()
-        //        {
-        //            DID = feed.DID,
-        //            Handle = doc.Handle,
-        //            IgnoreImages = feed.IgnoreImages,
-        //            IncludePostsWithoutImages = true,
-        //            IncludeQuotePosts = feed.IncludeQuotePosts,
-        //            NSIDs = [
-        //                NSIDs.App.Bsky.Actor.Profile,
-        //                NSIDs.App.Bsky.Feed.Post,
-        //                .. feed.IncludeTextShares
-        //                    ? [NSIDs.App.Bsky.Feed.Repost]
-        //                    : Enumerable.Empty<string>()
-        //            ],
-        //            CurrentPDS = doc.PDS
-        //        });
-        //    }
-
-        //    var newFavorites = await context.BlueskyPostFavorites
-        //        .Select(f => f.CID)
-        //        .ToListAsync();
-
-        //    await foreach (var favorite in context.BlueskyFavorites)
-        //    {
-        //        if (newFavorites.Contains(favorite.CID))
-        //            continue;
-
-        //        context.BlueskyPostFavorites.Add(new()
-        //        {
-        //            CID = favorite.CID,
-        //            CreatedAt = favorite.CreatedAt,
-        //            CreatedBy = new()
-        //            {
-        //                DID = favorite.CreatedBy.DID,
-        //                Handle = favorite.CreatedBy.Handle
-        //            },
-        //            FavoritedAt = favorite.FavoritedAt,
-        //            HiddenAt = favorite.HiddenAt,
-        //            Id = favorite.Id,
-        //            Images = [.. favorite.Images.Select(i => new BlueskyPostFavoriteImage {
-        //                Alt = i.Alt,
-        //                CID = i.Fullsize.Split('/').Last().Replace("@jpeg", "")
-        //            })],
-        //            RecordKey = favorite.RecordKey,
-        //            Text = favorite.Text
-        //        });
-        //    }
-
-        //    await context.SaveChangesAsync();
-
-        //    return RedirectToAction("FollowingAndFeeds", "Profile");
-        //}
-
         [AllowAnonymous]
         public async Task<IActionResult> GetBlob(string did, string cid, bool full = false)
         {
@@ -277,7 +211,45 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Detach(Guid id)
+        public async Task<IActionResult> CrosspostToWhiteWind(Guid id)
+        {
+            var submission = await context.Posts
+                .Where(p => p.Id == id)
+                .SingleAsync();
+
+            if (submission.WhiteWindRecordKey != null)
+                throw new Exception("Already posted to Bluesky");
+
+            using var httpClient = httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var wrapper = await atProtoCredentialProvider.GetCrosspostingCredentialsAsync();
+            if (wrapper == null)
+                return Forbid();
+
+            if (wrapper.DID == submission.WhiteWindDID)
+                return NoContent();
+
+            var post = await XRPC.Com.Atproto.Repo.CreateRecordAsync(
+                httpClient,
+                wrapper,
+                ATProtoCreateParameters.NewWhiteWindBlogEntry(new(
+                    title: submission.Title,
+                    content: submission.Body,
+                    createdAt: submission.PublishedTime,
+                    pandacapPost: submission.Id)));
+
+            submission.WhiteWindDID = post.Uri.Components.DID;
+            submission.WhiteWindRecordKey = post.Uri.Components.RecordKey;
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "UserPosts", new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DetachFromBluesky(Guid id)
         {
             var post = await context.Posts
                 .Where(p => p.Id == id)
@@ -285,6 +257,22 @@ namespace Pandacap.Controllers
 
             post.BlueskyDID = null;
             post.BlueskyRecordKey = null;
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "UserPosts", new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DetachFromWhiteWind(Guid id)
+        {
+            var post = await context.Posts
+                .Where(p => p.Id == id)
+                .SingleAsync();
+
+            post.WhiteWindDID = null;
+            post.WhiteWindRecordKey = null;
 
             await context.SaveChangesAsync();
 
