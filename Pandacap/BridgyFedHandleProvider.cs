@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Pandacap.Clients;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 
@@ -7,6 +6,7 @@ namespace Pandacap
 {
     public class BridgyFedHandleProvider(
         ApplicationInformation appInfo,
+        DIDResolver didResolver,
         IHttpClientFactory httpClientFactory,
         IMemoryCache memoryCache)
     {
@@ -25,9 +25,9 @@ namespace Pandacap
 
                         var handle = $"{appInfo.Username}.{appInfo.ApplicationHostname}.ap.brid.gy";
 
-                        var handleResolution = await XRPC.Com.Atproto.Identity.ResolveHandleAsync(
+                        var repo = await XRPC.Com.Atproto.Repo.DescribeRepoAsync(
                             client,
-                            XRPC.Host.Bluesky.PublicAppView,
+                            XRPC.Host.Unauthenticated("atproto.brid.gy"),
                             handle);
 
                         return handle;
