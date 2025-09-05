@@ -205,26 +205,28 @@ namespace Pandacap.Controllers
                 .GetBlobClient($"{blob.Id}")
                 .DownloadContentAsync(cancellationToken);
 
-            var stashResult = await Stash.SubmitAsync(
-                token,
-                Stash.SubmissionDestination.Default,
-                new Stash.SubmissionParameters(
-                    Stash.SubmissionTitle.NewSubmissionTitle(
-                        ExcerptGenerator.FromText(
-                            50,
-                            post.Title)),
-                    Stash.ArtistComments.NewArtistComments(post.Body),
-                    Stash.TagList.Create(post.Tags),
-                    Stash.OriginalUrl.NewOriginalUrl($"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}"),
-                    is_dirty: false),
-                new FormFile(
-                    blob,
-                    blobResponse.Value));
+            try
+            {
+                var stashResult = await Stash.SubmitAsync(
+                    token,
+                    Stash.SubmissionDestination.Default,
+                    new Stash.SubmissionParameters(
+                        Stash.SubmissionTitle.NewSubmissionTitle(
+                            ExcerptGenerator.FromText(
+                                50,
+                                post.Title)),
+                        Stash.ArtistComments.NewArtistComments(post.Body),
+                        Stash.TagList.Create(post.Tags),
+                        Stash.OriginalUrl.NewOriginalUrl($"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}"),
+                        is_dirty: false),
+                    new FormFile(
+                        blob,
+                        blobResponse.Value));
 
-            var response = await Stash.PublishAsync(
-                token,
-                [
-                    ..model.GalleryFolders.Select(id => Stash.PublishParameter.NewGalleryId(id)),
+                var response = await Stash.PublishAsync(
+                    token,
+                    [
+                        ..model.GalleryFolders.Select(id => Stash.PublishParameter.NewGalleryId(id)),
                             Stash.PublishParameter.NewMaturity(Maturity.NotMature),
                             Stash.PublishParameter.NewAllowComments(true),
                             Stash.PublishParameter.NewAllowFreeDownload(true),
@@ -235,17 +237,22 @@ namespace Pandacap.Controllers
                             model.NoAi
                                 ? Stash.PublishParameter.NoThirdPartyAi
                                 : Stash.PublishParameter.ThirdPartyAiOk
-                ],
-                Stash.Item.NewItem(stashResult.itemid));
+                    ],
+                    Stash.Item.NewItem(stashResult.itemid));
 
-            if (response.status != "success")
-                throw new NotImplementedException($"DeviantArt response: {response.status}");
+                if (response.status != "success")
+                    throw new NotImplementedException($"DeviantArt response: {response.status}");
 
-            post.DeviantArtId = response.deviationid;
-            post.DeviantArtUrl = response.url;
-            await context.SaveChangesAsync(cancellationToken);
+                post.DeviantArtId = response.deviationid;
+                post.DeviantArtUrl = response.url;
+                await context.SaveChangesAsync(cancellationToken);
 
-            return RedirectToAction("Index", "UserPosts", new { id });
+                return RedirectToAction("Index", "UserPosts", new { id });
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("Invalid JSON"))
+            {
+                return Redirect("https://www.deviantart.com/stash");
+            }
         }
 
         [HttpPost]
