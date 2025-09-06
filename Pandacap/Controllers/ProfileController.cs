@@ -36,7 +36,8 @@ namespace Pandacap.Controllers
         IMyLinkService myLinkService,
         ActivityPub.ProfileTranslator profileTranslator,
         ActivityPub.RelationshipTranslator relationshipTranslator,
-        UserManager<IdentityUser> userManager) : Controller
+        UserManager<IdentityUser> userManager,
+        WebFingerService webFingerService) : Controller
     {
         private async Task<ActivityPub.Profile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
@@ -263,6 +264,23 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(FollowingAndFeeds));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FollowHandle(string handle)
+        {
+            var id = await webFingerService.ResolveIdForHandleAsync(handle);
+            return await Follow(id);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FollowThreadsHandle(string handle)
+        {
+            return await FollowHandle($"@{handle.TrimStart('@')}@threads.net");
         }
 
         [HttpPost]

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pandacap.ActivityPub.Communication;
+using Pandacap.ActivityPub.Inbound;
 using Pandacap.Clients;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
@@ -55,6 +56,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<IMyLinkService, MyLinkService>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WeasylNoteNotificationHandler>()
+                .AddScoped<WebFingerService>()
                 .AddScoped<WeasylNotificationHandler>();
         }
     }

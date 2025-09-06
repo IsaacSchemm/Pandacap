@@ -47,6 +47,7 @@
     <Compile Include="ActivityPub\Inbound\Attachment.fs" />
     <Compile Include="ActivityPub\Inbound\RemotePost.fs" />
     <Compile Include="ActivityPub\Inbound\ActivityPubRemotePostService.fs" />
+    <Compile Include="ActivityPub\Inbound\WebFingerService.fs" />
     <Compile Include="ATProto\DIDResolver.fs" />
     <Compile Include="ATProto\NSIDs.fs" />
     <Compile Include="ATProto\Types.fs" />
