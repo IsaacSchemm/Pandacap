@@ -257,6 +257,7 @@ namespace Pandacap.Controllers
                         if (follow != null)
                         {
                             follow.PreferredUsername = remotePost.AttributedTo.PreferredUsername;
+                            follow.Url = remotePost.AttributedTo.Url;
                             follow.IconUrl = remotePost.AttributedTo.IconUrl;
 
                             if (nobodyAddressed)
@@ -281,6 +282,7 @@ namespace Pandacap.Controllers
                             follower.Inbox = actor.Inbox;
                             follower.SharedInbox = actor.SharedInbox;
                             follower.PreferredUsername = actor.PreferredUsername;
+                            follower.Url = actor.Url;
                             follower.IconUrl = actor.IconUrl;
                         }
 
@@ -291,6 +293,7 @@ namespace Pandacap.Controllers
                             follow.Inbox = actor.Inbox;
                             follow.SharedInbox = actor.SharedInbox;
                             follow.PreferredUsername = actor.PreferredUsername;
+                            follow.Url = actor.Url;
                             follow.IconUrl = actor.IconUrl;
                         }
 
@@ -356,6 +359,7 @@ namespace Pandacap.Controllers
                     Inbox = actor.Inbox,
                     SharedInbox = actor.SharedInbox,
                     PreferredUsername = actor.PreferredUsername,
+                    Url = actor.Url,
                     IconUrl = actor.IconUrl
                 });
 

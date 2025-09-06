@@ -11,22 +11,22 @@
 @if (!Model.Any())
 {
     <p>
-        This user does not follow any other feeds or ActivityPub actors.
+        This user does not follow any other feeds or actors.
     </p>
 }
 else
 {
-    @foreach (var item in Model)
-    {
-        if (!Uri.TryCreate(item.Url, UriKind.Absolute, out Uri? uri))
+    <div class="user-blocks">
+        @foreach (var item in Model)
         {
-            continue;
-        }
+            if (!Uri.TryCreate(item.Url, UriKind.Absolute, out Uri? uri))
+            {
+                continue;
+            }
 
-        <div class="mb-3">
-            <div>
-                <a href="@item.LinkUrl"><img width="50" height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" /></a>
-                <span style="display: inline-block; vertical-align: top">
+            <div class="user-block">
+                <a href="@item.LinkUrl" class="avatar"><img width="50" height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" /></a>
+                <span class="text">
                     <strong>
                         <a href="@item.LinkUrl">@item.Username</a>
                         @if (User.Identity?.IsAuthenticated == true)
@@ -88,8 +88,8 @@ else
                     }
                 </span>
             </div>
-        </div>
-    }
+        }
+    </div>
 
     @if (User.Identity?.IsAuthenticated == true)
     {
@@ -137,3 +137,31 @@ else
         </form>
     }
 }
+
+<style type="text/css">
+    @@media (min-width: 1000px) {
+        .user-blocks {
+            column-width: 300px;
+        }
+    }
+
+    .user-block {
+        display: inline-flex;
+        margin-bottom: 1em;
+        margin-right: 1em;
+        width: 100%;
+    }
+
+    .user-block > .avatar {
+        flex: 0 0 auto;
+        margin-right: 1em;
+    }
+
+    .user-block > .text {
+        flex: 1 0 auto;
+        flex-basis: 100px;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>

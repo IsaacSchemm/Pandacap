@@ -14,3 +14,4 @@ type RemoteActorRelationship() =
     member val SharedInbox = nullString with get, set
     member val PreferredUsername = nullString with get, set
     member val IconUrl = nullString with get, set
+    member val Url = nullString with get, set

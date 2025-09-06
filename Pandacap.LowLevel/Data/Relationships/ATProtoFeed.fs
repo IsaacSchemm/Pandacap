@@ -34,5 +34,5 @@ type ATProtoFeed() =
             then null
             else $"/ATProto/GetBlob?did={this.DID}&cid={this.AvatarCID}"
         member this.LinkUrl = $"https://bsky.app/profile/{this.Handle}"
-        member this.Username = this.Handle
+        member this.Username = this.DisplayName |> orString this.Handle
         member this.Url = $"https://{this.CurrentPDS}/xrpc/app.bsky.actor.getProfile?actor={this.DID}"
