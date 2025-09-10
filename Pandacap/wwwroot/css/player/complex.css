@@ -1,0 +1,244 @@
+html {
+  width: 100%;
+  height: 100%;
+}
+html .sr-only {
+  position: fixed;
+  top: -1000px;
+  left: -1000px;
+  width: 1px;
+  height: 1px;
+}
+html body, html main, html button {
+  background-color: black;
+  color: white;
+}
+html main:fullscreen {
+  background-color: black;
+  color: white;
+}
+html a {
+  color: dodgerblue;
+}
+html a:visited {
+  color: magenta;
+}
+html a:active {
+  color: red;
+}
+html .adv:not(:focus-within) {
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+html button {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  margin: 0;
+  padding: 4px;
+}
+html button:focus, html button:hover {
+  background-color: dodgerblue;
+  color: white;
+  outline: 0;
+}
+@media (forced-colors: active) {
+  html button:focus, html button:hover {
+    background-color: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+}
+html body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: sans-serif;
+}
+html body header {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+html body header .image-parent {
+  flex-basis: 100px;
+}
+html body details {
+  flex: 0 0 auto;
+  text-align: left;
+}
+html body details .row {
+  display: flex;
+  flex-direction: row;
+}
+html body details .row a {
+  flex: 0 0 auto;
+}
+html body details .row a:first-child {
+  flex-grow: 1;
+}
+html body details summary,
+html body details .row a {
+  padding: 8px;
+  cursor: pointer;
+  margin: 0;
+}
+html body details summary:focus,
+html body details summary:hover,
+html body details .row a:focus,
+html body details .row a:hover {
+  background-color: dodgerblue;
+  color: white;
+}
+@media (forced-colors: active) {
+  html body details summary:focus,
+  html body details summary:hover,
+  html body details .row a:focus,
+  html body details .row a:hover {
+    background-color: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+}
+html body .image-parent {
+  flex: 0 0 50px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+html body .image-parent img {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+html body #center-row {
+  flex: 1 0 100px !important;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 720px) {
+  html body #center-row {
+    flex-direction: row;
+  }
+}
+html body #center-row .embed-column {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 720px) {
+  html body #center-row .embed-column {
+    flex: 0 0 20vw;
+  }
+}
+html body #center-row .embed-column > * {
+  flex: 1 1 25vh;
+}
+html body #center-row main {
+  flex: 1 0 100px;
+  display: flex;
+  flex-direction: column;
+}
+html body #center-row main #video-box-parent {
+  flex: 1 1 100px;
+  position: relative;
+}
+html body #center-row main #video-box-parent #play-button {
+  position: absolute;
+  margin: 0;
+  top: calc(50% - 24px);
+  left: calc(50% - 64px);
+  width: 128px;
+  height: 48px;
+  font-size: 24px;
+  z-index: 1;
+}
+html body #center-row main #video-box-parent #video-parent {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+html body #center-row main #video-box-parent #video-parent > video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  max-width: initial;
+}
+html body #center-row main .controlgroup {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+html body #center-row main .controls {
+  flex: 0 0 32px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+html body #center-row main .controls:empty {
+  flex-basis: 0;
+}
+html body #center-row main .controls .spacer {
+  flex: 1 1 auto;
+}
+html body #center-row main .controls label {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 0 8px;
+  justify-content: center;
+}
+html body #center-row main .controls .line-separator {
+  width: auto;
+}
+html body #center-row main .controls button {
+  flex: 0 0 36px;
+}
+html body #center-row main .controls button .material-icons, html body #center-row main .controls button .material-symbols-outlined {
+  font-size: 24px;
+  vertical-align: bottom;
+}
+html body #center-row main .controls input[type=range] {
+  width: 40px;
+  height: 32px;
+  flex: 1 1 auto;
+  padding: 0;
+}
+html body #center-row main .controls input[type=range]#volume {
+  max-width: 240px;
+}
+html body #center-row main .controls .status {
+  line-height: 36px;
+  padding: 0 8px;
+  vertical-align: middle;
+}
+html body #center-row main .controls .status.wide {
+  flex: 1 1 0px;
+}
+@media (max-width: 480px) {
+  html body #center-row main .controls .status.timestamp {
+    display: none;
+  }
+}
+html body #center-row main.idle {
+  cursor: none;
+}
+html body #center-row main.idle .controlgroup:not(:focus-within) {
+  height: 0;
+  overflow: hidden;
+}
+
+/*# sourceMappingURL=complex.css.map */

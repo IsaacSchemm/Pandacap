@@ -128,19 +128,25 @@
             </a>
         </div>
 
-        @if (item is RssFeedItem feedItem)
+        @if (item is RssFeedItem feedItem && feedItem.Enclosures.Any())
         {
-            foreach (var enclosure in feedItem.Enclosures)
-            {
-                <div class="mt-3">
-                    @if (enclosure.MediaType == "audio/mpeg")
+            <div class="mt-3">
+                <a class="btn btn-outline-primary btn-sm" asp-controller="Podcast" asp-action="Player" asp-route-id="@feedItem.Id" target="_blank" onclick="event.preventDefault(); window.open(event.target.href, '_blank', 'popup=true,width=600,height=300')">
+                    Play in new window
+                </a>
+                @foreach (var enclosure in feedItem.Enclosures)
+                {
+                    if (enclosure.MediaType == "audio/mpeg")
                     {
-                        <a class="btn btn-outline-secondary btn-sm" asp-controller="Podcast" asp-action="Player" asp-route-url="@enclosure.Url" target="_blank" onclick="event.preventDefault(); window.open(event.target.href, '_blank', 'popup=true,width=600,height=300')">
-                            Play in new window
+                        <a class="btn btn-outline-secondary btn-sm" href="@enclosure.Url" target="_blank" title="Opens the file in a new window or tab.">
+                            Download
+                        </a>
+                        <a class="btn btn-outline-secondary btn-sm" asp-controller="Podcast" asp-action="SegmentZip" asp-route-url="@enclosure.Url" title="Re-encodes the file as a series of uncompressed .wma files, each no more than 5 minutes in length, to be burned to an audio CD-RW with gapless playback using Windows Media Player Legacy.">
+                            ...for CD
                         </a>
                     }
-                </div>
-            }
+                }
+            </div>
         }
     </div>
 }

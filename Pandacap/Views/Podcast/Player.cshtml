@@ -1,159 +1,163 @@
 ﻿@{
     Layout = null;
-
-    string appName = Pandacap.ConfigurationObjects.UserAgentInformation.ApplicationName;
 }
+@using Microsoft.FSharp.Core
+@using Pandacap.Data
+@model RssFeedItem
 <!DOCTYPE html>
-<html>
+<html class="application">
 <head>
-    <title>Pandacap Media Player</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Model.Title</title>
+
+    @* Allow Firefox users to view the fallback CSS from View > Page Style *@
+    <link rel="stylesheet" href="/css/player/main.css" title="Default View" />
+    <link rel="stylesheet alternate" href="/css/player/complex.css" title="Application View" />
+    <link rel="stylesheet alternate" href="/css/player/simple.css" title="Page View" />
+
+    <link rel="stylesheet" href="//fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
+    @* Use "native" viewport on mobile devices instead of a desktop-width viewport *@
+    <meta name="viewport" content="width=320, initial-scale=1" />
 </head>
 <body>
-    <main>
-        <div id="addlControls">
-            <button class="btn btn-primary btn-sm" id="selectAudioOutput">
-                Select audio output
-            </button>
-
-            <div style="flex: 1 1 0"></div>
-
-            <a class="btn btn-outline-primary btn-sm"
-               href="@ViewBag.Src"
-               target="_blank"
-               title="Opens the file in a new window or tab.">
-                Download
-            </a>
-
-            <a class="btn btn-outline-secondary btn-sm"
-               asp-controller="Podcast"
-               asp-action="SegmentZip"
-               asp-route-url="@ViewBag.Src"
-               asp-route-seconds="300"
-               title="Re-encodes the file as a series of uncompressed .wma files, each no more than 5 minutes in length, to be burned to an audio CD-RW with gapless playback using Windows Media Player Legacy.">
-                ...for CD
-            </a>
-        </div>
-        <div id="media">
-            <video src="@ViewBag.Src" controls preload="none"></video>
-        </div>
-    </main>
-
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/pandacap.css" asp-append-version="true" />
-
-    <style type="text/css">
-        html, body, main {
-            width: 100%;
-            height: 100%;
-            margin: 0;
+    @* The top menu bar. *@
+    <div class="adv">
+        <p>
+            Select media to play from the menu below:
+        </p>
+    </div>
+    <details id="menu" role="navigation">
+        <summary>Menu</summary>
+        @foreach (var enclosure in Model.Enclosures)
+        {
+            <div class="row">
+                @* Without JavaScript, this link will open the media URL in a new tab *@
+                @* If the JavaScript runs, it will attach an event handler to open the media in the JS player instead *@
+                <a class="media" target="_blank" href="@enclosure.Url">
+                    @Model.Title (@enclosure.MediaType)
+                </a>
+            </div>
         }
-
-        main {
-            display: flex;
-            flex-direction: column;
-        }
-
-        #addlControls {
-            display: flex;
-            flex: 0 0 auto;
-            flex-direction: row;
-            gap: 0.5em;
-            margin: 0.5em;
-            overflow-x: auto;
-        }
-
-            #addlControls > * {
-                flex: 0 0 auto;
-            }
-
-        #media {
-            flex: 1 1 auto;
-            position: relative;
-        }
-
-            #media video {
-                background-color: black;
-                position: absolute;
-                width: 100%;
-                height: 100%;
-            }
-
-        #audioOutputSelectionDialog {
-            display: flex;
-            flex-direction: column;
-            gap: 1em;
-            min-width: 300px;
-            max-width: calc(100vh - 4em);
-            max-height: calc(100vh - 2em);
-            overflow-y: auto;
-            position: fixed;
-            top: 1em;
-        }
-    </style>
-
-    <script type="text/javascript">
-        const video = document.getElementsByTagName("video")[0];
-
-        if (!("selectAudioOutput" in navigator.mediaDevices)) {
-            navigator.mediaDevices.selectAudioOutput = async () => {
-                const enumerateDevices = async () => {
-                    const list1 = await navigator.mediaDevices.enumerateDevices();
-                    if (list1.some(x => x.deviceId))
-                        return list1;
-
-                    const acquired = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-                    const list2 = await navigator.mediaDevices.enumerateDevices();
-
-                    for (const track of acquired.getTracks())
-                        track.stop();
-
-                    return list2;
-                };
-
-                const allDevices = await enumerateDevices();
-
-                const dialog = document.createElement("dialog");
-                dialog.id = "audioOutputSelectionDialog";
-                dialog.open = true;
-                document.body.appendChild(dialog);
-
-                try {
-                    const deviceId = await new Promise((r, j) => {
-                        for (const device of allDevices) {
-                            if (device.kind !== "audiooutput")
-                                continue;
-
-                            const button = document.createElement("button");
-                            button.className = "btn btn-primary";
-                            button.innerText = device.label || device.deviceId;
-                            button.addEventListener("click", () => r(device));
-                            dialog.appendChild(button);
-                        }
-
-                        const close = document.createElement("button");
-                        close.className = "btn btn-secondary";
-                        close.innerText = "Cancel";
-                        close.addEventListener("click", () => j("Device selection canceled"));
-                        dialog.appendChild(close);
-                    });
-
-                    return deviceId;
-                } finally {
-                    document.body.removeChild(dialog);
-                }
-            };
-        }
-
-        document.getElementById("selectAudioOutput").addEventListener("click", async () => {
-            try {
-                const mediaDeviceInfo = await navigator.mediaDevices.selectAudioOutput();
-                video.setSinkId(mediaDeviceInfo.deviceId);
-            } catch (e) {
-                console.error(e);
-            }
-        });
-    </script>
+    </details>
+    <div id="center-row">
+        <main>
+            <div id="video-box-parent">
+                <div style="display: none" data-bind="visible: true">
+                    <button id="play-button" data-bind="click: play, style: { visibility: paused() ? '' : 'hidden' }">
+                        <span class="material-symbols-outlined" aria-hidden="true">play_arrow</span> Play
+                    </button>
+                </div>
+                <div></div>
+                <div id="video-parent">
+                    @* The contents of this element are controlled by JavaScript, which will insert a media player and a play button. *@
+                </div>
+            </div>
+            <!-- ko with: player -->
+            @* The controls are hidden initially, and shown once Knockout has been loaded. *@
+            <div class="controlgroup" style="display: none" data-bind="visible: true">
+                <div class="controlgroup">
+                    <div class="controls">
+                        <button data-bind="click: togglePlay">
+                            <!-- ko if: playing -->
+                            <span class="material-symbols-outlined" aria-hidden="true">pause</span>
+                            <span class="sr-only">Pause</span>
+                            <!-- /ko -->
+                            <!-- ko ifnot: playing -->
+                            <span class="material-symbols-outlined" aria-hidden="true">play_arrow</span>
+                            <span class="sr-only">Play</span>
+                            <!-- /ko -->
+                        </button>
+                        <div class="spacer" role="none"></div>
+                        <button data-bind="click: toggleMute">
+                            <!-- ko if: muted -->
+                            <span class="material-symbols-outlined" aria-hidden="true">volume_off</span>
+                            <span class="sr-only">Unmute</span>
+                            <!-- /ko -->
+                            <!-- ko ifnot: muted -->
+                            <span class="material-symbols-outlined" aria-hidden="true">volume_up</span>
+                            <span class="sr-only">Mute</span>
+                            <!-- /ko -->
+                        </button>
+                        <div class="status line-separator sr-only">
+                            Volume
+                        </div>
+                        <input type="range"
+                               id="volume"
+                               data-bind="value: vol"
+                               min="0"
+                               max="1"
+                               aria-label="Volume"
+                               step="0.01" />
+                        <div class="line-separator"></div>
+                        @* These two buttons are presented to screen readers, but are hidden from view unless you use the Tab key to reveal them. *@
+                        <button class="adv" data-bind="click: volumeDown">
+                            <span class="material-symbols-outlined" aria-hidden="true">remove</span>
+                            <span class="sr-only">Volume down</span>
+                        </button>
+                        <button class="adv" data-bind="click: volumeUp">
+                            <span class="material-symbols-outlined" aria-hidden="true">add</span>
+                            <span class="sr-only">Volume up</span>
+                        </button>
+                        @* This button prompts the user to select an audio output device. *@
+                        <button data-bind="visible: canSelectAudioOutput, click: selectAudioOutput">
+                            <span class="material-symbols-outlined" aria-hidden="true">media_output</span>
+                            <span class="sr-only">Select audio output device</span>
+                        </button>
+                        <button data-bind="visible: canCast, click: activateCast">
+                            <!-- ko if: $data instanceof CastjsPlayer -->
+                            <span class="material-symbols-outlined" aria-hidden="true">cast_connected</span>
+                            <span class="sr-only">Stop casting</span>
+                            <!-- /ko -->
+                            <!-- ko ifnot: $data instanceof CastjsPlayer -->
+                            <span class="material-symbols-outlined" aria-hidden="true">cast</span>
+                            <span class="sr-only">Cast</span>
+                            <!-- /ko -->
+                        </button>
+                        <button data-bind="visible: canAirPlay, click: activateAirPlay">
+                            <span class="material-symbols-outlined" aria-hidden="true">airplay</span>
+                            <span class="sr-only">AirPlay</span>
+                        </button>
+                    </div>
+                    <div class="controls">
+                        <div class="status timestamp line-separator">
+                            <span class="sr-only">Timestamp:</span>
+                            <span data-bind="text: currentTimeStr">0:00</span>
+                        </div>
+                        <input type="range"
+                               aria-label="Time"
+                               id="seek"
+                               data-bind="value: currentTimeMs, attr: { min: 0, max: durationMs }" />
+                        <div class="status timestamp line-separator">
+                            <span class="sr-only">Duration:</span>
+                            <span data-bind="text: durationStr">0:00</span>
+                        </div>
+                        @* These buttons are presented to screen readers, but are hidden from view unless you use the Tab key to reveal them. *@
+                        <button class="adv" data-bind="click: back10">
+                            <span class="material-symbols-outlined" aria-hidden="true">replay_10</span>
+                            <span class="sr-only">Back 10 seconds</span>
+                        </button>
+                        <button class="adv" data-bind="click: forward10">
+                            <span class="material-symbols-outlined" aria-hidden="true">forward_10</span>
+                            <span class="sr-only">Forward 10 seconds</span>
+                        </button>
+                        <button class="adv" data-bind="click: back30">
+                            <span class="material-symbols-outlined" aria-hidden="true">replay_30</span>
+                            <span class="sr-only">Back 30 seconds</span>
+                        </button>
+                        <button class="adv" data-bind="click: forward30">
+                            <span class="material-symbols-outlined" aria-hidden="true">forward_30</span>
+                            <span class="sr-only">Forward 30 seconds</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- /ko -->
+        </main>
+    </div>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.debug.js" integrity="sha512-per7WBYe3cT9aIDMoF74rYR7wpEDPqyncWqWzBGmJBnhp8H3ZD5fRdTM16IO5ePUEuBlH9DMKF7rHvuazhvDBA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/castjs/5.3.0/cast.min.js" integrity="sha512-4SOvbc/9IoTVVVweBj4ddMKSQWR1abl/LJyz4e1iciUisCPHl0OIyYNIZ8AbpOX8k2zXti31IfDmtSX0yPX/8Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript" src="/player/js/pps-player.js"></script>
+    <script type="text/javascript" src="/player/js/castjs-player.js"></script>
+    <script type="text/javascript" src="/player/js/main.js"></script>
 </body>
 </html>

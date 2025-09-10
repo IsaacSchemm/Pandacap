@@ -364,4 +364,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
 /Pandacap.Functions/local.settings.json
+
+/Pandacap/wwwroot/player/js/*.js
+/Pandacap/wwwroot/player/js/*.js.map
+/Pandacap/wwwroot/css/player/*.css.map

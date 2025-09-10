@@ -1,0 +1,71 @@
+﻿html {
+    body {
+        text-align: center;
+    }
+
+    header img {
+        width: 600px;
+        height: 150px;
+    }
+
+    button {
+        padding: 0.5em;
+        margin: 1em 0.5em;
+
+        &#play-button {
+            font-size: 125%;
+        }
+
+        .material-icons, .material-symbols-outlined {
+            font-size: inherit;
+        }
+    }
+
+    .image-parent {
+        display: inline-block;
+    }
+
+    details {
+        summary {
+            margin: 1em;
+        }
+
+        .row a {
+            display: block;
+            display: inline-block;
+            margin: 1em 0;
+        }
+    }
+
+    img {
+        width: 240px;
+        max-width: calc(100vw - 40px);
+        height: 240px;
+        object-fit: contain;
+    }
+
+    main:fullscreen {
+        background-color: Window;
+        color: WindowText;
+    }
+
+    video {
+        width: 600px;
+        max-width: calc(100vw - 40px);
+    }
+
+    .controls {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        .line-separator {
+            width: 100%;
+        }
+
+        button {
+            flex: 0 0 auto;
+        }
+    }
+}

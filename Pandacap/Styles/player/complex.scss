@@ -1,0 +1,278 @@
+﻿html {
+    width: 100%;
+    height: 100%;
+
+    .sr-only {
+        position: fixed;
+        top: -1000px;
+        left: -1000px;
+        width: 1px;
+        height: 1px;
+    }
+
+    body, main, button {
+        background-color: black;
+        color: white;
+    }
+
+    main:fullscreen {
+        background-color: black;
+        color: white;
+    }
+
+    a {
+        color: dodgerblue;
+
+        &:visited {
+            color: magenta;
+        }
+
+        &:active {
+            color: red;
+        }
+    }
+
+    .adv:not(:focus-within) {
+        position: absolute;
+        top: -100px;
+        left: -100px;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+    }
+
+    button {
+        appearance: none;
+        border: 0;
+        cursor: pointer;
+        font: inherit;
+        margin: 0;
+        padding: 4px;
+
+        &:focus, &:hover {
+            background-color: dodgerblue;
+            color: white;
+            outline: 0;
+
+            @media (forced-colors: active) {
+                background-color: Highlight;
+                color: HighlightText;
+                forced-color-adjust: none;
+            }
+        }
+    }
+
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        font-family: sans-serif;
+
+        header {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+
+            .image-parent {
+                flex-basis: 100px;
+            }
+        }
+
+        details {
+            flex: 0 0 auto;
+            text-align: left;
+
+            .row {
+                display: flex;
+                flex-direction: row;
+            }
+
+            .row a {
+                flex: 0 0 auto;
+
+                &:first-child {
+                    flex-grow: 1;
+                }
+            }
+
+            summary,
+            .row a {
+                padding: 8px;
+                cursor: pointer;
+                margin: 0;
+            }
+
+            summary:focus,
+            summary:hover,
+            .row a:focus,
+            .row a:hover {
+                background-color: dodgerblue;
+                color: white;
+
+                @media (forced-colors: active) {
+                    background-color: Highlight;
+                    color: HighlightText;
+                    forced-color-adjust: none;
+                }
+            }
+        }
+
+        .image-parent {
+            flex: 0 0 50px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+
+            img {
+                width: 100%;
+                max-width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+        }
+
+        #center-row {
+            flex: 1 0 100px !important;
+            display: flex;
+            flex-direction: column;
+
+            @media (min-width: 720px) {
+                flex-direction: row;
+            }
+
+            .embed-column {
+                flex: 0 0 auto;
+                display: flex;
+                flex-direction: column;
+
+                @media (min-width: 720px) {
+                    flex: 0 0 20vw;
+                }
+
+                & > * {
+                    flex: 1 1 25vh;
+                }
+            }
+
+            main {
+                flex: 1 0 100px;
+                display: flex;
+                flex-direction: column;
+
+                #video-box-parent {
+                    flex: 1 1 100px;
+                    position: relative;
+
+                    #play-button {
+                        position: absolute;
+                        margin: 0;
+                        top: calc(50% - 24px);
+                        left: calc(50% - 64px);
+                        width: 128px;
+                        height: 48px;
+                        font-size: 24px;
+                        z-index: 1;
+                    }
+
+                    #video-parent {
+                        position: absolute;
+                        width: 100%;
+                        height: 100%;
+                        top: 0;
+                        left: 0;
+
+                        & > video {
+                            position: absolute;
+                            width: 100%;
+                            height: 100%;
+                            top: 0;
+                            left: 0;
+                            max-width: initial;
+                        }
+                    }
+                }
+
+                .controlgroup {
+                    flex: 0 0 auto;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .controls {
+                    flex: 0 0 32px;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+
+                    &:empty {
+                        flex-basis: 0;
+                    }
+
+                    .spacer {
+                        flex: 1 1 auto;
+                    }
+
+                    label {
+                        flex: 0 0 auto;
+                        display: flex;
+                        flex-direction: column;
+                        text-align: center;
+                        padding: 0 8px;
+                        justify-content: center;
+                    }
+
+                    .line-separator {
+                        width: auto;
+                    }
+
+                    button {
+                        flex: 0 0 36px;
+
+                        .material-icons, .material-symbols-outlined {
+                            font-size: 24px;
+                            vertical-align: bottom;
+                        }
+                    }
+
+                    input[type=range] {
+                        width: 40px;
+                        height: 32px;
+                        flex: 1 1 auto;
+                        padding: 0;
+                    }
+
+                    input[type=range]#volume {
+                        max-width: 240px;
+                    }
+
+                    .status {
+                        line-height: 36px;
+                        padding: 0 8px;
+                        vertical-align: middle;
+
+                        &.wide {
+                            flex: 1 1 0px;
+                        }
+
+                        &.timestamp {
+                            @media (max-width: 480px) {
+                                display: none;
+                            }
+                        }
+                    }
+                }
+
+                &.idle {
+                    cursor: none;
+
+                    .controlgroup:not(:focus-within) {
+                        height: 0;
+                        overflow: hidden;
+                    }
+                }
+            }
+        }
+    }
+}
