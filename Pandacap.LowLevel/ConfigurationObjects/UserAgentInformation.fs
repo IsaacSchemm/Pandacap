@@ -5,7 +5,7 @@ module UserAgentInformation =
     let ApplicationName = "Pandacap"
 
     /// The Pandacap version number.
-    let VersionNumber = "13.1.0"
+    let VersionNumber = "13.2.0"
 
     /// A URL to a website with more information about the application.
     let WebsiteUrl = "https://github.com/IsaacSchemm/Pandacap"
