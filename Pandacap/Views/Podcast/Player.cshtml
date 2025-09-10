@@ -1,9 +1,7 @@
 ﻿@{
     Layout = null;
 }
-@using Microsoft.FSharp.Core
-@using Pandacap.Data
-@model RssFeedItem
+@model PlayerModel
 <!DOCTYPE html>
 <html class="application">
 <head>
@@ -23,22 +21,11 @@
     @* The top menu bar. *@
     <div class="adv">
         <p>
-            Select media to play from the menu below:
+            <a id="directLink" href="@Model.Url">
+                @Model.Url
+            </a>
         </p>
     </div>
-    <details id="menu" role="navigation">
-        <summary>Menu</summary>
-        @foreach (var enclosure in Model.Enclosures)
-        {
-            <div class="row">
-                @* Without JavaScript, this link will open the media URL in a new tab *@
-                @* If the JavaScript runs, it will attach an event handler to open the media in the JS player instead *@
-                <a class="media" target="_blank" href="@enclosure.Url">
-                    @Model.Title (@enclosure.MediaType)
-                </a>
-            </div>
-        }
-    </details>
     <div id="center-row">
         <main>
             <div id="video-box-parent">

@@ -70,69 +70,6 @@
         flex-direction: column;
         font-family: sans-serif;
 
-        header {
-            flex: 0 0 auto;
-            display: flex;
-            flex-direction: column;
-
-            .image-parent {
-                flex-basis: 100px;
-            }
-        }
-
-        details {
-            flex: 0 0 auto;
-            text-align: left;
-
-            .row {
-                display: flex;
-                flex-direction: row;
-            }
-
-            .row a {
-                flex: 0 0 auto;
-
-                &:first-child {
-                    flex-grow: 1;
-                }
-            }
-
-            summary,
-            .row a {
-                padding: 8px;
-                cursor: pointer;
-                margin: 0;
-            }
-
-            summary:focus,
-            summary:hover,
-            .row a:focus,
-            .row a:hover {
-                background-color: dodgerblue;
-                color: white;
-
-                @media (forced-colors: active) {
-                    background-color: Highlight;
-                    color: HighlightText;
-                    forced-color-adjust: none;
-                }
-            }
-        }
-
-        .image-parent {
-            flex: 0 0 50px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-
-            img {
-                width: 100%;
-                max-width: 100%;
-                height: 100%;
-                object-fit: contain;
-            }
-        }
-
         #center-row {
             flex: 1 0 100px !important;
             display: flex;
@@ -140,20 +77,6 @@
 
             @media (min-width: 720px) {
                 flex-direction: row;
-            }
-
-            .embed-column {
-                flex: 0 0 auto;
-                display: flex;
-                flex-direction: column;
-
-                @media (min-width: 720px) {
-                    flex: 0 0 20vw;
-                }
-
-                & > * {
-                    flex: 1 1 25vh;
-                }
             }
 
             main {
@@ -165,17 +88,6 @@
                     flex: 1 1 100px;
                     position: relative;
 
-                    #play-button {
-                        position: absolute;
-                        margin: 0;
-                        top: calc(50% - 24px);
-                        left: calc(50% - 64px);
-                        width: 128px;
-                        height: 48px;
-                        font-size: 24px;
-                        z-index: 1;
-                    }
-
                     #video-parent {
                         position: absolute;
                         width: 100%;
@@ -183,7 +95,7 @@
                         top: 0;
                         left: 0;
 
-                        & > video {
+                        & > video, & > audio {
                             position: absolute;
                             width: 100%;
                             height: 100%;
@@ -261,15 +173,6 @@
                                 display: none;
                             }
                         }
-                    }
-                }
-
-                &.idle {
-                    cursor: none;
-
-                    .controlgroup:not(:focus-within) {
-                        height: 0;
-                        overflow: hidden;
                     }
                 }
             }

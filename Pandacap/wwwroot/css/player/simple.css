@@ -1,10 +1,6 @@
 html body {
   text-align: center;
 }
-html header img {
-  width: 600px;
-  height: 150px;
-}
 html button {
   padding: 0.5em;
   margin: 1em 0.5em;
@@ -15,28 +11,11 @@ html button#play-button {
 html button .material-icons, html button .material-symbols-outlined {
   font-size: inherit;
 }
-html .image-parent {
-  display: inline-block;
-}
-html details summary {
-  margin: 1em;
-}
-html details .row a {
-  display: block;
-  display: inline-block;
-  margin: 1em 0;
-}
-html img {
-  width: 240px;
-  max-width: calc(100vw - 40px);
-  height: 240px;
-  object-fit: contain;
-}
 html main:fullscreen {
   background-color: Window;
   color: WindowText;
 }
-html video {
+html video, html audio {
   width: 600px;
   max-width: calc(100vw - 40px);
 }

@@ -44,7 +44,7 @@ class PPSPlayer {
 
     private updateInterface = false;
 
-    readonly mediaElement: HTMLVideoElement;
+    readonly mediaElement: HTMLAudioElement;
 
     constructor(
         readonly parentElement: HTMLElement,
@@ -53,8 +53,8 @@ class PPSPlayer {
         // Clear player container
         parentElement.innerHTML = "";
 
-        // Create video element
-        const mediaElement = document.createElement("video");
+        // Create audio element
+        const mediaElement = document.createElement("audio");
         parentElement.appendChild(mediaElement);
 
         this.mediaElement = mediaElement;

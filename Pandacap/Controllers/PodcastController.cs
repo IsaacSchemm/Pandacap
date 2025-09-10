@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.Models;
 using Pandacap.Podcasts;
 using System.Net;
 
@@ -14,13 +15,17 @@ namespace Pandacap.Controllers
         IHttpClientFactory httpClientFactory,
         WmaZipSplitter wmaZipSplitter) : Controller
     {
-        public async Task<IActionResult> Player(Guid id)
+        public async Task<IActionResult> Player(Guid id, int index)
         {
             var feedItem = await context.RssFeedItems
                 .Where(i => i.Id == id)
                 .SingleAsync();
 
-            return View(feedItem);
+            return View(new PlayerModel
+            {
+                Title = feedItem.Title,
+                Url = feedItem.Enclosures[index].Url
+            });
         }
 
         public async Task<IActionResult> GetContentType(
