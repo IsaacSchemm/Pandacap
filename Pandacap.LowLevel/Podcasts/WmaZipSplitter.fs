@@ -2,11 +2,12 @@
 
 open System
 open System.IO
+open System.IO.Compression
 open System.Net.Http
 open System.Threading
 open NAudio.MediaFoundation
-open System.IO.Compression
 open NAudio.Wave
+open Pandacap.ConfigurationObjects
 
 type WmaZipSplitter(httpClientFactory: IHttpClientFactory) =
     let _ = MediaFoundationApi.Startup()
@@ -69,6 +70,8 @@ type WmaZipSplitter(httpClientFactory: IHttpClientFactory) =
         try
             do! task {
                 use client = httpClientFactory.CreateClient()
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent)
+
                 use! resp = client.GetAsync(uri, cancellationToken)
                 use! stream = resp.EnsureSuccessStatusCode().Content.ReadAsStreamAsync()
                 use fs = new FileStream(tempFile, FileMode.CreateNew, FileAccess.Write)
