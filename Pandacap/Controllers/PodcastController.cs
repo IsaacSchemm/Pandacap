@@ -41,6 +41,29 @@ namespace Pandacap.Controllers
                 ?? "application/octet-stream");
         }
 
+        public async Task<IActionResult> Download(
+            string url,
+            CancellationToken cancellationToken)
+        {
+            var client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
+            var req = new HttpRequestMessage(HttpMethod.Get, url);
+            var resp = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+
+            if (!resp.IsSuccessStatusCode)
+                return StatusCode((int)HttpStatusCode.BadGateway);
+
+            var uri = resp.Content.Headers.ContentLocation
+                ?? req.RequestUri
+                ?? new Uri("https://www.example.com/file");
+
+            return File(
+                await resp.Content.ReadAsStreamAsync(cancellationToken),
+                resp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream",
+                uri.AbsolutePath.Split('/').Last());
+        }
+
         public async Task<IActionResult> SegmentZip(
             string url,
             int seconds,

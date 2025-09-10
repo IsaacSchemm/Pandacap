@@ -90,7 +90,7 @@ html .controls button {
     height: 0;
     overflow: hidden;
   }
-  html button {
+  html button, html a.button {
     appearance: none;
     border: 0;
     cursor: pointer;
@@ -98,13 +98,13 @@ html .controls button {
     margin: 0;
     padding: 4px;
   }
-  html button:focus, html button:hover {
+  html button:focus, html button:hover, html a.button:focus, html a.button:hover {
     background-color: dodgerblue;
     color: white;
     outline: 0;
   }
   @media (forced-colors: active) {
-    html button:focus, html button:hover {
+    html button:focus, html button:hover, html a.button:focus, html a.button:hover {
       background-color: Highlight;
       color: HighlightText;
       forced-color-adjust: none;
@@ -260,10 +260,10 @@ html .controls button {
   html body #center-row main .controls .line-separator {
     width: auto;
   }
-  html body #center-row main .controls button {
+  html body #center-row main .controls a.button, html body #center-row main .controls button {
     flex: 0 0 36px;
   }
-  html body #center-row main .controls button .material-icons, html body #center-row main .controls button .material-symbols-outlined {
+  html body #center-row main .controls a.button .material-icons, html body #center-row main .controls a.button .material-symbols-outlined, html body #center-row main .controls button .material-icons, html body #center-row main .controls button .material-symbols-outlined {
     font-size: 24px;
     vertical-align: bottom;
   }

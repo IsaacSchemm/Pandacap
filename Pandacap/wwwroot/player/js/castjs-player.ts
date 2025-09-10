@@ -168,7 +168,11 @@ class CastjsPlayer {
 
     activateAirPlay() { }
 
-    enableNativeControls() { }
+    download() {
+        location.href = `/Podcast/Download?url=${encodeURIComponent(this.src)}`;
+    }
 
-    destroy() { }
+    downloadForCD() {
+        location.href = `/Podcast/SegmentZip?url=${encodeURIComponent(this.src)}`;
+    }
 }

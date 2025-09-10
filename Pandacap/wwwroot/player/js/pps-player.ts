@@ -45,7 +45,6 @@ class PPSPlayer {
     private updateInterface = false;
 
     readonly mediaElement: HTMLVideoElement;
-    readonly onDestroy: () => void;
 
     constructor(
         readonly parentElement: HTMLElement,
@@ -187,11 +186,11 @@ class PPSPlayer {
         (this.mediaElement as any).webkitShowPlaybackTargetPicker();
     }
 
-    enableNativeControls() {
-        this.mediaElement.controls = true;
+    download() {
+        location.href = `/Podcast/Download?url=${encodeURIComponent(this.src)}`;
     }
 
-    destroy() {
-        this.onDestroy();
+    downloadForCD() {
+        location.href = `/Podcast/SegmentZip?url=${encodeURIComponent(this.src)}`;
     }
 }

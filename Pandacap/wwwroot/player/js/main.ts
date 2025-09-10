@@ -50,17 +50,12 @@ namespace PPS {
         // are set up); may be called on page load for the first media link.
 
         try {
-            // Clean up previous player (if any)
-            const oldPlayer = player();
-
             // Store old player's source and seek time
+            const oldPlayer = player();
             const oldSrc = oldPlayer?.src;
             const oldTime = oldPlayer?.currentTimeMs();
 
-            if (oldPlayer) {
-                player(null);
-                oldPlayer.destroy();
-            }
+            player(null);
 
             // Initialize the player
             const PlayerClass = await selectPlayerTypeAsync(src);

@@ -41,7 +41,7 @@
         overflow: hidden;
     }
 
-    button {
+    button, a.button {
         appearance: none;
         border: 0;
         cursor: pointer;
@@ -227,7 +227,7 @@
                         width: auto;
                     }
 
-                    button {
+                    a.button, button {
                         flex: 0 0 36px;
 
                         .material-icons, .material-symbols-outlined {
