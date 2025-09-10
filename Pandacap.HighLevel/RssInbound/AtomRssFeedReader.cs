@@ -26,7 +26,13 @@ namespace Pandacap.HighLevel.RssInbound
 
             foreach (var item in results.Items)
             {
-                DateTimeOffset ts = item.PublishingDate ?? DateTimeOffset.UtcNow;
+                DateTimeOffset? stamp =
+                    (item.SpecificItem as AtomFeedItem)?.UpdatedDate
+                    ?? item.PublishingDate;
+
+                if (stamp is not DateTimeOffset ts)
+                    continue;
+
                 if (ts <= feed.LastCheckedAt)
                     continue;
 
