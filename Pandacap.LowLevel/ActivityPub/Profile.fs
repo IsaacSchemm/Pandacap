@@ -3,7 +3,7 @@
 open Pandacap.LowLevel.MyLinks
 
 type Profile = {
-    Avatar: Avatar
+    Avatars: Avatar list
     Links: MyLink list
     PublicKeyPem: string
     Username: string

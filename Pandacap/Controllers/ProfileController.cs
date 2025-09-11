@@ -47,11 +47,11 @@ namespace Pandacap.Controllers
             var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
 
             return new ActivityPub.Profile(
-                avatar: new ActivityPub.Avatar(
-                    avatar?.ContentType,
-                    avatar == null
-                        ? null
-                        : $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}"),
+                avatars: avatar == null
+                    ? []
+                    : [new ActivityPub.Avatar(
+                        avatar.ContentType,
+                        $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}")],
                 links: await myLinkService.GetLinksAsync(cancellationToken),
                 publicKeyPem: key,
                 username: appInfo.Username);

@@ -18,7 +18,7 @@ type ProfileTranslator(hostInformation: HostInformation, mapper: Mapper) =
         pair "preferredUsername" info.Username
         pair "name" info.Username
         pair "summary" (String.concat "" [
-            $"<p>Art gallery hosted by <a href='{hostInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(hostInformation.ApplicationName)}</a>.</p>"
+            $"<p>Hosted by <a href='{hostInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(hostInformation.ApplicationName)}</a>.</p>"
         ])
         pair "url" mapper.ActorId
         pair "discoverable" true
@@ -28,11 +28,11 @@ type ProfileTranslator(hostInformation: HostInformation, mapper: Mapper) =
             owner = mapper.ActorId
             publicKeyPem = info.PublicKeyPem
         |}
-        if not (isNull info.Avatar.Url) then
+        for avatar in info.Avatars do
             pair "icon" {|
-                mediaType = info.Avatar.MediaType
+                mediaType = avatar.MediaType
                 ``type`` = "Image"
-                url = info.Avatar.Url
+                url = avatar.Url
             |}
         pair "attachment" [
             for link in info.Links do
