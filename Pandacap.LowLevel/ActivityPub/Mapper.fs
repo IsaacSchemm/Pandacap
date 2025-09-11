@@ -37,6 +37,12 @@ type Mapper(appInfo: HostInformation) =
     member _.GetObjectId(addressedPost: IAddressedPost) =
         $"https://{appInfo.ApplicationHostname}/AddressedPosts/{addressedPost.Id}"
 
+    member _.GetCreateId(post: IPost) =
+        $"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}/Created"
+
+    member _.GetCreateId(addressedPost: IAddressedPost) =
+        $"https://{appInfo.ApplicationHostname}/AddressedPosts/{addressedPost.Id}/Created"
+
     member _.GetFollowId(followGuid: Guid) =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Follow/{followGuid}"
 
@@ -44,4 +50,4 @@ type Mapper(appInfo: HostInformation) =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Like/{likeId}"
 
     member _.GetTransientId() =
-        $"https://{appInfo.ApplicationHostname}/#transient-{Guid.NewGuid()}"
+        $"https://{appInfo.ApplicationHostname}/ActivityPub/Transient/{Guid.NewGuid()}"

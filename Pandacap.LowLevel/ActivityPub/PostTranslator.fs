@@ -75,7 +75,7 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
 
     member this.BuildObjectCreate(post: IPost) = dict [
         pair "type" "Create"
-        pair "id" (mapper.GetTransientId())
+        pair "id" (mapper.GetCreateId(post))
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
         pair "to" "https://www.w3.org/ns/activitystreams#Public"
@@ -104,7 +104,7 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
 
     member this.BuildObjectCreate(post: IAddressedPost) = dict [
         pair "type" "Create"
-        pair "id" (mapper.GetTransientId())
+        pair "id" (mapper.GetCreateId(post))
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
         pair "to" post.To
