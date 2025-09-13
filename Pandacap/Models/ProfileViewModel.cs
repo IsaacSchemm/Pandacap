@@ -5,7 +5,7 @@ namespace Pandacap.Models
 {
     public class ProfileViewModel
     {
-        public string? BridgyFedHandle { get; set; }
+        public string? BridgyFedDID { get; set; }
 
         public IReadOnlyList<MyLink> MyLinks { get; set; } = [];
 

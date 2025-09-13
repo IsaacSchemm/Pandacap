@@ -1,12 +1,16 @@
-﻿using Pandacap.Clients.ATProto;
+﻿using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
+using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel;
+using Pandacap.HighLevel.ATProto;
 using Pandacap.PlatformBadges;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Pandacap.Notifications
 {
     public class ConstellationNotificationHandler(
-        BridgyFedHandleProvider bridgyFedHandleProvider,
+        ATProtoCredentialProvider atProtoCredentialProvider,
+        BridgyFedDIDProvider bridgyFedDIDProvider,
         ConstellationClient constellationClient,
         DIDResolver didResolver,
         IHttpClientFactory httpClientFactory
@@ -14,16 +18,29 @@ namespace Pandacap.Notifications
     {
         private const int MAX_PER_TYPE = 25;
 
+        private record Account(
+            string DID,
+            XRPC.IHost Host);
+
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
+        {
+            foreach (var credential in await atProtoCredentialProvider.GetAllCredentialsAsync())
+                await foreach (var notification in GetNotificationsAsync(credential.DID))
+                    yield return notification;
+
+            if (await bridgyFedDIDProvider.GetDIDAsync() is string bridgy_did)
+                await foreach (var notification in GetNotificationsAsync(bridgy_did))
+                    yield return notification;
+        }
+
+        public async IAsyncEnumerable<Notification> GetNotificationsAsync(string did)
         {
             var cutoff = DateTimeOffset.UtcNow.AddDays(-75);
 
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var did = await bridgyFedHandleProvider.GetDIDAsync();
-            if (did == null)
-                yield break;
+            var myDoc = await didResolver.ResolveAsync(did);
 
             await foreach (var mention in constellationClient.ListMentionsAsync(
                 did,
@@ -55,7 +72,7 @@ namespace Pandacap.Notifications
 
             var myRecentPosts = await RecordEnumeration.BlueskyPost.FindNewestRecordsAsync(
                 client,
-                XRPC.Host.Unauthenticated("atproto.brid.gy"),
+                XRPC.Host.Unauthenticated(myDoc.PDS),
                 did,
                 20);
 

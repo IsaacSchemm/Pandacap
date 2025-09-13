@@ -25,7 +25,7 @@ namespace Pandacap.Controllers
         AtomRssFeedReader atomRssFeedReader,
         ATProtoFeedReader atProtoFeedReader,
         BlobServiceClient blobServiceClient,
-        BridgyFedHandleProvider bridgyFedHandleProvider,
+        BridgyFedDIDProvider bridgyFedDIDProvider,
         CompositeFavoritesProvider compositeFavoritesProvider,
         DIDResolver didResolver,
         PandacapDbContext context,
@@ -90,7 +90,7 @@ namespace Pandacap.Controllers
 
                 return new ProfileViewModel
                 {
-                    BridgyFedHandle = await bridgyFedHandleProvider.GetHandleAsync(),
+                    BridgyFedDID = await bridgyFedDIDProvider.GetDIDAsync(),
                     MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                     RecentArtwork = await context.Posts
                         .Where(post => post.Type == PostType.Artwork)

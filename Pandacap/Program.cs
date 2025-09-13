@@ -91,7 +91,7 @@ builder.Services
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<ActivityPubReplyNotificationHandler>()
     .AddScoped<BlueskyNotificationHandler>()
-    .AddScoped<BridgyFedHandleProvider>()
+    .AddScoped<BridgyFedDIDProvider>()
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<CompositeNotificationHandler>()
     .AddScoped<ComputerVisionProvider>()

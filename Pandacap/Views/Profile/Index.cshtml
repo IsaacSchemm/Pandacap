@@ -60,16 +60,16 @@
 
     <br />
 
-    @if (Model.BridgyFedHandle != null)
+    @if (Model.BridgyFedDID != null)
     {
-        <a href="https://bsky.app/profile/@Model.BridgyFedHandle" target="_blank" style="text-decoration: none">
+        <a href="https://bsky.app/profile/@Model.BridgyFedDID" target="_blank" style="text-decoration: none">
             <img alt="Bluesky"
                  src="https://web-cdn.bsky.app/static/favicon-16x16.png"
                  width="16"
                  height="16" />
         </a>
 
-        <tt style="user-select: all">@@@Model.BridgyFedHandle</tt>
+        <tt style="user-select: all">@@@(appInfo.Username).@(appInfo.ApplicationHostname).ap.brid.gy</tt>
 
         <br />
     }

@@ -3,13 +3,11 @@ using Pandacap.ConfigurationObjects;
 
 namespace Pandacap
 {
-    public class BridgyFedHandleProvider(
+    public class BridgyFedDIDProvider(
         ApplicationInformation appInfo,
         IHttpClientFactory httpClientFactory)
     {
-        private record Info(string Handle, string DID);
-
-        private async Task<Info?> FindAsync()
+        public async Task<string?> GetDIDAsync()
         {
             try
             {
@@ -23,24 +21,12 @@ namespace Pandacap
                     XRPC.Host.Unauthenticated("atproto.brid.gy"),
                     handle);
 
-                return new(repo.handle, repo.did);
+                return repo.did;
             }
             catch (Exception)
             {
                 return null;
             }
-        }
-
-        public async Task<string?> GetHandleAsync()
-        {
-            var info = await FindAsync();
-            return info?.Handle;
-        }
-
-        public async Task<string?> GetDIDAsync()
-        {
-            var info = await FindAsync();
-            return info?.DID;
         }
     }
 }
