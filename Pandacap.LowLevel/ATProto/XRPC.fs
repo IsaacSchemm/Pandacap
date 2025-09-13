@@ -307,7 +307,18 @@ module XRPC =
                         collections = [""]
                     |}
 
-                let private getRecordAsync httpClient credentials did collection rkey sample =
+                type Record<'T> = {
+                    uri: string
+                    cid: string
+                    value: 'T
+                }
+
+                type Page<'T> = {
+                    cursor: string option
+                    records: Record<'T> list
+                }
+
+                let GetRecordAsync httpClient credentials did collection rkey sample =
                     {
                         method = HttpMethod.Get
                         procedureName = "com.atproto.repo.getRecord"
@@ -320,13 +331,13 @@ module XRPC =
                         body = NoBody
                     }
                     |> Requests.performRequestAsync httpClient
-                    |> Requests.thenReadAsAsync {|
+                    |> Requests.thenReadAsAsync {
                         uri = ""
                         cid = ""
                         value = sample
-                    |}
+                    }
 
-                let private listRecordsAsync httpClient credentials did collection limit cursor direction sample =
+                let ListRecordsAsync httpClient credentials did collection limit cursor direction sample =
                     {
                         method = HttpMethod.Get
                         procedureName = "com.atproto.repo.listRecords"
@@ -336,8 +347,9 @@ module XRPC =
 
                             "limit", sprintf "%d" limit
 
-                            if not (isNull cursor) then
-                                "cursor", cursor
+                            match cursor with
+                            | Some c -> "cursor", c
+                            | None -> ()
 
                             match direction with
                             | Forward -> ()
@@ -347,244 +359,14 @@ module XRPC =
                         body = NoBody
                     }
                     |> Requests.performRequestAsync httpClient
-                    |> Requests.thenReadAsAsync {|
+                    |> Requests.thenReadAsAsync {
                         cursor = Some ""
-                        records = [{|
+                        records = [{
                             uri = ""
                             cid = ""
                             value = sample
-                        |}]
-                    |}
-
-                module BlueskyProfile =
-                    let ListRecordsAsync httpClient credentials did limit cursor direction =
-                        listRecordsAsync httpClient credentials did NSIDs.App.Bsky.Actor.Profile limit cursor direction {|
-                            avatar = Some {|
-                                ref = Some {|
-                                    ``$link`` = ""
-                                |}
-                                mimeType = ""
-                                size = Some 0
-                                cid = Some ""
-                            |}
-                            displayName = Some ""
-                            description = Some ""
-                        |}
-                        |> Requests.thenMapAsync (fun l -> {
-                            Cursor = Option.toObj l.cursor
-                            Items = [
-                                for x in l.records do {
-                                    Ref = {
-                                        CID = x.cid
-                                        Uri = { Raw = x.uri }
-                                    }
-                                    Value = {
-                                        AvatarCID =
-                                            x.value.avatar
-                                            |> Option.bind (fun a ->
-                                                a.ref
-                                                |> Option.map (fun r -> r.``$link``)
-                                                |> Option.orElse a.cid)
-                                            |> Option.toObj
-                                        DisplayName = Option.toObj x.value.displayName
-                                        Description = Option.toObj x.value.description
-                                    }
-                                }
-                            ]
-                        })
-
-                module BlueskyPost =
-                    let private sample = {|
-                        text = ""
-                        embed = Some {|
-                            images = Some [{|
-                                alt = Some ""
-                                image = {|
-                                    ref = Some {|
-                                        ``$link`` = ""
-                                    |}
-                                    mimeType = ""
-                                    size = Some 0
-                                    cid = Some ""
-                                |}
-                            |}]
-                            record = Some {|
-                                cid = ""
-                                uri = ""
-                            |}
-                        |}
-                        reply = Some {|
-                            parent = {|
-                                cid = ""
-                                uri = ""
-                            |}
-                            root = {|
-                                cid = ""
-                                uri = ""
-                            |}
-                        |}
-                        bridgyOriginalUrl = Some ""
-                        labels = Some {|
-                            values = [{|
-                                ``val`` = ""
-                            |}]
-                        |}
-                        createdAt = DateTimeOffset.MinValue
-                    |}
-
-                    let private translate item =
-                        let _ = [item; sample]
-
-                        {
-                            Text = item.text
-                            Images =
-                                item.embed
-                                |> Option.bind (fun e -> e.images)
-                                |> Option.defaultValue []
-                                |> List.map (fun image -> {
-                                    CID =
-                                        image.image.ref
-                                        |> Option.map (fun r -> r.``$link``)
-                                        |> Option.orElse image.image.cid
-                                        |> Option.get
-                                    Alt = image.alt |> Option.defaultValue ""
-                                })
-                            Quoted =
-                                item.embed
-                                |> Option.bind (fun e -> e.record)
-                                |> Option.map (fun r -> {
-                                    CID = r.cid
-                                    Uri = { Raw = r.uri }
-                                })
-                                |> Option.toList
-                            InReplyTo =
-                                item.reply
-                                |> Option.map (fun r -> {
-                                    Parent = {
-                                        CID = r.parent.cid
-                                        Uri = { Raw = r.parent.uri }
-                                    }
-                                    Root = {
-                                        CID = r.root.cid
-                                        Uri = { Raw = r.root.uri }
-                                    }
-                                })
-                                |> Option.toList
-                            BridgyOriginalUrl = Option.toObj item.bridgyOriginalUrl
-                            Labels =
-                                item.labels
-                                |> Option.map (fun l -> l.values)
-                                |> Option.defaultValue []
-                                |> List.map (fun v -> v.``val``)
-                            CreatedAt = item.createdAt
-                        }
-
-                    let GetRecordAsync httpClient credentials did rkey =
-                        getRecordAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post rkey sample
-                        |> Requests.thenMapAsync (fun x -> {
-                            Ref = {
-                                CID = x.cid
-                                Uri = { Raw = x.uri }
-                            }
-                            Value = translate x.value
-                        })
-
-                    let ListRecordsAsync httpClient credentials did limit cursor direction =
-                        listRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post limit cursor direction sample
-                        |> Requests.thenMapAsync (fun l -> {
-                            Cursor = Option.toObj l.cursor
-                            Items = [
-                                for x in l.records do {
-                                    Ref = {
-                                        CID = x.cid
-                                        Uri = { Raw = x.uri }
-                                    }
-                                    Value = translate x.value
-                                }
-                            ]
-                        })
-
-                module BlueskyLike =
-                    let ListRecordsAsync httpClient credentials did limit cursor direction =
-                        listRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Like limit cursor direction {|
-                            createdAt = DateTimeOffset.MinValue
-                            subject = {|
-                                uri = ""
-                                cid = ""
-                            |}
-                        |}
-                        |> Requests.thenMapAsync (fun l -> {
-                            Cursor = Option.toObj l.cursor
-                            Items = [
-                                for x in l.records do {
-                                    Ref = {
-                                        CID = x.cid
-                                        Uri = { Raw = x.uri }
-                                    }
-                                    Value = {
-                                        CreatedAt = x.value.createdAt
-                                        Subject = {
-                                            CID = x.value.subject.cid
-                                            Uri = { Raw = x.value.subject.uri }
-                                        }
-                                    }
-                                }
-                            ]
-                        })
-
-                module BlueskyRepost =
-                    let ListRecordsAsync httpClient credentials did limit cursor direction =
-                        listRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Repost limit cursor direction {|
-                            createdAt = DateTimeOffset.MinValue
-                            subject = {|
-                                uri = ""
-                                cid = ""
-                            |}
-                        |}
-                        |> Requests.thenMapAsync (fun l -> {
-                            Cursor = Option.toObj l.cursor
-                            Items = [
-                                for x in l.records do {
-                                    Ref = {
-                                        CID = x.cid
-                                        Uri = { Raw = x.uri }
-                                    }
-                                    Value = {
-                                        CreatedAt = x.value.createdAt
-                                        Subject = {
-                                            CID = x.value.subject.cid
-                                            Uri = { Raw = x.value.subject.uri }
-                                        }
-                                    }
-                                }
-                            ]
-                        })
-
-                module WhitewindBlogEntry =
-                    let ListRecordsAsync httpClient credentials did limit cursor direction =
-                        listRecordsAsync httpClient credentials did NSIDs.Com.Whtwnd.Blog.Entry limit cursor direction {|
-                            content = ""
-                            createdAt = Some DateTimeOffset.MinValue
-                            title = Some ""
-                            visibility = Some ""
-                        |}
-                        |> Requests.thenMapAsync (fun l -> {
-                            Cursor = Option.toObj l.cursor
-                            Items = [
-                                for x in l.records do {
-                                    Ref = {
-                                        CID = x.cid
-                                        Uri = { Raw = x.uri }
-                                    }
-                                    Value = {
-                                        Title = Option.toObj x.value.title
-                                        Content = x.value.content
-                                        CreatedAt = Option.toNullable x.value.createdAt
-                                        Public = x.value.visibility = Some "public"
-                                    }
-                                }
-                            ]
-                        })
+                        }]
+                    }
 
                 let GetBlobAsync httpClient credentials did cid = task {
                     use! resp = Requests.performRequestAsync httpClient {

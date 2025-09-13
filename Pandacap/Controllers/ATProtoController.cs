@@ -289,13 +289,13 @@ namespace Pandacap.Controllers
 
             var doc = await didResolver.ResolveAsync(did);
 
-            var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
+            var post = await RecordEnumeration.BlueskyPost.GetRecordAsync(
                 client,
                 XRPC.Host.Unauthenticated(doc.PDS),
                 did,
                 rkey);
 
-            var profiles = await XRPC.Com.Atproto.Repo.BlueskyProfile.ListRecordsAsync(
+            var profiles = await RecordEnumeration.BlueskyProfile.ListRecordsAsync(
                 client,
                 XRPC.Host.Unauthenticated(doc.PDS),
                 did,
@@ -358,13 +358,13 @@ namespace Pandacap.Controllers
 
             var doc = await didResolver.ResolveAsync(did);
 
-            var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
+            var post = await RecordEnumeration.BlueskyPost.GetRecordAsync(
                 client,
                 XRPC.Host.Unauthenticated(doc.PDS),
                 did,
                 rkey);
 
-            var profiles = await XRPC.Com.Atproto.Repo.BlueskyProfile.ListRecordsAsync(
+            var profiles = await RecordEnumeration.BlueskyProfile.ListRecordsAsync(
                 client,
                 XRPC.Host.Unauthenticated(doc.PDS),
                 did,
@@ -407,7 +407,7 @@ namespace Pandacap.Controllers
 
             var doc = await didResolver.ResolveAsync(author_did);
 
-            var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
+            var post = await RecordEnumeration.BlueskyPost.GetRecordAsync(
                 client,
                 XRPC.Host.Unauthenticated(doc.PDS),
                 author_did,
@@ -497,7 +497,7 @@ namespace Pandacap.Controllers
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
+            var post = await RecordEnumeration.BlueskyPost.GetRecordAsync(
                 httpClient,
                 credentials,
                 author_did,
@@ -543,7 +543,7 @@ namespace Pandacap.Controllers
             using var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
+            var post = await RecordEnumeration.BlueskyPost.GetRecordAsync(
                 httpClient,
                 credentials,
                 did,

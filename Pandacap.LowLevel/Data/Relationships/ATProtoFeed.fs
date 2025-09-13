@@ -1,5 +1,6 @@
 ﻿namespace Pandacap.Data
 
+open System
 open System.Collections.Generic
 open System.ComponentModel.DataAnnotations
 open Pandacap.PlatformBadges
@@ -21,9 +22,12 @@ type ATProtoFeed() =
     member val AvatarCID = nullString with get, set
 
     member val NSIDs = new ResizeArray<string>() with get, set
+    
+    [<Obsolete>]
     member val Cursors = new Dictionary<string, string>() with get, set
 
     member val LastCommitCID = nullString with get, set
+    member val LastCIDsSeen = new ResizeArray<string>() with get, set
 
     interface IFollow with
         member this.Filtered =

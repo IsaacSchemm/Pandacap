@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.FSharp.Collections;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -41,7 +42,7 @@ namespace Pandacap.HighLevel.ATProto
                 var doc = await didResolver.ResolveAsync(
                     interaction.Value.Subject.Uri.Components.DID);
 
-                var subject = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
+                var subject = await RecordEnumeration.BlueskyPost.GetRecordAsync(
                     client,
                     XRPC.Host.Unauthenticated(doc.PDS),
                     interaction.Value.Subject.Uri.Components.DID,
@@ -193,7 +194,6 @@ namespace Pandacap.HighLevel.ATProto
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var feed = await context.ATProtoFeeds.SingleAsync(f => f.DID == did);
-            feed.Cursors ??= [];
 
             var doc = await didResolver.ResolveAsync(did);
 
@@ -214,7 +214,10 @@ namespace Pandacap.HighLevel.ATProto
             feed.CurrentPDS = doc.PDS;
             feed.Handle = doc.Handle;
 
-            var blueskyProfiles = await XRPC.Com.Atproto.Repo.BlueskyProfile.ListRecordsAsync(
+            FSharpSet<string> seenLastTime = [.. feed.LastCIDsSeen ?? []];
+            List<string> seenThisTime = [];
+
+            var blueskyProfiles = await RecordEnumeration.BlueskyProfile.ListRecordsAsync(
                 client,
                 pds,
                 did,
@@ -230,31 +233,19 @@ namespace Pandacap.HighLevel.ATProto
 
             if (feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Like))
             {
-                if (!feed.Cursors.TryGetValue(NSIDs.App.Bsky.Feed.Like, out var _))
-                {
-                    var page = await XRPC.Com.Atproto.Repo.BlueskyLike.ListRecordsAsync(
-                        client,
-                        pds,
-                        did,
-                        21,
-                        null,
-                        ATProtoListDirection.Forward);
-
-                    feed.Cursors[NSIDs.App.Bsky.Feed.Like] = page.Cursor;
-                }
-
-                var cursor = feed.Cursors[NSIDs.App.Bsky.Feed.Like];
-
-                var likes = await XRPC.Com.Atproto.Repo.BlueskyLike.ListRecordsAsync(
+                var likes = await RecordEnumeration.BlueskyLike.FindNewestRecordsAsync(
                     client,
                     pds,
                     did,
-                    100,
-                    cursor,
-                    ATProtoListDirection.Reverse);
+                    pageSize: 20);
 
-                foreach (var like in likes.Items)
+                foreach (var like in likes)
                 {
+                    seenThisTime.Add(like.Ref.CID);
+
+                    if (seenLastTime.Contains(like.Ref.CID))
+                        continue;
+
                     var existing = await context.BlueskyLikeFeedItems.FindAsync(like.Ref.CID);
                     if (existing != null)
                         context.BlueskyLikeFeedItems.Remove(existing);
@@ -267,38 +258,23 @@ namespace Pandacap.HighLevel.ATProto
 
                     AddLikeToContext(feed, like, info);
                 }
-
-                if (likes.Cursor is string next)
-                    feed.Cursors[NSIDs.App.Bsky.Feed.Like] = next;
             }
 
             if (feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Post))
             {
-                if (!feed.Cursors.TryGetValue(NSIDs.App.Bsky.Feed.Post, out var _))
-                {
-                    var page = await XRPC.Com.Atproto.Repo.BlueskyPost.ListRecordsAsync(
-                        client,
-                        pds,
-                        did,
-                        21,
-                        null,
-                        ATProtoListDirection.Forward);
-
-                    feed.Cursors[NSIDs.App.Bsky.Feed.Post] = page.Cursor;
-                }
-
-                var cursor = feed.Cursors[NSIDs.App.Bsky.Feed.Post];
-
-                var posts = await XRPC.Com.Atproto.Repo.BlueskyPost.ListRecordsAsync(
+                var posts = await RecordEnumeration.BlueskyPost.FindNewestRecordsAsync(
                     client,
                     pds,
                     did,
-                    100,
-                    cursor,
-                    ATProtoListDirection.Reverse);
+                    pageSize: 20);
 
-                foreach (var post in posts.Items)
+                foreach (var post in posts)
                 {
+                    seenThisTime.Add(post.Ref.CID);
+
+                    if (seenLastTime.Contains(post.Ref.CID))
+                        continue;
+
                     if (!PostMatchesFilters(feed, post))
                         continue;
 
@@ -308,38 +284,23 @@ namespace Pandacap.HighLevel.ATProto
 
                     AddToContext(feed, post);
                 }
-
-                if (posts.Cursor is string next)
-                    feed.Cursors[NSIDs.App.Bsky.Feed.Post] = next;
             }
 
             if (feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Repost))
             {
-                if (!feed.Cursors.TryGetValue(NSIDs.App.Bsky.Feed.Repost, out var _))
-                {
-                    var page = await XRPC.Com.Atproto.Repo.BlueskyRepost.ListRecordsAsync(
-                        client,
-                        pds,
-                        did,
-                        21,
-                        null,
-                        ATProtoListDirection.Forward);
-
-                    feed.Cursors[NSIDs.App.Bsky.Feed.Repost] = page.Cursor;
-                }
-
-                var cursor = feed.Cursors[NSIDs.App.Bsky.Feed.Repost];
-
-                var reposts = await XRPC.Com.Atproto.Repo.BlueskyRepost.ListRecordsAsync(
+                var reposts = await RecordEnumeration.BlueskyRepost.FindNewestRecordsAsync(
                     client,
                     pds,
                     did,
-                    100,
-                    cursor,
-                    ATProtoListDirection.Reverse);
+                    pageSize: 20);
 
-                foreach (var repost in reposts.Items)
+                foreach (var repost in reposts)
                 {
+                    seenThisTime.Add(repost.Ref.CID);
+
+                    if (seenLastTime.Contains(repost.Ref.CID))
+                        continue;
+
                     var existing = await context.BlueskyRepostFeedItems.FindAsync(repost.Ref.CID);
                     if (existing != null)
                         context.BlueskyRepostFeedItems.Remove(existing);
@@ -352,48 +313,32 @@ namespace Pandacap.HighLevel.ATProto
 
                     AddRepostToContext(feed, repost, info);
                 }
-
-                if (reposts.Cursor is string next)
-                    feed.Cursors[NSIDs.App.Bsky.Feed.Repost] = next;
             }
 
             if (feed.NSIDs.Contains(NSIDs.Com.Whtwnd.Blog.Entry))
             {
-                if (!feed.Cursors.TryGetValue(NSIDs.Com.Whtwnd.Blog.Entry, out var _))
-                {
-                    var page = await XRPC.Com.Atproto.Repo.WhitewindBlogEntry.ListRecordsAsync(
-                        client,
-                        pds,
-                        did,
-                        21,
-                        null,
-                        ATProtoListDirection.Forward);
-
-                    feed.Cursors[NSIDs.Com.Whtwnd.Blog.Entry] = page.Cursor;
-                }
-
-                var cursor = feed.Cursors[NSIDs.Com.Whtwnd.Blog.Entry];
-
-                var blogEntries = await XRPC.Com.Atproto.Repo.WhitewindBlogEntry.ListRecordsAsync(
+                var blogEntries = await RecordEnumeration.WhitewindBlogEntry.FindNewestRecordsAsync(
                     client,
                     pds,
                     did,
-                    100,
-                    cursor,
-                    ATProtoListDirection.Reverse);
+                    pageSize: 20);
 
-                foreach (var blogEntry in blogEntries.Items)
+                foreach (var blogEntry in blogEntries)
                 {
+                    seenThisTime.Add(blogEntry.Ref.CID);
+
+                    if (seenLastTime.Contains(blogEntry.Ref.CID))
+                        continue;
+
                     var existing = await context.WhiteWindBlogEntryFeedItems.FindAsync(blogEntry.Ref.CID);
                     if (existing != null)
                         context.WhiteWindBlogEntryFeedItems.Remove(existing);
 
                     AddToContext(feed, blogEntry);
                 }
-
-                if (blogEntries.Cursor is string next)
-                    feed.Cursors[NSIDs.Com.Whtwnd.Blog.Entry] = next;
             }
+
+            feed.LastCIDsSeen = [.. seenThisTime];
 
             await context.SaveChangesAsync();
         }
