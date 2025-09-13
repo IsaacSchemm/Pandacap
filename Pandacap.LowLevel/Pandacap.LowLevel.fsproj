@@ -53,6 +53,7 @@
     <Compile Include="ATProto\Types.fs" />
     <Compile Include="ATProto\XRPC.fs" />
     <Compile Include="ATProto\RecordEnumeration.fs" />
+    <Compile Include="ATProto\ConstellationClient.fs" />
     <Compile Include="Podcasts\WmaZipSplitter.fs" />
     <Compile Include="Data\IPost.fs" />
     <Compile Include="Data\IInboxPost.fs" />
