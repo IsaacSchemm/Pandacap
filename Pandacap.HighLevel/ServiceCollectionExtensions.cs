@@ -7,7 +7,6 @@ using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.HighLevel.Lemmy;
-using Pandacap.HighLevel.Notifications;
 using Pandacap.HighLevel.RssInbound;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.Weasyl;
@@ -33,31 +32,21 @@ namespace Pandacap.HighLevel
                 .AddScoped<ActivityPub.RelationshipTranslator>()
                 .AddScoped<ActivityPub.InteractionTranslator>()
                 .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
-                .AddScoped<ActivityPubNotificationHandler>()
-                .AddScoped<ActivityPubReplyNotificationHandler>()
                 .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoCredentialProvider>()
                 .AddScoped<ATProtoFeedReader>()
-                .AddScoped<BlueskyNotificationHandler>()
                 .AddScoped<CompositeFavoritesProvider>()
-                .AddScoped<CompositeNotificationHandler>()
                 .AddScoped<DeviantArtCredentialProvider>()
-                .AddScoped<DeviantArtFeedNotificationHandler>()
-                .AddScoped<DeviantArtNoteNotificationHandler>()
                 .AddScoped<DIDResolver>()
                 .AddScoped<FavoritesFeedBuilder>()
                 .AddScoped<FeedBuilder>()
-                .AddScoped<FurAffinityNoteNotificationHandler>()
-                .AddScoped<FurAffinityNotificationHandler>()
                 .AddScoped<FurryNetworkClient>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<IMyLinkService, MyLinkService>()
                 .AddScoped<WeasylClientFactory>()
-                .AddScoped<WeasylNoteNotificationHandler>()
-                .AddScoped<WebFingerService>()
-                .AddScoped<WeasylNotificationHandler>();
+                .AddScoped<WebFingerService>();
         }
     }
 }

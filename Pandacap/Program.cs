@@ -10,6 +10,7 @@ using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
+using Pandacap.HighLevel.Notifications;
 using Pandacap.Podcasts;
 using Pandacap.Signatures;
 
@@ -85,18 +86,28 @@ builder.Services
         username: builder.Configuration["ActivityPubUsername"],
         keyVaultHostname: builder.Configuration["KeyVaultHostname"],
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
+    .AddScoped<ActivityPubNotificationHandler>()
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
+    .AddScoped<ActivityPubReplyNotificationHandler>()
+    .AddScoped<BlueskyNotificationHandler>()
     .AddScoped<BridgyFedHandleProvider>()
     .AddScoped<CompositeFavoritesProvider>()
+    .AddScoped<CompositeNotificationHandler>()
     .AddScoped<ComputerVisionProvider>()
     .AddScoped<DeliveryInboxCollector>()
+    .AddScoped<DeviantArtFeedNotificationHandler>()
+    .AddScoped<DeviantArtNoteNotificationHandler>()
+    .AddScoped<FurAffinityNoteNotificationHandler>()
+    .AddScoped<FurAffinityNotificationHandler>()
     .AddScoped<MastodonVerifier>()
     .AddScoped<PostCreator>()
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>()
     .AddScoped<SvgRenderer>()
     .AddScoped<Uploader>()
+    .AddScoped<WeasylNoteNotificationHandler>()
+    .AddScoped<WeasylNotificationHandler>()
     .AddScoped<WmaZipSplitter>();
 
 builder.Services.AddHttpClient();
