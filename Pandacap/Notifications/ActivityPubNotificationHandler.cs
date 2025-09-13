@@ -2,7 +2,7 @@
 using Pandacap.Data;
 using Pandacap.PlatformBadges;
 
-namespace Pandacap.HighLevel.Notifications
+namespace Pandacap.Notifications
 {
     public class ActivityPubNotificationHandler(
         IDbContextFactory<PandacapDbContext> contextFactory,

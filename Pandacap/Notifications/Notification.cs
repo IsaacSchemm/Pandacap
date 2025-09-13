@@ -1,6 +1,6 @@
 ﻿using Pandacap.PlatformBadges;
 
-namespace Pandacap.HighLevel.Notifications
+namespace Pandacap.Notifications
 {
     public record Notification
     {

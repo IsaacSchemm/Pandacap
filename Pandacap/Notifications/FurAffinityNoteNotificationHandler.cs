@@ -3,7 +3,7 @@ using Pandacap.Data;
 using Pandacap.FurAffinity;
 using Pandacap.PlatformBadges;
 
-namespace Pandacap.HighLevel.Notifications
+namespace Pandacap.Notifications
 {
     public class FurAffinityNoteNotificationHandler(
         PandacapDbContext context,

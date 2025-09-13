@@ -1,9 +1,9 @@
-﻿using Pandacap.Clients;
-using Pandacap.Clients.ATProto;
+﻿using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
+using Pandacap.HighLevel;
 using Pandacap.PlatformBadges;
 
-namespace Pandacap.HighLevel.Notifications
+namespace Pandacap.Notifications
 {
     public class ConstellationNotificationHandler(
         BridgyFedHandleProvider bridgyFedHandleProvider,

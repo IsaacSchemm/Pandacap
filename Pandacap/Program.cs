@@ -10,7 +10,7 @@ using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
-using Pandacap.HighLevel.Notifications;
+using Pandacap.Notifications;
 using Pandacap.Podcasts;
 using Pandacap.Signatures;
 

@@ -1,4 +1,6 @@
-﻿namespace Pandacap.HighLevel.Notifications
+﻿using Pandacap.HighLevel;
+
+namespace Pandacap.Notifications
 {
     public class CompositeNotificationHandler(
         ActivityPubNotificationHandler activityPubNotificationHandler,

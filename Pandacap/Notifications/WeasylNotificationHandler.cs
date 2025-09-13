@@ -1,8 +1,8 @@
 ﻿using Pandacap.HighLevel.Weasyl;
-using Pandacap.Clients;
 using Pandacap.PlatformBadges;
+using Pandacap.HighLevel;
 
-namespace Pandacap.HighLevel.Notifications
+namespace Pandacap.Notifications
 {
     public class WeasylNotificationHandler(
         WeasylClientFactory weasylClientFactory

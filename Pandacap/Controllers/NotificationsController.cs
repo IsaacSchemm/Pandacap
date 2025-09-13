@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.HighLevel.Notifications;
+using Pandacap.Notifications;
 
 namespace Pandacap.Controllers
 {

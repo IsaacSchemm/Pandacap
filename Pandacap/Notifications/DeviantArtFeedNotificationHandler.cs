@@ -3,7 +3,7 @@ using Pandacap.HighLevel.DeviantArt;
 using Pandacap.Clients;
 using Pandacap.PlatformBadges;
 
-namespace Pandacap.HighLevel.Notifications
+namespace Pandacap.Notifications
 {
     public class DeviantArtFeedNotificationHandler(
         DeviantArtCredentialProvider deviantArtCredentialProvider

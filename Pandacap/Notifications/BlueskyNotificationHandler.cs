@@ -1,9 +1,10 @@
 ﻿using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
+using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.PlatformBadges;
 
-namespace Pandacap.HighLevel.Notifications
+namespace Pandacap.Notifications
 {
     public class BlueskyNotificationHandler(
         ATProtoCredentialProvider atProtoCredentialProvider,

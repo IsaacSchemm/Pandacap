@@ -1,4 +1,4 @@
-﻿namespace Pandacap.HighLevel.Notifications
+﻿namespace Pandacap.Notifications
 {
     public interface INotificationHandler
     {
