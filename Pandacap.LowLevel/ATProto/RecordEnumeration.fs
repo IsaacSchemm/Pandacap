@@ -24,21 +24,19 @@ module RecordEnumeration =
             let mutable cursor = forward.cursor
             
             let pages = ResizeArray [forward]
-            let mutable pageCount = 1
 
             while Option.isSome cursor do
-                if pageCount >= 5 then
+                if pages.Count >= 200 then
                     failwithf "Too many records to enumerate in repository %s (and cannot enumerate from both ends)" did
 
-                let! page = func pageSize cursor ATProtoListDirection.Forward sample
+                let! page = func 50 cursor ATProtoListDirection.Forward sample
                 pages.Add(page)
                 cursor <- page.cursor
-
-                pageCount <- pageCount + 1
 
             return
                 pages
                 |> Seq.collect (fun page -> page.records)
+                |> Seq.distinctBy (fun page -> page.uri)
                 |> Seq.sortByDescending (fun record -> record.uri)
                 |> Seq.truncate pageSize
                 |> Seq.toList

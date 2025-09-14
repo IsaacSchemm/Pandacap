@@ -37,6 +37,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ATProtoCredentialProvider>()
                 .AddScoped<ATProtoFeedReader>()
                 .AddScoped<CompositeFavoritesProvider>()
+                .AddScoped<ConstellationClient>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DIDResolver>()
                 .AddScoped<FavoritesFeedBuilder>()

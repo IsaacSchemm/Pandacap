@@ -6,6 +6,7 @@ using Microsoft.Extensions.Azure;
 using Pandacap;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Clients;
+using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -72,13 +73,16 @@ builder.Services.AddAuthentication()
         o.SaveTokens = true;
     });
 
+builder.Services.AddSingleton(new ComputerVisionConfiguration(
+    builder.Configuration["ComputerVisionEndpoint"]!,
+    builder.Configuration["Authentication:Microsoft:TenantId"]!));
+
+builder.Services.AddSingleton(new ConstellationHost(
+    builder.Configuration["ConstellationHost"]));
+
 builder.Services.AddSingleton(new DeviantArtApp(
     builder.Configuration["DeviantArtClientId"]!,
     builder.Configuration["DeviantArtClientSecret"]!));
-
-builder.Services.AddSingleton(new ComputerVisionConfiguration(
-    builder.Configuration["ComputerVisionEndpoint"],
-    builder.Configuration["Authentication:Microsoft:TenantId"]));
 
 builder.Services
     .AddPandacapServices(new(
@@ -95,6 +99,7 @@ builder.Services
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<CompositeNotificationHandler>()
     .AddScoped<ComputerVisionProvider>()
+    .AddScoped<ConstellationNotificationHandler>()
     .AddScoped<DeliveryInboxCollector>()
     .AddScoped<DeviantArtFeedNotificationHandler>()
     .AddScoped<DeviantArtNoteNotificationHandler>()

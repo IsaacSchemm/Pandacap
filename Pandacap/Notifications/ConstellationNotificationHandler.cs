@@ -1,10 +1,8 @@
-﻿using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
-using Pandacap.Clients.ATProto;
+﻿using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.PlatformBadges;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Pandacap.Notifications
 {
@@ -16,27 +14,27 @@ namespace Pandacap.Notifications
         IHttpClientFactory httpClientFactory
     ) : INotificationHandler
     {
-        private const int MAX_PER_TYPE = 25;
-
-        private record Account(
-            string DID,
-            XRPC.IHost Host);
-
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
+            HashSet<string> dids = [];
+
             foreach (var credential in await atProtoCredentialProvider.GetAllCredentialsAsync())
-                await foreach (var notification in GetNotificationsAsync(credential.DID))
-                    yield return notification;
+                dids.Add(credential.DID);
 
             if (await bridgyFedDIDProvider.GetDIDAsync() is string bridgy_did)
-                await foreach (var notification in GetNotificationsAsync(bridgy_did))
-                    yield return notification;
+                dids.Add(bridgy_did);
+
+            var combined = dids
+                .ToAsyncEnumerable()
+                .SelectMany(GetNotificationsAsync)
+                .OrderByDescending(n => n.Timestamp);
+
+            await foreach (var notification in combined)
+                yield return notification;
         }
 
         public async IAsyncEnumerable<Notification> GetNotificationsAsync(string did)
         {
-            var cutoff = DateTimeOffset.UtcNow.AddDays(-75);
-
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
@@ -44,7 +42,7 @@ namespace Pandacap.Notifications
 
             await foreach (var mention in constellationClient.ListMentionsAsync(
                 did,
-                CancellationToken.None).Take(MAX_PER_TYPE))
+                CancellationToken.None).Take(10))
             {
                 var doc = await didResolver.ResolveAsync(mention.Components.DID);
                 var post = await RecordEnumeration.BlueskyPost.GetRecordAsync(
@@ -52,8 +50,6 @@ namespace Pandacap.Notifications
                     XRPC.Host.Unauthenticated(doc.PDS),
                     mention.Components.DID,
                     mention.Components.RecordKey);
-                if (post.Value.CreatedAt < cutoff)
-                    break;
 
                 yield return new Notification
                 {
@@ -74,20 +70,26 @@ namespace Pandacap.Notifications
                 client,
                 XRPC.Host.Unauthenticated(myDoc.PDS),
                 did,
-                20);
+                10);
+
+            myRecentPosts = [.. myRecentPosts.Where(post => post.Value.CreatedAt > DateTimeOffset.UtcNow.AddDays(-30))];
 
             var replies = myRecentPosts
                 .ToAsyncEnumerable()
-                .Where(post => post.Value.CreatedAt >= cutoff)
                 .SelectMany(post => constellationClient.ListRepliesAsync(
                     post.Ref.Uri.Components.DID,
                     post.Ref.Uri.Components.RecordKey,
-                    CancellationToken.None))
-                .Take(MAX_PER_TYPE);
+                    CancellationToken.None).Take(10));
 
             await foreach (var reply in replies)
             {
                 var doc = await didResolver.ResolveAsync(reply.Components.DID);
+
+                var record = await RecordEnumeration.BlueskyPost.GetRecordAsync(
+                    client,
+                    XRPC.Host.Unauthenticated(doc.PDS),
+                    reply.Components.DID,
+                    reply.Components.RecordKey);
 
                 yield return new Notification
                 {
@@ -99,67 +101,72 @@ namespace Pandacap.Notifications
                     Url = $"https://bsky.app/profile/{reply.Components.DID}/post/{reply.Components.RecordKey}",
                     UserName = doc.Handle,
                     UserUrl = $"https://bsky.app/profile/{reply.Components.DID}",
-                    PostUrl = $"https://bsky.app/profile/{did}",
+                    PostUrl = $"https://bsky.app/profile/{did}/post/{record.Value.InReplyTo[0].Parent.Uri.Components.RecordKey}",
                     Timestamp = DateTimeOffset.UtcNow
                 };
             }
 
-            //var likes = myRecentPosts.Items
-            //    .ToAsyncEnumerable()
-            //    .SelectMany(post => constellationClient.ListLikesAsync(
-            //        post.Ref.Uri.Components.DID,
-            //        post.Ref.Uri.Components.RecordKey,
-            //        CancellationToken.None))
-            //    .Take(MAX_PER_TYPE);
+            var likes = myRecentPosts
+                .ToAsyncEnumerable()
+                .SelectMany(post => constellationClient.ListLikesAsync(
+                    post.Ref.Uri.Components.DID,
+                    post.Ref.Uri.Components.RecordKey,
+                    CancellationToken.None).Take(10));
 
-            //await foreach (var like in likes)
-            //{
-            //    var doc = await didResolver.ResolveAsync(like.Components.DID);
+            await foreach (var like in likes)
+            {
+                var doc = await didResolver.ResolveAsync(like.Components.DID);
 
-            //    yield return new Notification
-            //    {
-            //        Platform = new NotificationPlatform(
-            //            "Constellation",
-            //            PostPlatformModule.GetBadge(PostPlatform.ATProto),
-            //            $"https://{constellationClient.Host}"),
-            //        ActivityName = "Like",
-            //        UserName = doc.Handle,
-            //        UserUrl = $"https://bsky.app/profile/{like.Components.DID}",
-            //        PostUrl = $"https://bsky.app/profile/{did}",
-            //        Timestamp = DateTimeOffset.UtcNow
-            //    };
-            //}
+                var record = await RecordEnumeration.BlueskyLike.GetRecordAsync(
+                    client,
+                    XRPC.Host.Unauthenticated(doc.PDS),
+                    like.Components.DID,
+                    like.Components.RecordKey);
 
-            //var reposts = myRecentPosts.Items
-            //    .ToAsyncEnumerable()
-            //    .SelectMany(post => constellationClient.ListRepostsAsync(
-            //        post.Ref.Uri.Components.DID,
-            //        post.Ref.Uri.Components.RecordKey,
-            //        CancellationToken.None))
-            //    .Take(MAX_PER_TYPE);
+                yield return new Notification
+                {
+                    Platform = new NotificationPlatform(
+                        "Constellation",
+                        PostPlatformModule.GetBadge(PostPlatform.ATProto),
+                        $"https://{constellationClient.Host}"),
+                    ActivityName = "Like",
+                    UserName = doc.Handle,
+                    UserUrl = $"https://bsky.app/profile/{like.Components.DID}",
+                    PostUrl = $"https://bsky.app/profile/{did}/post/{record.Value.Subject.Uri.Components.RecordKey}",
+                    Timestamp = record.Value.CreatedAt
+                };
+            }
 
-            //await foreach (var repost in reposts)
-            //{
-            //    var doc = await didResolver.ResolveAsync(repost.Components.DID);
-            //    var post = await XRPC.Com.Atproto.Repo.BlueskyPost.GetRecordAsync(
-            //        client,
-            //        XRPC.Host.Unauthenticated(doc.PDS),
-            //        repost.Components.DID,
-            //        repost.Components.RecordKey);
+            var reposts = myRecentPosts
+                .ToAsyncEnumerable()
+                .SelectMany(post => constellationClient.ListRepostsAsync(
+                    post.Ref.Uri.Components.DID,
+                    post.Ref.Uri.Components.RecordKey,
+                    CancellationToken.None).Take(10));
 
-            //    yield return new Notification
-            //    {
-            //        Platform = new NotificationPlatform(
-            //            "Constellation",
-            //            PostPlatformModule.GetBadge(PostPlatform.ATProto),
-            //            $"https://{constellationClient.Host}"),
-            //        ActivityName = "Repost",
-            //        UserName = doc.Handle,
-            //        UserUrl = $"https://bsky.app/profile/{repost.Components.DID}",
-            //        PostUrl = $"https://bsky.app/profile/{did}",
-            //        Timestamp = post.Value.CreatedAt
-            //    };
-            //}
+            await foreach (var repost in reposts)
+            {
+                var doc = await didResolver.ResolveAsync(repost.Components.DID);
+
+                var record = await RecordEnumeration.BlueskyLike.GetRecordAsync(
+                    client,
+                    XRPC.Host.Unauthenticated(doc.PDS),
+                    repost.Components.DID,
+                    repost.Components.RecordKey);
+
+                yield return new Notification
+                {
+                    Platform = new NotificationPlatform(
+                        "Constellation",
+                        PostPlatformModule.GetBadge(PostPlatform.ATProto),
+                        $"https://{constellationClient.Host}"),
+                    ActivityName = "Repost",
+                    UserName = doc.Handle,
+                    UserUrl = $"https://bsky.app/profile/{repost.Components.DID}",
+                    PostUrl = $"https://bsky.app/profile/{did}/post/{record.Value.Subject.Uri.Components.RecordKey}",
+                    Timestamp = record.Value.CreatedAt
+                };
+            }
         }
     }
 }
