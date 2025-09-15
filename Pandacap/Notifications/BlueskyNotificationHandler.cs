@@ -45,7 +45,7 @@ namespace Pandacap.Notifications
                         Platform = new NotificationPlatform(
                             "Bluesky",
                             PostPlatformModule.GetBadge(PostPlatform.Bluesky),
-                            "https://bsky.app/notifications"),
+                            viewAllUrl: "https://bsky.app/notifications"),
                         ActivityName = item.Reason,
                         Url = item.Reason == "reply"
                             ? $"https://bsky.app/profile/{item.Author.DID}/post/{Uri.EscapeDataString(item.Ref.Uri.Components.RecordKey)}"

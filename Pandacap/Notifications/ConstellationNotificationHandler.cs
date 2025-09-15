@@ -85,9 +85,9 @@ namespace Pandacap.Notifications
                 yield return new Notification
                 {
                     Platform = new NotificationPlatform(
-                        "Constellation",
+                        "ATProto (Constellation)",
                         PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                        $"https://{constellationClient.Host}"),
+                        viewAllUrl: null),
                     ActivityName = "Mention",
                     Url = $"https://bsky.app/profile/{mention.Components.DID}/post/{mention.Components.RecordKey}",
                     UserName = doc?.Handle ?? mention.Components.DID,
@@ -130,9 +130,9 @@ namespace Pandacap.Notifications
                     yield return new Notification
                     {
                         Platform = new NotificationPlatform(
-                            "Constellation",
+                            "ATProto (Constellation)",
                             PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                            $"https://{constellationClient.Host}"),
+                            viewAllUrl: null),
                         ActivityName = "Reply",
                         Url = $"https://bsky.app/profile/{reply.Components.DID}/post/{reply.Components.RecordKey}",
                         UserName = doc?.Handle ?? reply.Components.DID,
@@ -176,9 +176,9 @@ namespace Pandacap.Notifications
                     yield return new Notification
                     {
                         Platform = new NotificationPlatform(
-                            "Constellation",
+                            "ATProto (Constellation)",
                             PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                            $"https://{constellationClient.Host}"),
+                            viewAllUrl: null),
                         ActivityName = "Like",
                         UserName = doc?.Handle ?? like.Components.DID,
                         UserUrl = $"https://bsky.app/profile/{like.Components.DID}",
@@ -221,9 +221,9 @@ namespace Pandacap.Notifications
                     yield return new Notification
                     {
                         Platform = new NotificationPlatform(
-                            "Constellation",
+                            "ATProto (Constellation)",
                             PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                            $"https://{constellationClient.Host}"),
+                            viewAllUrl: null),
                         ActivityName = "Repost",
                         UserName = doc?.Handle ?? repost.Components.DID,
                         UserUrl = $"https://bsky.app/profile/{repost.Components.DID}",

@@ -16,7 +16,7 @@ namespace Pandacap.Notifications
             var platform = new NotificationPlatform(
                 "Weasyl",
                 PostPlatformModule.GetBadge(PostPlatform.Weasyl),
-                "https://www.weasyl.com/notes");
+                viewAllUrl: "https://www.weasyl.com/notes");
 
             foreach (var note in await client.GetNotesAsync())
             {

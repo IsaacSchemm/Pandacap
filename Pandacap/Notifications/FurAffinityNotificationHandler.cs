@@ -30,7 +30,7 @@ namespace Pandacap.Notifications
             var platform = new NotificationPlatform(
                 "Fur Affinity",
                 PostPlatformModule.GetBadge(PostPlatform.FurAffinity),
-                "https://www.furaffinity.net/msg/others/");
+                viewAllUrl: "https://www.furaffinity.net/msg/others/");
 
             var others = await FAExport.Notifications.GetOthersAsync(
                 httpClientFactory,

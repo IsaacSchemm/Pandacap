@@ -24,8 +24,6 @@ type ConstellationClient(
     let readAsAsync (_: 'T) (resp: HttpContent) =
         resp.ReadFromJsonAsync<'T>()
 
-    member _.Host = constellationHost.Hostname
-
     member _.PageLinksAsync(target: string, collection: string, path: string, cursor: string, cancellationToken: CancellationToken) = task {
         use client = createClient ()
         let qs = String.concat "&" [

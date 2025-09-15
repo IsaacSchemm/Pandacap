@@ -29,7 +29,7 @@ namespace Pandacap.Notifications
                     Platform = new NotificationPlatform(
                         "ActivityPub",
                         PostPlatformModule.GetBadge(PostPlatform.ActivityPub),
-                        null),
+                        viewAllUrl: null),
                     ActivityName = "Reply",
                     Url = $"/RemoteReplies/ViewReply?objectId={Uri.EscapeDataString(reply.ObjectId)}",
                     UserName = reply.Username,

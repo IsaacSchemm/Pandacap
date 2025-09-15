@@ -26,7 +26,7 @@ namespace Pandacap.Notifications
                     Platform = new NotificationPlatform(
                         "DeviantArt",
                         PostPlatformModule.GetBadge(PostPlatform.DeviantArt),
-                        "https://www.deviantart.com/notifications"),
+                        viewAllUrl: "https://www.deviantart.com/notifications"),
                     ActivityName = message.type,
                     UserName = message.originator.OrNull()?.username,
                     UserUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(message.originator.OrNull()?.username ?? "")}",

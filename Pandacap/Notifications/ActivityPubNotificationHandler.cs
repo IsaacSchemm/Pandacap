@@ -30,7 +30,7 @@ namespace Pandacap.Notifications
                     Platform = new NotificationPlatform(
                         "ActivityPub",
                         PostPlatformModule.GetBadge(PostPlatform.ActivityPub),
-                        null),
+                        viewAllUrl: null),
                     ActivityName = activity.ActivityType,
                     UserName = activity.ActorId,
                     UserUrl = activity.ActorId,

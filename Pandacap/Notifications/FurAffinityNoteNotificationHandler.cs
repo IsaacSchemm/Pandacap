@@ -37,7 +37,7 @@ namespace Pandacap.Notifications
                         Platform = new NotificationPlatform(
                             "Fur Affinity",
                             PostPlatformModule.GetBadge(PostPlatform.FurAffinity),
-                            "https://www.furaffinity.net/msg/others/"),
+                            viewAllUrl: "https://www.furaffinity.net/msg/others/"),
                         PostUrl = $"https://www.furaffinity.net/viewmessage/{note.note_id}",
                         Timestamp = convertToUtc(note.posted_at),
                         UserName = note.name,
