@@ -190,6 +190,7 @@ Application settings (for the web app only):
 | Authentication:Microsoft:ClientId     | Application (client) ID of the app registration you've created in Entra
 | Authentication:Microsoft:ClientSecret | A client secret generated for the app registration
 | ComputerVisionEndpoint                | URL of the Azure AI Vision endpoint for generating sample alt text
+| ConstellationHost                     | URL of a [Constellation](https://github.com/at-microcosm/microcosm-rs/tree/main/constellation) server for adding ATProto activity to the notifications page
 
 The CosmosDBAccountKey is optional; without it, Pandacap will try to connect
 to Cosmos DB using Entra authentication, which can lead to slower performance.

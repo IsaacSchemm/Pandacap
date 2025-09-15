@@ -99,6 +99,7 @@ builder.Services
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<CompositeNotificationHandler>()
     .AddScoped<ComputerVisionProvider>()
+    .AddScoped<ConstellationClient>()
     .AddScoped<ConstellationNotificationHandler>()
     .AddScoped<DeliveryInboxCollector>()
     .AddScoped<DeviantArtFeedNotificationHandler>()
