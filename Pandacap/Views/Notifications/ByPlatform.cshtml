@@ -52,7 +52,7 @@
                                     @{
                                         var badge = notification.Platform.Badge;
                                         <span class="badge" style="background-color: @badge.Background; color: @badge.Color">
-                                            @badge.Text
+                                            @notification.Platform.DisplayName
                                         </span>
                                     }
                                 </span>

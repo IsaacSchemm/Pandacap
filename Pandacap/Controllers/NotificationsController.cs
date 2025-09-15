@@ -8,7 +8,7 @@ namespace Pandacap.Controllers
     [Authorize]
     public class NotificationsController(CompositeNotificationHandler notificationHandler) : Controller
     {
-        private static readonly DateTimeOffset Cutoff = DateTimeOffset.UtcNow.AddDays(-90);
+        private static readonly DateTimeOffset Cutoff = DateTimeOffset.UtcNow.AddDays(-30);
 
         private async Task<IReadOnlyList<Notification>> CollectNotificationsAsync() =>
             await notificationHandler
