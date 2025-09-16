@@ -4,6 +4,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pandacap.Clients.ATProto;
 using Pandacap.Data;
 using Pandacap.Functions;
 using Pandacap.Functions.ActivityPub;
@@ -35,6 +36,9 @@ var host = new HostBuilder()
                     databaseName: "Pandacap"));
             }
         }
+
+        if (Environment.GetEnvironmentVariable("ConstellationHost") is string constellationHost)
+            services.AddSingleton(new ConstellationHost(constellationHost));
 
         if (Environment.GetEnvironmentVariable("DeviantArtClientId") is string deviantArtClientId
             && Environment.GetEnvironmentVariable("DeviantArtClientSecret") is string deviantArtClientSecret)

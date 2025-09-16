@@ -1,7 +1,7 @@
 ﻿using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 
-namespace Pandacap
+namespace Pandacap.HighLevel.ATProto
 {
     public class BridgyFedDIDProvider(
         ApplicationInformation appInfo,
