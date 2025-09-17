@@ -16,7 +16,7 @@ namespace Pandacap.Models
 
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
-        public int FavoritesCount { get; set; }
+        public int LikesCount { get; set; }
         public int CommunityBookmarksCount { get; set; }
 
         public Post? MostRecentPost => Enumerable.Empty<Post>()

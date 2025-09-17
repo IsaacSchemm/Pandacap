@@ -43,6 +43,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.BlueskyLikes: DbSet<BlueskyLike> = this.Set()
     member this.RemoteActivityPubReplies: DbSet<RemoteActivityPubReply> = this.Set()
     member this.ActivityPubOutboundActivities: DbSet<ActivityPubOutboundActivity> = this.Set()
+    member this.ActivityPubFavorites: DbSet<ActivityPubFavorite> = this.Set()
     member this.ActivityPubLikes: DbSet<ActivityPubLike> = this.Set()
     [<System.Obsolete>] member this.BlueskyFavorites: DbSet<BlueskyFavorite> = this.Set()
     member this.BlueskyPostFavorites: DbSet<BlueskyPostFavorite> = this.Set()

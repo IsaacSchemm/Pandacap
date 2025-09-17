@@ -6,7 +6,7 @@ using Pandacap.HighLevel;
 namespace Pandacap
 {
     /// <summary>
-    /// Adds remote ActivityPub posts to the Pandacap inbox or to its Favorites collection (equivalent to ActivityPub "likes", but fully public).
+    /// Adds remote ActivityPub posts to the Pandacap inbox or to its Favorites or Likes collections.
     /// </summary>
     /// <param name="activityPubRemoteActorService">An object that can retrieve remote ActivityPub actor information</param>
     /// <param name="activityPubRemotePostService">An object that can retrieve remote ActivityPub post information</param>
@@ -158,8 +158,9 @@ namespace Pandacap
         /// Adds a remote ActivityPub post to the Favorites collection.
         /// </summary>
         /// <param name="objectId">The ActivityPub object ID (URL).</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
         /// <returns></returns>
-        public async Task AddRemoteFavoriteAsync(string objectId)
+        public async Task AddRemoteFavoriteAsync(string objectId, CancellationToken cancellationToken)
         {
             var remotePost = await activityPubRemotePostService.FetchPostAsync(objectId, CancellationToken.None);
 
@@ -167,13 +168,13 @@ namespace Pandacap
             if (originalActorId == null)
                 return;
 
-            var originalActor = await activityPubRemoteActorService.FetchActorAsync(originalActorId);
+            var originalActor = await activityPubRemoteActorService.FetchActorAsync(
+                originalActorId,
+                cancellationToken);
 
-            Guid likeGuid = Guid.NewGuid();
-
-            context.Add(new ActivityPubLike
+            context.Add(new ActivityPubFavorite
             {
-                LikeGuid = likeGuid,
+                Id = Guid.NewGuid(),
                 ObjectId = remotePost.Id,
                 CreatedBy = originalActor.Id,
                 Username = originalActor.PreferredUsername,
@@ -192,26 +193,42 @@ namespace Pandacap
                     })
                 ]
             });
-            await context.SaveChangesAsync();
+
+            await context.SaveChangesAsync(cancellationToken);
         }
 
         /// <summary>
-        /// Adds a Like to the remote ActivityPub post in the Favorites collection and sends it to the post's creator.
+        /// Adds a Like to the remote ActivityPub post and sends it to the post's creator.
         /// </summary>
         /// <param name="objectId">The ActivityPub object ID (URL).</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
         /// <returns></returns>
-        public async Task LikeRemoteFavoriteAsync(string objectId)
+        public async Task LikeRemotePostAsync(string objectId, CancellationToken cancellationToken)
         {
-            var favorite = await context.ActivityPubLikes
+            var like = await context.ActivityPubLikes
                 .Where(a => a.ObjectId == objectId)
-                .SingleAsync();
+                .SingleAsync(cancellationToken);
 
-            if (favorite.LikedAt != null)
+            if (like.LikedAt != null)
                 return;
 
-            var originalActor = await activityPubRemoteActorService.FetchActorAsync(favorite.CreatedBy);
+            var remotePost = await activityPubRemotePostService.FetchPostAsync(
+                objectId,
+                cancellationToken);
 
-            favorite.LikedAt = DateTimeOffset.UtcNow;
+            var originalActor = await activityPubRemoteActorService.FetchActorAsync(
+                remotePost.AttributedTo.Id,
+                cancellationToken);
+
+            var guid = Guid.NewGuid();
+
+            context.ActivityPubLikes.Add(new()
+            {
+                LikeGuid = guid,
+                ObjectId = objectId,
+                CreatedBy = remotePost.AttributedTo.Id,
+                LikedAt = DateTimeOffset.UtcNow
+            });
 
             context.ActivityPubOutboundActivities.Add(new()
             {
@@ -219,28 +236,31 @@ namespace Pandacap
                 Inbox = originalActor.Inbox,
                 JsonBody = ActivityPub.Serializer.SerializeWithContext(
                     interactionTranslator.BuildLike(
-                        favorite.LikeGuid,
+                        guid,
                         objectId))
             });
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
 
         /// <summary>
-        /// Removes the Like from the remote ActivityPub post in the Favorites collection and sends the Undo to the post's creator.
+        /// Removes the Like from the remote ActivityPub post and sends the Undo to the post's creator.
         /// </summary>
         /// <param name="objectId">The ActivityPub object ID (URL).</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
         /// <returns></returns>
-        public async Task UnlikeRemoteFavoriteAsync(string objectId)
+        public async Task UnlikeRemotePostAsync(string objectId, CancellationToken cancellationToken)
         {
-            var favorite = await context.ActivityPubLikes
+            var like = await context.ActivityPubLikes
                 .Where(a => a.ObjectId == objectId)
-                .SingleAsync();
+                .SingleAsync(cancellationToken);
 
-            if (favorite.LikedAt == null)
+            if (like == null)
                 return;
 
-            var actor = await activityPubRemoteActorService.FetchActorAsync(favorite.CreatedBy);
+            var actor = await activityPubRemoteActorService.FetchActorAsync(
+                like.CreatedBy,
+                cancellationToken);
 
             context.ActivityPubOutboundActivities.Add(new()
             {
@@ -248,49 +268,29 @@ namespace Pandacap
                 Inbox = actor.Inbox,
                 JsonBody = ActivityPub.Serializer.SerializeWithContext(
                     interactionTranslator.BuildLikeUndo(
-                        favorite.LikeGuid,
-                        favorite.ObjectId))
+                        like.LikeGuid,
+                        like.ObjectId))
             });
 
-            favorite.LikedAt = null;
-
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
 
         /// <summary>
         /// Removes remote ActivityPub posts from the Favorites collection.
         /// </summary>
         /// <param name="objectId">The ActivityPub object ID (URL).</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
         /// <returns></returns>
-        public async Task RemoveRemoteFavoritesAsync(IEnumerable<string> objectIds)
+        public async Task RemoveRemoteFavoritesAsync(IEnumerable<string> objectIds, CancellationToken cancellationToken)
         {
-            await foreach (var item in context.ActivityPubLikes
+            await foreach (var item in context.ActivityPubFavorites
                 .Where(a => objectIds.Contains(a.ObjectId))
                 .AsAsyncEnumerable())
             {
-                if (item.LikedAt != null)
-                {
-                    try
-                    {
-                        var actor = await activityPubRemoteActorService.FetchActorAsync(item.CreatedBy);
-
-                        context.ActivityPubOutboundActivities.Add(new()
-                        {
-                            Id = Guid.NewGuid(),
-                            Inbox = actor.Inbox,
-                            JsonBody = ActivityPub.Serializer.SerializeWithContext(
-                                interactionTranslator.BuildLikeUndo(
-                                    item.LikeGuid,
-                                    item.ObjectId))
-                        });
-                    }
-                    catch (Exception) { }
-                }
-
                 context.Remove(item);
-
-                await context.SaveChangesAsync();
             }
+
+            await context.SaveChangesAsync(cancellationToken);
         }
     }
 }

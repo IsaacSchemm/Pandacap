@@ -8,7 +8,7 @@ namespace Pandacap.HighLevel
     {
         public IAsyncEnumerable<IFavorite> GetAllAsync()
         {
-            var activityPubLikes = context.ActivityPubLikes
+            var activityPubFavorites = context.ActivityPubFavorites
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
                 .OfType<IFavorite>();
@@ -58,7 +58,7 @@ namespace Pandacap.HighLevel
             return
                 new[]
                 {
-                    activityPubLikes,
+                    activityPubFavorites,
                     blueskyPostFavorites,
                     deviantArtFavorites,
                     furAffinityFavorites,

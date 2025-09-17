@@ -71,18 +71,6 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
-            if (DateTime.UtcNow < new DateTime(2025, 8, 16))
-            {
-                var cutoff = new DateTime(2025, 8, 16, 12, 0, 0, DateTimeKind.Utc);
-
-                await foreach (var l in context.ActivityPubLikes)
-                {
-                    l.LikedAt = l.FavoritedAt;
-                }
-
-                await context.SaveChangesAsync(cancellationToken);
-            }
-
             async Task<ProfileViewModel> buildModel()
             {
                 var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
@@ -116,7 +104,7 @@ namespace Pandacap.Controllers
                     FollowingCount = await context.Follows.DocumentCountAsync(cancellationToken)
                         + await context.RssFeeds.DocumentCountAsync(cancellationToken)
                         + await context.ATProtoFeeds.DocumentCountAsync(cancellationToken),
-                    FavoritesCount = await context.ActivityPubLikes.DocumentCountAsync(cancellationToken),
+                    LikesCount = await context.ActivityPubLikes.DocumentCountAsync(cancellationToken),
                     CommunityBookmarksCount = await context.CommunityBookmarks.DocumentCountAsync(cancellationToken)
                 };
             }
