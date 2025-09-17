@@ -56,7 +56,7 @@ Posts from users you follow are sent to the appropriate section of the Pandacap 
 When you click on an ActivityPub post as a logged-in user, Pandacap will always fetch the post from its original instance.
 
 Activities (such as `Like`, `Dislike`, `Announce`) and replies to your posts are shown in the Notifications section. (Mentions that are not replies go to the Pandacap inbox.)
-You can also add "likes" of your own on others' ActivityPub posts, but you must first add the post to your Favorites.
+Adding a post to your Favorites is equivalent to a `Like`.
 
 ### ATProto
 

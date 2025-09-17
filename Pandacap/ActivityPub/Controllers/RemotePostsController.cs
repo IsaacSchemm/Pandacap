@@ -34,14 +34,13 @@ namespace Pandacap.Controllers
             {
                 var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
 
-                var favorite = await context.ActivityPubLikes
+                var favorite = await context.ActivityPubFavorites
                     .Where(r => r.ObjectId == post.Id)
                     .SingleOrDefaultAsync(cancellationToken);
 
                 return View(new RemotePostViewModel
                 {
                     RemotePost = post,
-                    Liked = favorite?.LikedAt != null,
                     IsInFavorites = favorite != null
                 });
             }

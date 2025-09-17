@@ -171,9 +171,9 @@ namespace Pandacap
 
             Guid likeGuid = Guid.NewGuid();
 
-            context.Add(new ActivityPubLike
+            context.Add(new ActivityPubFavorite
             {
-                LikeGuid = likeGuid,
+                Id = likeGuid,
                 ObjectId = remotePost.Id,
                 CreatedBy = originalActor.Id,
                 Username = originalActor.PreferredUsername,
@@ -196,96 +196,31 @@ namespace Pandacap
         }
 
         /// <summary>
-        /// Adds a Like to the remote ActivityPub post in the Favorites collection and sends it to the post's creator.
-        /// </summary>
-        /// <param name="objectId">The ActivityPub object ID (URL).</param>
-        /// <returns></returns>
-        public async Task LikeRemoteFavoriteAsync(string objectId)
-        {
-            var favorite = await context.ActivityPubLikes
-                .Where(a => a.ObjectId == objectId)
-                .SingleAsync();
-
-            if (favorite.LikedAt != null)
-                return;
-
-            var originalActor = await activityPubRemoteActorService.FetchActorAsync(favorite.CreatedBy);
-
-            favorite.LikedAt = DateTimeOffset.UtcNow;
-
-            context.ActivityPubOutboundActivities.Add(new()
-            {
-                Id = Guid.NewGuid(),
-                Inbox = originalActor.Inbox,
-                JsonBody = ActivityPub.Serializer.SerializeWithContext(
-                    interactionTranslator.BuildLike(
-                        favorite.LikeGuid,
-                        objectId))
-            });
-
-            await context.SaveChangesAsync();
-        }
-
-        /// <summary>
-        /// Removes the Like from the remote ActivityPub post in the Favorites collection and sends the Undo to the post's creator.
-        /// </summary>
-        /// <param name="objectId">The ActivityPub object ID (URL).</param>
-        /// <returns></returns>
-        public async Task UnlikeRemoteFavoriteAsync(string objectId)
-        {
-            var favorite = await context.ActivityPubLikes
-                .Where(a => a.ObjectId == objectId)
-                .SingleAsync();
-
-            if (favorite.LikedAt == null)
-                return;
-
-            var actor = await activityPubRemoteActorService.FetchActorAsync(favorite.CreatedBy);
-
-            context.ActivityPubOutboundActivities.Add(new()
-            {
-                Id = Guid.NewGuid(),
-                Inbox = actor.Inbox,
-                JsonBody = ActivityPub.Serializer.SerializeWithContext(
-                    interactionTranslator.BuildLikeUndo(
-                        favorite.LikeGuid,
-                        favorite.ObjectId))
-            });
-
-            favorite.LikedAt = null;
-
-            await context.SaveChangesAsync();
-        }
-
-        /// <summary>
         /// Removes remote ActivityPub posts from the Favorites collection.
         /// </summary>
         /// <param name="objectId">The ActivityPub object ID (URL).</param>
         /// <returns></returns>
         public async Task RemoveRemoteFavoritesAsync(IEnumerable<string> objectIds)
         {
-            await foreach (var item in context.ActivityPubLikes
+            await foreach (var item in context.ActivityPubFavorites
                 .Where(a => objectIds.Contains(a.ObjectId))
                 .AsAsyncEnumerable())
             {
-                if (item.LikedAt != null)
+                try
                 {
-                    try
-                    {
-                        var actor = await activityPubRemoteActorService.FetchActorAsync(item.CreatedBy);
+                    var actor = await activityPubRemoteActorService.FetchActorAsync(item.CreatedBy);
 
-                        context.ActivityPubOutboundActivities.Add(new()
-                        {
-                            Id = Guid.NewGuid(),
-                            Inbox = actor.Inbox,
-                            JsonBody = ActivityPub.Serializer.SerializeWithContext(
-                                interactionTranslator.BuildLikeUndo(
-                                    item.LikeGuid,
-                                    item.ObjectId))
-                        });
-                    }
-                    catch (Exception) { }
+                    context.ActivityPubOutboundActivities.Add(new()
+                    {
+                        Id = Guid.NewGuid(),
+                        Inbox = actor.Inbox,
+                        JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                            interactionTranslator.BuildLikeUndo(
+                                item.Id,
+                                item.ObjectId))
+                    });
                 }
+                catch (Exception) { }
 
                 context.Remove(item);
 

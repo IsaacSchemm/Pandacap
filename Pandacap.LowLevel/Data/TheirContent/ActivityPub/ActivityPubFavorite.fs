@@ -11,9 +11,9 @@ type ActivityPubFavoriteImage() =
     member val Name = nullString with get, set
 
 /// A remote ActivityPub post that this app's instance owner has liked.
-type ActivityPubLike() =
+type ActivityPubFavorite() =
     [<Key>]
-    member val LikeGuid = Guid.Empty with get, set
+    member val Id = Guid.Empty with get, set
 
     member val ObjectId = "" with get, set
     member val CreatedBy = "" with get, set
@@ -21,7 +21,6 @@ type ActivityPubLike() =
     member val Usericon = nullString with get, set
     member val CreatedAt = DateTimeOffset.MinValue with get, set
     member val FavoritedAt = DateTimeOffset.MinValue with get, set
-    member val LikedAt = nullDateTimeOffset with get, set
     member val HiddenAt = nullDateTimeOffset with get, set
     member val Summary = nullString with get, set
     member val Sensitive = false with get, set
@@ -29,8 +28,6 @@ type ActivityPubLike() =
     member val Content = nullString with get, set
     member val InReplyTo = nullString with get, set
     member val Attachments = new ResizeArray<ActivityPubFavoriteImage>() with get, set
-
-    member this.Id = this.LikeGuid
 
     interface Pandacap.ActivityPub.ILike with
         member this.ObjectId = this.ObjectId
@@ -68,3 +65,23 @@ type ActivityPubLike() =
         ]
         member this.Usericon = this.Usericon
         member this.Username = this.Username
+
+[<Obsolete>]
+type ActivityPubLike() =
+    [<Key>]
+    member val LikeGuid = Guid.Empty with get, set
+
+    member val ObjectId = "" with get, set
+    member val CreatedBy = "" with get, set
+    member val Username = nullString with get, set
+    member val Usericon = nullString with get, set
+    member val CreatedAt = DateTimeOffset.MinValue with get, set
+    member val FavoritedAt = DateTimeOffset.MinValue with get, set
+    member val LikedAt = nullDateTimeOffset with get, set
+    member val HiddenAt = nullDateTimeOffset with get, set
+    member val Summary = nullString with get, set
+    member val Sensitive = false with get, set
+    member val Name = nullString with get, set
+    member val Content = nullString with get, set
+    member val InReplyTo = nullString with get, set
+    member val Attachments = new ResizeArray<ActivityPubFavoriteImage>() with get, set

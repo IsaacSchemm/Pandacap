@@ -50,7 +50,7 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Liked()
         {
-            int posts = await context.ActivityPubLikes
+            int posts = await context.ActivityPubFavorites
                 .DocumentCountAsync();
 
             return Content(
@@ -333,8 +333,8 @@ namespace Pandacap.Controllers
                     var inboxPosts = await context.InboxActivityStreamsPosts.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
                     context.RemoveRange(inboxPosts);
 
-                    var likes = await context.ActivityPubLikes.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
-                    context.RemoveRange(likes);
+                    var favorites = await context.ActivityPubFavorites.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
+                    context.RemoveRange(favorites);
 
                     var replies = await context.RemoteActivityPubReplies.Where(reply => reply.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
                     context.RemoveRange(replies);
@@ -410,8 +410,8 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Like(Guid id)
         {
-            var post = await context.ActivityPubLikes
-                .Where(a => a.LikeGuid == id)
+            var post = await context.ActivityPubFavorites
+                .Where(a => a.Id == id)
                 .SingleOrDefaultAsync();
 
             if (post == null)

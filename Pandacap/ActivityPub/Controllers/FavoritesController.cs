@@ -16,13 +16,12 @@ namespace Pandacap.Controllers
     {
         public async Task<IActionResult> Index(Guid? next, int? count)
         {
-            var activityPubLikes = context.ActivityPubLikes
+            var activityPubFavorites = context.ActivityPubFavorites
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
-                .SkipUntil(post => post.LikeGuid == next || next == null)
-                .Where(post => post.LikedAt != null);
+                .SkipUntil(post => post.Id == next || next == null);
 
-            var listPage = await activityPubLikes.AsListPage(count ?? 20);
+            var listPage = await activityPubFavorites.AsListPage(count ?? 20);
 
             if (Request.IsActivityPub())
             {
@@ -55,32 +54,6 @@ namespace Pandacap.Controllers
             return id.Count() == 1
                 ? RedirectToAction("Index", "RemotePosts", new { id })
                 : RedirectToAction(nameof(Index));
-        }
-
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Like([FromForm] IEnumerable<string> id)
-        {
-            foreach (string idStr in id)
-                await remoteActivityPubPostHandler.LikeRemoteFavoriteAsync(idStr);
-
-            return id.Count() == 1
-                ? RedirectToAction("Index", "RemotePosts", new { id })
-                : RedirectToAction(nameof(Index));
-        }
-
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Unlike([FromForm] IEnumerable<string> id)
-        {
-            foreach (string idStr in id)
-                await remoteActivityPubPostHandler.UnlikeRemoteFavoriteAsync(idStr);
-
-            return id.Count() == 1
-                ? RedirectToAction("Index", "RemotePosts", new { id })
-                : RedirectToAction("Index");
         }
 
         [Authorize]
