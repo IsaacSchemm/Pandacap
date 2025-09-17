@@ -15,6 +15,32 @@ namespace Pandacap.Notifications
         PandacapDbContext context
     ) : INotificationHandler
     {
+        private static string? GetBlueskyAppLink(string postAtUri)
+        {
+            try
+            {
+                ATProtoRefUri myPostUri = new(postAtUri);
+                return $"https://bsky.app/profile/{myPostUri.Components.DID}/post/{myPostUri.Components.RecordKey}";
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private async Task<string?> GetDisplayNameAsync(string did)
+        {
+            try
+            {
+                var doc = await didResolver.ResolveAsync(did);
+                return doc.Handle;
+            }
+            catch (Exception)
+            {
+                return did;
+            }
+        }
+
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
             HashSet<string> dids = [];
@@ -37,140 +63,84 @@ namespace Pandacap.Notifications
                 switch ((backlink.Collection, backlink.Path))
                 {
                     case ("app.bsky.feed.post", ".facets[app.bsky.richtext.facet].features[app.bsky.richtext.facet#mention].did"):
+                        yield return new Notification
                         {
-                            DIDResolverModule.Document? doc = null;
-
-                            try
-                            {
-                                doc = await didResolver.ResolveAsync(backlink.DID);
-                            }
-                            catch (Exception) { }
-
-                            yield return new Notification
-                            {
-                                Platform = new NotificationPlatform(
-                                    "ATProto",
-                                    PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                    viewAllUrl: null),
-                                ActivityName = "Mention",
-                                Url = $"https://bsky.app/profile/{backlink.DID}/post/{backlink.RecordKey}",
-                                UserName = doc?.Handle ?? backlink.DID,
-                                UserUrl = $"https://bsky.app/profile/{backlink.DID}",
-                                PostUrl = $"https://bsky.app/profile/{backlink.Target}",
-                                Timestamp = backlink.SeenAt
-                            };
-                        }
+                            Platform = new NotificationPlatform(
+                                "ATProto",
+                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
+                                viewAllUrl: null),
+                            ActivityName = "Mention",
+                            Url = $"https://bsky.app/profile/{backlink.DID}/post/{backlink.RecordKey}",
+                            UserName = await GetDisplayNameAsync(backlink.DID),
+                            UserUrl = $"https://bsky.app/profile/{backlink.DID}",
+                            PostUrl = $"https://bsky.app/profile/{backlink.Target}",
+                            Timestamp = backlink.SeenAt
+                        };
 
                         break;
 
                     case ("app.bsky.graph.follow", ".subject"):
+                        yield return new Notification
                         {
-                            DIDResolverModule.Document? doc = null;
-
-                            try
-                            {
-                                doc = await didResolver.ResolveAsync(backlink.DID);
-                            }
-                            catch (Exception) { }
-
-                            yield return new Notification
-                            {
-                                Platform = new NotificationPlatform(
-                                    "ATProto",
-                                    PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                    viewAllUrl: null),
-                                ActivityName = "Follow",
-                                UserName = doc?.Handle ?? backlink.DID,
-                                UserUrl = $"https://bsky.app/profile/{backlink.DID}",
-                                PostUrl = $"https://bsky.app/profile/{backlink.Target}",
-                                Timestamp = backlink.SeenAt
-                            };
-                        }
+                            Platform = new NotificationPlatform(
+                                "ATProto",
+                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
+                                viewAllUrl: null),
+                            ActivityName = "Follow",
+                            UserName = await GetDisplayNameAsync(backlink.DID),
+                            UserUrl = $"https://bsky.app/profile/{backlink.DID}",
+                            PostUrl = $"https://bsky.app/profile/{backlink.Target}",
+                            Timestamp = backlink.SeenAt
+                        };
 
                         break;
 
                     case ("app.bsky.feed.post", ".reply.parent.uri"):
+                        yield return new Notification
                         {
-                            ATProtoRefUri myPostUri = new(backlink.Target);
-
-                            DIDResolverModule.Document? theirDoc = null;
-
-                            try
-                            {
-                                theirDoc = await didResolver.ResolveAsync(backlink.DID);
-                            }
-                            catch (Exception) { }
-
-                            yield return new Notification
-                            {
-                                Platform = new NotificationPlatform(
-                                    "ATProto",
-                                    PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                    viewAllUrl: null),
-                                ActivityName = "Reply",
-                                Url = $"https://bsky.app/profile/{backlink.DID}/post/{backlink.RecordKey}",
-                                UserName = theirDoc?.Handle ?? backlink.DID,
-                                UserUrl = $"https://bsky.app/profile/{backlink.DID}",
-                                PostUrl = $"https://bsky.app/profile/{myPostUri.Components.DID}/post/{myPostUri.Components.RecordKey}",
-                                Timestamp = backlink.SeenAt
-                            };
-                        }
+                            Platform = new NotificationPlatform(
+                                "ATProto",
+                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
+                                viewAllUrl: null),
+                            ActivityName = "Reply",
+                            Url = $"https://bsky.app/profile/{backlink.DID}/post/{backlink.RecordKey}",
+                            UserName = await GetDisplayNameAsync(backlink.DID),
+                            UserUrl = $"https://bsky.app/profile/{backlink.DID}",
+                            PostUrl = GetBlueskyAppLink(backlink.Target),
+                            Timestamp = backlink.SeenAt
+                        };
 
                         break;
 
                     case ("app.bsky.feed.like", ".subject.uri"):
+                        yield return new Notification
                         {
-                            ATProtoRefUri myPostUri = new(backlink.Target);
-
-                            DIDResolverModule.Document? theirDoc = null;
-
-                            try
-                            {
-                                theirDoc = await didResolver.ResolveAsync(backlink.DID);
-                            }
-                            catch (Exception) { }
-
-                            yield return new Notification
-                            {
-                                Platform = new NotificationPlatform(
-                                    "ATProto",
-                                    PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                    viewAllUrl: null),
-                                ActivityName = "Like",
-                                UserName = theirDoc?.Handle ?? backlink.DID,
-                                UserUrl = $"https://bsky.app/profile/{backlink.DID}",
-                                PostUrl = $"https://bsky.app/profile/{myPostUri.Components.DID}/post/{myPostUri.Components.RecordKey}",
-                                Timestamp = backlink.SeenAt
-                            };
-                        }
+                            Platform = new NotificationPlatform(
+                                "ATProto",
+                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
+                                viewAllUrl: null),
+                            ActivityName = "Like",
+                            UserName = await GetDisplayNameAsync(backlink.DID),
+                            UserUrl = $"https://bsky.app/profile/{backlink.DID}",
+                            PostUrl = GetBlueskyAppLink(backlink.Target),
+                            Timestamp = backlink.SeenAt
+                        };
 
                         break;
 
                     case ("app.bsky.feed.repost", ".subject.uri"):
+                        yield return new Notification
                         {
-                            ATProtoRefUri myPostUri = new(backlink.Target);
-
-                            DIDResolverModule.Document? theirDoc = null;
-
-                            try
-                            {
-                                theirDoc = await didResolver.ResolveAsync(backlink.DID);
-                            }
-                            catch (Exception) { }
-
-                            yield return new Notification
-                            {
-                                Platform = new NotificationPlatform(
-                                    "ATProto",
-                                    PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                    viewAllUrl: null),
-                                ActivityName = "Repost",
-                                UserName = theirDoc?.Handle ?? backlink.DID,
-                                UserUrl = $"https://bsky.app/profile/{backlink.DID}",
-                                PostUrl = $"https://bsky.app/profile/{myPostUri.Components.DID}/post/{myPostUri.Components.RecordKey}",
-                                Timestamp = backlink.SeenAt
-                            };
-                        }
+                            Platform = new NotificationPlatform(
+                                "ATProto",
+                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
+                                viewAllUrl: null),
+                            ActivityName = "Repost",
+                            UserName = await GetDisplayNameAsync(backlink.DID),
+                            UserUrl = $"https://bsky.app/profile/{backlink.DID}",
+                            PostUrl = GetBlueskyAppLink(backlink.Target),
+                            Timestamp = backlink.SeenAt
+                        };
 
                         break;
 
