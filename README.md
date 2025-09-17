@@ -60,19 +60,44 @@ You can also add "likes" of your own on others' ActivityPub posts, but you must 
 
 ### ATProto
 
-Pandacap allows you to follow atproto accounts as feeds, without your own atproto account.
-For each user, you can choose whether to follow Bluesky posts, Bluesky reposts, Bluesky likes, and/or WhiteWind blog entries.
-Pandacap will also look for Bluesky profile data for each user when refreshing the feed.
+#### Following
 
-You can add Bluesky posts to your Favorites.
+Pandacap allows you to follow atproto accounts as feeds. For each user, you can choose whether to follow:
 
-When you click on a Bluesky post as a logged-in user, Pandacap will always fetch the post from its original PDS.
+* Bluesky posts
+* Bluesky reposts
+* Bluesky likes
+* WhiteWind blog entries
 
-Pandacap also allows you to attach an atproto account. This can be used to crosspost to Bluesky or WhiteWind, in roughly the same way crossposting to other platforms works in Pandacap.
-It also adds Bluesky notifications to the Notifications section, and allows you to add "likes" on Bluesky posts or reply to them.
+Pandacap will also look for Bluesky profile data (name and icon) when it refreshes the feed (every 8 hours, just like for RSS feeds).
 
-Pandacap talks directly to the PDS for most operations, and only uses the Bluesky AppView for populating the Notifications section.
-(Bluesky's CDN is used for thumbnails and avatars.)
+When viewing an Bluesky post while logged in, Pandacap will offer you the option to like or reply to the post
+with an attached atproto account, or with Bridgy Fed (if both you and the other user have it turned on).
+
+All data is fetched (unauthenticated) from the individual user's PDS, using `com.atproto.repo.listRecords`; the Bluesky AppView is not used.
+
+Bluesky's CDN is used for thumbnails and avatars.
+
+#### Posting
+
+Pandacap allows you to enable and disable Bridgy Fed from the profile page while logged in.
+You can also add a separate atproto account from the profile page and crosspost to it (as is done with DeviantArt, etc.)
+
+#### Notifications
+
+Pandacap uses [Constellation](https://github.com/at-microcosm/microcosm-rs/tree/main/constellation) to collect backlinks,
+which are then used to populate the Notifications section with:
+
+* Mentions
+* Follows
+* For posts you've made within the past 14 days:
+    * Likes
+    * Reposts
+    * Replies
+
+This is done for each attached atproto account, and for your Bridgy Fed DID (if enabled).
+
+Backlinks are updated hourly for posts made within the past 2 days, and daily otherwise.
 
 ### DeviantArt / Fur Affinity / Weasyl
 
@@ -172,7 +197,7 @@ Application settings (for both the function app and the web app):
 | ----------------------- | -----------------------------------------------------
 | ActivityPubUsername     | Username to use for ActivityPub and on the home page
 | ApplicationHostname     | Public hostname of the app
-| ConstellationHost       | URL of a [Constellation](https://github.com/at-microcosm/microcosm-rs/tree/main/constellation) server for adding ATProto activity to the notifications page
+| ConstellationHost       | URL of a Constellation server for adding ATProto activity to the notifications page
 | CosmosDBAccountEndpoint | URL of the database
 | CosmosDBAccountKey      | Database key
 | DeviantArtClientId      | OAuth client ID from DeviantArt

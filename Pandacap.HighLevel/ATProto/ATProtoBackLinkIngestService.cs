@@ -13,9 +13,7 @@ namespace Pandacap.HighLevel.ATProto
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory)
     {
-        public async Task IngestAsync(
-            TimeSpan maxPostAge,
-            bool includeProfileInteractions,
+        public async Task IngestForProfileAsync(
             CancellationToken cancellationToken = default)
         {
             HashSet<string> dids = [];
@@ -28,21 +26,34 @@ namespace Pandacap.HighLevel.ATProto
 
             foreach (var did in dids)
             {
-                if (includeProfileInteractions)
-                {
-                    await RefreshLinksAsync(
-                        did,
-                        "app.bsky.feed.post",
-                        ".facets[app.bsky.richtext.facet].features[app.bsky.richtext.facet#mention].did",
-                        cancellationToken);
+                await RefreshLinksAsync(
+                    did,
+                    "app.bsky.feed.post",
+                    ".facets[app.bsky.richtext.facet].features[app.bsky.richtext.facet#mention].did",
+                    cancellationToken);
 
-                    await RefreshLinksAsync(
-                        did,
-                        "app.bsky.graph.follow",
-                        ".subject",
-                        cancellationToken);
-                }
+                await RefreshLinksAsync(
+                    did,
+                    "app.bsky.graph.follow",
+                    ".subject",
+                    cancellationToken);
+            }
+        }
 
+        public async Task IngestForPostsAsync(
+            TimeSpan maxPostAge,
+            CancellationToken cancellationToken = default)
+        {
+            HashSet<string> dids = [];
+
+            foreach (var credential in await atProtoCredentialProvider.GetAllCredentialsAsync())
+                dids.Add(credential.DID);
+
+            if (await bridgyFedDIDProvider.GetDIDAsync() is string bridgy_did)
+                dids.Add(bridgy_did);
+
+            foreach (var did in dids)
+            {
                 var cutoff = DateTimeOffset.UtcNow - maxPostAge;
 
                 var recentPostCount = await context.Posts
