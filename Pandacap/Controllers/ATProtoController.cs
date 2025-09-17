@@ -331,6 +331,11 @@ namespace Pandacap.Controllers
                     likedBy.Contains(c.DID)))
                 .ToListAsync(cancellationToken);
 
+            if (myProfiles.Count == 0 && bridgyFedResponse.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index", "RemotePosts", new { id = bridgyFedObjectId });
+            }
+
             var inFavorites = await context.BlueskyPostFavorites
                 .Where(f => f.CID == post.Ref.CID)
                 .DocumentCountAsync(cancellationToken) > 0;
