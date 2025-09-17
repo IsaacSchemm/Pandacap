@@ -272,6 +272,8 @@ namespace Pandacap
                         like.ObjectId))
             });
 
+            context.Remove(like);
+
             await context.SaveChangesAsync(cancellationToken);
         }
 
