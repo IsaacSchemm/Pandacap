@@ -207,9 +207,9 @@ namespace Pandacap
         {
             var like = await context.ActivityPubLikes
                 .Where(a => a.ObjectId == objectId)
-                .SingleAsync(cancellationToken);
+                .SingleOrDefaultAsync(cancellationToken);
 
-            if (like.LikedAt != null)
+            if (like?.LikedAt != null)
                 return;
 
             var remotePost = await activityPubRemotePostService.FetchPostAsync(

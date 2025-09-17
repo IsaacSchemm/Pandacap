@@ -77,6 +77,21 @@ else
 <hr />
 
 <p>
+    @if (Model.Liked)
+    {
+        <form asp-controller="Favorites" asp-action="Unlike" class="d-inline">
+            <input type="hidden" name="id" value="@post.Id" />
+            <button class="btn btn-danger btn-sm">Unlike</button>
+        </form>
+    }
+    else
+    {
+        <form asp-controller="Favorites" asp-action="Like" class="d-inline">
+            <input type="hidden" name="id" value="@post.Id" />
+            <button class="btn btn-primary btn-sm">Like</button>
+        </form>
+    }
+
     @if (!Model.IsInFavorites)
     {
         <form asp-controller="Favorites" asp-action="Add" class="d-inline">
@@ -86,21 +101,6 @@ else
     }
     else
     {
-        if (Model.Liked)
-        {
-            <form asp-controller="Favorites" asp-action="Unlike" class="d-inline">
-                <input type="hidden" name="id" value="@post.Id" />
-                <button class="btn btn-danger btn-sm">Unlike</button>
-            </form>
-        }
-        else
-        {
-            <form asp-controller="Favorites" asp-action="Like" class="d-inline">
-                <input type="hidden" name="id" value="@post.Id" />
-                <button class="btn btn-primary btn-sm">Like</button>
-            </form>
-        }
-
         <form asp-controller="Favorites" asp-action="Remove" class="d-inline">
             <input type="hidden" name="id" value="@post.Id" />
             <button class="btn btn-danger btn-sm">Remove from Favorites</button>
