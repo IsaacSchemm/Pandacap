@@ -65,23 +65,3 @@ type ActivityPubFavorite() =
         ]
         member this.Usericon = this.Usericon
         member this.Username = this.Username
-
-[<Obsolete>]
-type ActivityPubLike() =
-    [<Key>]
-    member val LikeGuid = Guid.Empty with get, set
-
-    member val ObjectId = "" with get, set
-    member val CreatedBy = "" with get, set
-    member val Username = nullString with get, set
-    member val Usericon = nullString with get, set
-    member val CreatedAt = DateTimeOffset.MinValue with get, set
-    member val FavoritedAt = DateTimeOffset.MinValue with get, set
-    member val LikedAt = nullDateTimeOffset with get, set
-    member val HiddenAt = nullDateTimeOffset with get, set
-    member val Summary = nullString with get, set
-    member val Sensitive = false with get, set
-    member val Name = nullString with get, set
-    member val Content = nullString with get, set
-    member val InReplyTo = nullString with get, set
-    member val Attachments = new ResizeArray<ActivityPubFavoriteImage>() with get, set

@@ -69,10 +69,6 @@ else
 
                                 @Html.Raw(ap.Content)
                             }
-                            else if (item is BlueskyFavorite b)
-                            {
-                                <p>@b.Text</p>
-                            }
                             else if (item is BlueskyPostFavorite bp)
                             {
                                 <p>@bp.Text</p>

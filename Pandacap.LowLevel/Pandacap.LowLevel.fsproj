@@ -71,11 +71,9 @@
     <Compile Include="Data\MyContent\AddressedPost.fs" />
     <Compile Include="Data\MyContent\Avatar.fs" />
     <Compile Include="Data\MyContent\Post.fs" />
-    <Compile Include="Data\MyContent\StarpassPost.fs" />
     <Compile Include="Data\MyContent\Upload.fs" />
     <Compile Include="Data\Relationships\IFollow.fs" />
     <Compile Include="Data\Relationships\ATProtoFeed.fs" />
-    <Compile Include="Data\Relationships\BlueskyFeed.fs" />
     <Compile Include="Data\Relationships\RemoteActorRelationship.fs" />
     <Compile Include="Data\Relationships\CommunityBookmark.fs" />
     <Compile Include="Data\Relationships\Follow.fs" />
@@ -86,10 +84,7 @@
     <Compile Include="Data\TheirContent\ActivityPub\PostActivity.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\RemoteActivityPubReply.fs" />
     <Compile Include="Data\TheirContent\ATProto\ATProtoBackLink.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyLike.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyFavorite.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyPostFavorite.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyFeedItem.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyLikeFeedItem.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyPostFeedItem.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyRepostFeedItem.fs" />

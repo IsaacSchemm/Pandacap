@@ -20,13 +20,14 @@ Features:
     * Non-ActivityPub posts are periodically imported (~3 times per day)
 * View **notifications** from activity on your posts or from your attached accounts
 * Add ActivityPub and Bluesky posts to your **favorites**
-* Automatically import **favorites** from DeviantArt, Fur Affinity, and Weasyl
+* Automatically import favorites from DeviantArt, Fur Affinity, and Weasyl
 
 Some of the things Pandacap does **not** do:
 
 * Act as an OAuth server.
+* Act as, or allow the user to directly post to, an atproto PDS.
 * Host more than one user account.
-* Host any public-facing content that is not intentionally placed there by the server admin.
+* Host any public-facing content that is not intentionally placed there by the user.
 * Create posts with more than one attached image.
 * Attach images to replies.
 * Automatically crosspost to DeviantArt, FA, or Weasyl. (This is done manually through the Pandacap user interface.)

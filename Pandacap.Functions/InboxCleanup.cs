@@ -36,13 +36,6 @@ namespace Pandacap.Functions
                 context.Remove(inboxItem);
             }
 
-            await foreach (var inboxItem in context.BlueskyFeedItems
-                .Where(d => d.IndexedAt < weekAgo)
-                .AsAsyncEnumerable())
-            {
-                context.Remove(inboxItem);
-            }
-
             await foreach (var inboxItem in context.BlueskyPostFeedItems
                 .Where(d => d.DismissedAt != null)
                 .Where(d => d.CreatedAt < weekAgo)
