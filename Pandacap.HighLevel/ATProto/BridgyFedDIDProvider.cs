@@ -18,7 +18,7 @@ namespace Pandacap.HighLevel.ATProto
 
                 var repo = await XRPC.Com.Atproto.Repo.DescribeRepoAsync(
                     client,
-                    XRPC.Host.Unauthenticated("atproto.brid.gy"),
+                    "atproto.brid.gy",
                     handle);
 
                 return repo.did;

@@ -13,7 +13,5 @@ namespace Pandacap.Models
         string Handle,
         string? AvatarCID,
         ATProtoRecord<BlueskyPost> Record,
-        bool IsInFavorites,
-        FSharpList<BlueskyPostInteractorViewModel> MyProfiles,
-        string? BridgyFedObjectId);
+        bool IsInFavorites);
 }

@@ -6,7 +6,6 @@ using Pandacap.Data;
 namespace Pandacap.HighLevel.ATProto
 {
     public class ATProtoBackLinkIngestService(
-        ATProtoCredentialProvider atProtoCredentialProvider,
         BridgyFedDIDProvider bridgyFedDIDProvider,
         ConstellationClient constellationClient,
         DIDResolver didResolver,
@@ -17,9 +16,6 @@ namespace Pandacap.HighLevel.ATProto
             CancellationToken cancellationToken = default)
         {
             HashSet<string> dids = [];
-
-            foreach (var credential in await atProtoCredentialProvider.GetAllCredentialsAsync())
-                dids.Add(credential.DID);
 
             if (await bridgyFedDIDProvider.GetDIDAsync() is string bridgy_did)
                 dids.Add(bridgy_did);
@@ -46,9 +42,6 @@ namespace Pandacap.HighLevel.ATProto
         {
             HashSet<string> dids = [];
 
-            foreach (var credential in await atProtoCredentialProvider.GetAllCredentialsAsync())
-                dids.Add(credential.DID);
-
             if (await bridgyFedDIDProvider.GetDIDAsync() is string bridgy_did)
                 dids.Add(bridgy_did);
 
@@ -70,7 +63,7 @@ namespace Pandacap.HighLevel.ATProto
                     var myRecentPosts =
                         (await RecordEnumeration.BlueskyPost.FindNewestRecordsAsync(
                             client,
-                            XRPC.Host.Unauthenticated(myDoc.PDS),
+                            myDoc.PDS,
                             did,
                             50))
                         .Where(post => post.Value.CreatedAt > cutoff);

@@ -94,7 +94,6 @@ builder.Services
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<ActivityPubReplyNotificationHandler>()
-    .AddScoped<BlueskyNotificationHandler>()
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<CompositeNotificationHandler>()
     .AddScoped<ComputerVisionProvider>()

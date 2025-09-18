@@ -61,7 +61,6 @@
     <Compile Include="Data\IBlueskyPost.fs" />
     <Compile Include="Data\TitleGenerator.fs" />
     <Compile Include="Data\NullValues.fs" />
-    <Compile Include="Data\Credentials\ATProtoCredentials.fs" />
     <Compile Include="Data\Credentials\DeviantArtCredentials.fs" />
     <Compile Include="Data\Credentials\FurAffinityCredentials.fs" />
     <Compile Include="Data\Credentials\RedditCredentials.fs" />

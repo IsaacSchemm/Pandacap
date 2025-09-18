@@ -309,12 +309,7 @@ namespace Pandacap.Controllers
 
             if (!handle.StartsWith("did:"))
             {
-                var handleResolution = await XRPC.Com.Atproto.Identity.ResolveHandleAsync(
-                    client,
-                    XRPC.Host.Bluesky.PublicAppView,
-                    handle);
-
-                did = handleResolution.did;
+                throw new NotImplementedException("Handle resolution not supported");
             }
             else
             {
@@ -325,7 +320,7 @@ namespace Pandacap.Controllers
 
             var repo = await XRPC.Com.Atproto.Repo.DescribeRepoAsync(
                 client,
-                XRPC.Host.Unauthenticated(document.PDS),
+                document.PDS,
                 did);
 
             context.ATProtoFeeds.Add(new ATProtoFeed

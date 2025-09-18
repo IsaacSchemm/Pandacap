@@ -2,6 +2,7 @@
 
 open System.ComponentModel.DataAnnotations
 
+[<System.Obsolete>]
 type StarpassPost() =
     [<Key>]
     member val FavoriteId = "" with get, set

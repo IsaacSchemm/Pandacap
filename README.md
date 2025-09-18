@@ -15,7 +15,7 @@ On the home page:
 Features:
 
 * Create **image posts** and **text posts**, which are available on the site, via RSS/Atom, and via ActivityPub
-* Crosspost your image posts and text posts to attached Bluesky, DeviantArt, Fur Affinity, or Weasyl accounts
+* Crosspost your image posts and text posts to attached DeviantArt, Fur Affinity, or Weasyl accounts
 * View posts from users or feeds you follow in the **inbox**, split among **image posts**, **text posts**, **shares**, and **podcasts**, and grouped by author
     * Non-ActivityPub posts are periodically imported (~3 times per day)
 * View **notifications** from activity on your posts or from your attached accounts
@@ -29,7 +29,7 @@ Some of the things Pandacap does **not** do:
 * Host any public-facing content that is not intentionally placed there by the server admin.
 * Create posts with more than one attached image.
 * Attach images to replies.
-* Automatically crosspost to Bluesky, DeviantArt, FA, or Weasyl. (This is done manually through the Pandacap user interface.)
+* Automatically crosspost to DeviantArt, FA, or Weasyl. (This is done manually through the Pandacap user interface.)
 * Let you "repost" / "boost" someone else's post.
 
 ## Techincal Information
@@ -71,8 +71,8 @@ Pandacap allows you to follow atproto accounts as feeds. For each user, you can 
 
 Pandacap will also look for Bluesky profile data (name and icon) when it refreshes the feed (every 8 hours, just like for RSS feeds).
 
-When viewing an Bluesky post while logged in, Pandacap will offer you the option to like or reply to the post
-with an attached atproto account, or with Bridgy Fed (if both you and the other user have it turned on).
+If you view a Bluesky post while logged in, and Pandacap detects that the post is available via Bridgy Fed,
+it will show that version of the post, to allow you to like and reply to it.
 
 All data is fetched (unauthenticated) from the individual user's PDS, using `com.atproto.repo.listRecords`; the Bluesky AppView is not used.
 
@@ -142,7 +142,7 @@ Libraries:
     * **Podcasts**: Code for splitting and re-encoding podcasts for transfer to an audio CD.
     * **Data**: Contains the EF Core data models that are used in the Cosmos DB database to store the user's data.
     * **Clients**: Contains miscellaneous small API clients.
-* **Pandacap.HighLevel**: Contains shared Pandacap code, including Bluesky and Weasyl abstractions, RSS/Atom feed support, and code to assemble the user's notifications and favorites into composite lists.
+* **Pandacap.HighLevel**: Contains shared Pandacap code, including RSS/Atom feed support and code to assemble the user's notifications and favorites into composite lists.
 
 ## Deployment
 

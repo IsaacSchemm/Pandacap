@@ -2,14 +2,11 @@
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using Pandacap.HighLevel.ATProto;
 using Pandacap.PlatformBadges;
 
 namespace Pandacap.Notifications
 {
     public class ATProtoNotificationHandler(
-        ATProtoCredentialProvider atProtoCredentialProvider,
-        BridgyFedDIDProvider bridgyFedDIDProvider,
         DIDResolver didResolver,
         IHttpClientFactory httpClientFactory,
         PandacapDbContext context
@@ -43,14 +40,6 @@ namespace Pandacap.Notifications
 
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
-            HashSet<string> dids = [];
-
-            foreach (var credential in await atProtoCredentialProvider.GetAllCredentialsAsync())
-                dids.Add(credential.DID);
-
-            if (await bridgyFedDIDProvider.GetDIDAsync() is string bridgy_did)
-                dids.Add(bridgy_did);
-
             using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 

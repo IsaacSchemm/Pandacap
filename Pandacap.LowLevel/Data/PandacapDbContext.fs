@@ -5,7 +5,6 @@ open Microsoft.EntityFrameworkCore
 type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     inherit DbContext(options)
 
-    member this.ATProtoCredentials: DbSet<ATProtoCredentials> = this.Set()
     member this.DeviantArtCredentials: DbSet<DeviantArtCredentials> = this.Set()
     member this.FurAffinityCredentials: DbSet<FurAffinityCredentials> = this.Set()
     member this.RedditCredentials: DbSet<RedditCredentials> = this.Set()
@@ -40,7 +39,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.BlueskyPostFeedItems: DbSet<BlueskyPostFeedItem> = this.Set()
     member this.BlueskyRepostFeedItems: DbSet<BlueskyRepostFeedItem> = this.Set()
     member this.WhiteWindBlogEntryFeedItems: DbSet<WhiteWindBlogEntryFeedItem> = this.Set()
-    member this.BlueskyLikes: DbSet<BlueskyLike> = this.Set()
+    [<System.Obsolete>] member this.BlueskyLikes: DbSet<BlueskyLike> = this.Set()
     member this.RemoteActivityPubReplies: DbSet<RemoteActivityPubReply> = this.Set()
     member this.ActivityPubOutboundActivities: DbSet<ActivityPubOutboundActivity> = this.Set()
     member this.ActivityPubFavorites: DbSet<ActivityPubFavorite> = this.Set()

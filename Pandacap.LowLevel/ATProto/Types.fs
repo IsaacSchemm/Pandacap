@@ -79,51 +79,9 @@ type BlueskyInteraction = {
     Subject: ATProtoRef
 }
 
-type BlueskyAppViewNotificationAuthor = {
-    DID: string
-    Handle: string
-    DisplayName: string
-}
-
-type BlueskyAppViewNotification = {
-    Ref: ATProtoRef
-    Author: BlueskyAppViewNotificationAuthor
-    Reason: string
-    ReasonSubject: ATProtoRefUri
-    IsRead: bool
-    IndexedAt: DateTimeOffset
-}
-
 type WhitewindBlogEntry = {
     Title: string
     Content: string
     CreatedAt: Nullable<DateTimeOffset>
     Public: bool
 }
-
-type BlueskyEmbeddedImageParameters = {
-    Blob: obj
-    Alt: string
-    Width: int
-    Height: int
-}
-
-type BlueskyPostParameters = {
-    Text: string
-    CreatedAt: DateTimeOffset
-    Images: BlueskyEmbeddedImageParameters list
-    InReplyTo: BlueskyReplyContext list
-    PandacapPost: Nullable<Guid>
-}
-
-type WhiteWindBlogEntryParameters = {
-    Title: string
-    Content: string
-    CreatedAt: DateTimeOffset
-    PandacapPost: Nullable<Guid>
-}
-
-type ATProtoCreateParameters =
-| BlueskyPost of BlueskyPostParameters
-| BlueskyLike of ATProtoRef
-| WhiteWindBlogEntry of WhiteWindBlogEntryParameters

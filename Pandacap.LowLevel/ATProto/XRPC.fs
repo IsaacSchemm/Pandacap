@@ -7,35 +7,6 @@ open System.Net.Http.Json
 open System.Threading.Tasks
 
 module XRPC =
-    type IHost =
-        abstract member PDS: string
-
-    module Host =
-        let Unauthenticated host = {
-            new IHost with
-                member _.PDS = host
-        }
-
-        module Bluesky =
-            let PublicAppView = {
-                new IHost with
-                    member _.PDS = "public.api.bsky.app"
-            }
-
-    type IToken =
-        inherit IHost
-        abstract member Token: string
-
-    type ICredentials =
-        inherit IHost
-        abstract member DID: string
-        abstract member AccessToken: string
-
-    type IRefreshCredentials =
-        inherit ICredentials
-        abstract member RefreshToken: string
-        abstract member UpdateTokensAsync: newCredentials: ATProtoTokens -> Task
-
     type XrpcError = {
         error: string
         message: string
@@ -52,7 +23,7 @@ module XRPC =
         method: HttpMethod
         procedureName: string
         parameters: (string * string) list
-        credentials: IHost
+        pds: string
         body: Body
     }
 
@@ -65,14 +36,7 @@ module XRPC =
 
             use req = new HttpRequestMessage(
                 request.method,
-                $"https://{request.credentials.PDS}/xrpc/{Uri.EscapeDataString(request.procedureName)}?{queryString}")
-
-            match request.credentials with
-            | :? ICredentials as c ->
-                req.Headers.Authorization <- new AuthenticationHeaderValue("Bearer", c.AccessToken)
-            | :? IToken as t ->
-                req.Headers.Authorization <- new AuthenticationHeaderValue("Bearer", t.Token)
-            | _ -> ()
+                $"https://{request.pds}/xrpc/{Uri.EscapeDataString(request.procedureName)}?{queryString}")
 
             match request.body with
             | RawBody (data, contentType) ->
@@ -116,188 +80,37 @@ module XRPC =
                     return None
             }
 
-            match error, req.credentials with
-            | Some err, (:? IRefreshCredentials as credentials) when err.error = "ExpiredToken" ->
-                use! tokenResponse = sendAsync httpClient {
-                    method = HttpMethod.Post
-                    procedureName = "com.atproto.server.refreshSession"
-                    parameters = []
-                    credentials = {
-                        new IToken with
-                            member _.PDS = credentials.PDS
-                            member _.Token = credentials.RefreshToken
-                    }
-                    body = NoBody
-                }
-
-                let! tokens =
-                    tokenResponse.EnsureSuccessStatusCode()
-                    |> Task.FromResult
-                    |> thenReadAsAsync {|
-                        accessJwt = ""
-                        refreshJwt = ""
-                        handle = ""
-                        did = ""
-                    |}
-                    |> thenMapAsync (fun x -> {
-                        AccessToken = x.accessJwt
-                        RefreshToken = x.refreshJwt
-                        Handle = x.handle
-                        DID = x.did
-                    })
-
-                do! credentials.UpdateTokensAsync(tokens)
-
-                return! performRequestAsync httpClient {
-                    req with
-                        credentials = {
-                            new IToken with
-                                member _.PDS = credentials.PDS
-                                member _.Token = tokens.AccessToken
-                        }
-                }
-            | Some err, _ ->
+            match error with
+            | Some err ->
                 return raise (XrpcException err)
-            | None, _ ->
+            | None ->
                 return resp.EnsureSuccessStatusCode()
         }
 
     module Com =
         module Atproto =
             module Identity =
-                let ResolveHandleAsync httpClient credentials handle =
+                let ResolveHandleAsync httpClient pds handle =
                     Requests.sendAsync httpClient {
                         method = HttpMethod.Get
                         procedureName = "com.atproto.identity.resolveHandle"
                         parameters = [
                             "handle", handle
                         ]
-                        credentials = credentials
+                        pds = pds
                         body = NoBody
                     }
                     |> Requests.thenReadAsAsync {| did = "" |}
 
             module Repo =
-                let UploadBlobAsync httpClient (credentials: ICredentials) data contentType =
-                    {
-                        method = HttpMethod.Post
-                        procedureName = "com.atproto.repo.uploadBlob"
-                        parameters = []
-                        credentials = credentials
-                        body = RawBody (data, contentType)
-                    }
-                    |> Requests.performRequestAsync httpClient
-                    |> Requests.thenReadAsAsync {|
-                        blob = null :> obj
-                    |}
-
-                let CreateRecordAsync httpClient (credentials: ICredentials) (record: ATProtoCreateParameters) =
-                    {
-                        method = HttpMethod.Post
-                        procedureName = "com.atproto.repo.createRecord"
-                        parameters = []
-                        credentials = credentials
-                        body = JsonBody [
-                            "repo", credentials.DID
-
-                            match record with
-                            | BlueskyPost post ->
-                                "collection", NSIDs.App.Bsky.Feed.Post
-                                "record", dict [
-                                    "$type", NSIDs.App.Bsky.Feed.Post :> obj
-                                    "text", post.Text
-                                    "createdAt", post.CreatedAt.ToString("o")
-
-                                    for r in post.InReplyTo do
-                                        "reply", dict [
-                                            "root", dict [
-                                                "cid", r.Root.CID
-                                                "uri", r.Root.Uri.Raw
-                                            ]
-                                            "parent", dict [
-                                                "cid", r.Parent.CID
-                                                "uri", r.Parent.Uri.Raw
-                                            ]
-                                        ]
-
-                                    match Option.ofNullable post.PandacapPost with
-                                    | Some id -> "pandacapPost", id
-                                    | None -> ()
-
-                                    if not (List.isEmpty post.Images) then
-                                        "embed", dict [
-                                            "$type", "app.bsky.embed.images" :> obj
-                                            "images", [
-                                                for i in post.Images do dict [
-                                                    "image", i.Blob
-                                                    "alt", i.Alt
-
-                                                    if i.Width > 0 && i.Height > 0 then
-                                                        "aspectRatio", dict [
-                                                            "width", i.Width
-                                                            "height", i.Height
-                                                        ]
-                                                ]
-                                            ]
-                                        ]
-                                ]
-
-                            | BlueskyLike subject ->
-                                "collection", NSIDs.App.Bsky.Feed.Like
-                                "record", dict [
-                                    "$type", NSIDs.App.Bsky.Feed.Like :> obj
-                                    "createdAt", DateTimeOffset.UtcNow.ToString("o")
-                                    "subject", dict [
-                                        "cid", subject.CID
-                                        "uri", subject.Uri.Raw
-                                    ]
-                                ]
-
-                            | WhiteWindBlogEntry entry ->
-                                "collection", NSIDs.Com.Whtwnd.Blog.Entry
-                                "record", dict [
-                                    "$type", NSIDs.Com.Whtwnd.Blog.Entry :> obj
-                                    if not (isNull entry.Title) then
-                                        "title", entry.Title
-                                    "content", entry.Content
-                                    "createdAt", entry.CreatedAt.ToString("o")
-                                    "visibility", "public"
-                                ]
-                        ]
-                    }
-                    |> Requests.performRequestAsync httpClient
-                    |> Requests.thenReadAsAsync {|
-                        cid = ""
-                        uri = ""
-                    |}
-                    |> Requests.thenMapAsync (fun r -> {
-                        CID = r.cid
-                        Uri = { Raw = r.uri }
-                    })
-
-                let DeleteRecordAsync httpClient (credentials: ICredentials) (collection: string) (rkey: string) =
-                    {
-                        method = HttpMethod.Post
-                        procedureName = "com.atproto.repo.deleteRecord"
-                        parameters = []
-                        credentials = credentials
-                        body = JsonBody [
-                            "repo", credentials.DID
-                            "collection", collection
-                            "rkey", rkey
-                        ]
-                    }
-                    |> Requests.performRequestAsync httpClient
-                    |> Requests.thenIgnoreAsync
-
-                let DescribeRepoAsync httpClient credentials (repo: string) =
+                let DescribeRepoAsync httpClient pds (repo: string) =
                     {
                         method = HttpMethod.Get
                         procedureName = "com.atproto.repo.describeRepo"
                         parameters = [
                             "repo", repo
                         ]
-                        credentials = credentials
+                        pds = pds
                         body = NoBody
                     }
                     |> Requests.performRequestAsync httpClient
@@ -318,7 +131,7 @@ module XRPC =
                     records: Record<'T> list
                 }
 
-                let GetRecordAsync httpClient credentials did collection rkey sample =
+                let GetRecordAsync httpClient pds did collection rkey sample =
                     {
                         method = HttpMethod.Get
                         procedureName = "com.atproto.repo.getRecord"
@@ -327,7 +140,7 @@ module XRPC =
                             "collection", collection
                             "rkey", rkey
                         ]
-                        credentials = credentials
+                        pds = pds
                         body = NoBody
                     }
                     |> Requests.performRequestAsync httpClient
@@ -337,7 +150,7 @@ module XRPC =
                         value = sample
                     }
 
-                let ListRecordsAsync httpClient credentials did collection limit cursor direction sample =
+                let ListRecordsAsync httpClient pds did collection limit cursor direction sample =
                     {
                         method = HttpMethod.Get
                         procedureName = "com.atproto.repo.listRecords"
@@ -355,7 +168,7 @@ module XRPC =
                             | Forward -> ()
                             | Reverse -> "reverse", "true"
                         ]
-                        credentials = credentials
+                        pds = pds
                         body = NoBody
                     }
                     |> Requests.performRequestAsync httpClient
@@ -368,7 +181,7 @@ module XRPC =
                         }]
                     }
 
-                let GetBlobAsync httpClient credentials did cid = task {
+                let GetBlobAsync httpClient pds did cid = task {
                     use! resp = Requests.performRequestAsync httpClient {
                         method = HttpMethod.Get
                         procedureName = "com.atproto.sync.getBlob"
@@ -376,7 +189,7 @@ module XRPC =
                             "did", did
                             "cid", cid
                         ]
-                        credentials = credentials
+                        pds = pds
                         body = NoBody
                     }
 
@@ -395,14 +208,14 @@ module XRPC =
                     |}
                 }
 
-                let GetLatestCommitAsync httpClient credentials did =
+                let GetLatestCommitAsync httpClient pds did =
                     {
                         method = HttpMethod.Get
                         procedureName = "com.atproto.sync.getLatestCommit"
                         parameters = [
                             "did", did
                         ]
-                        credentials = credentials
+                        pds = pds
                         body = NoBody
                     }
                     |> Requests.performRequestAsync httpClient
@@ -410,88 +223,3 @@ module XRPC =
                         cid = ""
                         rev = ""
                     |}
-
-            module Server =
-                let CreateSessionAsync httpClient hostname identifier password = task {
-                    use! resp = Requests.sendAsync httpClient {
-                        method = HttpMethod.Post
-                        procedureName = "com.atproto.server.createSession"
-                        parameters = []
-                        credentials = Host.Unauthenticated hostname
-                        body = JsonBody [
-                            "identifier", identifier
-                            "password", password
-                        ]
-                    }
-
-                    if int resp.StatusCode = 400 then
-                        let! string = resp.Content.ReadAsStringAsync()
-                        failwith string
-
-                    return! resp.EnsureSuccessStatusCode()
-                        |> Task.FromResult
-                        |> Requests.thenReadAsAsync {|
-                            accessJwt = ""
-                            refreshJwt = ""
-                            handle = ""
-                            did = ""
-                        |}
-                        |> Requests.thenMapAsync (fun x -> {
-                            AccessToken = x.accessJwt
-                            RefreshToken = x.refreshJwt
-                            Handle = x.handle
-                            DID = x.did
-                        })
-                }
-
-    module App =
-        module Bsky =
-            module Notification =
-                let ListNotificationsAsync httpClient credentials cursor =
-                    {
-                        method = HttpMethod.Get
-                        procedureName = "app.bsky.notification.listNotifications"
-                        parameters = [
-                            if not (isNull cursor) then
-                                "cursor", cursor
-                        ]
-                        credentials = credentials
-                        body = NoBody
-                    }
-                    |> Requests.performRequestAsync httpClient
-                    |> Requests.thenReadAsAsync {|
-                        cursor = Some ""
-                        notifications = [{|
-                            uri = ""
-                            cid = ""
-                            author = {|
-                                did = ""
-                                handle = ""
-                                displayName = Some ""
-                            |}
-                            reason = ""
-                            reasonSubject = ""
-                            isRead = false
-                            indexedAt = DateTimeOffset.MinValue
-                        |}]
-                    |}
-                    |> Requests.thenMapAsync (fun l -> {
-                        Cursor = Option.toObj l.cursor
-                        Items = [
-                            for x in l.notifications do {
-                                Ref = {
-                                    CID = x.cid
-                                    Uri = { Raw = x.uri }
-                                }
-                                Author = {
-                                    DID = x.author.did
-                                    Handle = x.author.handle
-                                    DisplayName = Option.toObj x.author.displayName
-                                }
-                                Reason = x.reason
-                                ReasonSubject = { Raw = x.reasonSubject }
-                                IsRead = x.isRead
-                                IndexedAt = x.indexedAt
-                            }
-                        ]
-                    })

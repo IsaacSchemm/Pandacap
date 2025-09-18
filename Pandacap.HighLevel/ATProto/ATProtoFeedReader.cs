@@ -44,7 +44,7 @@ namespace Pandacap.HighLevel.ATProto
 
                 var subject = await RecordEnumeration.BlueskyPost.GetRecordAsync(
                     client,
-                    XRPC.Host.Unauthenticated(doc.PDS),
+                    doc.PDS,
                     interaction.Value.Subject.Uri.Components.DID,
                     interaction.Value.Subject.Uri.Components.RecordKey);
 
@@ -197,7 +197,7 @@ namespace Pandacap.HighLevel.ATProto
 
             var doc = await didResolver.ResolveAsync(did);
 
-            var pds = XRPC.Host.Unauthenticated(doc.PDS);
+            var pds = doc.PDS;
 
             var commit = await XRPC.Com.Atproto.Repo.GetLatestCommitAsync(
                 client,

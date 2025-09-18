@@ -72,8 +72,8 @@ type Post() =
 
     member val PublishedTime = DateTimeOffset.MinValue with get, set
 
-    member val BlueskyDID = nullString with get, set
-    member val BlueskyRecordKey = nullString with get, set
+    [<Obsolete>] member val BlueskyDID = nullString with get, set
+    [<Obsolete>] member val BlueskyRecordKey = nullString with get, set
 
     member val WhiteWindDID = nullString with get, set
     member val WhiteWindRecordKey = nullString with get, set
