@@ -119,6 +119,7 @@ namespace Pandacap.Controllers
                 CreatedAt = post.Value.CreatedAt,
                 CreatedBy = new()
                 {
+                    PDS = doc.PDS,
                     DID = did,
                     Handle = doc.Handle
                 },

@@ -45,9 +45,7 @@ namespace Pandacap.Notifications
 
             await foreach (var backlink in context.ATProtoBackLinks
                 .OrderByDescending(link => link.SeenAt)
-                .AsAsyncEnumerable()
-                .OrderByDescending(link => link.SeenAt)
-                .ThenByDescending(link => link.RecordKey))
+                .AsAsyncEnumerable())
             {
                 switch ((backlink.Collection, backlink.Path))
                 {

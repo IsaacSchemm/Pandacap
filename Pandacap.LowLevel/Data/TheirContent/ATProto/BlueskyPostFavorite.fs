@@ -5,6 +5,7 @@ open System.ComponentModel.DataAnnotations
 open Pandacap.PlatformBadges
 
 type BlueskyPostFavoriteUser() =
+    member val PDS = nullString with get, set
     member val DID = "" with get, set
     member val Handle = "" with get, set
 
@@ -34,7 +35,7 @@ type BlueskyPostFavorite() =
 
     interface IPost with
         member _.Platform = Bluesky
-        member this.Url = $"https://bsky.app/profile/{this.CreatedBy.DID}/post/{this.RecordKey}"
+        member this.Url = $"""https://{this.CreatedBy.PDS |> orString "public.api.bsky.app"}"""
         member this.DisplayTitle = TitleGenerator.FromBody(this.Text)
         member this.Id = $"{this.Id}"
         member this.InternalUrl = $"/ATProto/ViewBlueskyPost?did={this.CreatedBy.DID}&rkey={this.RecordKey}"

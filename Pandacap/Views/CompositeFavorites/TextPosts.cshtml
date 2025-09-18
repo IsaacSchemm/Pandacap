@@ -73,6 +73,10 @@ else
                             {
                                 <p>@b.Text</p>
                             }
+                            else if (item is BlueskyPostFavorite bp)
+                            {
+                                <p>@bp.Text</p>
+                            }
                             else if (item is DeviantArtFavorite d && d.Content is string dc)
                             {
                                 @Html.Raw(dc)
