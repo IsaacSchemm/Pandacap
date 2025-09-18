@@ -34,24 +34,6 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Notify()
-        {
-            await SendPrivateMessageAsync("notify");
-
-            return RedirectToAction("Index", "Profile");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Mute()
-        {
-            await SendPrivateMessageAsync("mute");
-
-            return RedirectToAction("Index", "Profile");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Help()
         {
             await SendPrivateMessageAsync("help");
