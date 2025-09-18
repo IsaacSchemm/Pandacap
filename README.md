@@ -109,10 +109,9 @@ Posts from users you follow on these platforms will appear in the Pandacap inbox
 
 Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions, and Weasyl support relies on a PHP proxy script (included in this repository).
 
-### Furry Network / Reddit / Sheezy.Art
+### Reddit
 
-Pandacap can monitor accounts on these platforms and automatically add new favorites (or in Reddit's case, upvotes of top-level posts) to its Favorites section.
-No other integration with these platforms is currently available.
+Pandacap can connect to a Reddit account, to monitor it for upvotes on top-level posts and add these posts to your Favorites.
 
 ### RSS / Atom
 

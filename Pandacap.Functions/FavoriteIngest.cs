@@ -6,8 +6,6 @@ namespace Pandacap.Functions
     public class FavoriteIngest(
         DeviantArtFavoriteHandler deviantArtFavoriteHandler,
         FurAffinityFavoriteHandler furAffinityFavoriteHandler,
-        FurryNetworkFavoriteHandler furryNetworkFavoriteHandler,
-        SheezyArtFavoriteHandler sheezyArtFavoriteHandler,
         RedditFavoriteHandler redditFavoriteHandler,
         WeasylFavoriteHandler weasylFavoriteHandler)
     {
@@ -32,9 +30,6 @@ namespace Pandacap.Functions
             await c(furAffinityFavoriteHandler.ImportFavoritesAsync());
             await c(redditFavoriteHandler.ImportUpvotesAsync());
             await c(weasylFavoriteHandler.ImportFavoriteSubmissionsAsync());
-
-            await c(furryNetworkFavoriteHandler.ImportFavoritesAsync());
-            await c(sheezyArtFavoriteHandler.ImportFavoritesAsync());
 
             if (exceptions.Count > 0)
                 throw new AggregateException(exceptions);

@@ -28,22 +28,12 @@ namespace Pandacap.HighLevel
                 .AsAsyncEnumerable()
                 .OfType<IFavorite>();
 
-            var furryNetworkFavorites = context.FurryNetworkFavorites
-                .OrderByDescending(post => post.FavoritedAt)
-                .AsAsyncEnumerable()
-                .OfType<IFavorite>();
-
             var redditUpvotedPosts = context.RedditUpvotedPosts
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
                 .OfType<IFavorite>();
 
             var rssFavorites = context.RssFavorites
-                .OrderByDescending(post => post.FavoritedAt)
-                .AsAsyncEnumerable()
-                .OfType<IFavorite>();
-
-            var sheezyArtFavorites = context.SheezyArtFavorites
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
                 .OfType<IFavorite>();
@@ -62,10 +52,8 @@ namespace Pandacap.HighLevel
                     blueskyPostFavorites,
                     deviantArtFavorites,
                     furAffinityFavorites,
-                    furryNetworkFavorites,
                     redditUpvotedPosts,
                     rssFavorites,
-                    sheezyArtFavorites,
                     weasylFavoriteSubmissions
                 }
                 .MergeNewest(post => post.FavoritedAt)

@@ -65,8 +65,6 @@
     <Compile Include="Data\Credentials\FurAffinityCredentials.fs" />
     <Compile Include="Data\Credentials\RedditCredentials.fs" />
     <Compile Include="Data\Credentials\WeasylCredentials.fs" />
-    <Compile Include="Data\MonitoringTargets\FurryNetworkAccount.fs" />
-    <Compile Include="Data\MonitoringTargets\SheezyArtAccount.fs" />
     <Compile Include="Data\MyContent\ActivityPubOutboundActivity.fs" />
     <Compile Include="Data\MyContent\AddressedPost.fs" />
     <Compile Include="Data\MyContent\Avatar.fs" />
