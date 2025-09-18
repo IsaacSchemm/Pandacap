@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using DnsClient;
+using Microsoft.Extensions.DependencyInjection;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Clients;
@@ -21,6 +22,12 @@ namespace Pandacap.HighLevel
             ApplicationInformation appInfo)
         {
             return services
+                .AddSingleton<ILookupClient>(
+                    new LookupClient(
+                        new LookupClientOptions
+                        {
+                            UseCache = true
+                        }))
                 .AddSingleton(appInfo)
                 .AddSingleton(new ActivityPub.HostInformation(
                     applicationHostname: appInfo.ApplicationHostname,
@@ -36,6 +43,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoBackLinkIngestService>()
                 .AddScoped<ATProtoFeedReader>()
+                .AddScoped<ATProtoHandleLookupClient>()
                 .AddScoped<BridgyFedDIDProvider>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<ConstellationClient>()

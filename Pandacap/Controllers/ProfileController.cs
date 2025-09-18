@@ -24,6 +24,7 @@ namespace Pandacap.Controllers
         ApplicationInformation appInfo,
         AtomRssFeedReader atomRssFeedReader,
         ATProtoFeedReader atProtoFeedReader,
+        ATProtoHandleLookupClient atProtoHandleLookupClient,
         BlobServiceClient blobServiceClient,
         BridgyFedDIDProvider bridgyFedDIDProvider,
         CompositeFavoritesProvider compositeFavoritesProvider,
@@ -305,16 +306,9 @@ namespace Pandacap.Controllers
             var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
-            string did;
-
-            if (!handle.StartsWith("did:"))
-            {
-                throw new NotImplementedException("Handle resolution not supported");
-            }
-            else
-            {
-                did = handle;
-            }
+            string did = handle.StartsWith("did:")
+                ? handle
+                : await atProtoHandleLookupClient.FindDIDAsync(handle);
 
             var document = await didResolver.ResolveAsync(did);
 
