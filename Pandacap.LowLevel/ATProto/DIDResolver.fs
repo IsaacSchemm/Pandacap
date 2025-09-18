@@ -60,7 +60,6 @@ type DIDResolver(
         $"2a6b9ef9-f403-4316-b331-4fff8746c56e-{did}",
         fun _ -> task {
             use client = httpClientFactory.CreateClient()
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent)
 
             return! DIDResolver.ResolveAsync client did
         },

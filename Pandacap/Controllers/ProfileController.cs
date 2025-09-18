@@ -304,7 +304,6 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> AddATProtoFeed(string handle)
         {
             var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             string did = handle.StartsWith("did:")
                 ? handle

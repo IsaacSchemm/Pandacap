@@ -37,7 +37,6 @@ namespace Pandacap.HighLevel.ATProto
             CancellationToken cancellationToken = default)
         {
             using var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             try
             {

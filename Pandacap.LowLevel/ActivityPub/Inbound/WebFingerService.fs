@@ -12,7 +12,6 @@ module internal WebFingerService =
 type WebFingerService(httpClientFactory: IHttpClientFactory) =
     member _.FetchAsync(host: string, resource: string) = task {
         use client = httpClientFactory.CreateClient()
-        client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent)
 
         use! resp = client.GetAsync($"https://{host}/.well-known/webfinger?resource={Uri.EscapeDataString(resource)}")
         return! resp |> WebFingerService.readAsAsync {|

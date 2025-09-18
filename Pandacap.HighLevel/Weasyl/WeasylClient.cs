@@ -18,7 +18,6 @@ namespace Pandacap.HighLevel
             client.DefaultRequestHeaders.Add(
                 "X-Weasyl-API-Key",
                 apiKey);
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
             return client;
         }
 

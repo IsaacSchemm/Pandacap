@@ -113,7 +113,8 @@ builder.Services
     .AddScoped<WeasylNotificationHandler>()
     .AddScoped<WmaZipSplitter>();
 
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient(string.Empty, client =>
+    client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

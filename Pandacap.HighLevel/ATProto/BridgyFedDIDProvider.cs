@@ -12,7 +12,6 @@ namespace Pandacap.HighLevel.ATProto
             try
             {
                 using var client = httpClientFactory.CreateClient();
-                client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
                 var handle = $"{appInfo.Username}.{appInfo.ApplicationHostname}.ap.brid.gy";
 

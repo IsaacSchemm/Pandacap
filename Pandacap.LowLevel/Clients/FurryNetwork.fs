@@ -3,18 +3,14 @@
 open System
 open System.Net.Http
 open System.Text.Json
-open Pandacap.ConfigurationObjects
 
 type FurryNetworkClient(factory: IHttpClientFactory) =
-    let createClient () =
-        let cl = factory.CreateClient()
-        cl.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent)
-        cl
+    let createClient () = factory.CreateClient()
 
     let getAsync (url: string) (client: HttpClient) =
         client.GetAsync(url)
 
-    let readAsAsync (obj: 'T) (content: HttpContent) = task {
+    let readAsAsync (_: 'T) (content: HttpContent) = task {
         let! json = content.ReadAsStringAsync()
         return JsonSerializer.Deserialize<'T>(json)
     }

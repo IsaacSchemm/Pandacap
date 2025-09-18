@@ -33,7 +33,6 @@ namespace Pandacap.Controllers
             CancellationToken cancellationToken)
         {
             var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             using var req = new HttpRequestMessage(HttpMethod.Head, url);
             using var resp = await client.SendAsync(req, cancellationToken);
@@ -51,7 +50,6 @@ namespace Pandacap.Controllers
             CancellationToken cancellationToken)
         {
             var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var req = new HttpRequestMessage(HttpMethod.Get, url);
             var resp = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, cancellationToken);

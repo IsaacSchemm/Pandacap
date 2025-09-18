@@ -41,7 +41,6 @@ namespace Pandacap.Notifications
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
             using var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             await foreach (var backlink in context.ATProtoBackLinks
                 .OrderByDescending(link => link.SeenAt)

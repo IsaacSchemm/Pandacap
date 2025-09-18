@@ -22,7 +22,6 @@ namespace Pandacap.Controllers
             CancellationToken cancellationToken = default)
         {
             using var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var posts = await Mastodon.GetLocalTimelineAsync(client, host, next, cancellationToken);
 

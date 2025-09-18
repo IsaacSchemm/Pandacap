@@ -21,7 +21,6 @@ namespace Pandacap.Controllers
             if (User.Identity?.IsAuthenticated == true && full)
             {
                 var client = httpClientFactory.CreateClient();
-                client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
                 var doc = await didResolver.ResolveAsync(did);
 
@@ -47,7 +46,6 @@ namespace Pandacap.Controllers
             CancellationToken cancellationToken)
         {
             using var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var doc = await didResolver.ResolveAsync(did);
 
@@ -95,7 +93,6 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> AddToFavorites(string did, string rkey, CancellationToken cancellationToken)
         {
             var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var doc = await didResolver.ResolveAsync(did);
 

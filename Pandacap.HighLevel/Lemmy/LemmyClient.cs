@@ -13,7 +13,6 @@ namespace Pandacap.HighLevel.Lemmy
             CancellationToken cancellationToken = default)
         {
             using var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
             var resp = await Clients.Lemmy.GetCommunityAsync(client, host, name, cancellationToken);
             return resp.community_view.community;
         }
@@ -24,7 +23,6 @@ namespace Pandacap.HighLevel.Lemmy
             CancellationToken cancellationToken = default)
         {
             using var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
             var resp = await Clients.Lemmy.GetPostAsync(client, host, id, cancellationToken);
             return (resp.post_view, resp.community_view.community);
         }
@@ -38,7 +36,6 @@ namespace Pandacap.HighLevel.Lemmy
             CancellationToken cancellationToken = default)
         {
             using var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var resp = await Clients.Lemmy.GetPostsAsync(
                 client,
@@ -61,7 +58,6 @@ namespace Pandacap.HighLevel.Lemmy
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             using var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             int page = 1;
 

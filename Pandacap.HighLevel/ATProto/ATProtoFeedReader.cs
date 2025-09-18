@@ -191,7 +191,6 @@ namespace Pandacap.HighLevel.ATProto
             string did)
         {
             var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
             var feed = await context.ATProtoFeeds.SingleAsync(f => f.DID == did);
 

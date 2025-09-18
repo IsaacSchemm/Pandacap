@@ -58,7 +58,6 @@ namespace Pandacap.HighLevel.ATProto
                     var myDoc = await didResolver.ResolveAsync(did);
 
                     using var client = httpClientFactory.CreateClient();
-                    client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
 
                     var myRecentPosts =
                         (await RecordEnumeration.BlueskyPost.FindNewestRecordsAsync(

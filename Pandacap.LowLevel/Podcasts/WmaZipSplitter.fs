@@ -70,7 +70,6 @@ type WmaZipSplitter(httpClientFactory: IHttpClientFactory) =
         try
             do! task {
                 use client = httpClientFactory.CreateClient()
-                client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent)
 
                 use! resp = client.GetAsync(uri, cancellationToken)
                 use! stream = resp.EnsureSuccessStatusCode().Content.ReadAsStreamAsync()
