@@ -5,12 +5,14 @@ using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
+using Pandacap.HighLevel.ATProto;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
+        ATProtoBackLinkIngestService atProtoBackLinkIngestService,
         DIDResolver didResolver,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
@@ -88,7 +90,6 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToFavorites(string did, string rkey, CancellationToken cancellationToken)
         {
@@ -137,7 +138,6 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFromFavorites(string cid, CancellationToken cancellationToken)
         {
@@ -150,6 +150,30 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> IngestBacklinks(CancellationToken cancellationToken)
+        {
+            try
+            {
+                await atProtoBackLinkIngestService.IngestForProfileAsync(
+                    cancellationToken);
+                await atProtoBackLinkIngestService.IngestForPostsAsync(
+                    TimeSpan.FromDays(14),
+                    cancellationToken);
+                return RedirectToAction("ByDate", "Notifications");
+            }
+            catch (Exception ex)
+            {
+                return new ContentResult
+                {
+                    Content = $"{ex}",
+                    ContentType = "text/plain",
+                    StatusCode = 500
+                };
+            }
         }
     }
 }
