@@ -50,13 +50,6 @@ type BlueskyRepostFeedItem() =
         false
     })
 
-    interface IBlueskyPost with
-        member this.CID = this.Original.CID
-        member this.DID = this.Original.DID
-        member this.PDS = this.Original.PDS
-        member this.RecordKey = this.Original.RecordKey
-        member _.InFavorites = false
-
     interface IInboxPost with
         member this.DismissedAt
             with get () = this.DismissedAt

@@ -43,13 +43,6 @@ type BlueskyPostFeedItem() =
         false
     })
 
-    interface IBlueskyPost with
-        member this.CID = this.CID
-        member this.DID = this.Author.DID
-        member this.PDS = this.Author.PDS
-        member this.RecordKey = this.RecordKey
-        member _.InFavorites = false
-
     interface IInboxPost with
         member this.DismissedAt
             with get () = this.DismissedAt
