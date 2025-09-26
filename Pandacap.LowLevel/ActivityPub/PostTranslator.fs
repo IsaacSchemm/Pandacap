@@ -7,7 +7,7 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
     let pair key value = (key, value :> obj)
 
     member _.BuildObject(post: IPost) = dict [
-        let id = mapper.GetObjectId(post)
+        let id = post.GetObjectId(hostInformation)
 
         pair "id" id
         pair "url" id
@@ -29,15 +29,24 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
             ]
         ]
         pair "published" post.PublishedTime
-        pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [mapper.FollowersRootId]
+
+        let addressing = post.GetAddressing(hostInformation)
+
+        if not (isNull addressing.InReplyTo) then
+            pair "inReplyTo" addressing.InReplyTo
+
+        pair "to" addressing.To
+        pair "cc" addressing.Cc
+
+        if not (isNull addressing.Audience) then
+            pair "audience" addressing.Audience
 
         if Seq.length post.Images > 0 then
             pair "attachment" [
                 for image in post.Images do
                     dict [
                         pair "type" "Image"
-                        pair "url" $"https://{hostInformation.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.BlobId}"
+                        pair "url" (image.GetUrl(hostInformation))
                         pair "mediaType" image.MediaType
                         if not (String.IsNullOrEmpty(image.AltText)) then
                             pair "name" image.AltText
@@ -49,37 +58,17 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
             ]
     ]
 
-    member _.BuildObject(post: IAddressedPost) = dict [
-        let id = mapper.GetObjectId(post)
-
-        pair "id" id
-        pair "url" id
-        
-        pair "type" "Note"
-        if not (isNull post.Title) then
-            pair "name" post.Title
-
-        pair "content" post.Html
-
-        pair "inReplyTo" post.InReplyTo
-
-        pair "attributedTo" mapper.ActorId
-        pair "published" post.PublishedTime
-
-        pair "to" post.To
-        pair "cc" post.Cc
-
-        if not (isNull post.Audience) then
-            pair "audience" post.Audience
-    ]
-
     member this.BuildObjectCreate(post: IPost) = dict [
         pair "type" "Create"
         pair "id" (mapper.GetCreateId(post))
         pair "actor" mapper.ActorId
         pair "published" post.PublishedTime
-        pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [mapper.FollowersRootId]
+
+        let addressing = post.GetAddressing(hostInformation)
+
+        pair "to" addressing.To
+        pair "cc" addressing.Cc
+
         pair "object" (this.BuildObject(post))
     ]
 
@@ -88,31 +77,16 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId
         pair "published" DateTimeOffset.UtcNow
-        pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "cc" [mapper.FollowersRootId]
+
+        let addressing = post.GetAddressing(hostInformation)
+
+        pair "to" addressing.To
+        pair "cc" addressing.Cc
+
         pair "object" (this.BuildObject(post))
     ]
 
     member _.BuildObjectDelete(post: IPost) = dict [
-        pair "type" "Delete"
-        pair "id" (mapper.GetTransientId())
-        pair "actor" mapper.ActorId
-        pair "published" DateTimeOffset.UtcNow
-        pair "to" "https://www.w3.org/ns/activitystreams#Public"
-        pair "object" (mapper.GetObjectId(post))
-    ]
-
-    member this.BuildObjectCreate(post: IAddressedPost) = dict [
-        pair "type" "Create"
-        pair "id" (mapper.GetCreateId(post))
-        pair "actor" mapper.ActorId
-        pair "published" post.PublishedTime
-        pair "to" post.To
-        pair "cc" post.Cc
-        pair "object" (this.BuildObject(post))
-    ]
-
-    member _.BuildObjectDelete(post: IAddressedPost) = dict [
         pair "type" "Delete"
         pair "id" (mapper.GetTransientId())
         pair "actor" mapper.ActorId

@@ -15,6 +15,9 @@ type AddressedPost() =
     member val HtmlContent = "" with get, set
     member val IsDirectMessage = false with get, set
 
+    member val BlueskyDID = nullString with get, set
+    member val BlueskyRecordKey = nullString with get, set
+
     [<NotMapped>]
     member this.IsReply = not (isNull this.InReplyTo)
 
@@ -55,12 +58,30 @@ type AddressedPost() =
         member _.Usericon = null
         member _.Username = null
 
-    interface Pandacap.ActivityPub.IAddressedPost with
-        member this.Audience = this.Community
-        member this.Cc = this.Addressing.Cc
+    interface Pandacap.ActivityPub.IPost with
+        member this.GetObjectId(hostInfo) = $"https://{hostInfo.ApplicationHostname}/AddressedPosts/{this.Id}"
+        member this.GetAddressing(_) = {
+            new Pandacap.ActivityPub.IAddressing with
+                member _.InReplyTo = this.InReplyTo
+                member _.To = this.Addressing.To
+                member _.Cc = this.Addressing.Cc
+                member _.Audience = this.Community
+        }
+
         member this.Html = this.HtmlContent
-        member this.Id = this.Id
-        member this.InReplyTo = this.InReplyTo
         member this.PublishedTime = this.PublishedTime
         member this.Title = this.Title
-        member this.To = this.Addressing.To
+
+        member _.IsJournal = false
+        member _.Tags = []
+        member _.Images = []
+
+        member this.Bridging = {
+            new Pandacap.ActivityPub.IBridging with
+                member _.BlueskyDID
+                    with get () = this.BlueskyDID
+                    and set value = this.BlueskyDID <- value
+                member _.BlueskyRecordKey
+                    with get () = this.BlueskyRecordKey
+                    and set value = this.BlueskyRecordKey <- value
+        }

@@ -11,7 +11,7 @@ type Mapper(appInfo: HostInformation) =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Inbox"
 
     member _.FollowersRootId =
-        $"https://{appInfo.ApplicationHostname}/ActivityPub/Followers"
+        appInfo.ActivityPubFollowersRootId
 
     member _.FollowingRootId =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Following"
@@ -31,17 +31,12 @@ type Mapper(appInfo: HostInformation) =
     member _.LikedPageId =
         $"https://{appInfo.ApplicationHostname}/Favorites"
 
-    member _.GetObjectId(post: IPost) =
-        $"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}"
+    [<Obsolete("Use IPost.GetObjectId")>]
+    member _.GetObjectId(myPost: IPost) =
+        myPost.GetObjectId(appInfo)
 
-    member _.GetObjectId(addressedPost: IAddressedPost) =
-        $"https://{appInfo.ApplicationHostname}/AddressedPosts/{addressedPost.Id}"
-
-    member _.GetCreateId(post: IPost) =
-        $"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}/Created"
-
-    member _.GetCreateId(addressedPost: IAddressedPost) =
-        $"https://{appInfo.ApplicationHostname}/AddressedPosts/{addressedPost.Id}/Created"
+    member _.GetCreateId(myPost: IPost) =
+        $"{myPost.GetObjectId(appInfo)}/Created"
 
     member _.GetFollowId(followGuid: Guid) =
         $"https://{appInfo.ApplicationHostname}/ActivityPub/Follow/{followGuid}"

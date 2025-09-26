@@ -47,19 +47,6 @@ type PostImage() =
         |> Seq.tryHead
         |> Option.defaultValue (Seq.head this.Renditions)
 
-    interface Pandacap.ActivityPub.IImage with
-        member this.BlobId = this.Raster.Id
-        member this.HorizontalFocalPoint =
-            this.FocalPoint
-            |> Option.ofObj
-            |> Option.map (fun f -> f.Horizontal)
-        member this.MediaType = this.Raster.ContentType
-        member this.VerticalFocalPoint =
-            this.FocalPoint
-            |> Option.ofObj
-            |> Option.map (fun f -> f.Vertical)
-        member this.AltText = this.AltText
-
 type Post() =
     member val Id = Guid.Empty with get, set
 
@@ -72,8 +59,8 @@ type Post() =
 
     member val PublishedTime = DateTimeOffset.MinValue with get, set
 
-    [<Obsolete>] member val BlueskyDID = nullString with get, set
-    [<Obsolete>] member val BlueskyRecordKey = nullString with get, set
+    member val BlueskyDID = nullString with get, set
+    member val BlueskyRecordKey = nullString with get, set
 
     [<Obsolete>] member val WhiteWindDID = nullString with get, set
     [<Obsolete>] member val WhiteWindRecordKey = nullString with get, set
@@ -127,10 +114,43 @@ type Post() =
         member _.Username = null
 
     interface Pandacap.ActivityPub.IPost with
+        member this.GetObjectId(hostInfo) = $"https://{hostInfo.ApplicationHostname}/UserPosts/{this.Id}"
+        member _.GetAddressing(hostInfo) = {
+            new Pandacap.ActivityPub.IAddressing with
+                member _.InReplyTo = null
+                member _.To = ["https://www.w3.org/ns/activitystreams#Public"]
+                member _.Cc = [hostInfo.ActivityPubFollowersRootId]
+                member _.Audience = null
+        }
+
         member this.Html = this.Html
-        member this.Id = this.Id
-        member this.Images = [for image in this.Images do image]
+        member this.Images = [
+            for image in this.Images do {
+                new Pandacap.ActivityPub.IImage with
+                    member _.GetUrl(appInfo) = $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{this.Id}/{image.Raster.Id}"
+                    member _.HorizontalFocalPoint =
+                        image.FocalPoint
+                        |> Option.ofObj
+                        |> Option.map (fun f -> f.Horizontal)
+                    member _.MediaType = image.Raster.ContentType
+                    member _.VerticalFocalPoint =
+                        image.FocalPoint
+                        |> Option.ofObj
+                        |> Option.map (fun f -> f.Vertical)
+                    member _.AltText = image.AltText
+            }
+        ]
         member this.IsJournal = this.Type = PostType.JournalEntry
         member this.PublishedTime = this.PublishedTime
         member this.Tags = this.Tags
         member this.Title = this.Title
+
+        member this.Bridging = {
+            new Pandacap.ActivityPub.IBridging with
+                member _.BlueskyDID
+                    with get () = this.BlueskyDID
+                    and set value = this.BlueskyDID <- value
+                member _.BlueskyRecordKey
+                    with get () = this.BlueskyRecordKey
+                    and set value = this.BlueskyRecordKey <- value
+        }

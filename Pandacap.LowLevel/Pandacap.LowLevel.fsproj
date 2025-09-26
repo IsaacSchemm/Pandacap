@@ -25,8 +25,9 @@
     <Compile Include="ActivityPub\HostInformation.fs" />
     <Compile Include="ActivityPub\Serializer.fs" />
     <Compile Include="ActivityPub\IImage.fs" />
+    <Compile Include="ActivityPub\IAddressing.fs" />
+    <Compile Include="ActivityPub\IBridging.fs" />
     <Compile Include="ActivityPub\IPost.fs" />
-    <Compile Include="ActivityPub\IAddressedPost.fs" />
     <Compile Include="ActivityPub\Mapper.fs" />
     <Compile Include="ActivityPub\IListPage.fs" />
     <Compile Include="ActivityPub\ILike.fs" />
