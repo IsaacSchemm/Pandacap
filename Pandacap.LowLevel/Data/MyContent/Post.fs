@@ -144,13 +144,3 @@ type Post() =
         member this.PublishedTime = this.PublishedTime
         member this.Tags = this.Tags
         member this.Title = this.Title
-
-        member this.Bridging = {
-            new Pandacap.ActivityPub.IBridging with
-                member _.BlueskyDID
-                    with get () = this.BlueskyDID
-                    and set value = this.BlueskyDID <- value
-                member _.BlueskyRecordKey
-                    with get () = this.BlueskyRecordKey
-                    and set value = this.BlueskyRecordKey <- value
-        }

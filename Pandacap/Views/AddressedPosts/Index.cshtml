@@ -53,6 +53,17 @@
     }
 }
 
+@if (Model.Post.BlueskyDID is string did && Model.Post.BlueskyRecordKey is string rkey)
+{
+    <hr />
+
+    <p>
+        <a href="https://bsky.app/profile/@(Model.Post.BlueskyDID)/post/@(Model.Post.BlueskyRecordKey)" class="btn btn-outline-primary" target="_blank">
+            View on Bluesky
+        </a>
+    </p>
+}
+
 @if (User.Identity?.IsAuthenticated == true)
 {
     <hr />

@@ -4,8 +4,8 @@ open System
 open System.Threading.Tasks
 
 module RecordEnumeration =
-    let private findNewestItemsAsync httpClient credentials did collection pageSize sample = task {
-        let func = XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient credentials did collection
+    let private findNewestItemsAsync httpClient pds did collection pageSize sample = task {
+        let func = XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did collection
 
         let! forward = func pageSize None ATProtoListDirection.Forward sample
 
@@ -111,12 +111,12 @@ module RecordEnumeration =
                 Description = Option.toObj item.description
             }
 
-        let GetRecordAsync httpClient credentials did rkey =
-            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient credentials did NSIDs.App.Bsky.Actor.Profile rkey sample
+        let GetRecordAsync httpClient pds did rkey =
+            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.App.Bsky.Actor.Profile rkey sample
             |> thenMapToRecordAsync translate
 
-        let ListRecordsAsync httpClient credentials did limit cursor direction =
-            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient credentials did NSIDs.App.Bsky.Actor.Profile limit cursor direction sample
+        let ListRecordsAsync httpClient pds did limit cursor direction =
+            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.App.Bsky.Actor.Profile limit cursor direction sample
             |> thenMapToPageAsync translate
 
     module BlueskyPost =
@@ -205,16 +205,16 @@ module RecordEnumeration =
                 CreatedAt = item.createdAt
             }
 
-        let GetRecordAsync httpClient credentials did rkey =
-            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post rkey sample
+        let GetRecordAsync httpClient pds did rkey =
+            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.App.Bsky.Feed.Post rkey sample
             |> thenMapToRecordAsync translate
 
-        let ListRecordsAsync httpClient credentials did limit cursor direction =
-            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post limit cursor direction sample
+        let ListRecordsAsync httpClient pds did limit cursor direction =
+            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.App.Bsky.Feed.Post limit cursor direction sample
             |> thenMapToPageAsync translate
 
-        let FindNewestRecordsAsync httpClient credentials did pageSize =
-            findNewestItemsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Post pageSize sample
+        let FindNewestRecordsAsync httpClient pds did pageSize =
+            findNewestItemsAsync httpClient pds did NSIDs.App.Bsky.Feed.Post pageSize sample
             |> thenMapAsync translate
 
     module BlueskyLike =
@@ -237,16 +237,16 @@ module RecordEnumeration =
                 }
             }
 
-        let GetRecordAsync httpClient credentials did rkey =
-            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient credentials did NSIDs.App.Bsky.Feed.Like rkey sample
+        let GetRecordAsync httpClient pds did rkey =
+            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.App.Bsky.Feed.Like rkey sample
             |> thenMapToRecordAsync translate
 
-        let ListRecordsAsync httpClient credentials did limit cursor direction =
-            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Like limit cursor direction sample
+        let ListRecordsAsync httpClient pds did limit cursor direction =
+            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.App.Bsky.Feed.Like limit cursor direction sample
             |> thenMapToPageAsync translate
 
-        let FindNewestRecordsAsync httpClient credentials did pageSize =
-            findNewestItemsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Like pageSize sample
+        let FindNewestRecordsAsync httpClient pds did pageSize =
+            findNewestItemsAsync httpClient pds did NSIDs.App.Bsky.Feed.Like pageSize sample
             |> thenMapAsync translate
 
     module BlueskyRepost =
@@ -269,16 +269,16 @@ module RecordEnumeration =
                 }
             }
 
-        let GetRecordAsync httpClient credentials did rkey =
-            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient credentials did NSIDs.App.Bsky.Feed.Repost rkey sample
+        let GetRecordAsync httpClient pds did rkey =
+            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.App.Bsky.Feed.Repost rkey sample
             |> thenMapToRecordAsync translate
 
-        let ListRecordsAsync httpClient credentials did limit cursor direction =
-            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Repost limit cursor direction sample
+        let ListRecordsAsync httpClient pds did limit cursor direction =
+            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.App.Bsky.Feed.Repost limit cursor direction sample
             |> thenMapToPageAsync translate
 
-        let FindNewestRecordsAsync httpClient credentials did pageSize =
-            findNewestItemsAsync httpClient credentials did NSIDs.App.Bsky.Feed.Repost pageSize sample
+        let FindNewestRecordsAsync httpClient pds did pageSize =
+            findNewestItemsAsync httpClient pds did NSIDs.App.Bsky.Feed.Repost pageSize sample
             |> thenMapAsync translate
 
     module WhitewindBlogEntry =
@@ -299,14 +299,14 @@ module RecordEnumeration =
                 Public = item.visibility = Some "public"
             }
 
-        let GetRecordAsync httpClient credentials did rkey =
-            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient credentials did NSIDs.Com.Whtwnd.Blog.Entry rkey sample
+        let GetRecordAsync httpClient pds did rkey =
+            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.Com.Whtwnd.Blog.Entry rkey sample
             |> thenMapToRecordAsync translate
 
-        let ListRecordsAsync httpClient credentials did limit cursor direction =
-            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient credentials did NSIDs.Com.Whtwnd.Blog.Entry limit cursor direction sample
+        let ListRecordsAsync httpClient pds did limit cursor direction =
+            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.Com.Whtwnd.Blog.Entry limit cursor direction sample
             |> thenMapToPageAsync translate
 
-        let FindNewestRecordsAsync httpClient credentials did pageSize =
-            findNewestItemsAsync httpClient credentials did NSIDs.Com.Whtwnd.Blog.Entry pageSize sample
+        let FindNewestRecordsAsync httpClient pds did pageSize =
+            findNewestItemsAsync httpClient pds did NSIDs.Com.Whtwnd.Blog.Entry pageSize sample
             |> thenMapAsync translate

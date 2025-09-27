@@ -11,4 +11,3 @@ type IPost =
     abstract member Html: string
     abstract member Tags: string seq
     abstract member Images: IImage seq
-    abstract member Bridging: IBridging

@@ -160,6 +160,12 @@ The web app and function app must have the appropriate IAM permissions to access
 
 Function app responsibilities:
 
+* `BackLinkIngestDaily`
+    * populates Bluesky notifications for your bridged profile and your posts from the past 2 weeks
+* `BackLinkIngestHourly`
+    * populates Bluesky notifications for your posts from the past 2 days
+* `BridgedPostDiscovery`
+    * for your recent posts, populates Pandacap's link back to Bluesky (to the bridged post)
 * `FavoriteIngest`
     * check accounts for new favorites / likes / upvotes
 * `InboxCleanup`

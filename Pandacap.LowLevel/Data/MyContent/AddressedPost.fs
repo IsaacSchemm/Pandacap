@@ -75,13 +75,3 @@ type AddressedPost() =
         member _.IsJournal = false
         member _.Tags = []
         member _.Images = []
-
-        member this.Bridging = {
-            new Pandacap.ActivityPub.IBridging with
-                member _.BlueskyDID
-                    with get () = this.BlueskyDID
-                    and set value = this.BlueskyDID <- value
-                member _.BlueskyRecordKey
-                    with get () = this.BlueskyRecordKey
-                    and set value = this.BlueskyRecordKey <- value
-        }
