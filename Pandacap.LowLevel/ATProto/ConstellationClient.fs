@@ -27,6 +27,7 @@ type ConstellationClient(
 
     member _.PageLinksAsync(target: string, collection: string, path: string, cursor: string, cancellationToken: CancellationToken) = task {
         use client = createClient ()
+        client.Timeout <- TimeSpan.FromSeconds(3L)
         let qs = String.concat "&" [
             $"target={Uri.EscapeDataString(target)}"
             $"collection={Uri.EscapeDataString(collection)}"
@@ -46,17 +47,4 @@ type ConstellationClient(
             |}]
             cursor = ""
         |}
-    }
-
-    member this.PageLinksWithRetryAsync(target, collection, path, cursor, retryCount, cancellationToken) = task {
-        match retryCount with
-        | 1u ->
-            return! this.PageLinksAsync(target, collection, path, cursor, cancellationToken)
-        | _ ->
-            use cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)
-            cts.CancelAfter(3000)
-            try
-                return! this.PageLinksAsync(target, collection, path, cursor, cts.Token)
-            with :? TaskCanceledException when cts.IsCancellationRequested && not cancellationToken.IsCancellationRequested ->
-                return! this.PageLinksWithRetryAsync(target, collection, path, cursor, retryCount - 1u, cancellationToken)
     }
