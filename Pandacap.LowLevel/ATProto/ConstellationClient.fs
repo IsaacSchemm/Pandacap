@@ -4,6 +4,7 @@ open System
 open System.Net.Http
 open System.Net.Http.Json
 open System.Threading
+open System.Threading.Tasks
 open Pandacap.ConfigurationObjects
 
 type ConstellationHost = {
@@ -45,4 +46,17 @@ type ConstellationClient(
             |}]
             cursor = ""
         |}
+    }
+
+    member this.PageLinksWithRetryAsync(target, collection, path, cursor, retryCount, cancellationToken) = task {
+        match retryCount with
+        | 1u ->
+            return! this.PageLinksAsync(target, collection, path, cursor, cancellationToken)
+        | _ ->
+            use cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)
+            cts.CancelAfter(3000)
+            try
+                return! this.PageLinksAsync(target, collection, path, cursor, cts.Token)
+            with :? TaskCanceledException when cts.IsCancellationRequested && not cancellationToken.IsCancellationRequested ->
+                return! this.PageLinksWithRetryAsync(target, collection, path, cursor, retryCount - 1u, cancellationToken)
     }

@@ -81,20 +81,19 @@ Bluesky's CDN is used for thumbnails and avatars.
 Pandacap allows you to enable and disable Bridgy Fed from the profile page while logged in.
 You can also add a separate atproto account from the profile page and crosspost to it (as is done with DeviantArt, etc.)
 
+Pandacap uses [Constellation](https://github.com/at-microcosm/microcosm-rs/tree/main/constellation) to find atproto links back to your bridged posts.
+Once per hour, if you've posted a new post (and have Bridgy Fed enabled), Pandacap will find the bridged version of your post and add a "View on Bluesky" link to the post's page.
+
 #### Notifications
 
-Pandacap uses [Constellation](https://github.com/at-microcosm/microcosm-rs/tree/main/constellation) to:
+When you view the Notifications page, Pandacap will use Constellation to populate it with:
 
-* Find the bridged (via Bridgy Fed) version of your posts and add a "View on Bluesky" link to the post's page
-* Populate the Notifications section with:
-    * Mentions
-    * Follows
-    * For posts you've made within the past 14 days:
-        * Likes
-        * Reposts
-        * Replies
-
-Backlinks are updated hourly for posts made within the past 2 days, and daily otherwise.
+* Mentions
+* Follows
+* For posts you've made within the past 30 days that have a "View on Bluesky" link:
+    * Likes
+    * Reposts
+    * Replies
 
 ### DeviantArt / Fur Affinity / Weasyl
 

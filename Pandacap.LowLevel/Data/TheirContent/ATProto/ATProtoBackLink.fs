@@ -3,6 +3,7 @@
 open System
 open System.ComponentModel.DataAnnotations
 
+[<Obsolete>]
 type ATProtoBackLink() =
     [<Key>]
     member val Id = Guid.Empty with get, set

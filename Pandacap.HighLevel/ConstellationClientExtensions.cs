@@ -16,11 +16,12 @@ namespace Pandacap.HighLevel
 
             while (true)
             {
-                var page = await constellationClient.PageLinksAsync(
+                var page = await constellationClient.PageLinksWithRetryAsync(
                     target,
                     collection,
                     path,
                     cursor,
+                    2,
                     cancellationToken);
 
                 foreach (var item in page.linking_records)

@@ -41,7 +41,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
                 .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<AtomRssFeedReader>()
-                .AddScoped<ATProtoBackLinkIngestService>()
                 .AddScoped<ATProtoFeedReader>()
                 .AddScoped<ATProtoHandleLookupClient>()
                 .AddScoped<BridgyFedDIDProvider>()
