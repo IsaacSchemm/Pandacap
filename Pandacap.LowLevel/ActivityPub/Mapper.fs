@@ -31,7 +31,6 @@ type Mapper(appInfo: HostInformation) =
     member _.LikedPageId =
         $"https://{appInfo.ApplicationHostname}/Favorites"
 
-    [<Obsolete("Use IPost.GetObjectId")>]
     member _.GetObjectId(myPost: IPost) =
         myPost.GetObjectId(appInfo)
 

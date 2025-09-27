@@ -22,9 +22,6 @@ type ATProtoFeed() =
     member val AvatarCID = nullString with get, set
 
     member val NSIDs = new ResizeArray<string>() with get, set
-    
-    [<Obsolete>]
-    member val Cursors = new Dictionary<string, string>() with get, set
 
     member val LastCommitCID = nullString with get, set
     member val LastCIDsSeen = new ResizeArray<string>() with get, set
