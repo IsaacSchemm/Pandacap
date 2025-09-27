@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Clients.ATProto;
-using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 
 namespace Pandacap.HighLevel.ATProto
@@ -8,19 +7,12 @@ namespace Pandacap.HighLevel.ATProto
     public class ATProtoBackLinkIngestService(
         BridgyFedDIDProvider bridgyFedDIDProvider,
         ConstellationClient constellationClient,
-        DIDResolver didResolver,
-        PandacapDbContext context,
-        IHttpClientFactory httpClientFactory)
+        PandacapDbContext context)
     {
         public async Task IngestForProfileAsync(
             CancellationToken cancellationToken = default)
         {
-            HashSet<string> dids = [];
-
-            if (await bridgyFedDIDProvider.GetDIDAsync() is string bridgy_did)
-                dids.Add(bridgy_did);
-
-            foreach (var did in dids)
+            if (await bridgyFedDIDProvider.GetDIDAsync() is string did)
             {
                 await RefreshLinksAsync(
                     did,
@@ -40,54 +32,53 @@ namespace Pandacap.HighLevel.ATProto
             TimeSpan maxPostAge,
             CancellationToken cancellationToken = default)
         {
-            HashSet<string> dids = [];
+            var cutoff = DateTimeOffset.UtcNow - maxPostAge;
 
-            if (await bridgyFedDIDProvider.GetDIDAsync() is string bridgy_did)
-                dids.Add(bridgy_did);
-
-            foreach (var did in dids)
-            {
-                var cutoff = DateTimeOffset.UtcNow - maxPostAge;
-
-                var recentPostCount = await context.Posts
-                    .Where(post => post.PublishedTime > cutoff)
-                    .DocumentCountAsync(cancellationToken);
-
-                if (recentPostCount > 0)
+            var posts = await context.Posts
+                .Where(p => p.PublishedTime >= cutoff)
+                .Where(p => p.BlueskyDID != null)
+                .Where(p => p.BlueskyRecordKey != null)
+                .Select(p => new
                 {
-                    var myDoc = await didResolver.ResolveAsync(did);
+                    p.BlueskyDID,
+                    p.BlueskyRecordKey
+                })
+                .ToListAsync(cancellationToken);
 
-                    using var client = httpClientFactory.CreateClient();
+            var addressedPosts = await context.AddressedPosts
+                .Where(p => p.PublishedTime >= cutoff)
+                .Where(p => p.BlueskyDID != null)
+                .Where(p => p.BlueskyRecordKey != null)
+                .Select(p => new
+                {
+                    p.BlueskyDID,
+                    p.BlueskyRecordKey
+                })
+                .ToListAsync(cancellationToken);
 
-                    var myRecentPosts =
-                        (await RecordEnumeration.BlueskyPost.FindNewestRecordsAsync(
-                            client,
-                            myDoc.PDS,
-                            did,
-                            50))
-                        .Where(post => post.Value.CreatedAt > cutoff);
+            var allPosts = posts.Concat(addressedPosts);
 
-                    foreach (var myPost in myRecentPosts)
-                    {
-                        await RefreshLinksAsync(
-                            myPost.Ref.Uri.Raw,
-                            "app.bsky.feed.post",
-                            ".reply.parent.uri",
-                            cancellationToken);
+            foreach (var p in allPosts)
+            {
+                var uri = $"at://{p.BlueskyDID}/app.bsky.feed.post/{p.BlueskyRecordKey}";
 
-                        await RefreshLinksAsync(
-                            myPost.Ref.Uri.Raw,
-                            "app.bsky.feed.like",
-                            ".subject.uri",
-                            cancellationToken);
+                await RefreshLinksAsync(
+                    uri,
+                    "app.bsky.feed.post",
+                    ".reply.parent.uri",
+                    cancellationToken);
 
-                        await RefreshLinksAsync(
-                            myPost.Ref.Uri.Raw,
-                            "app.bsky.feed.repost",
-                            ".subject.uri",
-                            cancellationToken);
-                    }
-                }
+                await RefreshLinksAsync(
+                    uri,
+                    "app.bsky.feed.like",
+                    ".subject.uri",
+                    cancellationToken);
+
+                await RefreshLinksAsync(
+                    uri,
+                    "app.bsky.feed.repost",
+                    ".subject.uri",
+                    cancellationToken);
             }
         }
 
