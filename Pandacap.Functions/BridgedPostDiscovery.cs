@@ -17,9 +17,9 @@ namespace Pandacap.Functions
         IHttpClientFactory httpClientFactory)
     {
         [Function("BridgedPostDiscovery")]
-        public async Task Run([TimerTrigger("55 */10 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 11 * * * *")] TimerInfo myTimer)
         {
-            var cutoff = DateTimeOffset.UtcNow.AddDays(-1);
+            var cutoff = DateTimeOffset.UtcNow.AddDays(-2);
 
             List<Pandacap.ActivityPub.IPost> posts = [
                 .. await context.Posts

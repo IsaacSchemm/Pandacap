@@ -19,8 +19,7 @@ Features:
 * View posts from users or feeds you follow in the **inbox**, split among **image posts**, **text posts**, **shares**, and **podcasts**, and grouped by author
     * Non-ActivityPub posts are periodically imported (~3 times per day)
 * View **notifications** from activity on your posts or from your attached accounts
-* Add ActivityPub and Bluesky posts to your **favorites**
-* Automatically import favorites from DeviantArt, Fur Affinity, and Weasyl
+* Add posts to your **favorites** or import them from attached accounts
 
 Some of the things Pandacap does **not** do:
 
@@ -30,7 +29,6 @@ Some of the things Pandacap does **not** do:
 * Host any public-facing content that is not intentionally placed there by the user.
 * Create posts with more than one attached image.
 * Attach images to replies.
-* Automatically crosspost to DeviantArt, FA, or Weasyl. (This is done manually through the Pandacap user interface.)
 * Let you "repost" / "boost" someone else's post.
 
 ## Techincal Information
@@ -72,8 +70,7 @@ Pandacap allows you to follow atproto accounts as feeds. For each user, you can 
 
 Pandacap will also look for Bluesky profile data (name and icon) when it refreshes the feed (every 8 hours, just like for RSS feeds).
 
-If you view a Bluesky post while logged in, and Pandacap detects that the post is available via Bridgy Fed,
-it will show that version of the post, to allow you to like and reply to it.
+If you view a Bluesky post while logged in, and Pandacap detects that the post is available via Bridgy Fed, it will show that version of the post, to allow you to like and reply to it.
 
 All data is fetched (unauthenticated) from the individual user's PDS, using `com.atproto.repo.listRecords`; the Bluesky AppView is not used.
 
@@ -86,17 +83,16 @@ You can also add a separate atproto account from the profile page and crosspost 
 
 #### Notifications
 
-Pandacap uses [Constellation](https://github.com/at-microcosm/microcosm-rs/tree/main/constellation) to collect backlinks,
-which are then used to populate the Notifications section with:
+Pandacap uses [Constellation](https://github.com/at-microcosm/microcosm-rs/tree/main/constellation) to:
 
-* Mentions
-* Follows
-* For posts you've made within the past 14 days:
-    * Likes
-    * Reposts
-    * Replies
-
-This is done for each attached atproto account, and for your Bridgy Fed DID (if enabled).
+* Find the bridged (via Bridgy Fed) version of your posts and add a "View on Bluesky" link to the post's page
+* Populate the Notifications section with:
+    * Mentions
+    * Follows
+    * For posts you've made within the past 14 days:
+        * Likes
+        * Reposts
+        * Replies
 
 Backlinks are updated hourly for posts made within the past 2 days, and daily otherwise.
 
@@ -165,7 +161,7 @@ Function app responsibilities:
 * `BackLinkIngestHourly`
     * populates Bluesky notifications for your posts from the past 2 days
 * `BridgedPostDiscovery`
-    * for your recent posts, populates Pandacap's link back to Bluesky (to the bridged post)
+    * populates likes back to Bluesky for your posts from the past 2 days
 * `FavoriteIngest`
     * check accounts for new favorites / likes / upvotes
 * `InboxCleanup`
