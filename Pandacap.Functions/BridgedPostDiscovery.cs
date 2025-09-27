@@ -12,7 +12,6 @@ namespace Pandacap.Functions
         BridgyFedDIDProvider bridgyFedDIDProvider,
         ConstellationClient constellationClient,
         PandacapDbContext context,
-        DIDResolver didResolver,
         HostInformation hostInformation,
         IHttpClientFactory httpClientFactory)
     {
@@ -49,11 +48,12 @@ namespace Pandacap.Functions
                     ".bridgyOriginalUrl",
                     CancellationToken.None))
                 {
-                    var doc = await didResolver.ResolveAsync(link.Components.DID);
+                    if (link.Components.DID != did)
+                        continue;
 
                     var remotePost = await RecordEnumeration.BlueskyPost.GetRecordAsync(
                         httpClient,
-                        doc.PDS,
+                        "atproto.brid.gy",
                         link.Components.DID,
                         link.Components.RecordKey);
 
