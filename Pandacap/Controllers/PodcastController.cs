@@ -69,7 +69,6 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> SegmentZip(
             string url,
-            int seconds,
             CancellationToken cancellationToken)
         {
             Response.ContentType = "application/zip";
@@ -77,7 +76,7 @@ namespace Pandacap.Controllers
 
             await wmaZipSplitter.SegmentZip(
                 new Uri(url),
-                TimeSpan.FromSeconds(seconds),
+                TimeSpan.FromMinutes(5),
                 Response.BodyWriter.AsStream(),
                 cancellationToken);
 
