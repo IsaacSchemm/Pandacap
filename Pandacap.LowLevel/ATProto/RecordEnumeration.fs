@@ -8,38 +8,17 @@ module RecordEnumeration =
         let func = XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did collection
 
         let! forward = func pageSize None ATProtoListDirection.Forward sample
+        let! reverse = func pageSize None ATProtoListDirection.Reverse sample
 
-        try
-            let! reverse = func pageSize None ATProtoListDirection.Reverse sample
+        let page =
+            [forward; reverse]
+            |> Seq.sortByDescending (fun page ->
+                page.records
+                |> Seq.map (fun r -> r.uri)
+                |> Seq.max)
+            |> Seq.head
 
-            return
-                [forward; reverse]
-                |> Seq.sortByDescending (fun page ->
-                    page.records
-                    |> Seq.map (fun r -> r.uri)
-                    |> Seq.max)
-                |> Seq.map (fun page -> page.records)
-                |> Seq.head
-        with _ ->
-            let mutable cursor = forward.cursor
-            
-            let pages = ResizeArray [forward]
-
-            while Option.isSome cursor do
-                if pages.Count >= 200 then
-                    failwithf "Too many records to enumerate in repository %s (and cannot enumerate from both ends)" did
-
-                let! page = func 50 cursor ATProtoListDirection.Forward sample
-                pages.Add(page)
-                cursor <- page.cursor
-
-            return
-                pages
-                |> Seq.collect (fun page -> page.records)
-                |> Seq.distinctBy (fun page -> page.uri)
-                |> Seq.sortByDescending (fun record -> record.uri)
-                |> Seq.truncate pageSize
-                |> Seq.toList
+        return page.records
     }
 
     let private thenMapToRecordAsync<'T, 'U> (translate: 'T -> 'U) (t: Task<XRPC.Com.Atproto.Repo.Record<'T>>) = task {
