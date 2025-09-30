@@ -73,6 +73,8 @@ namespace Pandacap
                         Id = raster.Id,
                         ContentType = raster.ContentType
                     });
+
+                    context.Remove(raster);
                 }
 
                 post.Images = [new()
