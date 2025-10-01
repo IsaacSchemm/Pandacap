@@ -168,19 +168,25 @@ namespace Pandacap.Notifications
 
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
-            List<IAsyncEnumerable<Notification>> sources = [];
+            List<Notification> notifications = [];
 
             if (await bridgyFedDIDProvider.GetDIDAsync() is string did)
             {
-                sources.Add(GetNotificationsAsync(
-                    did,
-                    "app.bsky.feed.post",
-                    ".facets[app.bsky.richtext.facet].features[app.bsky.richtext.facet#mention].did"));
+                notifications.AddRange(
+                    await GetNotificationsAsync(
+                        did,
+                        "app.bsky.feed.post",
+                        ".facets[app.bsky.richtext.facet].features[app.bsky.richtext.facet#mention].did")
+                    .Take(20)
+                    .ToListAsync());
 
-                sources.Add(GetNotificationsAsync(
-                    did,
-                    "app.bsky.graph.follow",
-                    ".subject"));
+                notifications.AddRange(
+                    await GetNotificationsAsync(
+                        did,
+                        "app.bsky.graph.follow",
+                        ".subject")
+                    .Take(20)
+                    .ToListAsync());
             }
 
             var cutoff = DateTimeOffset.UtcNow - TimeSpan.FromDays(30);
@@ -213,23 +219,27 @@ namespace Pandacap.Notifications
             {
                 var uri = $"at://{p.BlueskyDID}/app.bsky.feed.post/{p.BlueskyRecordKey}";
 
-                sources.Add(GetNotificationsAsync(
+                var replies = await GetNotificationsAsync(
                     uri,
                     "app.bsky.feed.post",
-                    ".reply.parent.uri"));
+                    ".reply.parent.uri").ToListAsync();
 
-                sources.Add(GetNotificationsAsync(
+                var likes = await GetNotificationsAsync(
                     uri,
                     "app.bsky.feed.like",
-                    ".subject.uri"));
+                    ".subject.uri").ToListAsync();
 
-                sources.Add(GetNotificationsAsync(
+                var reposts = await GetNotificationsAsync(
                     uri,
                     "app.bsky.feed.repost",
-                    ".subject.uri"));
+                    ".subject.uri").ToListAsync();
+
+                IEnumerable<Notification> all = [.. replies, .. likes, .. reposts];
+
+                notifications.AddRange(all);
             }
 
-            await foreach (var notification in sources.MergeNewest(n => n.Timestamp))
+            foreach (var notification in notifications.OrderByDescending(n => n.Timestamp))
                 yield return notification;
         }
     }
