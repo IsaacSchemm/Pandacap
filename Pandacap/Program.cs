@@ -90,6 +90,7 @@ builder.Services
         username: builder.Configuration["ActivityPubUsername"],
         keyVaultHostname: builder.Configuration["KeyVaultHostname"],
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
+    .AddScoped<ActivityPubAddressedPostNotificationHandler>()
     .AddScoped<ActivityPubNotificationHandler>()
     .AddScoped<ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()

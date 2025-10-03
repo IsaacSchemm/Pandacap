@@ -240,7 +240,21 @@ namespace Pandacap.Controllers
                     }
                     else if (isMention)
                     {
-                        await remoteActivityPubPostHandler.AddRemotePostAsync(actor, remotePost);
+                        context.RemoteActivityPubAddressedPosts.Add(new()
+                        {
+                            Id = Guid.NewGuid(),
+                            ObjectId = postId,
+                            CreatedBy = remotePost.AttributedTo.Id,
+                            Username = remotePost.AttributedTo.PreferredUsername,
+                            Usericon = remotePost.AttributedTo.IconUrl,
+                            CreatedAt = remotePost.PostedAt,
+                            Summary = remotePost.Summary,
+                            Sensitive = remotePost.Sensitive,
+                            Name = remotePost.Name,
+                            HtmlContent = remotePost.SanitizedContent
+                        });
+
+                        await context.SaveChangesAsync(cancellationToken);
                     }
                     else
                     {
@@ -260,7 +274,7 @@ namespace Pandacap.Controllers
                             follow.Url = remotePost.AttributedTo.Url;
                             follow.IconUrl = remotePost.AttributedTo.IconUrl;
 
-                            if (nobodyAddressed)
+                            //if (nobodyAddressed)
                                 await remoteActivityPubPostHandler.AddRemotePostAsync(actor, remotePost);
                         }
                     }
@@ -338,6 +352,9 @@ namespace Pandacap.Controllers
 
                     var replies = await context.RemoteActivityPubReplies.Where(reply => reply.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
                     context.RemoveRange(replies);
+
+                    var addressedPosts = await context.RemoteActivityPubAddressedPosts.Where(reply => reply.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
+                    context.RemoveRange(addressedPosts);
 
                     await context.SaveChangesAsync(cancellationToken);
                 }

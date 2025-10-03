@@ -3,6 +3,7 @@
 namespace Pandacap.Notifications
 {
     public class CompositeNotificationHandler(
+        ActivityPubAddressedPostNotificationHandler activityPubAddressedPostNotificationHandler,
         ActivityPubNotificationHandler activityPubNotificationHandler,
         ActivityPubReplyNotificationHandler activityPubNotificationReplyHandler,
         ATProtoNotificationHandler atProtoNotificationHandler,
@@ -17,6 +18,7 @@ namespace Pandacap.Notifications
         public IAsyncEnumerable<Notification> GetNotificationsAsync() =>
             new INotificationHandler[]
             {
+                activityPubAddressedPostNotificationHandler,
                 activityPubNotificationHandler,
                 activityPubNotificationReplyHandler,
                 atProtoNotificationHandler,
