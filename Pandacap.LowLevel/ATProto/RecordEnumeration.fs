@@ -12,11 +12,10 @@ module RecordEnumeration =
 
         let page =
             [forward; reverse]
-            |> Seq.sortByDescending (fun page ->
+            |> Seq.maxBy (fun page ->
                 page.records
                 |> Seq.map (fun r -> r.uri)
-                |> Seq.max)
-            |> Seq.head
+                |> Seq.tryHead)
 
         return page.records
     }
