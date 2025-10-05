@@ -73,9 +73,12 @@ builder.Services.AddAuthentication()
         o.SaveTokens = true;
     });
 
-builder.Services.AddSingleton(new ComputerVisionConfiguration(
-    builder.Configuration["ComputerVisionEndpoint"]!,
-    builder.Configuration["Authentication:Microsoft:TenantId"]!));
+if (builder.Configuration["ComputerVisionEndpoint"] is string computerVisionEndpoint)
+{
+    builder.Services.AddSingleton(new ComputerVisionConfiguration(
+        computerVisionEndpoint,
+        builder.Configuration["Authentication:Microsoft:TenantId"]!));
+}
 
 builder.Services.AddSingleton(new ConstellationHost(
     builder.Configuration["ConstellationHost"]));

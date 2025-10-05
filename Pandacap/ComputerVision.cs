@@ -7,10 +7,14 @@ namespace Pandacap
         string Endpoint,
         string TenantId);
 
-    public class ComputerVisionProvider(ComputerVisionConfiguration config)
+    public class ComputerVisionProvider(
+        IEnumerable<ComputerVisionConfiguration> configs)
     {
         public async Task<string> AnalyzeImageAsync(byte[] data, CancellationToken cancellationToken)
         {
+            if (configs.FirstOrDefault() is not ComputerVisionConfiguration config)
+                return "";
+
             var client = new ImageAnalysisClient(
                 new Uri(config.Endpoint),
                 new DefaultAzureCredential(

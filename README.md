@@ -212,12 +212,20 @@ Application settings (for the web app only):
 | Authentication:Microsoft:TenantId     | Tenant ID of your Entra (AAD) directory
 | Authentication:Microsoft:ClientId     | Application (client) ID of the app registration you've created in Entra
 | Authentication:Microsoft:ClientSecret | A client secret generated for the app registration
-| ComputerVisionEndpoint                | URL of the Azure AI Vision endpoint for generating sample alt text
+| ComputerVisionEndpoint (optional)     | URL of the Azure AI Vision endpoint for generating sample alt text
 
 The CosmosDBAccountKey is optional; without it, Pandacap will try to connect
 to Cosmos DB using Entra authentication, which can lead to slower performance.
-See [Crowmask](https://github.com/IsaacSchemm/Crowmask/) for an example of how
-to set that up.
+In that case, run something like this in Azure CLI (PowerShell) to give the
+appropriate permissions to the function app's managed identity:
+
+    az login
+    az cosmosdb sql role assignment create --account-name {...} --resource-group {...} --scope "/" --principal-id {...} --role-definition-id 00000000-0000-0000-0000-000000000002
+
+The `{...}` for the principal ID should be the ID shown in the Identity tab of
+the function app settings.
+
+---
 
 Function app `local.settings.json` example:
 
