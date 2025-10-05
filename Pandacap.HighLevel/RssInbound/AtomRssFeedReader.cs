@@ -1,11 +1,14 @@
 ﻿using CodeHollow.FeedReader;
 using CodeHollow.FeedReader.Feeds;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 
 namespace Pandacap.HighLevel.RssInbound
 {
-    public class AtomRssFeedReader(PandacapDbContext context)
+    public class AtomRssFeedReader(
+        PandacapDbContext context,
+        IHttpClientFactory httpClientFactory)
     {
         public async Task ReadFeedAsync(Guid id)
         {
@@ -16,7 +19,7 @@ namespace Pandacap.HighLevel.RssInbound
             if (feed == null)
                 return;
 
-            var results = await FeedReader.ReadAsync(feed.FeedUrl);
+            var results = await FeedReader.ReadAsync(feed.FeedUrl, userAgent: UserAgentInformation.UserAgent);
 
             feed.FeedTitle = results.Title;
             feed.FeedWebsiteUrl = results.Link;
@@ -87,7 +90,7 @@ namespace Pandacap.HighLevel.RssInbound
 
         public async Task AddFeedAsync(string url)
         {
-            var results = await FeedReader.ReadAsync(url);
+            var results = await FeedReader.ReadAsync(url, userAgent: UserAgentInformation.UserAgent);
 
             var existing = await context.RssFeeds.Where(f => f.FeedUrl == url).ToListAsync();
             context.RemoveRange(existing);
