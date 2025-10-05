@@ -48,6 +48,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ConstellationClient>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DIDResolver>()
+                .AddScoped<ESPNClient>()
                 .AddScoped<FavoritesFeedBuilder>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<FurryNetworkClient>()

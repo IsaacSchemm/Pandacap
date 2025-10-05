@@ -1,131 +1,135 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="ConfigurationObjects\ApplicationInformation.fs" />
-    <Compile Include="ConfigurationObjects\UserAgentInformation.fs" />
-    <Compile Include="MyLinks\MyLink.fs" />
-    <Compile Include="MyLinks\IMyLinkService.fs" />
-    <Compile Include="PlatformBadges\Badge.fs" />
-    <Compile Include="PlatformBadges\NotificationPlatform.fs" />
-    <Compile Include="PlatformBadges\PostPlatform.fs" />
-    <Compile Include="Html\DeviantArtScraper.fs" />
-    <Compile Include="Html\SheezyArtScraper.fs" />
-    <Compile Include="Html\WeasylScraper.fs" />
-    <Compile Include="Html\ExcerptGenerator.fs" />
-    <Compile Include="Html\TextConverter.fs" />
-    <Compile Include="Html\LinkRelAlternate.fs" />
-    <Compile Include="FurAffinity\IFurAffinityCredentials.fs" />
-    <Compile Include="FurAffinity\FA.fs" />
-    <Compile Include="FurAffinity\FAExport.fs" />
-    <Compile Include="ActivityPub\HostInformation.fs" />
-    <Compile Include="ActivityPub\Serializer.fs" />
-    <Compile Include="ActivityPub\IImage.fs" />
-    <Compile Include="ActivityPub\IAddressing.fs" />
-    <Compile Include="ActivityPub\IPost.fs" />
-    <Compile Include="ActivityPub\Mapper.fs" />
-    <Compile Include="ActivityPub\IListPage.fs" />
-    <Compile Include="ActivityPub\ILike.fs" />
-    <Compile Include="ActivityPub\IFollow.fs" />
-    <Compile Include="ActivityPub\Avatar.fs" />
-    <Compile Include="ActivityPub\Profile.fs" />
-    <Compile Include="ActivityPub\ProfileTranslator.fs" />
-    <Compile Include="ActivityPub\PostTranslator.fs" />
-    <Compile Include="ActivityPub\RelationshipTranslator.fs" />
-    <Compile Include="ActivityPub\InteractionTranslator.fs" />
-    <Compile Include="ActivityPub\Communication\IActivityPubCommunicationPrerequisites.fs" />
-    <Compile Include="ActivityPub\Communication\ActivityPubRequestHandler.fs" />
-    <Compile Include="ActivityPub\Communication\JsonLdExpansionService.fs" />
-    <Compile Include="ActivityPub\Inbound\Shared.fs" />
-    <Compile Include="ActivityPub\Inbound\RemoteActor.fs" />
-    <Compile Include="ActivityPub\Inbound\RemoteAddressee.fs" />
-    <Compile Include="ActivityPub\Inbound\ActivityPubRemoteActorService.fs" />
-    <Compile Include="ActivityPub\Inbound\Attachment.fs" />
-    <Compile Include="ActivityPub\Inbound\RemotePost.fs" />
-    <Compile Include="ActivityPub\Inbound\ActivityPubRemotePostService.fs" />
-    <Compile Include="ActivityPub\Inbound\WebFingerService.fs" />
-    <Compile Include="ATProto\DIDResolver.fs" />
-    <Compile Include="ATProto\NSIDs.fs" />
-    <Compile Include="ATProto\Types.fs" />
-    <Compile Include="ATProto\XRPC.fs" />
-    <Compile Include="ATProto\RecordEnumeration.fs" />
-    <Compile Include="ATProto\ConstellationClient.fs" />
-    <Compile Include="Podcasts\WmaZipSplitter.fs" />
-    <Compile Include="Data\IPost.fs" />
-    <Compile Include="Data\IInboxPost.fs" />
-    <Compile Include="Data\IFavorite.fs" />
-    <Compile Include="Data\TitleGenerator.fs" />
-    <Compile Include="Data\NullValues.fs" />
-    <Compile Include="Data\Credentials\DeviantArtCredentials.fs" />
-    <Compile Include="Data\Credentials\FurAffinityCredentials.fs" />
-    <Compile Include="Data\Credentials\RedditCredentials.fs" />
-    <Compile Include="Data\Credentials\WeasylCredentials.fs" />
-    <Compile Include="Data\MyContent\ActivityPubOutboundActivity.fs" />
-    <Compile Include="Data\MyContent\AddressedPost.fs" />
-    <Compile Include="Data\MyContent\Avatar.fs" />
-    <Compile Include="Data\MyContent\Post.fs" />
-    <Compile Include="Data\MyContent\Upload.fs" />
-    <Compile Include="Data\Relationships\IFollow.fs" />
-    <Compile Include="Data\Relationships\ATProtoFeed.fs" />
-    <Compile Include="Data\Relationships\RemoteActorRelationship.fs" />
-    <Compile Include="Data\Relationships\CommunityBookmark.fs" />
-    <Compile Include="Data\Relationships\Follow.fs" />
-    <Compile Include="Data\Relationships\Follower.fs" />
-    <Compile Include="Data\Relationships\RssFeed.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\ActivityPubFavorite.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\PostActivity.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\RemoteActivityPubAddressedPost.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\RemoteActivityPubReply.fs" />
-    <Compile Include="Data\TheirContent\ATProto\ATProtoBackLink.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyPostFavorite.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyLikeFeedItem.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyPostFeedItem.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyRepostFeedItem.fs" />
-    <Compile Include="Data\TheirContent\ATProto\WhiteWindBlogEntryFeedItem.fs" />
-    <Compile Include="Data\TheirContent\DeviantArt\DeviantArtFavorite.fs" />
-    <Compile Include="Data\TheirContent\DeviantArt\DeviantArtTextPostCheckStatus.fs" />
-    <Compile Include="Data\TheirContent\DeviantArt\InboxDeviation.fs" />
-    <Compile Include="Data\TheirContent\DeviantArt\InboxArtworkDeviation.fs" />
-    <Compile Include="Data\TheirContent\DeviantArt\InboxTextDeviation.fs" />
-    <Compile Include="Data\TheirContent\FurAffinity\FurAffinityFavorite.fs" />
-    <Compile Include="Data\TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
-    <Compile Include="Data\TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />
-    <Compile Include="Data\TheirContent\FurryNetwork\FurryNetworkFavorite.fs" />
-    <Compile Include="Data\TheirContent\Reddit\RedditUpvotedPost.fs" />
-    <Compile Include="Data\TheirContent\Rss\RssFavorite.fs" />
-    <Compile Include="Data\TheirContent\Rss\RssFeedItem.fs" />
-    <Compile Include="Data\TheirContent\SheezyArt\SheezyArtFavorite.fs" />
-    <Compile Include="Data\TheirContent\Weasyl\InboxWeasylJournal.fs" />
-    <Compile Include="Data\TheirContent\Weasyl\InboxWeasylSubmission.fs" />
-    <Compile Include="Data\TheirContent\Weasyl\WeasylFavoriteSubmission.fs" />
-    <Compile Include="Data\PandacapDbContext.fs" />
-    <Compile Include="Clients\FurryNetwork.fs" />
-    <Compile Include="Clients\Lemmy.fs" />
-    <Compile Include="Clients\Mastodon.fs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Include="ConfigurationObjects\ApplicationInformation.fs" />
+		<Compile Include="ConfigurationObjects\UserAgentInformation.fs" />
+		<Compile Include="MyLinks\MyLink.fs" />
+		<Compile Include="MyLinks\IMyLinkService.fs" />
+		<Compile Include="PlatformBadges\Badge.fs" />
+		<Compile Include="PlatformBadges\NotificationPlatform.fs" />
+		<Compile Include="PlatformBadges\PostPlatform.fs" />
+		<Compile Include="Html\DeviantArtScraper.fs" />
+		<Compile Include="Html\SheezyArtScraper.fs" />
+		<Compile Include="Html\WeasylScraper.fs" />
+		<Compile Include="Html\ExcerptGenerator.fs" />
+		<Compile Include="Html\TextConverter.fs" />
+		<Compile Include="Html\LinkRelAlternate.fs" />
+		<Compile Include="FurAffinity\IFurAffinityCredentials.fs" />
+		<Compile Include="FurAffinity\FA.fs" />
+		<Compile Include="FurAffinity\FAExport.fs" />
+		<Compile Include="ActivityPub\HostInformation.fs" />
+		<Compile Include="ActivityPub\Serializer.fs" />
+		<Compile Include="ActivityPub\IImage.fs" />
+		<Compile Include="ActivityPub\IAddressing.fs" />
+		<Compile Include="ActivityPub\IPost.fs" />
+		<Compile Include="ActivityPub\Mapper.fs" />
+		<Compile Include="ActivityPub\IListPage.fs" />
+		<Compile Include="ActivityPub\ILike.fs" />
+		<Compile Include="ActivityPub\IFollow.fs" />
+		<Compile Include="ActivityPub\Avatar.fs" />
+		<Compile Include="ActivityPub\Profile.fs" />
+		<Compile Include="ActivityPub\ProfileTranslator.fs" />
+		<Compile Include="ActivityPub\PostTranslator.fs" />
+		<Compile Include="ActivityPub\RelationshipTranslator.fs" />
+		<Compile Include="ActivityPub\InteractionTranslator.fs" />
+		<Compile Include="ActivityPub\Communication\IActivityPubCommunicationPrerequisites.fs" />
+		<Compile Include="ActivityPub\Communication\ActivityPubRequestHandler.fs" />
+		<Compile Include="ActivityPub\Communication\JsonLdExpansionService.fs" />
+		<Compile Include="ActivityPub\Inbound\Shared.fs" />
+		<Compile Include="ActivityPub\Inbound\RemoteActor.fs" />
+		<Compile Include="ActivityPub\Inbound\RemoteAddressee.fs" />
+		<Compile Include="ActivityPub\Inbound\ActivityPubRemoteActorService.fs" />
+		<Compile Include="ActivityPub\Inbound\Attachment.fs" />
+		<Compile Include="ActivityPub\Inbound\RemotePost.fs" />
+		<Compile Include="ActivityPub\Inbound\ActivityPubRemotePostService.fs" />
+		<Compile Include="ActivityPub\Inbound\WebFingerService.fs" />
+		<Compile Include="ATProto\DIDResolver.fs" />
+		<Compile Include="ATProto\NSIDs.fs" />
+		<Compile Include="ATProto\Types.fs" />
+		<Compile Include="ATProto\XRPC.fs" />
+		<Compile Include="ATProto\RecordEnumeration.fs" />
+		<Compile Include="ATProto\ConstellationClient.fs" />
+		<Compile Include="Podcasts\WmaZipSplitter.fs" />
+		<Compile Include="Data\IPost.fs" />
+		<Compile Include="Data\IInboxPost.fs" />
+		<Compile Include="Data\IFavorite.fs" />
+		<Compile Include="Data\TitleGenerator.fs" />
+		<Compile Include="Data\NullValues.fs" />
+		<Compile Include="Data\Credentials\DeviantArtCredentials.fs" />
+		<Compile Include="Data\Credentials\FurAffinityCredentials.fs" />
+		<Compile Include="Data\Credentials\RedditCredentials.fs" />
+		<Compile Include="Data\Credentials\WeasylCredentials.fs" />
+		<Compile Include="Data\MyContent\ActivityPubOutboundActivity.fs" />
+		<Compile Include="Data\MyContent\AddressedPost.fs" />
+		<Compile Include="Data\MyContent\Avatar.fs" />
+		<Compile Include="Data\MyContent\Post.fs" />
+		<Compile Include="Data\MyContent\Upload.fs" />
+		<Compile Include="Data\Relationships\IFollow.fs" />
+		<Compile Include="Data\Relationships\ATProtoFeed.fs" />
+		<Compile Include="Data\Relationships\RemoteActorRelationship.fs" />
+		<Compile Include="Data\Relationships\CommunityBookmark.fs" />
+		<Compile Include="Data\Relationships\Follow.fs" />
+		<Compile Include="Data\Relationships\Follower.fs" />
+		<Compile Include="Data\Relationships\RssFeed.fs" />
+		<Compile Include="Data\Relationships\ESPNContributorFeed.fs" />
+		<Compile Include="Data\TheirContent\ActivityPub\ActivityPubFavorite.fs" />
+		<Compile Include="Data\TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
+		<Compile Include="Data\TheirContent\ActivityPub\PostActivity.fs" />
+		<Compile Include="Data\TheirContent\ActivityPub\RemoteActivityPubAddressedPost.fs" />
+		<Compile Include="Data\TheirContent\ActivityPub\RemoteActivityPubReply.fs" />
+		<Compile Include="Data\TheirContent\ATProto\ATProtoBackLink.fs" />
+		<Compile Include="Data\TheirContent\ATProto\BlueskyPostFavorite.fs" />
+		<Compile Include="Data\TheirContent\ATProto\BlueskyLikeFeedItem.fs" />
+		<Compile Include="Data\TheirContent\ATProto\BlueskyPostFeedItem.fs" />
+		<Compile Include="Data\TheirContent\ATProto\BlueskyRepostFeedItem.fs" />
+		<Compile Include="Data\TheirContent\ATProto\WhiteWindBlogEntryFeedItem.fs" />
+		<Compile Include="Data\TheirContent\DeviantArt\DeviantArtFavorite.fs" />
+		<Compile Include="Data\TheirContent\DeviantArt\DeviantArtTextPostCheckStatus.fs" />
+		<Compile Include="Data\TheirContent\DeviantArt\InboxDeviation.fs" />
+		<Compile Include="Data\TheirContent\DeviantArt\InboxArtworkDeviation.fs" />
+		<Compile Include="Data\TheirContent\DeviantArt\InboxTextDeviation.fs" />
+		<Compile Include="Data\TheirContent\ESPN\ESPNContributorPostFavorite.fs" />
+		<Compile Include="Data\TheirContent\ESPN\ESPNContributorPostFeedItem.fs" />
+		<Compile Include="Data\TheirContent\FurAffinity\FurAffinityFavorite.fs" />
+		<Compile Include="Data\TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
+		<Compile Include="Data\TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />
+		<Compile Include="Data\TheirContent\FurryNetwork\FurryNetworkFavorite.fs" />
+		<Compile Include="Data\TheirContent\Reddit\RedditUpvotedPost.fs" />
+		<Compile Include="Data\TheirContent\Rss\RssFavorite.fs" />
+		<Compile Include="Data\TheirContent\Rss\RssFeedItem.fs" />
+		<Compile Include="Data\TheirContent\SheezyArt\SheezyArtFavorite.fs" />
+		<Compile Include="Data\TheirContent\Weasyl\InboxWeasylJournal.fs" />
+		<Compile Include="Data\TheirContent\Weasyl\InboxWeasylSubmission.fs" />
+		<Compile Include="Data\TheirContent\Weasyl\WeasylFavoriteSubmission.fs" />
+		<Compile Include="Data\PandacapDbContext.fs" />
+		<Compile Include="Clients\ESPN.fs" />
+		<Compile Include="Clients\FurryNetwork.fs" />
+		<Compile Include="Clients\Lemmy.fs" />
+		<Compile Include="Clients\Mastodon.fs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Azure.AI.Vision.ImageAnalysis" Version="1.0.0" />
-    <PackageReference Include="Azure.Identity" Version="1.15.0" />
-    <PackageReference Include="CommonMark.NET" Version="0.15.1" />
-    <PackageReference Include="DeviantArtFs" Version="11.0.0" />
-    <PackageReference Include="FSharp.Data.Html.Core" Version="6.6.0" />
-    <PackageReference Include="HtmlSanitizer" Version="9.0.886" />
-    <PackageReference Include="json-ld.net" Version="1.0.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Net.Http.Headers" Version="9.0.8" />
-    <PackageReference Include="NAudio" Version="2.2.1" />
-    <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
-    <PackageReference Include="SimpleBase" Version="5.4.1" />
-    <PackageReference Include="System.Drawing.Common" Version="9.0.8" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Azure.AI.Vision.ImageAnalysis" Version="1.0.0" />
+		<PackageReference Include="Azure.Identity" Version="1.15.0" />
+		<PackageReference Include="CommonMark.NET" Version="0.15.1" />
+		<PackageReference Include="DeviantArtFs" Version="11.0.0" />
+		<PackageReference Include="FSharp.Data.Html.Core" Version="6.6.0" />
+		<PackageReference Include="HtmlSanitizer" Version="9.0.886" />
+		<PackageReference Include="json-ld.net" Version="1.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="9.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8" />
+		<PackageReference Include="Microsoft.Net.Http.Headers" Version="9.0.8" />
+		<PackageReference Include="NAudio" Version="2.2.1" />
+		<PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
+		<PackageReference Include="SimpleBase" Version="5.4.1" />
+		<PackageReference Include="System.Drawing.Common" Version="9.0.8" />
+	</ItemGroup>
 
 </Project>

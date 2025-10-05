@@ -5,6 +5,7 @@ type PostPlatform =
 | ATProto
 | Bluesky
 | DeviantArt
+| ESPN
 | FurAffinity
 | FurryNetwork
 | Pandacap
@@ -21,6 +22,7 @@ module PostPlatform =
         | ATProto -> Badge.Create "ATProto" "#397EF6" "white"
         | Bluesky -> Badge.Create "Bluesky" "#397EF6" "white"
         | DeviantArt -> Badge.Create "DeviantArt" "#00e59b" "black"
+        | ESPN -> Badge.Create "ESPN" "#dd0000" "white"
         | FurAffinity -> Badge.Create "Fur Affinity" "#2E3B41" "#cfcfcf"
         | FurryNetwork -> Badge.Create "Furry Network" "#2e76b4" "white"
         | Pandacap -> Badge.Create "Pandacap" "purple" "white"
