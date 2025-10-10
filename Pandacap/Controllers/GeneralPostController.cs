@@ -5,17 +5,22 @@ using Pandacap.Data;
 
 namespace Pandacap.Controllers
 {
-    public class RssFeedItemController(PandacapDbContext context) : Controller
+    public class GeneralPostController(PandacapDbContext context) : Controller
     {
         public async Task<IActionResult> Index(Guid id, CancellationToken cancellationToken)
         {
-            var feedItem = await context.RssFeedItems
-                .Where(i => i.Id == id)
-                .SingleOrDefaultAsync(cancellationToken);
-            if (feedItem == null)
-                return NotFound();
+            var feedItem =
+                await context.GeneralFavorites
+                    .Where(i => i.Id == id)
+                    .FirstOrDefaultAsync(cancellationToken)
+                ?? await context.GeneralInboxItems
+                    .Where(i => i.Id == id)
+                    .FirstOrDefaultAsync(cancellationToken)
+                ?? (GeneralFeedItem?)null;
 
-            return View(feedItem);
+            return feedItem == null
+                ? NotFound()
+                : View(feedItem);
         }
 
         [HttpPost]
@@ -23,36 +28,25 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToFavorites([FromForm] Guid id, CancellationToken cancellationToken)
         {
-            var feedItem = await context.RssFeedItems
+            var feedItem = await context.GeneralInboxItems
                 .Where(i => i.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
             if (feedItem == null)
                 return BadRequest();
 
-            var existing = await context.RssFavorites
-                .Where(f => f.Url == feedItem.Url)
+            var existing = await context.GeneralFavorites
+                .Where(f => f.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
             if (existing != null)
                 return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
 
             IInboxPost inboxItem = feedItem;
 
-            context.RssFavorites.Add(new()
+            context.GeneralFavorites.Add(new()
             {
-                FavoritedAt = DateTimeOffset.UtcNow,
-                FeedIconUrl = feedItem.FeedIconUrl,
-                FeedTitle = feedItem.FeedTitle,
-                FeedWebsiteUrl = feedItem.FeedWebsiteUrl,
                 Id = feedItem.Id,
-                Thumbnails = [.. inboxItem.Thumbnails
-                    .Select(t => new RssFavoriteImage
-                    {
-                        AltText = t.AltText,
-                        Url = t.Url
-                    })],
-                Timestamp = feedItem.Timestamp,
-                Title = feedItem.Title,
-                Url = feedItem.Url
+                Data = feedItem.Data,
+                FavoritedAt = DateTimeOffset.UtcNow
             });
 
             await context.SaveChangesAsync(cancellationToken);
@@ -65,19 +59,13 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFromFavorites([FromForm] Guid id, CancellationToken cancellationToken)
         {
-            var feedItem = await context.RssFeedItems
-                .Where(i => i.Id == id)
-                .SingleOrDefaultAsync(cancellationToken);
-            if (feedItem == null)
-                return BadRequest();
-
-            var existing = await context.RssFavorites
-                .Where(f => f.Url == feedItem.Url)
+            var existing = await context.GeneralFavorites
+                .Where(f => f.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
             if (existing == null)
                 return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
 
-            context.RssFavorites.Remove(existing);
+            context.GeneralFavorites.Remove(existing);
 
             await context.SaveChangesAsync(cancellationToken);
 

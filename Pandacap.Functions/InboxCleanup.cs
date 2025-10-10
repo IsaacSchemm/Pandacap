@@ -1,6 +1,7 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 
 namespace Pandacap.Functions
 {
@@ -10,7 +11,6 @@ namespace Pandacap.Functions
         public async Task Run([TimerTrigger("0 0 9 * * *")] TimerInfo myTimer)
         {
             DateTimeOffset weekAgo = DateTimeOffset.UtcNow.AddDays(-7);
-            DateTimeOffset twoWeeksAgo = DateTimeOffset.UtcNow.AddDays(-14);
 
             await foreach (var inboxItem in context.InboxArtworkDeviations
                 .Where(d => d.DismissedAt != null)
@@ -94,20 +94,12 @@ namespace Pandacap.Functions
                 context.Remove(inboxItem);
             }
 
-            var rssFavorites = await context.RssFavorites
-                .Where(t => t.FavoritedAt > twoWeeksAgo)
-                .Select(t => t.Id)
-                .ToListAsync();
-
-            await foreach (var inboxItem in context.RssFeedItems
+            await foreach (var inboxItem in context.GeneralInboxItems
                 .Where(d => d.DismissedAt != null)
-                .Where(d => d.Timestamp < weekAgo)
+                .Where(d => d.Data.Timestamp < weekAgo)
                 .AsAsyncEnumerable())
             {
-                if (!rssFavorites.Contains(inboxItem.Id))
-                {
-                    context.Remove(inboxItem);
-                }
+                context.Remove(inboxItem);
             }
 
             await context.SaveChangesAsync();

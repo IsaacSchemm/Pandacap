@@ -1,27 +1,27 @@
 ﻿@using Pandacap.Data
 
-@model RssFeedItem
+@model GeneralFeedItem
 
 @{
-    ViewBag.Title = "View RSS/Atom Feed Item";
+    ViewBag.Title = "View Feed Item";
 }
 
 <h1>
-    <img height="50" src="@(Model.FeedIconUrl ?? "/images/trgray.svg")" alt="" />
+    <img height="50" src="@(Model.DisplayAuthor.FeedIconUrl ?? "/images/trgray.svg")" alt="" />
     <span style="display: inline-block; vertical-align: top">
         <strong>
-            <a href="@Model.FeedWebsiteUrl" target="_blank">
-                @(Model.FeedTitle)
+            <a href="@Model.DisplayAuthor.FeedWebsiteUrl" target="_blank">
+                @(Model.DisplayAuthor.FeedTitle)
             </a>
         </strong>
     </span>
 </h1>
 
-@Html.Raw(new Ganss.Xss.HtmlSanitizer().Sanitize(Model.HtmlDescription))
+@Html.Raw(new Ganss.Xss.HtmlSanitizer().Sanitize(Model.Data.HtmlDescription))
 
 <p class="text-muted">
-    <a href="@Model.Url" target="_blank">
-        @Model.Timestamp
+    <a href="@Model.Data.Url" target="_blank">
+        @Model.Data.Timestamp
     </a>
 </p>
 

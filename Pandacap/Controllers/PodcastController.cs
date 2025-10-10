@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.Models;
 using Pandacap.Podcasts;
@@ -15,17 +14,20 @@ namespace Pandacap.Controllers
         IHttpClientFactory httpClientFactory,
         WmaZipSplitter wmaZipSplitter) : Controller
     {
-        public async Task<IActionResult> Player(Guid id, int index)
+        public async Task<IActionResult> Player(Guid id)
         {
-            var feedItem = await context.RssFeedItems
+            var generalItem = await context.GeneralInboxItems
                 .Where(i => i.Id == id)
-                .SingleAsync();
+                .Where(i => i.Data.AudioUrl != null)
+                .SingleOrDefaultAsync();
 
-            return View(new PlayerModel
-            {
-                Title = feedItem.Title,
-                Url = feedItem.Enclosures[index].Url
-            });
+            return generalItem == null
+                ? NotFound()
+                : View(new PlayerModel
+                {
+                    Title = generalItem.Data.Title,
+                    Url = generalItem.Data.AudioUrl
+                });
         }
 
         public async Task<IActionResult> GetContentType(
