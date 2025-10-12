@@ -3,7 +3,7 @@
 open System
 open Pandacap.PlatformBadges
 
-/// An Atom or RSS feed followed by the instance owner.
+/// A feed followed by the instance owner.
 type RssFeed() =
     member val Id = Guid.Empty with get, set
     member val FeedUrl = "" with get, set
@@ -14,11 +14,8 @@ type RssFeed() =
 
     interface IFollow with
         member _.Filtered = false
-        member _.Platform = RSS_Atom
-        member this.LinkUrl =
-            if this.FeedUrl.Contains("auth=")
-            then null
-            else this.FeedUrl
+        member _.Platform = Feed
+        member this.LinkUrl = this.FeedWebsiteUrl
         member this.IconUrl = this.FeedIconUrl
         member this.Username = this.FeedTitle |> orString this.FeedUrl
         member this.Url = this.FeedUrl

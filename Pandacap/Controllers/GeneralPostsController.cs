@@ -5,7 +5,7 @@ using Pandacap.Data;
 
 namespace Pandacap.Controllers
 {
-    public class GeneralPostController(PandacapDbContext context) : Controller
+    public class GeneralPostsController(PandacapDbContext context) : Controller
     {
         public async Task<IActionResult> Index(Guid id, CancellationToken cancellationToken)
         {

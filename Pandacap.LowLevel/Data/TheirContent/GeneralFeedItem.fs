@@ -37,7 +37,7 @@ type GeneralFeedItem() =
     abstract member DisplayAuthor: GeneralFeedItemAuthor
 
     interface IPost with
-        member _.Platform = Pandacap
+        member _.Platform = Feed
         member this.Url = this.Data.Url
         member this.DisplayTitle = this.Data.DisplayTitle
         member this.Id = $"{this.Id}"
