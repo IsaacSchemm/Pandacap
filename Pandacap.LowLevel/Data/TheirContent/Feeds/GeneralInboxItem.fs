@@ -1,8 +1,11 @@
 ﻿namespace Pandacap.Data
 
+open System.ComponentModel.DataAnnotations.Schema
+
 type GeneralInboxItem() =
     inherit GeneralFeedItem()
 
+    [<NotMapped>]
     override this.DisplayAuthor = this.PostedBy
 
     member val IsShare = false with get, set

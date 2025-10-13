@@ -3,6 +3,7 @@
 open System
 open System.ComponentModel.DataAnnotations.Schema
 open Pandacap.PlatformBadges
+open Pandacap.Html
 
 type GeneralFeedItemAuthor() =
     member val FeedTitle = nullString with get, set
@@ -27,13 +28,18 @@ type GeneralFeedItemData() =
     member val AudioUrl = nullString with get, set
 
     [<NotMapped>]
-    member this.DisplayTitle = this.Title |> orString this.Url
+    member this.DisplayTitle =
+        if not (String.IsNullOrEmpty(this.Title)) then
+            this.Title
+        else
+            ExcerptGenerator.FromText 60 (TextConverter.FromHtml this.HtmlDescription)
 
 [<AbstractClass>]
 type GeneralFeedItem() =
     member val Id = Guid.NewGuid() with get, set
     member val Data = new GeneralFeedItemData() with get, set
 
+    [<NotMapped>]
     abstract member DisplayAuthor: GeneralFeedItemAuthor
 
     interface IPost with

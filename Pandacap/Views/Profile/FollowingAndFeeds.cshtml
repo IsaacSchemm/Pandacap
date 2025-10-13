@@ -71,7 +71,7 @@ else
                                 Options
                             </a>
                         }
-                        else if (item is RssFeed r)
+                        else if (item is GeneralFeed r)
                         {
                             <form asp-action="RefreshFeed" class="d-inline">
                                 <input type="hidden" name="id" value="@r.Id" />
