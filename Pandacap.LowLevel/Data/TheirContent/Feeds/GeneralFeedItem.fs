@@ -5,16 +5,13 @@ open System.ComponentModel.DataAnnotations.Schema
 open Pandacap.PlatformBadges
 open Pandacap.Html
 
-type GeneralFeedItemAuthor() =
+[<AbstractClass>]
+type GeneralFeedItem() =
+    member val Id = Guid.NewGuid() with get, set
+
     member val FeedTitle = nullString with get, set
     member val FeedWebsiteUrl = "" with get, set
     member val FeedIconUrl = nullString with get, set
-
-    [<NotMapped>]
-    member this.DisplayTitle = this.FeedTitle |> orString this.FeedWebsiteUrl
-
-type GeneralFeedItemData() =
-    member val Author = new GeneralFeedItemAuthor() with get, set
 
     member val Title = nullString with get, set
     member val HtmlDescription = nullString with get, set
@@ -28,35 +25,32 @@ type GeneralFeedItemData() =
     member val AudioUrl = nullString with get, set
 
     [<NotMapped>]
+    member this.DisplayFeedTitle =
+        this.FeedTitle
+        |> orString this.FeedWebsiteUrl
+
+    [<NotMapped>]
     member this.DisplayTitle =
         if not (String.IsNullOrEmpty(this.Title)) then
             this.Title
         else
             ExcerptGenerator.FromText 60 (TextConverter.FromHtml this.HtmlDescription)
 
-[<AbstractClass>]
-type GeneralFeedItem() =
-    member val Id = Guid.NewGuid() with get, set
-    member val Data = new GeneralFeedItemData() with get, set
-
-    [<NotMapped>]
-    abstract member DisplayAuthor: GeneralFeedItemAuthor
-
     interface IPost with
         member _.Platform = Feeds
-        member this.Url = this.Data.Url
-        member this.DisplayTitle = this.Data.DisplayTitle
+        member this.Url = this.Url
+        member this.DisplayTitle = this.DisplayTitle
         member this.Id = $"{this.Id}"
         member this.InternalUrl = $"/GeneralPosts?id={this.Id}"
-        member this.ExternalUrl = this.Data.Url
-        member this.PostedAt = this.Data.Timestamp
-        member this.ProfileUrl = this.DisplayAuthor.FeedWebsiteUrl
+        member this.ExternalUrl = this.Url
+        member this.PostedAt = this.Timestamp
+        member this.ProfileUrl = this.FeedWebsiteUrl
         member this.Thumbnails = seq {
-            if not (isNull this.Data.ThumbnailUrl) then {
+            if not (isNull this.ThumbnailUrl) then {
                 new IPostThumbnail with
-                    member _.AltText = this.Data.ThumbnailAltText
-                    member _.Url = this.Data.ThumbnailUrl
+                    member _.AltText = this.ThumbnailAltText
+                    member _.Url = this.ThumbnailUrl
             }
         }
-        member this.Usericon = this.DisplayAuthor.FeedIconUrl
-        member this.Username = this.DisplayAuthor.DisplayTitle
+        member this.Usericon = this.FeedIconUrl
+        member this.Username = this.DisplayFeedTitle

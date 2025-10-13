@@ -96,7 +96,7 @@ namespace Pandacap.Functions
 
             await foreach (var inboxItem in context.GeneralInboxItems
                 .Where(d => d.DismissedAt != null)
-                .Where(d => d.Data.Timestamp < weekAgo)
+                .Where(d => d.Timestamp < weekAgo)
                 .AsAsyncEnumerable())
             {
                 context.Remove(inboxItem);

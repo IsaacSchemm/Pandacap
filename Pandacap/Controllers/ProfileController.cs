@@ -85,20 +85,14 @@ namespace Pandacap.Controllers
                     context.GeneralFavorites.Add(new()
                     {
                         Id = item.Id,
-                        Data = new()
-                        {
-                            Author = new()
-                            {
-                                FeedIconUrl = item.FeedIconUrl,
-                                FeedTitle = item.FeedTitle,
-                                FeedWebsiteUrl = item.FeedWebsiteUrl
-                            },
-                            ThumbnailAltText = post.Thumbnails.Select(t => t.AltText).FirstOrDefault(),
-                            ThumbnailUrl = post.Thumbnails.Select(t => t.Url).FirstOrDefault(),
-                            Timestamp = item.Timestamp,
-                            Title = item.Title,
-                            Url = item.Url
-                        },
+                        FeedIconUrl = item.FeedIconUrl,
+                        FeedTitle = item.FeedTitle,
+                        FeedWebsiteUrl = item.FeedWebsiteUrl,
+                        ThumbnailAltText = post.Thumbnails.Select(t => t.AltText).FirstOrDefault(),
+                        ThumbnailUrl = post.Thumbnails.Select(t => t.Url).FirstOrDefault(),
+                        Timestamp = item.Timestamp,
+                        Title = item.Title,
+                        Url = item.Url,
                         FavoritedAt = item.FavoritedAt,
                         HiddenAt = item.HiddenAt
                     });
@@ -118,11 +112,14 @@ namespace Pandacap.Controllers
                         FeedUrl = feed.FeedUrl,
                         FeedWebsiteUrl = feed.FeedWebsiteUrl,
                         Id = feed.Id,
-                        LastCheckedAt = feed.LastCheckedAt
+                        LastCheckedAt = feed.LastCheckedAt.AddDays(-7)
                     });
 
                     //context.RssFeeds.Remove(feed);
                 }
+
+                await foreach (var item in context.GeneralInboxItems)
+                    context.Remove(item);
 
                 await context.SaveChangesAsync(cancellationToken);
             }

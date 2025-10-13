@@ -47,30 +47,18 @@ namespace Pandacap.HighLevel.FeedReaders
                 yield return new()
                 {
                     Id = Guid.NewGuid(),
-                    Data = new()
-                    {
-                        Author = new()
-                        {
-                            FeedTitle = results.Title,
-                            FeedWebsiteUrl = results.Link,
-                            FeedIconUrl = results.ImageUrl
-                        },
-                        Title = item.Title,
-                        HtmlDescription = item.Description,
-                        Url = item.Link,
-                        Timestamp = ts,
-                        ThumbnailUrl = image?.url,
-                        ThumbnailAltText = image?.altText,
-                        AudioUrl = enclosure?.MediaType == "audio/mpeg"
-                            ? enclosure?.Url
-                            : null
-                    },
-                    PostedBy = new()
-                    {
-                        FeedTitle = results.Title,
-                        FeedWebsiteUrl = results.Link,
-                        FeedIconUrl = results.ImageUrl
-                    }
+                    FeedTitle = results.Title,
+                    FeedWebsiteUrl = results.Link,
+                    FeedIconUrl = results.ImageUrl,
+                    Title = item.Title,
+                    HtmlDescription = item.Description,
+                    Url = item.Link,
+                    Timestamp = ts,
+                    ThumbnailUrl = image?.url,
+                    ThumbnailAltText = image?.altText,
+                    AudioUrl = enclosure?.MediaType == "audio/mpeg"
+                        ? enclosure?.Url
+                        : null
                 };
             }
         }

@@ -1,13 +1,9 @@
 ﻿namespace Pandacap.Data
 
 open System
-open System.ComponentModel.DataAnnotations.Schema
 
 type GeneralFavorite() =
     inherit GeneralFeedItem()
-
-    [<NotMapped>]
-    override this.DisplayAuthor = this.Data.Author
 
     member val FavoritedAt = DateTimeOffset.MinValue with get, set
     member val HiddenAt = nullDateTimeOffset with get, set

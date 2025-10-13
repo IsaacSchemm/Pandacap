@@ -7,21 +7,21 @@
 }
 
 <h1>
-    <img height="50" src="@(Model.DisplayAuthor.FeedIconUrl ?? "/images/trgray.svg")" alt="" />
+    <img height="50" src="@(Model.FeedIconUrl ?? "/images/trgray.svg")" alt="" />
     <span style="display: inline-block; vertical-align: top">
         <strong>
-            <a href="@Model.DisplayAuthor.FeedWebsiteUrl" target="_blank">
-                @(Model.DisplayAuthor.FeedTitle)
+            <a href="@Model.FeedWebsiteUrl" target="_blank">
+                @(Model.DisplayFeedTitle)
             </a>
         </strong>
     </span>
 </h1>
 
-@Html.Raw(new Ganss.Xss.HtmlSanitizer().Sanitize(Model.Data.HtmlDescription))
+@Html.Raw(new Ganss.Xss.HtmlSanitizer().Sanitize(Model.HtmlDescription))
 
 <p class="text-muted">
-    <a href="@Model.Data.Url" target="_blank">
-        @Model.Data.Timestamp
+    <a href="@Model.Url" target="_blank">
+        @Model.Timestamp
     </a>
 </p>
 
@@ -37,7 +37,7 @@
         <button class="btn btn-danger">Remove from Favorites</button>
     </form>
 
-    @if (Model.Data.AudioUrl != null)
+    @if (Model.AudioUrl != null)
     {
         <a class="btn btn-outline-primary" asp-controller="Podcast" asp-action="Player" asp-route-id="@Model.Id" target="_blank" onclick="event.preventDefault(); window.open(event.target.href, '_blank', 'popup=true,width=600,height=300')">
             Launch player

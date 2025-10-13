@@ -54,7 +54,7 @@ namespace Pandacap.Controllers
                 .OfType<IInboxPost>();
 
             var generalItems = context.GeneralInboxItems
-                .OrderByDescending(d => d.Data.Timestamp)
+                .OrderByDescending(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 

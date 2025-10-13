@@ -21,36 +21,17 @@ namespace Pandacap.HighLevel.FeedReaders
             var content = await resp.EnsureSuccessStatusCode().Content.ReadAsByteArrayAsync();
             var feed = TwtxtReader.ReadFeed(content);
 
-            var author = new GeneralFeedItemAuthor
-            {
-                FeedIconUrl = feed.metadata.avatar.HeadOrDefault,
-                FeedTitle = feed.metadata.nick.HeadOrDefault,
-                FeedWebsiteUrl = uri
-            };
-
             foreach (var item in feed.twts)
             {
                 yield return new()
                 {
-                    Data = new()
-                    {
-                        Author = new GeneralFeedItemAuthor
-                        {
-                            FeedIconUrl = feed.metadata.avatar.HeadOrDefault,
-                            FeedTitle = feed.metadata.nick.HeadOrDefault,
-                            FeedWebsiteUrl = uri
-                        },
-                        HtmlDescription = WebUtility.HtmlEncode(item.text),
-                        Timestamp = item.timestamp,
-                        Url = uri
-                    },
-                    Id = Guid.NewGuid(),
-                    PostedBy = new GeneralFeedItemAuthor
-                    {
-                        FeedIconUrl = feed.metadata.avatar.HeadOrDefault,
-                        FeedTitle = feed.metadata.nick.HeadOrDefault,
-                        FeedWebsiteUrl = uri
-                    }
+                    FeedIconUrl = feed.metadata.avatar.HeadOrDefault,
+                    FeedTitle = feed.metadata.nick.HeadOrDefault,
+                    FeedWebsiteUrl = uri,
+                    HtmlDescription = WebUtility.HtmlEncode(item.text),
+                    Timestamp = item.timestamp,
+                    Url = uri,
+                    Id = Guid.NewGuid()
                 };
             }
         }

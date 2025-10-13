@@ -18,15 +18,15 @@ namespace Pandacap.Controllers
         {
             var generalItem = await context.GeneralInboxItems
                 .Where(i => i.Id == id)
-                .Where(i => i.Data.AudioUrl != null)
+                .Where(i => i.AudioUrl != null)
                 .SingleOrDefaultAsync();
 
             return generalItem == null
                 ? NotFound()
                 : View(new PlayerModel
                 {
-                    Title = generalItem.Data.Title,
-                    Url = generalItem.Data.AudioUrl
+                    Title = generalItem.Title,
+                    Url = generalItem.AudioUrl
                 });
         }
 

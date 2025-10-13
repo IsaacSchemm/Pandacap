@@ -22,23 +22,28 @@ namespace Pandacap.HighLevel.FeedReaders
             using var headResponse = await httpClient.SendAsync(headRequest);
 
             var newFeedItems = await feedReaders
-                .Select(reader => reader.ReadFeedAsync(
-                    feed.FeedUrl,
-                    headResponse.Content.Headers.ContentType?.MediaType))
-                .MergeNewest(item => item.Data.Timestamp)
-                .Take(20)
+                .Select(reader =>
+                    reader
+                        .ReadFeedAsync(
+                            feed.FeedUrl,
+                            headResponse.Content.Headers.ContentType?.MediaType)
+                        .Take(20))
+                .ToAsyncEnumerable()
+                .SelectMany(item => item)
+                .OrderByDescending(item => item.Timestamp)
+                .TakeWhile(item => item.Timestamp > feed.LastCheckedAt)
                 .ToListAsync();
 
             if (newFeedItems.Count > 0)
             {
-                feed.FeedTitle = newFeedItems[0].PostedBy.FeedTitle;
-                feed.FeedWebsiteUrl = newFeedItems[0].PostedBy.FeedWebsiteUrl;
-                feed.FeedIconUrl = newFeedItems[0].PostedBy.FeedIconUrl;
+                feed.FeedTitle = newFeedItems[0].FeedTitle;
+                feed.FeedWebsiteUrl = newFeedItems[0].FeedWebsiteUrl;
+                feed.FeedIconUrl = newFeedItems[0].FeedIconUrl;
 
                 context.GeneralInboxItems.AddRange(newFeedItems);
 
                 feed.LastCheckedAt = newFeedItems
-                    .Select(f => f.Data.Timestamp)
+                    .Select(f => f.Timestamp)
                     .Max();
 
                 await context.SaveChangesAsync();

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using System.Text.Json;
 
 namespace Pandacap.Controllers
 {
@@ -40,14 +41,14 @@ namespace Pandacap.Controllers
             if (existing != null)
                 return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
 
-            IInboxPost inboxItem = feedItem;
+            var newFavorite =
+                JsonSerializer.Deserialize<GeneralFavorite>(
+                    JsonSerializer.Serialize(
+                        feedItem))!;
 
-            context.GeneralFavorites.Add(new()
-            {
-                Id = feedItem.Id,
-                Data = feedItem.Data,
-                FavoritedAt = DateTimeOffset.UtcNow
-            });
+            newFavorite.FavoritedAt = DateTimeOffset.UtcNow;
+
+            context.GeneralFavorites.Add(newFavorite);
 
             await context.SaveChangesAsync(cancellationToken);
 
