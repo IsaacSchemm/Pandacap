@@ -3,15 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel.ATProto;
-using Pandacap.HighLevel.RssInbound;
+using Pandacap.HighLevel.FeedReaders;
 
 namespace Pandacap.Functions
 {
     public class InboxIngest(
-        AtomRssFeedReader atomRssFeedReader,
         ATProtoFeedReader atProtoFeedReader,
         PandacapDbContext context,
         DeviantArtInboxHandler deviantArtInboxHandler,
+        FeedRefresher feedRefresher,
         FurAffinityInboxHandler furAffinityInboxHandler,
         WeasylInboxHandler weasylInboxHandler)
     {
@@ -43,7 +43,7 @@ namespace Pandacap.Functions
 
             var rssFeeds = await context.RssFeeds.Select(f => new { f.Id }).ToListAsync();
             foreach (var feed in rssFeeds)
-                await c(atomRssFeedReader.ReadFeedAsync(feed.Id));
+                await c(feedRefresher.RefreshFeedAsync(feed.Id));
 
             var atProtoFeeds = await context.ATProtoFeeds.Select(f => new { f.DID }).ToListAsync();
             foreach (var feed in atProtoFeeds)
