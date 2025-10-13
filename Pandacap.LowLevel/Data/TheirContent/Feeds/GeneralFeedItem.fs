@@ -14,7 +14,8 @@ type GeneralFeedItem() =
     member val FeedIconUrl = nullString with get, set
 
     member val Title = nullString with get, set
-    member val HtmlDescription = nullString with get, set
+    member val HtmlBody = nullString with get, set
+    member val TextBody = nullString with get, set
     member val Url = "" with get, set
 
     member val Timestamp = DateTimeOffset.MinValue with get, set
@@ -34,7 +35,10 @@ type GeneralFeedItem() =
         if not (String.IsNullOrEmpty(this.Title)) then
             this.Title
         else
-            ExcerptGenerator.FromText 60 (TextConverter.FromHtml this.HtmlDescription)
+            this.TextBody
+            |> orString (TextConverter.FromHtml this.HtmlBody)
+            |> orString ""
+            |> ExcerptGenerator.FromText 60
 
     interface IPost with
         member _.Platform = Feeds

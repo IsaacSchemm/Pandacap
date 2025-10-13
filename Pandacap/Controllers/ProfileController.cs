@@ -112,7 +112,7 @@ namespace Pandacap.Controllers
                         FeedUrl = feed.FeedUrl,
                         FeedWebsiteUrl = feed.FeedWebsiteUrl,
                         Id = feed.Id,
-                        LastCheckedAt = feed.LastCheckedAt.AddDays(-7)
+                        LastCheckedAt = DateTimeOffset.MinValue
                     });
 
                     //context.RssFeeds.Remove(feed);

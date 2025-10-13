@@ -28,7 +28,7 @@ namespace Pandacap.HighLevel.FeedReaders
                     FeedIconUrl = feed.metadata.avatar.HeadOrDefault,
                     FeedTitle = feed.metadata.nick.HeadOrDefault,
                     FeedWebsiteUrl = uri,
-                    HtmlDescription = WebUtility.HtmlEncode(item.text),
+                    TextBody = item.text,
                     Timestamp = item.timestamp,
                     Url = uri,
                     Id = Guid.NewGuid()

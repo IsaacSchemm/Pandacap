@@ -17,7 +17,16 @@
     </span>
 </h1>
 
-@Html.Raw(new Ganss.Xss.HtmlSanitizer().Sanitize(Model.HtmlDescription))
+@if (Model.HtmlBody != null)
+{
+    <div style="white-space: pre-line">@Html.Raw(new Ganss.Xss.HtmlSanitizer().Sanitize(Model.HtmlBody))</div>
+}
+else
+{
+    <p style="white-space: pre-line">
+        @Model.TextBody
+    </p>
+}
 
 <p class="text-muted">
     <a href="@Model.Url" target="_blank">

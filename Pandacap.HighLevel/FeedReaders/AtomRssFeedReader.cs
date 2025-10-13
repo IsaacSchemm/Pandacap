@@ -51,7 +51,7 @@ namespace Pandacap.HighLevel.FeedReaders
                     FeedWebsiteUrl = results.Link,
                     FeedIconUrl = results.ImageUrl,
                     Title = item.Title,
-                    HtmlDescription = item.Description,
+                    HtmlBody = item.Description,
                     Url = item.Link,
                     Timestamp = ts,
                     ThumbnailUrl = image?.url,
