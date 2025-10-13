@@ -10,7 +10,7 @@ namespace Pandacap.HighLevel.FeedReaders
     {
         public async Task RefreshFeedAsync(Guid id)
         {
-            var feed = await context.RssFeeds
+            var feed = await context.GeneralFeeds
                 .Where(f => f.Id == id)
                 .FirstOrDefaultAsync();
 
@@ -47,12 +47,12 @@ namespace Pandacap.HighLevel.FeedReaders
 
         public async Task AddFeedAsync(string url)
         {
-            var existing = await context.RssFeeds.Where(f => f.FeedUrl == url).ToListAsync();
+            var existing = await context.GeneralFeeds.Where(f => f.FeedUrl == url).ToListAsync();
             context.RemoveRange(existing);
 
             Guid id = Guid.NewGuid();
 
-            context.RssFeeds.Add(new()
+            context.GeneralFeeds.Add(new()
             {
                 Id = id,
                 FeedUrl = url,

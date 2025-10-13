@@ -41,8 +41,8 @@ namespace Pandacap.Functions
             await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync());
             await c(weasylInboxHandler.ImportJournalsByUsersWeWatchAsync());
 
-            var rssFeeds = await context.RssFeeds.Select(f => new { f.Id }).ToListAsync();
-            foreach (var feed in rssFeeds)
+            var feeds = await context.GeneralFeeds.Select(f => new { f.Id }).ToListAsync();
+            foreach (var feed in feeds)
                 await c(feedRefresher.RefreshFeedAsync(feed.Id));
 
             var atProtoFeeds = await context.ATProtoFeeds.Select(f => new { f.DID }).ToListAsync();

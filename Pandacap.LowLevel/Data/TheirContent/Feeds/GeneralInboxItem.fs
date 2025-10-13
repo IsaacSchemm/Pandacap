@@ -5,6 +5,7 @@ type GeneralInboxItem() =
 
     override this.DisplayAuthor = this.PostedBy
 
+    member val IsShare = false with get, set
     member val PostedBy = new GeneralFeedItemAuthor() with get, set
     member val DismissedAt = nullDateTimeOffset with get, set
 
@@ -16,5 +17,4 @@ type GeneralInboxItem() =
         member this.IsPodcast =
             not (isNull this.Data.AudioUrl)
 
-        member this.IsShare =
-            this.Data.Author.FeedWebsiteUrl <> this.PostedBy.FeedWebsiteUrl
+        member this.IsShare = this.IsShare

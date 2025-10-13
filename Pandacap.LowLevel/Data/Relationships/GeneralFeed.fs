@@ -3,9 +3,8 @@
 open System
 open Pandacap.PlatformBadges
 
-/// A feed followed by the instance owner.
-[<Obsolete>]
-type RssFeed() =
+/// A feed (RSS, Atom, etc.) followed by the instance owner.
+type GeneralFeed() =
     member val Id = Guid.Empty with get, set
     member val FeedUrl = "" with get, set
     member val FeedTitle = nullString with get, set
