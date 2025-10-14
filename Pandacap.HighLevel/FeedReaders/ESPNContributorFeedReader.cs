@@ -1,5 +1,5 @@
-﻿using Pandacap.Clients;
-using Pandacap.Data;
+﻿using Pandacap.Data;
+using Pandacap.Html;
 
 namespace Pandacap.HighLevel.FeedReaders
 {
@@ -31,7 +31,7 @@ namespace Pandacap.HighLevel.FeedReaders
                 index2--;
 
             var json = html.Substring(index1, index2 - index1 + 1);
-            var data = ESPN.ParseContributorData(json);
+            var data = ESPNScraper.ParseContributorData(json);
 
             foreach (var item in data.page.content.contributor.feed)
                 yield return new GeneralInboxItem
