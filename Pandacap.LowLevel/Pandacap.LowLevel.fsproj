@@ -108,6 +108,7 @@
     <Compile Include="Data\TheirContent\Weasyl\InboxWeasylSubmission.fs" />
     <Compile Include="Data\TheirContent\Weasyl\WeasylFavoriteSubmission.fs" />
     <Compile Include="Data\PandacapDbContext.fs" />
+    <Compile Include="Clients\ESPN.fs" />
     <Compile Include="Clients\FurryNetwork.fs" />
     <Compile Include="Clients\Lemmy.fs" />
     <Compile Include="Clients\Mastodon.fs" />
