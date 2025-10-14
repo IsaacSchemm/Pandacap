@@ -1,11 +1,13 @@
-﻿namespace Pandacap.Clients
+﻿namespace Pandacap.Twtxt
 
 open System
 open System.IO
 open System.Text
 open System.Text.RegularExpressions
+open System.Net
+open System.Web
 
-module TwtxtReader =
+module Reader =
     let MetadataExpression = new Regex("^# *([^ ]+) *= *(.*)")
     let StatusUpdateExpression = new Regex("^([^\t]+)\t(\(#([^ ]+)\) )?(.*)")
 
@@ -85,3 +87,67 @@ module TwtxtReader =
                         |}
             ]
         |}
+
+    type internal Entity =
+    | Text of string
+    | Mention of nick: string * url: string
+
+    module internal MentionExtraction =
+        type State =
+        | ExtractText
+        | ExtractNick
+        | ExtractUrl of nick: string
+
+        let parse (text: string) = seq {
+            let buffer = new StringBuilder()
+
+            let mutable state = ExtractText
+            let mutable remaining = List.ofSeq text
+
+            while remaining <> [] do
+                match state, remaining with
+                | ExtractText, '@' :: '<' :: tail ->
+                    yield Text $"{buffer}"
+                    buffer.Clear() |> ignore
+
+                    state <- ExtractNick
+                    remaining <- tail
+                | ExtractNick, '>' :: tail ->
+                    yield Mention ($"{buffer}", $"{buffer}")
+                    buffer.Clear() |> ignore
+
+                    state <- ExtractText
+                    remaining <- tail
+                | ExtractNick, ' ' :: tail ->
+                    state <- ExtractUrl $"{buffer}"
+                    buffer.Clear() |> ignore
+
+                    remaining <- tail
+                | ExtractUrl nick, '>' :: tail ->
+                    yield Mention (nick, $"{buffer}")
+                    buffer.Clear() |> ignore
+
+                    state <- ExtractText
+                    remaining <- tail
+                | _, c :: tail ->
+                    buffer.Append(c) |> ignore
+                    remaining <- tail
+                | _, [] -> ()
+
+            if state = ExtractText && buffer.Length > 0 then
+                yield Text $"{buffer}"
+        }
+
+    let ToPlainText str = String.concat "" [
+        for entity in MentionExtraction.parse str do
+            match entity with
+            | Text text -> text
+            | Mention (nick, _) -> $"@{nick}"
+    ]
+
+    let ToHTML str = String.concat "" [
+        for entity in MentionExtraction.parse str do
+            match entity with
+            | Text text -> HttpUtility.HtmlEncode(text)
+            | Mention (nick, url) -> $"""<a href="{HttpUtility.HtmlAttributeEncode(url)}" target='_blank'>@{HttpUtility.HtmlEncode(nick)}</a>"""
+    ]

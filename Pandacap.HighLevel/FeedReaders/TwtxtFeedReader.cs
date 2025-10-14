@@ -19,7 +19,7 @@ namespace Pandacap.HighLevel.FeedReaders
             using var resp = await client.GetAsync(uri);
 
             var content = await resp.EnsureSuccessStatusCode().Content.ReadAsByteArrayAsync();
-            var feed = TwtxtReader.ReadFeed(content);
+            var feed = Twtxt.Reader.ReadFeed(content);
 
             foreach (var item in feed.twts)
             {
@@ -28,7 +28,8 @@ namespace Pandacap.HighLevel.FeedReaders
                     FeedIconUrl = feed.metadata.avatar.HeadOrDefault,
                     FeedTitle = feed.metadata.nick.HeadOrDefault,
                     FeedWebsiteUrl = uri,
-                    TextBody = item.text,
+                    TextBody = Twtxt.Reader.ToPlainText(item.text),
+                    HtmlBody = Twtxt.Reader.ToHTML(item.text),
                     Timestamp = item.timestamp,
                     Url = uri,
                     Id = Guid.NewGuid()
