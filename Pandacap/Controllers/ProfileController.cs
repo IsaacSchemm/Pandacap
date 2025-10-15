@@ -11,18 +11,18 @@ using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
-using Pandacap.HighLevel.RssInbound;
+using Pandacap.HighLevel.FeedReaders;
 using Pandacap.LowLevel.MyLinks;
 using Pandacap.Models;
 using System.Diagnostics;
 using System.Text;
+using System.Threading;
 
 namespace Pandacap.Controllers
 {
     public class ProfileController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         ApplicationInformation appInfo,
-        AtomRssFeedReader atomRssFeedReader,
         ATProtoFeedReader atProtoFeedReader,
         ATProtoHandleLookupClient atProtoHandleLookupClient,
         BlobServiceClient blobServiceClient,
@@ -31,6 +31,7 @@ namespace Pandacap.Controllers
         DIDResolver didResolver,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
+        FeedRefresher feedRefresher,
         IHttpClientFactory httpClientFactory,
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
@@ -72,6 +73,11 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                await MigrateAsync(cancellationToken);
+            }
+
             async Task<ProfileViewModel> buildModel()
             {
                 var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
@@ -103,7 +109,7 @@ namespace Pandacap.Controllers
                         .ToListAsync(cancellationToken),
                     FollowerCount = await context.Followers.DocumentCountAsync(cancellationToken),
                     FollowingCount = await context.Follows.DocumentCountAsync(cancellationToken)
-                        + await context.RssFeeds.DocumentCountAsync(cancellationToken)
+                        + await context.GeneralFeeds.DocumentCountAsync(cancellationToken)
                         + await context.ATProtoFeeds.DocumentCountAsync(cancellationToken),
                     FavoritesCount = await context.ActivityPubFavorites.DocumentCountAsync(cancellationToken),
                     CommunityBookmarksCount = await context.CommunityBookmarks.DocumentCountAsync(cancellationToken)
@@ -124,6 +130,78 @@ namespace Pandacap.Controllers
             }
 
             return View(await getModel());
+        }
+
+        private async Task MigrateAsync(CancellationToken cancellationToken)
+        {
+            if (await context.RssFavorites.DocumentCountAsync() == 0
+                && await context.RssFeedItems.DocumentCountAsync() == 0
+                && await context.RssFeeds.DocumentCountAsync() == 0)
+            {
+                return;
+            }
+
+            await foreach (var item in context.RssFavorites)
+            {
+                IPost post = item;
+
+                context.GeneralFavorites.Add(new()
+                {
+                    Id = item.Id,
+                    FeedIconUrl = item.FeedIconUrl,
+                    FeedTitle = item.FeedTitle,
+                    FeedWebsiteUrl = item.FeedWebsiteUrl,
+                    ThumbnailAltText = post.Thumbnails.Select(t => t.AltText).FirstOrDefault(),
+                    ThumbnailUrl = post.Thumbnails.Select(t => t.Url).FirstOrDefault(),
+                    Timestamp = item.Timestamp,
+                    Title = item.Title,
+                    Url = item.Url,
+                    FavoritedAt = item.FavoritedAt,
+                    HiddenAt = item.HiddenAt
+                });
+
+                context.RssFavorites.Remove(item);
+            }
+
+            await foreach (var feed in context.RssFeeds)
+            {
+                context.GeneralFeeds.Add(new()
+                {
+                    FeedIconUrl = feed.FeedIconUrl,
+                    FeedTitle = feed.FeedTitle,
+                    FeedUrl = feed.FeedUrl,
+                    FeedWebsiteUrl = feed.FeedWebsiteUrl,
+                    Id = feed.Id,
+                    LastCheckedAt = DateTimeOffset.MinValue
+                });
+
+                context.RssFeeds.Remove(feed);
+            }
+
+            await foreach (var item in context.RssFeedItems)
+            {
+                IPost post = item;
+
+                context.GeneralInboxItems.Add(new()
+                {
+                    AudioUrl = item.Enclosures.Select(e => e.Url).FirstOrDefault(),
+                    DismissedAt = item.DismissedAt,
+                    FeedIconUrl = item.FeedIconUrl,
+                    FeedTitle = item.FeedTitle,
+                    FeedWebsiteUrl = item.FeedWebsiteUrl,
+                    HtmlBody = item.HtmlDescription,
+                    Id = item.Id,
+                    ThumbnailAltText = post.Thumbnails.Select(t => t.AltText).FirstOrDefault(),
+                    ThumbnailUrl = post.Thumbnails.Select(t => t.Url).FirstOrDefault(),
+                    Timestamp = post.PostedAt,
+                    Title = item.Title,
+                    Url = item.Url
+                });
+
+                context.RssFeedItems.Remove(item);
+            }
+
+            await context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<IActionResult> Search(string? q, Guid? next, int? count)
@@ -437,7 +515,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddFeed(string url)
         {
-            await atomRssFeedReader.AddFeedAsync(url);
+            await feedRefresher.AddFeedAsync(url);
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
@@ -447,7 +525,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RefreshFeed(Guid id)
         {
-            await atomRssFeedReader.ReadFeedAsync(id);
+            await feedRefresher.RefreshFeedAsync(id);
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
@@ -457,8 +535,8 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFeed(Guid id)
         {
-            await foreach (var feed in context.RssFeeds.Where(f => f.Id == id).AsAsyncEnumerable())
-                context.RssFeeds.Remove(feed);
+            await foreach (var feed in context.GeneralFeeds.Where(f => f.Id == id).AsAsyncEnumerable())
+                context.GeneralFeeds.Remove(feed);
 
             await context.SaveChangesAsync();
 
@@ -476,7 +554,7 @@ namespace Pandacap.Controllers
             {
                 await foreach (var x in context.ATProtoFeeds) yield return x;
                 await foreach (var x in context.Follows) yield return x;
-                await foreach (var x in context.RssFeeds) yield return x;
+                await foreach (var x in context.GeneralFeeds) yield return x;
             }
 
             var all = await getFollows()

@@ -53,7 +53,7 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
-            var rssItems = context.RssFeedItems
+            var generalItems = context.GeneralInboxItems
                 .OrderByDescending(d => d.Timestamp)
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
@@ -84,7 +84,7 @@ namespace Pandacap.Controllers
                     deviantArtText,
                     furAffinitySubmissions,
                     furAffinityJournals,
-                    rssItems,
+                    generalItems,
                     weasylSubmissions,
                     weasylJournals,
                     whiteWind
@@ -262,7 +262,7 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .RssFeedItems
+                .GeneralInboxItems
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
             {

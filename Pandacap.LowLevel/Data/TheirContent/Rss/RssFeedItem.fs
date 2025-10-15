@@ -38,7 +38,7 @@ type RssFeedItem() =
         member _.IsShare = false
 
     interface IPost with
-        member _.Platform = RSS_Atom
+        member _.Platform = Feeds
         member this.Url = this.Url
         member this.DisplayTitle = this.Title |> orString $"{this.Id}"
         member this.Id = $"{this.Id}"

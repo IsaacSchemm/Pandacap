@@ -7,8 +7,8 @@ using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
+using Pandacap.HighLevel.FeedReaders;
 using Pandacap.HighLevel.Lemmy;
-using Pandacap.HighLevel.RssInbound;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.Weasyl;
 using Pandacap.LowLevel.MyLinks;
@@ -40,7 +40,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<ActivityPub.InteractionTranslator>()
                 .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
                 .AddScoped<ActivityPubRequestHandler>()
-                .AddScoped<AtomRssFeedReader>()
                 .AddScoped<ATProtoFeedReader>()
                 .AddScoped<ATProtoHandleLookupClient>()
                 .AddScoped<BridgyFedDIDProvider>()
@@ -50,6 +49,11 @@ namespace Pandacap.HighLevel
                 .AddScoped<DIDResolver>()
                 .AddScoped<FavoritesFeedBuilder>()
                 .AddScoped<FeedBuilder>()
+                .AddScoped<IFeedReader, AtomRssFeedReader>()
+                .AddScoped<IFeedReader, ESPNContributorFeedReader>()
+                .AddScoped<IFeedReader, JsonFeedReader>()
+                .AddScoped<IFeedReader, TwtxtFeedReader>()
+                .AddScoped<FeedRefresher>()
                 .AddScoped<FurryNetworkClient>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
