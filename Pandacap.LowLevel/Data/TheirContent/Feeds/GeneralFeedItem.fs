@@ -42,11 +42,11 @@ type GeneralFeedItem() =
 
     interface IPost with
         member _.Platform = Feeds
-        member this.Url = this.Url
+        member this.Url = this.Url |> orString this.FeedWebsiteUrl
         member this.DisplayTitle = this.DisplayTitle
         member this.Id = $"{this.Id}"
         member this.InternalUrl = $"/GeneralPosts?id={this.Id}"
-        member this.ExternalUrl = this.Url
+        member this.ExternalUrl = this.Url |> orString this.FeedWebsiteUrl
         member this.PostedAt = this.Timestamp
         member this.ProfileUrl = this.FeedWebsiteUrl
         member this.Thumbnails = seq {
