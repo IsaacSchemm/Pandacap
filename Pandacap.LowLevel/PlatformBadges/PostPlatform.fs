@@ -21,7 +21,7 @@ module PostPlatform =
         | ATProto -> Badge.Create "ATProto" "#397EF6" "white"
         | Bluesky -> Badge.Create "Bluesky" "#397EF6" "white"
         | DeviantArt -> Badge.Create "DeviantArt" "#00e59b" "black"
-        | Feeds -> Badge.Create "Feeds" "black" "white"
+        | Feeds -> Badge.Create "Feeds" "#e8e8e8" "black"
         | FurAffinity -> Badge.Create "Fur Affinity" "#2E3B41" "#cfcfcf"
         | FurryNetwork -> Badge.Create "Furry Network" "#2e76b4" "white"
         | Pandacap -> Badge.Create "Pandacap" "purple" "white"
