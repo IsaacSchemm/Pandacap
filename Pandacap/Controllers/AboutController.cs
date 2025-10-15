@@ -6,7 +6,7 @@ namespace Pandacap.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            return Redirect("https://lakora.us/pandacap/");
         }
     }
 }
