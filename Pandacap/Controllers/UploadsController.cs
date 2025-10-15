@@ -85,13 +85,6 @@ namespace Pandacap.Controllers
                 model.AltText,
                 cancellationToken);
 
-            if (model.GenerateAltText)
-            {
-                await uploader.GenerateAltTextAsync(
-                    id,
-                    cancellationToken);
-            }
-
             return model.Destination switch
             {
                 UploadDestination.StatusUpdate => RedirectToAction("CreateStatusUpdateFromUpload", "UserPosts", new { id }),

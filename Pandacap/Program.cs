@@ -73,13 +73,6 @@ builder.Services.AddAuthentication()
         o.SaveTokens = true;
     });
 
-if (builder.Configuration["ComputerVisionEndpoint"] is string computerVisionEndpoint)
-{
-    builder.Services.AddSingleton(new ComputerVisionConfiguration(
-        computerVisionEndpoint,
-        builder.Configuration["Authentication:Microsoft:TenantId"]!));
-}
-
 builder.Services.AddSingleton(new ConstellationHost(
     builder.Configuration["ConstellationHost"]));
 
@@ -100,7 +93,6 @@ builder.Services
     .AddScoped<ActivityPubReplyNotificationHandler>()
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<CompositeNotificationHandler>()
-    .AddScoped<ComputerVisionProvider>()
     .AddScoped<ATProtoNotificationHandler>()
     .AddScoped<DeliveryInboxCollector>()
     .AddScoped<DeviantArtFeedNotificationHandler>()
