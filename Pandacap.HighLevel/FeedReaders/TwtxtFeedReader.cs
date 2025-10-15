@@ -18,6 +18,10 @@ namespace Pandacap.HighLevel.FeedReaders
             using var client = httpClientFactory.CreateClient();
             using var resp = await client.GetAsync(uri);
 
+            var respContentType = resp.EnsureSuccessStatusCode().Content.Headers.ContentType?.MediaType;
+            if (respContentType is string respMediaType && respMediaType != "text/plain")
+                yield break;
+
             var content = await resp.EnsureSuccessStatusCode().Content.ReadAsByteArrayAsync();
             var feed = Twtxt.Reader.ReadFeed(content);
 

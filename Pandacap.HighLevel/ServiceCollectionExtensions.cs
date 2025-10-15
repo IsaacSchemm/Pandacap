@@ -51,6 +51,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<FeedBuilder>()
                 .AddScoped<IFeedReader, AtomRssFeedReader>()
                 .AddScoped<IFeedReader, ESPNContributorFeedReader>()
+                .AddScoped<IFeedReader, JsonFeedReader>()
                 .AddScoped<IFeedReader, TwtxtFeedReader>()
                 .AddScoped<FeedRefresher>()
                 .AddScoped<FurryNetworkClient>()

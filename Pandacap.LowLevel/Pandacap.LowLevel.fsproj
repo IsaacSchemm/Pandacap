@@ -110,6 +110,7 @@
     <Compile Include="Data\TheirContent\Weasyl\WeasylFavoriteSubmission.fs" />
     <Compile Include="Data\PandacapDbContext.fs" />
     <Compile Include="Clients\FurryNetwork.fs" />
+    <Compile Include="Clients\JsonFeed.fs" />
     <Compile Include="Clients\Lemmy.fs" />
     <Compile Include="Clients\Mastodon.fs" />
   </ItemGroup>
