@@ -14,3 +14,8 @@ module NSIDs =
         module Whtwnd =
             module Blog =
                 let Entry = "com.whtwnd.blog.entry"
+
+    module Pub =
+        module Leaflet =
+            let Publication = "pub.leaflet.publication"
+            let Document = "pub.leaflet.document"

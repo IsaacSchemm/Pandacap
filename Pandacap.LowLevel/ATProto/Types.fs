@@ -85,3 +85,43 @@ type WhitewindBlogEntry = {
     CreatedAt: Nullable<DateTimeOffset>
     Public: bool
 }
+
+type LeafletPublication = {
+    Name: string
+    BasePath: string
+}
+
+type LeafletImageBlock = {
+    CID: string
+    MimeType: string
+    Size: int
+}
+
+type LeafletTextBlock = {
+    PlainText: string
+}
+
+type LeafletWebsiteBlock = {
+    Src: string
+    Title: string
+    Description: string
+}
+
+[<RequireQualifiedAccess>]
+type LeafletBlock =
+| Image of LeafletImageBlock
+| Text of LeafletTextBlock
+| Website of LeafletWebsiteBlock
+| Unknown
+
+type LeafletPage = {
+    Blocks: LeafletBlock list
+}
+
+type LeafletDocument = {
+    Pages: LeafletPage list
+    Title: string
+    Author: string
+    Publication: ATProtoRefUri
+    PublishedAt: DateTimeOffset
+}

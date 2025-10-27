@@ -288,3 +288,113 @@ module RecordEnumeration =
         let FindNewestRecordsAsync httpClient pds did pageSize =
             findNewestItemsAsync httpClient pds did NSIDs.Com.Whtwnd.Blog.Entry pageSize sample
             |> thenMapAsync translate
+
+    module LeafletDocument =
+        let sample = {|
+            pages = [{|
+                blocks = [{|
+                    ``$type`` = ""
+                    block = {|
+                        image = Some {|
+                            ref = {|
+                                ``$link`` = ""
+                            |}
+                            mimeType = ""
+                            size = 0
+                        |}
+                        aspectRatio = Some {|
+                            width = 0
+                            height = 0
+                        |}
+
+                        plaintext = Some ""
+
+                        src = Some ""
+                        title = Some ""
+                        description = Some ""
+                    |}
+                |}]
+            |}]
+            title = ""
+            author = ""
+            publication = ""
+            publishedAt = DateTimeOffset.MinValue
+        |}
+
+        let translate item =
+            let _ = [item; sample]
+
+            {
+                Pages = [
+                    for page in item.pages do {
+                        Blocks = [
+                            for block in page.blocks do
+                                match block.``$type`` with
+                                | "pub.leaflet.blocks.image" ->
+                                    let image = Option.get block.block.image
+                                    LeafletBlock.Image {
+                                        CID = image.ref.``$link``
+                                        MimeType = image.mimeType
+                                        Size = image.size
+                                    }
+
+                                | "pub.leaflet.blocks.text" ->
+                                    LeafletBlock.Text {
+                                        PlainText = Option.get block.block.plaintext
+                                    }
+
+                                | "pub.leaflet.blocks.website" ->
+                                    LeafletBlock.Website {
+                                        Src = Option.get block.block.src
+                                        Title = Option.get block.block.title
+                                        Description = Option.get block.block.description
+                                    }
+
+                                | _ ->
+                                    LeafletBlock.Unknown
+                        ]
+                    }
+                ]
+                Title = item.title
+                Author = item.author
+                Publication = { Raw = item.publication }
+                PublishedAt = item.publishedAt
+            }
+
+        let GetRecordAsync httpClient pds did rkey =
+            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.Pub.Leaflet.Document rkey sample
+            |> thenMapToRecordAsync translate
+
+        let ListRecordsAsync httpClient pds did limit cursor direction =
+            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.Pub.Leaflet.Document limit cursor direction sample
+            |> thenMapToPageAsync translate
+
+        let FindNewestRecordsAsync httpClient pds did pageSize =
+            findNewestItemsAsync httpClient pds did NSIDs.Pub.Leaflet.Document pageSize sample
+            |> thenMapAsync translate
+
+    module LeafletPublication =
+        let sample = {|
+            name = ""
+            base_path = ""
+        |}
+
+        let translate item =
+            let _ = [item; sample]
+
+            {
+                Name = item.name
+                BasePath = item.base_path
+            }
+
+        let GetRecordAsync httpClient pds did rkey =
+            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.Pub.Leaflet.Publication rkey sample
+            |> thenMapToRecordAsync translate
+
+        let ListRecordsAsync httpClient pds did limit cursor direction =
+            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.Pub.Leaflet.Publication limit cursor direction sample
+            |> thenMapToPageAsync translate
+
+        let FindNewestRecordsAsync httpClient pds did pageSize =
+            findNewestItemsAsync httpClient pds did NSIDs.Pub.Leaflet.Publication pageSize sample
+            |> thenMapAsync translate
