@@ -78,7 +78,6 @@
     <Compile Include="Data\Relationships\CommunityBookmark.fs" />
     <Compile Include="Data\Relationships\Follow.fs" />
     <Compile Include="Data\Relationships\Follower.fs" />
-    <Compile Include="Data\Relationships\RssFeed.fs" />
     <Compile Include="Data\Relationships\GeneralFeed.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\ActivityPubFavorite.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
@@ -88,12 +87,12 @@
     <Compile Include="Data\TheirContent\FurAffinity\FurAffinityFavorite.fs" />
     <Compile Include="Data\TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
     <Compile Include="Data\TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />
-    <Compile Include="Data\TheirContent\ATProto\ATProtoBackLink.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyPostFavorite.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyLikeFeedItem.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyPostFeedItem.fs" />
     <Compile Include="Data\TheirContent\ATProto\BlueskyRepostFeedItem.fs" />
     <Compile Include="Data\TheirContent\ATProto\WhiteWindBlogEntryFeedItem.fs" />
+    <Compile Include="Data\TheirContent\ATProto\LeafletDocumentFeedItem.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\DeviantArtFavorite.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\DeviantArtTextPostCheckStatus.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\InboxDeviation.fs" />
@@ -103,8 +102,6 @@
     <Compile Include="Data\TheirContent\Feeds\GeneralInboxItem.fs" />
     <Compile Include="Data\TheirContent\Feeds\GeneralFavorite.fs" />
     <Compile Include="Data\TheirContent\Reddit\RedditUpvotedPost.fs" />
-    <Compile Include="Data\TheirContent\Rss\RssFavorite.fs" />
-    <Compile Include="Data\TheirContent\Rss\RssFeedItem.fs" />
     <Compile Include="Data\TheirContent\Weasyl\InboxWeasylJournal.fs" />
     <Compile Include="Data\TheirContent\Weasyl\InboxWeasylSubmission.fs" />
     <Compile Include="Data\TheirContent\Weasyl\WeasylFavoriteSubmission.fs" />

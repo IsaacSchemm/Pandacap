@@ -13,6 +13,7 @@ type PostPlatform =
 | SheezyArt
 | Weasyl
 | WhiteWind
+| Leaflet
 
 module PostPlatform =
     let GetBadge platform =
@@ -24,6 +25,7 @@ module PostPlatform =
         | Feeds -> Badge.Create "Feeds" "#e8e8e8" "black"
         | FurAffinity -> Badge.Create "Fur Affinity" "#2E3B41" "#cfcfcf"
         | FurryNetwork -> Badge.Create "Furry Network" "#2e76b4" "white"
+        | Leaflet -> Badge.Create "Leaflet" "blue" "white"
         | Pandacap -> Badge.Create "Pandacap" "purple" "white"
         | Reddit -> Badge.Create "Reddit" "#ff4500" "white"
         | SheezyArt -> Badge.Create "Sheezy.Art" "rgb(91, 118, 145)" "rgb(201, 216, 225)"

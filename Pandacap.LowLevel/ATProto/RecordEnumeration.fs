@@ -390,11 +390,3 @@ module RecordEnumeration =
         let GetRecordAsync httpClient pds did rkey =
             XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.Pub.Leaflet.Publication rkey sample
             |> thenMapToRecordAsync translate
-
-        let ListRecordsAsync httpClient pds did limit cursor direction =
-            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.Pub.Leaflet.Publication limit cursor direction sample
-            |> thenMapToPageAsync translate
-
-        let FindNewestRecordsAsync httpClient pds did pageSize =
-            findNewestItemsAsync httpClient pds did NSIDs.Pub.Leaflet.Publication pageSize sample
-            |> thenMapAsync translate

@@ -58,6 +58,11 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
+            var leaflet = context.LeafletDocumentFeedItems
+                .OrderByDescending(d => d.CreatedAt)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
             var weasylSubmissions = context.InboxWeasylSubmissions
                 .OrderByDescending(d => d.PostedAt)
                 .AsAsyncEnumerable()
@@ -85,6 +90,7 @@ namespace Pandacap.Controllers
                     furAffinitySubmissions,
                     furAffinityJournals,
                     generalItems,
+                    leaflet,
                     weasylSubmissions,
                     weasylJournals,
                     whiteWind

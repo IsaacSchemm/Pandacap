@@ -93,17 +93,35 @@ namespace Pandacap.HighLevel.ATProto
             {
                 Author = new()
                 {
-                    AvatarCID = feed.AvatarCID,
                     DID = feed.DID,
-                    DisplayName = feed.DisplayName,
                     Handle = feed.Handle,
                     PDS = feed.CurrentPDS
                 },
                 CID = entry.Ref.CID,
-                Content = entry.Value.Content,
                 CreatedAt = entry.Value.CreatedAt ?? DateTimeOffset.UtcNow,
                 RecordKey = entry.Ref.Uri.Components.RecordKey,
                 Title = entry.Value.Title
+            });
+        }
+
+        private void AddToContext(
+            ATProtoFeed feed,
+            ATProtoRecord<LeafletPublication> publication,
+            ATProtoRecord<LeafletDocument> document)
+        {
+            context.LeafletDocumentFeedItems.Add(new()
+            {
+                Publication = new()
+                {
+                    DID = feed.DID,
+                    PDS = feed.CurrentPDS,
+                    BasePath = publication.Value.BasePath,
+                    Name = publication.Value.Name
+                },
+                CID = document.Ref.CID,
+                CreatedAt = document.Value.PublishedAt,
+                RecordKey = document.Ref.Uri.Components.RecordKey,
+                Title = document.Value.Title
             });
         }
 
@@ -334,6 +352,43 @@ namespace Pandacap.HighLevel.ATProto
                         context.WhiteWindBlogEntryFeedItems.Remove(existing);
 
                     AddToContext(feed, blogEntry);
+                }
+            }
+
+            if (feed.NSIDs.Contains(NSIDs.Pub.Leaflet.Document))
+            {
+                var documents = await RecordEnumeration.LeafletDocument.FindNewestRecordsAsync(
+                    client,
+                    pds,
+                    did,
+                    pageSize: 20);
+
+                var publications = await Task.WhenAll(
+                    documents
+                    .Select(document => document.Value.Publication.Components.RecordKey)
+                    .Distinct()
+                    .Select(recordKey => RecordEnumeration.LeafletPublication.GetRecordAsync(
+                        client,
+                        pds,
+                        did,
+                        recordKey)));
+
+                foreach (var document in documents)
+                {
+                    var publication = publications.SingleOrDefault(pub => pub.Ref.Uri.Equals(document.Value.Publication));
+                    if (publication == null)
+                        continue;
+
+                    seenThisTime.Add(document.Ref.CID);
+
+                    if (seenLastTime.Contains(document.Ref.CID))
+                        continue;
+
+                    var existing = await context.LeafletDocumentFeedItems.FindAsync(document.Ref.CID);
+                    if (existing != null)
+                        context.LeafletDocumentFeedItems.Remove(existing);
+
+                    AddToContext(feed, publication, document);
                 }
             }
 

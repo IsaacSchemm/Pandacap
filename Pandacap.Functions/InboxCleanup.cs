@@ -68,6 +68,14 @@ namespace Pandacap.Functions
                 context.Remove(inboxItem);
             }
 
+            await foreach (var inboxItem in context.LeafletDocumentFeedItems
+                .Where(d => d.DismissedAt != null)
+                .Where(d => d.CreatedAt < weekAgo)
+                .AsAsyncEnumerable())
+            {
+                context.Remove(inboxItem);
+            }
+
             await foreach (var inboxItem in context.InboxFurAffinitySubmissions
                 .Where(x => x.DismissedAt != null)
                 .OrderByDescending(x => x.SubmissionId)
