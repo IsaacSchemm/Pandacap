@@ -298,6 +298,14 @@ namespace Pandacap.Controllers
             {
                 yield return item;
             }
+
+            await foreach (var item in context
+                .LeafletDocumentFeedItems
+                .Where(x => ids.Contains(x.CID))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
         }
 
         [HttpPost]
