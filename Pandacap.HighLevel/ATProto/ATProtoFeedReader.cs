@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AngleSharp.Dom;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
@@ -89,39 +90,33 @@ namespace Pandacap.HighLevel.ATProto
             ATProtoFeed feed,
             ATProtoRecord<WhitewindBlogEntry> entry)
         {
-            context.WhiteWindBlogEntryFeedItems.Add(new()
+            context.ATProtoInboxItems.Add(new()
             {
-                Author = new()
-                {
-                    DID = feed.DID,
-                    Handle = feed.Handle,
-                    PDS = feed.CurrentPDS
-                },
                 CID = entry.Ref.CID,
-                CreatedAt = entry.Value.CreatedAt ?? DateTimeOffset.UtcNow,
+                PDS = feed.CurrentPDS,
+                DID = entry.Ref.Uri.Components.DID,
+                Collection = entry.Ref.Uri.Components.Collection,
                 RecordKey = entry.Ref.Uri.Components.RecordKey,
-                Title = entry.Value.Title
+                FeedTitle = feed.Handle,
+                Title = entry.Value.Title,
+                Timestamp = entry.Value.CreatedAt ?? DateTimeOffset.UtcNow
             });
         }
 
         private void AddToContext(
             ATProtoFeed feed,
-            ATProtoRecord<LeafletPublication> publication,
             ATProtoRecord<LeafletDocument> document)
         {
-            context.LeafletDocumentFeedItems.Add(new()
+            context.ATProtoInboxItems.Add(new()
             {
-                Publication = new()
-                {
-                    DID = feed.DID,
-                    PDS = feed.CurrentPDS,
-                    BasePath = publication.Value.BasePath,
-                    Name = publication.Value.Name
-                },
                 CID = document.Ref.CID,
-                CreatedAt = document.Value.PublishedAt,
+                PDS = feed.CurrentPDS,
+                DID = document.Ref.Uri.Components.DID,
+                Collection = document.Ref.Uri.Components.Collection,
                 RecordKey = document.Ref.Uri.Components.RecordKey,
-                Title = document.Value.Title
+                FeedTitle = feed.Handle,
+                Title = document.Value.Title,
+                Timestamp = document.Value.PublishedAt
             });
         }
 
@@ -347,9 +342,9 @@ namespace Pandacap.HighLevel.ATProto
                     if (seenLastTime.Contains(blogEntry.Ref.CID))
                         continue;
 
-                    var existing = await context.WhiteWindBlogEntryFeedItems.FindAsync(blogEntry.Ref.CID);
+                    var existing = await context.ATProtoInboxItems.FindAsync(blogEntry.Ref.CID);
                     if (existing != null)
-                        context.WhiteWindBlogEntryFeedItems.Remove(existing);
+                        context.ATProtoInboxItems.Remove(existing);
 
                     AddToContext(feed, blogEntry);
                 }
@@ -363,32 +358,18 @@ namespace Pandacap.HighLevel.ATProto
                     did,
                     pageSize: 20);
 
-                var publications = await Task.WhenAll(
-                    documents
-                    .Select(document => document.Value.Publication.Components.RecordKey)
-                    .Distinct()
-                    .Select(recordKey => RecordEnumeration.LeafletPublication.GetRecordAsync(
-                        client,
-                        pds,
-                        did,
-                        recordKey)));
-
                 foreach (var document in documents)
                 {
-                    var publication = publications.SingleOrDefault(pub => pub.Ref.Uri.Equals(document.Value.Publication));
-                    if (publication == null)
-                        continue;
-
                     seenThisTime.Add(document.Ref.CID);
 
                     if (seenLastTime.Contains(document.Ref.CID))
                         continue;
 
-                    var existing = await context.LeafletDocumentFeedItems.FindAsync(document.Ref.CID);
+                    var existing = await context.ATProtoInboxItems.FindAsync(document.Ref.CID);
                     if (existing != null)
-                        context.LeafletDocumentFeedItems.Remove(existing);
+                        context.ATProtoInboxItems.Remove(existing);
 
-                    AddToContext(feed, publication, document);
+                    AddToContext(feed, document);
                 }
             }
 

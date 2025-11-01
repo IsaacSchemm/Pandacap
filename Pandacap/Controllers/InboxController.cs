@@ -18,6 +18,11 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
+            var atproto = context.ATProtoInboxItems
+                .OrderByDescending(d => d.Timestamp)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
             var bluesky1 = context.BlueskyPostFeedItems
                 .OrderByDescending(d => d.CreatedAt)
                 .AsAsyncEnumerable()
@@ -58,11 +63,6 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
-            var leaflet = context.LeafletDocumentFeedItems
-                .OrderByDescending(d => d.CreatedAt)
-                .AsAsyncEnumerable()
-                .OfType<IInboxPost>();
-
             var weasylSubmissions = context.InboxWeasylSubmissions
                 .OrderByDescending(d => d.PostedAt)
                 .AsAsyncEnumerable()
@@ -73,15 +73,11 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
-            var whiteWind = context.WhiteWindBlogEntryFeedItems
-                .OrderByDescending(d => d.CreatedAt)
-                .AsAsyncEnumerable()
-                .OfType<IInboxPost>();
-
             return
                 new[]
                 {
                     activityPub,
+                    atproto,
                     bluesky1,
                     bluesky2,
                     bluesky3,
@@ -90,10 +86,8 @@ namespace Pandacap.Controllers
                     furAffinitySubmissions,
                     furAffinityJournals,
                     generalItems,
-                    leaflet,
                     weasylSubmissions,
-                    weasylJournals,
-                    whiteWind
+                    weasylJournals
                 }
                 .MergeNewest(post => post.PostedAt)
                 .Where(post => post.DismissedAt == null);
@@ -228,6 +222,14 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
+                .ATProtoInboxItems
+                .Where(x => ids.Contains(x.CID))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
+
+            await foreach (var item in context
                 .BlueskyPostFeedItems
                 .Where(item => ids.Contains(item.CID))
                 .AsAsyncEnumerable())
@@ -286,22 +288,6 @@ namespace Pandacap.Controllers
             await foreach (var item in context
                 .InboxWeasylJournals
                 .Where(x => guids.Contains(x.Id))
-                .AsAsyncEnumerable())
-            {
-                yield return item;
-            }
-
-            await foreach (var item in context
-                .WhiteWindBlogEntryFeedItems
-                .Where(x => ids.Contains(x.CID))
-                .AsAsyncEnumerable())
-            {
-                yield return item;
-            }
-
-            await foreach (var item in context
-                .LeafletDocumentFeedItems
-                .Where(x => ids.Contains(x.CID))
                 .AsAsyncEnumerable())
             {
                 yield return item;

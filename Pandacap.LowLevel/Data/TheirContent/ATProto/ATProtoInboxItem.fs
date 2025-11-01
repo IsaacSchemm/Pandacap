@@ -1,7 +1,7 @@
 ﻿namespace Pandacap.Data
 
-type GeneralInboxItem() =
-    inherit GeneralFeedItem()
+type ATProtoInboxItem() =
+    inherit ATProtoFeedItem()
 
     member val DismissedAt = nullDateTimeOffset with get, set
 
@@ -10,7 +10,5 @@ type GeneralInboxItem() =
             with get () = this.DismissedAt
              and set value = this.DismissedAt <- value
 
-        member this.IsPodcast =
-            not (isNull this.AudioUrl)
-
+        member _.IsPodcast = false
         member _.IsShare = false

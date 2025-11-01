@@ -36,6 +36,14 @@ namespace Pandacap.Functions
                 context.Remove(inboxItem);
             }
 
+            await foreach (var inboxItem in context.ATProtoInboxItems
+                .Where(d => d.DismissedAt != null)
+                .Where(d => d.Timestamp < weekAgo)
+                .AsAsyncEnumerable())
+            {
+                context.Remove(inboxItem);
+            }
+
             await foreach (var inboxItem in context.BlueskyPostFeedItems
                 .Where(d => d.DismissedAt != null)
                 .Where(d => d.CreatedAt < weekAgo)
@@ -53,22 +61,6 @@ namespace Pandacap.Functions
             }
 
             await foreach (var inboxItem in context.BlueskyLikeFeedItems
-                .Where(d => d.DismissedAt != null)
-                .Where(d => d.CreatedAt < weekAgo)
-                .AsAsyncEnumerable())
-            {
-                context.Remove(inboxItem);
-            }
-
-            await foreach (var inboxItem in context.WhiteWindBlogEntryFeedItems
-                .Where(d => d.DismissedAt != null)
-                .Where(d => d.CreatedAt < weekAgo)
-                .AsAsyncEnumerable())
-            {
-                context.Remove(inboxItem);
-            }
-
-            await foreach (var inboxItem in context.LeafletDocumentFeedItems
                 .Where(d => d.DismissedAt != null)
                 .Where(d => d.CreatedAt < weekAgo)
                 .AsAsyncEnumerable())

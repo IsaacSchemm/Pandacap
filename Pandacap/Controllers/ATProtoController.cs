@@ -88,6 +88,48 @@ namespace Pandacap.Controllers
                     IsInFavorites: inFavorites));
         }
 
+        public async Task<IActionResult> RedirectTo(
+            string pds,
+            string did,
+            string collection,
+            string rkey)
+        {
+            using var httpClient = httpClientFactory.CreateClient();
+
+            switch (collection)
+            {
+                case "app.bsky.feed.post":
+                    return rkey == null
+                        ? Redirect($"https://bsky.app/profile/{did}")
+                        : Redirect($"https://bsky.app/profile/{did}/post/{rkey}");
+
+                case "com.whtwnd.blog.entry":
+                    return rkey == null
+                        ? Redirect($"https://whtwnd.com/{did}")
+                        : Redirect($"https://whtwnd.com/{did}/{rkey}");
+
+                case "pub.leaflet.document":
+                    var document = await RecordEnumeration.LeafletDocument.GetRecordAsync(
+                        httpClient,
+                        pds,
+                        did,
+                        rkey);
+
+                    var publication = await RecordEnumeration.LeafletPublication.GetRecordAsync(
+                        httpClient,
+                        pds,
+                        document.Value.Publication.Components.DID,
+                        document.Value.Publication.Components.RecordKey);
+
+                    return rkey == null
+                        ? Redirect($"https://{publication.Value.BasePath}")
+                        : Redirect($"https://{publication.Value.BasePath}/{rkey}");
+
+                default:
+                    return NotFound();
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToFavorites(string did, string rkey, CancellationToken cancellationToken)
