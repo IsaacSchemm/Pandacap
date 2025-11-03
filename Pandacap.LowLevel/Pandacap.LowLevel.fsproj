@@ -98,9 +98,7 @@
     <Compile Include="Data\TheirContent\DeviantArt\InboxDeviation.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\InboxArtworkDeviation.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\InboxTextDeviation.fs" />
-    <Compile Include="Data\TheirContent\Feeds\GeneralFeedItem.fs" />
     <Compile Include="Data\TheirContent\Feeds\GeneralInboxItem.fs" />
-    <Compile Include="Data\TheirContent\Feeds\GeneralFavorite.fs" />
     <Compile Include="Data\TheirContent\Reddit\RedditUpvotedPost.fs" />
     <Compile Include="Data\TheirContent\Weasyl\InboxWeasylJournal.fs" />
     <Compile Include="Data\TheirContent\Weasyl\InboxWeasylSubmission.fs" />

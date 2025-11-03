@@ -1,6 +1,6 @@
 ﻿@using Pandacap.Data
 
-@model GeneralFeedItem
+@model GeneralInboxItem
 
 @{
     ViewBag.Title = "View Feed Item";
@@ -37,15 +37,6 @@ else
 <hr />
 
 <p>
-    <form asp-action="AddToFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to add this post to your favorites?')">
-        <input type="hidden" name="id" value="@Model.Id" />
-        <button class="btn btn-primary">Add to Favorites</button>
-    </form>
-    <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
-        <input type="hidden" name="id" value="@Model.Id" />
-        <button class="btn btn-danger">Remove from Favorites</button>
-    </form>
-
     @if (Model.AudioUrl != null)
     {
         <a class="btn btn-outline-primary" asp-controller="Podcast" asp-action="Player" asp-route-id="@Model.Id" target="_blank" onclick="event.preventDefault(); window.open(event.target.href, '_blank', 'popup=true,width=600,height=300')">

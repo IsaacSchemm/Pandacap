@@ -33,11 +33,6 @@ namespace Pandacap.HighLevel
                 .AsAsyncEnumerable()
                 .OfType<IFavorite>();
 
-            var generalFavorites = context.GeneralFavorites
-                .OrderByDescending(post => post.FavoritedAt)
-                .AsAsyncEnumerable()
-                .OfType<IFavorite>();
-
             var weasylFavoriteSubmissions = context.WeasylFavoriteSubmissions
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
@@ -53,7 +48,6 @@ namespace Pandacap.HighLevel
                     deviantArtFavorites,
                     furAffinityFavorites,
                     redditUpvotedPosts,
-                    generalFavorites,
                     weasylFavoriteSubmissions
                 }
                 .MergeNewest(post => post.FavoritedAt)
