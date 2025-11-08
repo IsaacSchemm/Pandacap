@@ -64,19 +64,31 @@ namespace Pandacap.Controllers
                 null,
                 ATProtoListDirection.Forward);
 
-            var bridgyFedObjectId = $"https://bsky.brid.gy/convert/ap/at://{did}/app.bsky.feed.post/{rkey}";
-
-            using var bridgyFedResponse = await client.GetAsync(
-                bridgyFedObjectId,
-                cancellationToken);
-
-            var inFavorites = await context.BlueskyPostFavorites
+            var inFavoritesAsBlueskyPost = await context.BlueskyPostFavorites
                 .Where(f => f.CID == post.Ref.CID)
                 .DocumentCountAsync(cancellationToken) > 0;
 
-            if (bridgyFedResponse.IsSuccessStatusCode && !inFavorites)
+            if (!inFavoritesAsBlueskyPost)
             {
-                return RedirectToAction("Index", "RemotePosts", new { id = bridgyFedObjectId });
+                // Posts whose original version is available via ActivityPub
+                // fediverseId is used by wafrn, bridgyOriginalUrl is used by Bridgy Fed
+                if ((post.Value.FediverseId ?? post.Value.BridgyOriginalUrl) is string apId)
+                {
+                    return RedirectToAction("Index", "RemotePosts", new { id = apId });
+                }
+
+                // Posts which are bridged into ActivityPub via Bridgy Fed
+                // Fetch the ActivityPub version instead so we can send likes and replies
+                var bridgyFedObjectId = $"https://bsky.brid.gy/convert/ap/at://{did}/app.bsky.feed.post/{rkey}";
+
+                using var bridgyFedResponse = await client.GetAsync(
+                    bridgyFedObjectId,
+                    cancellationToken);
+
+                if (bridgyFedResponse.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index", "RemotePosts", new { id = bridgyFedObjectId });
+                }
             }
 
             return View(
@@ -85,7 +97,7 @@ namespace Pandacap.Controllers
                     Handle: doc.Handle,
                     AvatarCID: profiles.Items.Select(r => r.Value.AvatarCID).FirstOrDefault(),
                     Record: post,
-                    IsInFavorites: inFavorites));
+                    IsInFavorites: inFavoritesAsBlueskyPost));
         }
 
         public async Task<IActionResult> RedirectTo(

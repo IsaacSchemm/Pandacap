@@ -134,6 +134,7 @@ module RecordEnumeration =
                 |}]
             |}
             createdAt = DateTimeOffset.MinValue
+            fediverseId = Some ""
         |}
 
         let private translate item =
@@ -175,6 +176,7 @@ module RecordEnumeration =
                     })
                     |> Option.toList
                 BridgyOriginalUrl = Option.toObj item.bridgyOriginalUrl
+                FediverseId = Option.toObj item.fediverseId
                 Labels =
                     item.labels
                     |> Option.map (fun l -> l.values)

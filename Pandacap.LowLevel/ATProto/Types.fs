@@ -70,6 +70,7 @@ type BlueskyPost = {
     Quoted: ATProtoRef list
     InReplyTo: BlueskyReplyContext list
     BridgyOriginalUrl: string
+    FediverseId: string
     Labels: string list
     CreatedAt: DateTimeOffset
 }

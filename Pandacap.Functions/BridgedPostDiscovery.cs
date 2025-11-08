@@ -57,7 +57,7 @@ namespace Pandacap.Functions
                         link.Components.DID,
                         link.Components.RecordKey);
 
-                    if (remotePost.Value.BridgyOriginalUrl == post.GetObjectId(hostInformation))
+                    if (remotePost.Value.ActivityPubId == post.GetObjectId(hostInformation))
                     {
                         if (post is Post p)
                         {
