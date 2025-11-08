@@ -38,6 +38,66 @@
             <div class="controlgroup" style="display: none" data-bind="visible: true">
                 <div class="controlgroup">
                     <div class="controls">
+                        <button class="adv" data-bind="click: back10">
+                            <span class="material-symbols-outlined" aria-hidden="true">replay_10</span>
+                            <span class="sr-only">Back 10 seconds</span>
+                        </button>
+                        <button class="adv" data-bind="click: forward10">
+                            <span class="material-symbols-outlined" aria-hidden="true">forward_10</span>
+                            <span class="sr-only">Forward 10 seconds</span>
+                        </button>
+                        <button data-bind="click: back30">
+                            <span class="material-symbols-outlined" aria-hidden="true">replay_30</span>
+                            <span class="sr-only">Back 30 seconds</span>
+                        </button>
+                        <button data-bind="click: forward30">
+                            <span class="material-symbols-outlined" aria-hidden="true">forward_30</span>
+                            <span class="sr-only">Forward 30 seconds</span>
+                        </button>
+                        <div class="spacer" role="none"></div>
+                        <div class="line-separator"></div>
+                        <button data-bind="visible: canCast, click: activateCast">
+                            <!-- ko if: $data instanceof CastjsPlayer -->
+                            <span class="material-symbols-outlined" aria-hidden="true">cast_connected</span>
+                            <span class="sr-only">Stop casting</span>
+                            <!-- /ko -->
+                            <!-- ko ifnot: $data instanceof CastjsPlayer -->
+                            <span class="material-symbols-outlined" aria-hidden="true">cast</span>
+                            <span class="sr-only">Cast</span>
+                            <!-- /ko -->
+                        </button>
+                        <button data-bind="visible: canAirPlay, click: activateAirPlay">
+                            <span class="material-symbols-outlined" aria-hidden="true">airplay</span>
+                            <span class="sr-only">AirPlay</span>
+                        </button>
+                        <div class="line-separator"></div>
+                        <button class="adv" data-bind="click: downloadForCD">
+                            <span class="material-symbols-outlined" aria-hidden="true">album</span>
+                            <span class="sr-only">Download in five-minute chunks (.wma)</span>
+                        </button>
+                        <button data-bind="click: download">
+                            <span class="material-symbols-outlined" aria-hidden="true">download</span>
+                            <span class="sr-only">Download original file</span>
+                        </button>
+                    </div>
+                    <div class="controls">
+                        <div class="status timestamp line-separator">
+                            <span class="sr-only">Timestamp:</span>
+                            <span data-bind="text: currentTimeStr">0:00</span>
+                        </div>
+                        <div class="spacer" role="none"></div>
+                        <div class="status timestamp line-separator">
+                            <span class="sr-only">Duration:</span>
+                            <span data-bind="text: durationStr">0:00</span>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <input type="range"
+                               aria-label="Time"
+                               id="seek"
+                               data-bind="value: currentTimeMs, attr: { min: 0, max: durationMs }" />
+                    </div>
+                    <div class="controls">
                         <button data-bind="click: togglePlay">
                             <!-- ko if: playing -->
                             <span class="material-symbols-outlined" aria-hidden="true">pause</span>
@@ -70,7 +130,6 @@
                                aria-label="Volume"
                                step="0.01" />
                         <div class="line-separator"></div>
-                        @* These two buttons are presented to screen readers, but are hidden from view unless you use the Tab key to reveal them. *@
                         <button class="adv" data-bind="click: volumeDown">
                             <span class="material-symbols-outlined" aria-hidden="true">remove</span>
                             <span class="sr-only">Volume down</span>
@@ -79,63 +138,9 @@
                             <span class="material-symbols-outlined" aria-hidden="true">add</span>
                             <span class="sr-only">Volume up</span>
                         </button>
-                        @* This button prompts the user to select an audio output device. *@
                         <button data-bind="visible: canSelectAudioOutput, click: selectAudioOutput">
                             <span class="material-symbols-outlined" aria-hidden="true">media_output</span>
                             <span class="sr-only">Select audio output device</span>
-                        </button>
-                        <button data-bind="visible: canCast, click: activateCast">
-                            <!-- ko if: $data instanceof CastjsPlayer -->
-                            <span class="material-symbols-outlined" aria-hidden="true">cast_connected</span>
-                            <span class="sr-only">Stop casting</span>
-                            <!-- /ko -->
-                            <!-- ko ifnot: $data instanceof CastjsPlayer -->
-                            <span class="material-symbols-outlined" aria-hidden="true">cast</span>
-                            <span class="sr-only">Cast</span>
-                            <!-- /ko -->
-                        </button>
-                        <button data-bind="visible: canAirPlay, click: activateAirPlay">
-                            <span class="material-symbols-outlined" aria-hidden="true">airplay</span>
-                            <span class="sr-only">AirPlay</span>
-                        </button>
-                    </div>
-                    <div class="controls">
-                        <div class="status timestamp line-separator">
-                            <span class="sr-only">Timestamp:</span>
-                            <span data-bind="text: currentTimeStr">0:00</span>
-                        </div>
-                        <input type="range"
-                               aria-label="Time"
-                               id="seek"
-                               data-bind="value: currentTimeMs, attr: { min: 0, max: durationMs }" />
-                        <div class="status timestamp line-separator">
-                            <span class="sr-only">Duration:</span>
-                            <span data-bind="text: durationStr">0:00</span>
-                        </div>
-                        @* These buttons are presented to screen readers, but are hidden from view unless you use the Tab key to reveal them. *@
-                        <button class="adv" data-bind="click: back10">
-                            <span class="material-symbols-outlined" aria-hidden="true">replay_10</span>
-                            <span class="sr-only">Back 10 seconds</span>
-                        </button>
-                        <button class="adv" data-bind="click: forward10">
-                            <span class="material-symbols-outlined" aria-hidden="true">forward_10</span>
-                            <span class="sr-only">Forward 10 seconds</span>
-                        </button>
-                        <button class="adv" data-bind="click: back30">
-                            <span class="material-symbols-outlined" aria-hidden="true">replay_30</span>
-                            <span class="sr-only">Back 30 seconds</span>
-                        </button>
-                        <button class="adv" data-bind="click: forward30">
-                            <span class="material-symbols-outlined" aria-hidden="true">forward_30</span>
-                            <span class="sr-only">Forward 30 seconds</span>
-                        </button>
-                        <button class="adv" data-bind="click: downloadForCD">
-                            <span class="material-symbols-outlined" aria-hidden="true">album</span>
-                            <span class="sr-only">Re-encode in five-minute chunks for burning to CD</span>
-                        </button>
-                        <button data-bind="click: download">
-                            <span class="material-symbols-outlined" aria-hidden="true">download</span>
-                            <span class="sr-only">Download file</span>
                         </button>
                     </div>
                 </div>

@@ -140,19 +140,20 @@
                     }
 
                     a.button, button {
-                        flex: 0 0 36px;
+                        flex: 0 0 40px;
 
                         .material-icons, .material-symbols-outlined {
-                            font-size: 24px;
+                            font-size: 40px;
                             vertical-align: bottom;
                         }
                     }
 
                     input[type=range] {
-                        width: 40px;
-                        height: 32px;
+                        width: 44px;
+                        height: 44px;
                         flex: 1 1 auto;
                         padding: 0;
+                        margin: 0 8px;
                     }
 
                     input[type=range]#volume {
@@ -160,18 +161,13 @@
                     }
 
                     .status {
-                        line-height: 36px;
+                        font-size: 20px;
+                        line-height: 32px;
                         padding: 0 8px;
                         vertical-align: middle;
 
                         &.wide {
                             flex: 1 1 0px;
-                        }
-
-                        &.timestamp {
-                            @media (max-width: 480px) {
-                                display: none;
-                            }
                         }
                     }
                 }
