@@ -22,6 +22,8 @@ namespace Pandacap.Models
 
         Guid? PostCreator.IViewModel.UploadId => UploadId;
 
+        string? PostCreator.IViewModel.LinkUrl => null;
+
         bool PostCreator.IViewModel.FocusTop => false;
     }
 }

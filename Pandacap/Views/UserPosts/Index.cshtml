@@ -63,6 +63,15 @@
 
 @Html.Raw(Model.Post.Html)
 
+@foreach (var link in Model.Post.Links ?? [])
+{
+    <p>
+        <a href="@link.Url" target="_blank">
+            @link.Title
+        </a>
+    </p>
+}
+
 @if (Model.Post.Tags.Any())
 {
     <p>

@@ -150,6 +150,20 @@ namespace Pandacap.Controllers
             return await RenderAsync("Status Updates", posts, count);
         }
 
+        public async Task<IActionResult> Links(Guid? next, int? count)
+        {
+            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
+
+            var posts = context.Posts
+                .Where(d => d.PublishedTime <= startTime)
+                .Where(d => d.Type == PostType.Link)
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == next || next == null);
+
+            return await RenderAsync("Links", posts, count);
+        }
+
         public async Task<IActionResult> Composite(Guid? next, int? count)
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;

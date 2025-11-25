@@ -21,6 +21,8 @@ namespace Pandacap.Models
 
         string? PostCreator.IViewModel.AltText => null;
 
+        string? PostCreator.IViewModel.LinkUrl => null;
+
         bool PostCreator.IViewModel.FocusTop => false;
     }
 }

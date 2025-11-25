@@ -33,5 +33,7 @@ namespace Pandacap.Models
             : PostType.Artwork;
 
         Guid? PostCreator.IViewModel.UploadId => UploadId;
+
+        string? PostCreator.IViewModel.LinkUrl => null;
     }
 }

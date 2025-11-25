@@ -9,6 +9,7 @@ type PostType =
 | JournalEntry = 1
 | Artwork = 2
 | Scraps = 3
+| Link = 4
 
 type PostBlobRef() =
     member val Id = Guid.Empty with get, set
@@ -47,6 +48,11 @@ type PostImage() =
         |> Seq.tryHead
         |> Option.defaultValue (Seq.head this.Renditions)
 
+type PostLink() =
+    member val Title = "" with get, set
+    member val ContentType = "" with get, set
+    member val Url = "" with get, set
+
 type Post() =
     member val Id = Guid.Empty with get, set
 
@@ -55,6 +61,7 @@ type Post() =
     member val Title = nullString with get, set
     member val Body = nullString with get, set
     member val Images = new ResizeArray<PostImage>() with get, set
+    member val Links = new ResizeArray<PostLink>() with get, set
     member val Tags = new ResizeArray<string>() with get, set
 
     member val PublishedTime = DateTimeOffset.MinValue with get, set
@@ -120,23 +127,38 @@ type Post() =
                 member _.Audience = null
         }
 
-        member this.Html = this.Html
-        member this.Images = [
-            for image in this.Images do {
-                new Pandacap.ActivityPub.IImage with
-                    member _.GetUrl(appInfo) = $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{this.Id}/{image.Raster.Id}"
-                    member _.HorizontalFocalPoint =
-                        image.FocalPoint
-                        |> Option.ofObj
-                        |> Option.map (fun f -> f.Horizontal)
-                    member _.MediaType = image.Raster.ContentType
-                    member _.VerticalFocalPoint =
-                        image.FocalPoint
-                        |> Option.ofObj
-                        |> Option.map (fun f -> f.Vertical)
-                    member _.AltText = image.AltText
-            }
+        member this.Html = String.concat "" [
+            this.Html
+
+            if not (isNull this.Links) then
+                for link in this.Links do
+                    $"""<p><a href="{link.Url}" target="_blank">{link.Title}</a></p>"""
         ]
+        member this.Links = seq {
+            if not (isNull this.Links) then
+                for link in this.Links do {
+                    new Pandacap.ActivityPub.ILink with
+                        member _.Href = link.Url
+                        member _.MediaType = link.ContentType
+                }
+        }
+        member this.Images = seq {
+            if not (isNull this.Images) then
+                for image in this.Images do {
+                    new Pandacap.ActivityPub.IImage with
+                        member _.GetUrl(appInfo) = $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{this.Id}/{image.Raster.Id}"
+                        member _.HorizontalFocalPoint =
+                            image.FocalPoint
+                            |> Option.ofObj
+                            |> Option.map (fun f -> f.Horizontal)
+                        member _.MediaType = image.Raster.ContentType
+                        member _.VerticalFocalPoint =
+                            image.FocalPoint
+                            |> Option.ofObj
+                            |> Option.map (fun f -> f.Vertical)
+                        member _.AltText = image.AltText
+                }
+        }
         member this.IsJournal = this.Type = PostType.JournalEntry
         member this.PublishedTime = this.PublishedTime
         member this.Tags = this.Tags

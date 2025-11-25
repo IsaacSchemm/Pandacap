@@ -74,4 +74,5 @@ type AddressedPost() =
 
         member _.IsJournal = false
         member _.Tags = []
+        member _.Links = []
         member _.Images = []

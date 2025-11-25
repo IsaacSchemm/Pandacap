@@ -13,6 +13,7 @@
     <Compile Include="PlatformBadges\Badge.fs" />
     <Compile Include="PlatformBadges\NotificationPlatform.fs" />
     <Compile Include="PlatformBadges\PostPlatform.fs" />
+    <Compile Include="Html\Scraper.fs" />
     <Compile Include="Html\DeviantArtScraper.fs" />
     <Compile Include="Html\ESPNScraper.fs" />
     <Compile Include="Html\SheezyArtScraper.fs" />
@@ -26,6 +27,7 @@
     <Compile Include="FurAffinity\FAExport.fs" />
     <Compile Include="ActivityPub\HostInformation.fs" />
     <Compile Include="ActivityPub\Serializer.fs" />
+    <Compile Include="ActivityPub\ILink.fs" />
     <Compile Include="ActivityPub\IImage.fs" />
     <Compile Include="ActivityPub\IAddressing.fs" />
     <Compile Include="ActivityPub\IPost.fs" />

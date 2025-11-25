@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.Html;
 using Pandacap.Models;
 using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -14,6 +17,7 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
+        IHttpClientFactory httpClientFactory,
         ActivityPub.Mapper mapper,
         PostCreator postCreator,
         ActivityPub.PostTranslator postTranslator,
@@ -173,6 +177,67 @@ namespace Pandacap.Controllers
             var id = await postCreator.CreatePostAsync(model, cancellationToken);
 
             await context.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction(nameof(Index), new { id });
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("CreateLink")]
+        public IActionResult CreateLink()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [Route("CreateLink")]
+        public IActionResult CreateLink(
+            CreateLinkViewModel createLinkViewModel)
+        {
+            return RedirectToAction(
+                nameof(CreateLinkFromUrl),
+                new
+                {
+                    url = createLinkViewModel.LinkUrl
+                });
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("CreateLinkFromUrl")]
+        public async Task<IActionResult> CreateLinkFromUrl(
+            string url,
+            CancellationToken cancellationToken)
+        {
+            var model = new CreateLinkFromUrlViewModel();
+
+            using var client = httpClientFactory.CreateClient();
+            using var resp = await client.GetAsync(url, cancellationToken);
+            var html = await resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken);
+
+            return View(new CreateLinkFromUrlViewModel
+            {
+                LinkUrl = url,
+                Title = Scraper.GetTitleFromHtml(html)
+            });
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [Route("CreateLinkFromUrl")]
+        public async Task<IActionResult> CreateLinkFromUrl(
+            CreateLinkFromUrlViewModel model,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var id = await postCreator.CreatePostAsync(model, cancellationToken);
 
             return RedirectToAction(nameof(Index), new { id });
         }

@@ -10,4 +10,5 @@ type IPost =
     abstract member Title: string
     abstract member Html: string
     abstract member Tags: string seq
+    abstract member Links: ILink seq
     abstract member Images: IImage seq

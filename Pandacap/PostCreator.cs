@@ -1,11 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FSharp.Data;
+using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.Html;
 
 namespace Pandacap
 {
     public class PostCreator(
         DeliveryInboxCollector deliveryInboxCollector,
         PandacapDbContext context,
+        IHttpClientFactory httpClientFactory,
         ActivityPub.PostTranslator postTranslator)
     {
         public interface IViewModel
@@ -14,11 +17,13 @@ namespace Pandacap
 
             string? Title { get; }
 
-            string MarkdownBody { get; }
+            string? MarkdownBody { get; }
 
             string? Tags { get; }
 
             Guid? UploadId { get; }
+
+            string? LinkUrl { get; }
 
             string? AltText { get; }
 
@@ -87,6 +92,21 @@ namespace Pandacap
                         Vertical = model.FocusTop ? 1 : 0
                     }
                 }];
+            }
+
+            if (model.LinkUrl is string linkUrl)
+            {
+                using var client = httpClientFactory.CreateClient();
+                using var resp = await client.GetAsync(linkUrl, cancellationToken);
+                var html = await resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken);
+
+                post.Links.Add(new()
+                {
+                    Url = linkUrl,
+                    Title = Scraper.GetTitleFromHtml(html),
+                    ContentType = resp.Content.Headers.ContentType?.MediaType
+                        ?? "text/html"
+                });
             }
 
             context.Posts.Add(post);

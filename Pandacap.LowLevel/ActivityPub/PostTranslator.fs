@@ -14,11 +14,13 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
 
         pair "type" (if post.IsJournal then "Article" else "Note")
 
-        if not (isNull post.Title) then
+        if not (String.IsNullOrEmpty(post.Title)) then
             pair "name" post.Title
 
-        if not (isNull post.Html) then
+        if not (String.IsNullOrEmpty(post.Html)) then
             pair "content" post.Html
+
+        // todo: append links to content too
 
         pair "attributedTo" mapper.ActorId
         pair "tag" [
@@ -41,21 +43,28 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
         if not (isNull addressing.Audience) then
             pair "audience" addressing.Audience
 
-        if Seq.length post.Images > 0 then
-            pair "attachment" [
-                for image in post.Images do
-                    dict [
-                        pair "type" "Image"
-                        pair "url" (image.GetUrl(hostInformation))
-                        pair "mediaType" image.MediaType
-                        if not (String.IsNullOrEmpty(image.AltText)) then
-                            pair "name" image.AltText
-                        match image.HorizontalFocalPoint, image.VerticalFocalPoint with
-                        | Some h, Some v ->
-                            pair "focalPoint" [h; v]
-                        | _ -> ()
-                    ]
+        let attachments = [
+            for link in post.Links do dict [
+                pair "type" "Link"
+                pair "href" link.Href
+                pair "mediaType" link.MediaType
             ]
+
+            for image in post.Images do dict [
+                pair "type" "Image"
+                pair "url" (image.GetUrl(hostInformation))
+                pair "mediaType" image.MediaType
+                if not (String.IsNullOrEmpty(image.AltText)) then
+                    pair "name" image.AltText
+                match image.HorizontalFocalPoint, image.VerticalFocalPoint with
+                | Some h, Some v ->
+                    pair "focalPoint" [h; v]
+                | _ -> ()
+            ]
+        ]
+
+        if attachments <> [] then
+            pair "attachment" attachments
     ]
 
     member this.BuildObjectCreate(post: IPost) = dict [
