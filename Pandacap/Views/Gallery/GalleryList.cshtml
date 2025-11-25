@@ -1,0 +1,21 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model ListViewModel
+
+<ul class="nav nav-tabs mb-2">
+    <li class="nav-item">
+        <a class="nav-link" asp-action="Artwork">Gallery</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-action="GalleryAndScraps">Gallery + Scraps</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-action="TextPosts">Text Posts</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-action="Composite">All</a>
+    </li>
+</ul>
+
+@await Html.PartialAsync("List", Model)

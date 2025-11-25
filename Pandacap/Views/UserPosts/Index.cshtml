@@ -183,16 +183,6 @@
             See the About page for more information about how crossposts work.
         </p>
 
-        @if (Model.Post.Type == PostType.Artwork && Model.Post.PublishedTime < new DateTimeOffset(2025, 8, 7, 0, 0, 0, TimeSpan.Zero))
-        {
-            <form asp-action="ConvertToScraps" class="mb-3" onsubmit="return confirm('Are you sure you want to convert this to a Scraps post? This will remove the post from ActivityPub subscribers.')">
-                <input type="hidden" name="id" value="@Model.Post.Id" />
-                <button type="submit" class="btn btn-warning">
-                    Convert to Scraps
-                </button>
-            </form>
-        }
-
         <form asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this post from Pandacap? (This will not delete it from any site it has been crossposted to.)')">
             <input type="hidden" name="id" value="@Model.Post.Id" />
             <button type="submit" class="btn btn-danger">

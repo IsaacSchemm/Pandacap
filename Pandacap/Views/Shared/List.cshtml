@@ -52,8 +52,7 @@ else
 
     var groups = Model.Items.Current.GroupBy(item => new {
         Username = item.Username,
-        ProfileUrl = item.ProfileUrl,
-        HasThumbnails = item.Thumbnails.Any()
+        ProfileUrl = item.ProfileUrl
     });
 
     foreach (var group in groups)

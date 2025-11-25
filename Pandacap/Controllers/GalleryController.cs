@@ -68,7 +68,7 @@ namespace Pandacap.Controllers
 
             ViewBag.NoIndex = true;
 
-            return View("List", new ListViewModel
+            return View("GalleryList", new ListViewModel
             {
                 Title = title,
                 Items = listPage,
@@ -91,7 +91,7 @@ namespace Pandacap.Controllers
             return await RenderAsync("Gallery", posts, count);
         }
 
-        public async Task<IActionResult> Scraps(Guid? next, int? count)
+        public async Task<IActionResult> GalleryAndScraps(Guid? next, int? count)
         {
             if (Request.IsActivityPub())
                 return StatusCode((int)HttpStatusCode.NotAcceptable);
@@ -100,12 +100,12 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.Scraps)
+                .Where(d => d.Type == PostType.Artwork || d.Type == PostType.Scraps)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
 
-            return await RenderAsync("Scraps", posts, count);
+            return await RenderAsync("Gallery & Scraps", posts, count);
         }
 
         public async Task<IActionResult> TextPosts(Guid? next, int? count)

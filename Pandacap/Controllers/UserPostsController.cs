@@ -179,40 +179,6 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConvertToScraps(
-            Guid id,
-            CancellationToken cancellationToken)
-        {
-            var post = await context.Posts
-                .Where(p => p.Id == id)
-                .Where(p => p.Type == PostType.Artwork)
-                .FirstAsync(cancellationToken);
-
-            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
-                isCreate: true,
-                cancellationToken: cancellationToken))
-            {
-                context.ActivityPubOutboundActivities.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
-                        postTranslator.BuildObjectDelete(
-                            post)),
-                    Inbox = inbox,
-                    StoredAt = DateTimeOffset.UtcNow
-                });
-            }
-
-            post.Type = PostType.Scraps;
-
-            await context.SaveChangesAsync(cancellationToken);
-
-            return RedirectToAction(nameof(Index), new { id });
-        }
-
-        [HttpPost]
-        [Authorize]
         [Route("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(
