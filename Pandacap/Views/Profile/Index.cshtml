@@ -141,6 +141,21 @@
     </p>
 }
 
+@if (Model.RecentLinks.Any())
+{
+    <h2 class="my-4">
+        Recent links
+    </h2>
+
+    <partial name="_ListGroup" model="@Model.RecentLinks" />
+
+    <p align="right">
+        <a asp-controller="Gallery" asp-action="Links" class="btn btn-outline-primary">
+            View more &raquo;
+        </a>
+    </p>
+}
+
 @if (User.Identity?.IsAuthenticated == true)
 {
     <hr />

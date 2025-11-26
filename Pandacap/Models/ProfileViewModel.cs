@@ -13,6 +13,7 @@ namespace Pandacap.Models
         public IReadOnlyList<IPost> RecentFavorites { get; set; } = [];
 
         public IReadOnlyList<Post> RecentTextPosts { get; set; } = [];
+        public IReadOnlyList<Post> RecentLinks { get; set; } = [];
 
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }

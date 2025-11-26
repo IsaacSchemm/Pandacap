@@ -102,6 +102,12 @@ namespace Pandacap.Controllers
                         .OrderByDescending(post => post.PublishedTime)
                         .Take(5)
                         .ToListAsync(cancellationToken),
+                    RecentLinks = await context.Posts
+                        .Where(post => post.Type == PostType.Link)
+                        .Where(post => post.PublishedTime >= oneMonthAgo)
+                        .OrderByDescending(post => post.PublishedTime)
+                        .Take(5)
+                        .ToListAsync(cancellationToken),
                     FollowerCount = await context.Followers.DocumentCountAsync(cancellationToken),
                     FollowingCount = await context.Follows.DocumentCountAsync(cancellationToken)
                         + await context.GeneralFeeds.DocumentCountAsync(cancellationToken)
