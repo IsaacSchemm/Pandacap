@@ -20,8 +20,6 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
         if not (String.IsNullOrEmpty(post.Html)) then
             pair "content" post.Html
 
-        // todo: append links to content too
-
         pair "attributedTo" mapper.ActorId
         pair "tag" [
             for tag in post.Tags do dict [

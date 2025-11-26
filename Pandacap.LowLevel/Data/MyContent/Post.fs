@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations.Schema
+open System.Net
 open Pandacap.PlatformBadges
 
 type PostType =
@@ -126,13 +127,12 @@ type Post() =
                 member _.Cc = [hostInfo.ActivityPubFollowersRootId]
                 member _.Audience = null
         }
-
         member this.Html = String.concat "" [
             this.Html
 
             if not (isNull this.Links) then
                 for link in this.Links do
-                    $"""<p><a href="{link.Url}" target="_blank">{link.Title}</a></p>"""
+                    $"""<p><a href="{link.Url}" target="_blank">{WebUtility.HtmlEncode(link.Url)}</a></p>"""
         ]
         member this.Links = seq {
             if not (isNull this.Links) then
