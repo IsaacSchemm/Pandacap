@@ -193,43 +193,8 @@ namespace Pandacap.Controllers
         [Authorize]
         [ValidateAntiForgeryToken]
         [Route("CreateLink")]
-        public IActionResult CreateLink(
-            CreateLinkViewModel createLinkViewModel)
-        {
-            return RedirectToAction(
-                nameof(CreateLinkFromUrl),
-                new
-                {
-                    url = createLinkViewModel.LinkUrl
-                });
-        }
-
-        [HttpGet]
-        [Authorize]
-        [Route("CreateLinkFromUrl")]
-        public async Task<IActionResult> CreateLinkFromUrl(
-            string url,
-            CancellationToken cancellationToken)
-        {
-            var model = new CreateLinkFromUrlViewModel();
-
-            using var client = httpClientFactory.CreateClient();
-            using var resp = await client.GetAsync(url, cancellationToken);
-            var html = await resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken);
-
-            return View(new CreateLinkFromUrlViewModel
-            {
-                LinkUrl = url,
-                Title = Scraper.GetTitleFromHtml(html)
-            });
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        [Route("CreateLinkFromUrl")]
-        public async Task<IActionResult> CreateLinkFromUrl(
-            CreateLinkFromUrlViewModel model,
+        public async Task<IActionResult> CreateLink(
+            CreateLinkViewModel model,
             CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)

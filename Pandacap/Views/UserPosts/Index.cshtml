@@ -63,11 +63,11 @@
 
 @Html.Raw(Model.Post.Html)
 
-@foreach (var link in Model.Post.Links ?? [])
+@if (Model.Post.LinkUrl is string linkUrl)
 {
-    <p>
-        <a href="@link.Url" target="_blank">
-            @link.Title
+    <p align="center">
+        <a href="@linkUrl" target="_blank">
+            <tt>@linkUrl</tt>
         </a>
     </p>
 }

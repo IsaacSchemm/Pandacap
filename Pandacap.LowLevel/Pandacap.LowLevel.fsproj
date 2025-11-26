@@ -13,7 +13,6 @@
     <Compile Include="PlatformBadges\Badge.fs" />
     <Compile Include="PlatformBadges\NotificationPlatform.fs" />
     <Compile Include="PlatformBadges\PostPlatform.fs" />
-    <Compile Include="Html\Scraper.fs" />
     <Compile Include="Html\DeviantArtScraper.fs" />
     <Compile Include="Html\ESPNScraper.fs" />
     <Compile Include="Html\SheezyArtScraper.fs" />

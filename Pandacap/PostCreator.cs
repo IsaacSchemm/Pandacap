@@ -94,20 +94,7 @@ namespace Pandacap
                 }];
             }
 
-            if (model.LinkUrl is string linkUrl)
-            {
-                using var client = httpClientFactory.CreateClient();
-                using var resp = await client.GetAsync(linkUrl, cancellationToken);
-                var html = await resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken);
-
-                post.Links.Add(new()
-                {
-                    Url = linkUrl,
-                    Title = Scraper.GetTitleFromHtml(html),
-                    ContentType = resp.Content.Headers.ContentType?.MediaType
-                        ?? "text/html"
-                });
-            }
+            post.LinkUrl = model.LinkUrl;
 
             context.Posts.Add(post);
 

@@ -49,11 +49,6 @@ type PostImage() =
         |> Seq.tryHead
         |> Option.defaultValue (Seq.head this.Renditions)
 
-type PostLink() =
-    member val Title = "" with get, set
-    member val ContentType = "" with get, set
-    member val Url = "" with get, set
-
 type Post() =
     member val Id = Guid.Empty with get, set
 
@@ -61,8 +56,8 @@ type Post() =
 
     member val Title = nullString with get, set
     member val Body = nullString with get, set
+    member val LinkUrl = nullString with get, set
     member val Images = new ResizeArray<PostImage>() with get, set
-    member val Links = new ResizeArray<PostLink>() with get, set
     member val Tags = new ResizeArray<string>() with get, set
 
     member val PublishedTime = DateTimeOffset.MinValue with get, set
@@ -130,17 +125,15 @@ type Post() =
         member this.Html = String.concat "" [
             this.Html
 
-            if not (isNull this.Links) then
-                for link in this.Links do
-                    $"""<p><a href="{link.Url}" target="_blank">{WebUtility.HtmlEncode(link.Url)}</a></p>"""
+            if not (isNull this.LinkUrl) then
+                $"""<p><a href="{this.LinkUrl}" target="_blank">{WebUtility.HtmlEncode(this.LinkUrl)}</a></p>"""
         ]
         member this.Links = seq {
-            if not (isNull this.Links) then
-                for link in this.Links do {
-                    new Pandacap.ActivityPub.ILink with
-                        member _.Href = link.Url
-                        member _.MediaType = link.ContentType
-                }
+            if not (isNull this.LinkUrl) then {
+                new Pandacap.ActivityPub.ILink with
+                    member _.Href = this.LinkUrl
+                    member _.MediaType = "text/html"
+            }
         }
         member this.Images = seq {
             if not (isNull this.Images) then
