@@ -1,30 +1,13 @@
-﻿using Pandacap.Data;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateLinkViewModel : PostCreator.IViewModel
+    public class CreateLinkViewModel
     {
         [Required]
         [DisplayName("URL")]
         [Url]
         public string LinkUrl { get; set; } = "";
-
-        [DisplayName("Body (Markdown)")]
-        public string? MarkdownBody { get; set; }
-
-        [DisplayName("Tags (space-separated, e.g. tag1 tag2 tag3)")]
-        public string? Tags { get; set; }
-
-        PostType PostCreator.IViewModel.PostType => PostType.Link;
-
-        string? PostCreator.IViewModel.Title => null;
-
-        Guid? PostCreator.IViewModel.UploadId => null;
-
-        string? PostCreator.IViewModel.AltText => null;
-
-        bool PostCreator.IViewModel.FocusTop => false;
     }
 }
