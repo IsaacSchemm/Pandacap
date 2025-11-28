@@ -63,35 +63,35 @@
 
 @Html.Raw(Model.Post.Html)
 
-@if (Model.Post.LinkUrl is string linkUrl)
+@foreach (var link in Model.Post.Links ?? [])
 {
     <div class="container-fluid">
         <div class="row">
-            @if (Model.Post.LinkImage != null)
+            @if (link.Image != null)
             {
                 <div class="col-lg-4">
                     <p>
-                        <img src="@(Model.Post.LinkImage ?? "/images/trgray.svg")" style="width: 100%; max-height: 250px; object-fit: contain" alt="" />
+                        <img src="@(link.Image ?? "/images/trgray.svg")" style="width: 100%; max-height: 250px; object-fit: contain" alt="" />
                     </p>
                 </div>
             }
 
             <div class="col-lg-8">
                 <p>
-                    <strong>@Model.Post.LinkTitle</strong>
+                    <strong>@link.Title</strong>
                     <br />
                     <span class="small text-muted">
-                        @Model.Post.LinkSiteName
+                        @link.SiteName
                     </span>
                 </p>
 
                 <p>
-                    @Model.Post.LinkDescription
+                    @link.Description
                 </p>
 
                 <p>
-                    <a href="@Model.Post.LinkUrl" target="_blank">
-                        View on @Model.Post.LinkSiteName
+                    <a href="@link.Url" target="_blank">
+                        View on @link.SiteName
                     </a>
                 </p>
             </div>

@@ -96,8 +96,6 @@ namespace Pandacap
 
             if (model.LinkUrl is string linkUrl)
             {
-                post.LinkUrl = linkUrl;
-
                 try
                 {
                     using var client = httpClientFactory.CreateClient();
@@ -106,31 +104,33 @@ namespace Pandacap
 
                     var metadata = Scraper.GetOpenGraphMetadata(html);
 
-                    post.LinkTitle = metadata.TryGetValue("og:title", out string? title)
-                        ? title
-                        : Scraper.GetTitleFromHtml(html);
-
-                    post.LinkSiteName = metadata.TryGetValue("og:site_name", out string? siteName)
-                        ? siteName
-                        : resp.RequestMessage?.RequestUri?.Host;
-
-                    post.LinkImage = metadata.TryGetValue("og:image", out string? image)
-                        ? image
-                        : null;
-
-                    post.LinkDescription = metadata.TryGetValue("og:description", out string? description)
-                        ? description
-                        : null;
+                    post.Links = [new()
+                    {
+                        Url = linkUrl,
+                        SiteName = metadata.TryGetValue("og:site_name", out string? siteName)
+                            ? siteName
+                            : resp.RequestMessage?.RequestUri?.Host,
+                        Title = metadata.TryGetValue("og:title", out string? title)
+                            ? title
+                            : Scraper.GetTitleFromHtml(html),
+                        Image = metadata.TryGetValue("og:image", out string? image)
+                            ? image
+                            : null,
+                        Description = metadata.TryGetValue("og:description", out string? description)
+                            ? description
+                            : null
+                    }];
 
                     await context.SaveChangesAsync(cancellationToken);
                 }
                 catch (Exception)
                 {
-                    post.LinkSiteName = new Uri(post.LinkUrl).Host;
+                    post.Links = [new()
+                    {
+                        Url = new Uri(linkUrl).Host
+                    }];
                 }
             }
-
-            post.LinkUrl = model.LinkUrl;
 
             context.Posts.Add(post);
 

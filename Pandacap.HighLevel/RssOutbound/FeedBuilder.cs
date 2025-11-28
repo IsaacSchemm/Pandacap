@@ -28,17 +28,17 @@ namespace Pandacap.HighLevel.RssOutbound
             if (post.Html != null)
                 yield return post.Html;
 
-            if (post.LinkUrl != null)
+            foreach (var link in post.Links ?? [])
             {
                 yield return "<blockquote>";
 
-                if (post.LinkTitle != null)
-                    yield return $"<p><strong>{WebUtility.HtmlEncode(post.LinkTitle)}</strong></p>";
+                if (link.Title != null)
+                    yield return $"<p><strong>{WebUtility.HtmlEncode(link.Title)}</strong></p>";
 
-                if (post.LinkDescription != null)
-                    yield return $"<p>{WebUtility.HtmlEncode(post.LinkDescription)}</p>";
+                if (link.Description != null)
+                    yield return $"<p>{WebUtility.HtmlEncode(link.Description)}</p>";
 
-                yield return $"<p><a href='{post.LinkUrl}' target='_blank'>{WebUtility.HtmlEncode(post.LinkUrl)}</a></p>";
+                yield return $"<p><a href='{link.Url}' target='_blank'>{WebUtility.HtmlEncode(link.Url)}</a></p>";
 
                 yield return "</blockquote>";
             }

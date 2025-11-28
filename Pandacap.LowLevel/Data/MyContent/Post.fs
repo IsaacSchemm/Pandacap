@@ -49,6 +49,13 @@ type PostImage() =
         |> Seq.tryHead
         |> Option.defaultValue (Seq.head this.Renditions)
 
+type PostLink() =
+    member val Url = nullString with get, set
+    member val SiteName = nullString with get, set
+    member val Title = nullString with get, set
+    member val Image = nullString with get, set
+    member val Description = nullString with get, set
+
 type Post() =
     member val Id = Guid.Empty with get, set
 
@@ -57,13 +64,10 @@ type Post() =
     member val Title = nullString with get, set
     member val Body = nullString with get, set
     member val Images = new ResizeArray<PostImage>() with get, set
+    member val Links = new ResizeArray<PostLink>() with get, set
     member val Tags = new ResizeArray<string>() with get, set
 
-    member val LinkUrl = nullString with get, set
-    member val LinkSiteName = nullString with get, set
-    member val LinkTitle = nullString with get, set
-    member val LinkImage = nullString with get, set
-    member val LinkDescription = nullString with get, set
+    [<Obsolete>] member val LinkUrl = nullString with get, set
 
     member val PublishedTime = DateTimeOffset.MinValue with get, set
 
@@ -130,13 +134,13 @@ type Post() =
         member this.Html = String.concat "" [
             this.Html
 
-            if not (isNull this.LinkUrl) then
-                $"""<p><a href="{this.LinkUrl}" target="_blank">{WebUtility.HtmlEncode(this.LinkUrl)}</a></p>"""
+            for link in this.Links do
+                $"""<p><a href="{link.Url}" target="_blank">{WebUtility.HtmlEncode(link.Url)}</a></p>"""
         ]
         member this.Links = seq {
-            if not (isNull this.LinkUrl) then {
+            for link in this.Links do {
                 new Pandacap.ActivityPub.ILink with
-                    member _.Href = this.LinkUrl
+                    member _.Href = link.Url
                     member _.MediaType = "text/html"
             }
         }
