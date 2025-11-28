@@ -56,9 +56,14 @@ type Post() =
 
     member val Title = nullString with get, set
     member val Body = nullString with get, set
-    member val LinkUrl = nullString with get, set
     member val Images = new ResizeArray<PostImage>() with get, set
     member val Tags = new ResizeArray<string>() with get, set
+
+    member val LinkUrl = nullString with get, set
+    member val LinkSiteName = nullString with get, set
+    member val LinkTitle = nullString with get, set
+    member val LinkImage = nullString with get, set
+    member val LinkDescription = nullString with get, set
 
     member val PublishedTime = DateTimeOffset.MinValue with get, set
 

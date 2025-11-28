@@ -94,6 +94,42 @@ namespace Pandacap
                 }];
             }
 
+            if (model.LinkUrl is string linkUrl)
+            {
+                post.LinkUrl = linkUrl;
+
+                try
+                {
+                    using var client = httpClientFactory.CreateClient();
+                    using var resp = await client.GetAsync(linkUrl, cancellationToken);
+                    var html = await resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken);
+
+                    var metadata = Scraper.GetOpenGraphMetadata(html);
+
+                    post.LinkTitle = metadata.TryGetValue("og:title", out string? title)
+                        ? title
+                        : Scraper.GetTitleFromHtml(html);
+
+                    post.LinkSiteName = metadata.TryGetValue("og:site_name", out string? siteName)
+                        ? siteName
+                        : resp.RequestMessage?.RequestUri?.Host;
+
+                    post.LinkImage = metadata.TryGetValue("og:image", out string? image)
+                        ? image
+                        : null;
+
+                    post.LinkDescription = metadata.TryGetValue("og:description", out string? description)
+                        ? description
+                        : null;
+
+                    await context.SaveChangesAsync(cancellationToken);
+                }
+                catch (Exception)
+                {
+                    post.LinkSiteName = new Uri(post.LinkUrl).Host;
+                }
+            }
+
             post.LinkUrl = model.LinkUrl;
 
             context.Posts.Add(post);

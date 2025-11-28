@@ -65,11 +65,38 @@
 
 @if (Model.Post.LinkUrl is string linkUrl)
 {
-    <p>
-        <a href="@linkUrl" target="_blank">
-            @linkUrl
-        </a>
-    </p>
+    <div class="container-fluid">
+        <div class="row">
+            @if (Model.Post.LinkImage != null)
+            {
+                <div class="col-lg-4">
+                    <p>
+                        <img src="@(Model.Post.LinkImage ?? "/images/trgray.svg")" style="width: 100%; max-height: 250px; object-fit: contain" alt="" />
+                    </p>
+                </div>
+            }
+
+            <div class="col-lg-8">
+                <p>
+                    <strong>@Model.Post.LinkTitle</strong>
+                    <br />
+                    <span class="small text-muted">
+                        @Model.Post.LinkSiteName
+                    </span>
+                </p>
+
+                <p>
+                    @Model.Post.LinkDescription
+                </p>
+
+                <p>
+                    <a href="@Model.Post.LinkUrl" target="_blank">
+                        View on @Model.Post.LinkSiteName
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
 }
 
 @if (Model.Post.Tags.Any())
@@ -82,45 +109,45 @@
     </p>
 }
 
-<div class="mb-3">
+<div class="mb-3 text-end">
     @if (Model.Post.BlueskyDID is string did && Model.Post.BlueskyRecordKey is string rkey)
     {
-        <a href="https://bsky.app/profile/@(Model.Post.BlueskyDID)/post/@(Model.Post.BlueskyRecordKey)" class="btn btn-outline-primary" target="_blank">
+        <a href="https://bsky.app/profile/@(Model.Post.BlueskyDID)/post/@(Model.Post.BlueskyRecordKey)" class="btn btn-sm btn-outline-primary" target="_blank">
             View on Bluesky
         </a>
     }
 
     @if (Model.Post.DeviantArtUrl is string daurl)
     {
-        <a href="@daurl" class="btn btn-outline-primary" target="_blank">
+        <a href="@daurl" class="btn btn-sm btn-outline-primary" target="_blank">
             View on DeviantArt
         </a>
     }
 
     @if (Model.Post.FurAffinitySubmissionId is int faSubmissionId)
     {
-        <a href="https://www.furaffinity.net/view/@(faSubmissionId)/" class="btn btn-outline-primary" target="_blank">
+        <a href="https://www.furaffinity.net/view/@(faSubmissionId)/" class="btn btn-sm btn-outline-primary" target="_blank">
             View on Fur Affinity
         </a>
     }
 
     @if (Model.Post.FurAffinityJournalId is int faJournalId)
     {
-        <a href="https://www.furaffinity.net//journal/@(faJournalId)/" class="btn btn-outline-primary" target="_blank">
+        <a href="https://www.furaffinity.net//journal/@(faJournalId)/" class="btn btn-sm btn-outline-primary" target="_blank">
             View on Fur Affinity
         </a>
     }
 
     @if (Model.Post.WeasylSubmitId is int submitid)
     {
-        <a href="https://www.weasyl.com/~x/submissions/@(submitid)" class="btn btn-outline-primary" target="_blank">
+        <a href="https://www.weasyl.com/~x/submissions/@(submitid)" class="btn btn-sm btn-outline-primary" target="_blank">
             View on Weasyl
         </a>
     }
 
     @if (Model.Post.WeasylJournalId is int journalid)
     {
-        <a href="https://www.weasyl.com/journal/@(journalid)" class="btn btn-outline-primary" target="_blank">
+        <a href="https://www.weasyl.com/journal/@(journalid)" class="btn btn-sm btn-outline-primary" target="_blank">
             View on Weasyl
         </a>
     }

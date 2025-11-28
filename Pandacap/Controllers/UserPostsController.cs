@@ -46,6 +46,40 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
+            if (User.Identity?.IsAuthenticated == true && post.LinkUrl is string url && post.LinkSiteName == null)
+            {
+                try
+                {
+                    using var client = httpClientFactory.CreateClient();
+                    using var resp = await client.GetAsync(url, cancellationToken);
+                    var html = await resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken);
+
+                    var metadata = Scraper.GetOpenGraphMetadata(html);
+
+                    post.LinkSiteName = metadata.TryGetValue("og:site_name", out string? siteName)
+                        ? siteName
+                        : resp.RequestMessage?.RequestUri?.Host;
+
+                    post.LinkTitle = metadata.TryGetValue("og:title", out string? title)
+                        ? title
+                        : Scraper.GetTitleFromHtml(html);
+
+                    post.LinkImage = metadata.TryGetValue("og:image", out string? image)
+                        ? image
+                        : null;
+
+                    post.LinkDescription = metadata.TryGetValue("og:description", out string? description)
+                        ? description
+                        : null;
+
+                    await context.SaveChangesAsync(cancellationToken);
+                }
+                catch (Exception)
+                {
+                    post.LinkSiteName = new Uri(post.LinkUrl).Host;
+                }
+            }
+
             return View(new UserPostViewModel
             {
                 Post = post,
