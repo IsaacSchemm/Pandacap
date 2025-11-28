@@ -65,9 +65,9 @@
 
 @if (Model.Post.LinkUrl is string linkUrl)
 {
-    <p align="center">
+    <p>
         <a href="@linkUrl" target="_blank">
-            <tt>@linkUrl</tt>
+            @linkUrl
         </a>
     </p>
 }

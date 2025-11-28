@@ -1,5 +1,6 @@
 ﻿using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using System.Net;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Xml;
@@ -19,9 +20,13 @@ namespace Pandacap.HighLevel.RssOutbound
         private IEnumerable<string> GetHtml(Post post)
         {
             foreach (var image in post.Images)
-                yield return $"<p><img src='https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.Raster.Id}' height='250' /></p>";
+                yield return $"<p><img src='https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.Raster.Id}' height='250' style='max-height: 250px' /></p>";
+
             if (post.Html != null)
                 yield return post.Html;
+
+            if (post.LinkUrl != null)
+                yield return $"<p><a href='{post.LinkUrl}' target='_blank'>{WebUtility.HtmlEncode(post.LinkUrl)}</a></p>";
         }
 
         /// <summary>
