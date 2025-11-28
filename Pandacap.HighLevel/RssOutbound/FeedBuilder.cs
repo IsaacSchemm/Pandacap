@@ -19,29 +19,10 @@ namespace Pandacap.HighLevel.RssOutbound
         /// <returns>A sequence of HTML strings that should be concatenated</returns>
         private IEnumerable<string> GetHtml(Post post)
         {
-            if (post.Title != null)
-                yield return $"<h1>{WebUtility.HtmlEncode(post.Title)}</h1>";
+            yield return post.BodyWithLinks;
 
             foreach (var image in post.Images)
                 yield return $"<p><img src='https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.Raster.Id}' height='250' style='max-height: 250px' /></p>";
-
-            if (post.Html != null)
-                yield return post.Html;
-
-            foreach (var link in post.Links ?? [])
-            {
-                yield return "<blockquote>";
-
-                if (link.Title != null)
-                    yield return $"<p><strong>{WebUtility.HtmlEncode(link.Title)}</strong></p>";
-
-                if (link.Description != null)
-                    yield return $"<p>{WebUtility.HtmlEncode(link.Description)}</p>";
-
-                yield return $"<p><a href='{link.Url}' target='_blank'>{WebUtility.HtmlEncode(link.Url)}</a></p>";
-
-                yield return "</blockquote>";
-            }
         }
 
         /// <summary>

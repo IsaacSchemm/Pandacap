@@ -84,6 +84,36 @@ type Post() =
     member val WeasylJournalId = Nullable<int>() with get, set
 
     [<NotMapped>]
+    member this.BodyWithLinks = String.concat "" [
+        if not (isNull this.Html) then
+            this.Html
+
+        if not (isNull this.Links) then
+            for link in this.Links do
+                "<blockquote>"
+
+                if not (String.IsNullOrEmpty(link.Title)) then
+                    "<p>"
+                    "<strong>"
+                    WebUtility.HtmlEncode(link.Title)
+                    "</strong>"
+                    "</p>"
+
+                if not (String.IsNullOrEmpty(link.Description)) then
+                    "<p>"
+                    WebUtility.HtmlEncode(link.Description)
+                    "</p>"
+
+                "<p>"
+                $"<a href='{link.Url}' target='_blank'>"
+                WebUtility.HtmlEncode(link.Url)
+                "</a>"
+                "</p>"
+
+                "</blockquote>"
+    ]
+
+    [<NotMapped>]
     member this.IsTextPost =
         match this.Type with
         | PostType.JournalEntry
@@ -131,12 +161,7 @@ type Post() =
                 member _.Cc = [hostInfo.ActivityPubFollowersRootId]
                 member _.Audience = null
         }
-        member this.Html = String.concat "" [
-            this.Html
-
-            for link in this.Links do
-                $"""<p><a href="{link.Url}" target="_blank">{WebUtility.HtmlEncode(link.Url)}</a></p>"""
-        ]
+        member this.Html = this.BodyWithLinks
         member this.Links = seq {
             for link in this.Links do {
                 new Pandacap.ActivityPub.ILink with
