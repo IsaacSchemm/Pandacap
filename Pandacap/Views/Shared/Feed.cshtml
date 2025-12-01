@@ -34,27 +34,37 @@
         : post.PostedAt.UtcDateTime.ToLongDateString();
 
     <div class="card my-3">
-        <div class="card-body">
+        <div class="card-body pb-0">
             <div class="small text-muted" style="float: right">
                 <a target="_blank" href="@post.InternalUrl">
                     @dateString
                 </a>
             </div>
 
-            @if (post is IInboxPost inboxPost)
+            @if (post is IInboxPost inboxPost && inboxPost.IsShare)
             {
-                foreach (var author in inboxPost.OriginalAuthors)
-                {
-                    <h1>
-                        <img height="50" src="@author.Usericon" alt="" />
+                <p class="mb-0">
+                    <img height="25" src="@post.Usericon" alt="" />
 
-                        <a href="@author.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
-                            <strong>
-                                @author.Username
-                            </strong>
+                    <strong>
+                        Shared by
+                        <a href="@post.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
+                            @post.Username
                         </a>
-                    </h1>
-                }
+                    </strong>
+                </p>
+            }
+            else
+            {
+                <h1>
+                    <img height="50" src="@post.Usericon" alt="" />
+
+                    <a href="@post.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
+                        <strong>
+                            @post.Username
+                        </strong>
+                    </a>
+                </h1>
             }
 
             <p>
@@ -82,9 +92,11 @@
             {
                 <p>@post.DisplayTitle</p>
 
-                <a target="_blank" href="@post.InternalUrl">
-                    View full post &raquo;
-                </a>
+                <p>
+                    <a target="_blank" href="@post.InternalUrl">
+                        View full post &raquo;
+                    </a>
+                </p>
             }
 
             @foreach (var thumbnail in post.Thumbnails)

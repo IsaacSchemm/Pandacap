@@ -8,4 +8,3 @@ type IInboxPost =
     abstract member DismissedAt: Nullable<DateTimeOffset> with get, set
     abstract member IsPodcast: bool
     abstract member IsShare: bool
-    abstract member OriginalAuthors: IPostAuthor seq
