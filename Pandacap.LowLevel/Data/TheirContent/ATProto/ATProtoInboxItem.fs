@@ -12,3 +12,4 @@ type ATProtoInboxItem() =
 
         member _.IsPodcast = false
         member _.IsShare = false
+        member this.OriginalAuthors = [this]

@@ -1,0 +1,112 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model ListViewModel
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+<h1>@Model.Title</h1>
+
+<p>
+    @if (Model.RSS)
+    {
+        <img src="~/images/feed-icon.svg" width="16" height="16" alt="" />
+        <a href="@Context.Request.Path?format=atom" target="_blank">Atom</a>
+        @:&nbsp;
+    }
+
+    @if (Model.Atom)
+    {
+        <img src="~/images/feed-icon.svg" width="16" height="16" alt="" />
+        <a href="@Context.Request.Path?format=rss" target="_blank">RSS</a>
+        @:&nbsp;
+    }
+</p>
+
+@foreach (var post in Model.Items.Current)
+{
+    var postAge = DateTimeOffset.UtcNow - post.PostedAt;
+
+    var dateString = postAge.TotalHours < 1 ? $"{postAge.TotalMinutes:0}m"
+        : postAge.TotalDays < 1 ? $"{postAge.TotalHours:0}h"
+        : post.PostedAt.UtcDateTime.ToLongDateString();
+
+    <div class="card my-3">
+        <div class="card-body">
+            <div class="small text-muted" style="float: right">
+                <a target="_blank" href="@post.InternalUrl">
+                    @dateString
+                </a>
+            </div>
+
+            @if (post is IInboxPost inboxPost)
+            {
+                foreach (var author in inboxPost.OriginalAuthors)
+                {
+                    <h1>
+                        <img height="50" src="@author.Usericon" alt="" />
+
+                        <a href="@author.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
+                            <strong>
+                                @author.Username
+                            </strong>
+                        </a>
+                    </h1>
+                }
+            }
+
+            <p>
+                @foreach (var badge in post.GetBadges())
+                {
+                    <span class="badge" style="background-color: @badge.Background; color: @badge.Color">
+                        @badge.Text
+                    </span>
+                }
+            </p>
+
+            @if (post is InboxActivityStreamsPost activityStreamsPost)
+            {
+                @Html.Raw(activityStreamsPost.Content)
+            }
+            else if (post is BlueskyPostFeedItem blueskyPost)
+            {
+                <p>@blueskyPost.Text</p>
+            }
+            else if (post is BlueskyRepostFeedItem blueskyRepost)
+            {
+                <p>@blueskyRepost.Text</p>
+            }
+            else
+            {
+                <p>@post.DisplayTitle</p>
+
+                <a target="_blank" href="@post.InternalUrl">
+                    View full post &raquo;
+                </a>
+            }
+
+            @foreach (var thumbnail in post.Thumbnails)
+            {
+                <p align="center">
+                    <a target="_blank" href="@post.InternalUrl">
+                        <img alt="@thumbnail.AltText" src="@thumbnail.Url" style="height: 200px; width: 100%; max-width: 400px; object-fit: contain" />
+                    </a>
+                </p>
+            }
+        </div>
+    </div>
+}
+
+@if (Model.Items.Next is string id)
+{
+    <hr />
+
+    <a asp-route-q="@Model.Q"
+        asp-route-next="@id"
+        asp-route-count="@Model.Items.Current.Count"
+        class="btn btn-primary">
+        Next @Model.Items.Current.Count items &raquo;
+    </a>
+}

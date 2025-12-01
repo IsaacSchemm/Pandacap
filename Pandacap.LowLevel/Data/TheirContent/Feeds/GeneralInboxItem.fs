@@ -69,3 +69,5 @@ type GeneralInboxItem() =
             not (isNull this.AudioUrl)
 
         member _.IsShare = false
+
+        member this.OriginalAuthors = [this]

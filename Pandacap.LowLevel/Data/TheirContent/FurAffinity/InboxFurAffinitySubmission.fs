@@ -28,6 +28,7 @@ type InboxFurAffinitySubmission() =
              and set value = this.DismissedAt <- value
         member _.IsPodcast = false
         member _.IsShare = false
+        member this.OriginalAuthors = [this]
 
     interface IPost with
         member _.Platform = FurAffinity

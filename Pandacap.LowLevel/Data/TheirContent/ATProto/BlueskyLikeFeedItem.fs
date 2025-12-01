@@ -12,6 +12,11 @@ type BlueskyLikeFeedItemOriginal() =
     member val PDS = "" with get, set
     member val RecordKey = "" with get, set
 
+    interface IPostAuthor with
+        member this.ProfileUrl = $"https://bsky.app/profile/{this.DID}"
+        member _.Usericon = null
+        member this.Username = this.DID
+
 type BlueskyLikeFeedItemUser() =
     member val DID = "" with get, set
     member val PDS = "" with get, set
@@ -56,6 +61,7 @@ type BlueskyLikeFeedItem() =
              and set value = this.DismissedAt <- value
         member _.IsPodcast = false
         member _.IsShare = true
+        member this.OriginalAuthors = [this.Original]
 
     interface IPost with
         member _.Platform = Bluesky

@@ -10,6 +10,11 @@ type InboxActivityStreamsUser() =
     member val Username = nullString with get, set
     member val Usericon = nullString with get, set
 
+    interface IPostAuthor with
+        member this.ProfileUrl = this.Id
+        member this.Username = this.Username
+        member this.Usericon = this.Usericon
+
 type InboxActivityStreamsImage() =
     member val Url = "" with get, set
     member val Name = nullString with get, set
@@ -38,6 +43,7 @@ type InboxActivityStreamsPost() =
              and set value = this.DismissedAt <- value
         member _.IsPodcast = false
         member this.IsShare = this.PostedBy.Id <> this.Author.Id
+        member this.OriginalAuthors = [this.Author]
 
     interface IPost with
         member _.Platform = ActivityPub

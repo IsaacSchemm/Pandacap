@@ -93,6 +93,14 @@ namespace Pandacap.Controllers
                 .Where(post => post.DismissedAt == null);
         }
 
+        private ViewResult ListView(
+            ListViewModel model)
+        {
+            return View(
+                Request.Query["display"] == "feed" ? "Feed" : "List",
+                model);
+        }
+
         public async Task<IActionResult> ImagePosts(
             string? next,
             int? count)
@@ -110,7 +118,7 @@ namespace Pandacap.Controllers
                 .Where(x => x.Thumbnails.Any())
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel
+            return ListView(new ListViewModel
             {
                 Title = "Inbox (Image Posts)",
                 Items = posts
@@ -134,7 +142,7 @@ namespace Pandacap.Controllers
                 .Where(x => !x.Thumbnails.Any())
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel
+            return ListView(new ListViewModel
             {
                 Title = "Inbox (Text Posts)",
                 Items = posts
@@ -157,7 +165,7 @@ namespace Pandacap.Controllers
                 .Where(x => x.IsShare)
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel
+            return ListView(new ListViewModel
             {
                 Title = "Inbox (Shares)",
                 Items = posts
@@ -179,7 +187,7 @@ namespace Pandacap.Controllers
                 .Where(x => x.IsPodcast)
                 .AsListPage(count ?? 100);
 
-            return View("List", new ListViewModel
+            return ListView(new ListViewModel
             {
                 Title = "Inbox (Podcasts)",
                 Items = posts

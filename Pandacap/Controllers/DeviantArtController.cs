@@ -40,13 +40,14 @@ namespace Pandacap.Controllers
             string? IPost.InternalUrl => Item.url.OrNull();
             string? IPost.ExternalUrl => Item.url.OrNull();
             DateTimeOffset IPost.PostedAt => Item.published_time.OrNull() ?? DateTimeOffset.MinValue;
-            string? IPost.ProfileUrl => null;
             IEnumerable<IPostThumbnail> IPost.Thumbnails => Item.thumbs.OrEmpty()
                 .OrderByDescending(t => t.width * t.height)
                 .Take(1)
                 .Select(t => new ThumbnailWrapper(t));
-            string? IPost.Username => null;
-            string? IPost.Usericon => null;
+
+            string? IPostAuthor.ProfileUrl => null;
+            string? IPostAuthor.Username => null;
+            string? IPostAuthor.Usericon => null;
         }
 
         public async Task<IActionResult> HomeFeed(
