@@ -79,10 +79,6 @@ namespace Pandacap
 
                 await context.SaveChangesAsync();
             }
-            else
-            {
-                throw new Exception($"This user is not allowed to log in via {info.LoginProvider}.");
-            }
         }
     }
 }
