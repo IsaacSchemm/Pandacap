@@ -80,6 +80,10 @@ builder.Services.AddSingleton(new DeviantArtApp(
     builder.Configuration["DeviantArtClientId"]!,
     builder.Configuration["DeviantArtClientSecret"]!));
 
+builder.Services.AddSingleton(new AllowedExternalUserCollection(
+    DeviantArtUsers: builder.Configuration["DeviantArtUsername"] is string du ? [du] : [],
+    RedditUsers: builder.Configuration["RedditUsername"] is string ru ? [ru] : []));
+
 builder.Services
     .AddPandacapServices(new(
         applicationHostname: builder.Configuration["ApplicationHostname"],
@@ -104,6 +108,7 @@ builder.Services
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>()
     .AddScoped<SvgRenderer>()
+    .AddScoped<TokenUpdater>()
     .AddScoped<Uploader>()
     .AddScoped<WeasylNoteNotificationHandler>()
     .AddScoped<WeasylNotificationHandler>()

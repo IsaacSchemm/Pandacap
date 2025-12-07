@@ -1,6 +1,8 @@
 ﻿@page
+@using Pandacap
 @using Pandacap.ConfigurationObjects
 @model LoginModel
+@inject AllowedExternalUserCollection allowedExternalUserCollection
 @inject ApplicationInformation appInfo
 
 @{
@@ -33,7 +35,11 @@
                             <p>
                                 @foreach (var provider in Model.ExternalLogins!)
                                 {
-                                    if (provider.Name != "Microsoft")
+                                    if (provider.Name == "DeviantArt" && allowedExternalUserCollection.DeviantArtUsers.IsEmpty)
+                                    {
+                                        continue;
+                                    }
+                                    if (provider.Name == "Reddit" && allowedExternalUserCollection.RedditUsers.IsEmpty)
                                     {
                                         continue;
                                     }

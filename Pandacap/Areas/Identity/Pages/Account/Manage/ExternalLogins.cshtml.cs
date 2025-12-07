@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
 
 namespace Pandacap.Areas.Identity.Pages.Account.Manage
 {
@@ -16,18 +14,18 @@ namespace Pandacap.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IUserStore<IdentityUser> _userStore;
-        private readonly PandacapDbContext _context;
+        private readonly TokenUpdater _tokenUpdater;
 
         public ExternalLoginsModel(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             IUserStore<IdentityUser> userStore,
-            PandacapDbContext context)
+            TokenUpdater tokenUpdater)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _userStore = userStore;
-            _context = context;
+            _tokenUpdater = tokenUpdater;
         }
 
         /// <summary>
@@ -131,63 +129,13 @@ namespace Pandacap.Areas.Identity.Pages.Account.Manage
                 return RedirectToPage();
             }
 
-            await UpdateTokensAsync(info.LoginProvider, info);
+            await _tokenUpdater.UpdateTokensAsync(info);
 
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
             StatusMessage = "The external login was added.";
             return RedirectToPage();
-        }
-
-        private async Task UpdateTokensAsync(string loginProvider, ExternalLoginInfo info)
-        {
-            if (loginProvider == "DeviantArt")
-            {
-                var credentials = await _context.DeviantArtCredentials
-                    .Where(c => c.Username == info.Principal.Identity.Name)
-                    .FirstOrDefaultAsync();
-                if (credentials == null)
-                {
-                    credentials = new DeviantArtCredentials
-                    {
-                        Username = info.Principal.Identity.Name
-                    };
-                    _context.DeviantArtCredentials.Add(credentials);
-                }
-                credentials.AccessToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "access_token")
-                    .Select(t => t.Value)
-                    .Single();
-                credentials.RefreshToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "refresh_token")
-                    .Select(t => t.Value)
-                    .Single();
-                await _context.SaveChangesAsync();
-            }
-            else if (loginProvider == "Reddit")
-            {
-                var credentials = await _context.RedditCredentials
-                    .Where(c => c.Username == info.Principal.Identity.Name)
-                    .FirstOrDefaultAsync();
-                if (credentials == null)
-                {
-                    credentials = new RedditCredentials
-                    {
-                        Username = info.Principal.Identity.Name
-                    };
-                    _context.RedditCredentials.Add(credentials);
-                }
-                credentials.AccessToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "access_token")
-                    .Select(t => t.Value)
-                    .Single();
-                credentials.RefreshToken = info.AuthenticationTokens
-                    .Where(t => t.Name == "refresh_token")
-                    .Select(t => t.Value)
-                    .Single();
-                await _context.SaveChangesAsync();
-            }
         }
     }
 }

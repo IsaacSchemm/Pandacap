@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
@@ -22,18 +20,21 @@ namespace Pandacap.Areas.Identity.Pages.Account
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<ExternalLoginModel> _logger;
+        private readonly TokenUpdater _tokenUpdater;
 
         public ExternalLoginModel(
             SignInManager<IdentityUser> signInManager,
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
-            ILogger<ExternalLoginModel> logger)
+            ILogger<ExternalLoginModel> logger,
+            TokenUpdater tokenUpdater)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _logger = logger;
+            _tokenUpdater = tokenUpdater;
         }
 
         /// <summary>
@@ -102,17 +103,7 @@ namespace Pandacap.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            if (info.LoginProvider != "Microsoft")
-            {
-                var user = await _userManager.FindByLoginAsync(
-                    info.LoginProvider,
-                    info.ProviderKey);
-
-                if (user == null)
-                {
-                    return RedirectToPage("./UnrecognizedAccount");
-                }
-            }
+            await _tokenUpdater.UpdateTokensAsync(info);
 
             // Sign in the user with this external login provider if the user already has a login.
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
