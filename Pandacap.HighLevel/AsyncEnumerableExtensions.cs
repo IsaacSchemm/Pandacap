@@ -88,33 +88,6 @@
         }
 
         /// <summary>
-        /// Splits an asynchronous sequence into segments, each of which is a
-        /// non-asynchronous list.
-        /// </summary>
-        /// <typeparam name="T">The type of element in the original sequence</typeparam>
-        /// <param name="asyncSeq">The original synchronous sequence</param>
-        /// <param name="size">The maximum size of each segment</param>
-        /// <returns>An asynchronous sequence of lists</returns>
-        public static async IAsyncEnumerable<IReadOnlyList<T>> Chunk<T>(
-            this IAsyncEnumerable<T> asyncSeq,
-            int size)
-        {
-            List<T> buffer = [];
-            await foreach (var item in asyncSeq)
-            {
-                buffer.Add(item);
-                if (buffer.Count == size)
-                {
-                    yield return buffer;
-                    buffer = [];
-                }
-            }
-
-            if (buffer.Count > 0)
-                yield return buffer;
-        }
-
-        /// <summary>
         /// Skips all items from the asynchronous sequence until the predicate
         /// returns true for an item, then yields that item and any further
         /// items.
