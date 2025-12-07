@@ -43,20 +43,19 @@ builder.Services.AddAzureClients(clientBuilder =>
     clientBuilder.UseCredential(new DefaultAzureCredential());
 });
 
-string tenantId = builder.Configuration["Authentication:Microsoft:TenantId"]!;
-
 var authenticationBuilder = builder.Services.AddAuthentication();
 
 if (builder.Configuration["Authentication:Microsoft:ClientId"] is string microsoftId
-    && builder.Configuration["Authentication:Microsoft:ClientSecret"] is string microsoftSecret)
+    && builder.Configuration["Authentication:Microsoft:ClientSecret"] is string microsoftSecret
+    && builder.Configuration["Authentication:Microsoft:TenantId"] is string microsoftTenant)
 {
     authenticationBuilder
         .AddMicrosoftAccount(m =>
         {
-            m.AuthorizationEndpoint = $"https://login.microsoftonline.com/{Uri.EscapeDataString(tenantId)}/oauth2/v2.0/authorize";
+            m.AuthorizationEndpoint = $"https://login.microsoftonline.com/{Uri.EscapeDataString(microsoftTenant)}/oauth2/v2.0/authorize";
             m.ClientId = microsoftId;
             m.ClientSecret = microsoftSecret;
-            m.TokenEndpoint = $"https://login.microsoftonline.com/{Uri.EscapeDataString(tenantId)}/oauth2/v2.0/token";
+            m.TokenEndpoint = $"https://login.microsoftonline.com/{Uri.EscapeDataString(microsoftTenant)}/oauth2/v2.0/token";
         });
 }
 
