@@ -65,6 +65,7 @@
     <Compile Include="Data\IFavorite.fs" />
     <Compile Include="Data\TitleGenerator.fs" />
     <Compile Include="Data\NullValues.fs" />
+    <Compile Include="Data\Credentials\IExternalCredentials.fs" />
     <Compile Include="Data\Credentials\DeviantArtCredentials.fs" />
     <Compile Include="Data\Credentials\FurAffinityCredentials.fs" />
     <Compile Include="Data\Credentials\RedditCredentials.fs" />

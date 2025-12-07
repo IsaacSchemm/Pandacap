@@ -151,13 +151,9 @@
     <div id="admin" class="container mb-3">
         <div class="row">
             <div class="col col-12 col-xl-4">
-                <h2>
-                    ActivityPub
-                </h2>
-
                 <div class="card my-3">
                     <div class="card-header">
-                        Remote
+                        ActivityPub
                     </div>
                     <div class="card-body">
                         <form method="get" asp-controller="RemotePosts" asp-action="Index">
@@ -188,10 +184,6 @@
             </div>
 
             <div class="col col-12 col-xl-4">
-                <h2>
-                    ATProto
-                </h2>
-
                 <div class="card my-3">
                     <div class="card-header">
                         Bridgy Fed
@@ -221,39 +213,36 @@
             </div>
 
             <div class="col col-12 col-xl-4">
-                <h2>
-                    Inbox sources
-                </h2>
-
                 <div class="card my-3">
                     <div class="card-header">
-                        DeviantArt
+                        Browser
                     </div>
                     <div class="card-body">
                         <a asp-controller="DeviantArt" asp-action="HomeFeed" class="btn btn-outline-primary">
-                            View home feed
+                            View DeviantArt home feed
                         </a>
                     </div>
                 </div>
 
                 <div class="card my-3">
                     <div class="card-header">
-                        Fur Affinity
+                        Credentials
                     </div>
                     <div class="card-body">
-                        <a asp-controller="FurAffinity" asp-action="Setup" class="btn btn-outline-primary">
-                            Configure account
+                        <a asp-controller="FurAffinity" asp-action="Setup" class="btn btn-outline-primary mb-2">
+                            Add Fur Affinity account
                         </a>
-                    </div>
-                </div>
-
-                <div class="card my-3">
-                    <div class="card-header">
-                        Weasyl
-                    </div>
-                    <div class="card-body">
-                        <a asp-controller="Weasyl" asp-action="Setup" class="btn btn-outline-primary">
-                            Configure account
+                        <br />
+                        <a asp-controller="Weasyl" asp-action="Setup" class="btn btn-outline-primary mb-2">
+                            Add Weasyl account
+                        </a>
+                        <br />
+                        <a href="/Identity/Account/Manage/ExternalLogins" class="btn btn-outline-primary">
+                            Add other accounts
+                        </a>
+                        <hr>
+                        <a asp-controller="ExternalCredentials" asp-action="Index" class="btn btn-outline-primary">
+                            Remove accounts
                         </a>
                     </div>
                 </div>

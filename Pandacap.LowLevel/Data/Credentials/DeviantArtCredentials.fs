@@ -1,6 +1,7 @@
 ﻿namespace Pandacap.Data
 
 open System.ComponentModel.DataAnnotations
+open Pandacap.PlatformBadges
 
 /// The active credentials for the DeviantArt API.
 type DeviantArtCredentials() =
@@ -9,3 +10,7 @@ type DeviantArtCredentials() =
 
     member val AccessToken = "" with get, set
     member val RefreshToken = "" with get, set
+
+    interface IExternalCredentials with
+        member this.Username = this.Username
+        member _.Platform = DeviantArt

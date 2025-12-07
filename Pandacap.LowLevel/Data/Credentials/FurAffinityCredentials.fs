@@ -1,8 +1,9 @@
 ﻿namespace Pandacap.Data
 
 open System.ComponentModel.DataAnnotations
-open Pandacap.FurAffinity
 open Pandacap.ConfigurationObjects
+open Pandacap.FurAffinity
+open Pandacap.PlatformBadges
 
 /// The active credentials for Fur Affinity.
 type FurAffinityCredentials() =
@@ -15,3 +16,7 @@ type FurAffinityCredentials() =
         member this.A = this.A
         member this.B = this.B
         member _.UserAgent = UserAgentInformation.UserAgent
+
+    interface IExternalCredentials with
+        member this.Username = this.Username
+        member _.Platform = FurAffinity
