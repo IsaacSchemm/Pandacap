@@ -7,10 +7,14 @@ namespace Pandacap.Functions.FavoriteHandlers
 {
     public class RedditFavoriteHandler(
         PandacapDbContext context,
-        RedditAppInformation redditAppInformation)
+        IEnumerable<RedditAppInformation> anyRedditAppInformation)
     {
         public async Task ImportUpvotesAsync()
         {
+            var redditAppInformation = anyRedditAppInformation.FirstOrDefault();
+            if (redditAppInformation == null)
+                return;
+
             var credentials = await context.RedditCredentials.SingleOrDefaultAsync();
             if (credentials == null)
                 return;

@@ -61,16 +61,12 @@ Adding a post to your Favorites is equivalent to a `Like`.
 
 #### Following
 
-Pandacap allows you to follow atproto accounts as feeds. For each user, you can choose whether to follow:
-
-* Bluesky posts
-* Bluesky reposts
-* Bluesky likes
-* WhiteWind blog entries
+Pandacap allows you to follow atproto accounts as feeds.
+For each user, you can choose whether to follow Bluesky posts, reposts, and/or likes.
 
 Pandacap will also look for Bluesky profile data (name and icon) when it refreshes the feed (every 8 hours, just like for RSS feeds).
 
-If you view a Bluesky post while logged in, and Pandacap detects that the post is available via Bridgy Fed, it will show that version of the post, to allow you to like and reply to it.
+If you view a Bluesky post while logged in, and Pandacap detects that the post is available via Bridgy Fed, it will show the ActivityPub version of the post, to allow you to like and reply to it.
 
 All data is fetched (unauthenticated) from the individual user's PDS, using `com.atproto.repo.listRecords`; the Bluesky AppView is not used.
 
@@ -174,7 +170,7 @@ This version of Pandacap uses Entra ID as the primary authentication and authori
 
 * Create a new **app registration** in your Entra directory in the Azure portal.
     * "Who can use": select "Accounts in this organizational directory only"
-    * For the redirect URI, choose "Web" and type `https://localhost:7206/signin-microsoft`
+    * For the redirect URI, choose "Web" and type `https://localhost:7206/signin-oidc`
         * For production, also add the equivalent production URL to this list
 * Go to the **app registrations** section of your Entra directory and find the app there.
     * Get the client (application) ID from the main page here - it should be a GUID
@@ -226,41 +222,77 @@ the function app settings.
 
 ---
 
-Function app `local.settings.json` example:
-
-    {
-      "IsEncrypted": false,
-      "Values": {
-        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-        "ApplicationHostname": "example.azurewebsites.net",
-        "CosmosDBAccountEndpoint": "https://example-cosmos.documents.azure.com:443/",
-        "CosmosDBAccountKey": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000==",
-        "DeviantArtClientId": "12345",
-        "DeviantArtClientSecret": "00000000000000000000000000000000",
-        "KeyVaultHostname": "example-kv.vault.azure.net"
-      }
-    }
-
-Web app `local.settings.json` example:
+Web app user secrets example:
 
     {
       "ApplicationHostname": "example.azurewebsites.net",
       "Authentication": {
         "Microsoft": {
-          "ClientId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-          "ClientSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-          "TenantId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          "ClientId": "...",
+          "ClientSecret": "...",
+          "TenantId": "..."
         }
       },
-      "ComputerVisionEndpoint": "https://example-cv.cognitiveservices.azure.com/",
-      "CosmosDBAccountEndpoint": "https://example-cosmos.documents.azure.com:443/",
-      "CosmosDBAccountKey": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000==",
-      "DeviantArtClientId": "12345",
-      "DeviantArtClientSecret": "00000000000000000000000000000000",
-      "EntraClientId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "ConstellationHost": "constellation.microcosm.blue",
+      "CosmosDBAccountEndpoint": "https://example.documents.azure.com:443/",
+      "CosmosDBAccountKey": "...",
+      "DeviantArtClientId": "...",
+      "DeviantArtClientSecret": "...",
+      "DeviantArtUsername":  "...",
+      "RedditAppId": "...",
+      "RedditAppSecret": "...",
+      "RedditUsername":  "...",
+      "ActivityPubUsername": "userhere",
       "StorageAccountHostname": "example.blob.core.windows.net",
-      "KeyVaultHostname": "example-kv.vault.azure.net"
+      "KeyVaultHostname": "example.vault.azure.net",
+      "WeasylProxyHost": "www.example.com"
     }
 
 The key vault is for a single encryption key called `activitypub` that is used to sign ActivityPub requests.
+
+## Azure Deployment Guide
+
+1. Create Azure resources:
+    1. Create a Web app in the Azure portal, using the .NET 10 runtime stack.
+        * Use the Identity pane to create a system-assigned managed identity for the web app.
+    1. Create a Function App in the Azure portal, using the .NET 10 runtime stack. (If you are using a paid App Service plan for the web app, you could reuse that plan; otherwise, a Flex Consumption plan is fine.)
+        * Use the Identity pane to create a system-assigned managed identity for the Function App.
+    1. Create a Key Vault in the Azure portal; use Azure role-based access control (RBAC).
+        * Create a 2048-bit RSA key in this vault called "activitypub".
+        * Use access control (IAM) to assign yourself the "Key Vault Crypto Officer" role, and assign the "Key Vault Crypto User" role to the web and function apps' managed identities.
+    1. Create an Azure Cosmos DB for NoSQL database. (You may want to enable key-based authentication if you find that Entra ID authentication slows down Pandacap's data access.)
+        * If you are not using key-based authentication for Cosmos DB, follow the guide at https://learn.microsoft.com/en-us/azure/cosmos-db/how-to-connect-role-based-access-control?pivots=azure-cli to assign control plane access to yourself and data plane access to the web and function apps' managed identities.
+        * Use the Data Explorer pane in the Cosmos DB account to create a database called Pandacap, with a container named PandacapDbContext and a partition key named `/__partitionKey`.
+    1. Find "Microsoft Entra ID" in the portal to view your directory, and create an enterprise application ("create your own application" --> "register an application to integrate with Microsoft Entra ID").
+        * Set up a "web" redirect URI, such as `https://www.example.com/signin-oidc` (replacing www.example.com with the hostname of your web app).
+        * In the Properties pane, **set "Assignment required" to "Yes"** and then assign yourself via the "Users and groups" pane.
+    1. Create a storage account (for Blob Storage) with an appropriate access tier for your use case (hot, cool, or cold).
+        * Use access control (IAM) to assign the "Storage Blob Data Contributor" role to the web app's managed identity.
+        * Create a container called "blobs".
+    1. Assign the following environment variables to the web app:
+        * `Authentication:Microsoft:ClientId` (if you want to log in with Microsoft): The application (client) ID of the app registration you've created in Entra.
+        * `Authentication:Microsoft:ClientSecret` (if you want to log in with Microsoft): The value of a client secret - you can create one from the "certificates & secrets" pane of the app registration (keep in mind that these have expiration dates).
+        * `Authentication:Microsoft:TenantId` (if you want to log in with Microsoft): The directory (tenant) ID.
+        * `DeviantArtClientId` (if you want to log in with DeviantArt): A client ID from https://www.deviantart.com/studio/apps.
+        * `DeviantArtClientSecret` (if you want to log in with DeviantArt): A client secret from https://www.deviantart.com/studio/apps.
+        * `DeviantArtUsername` (if you want to log in with DeviantArt): Only this user will be permitted to log in via DeviantArt; other valid DeviantArt users will be rejected.
+        * `RedditAppId` (if you want to log in with Reddit): An app ID from https://developers.reddit.com/my/apps.
+        * `RedditAppSecret` (if you want to log in with Reddit): An app secret from https://developers.reddit.com/my/apps.
+        * `RedditUsername` (if you want to log in with Reddit): Only this user will be permitted to log in via Reddit; other valid Reddit users will be rejected.
+    1. Assign the following environment variables to both the web app and the function app:
+        * `ActivityPubUsername`: the username part of the ActivityPub handle (before the `@www.example.com` portion).
+        * `ApplicationHostname`: the web app's hostname (e.g. `www.example.com`).
+        * `ConstellationHost`: the hostname of a [Constellation](https://constellation.microcosm.blue) instance. Used for looking up interactions with your posts that are bridged to Bluesky via Bridgy Fed.
+        * `CosmosDBAccountEndpoint`: the URL of the Cosmos DB server created above (e.g. https://www.example.net:443/).
+        * `CosmosDBAccountKey` (optional): if you are using key-based authentication, the key goes here.
+        * `KeyVaultHostname`: The hostname to the key vault created above.
+        * `StorageAccountHostname`: The hostname to the storage account created above.
+        * `WeasylProxyHost`: The hostname of a domain which contains the paths `/pandacap/weasyl_proxy.php` and `/pandacap/weasyl_submit.php`.
+1. Clone the Pandacap git repository: <br/> `git clone https://github.com/IsaacSchemm/Pandacap`, with storage account key access disabled.
+1. Open Pandacap.sln with Visual Studio.
+1. Right-click on the Pandacap project and click Publish.
+    * Create a new profile to deploy to your newly created Azure App Service.
+    * Publish to the app service.
+1. Right-click on the Pandacap.Functions project and click Publish.
+    * Create a new profile to deploy to your newly created Function App.
+    * Publish to the function app.

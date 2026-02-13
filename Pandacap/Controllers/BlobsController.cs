@@ -93,7 +93,7 @@ namespace Pandacap.Controllers
                 ?? avatars.FirstOrDefault();
 
             if (avatar == null)
-                return NotFound();
+                return Redirect("/images/trgray.svg");
 
             var blob = await blobServiceClient
                 .GetBlobContainerClient("blobs")

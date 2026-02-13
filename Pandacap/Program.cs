@@ -3,6 +3,7 @@ using DeviantArtFs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Pandacap;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Clients;
@@ -14,6 +15,8 @@ using Pandacap.HighLevel.ATProto;
 using Pandacap.Notifications;
 using Pandacap.Podcasts;
 using Pandacap.Signatures;
+using System.IdentityModel.Tokens.Jwt;
+using static Pandacap.Clients.ATProto.DIDResolverModule;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,17 +53,24 @@ if (builder.Configuration["Authentication:Microsoft:ClientId"] is string microso
     && builder.Configuration["Authentication:Microsoft:TenantId"] is string microsoftTenant)
 {
     authenticationBuilder
-        .AddMicrosoftAccount(m =>
+        .AddOpenIdConnect(m =>
         {
-            m.AuthorizationEndpoint = $"https://login.microsoftonline.com/{Uri.EscapeDataString(microsoftTenant)}/oauth2/v2.0/authorize";
+            m.Authority = $"https://login.microsoftonline.com/{Uri.EscapeDataString(microsoftTenant)}/";
             m.ClientId = microsoftId;
             m.ClientSecret = microsoftSecret;
-            m.TokenEndpoint = $"https://login.microsoftonline.com/{Uri.EscapeDataString(microsoftTenant)}/oauth2/v2.0/token";
+            m.ResponseType = OpenIdConnectResponseType.Code;
+            m.MapInboundClaims = false;
         });
 }
 
-authenticationBuilder
-    .AddDeviantArt(d =>
+if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
+    && builder.Configuration["DeviantArtClientSecret"] is string deviantArtClientSecret)
+{
+    builder.Services.AddSingleton(new DeviantArtApp(
+        deviantArtClientId,
+        deviantArtClientSecret));
+
+    authenticationBuilder.AddDeviantArt(d =>
     {
         d.Scope.Add("browse");
         d.Scope.Add("message");
@@ -71,21 +81,23 @@ authenticationBuilder
         d.ClientId = builder.Configuration["DeviantArtClientId"]!;
         d.ClientSecret = builder.Configuration["DeviantArtClientSecret"]!;
         d.SaveTokens = true;
-    })
-    .AddReddit(o => {
+    });
+}
+
+if (builder.Configuration["RedditAppId"] is string redditAppId
+    && builder.Configuration["RedditAppSecret"] is string redditAppSecret)
+{
+    authenticationBuilder.AddReddit(o => {
         o.Scope.Add("read");
         o.Scope.Add("history");
         o.ClientId = builder.Configuration["RedditAppId"]!;
         o.ClientSecret = builder.Configuration["RedditAppSecret"]!;
         o.SaveTokens = true;
     });
+}
 
 builder.Services.AddSingleton(new ConstellationHost(
     builder.Configuration["ConstellationHost"]));
-
-builder.Services.AddSingleton(new DeviantArtApp(
-    builder.Configuration["DeviantArtClientId"]!,
-    builder.Configuration["DeviantArtClientSecret"]!));
 
 builder.Services.AddSingleton(new AllowedExternalUserCollection(
     DeviantArtUsers: builder.Configuration["DeviantArtUsername"] is string du ? [du] : [],

@@ -3,139 +3,142 @@
 @using Pandacap.Models
 @model IEnumerable<IPost>
 
-@if (!string.IsNullOrEmpty(Model.First().Username))
+@foreach (var group in Model.GroupBy(p => new
 {
-    <h1>
-        @foreach (string icon in Model.Select(p => p.Usericon).Take(1))
-        {
-            <img height="50" src="@icon" alt="" />
-        }
-        <a href="@Model.First().ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
-            <strong>
-                @Model.First().Username
-            </strong>
-        </a>
-    </h1>
-}
-
-@foreach (var badge in Model.SelectMany(p => p.GetBadges()).Distinct())
+    p.Username
+}))
 {
-    <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color">
-        @badge.Text
-    </span>
-}
+    if (!string.IsNullOrEmpty(group.Key.Username))
+    {
+        var firstPost = group.First();
 
-@{
-    var withThumbnails = Model.Where(item => item.Thumbnails.Any());
-    var withoutThumbnails = Model.Except(withThumbnails);
-}
+        <h1>
+            <img height="50" src="@(firstPost.Usericon ?? "/images/trgray.svg")" alt="" />
+            <a href="@firstPost.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
+                <strong>
+                    @group.Key.Username
+                </strong>
+            </a>
+        </h1>
+    }
 
-<div class="container-fluid">
-    <div class="row">
-        @foreach (var item in withThumbnails)
-        {
-            string url = User.Identity?.IsAuthenticated == true
+    foreach (var badge in group.SelectMany(p => p.GetBadges()).Distinct())
+    {
+        <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color">
+            @badge.Text
+        </span>
+    }
+
+    var withThumbnails = group.Where(item => item.Thumbnails.Any());
+    var withoutThumbnails = group.Except(withThumbnails);
+
+    <div class="container-fluid">
+        <div class="row">
+            @foreach (var item in withThumbnails)
+            {
+                string url = User.Identity?.IsAuthenticated == true
                 ? item.InternalUrl
                 : item.ExternalUrl;
 
-            var thumbnail = item.Thumbnails.FirstOrDefault();
-            <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
-                @if (thumbnail != null)
-                {
-                    <div class="card">
-                        <a href="@url" style="text-decoration: none">
-                            <img src="@thumbnail.Url"
-                                 alt="@thumbnail.AltText"
-                                 referrerpolicy="no-referrer"
-                                 class="feed-image" />
-                        </a>
-                    </div>
-                }
-                @if (item is Post post && post.Type == PostType.StatusUpdate)
-                {
-                    <div class="post-body">
-                        @Html.Raw(post.Html)
-                    </div>
-                }
-                else
-                {
-                    <label style="max-width: 100%; max-height: 3rem; overflow: hidden">
-                        @if (item is IInboxPost inboxPost && inboxPost.DismissedAt == null)
-                        {
-                            <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                        }
-                        <a href="@url">@item.DisplayTitle</a>
-                    </label>
-                }
-            </div>
-        }
-    </div>
-</div>
-
-@foreach (var item in withoutThumbnails)
-{
-    string url = User.Identity?.IsAuthenticated == true
-        ? item.InternalUrl
-        : item.ExternalUrl;
-
-    <div class="mb-3">
-        @if (item is Post myPost)
-        {
-            <div class="small text-muted">
-                @(myPost.Type == PostType.JournalEntry ? "✏️ journal entry"
-                    : myPost.Type == PostType.StatusUpdate ? "💬 status update"
-                    : myPost.Type == PostType.Artwork ? "🖌 artwork"
-                    : myPost.Type == PostType.Scraps ? "✎ scraps"
-                    : myPost.Type == PostType.Link ? "🔗 link"
-                    : "")
-            </div>
-        }
-        else if (item is AddressedPost addressedPost)
-        {
-            foreach (var id in addressedPost.Addressing.To)
-            {
-                <div class="small text-muted">
-                    To: @id
+                var thumbnail = item.Thumbnails.FirstOrDefault();
+                <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
+                    @if (thumbnail != null)
+                    {
+                        <div class="card">
+                            <a href="@url" style="text-decoration: none">
+                                <img src="@thumbnail.Url"
+                                     alt="@thumbnail.AltText"
+                                     referrerpolicy="no-referrer"
+                                     class="feed-image" />
+                            </a>
+                        </div>
+                    }
+                    @if (item is Post post && post.Type == PostType.StatusUpdate)
+                    {
+                        <div class="post-body">
+                            @Html.Raw(post.Html)
+                        </div>
+                    }
+                    else
+                    {
+                        <label style="max-width: 100%; max-height: 3rem; overflow: hidden">
+                            @if (item is IInboxPost inboxPost && inboxPost.DismissedAt == null)
+                            {
+                                <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                            }
+                            <a href="@url">@item.DisplayTitle</a>
+                        </label>
+                    }
                 </div>
             }
-            foreach (var id in addressedPost.Addressing.Cc)
-            {
-                <div class="small text-muted">
-                    CC: @id
-                </div>
-            }
-        }
-
-        @if (item is Post post && post.Type == PostType.StatusUpdate)
-        {
-            <div class="post-body">
-                @Html.Raw(post.Html)
-            </div>
-        }
-        else
-        {
-            <label>
-                @if (item is IInboxPost inboxPost && inboxPost.DismissedAt == null)
-                {
-                    <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
-                }
-                @item.DisplayTitle
-            </label>
-        }
-
-        <div class="small">
-            <a href="@url">
-                @item.PostedAt.UtcDateTime.ToLongDateString()
-            </a>
         </div>
+    </div>
 
-        @if (item is GeneralInboxItem feedItem && feedItem.AudioUrl != null)
-        {
-            <div class="mt-3">
-                <a class="btn btn-outline-primary btn-sm" asp-controller="Podcast" asp-action="Player" asp-route-id="@feedItem.Id" target="_blank" onclick="event.preventDefault(); window.open(event.target.href, '_blank', 'popup=true,width=600,height=300')">
-                    Launch player
+    foreach (var item in withoutThumbnails)
+    {
+        string url = User.Identity?.IsAuthenticated == true
+            ? item.InternalUrl
+            : item.ExternalUrl;
+
+        <div class="mb-3">
+            @if (item is Post myPost)
+            {
+                <div class="small text-muted">
+                    @(myPost.Type == PostType.JournalEntry ? "✏️ journal entry"
+                            : myPost.Type == PostType.StatusUpdate ? "💬 status update"
+                            : myPost.Type == PostType.Artwork ? "🖌 artwork"
+                            : myPost.Type == PostType.Scraps ? "✎ scraps"
+                            : myPost.Type == PostType.Link ? "🔗 link"
+                            : "")
+    </div>
+        }
+            else if (item is AddressedPost addressedPost)
+            {
+                foreach (var id in addressedPost.Addressing.To)
+                {
+                    <div class="small text-muted">
+                        To: @id
+                    </div>
+                }
+                foreach (var id in addressedPost.Addressing.Cc)
+                {
+                    <div class="small text-muted">
+                        CC: @id
+                    </div>
+                }
+            }
+
+            @if (item is Post post && post.Type == PostType.StatusUpdate)
+            {
+                <div class="post-body">
+                    @Html.Raw(post.Html)
+                </div>
+            }
+            else
+            {
+                <label>
+                    @if (item is IInboxPost inboxPost && inboxPost.DismissedAt == null)
+                    {
+                        <input form="dismissForm" type="checkbox" name="id" class="inboxItemCheckbox" value="@item.Id" />
+                    }
+                    @item.DisplayTitle
+                </label>
+            }
+
+            <div class="small">
+                <a href="@url">
+                    @item.PostedAt.UtcDateTime.ToLongDateString()
                 </a>
             </div>
-        }
-    </div>
+
+            @if (item is GeneralInboxItem feedItem && feedItem.AudioUrl != null)
+            {
+                <div class="mt-3">
+                    <a class="btn btn-outline-primary btn-sm" asp-controller="Podcast" asp-action="Player" asp-route-id="@feedItem.Id" target="_blank" onclick="event.preventDefault(); window.open(event.target.href, '_blank', 'popup=true,width=600,height=300')">
+                        Launch player
+                    </a>
+                </div>
+            }
+        </div>
+    }
 }

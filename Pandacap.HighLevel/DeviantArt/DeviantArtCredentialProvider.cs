@@ -14,7 +14,7 @@ namespace Pandacap.HighLevel.DeviantArt
     /// <param name="deviantArtApp">The application-level credentials for the DeviantArt API</param>
     public class DeviantArtCredentialProvider(
         PandacapDbContext context,
-        DeviantArtApp deviantArtApp)
+        IEnumerable<DeviantArtApp> deviantArtApps)
     {
         private class Token(
             PandacapDbContext context,
@@ -39,6 +39,10 @@ namespace Pandacap.HighLevel.DeviantArt
 
         private readonly Lazy<Task<Result?>> Credentials = new(async () =>
         {
+            var deviantArtApp = deviantArtApps.FirstOrDefault();
+            if (deviantArtApp == null)
+                return null;
+
             var allCredentials = await context.DeviantArtCredentials
                 .ToListAsync();
 
