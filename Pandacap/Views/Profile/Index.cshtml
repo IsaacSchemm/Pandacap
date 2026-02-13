@@ -20,20 +20,23 @@
     @appInfo.Username
 </h1>
 
-<p>
-    @for (int i = 0; i < Model.MyLinks.Count; i++)
-    {
-        if (i > 0)
+@if (Model.MyLinks.Count > 0)
+{
+    <p>
+        @for (int i = 0; i < Model.MyLinks.Count; i++)
         {
-            @:&middot;
-        }
+            if (i > 0)
+            {
+                @:&middot;
+            }
 
-        var link = Model.MyLinks[i];
-        <a href="@link.url" target="_blank">@link.platformName</a>
-    }
-    <br />
-    <a asp-action="FollowingAndFeeds">Following (@Model.FollowingCount)</a>
-</p>
+            var link = Model.MyLinks[i];
+            <a href="@link.url" target="_blank">@link.platformName</a>
+        }
+        <br />
+        <a asp-action="FollowingAndFeeds">Following (@Model.FollowingCount)</a>
+    </p>
+}
 
 <p>
     <a href="https://@appInfo.ApplicationHostname" target="_blank" style="text-decoration: none">

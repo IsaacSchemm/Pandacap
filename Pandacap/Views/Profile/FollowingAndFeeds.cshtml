@@ -88,93 +88,93 @@ else
             </div>
         }
     </div>
+}
 
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <hr />
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <hr />
 
-        <h2>Follow user / feed</h2>
+    <h2>Follow user / feed</h2>
 
-        <form asp-action="Follow">
-            <div class="row mb-3">
-                <div class="col-md-9">
-                    <label for="id" class="form-label">
-                        ActivityPub actor ID (URL)
-                    </label>
-                    <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
-                </div>
-                <div class="col-md-3 mt-auto">
-                    <button type="submit" class="btn btn-primary">
-                        Send follow request
-                    </button>
-                </div>
+    <form asp-action="Follow">
+        <div class="row mb-3">
+            <div class="col-md-9">
+                <label for="id" class="form-label">
+                    ActivityPub actor ID (URL)
+                </label>
+                <input type="url" class="form-control" id="id" name="id" placeholder="https://" />
             </div>
-        </form>
-
-        <form asp-action="FollowHandle">
-            <div class="row mb-3">
-                <div class="col-md-9">
-                    <label for="mastodonHandle" class="form-label">
-                        Mastodon handle
-                    </label>
-                    <input type="text" class="form-control" id="mastodonHandle" name="handle" placeholder="@@user@@example.com" />
-                </div>
-                <div class="col-md-3 mt-auto">
-                    <button type="submit" class="btn btn-primary">
-                        Send follow request
-                    </button>
-                </div>
+            <div class="col-md-3 mt-auto">
+                <button type="submit" class="btn btn-primary">
+                    Send follow request
+                </button>
             </div>
-        </form>
+        </div>
+    </form>
 
-        <form asp-action="FollowThreadsHandle">
-            <div class="row mb-3">
-                <div class="col-md-9">
-                    <label for="threadsHandle" class="form-label">
-                        Threads handle
-                    </label>
-                    <input type="text" class="form-control" id="threadsHandle" name="handle" />
-                </div>
-                <div class="col-md-3 mt-auto">
-                    <button type="submit" class="btn btn-primary">
-                        Send follow request
-                    </button>
-                </div>
+    <form asp-action="FollowHandle">
+        <div class="row mb-3">
+            <div class="col-md-9">
+                <label for="mastodonHandle" class="form-label">
+                    Mastodon handle
+                </label>
+                <input type="text" class="form-control" id="mastodonHandle" name="handle" placeholder="@@user@@example.com" />
             </div>
-        </form>
+            <div class="col-md-3 mt-auto">
+                <button type="submit" class="btn btn-primary">
+                    Send follow request
+                </button>
+            </div>
+        </div>
+    </form>
 
-        <form asp-action="AddATProtoFeed">
-            <div class="row mb-3">
-                <div class="col-md-9">
-                    <label for="did" class="form-label">
-                        ATProto handle / DID
-                    </label>
-                    <input type="text" class="form-control" id="handle" name="handle" />
-                </div>
-                <div class="col-md-3 mt-auto">
-                    <button type="submit" class="btn btn-primary">
-                        Add
-                    </button>
-                </div>
+    <form asp-action="FollowThreadsHandle">
+        <div class="row mb-3">
+            <div class="col-md-9">
+                <label for="threadsHandle" class="form-label">
+                    Threads handle
+                </label>
+                <input type="text" class="form-control" id="threadsHandle" name="handle" />
             </div>
-        </form>
+            <div class="col-md-3 mt-auto">
+                <button type="submit" class="btn btn-primary">
+                    Send follow request
+                </button>
+            </div>
+        </div>
+    </form>
 
-        <form asp-action="AddFeed">
-            <div class="row mb-3">
-                <div class="col-md-9">
-                    <label for="rssurl" class="form-label">
-                        Atom/RSS URL
-                    </label>
-                    <input type="url" class="form-control" id="rssurl" name="url" placeholder="https://" />
-                </div>
-                <div class="col-md-3 mt-auto">
-                    <button type="submit" class="btn btn-primary">
-                        Add
-                    </button>
-                </div>
+    <form asp-action="AddATProtoFeed">
+        <div class="row mb-3">
+            <div class="col-md-9">
+                <label for="did" class="form-label">
+                    ATProto handle / DID
+                </label>
+                <input type="text" class="form-control" id="handle" name="handle" />
             </div>
-        </form>
-    }
+            <div class="col-md-3 mt-auto">
+                <button type="submit" class="btn btn-primary">
+                    Add
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <form asp-action="AddFeed">
+        <div class="row mb-3">
+            <div class="col-md-9">
+                <label for="rssurl" class="form-label">
+                    Atom/RSS URL
+                </label>
+                <input type="url" class="form-control" id="rssurl" name="url" placeholder="https://" />
+            </div>
+            <div class="col-md-3 mt-auto">
+                <button type="submit" class="btn btn-primary">
+                    Add
+                </button>
+            </div>
+        </div>
+    </form>
 }
 
 <style type="text/css">
