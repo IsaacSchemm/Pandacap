@@ -13,7 +13,7 @@ using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
+    .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
         services.AddApplicationInsightsTelemetryWorkerService();
