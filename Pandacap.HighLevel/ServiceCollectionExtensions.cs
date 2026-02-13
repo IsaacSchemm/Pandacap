@@ -43,6 +43,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ATProtoFeedReader>()
                 .AddScoped<ATProtoHandleLookupClient>()
                 .AddScoped<BridgyFedDIDProvider>()
+                .AddScoped<CompositeInboxProvider>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<ConstellationClient>()
                 .AddScoped<DeviantArtCredentialProvider>()

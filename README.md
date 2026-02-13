@@ -156,7 +156,9 @@ Function app responsibilities:
 * `FavoriteIngest`
     * check accounts for new favorites / likes / upvotes
 * `InboxCleanup`
-    * clear dismissed inbox entries more than 7 days old
+    * delete any dismissed inbox entries more than 7 days old
+* `LongTermInboxCleanup`
+    * automatically dismiss active inbox entries (the 200 most recent posts, and any other posts newer than 30 days, will be kept)
 * `InboxIngest`
     * check feeds for new posts
 * `OutboxCleanup`
