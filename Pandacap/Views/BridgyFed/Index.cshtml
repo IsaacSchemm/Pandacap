@@ -24,14 +24,12 @@
 
 @foreach (var message in Model)
 {
-    <div class="@(message.Incoming ? "text-left" : "text-right")">
-        <div class="card" style="display: inline-block; max-width: 400px">
-            <div class="card-header">
-                @message.Timestamp
-            </div>
-            <div class="card-body">
-                <pre style="white-space: pre-wrap">@message.Content</pre>
-            </div>
+    <div class="card my-4" style="@(message.Incoming ? "margin-left: 160px" : "margin-right: 160px")">
+        <div class="card-header">
+            @message.Timestamp
+        </div>
+        <div class="card-body">
+            <pre style="white-space: pre-wrap">@message.Content</pre>
         </div>
     </div>
 }

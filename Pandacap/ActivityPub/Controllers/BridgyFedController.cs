@@ -41,7 +41,7 @@ namespace Pandacap.Controllers
                 {
                     Incoming = true,
                     Content = a.Json,
-                    Timestamp = DateTimeOffset.UtcNow
+                    Timestamp = a.ReceivedAt
                 })
                 .AsAsyncEnumerable();
 
