@@ -87,6 +87,7 @@
     <Compile Include="Data\TheirContent\ActivityPub\PostActivity.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\RemoteActivityPubAddressedPost.fs" />
     <Compile Include="Data\TheirContent\ActivityPub\RemoteActivityPubReply.fs" />
+    <Compile Include="Data\TheirContent\ActivityPub\BridgyFedActivity.fs" />
     <Compile Include="Data\TheirContent\FurAffinity\FurAffinityFavorite.fs" />
     <Compile Include="Data\TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
     <Compile Include="Data\TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />

@@ -57,6 +57,7 @@ var host = new HostBuilder()
         }
 
         services
+            .AddMemoryCache()
             .AddPandacapServices(new(
                 applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
                 username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
