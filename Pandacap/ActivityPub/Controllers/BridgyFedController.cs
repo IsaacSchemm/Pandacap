@@ -37,6 +37,7 @@ namespace Pandacap.Controllers
                 });
 
             var incomingMessages = context.BridgyFedActivities
+                .OrderByDescending(a => a.ReceivedAt)
                 .Select(a => new BridgyFedBotAccountMessageModel
                 {
                     Incoming = true,
