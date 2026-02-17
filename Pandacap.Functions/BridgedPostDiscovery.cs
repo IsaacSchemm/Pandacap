@@ -3,22 +3,19 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub;
 using Pandacap.Clients.ATProto;
 using Pandacap.Data;
-using Pandacap.HighLevel;
-using Pandacap.HighLevel.ATProto;
+using System.Text.RegularExpressions;
 
 namespace Pandacap.Functions
 {
-    public class BridgedPostDiscovery(
-        BridgyFedDIDProvider bridgyFedDIDProvider,
-        ConstellationClient constellationClient,
+    public partial class BridgedPostDiscovery(
         PandacapDbContext context,
         HostInformation hostInformation,
         IHttpClientFactory httpClientFactory)
     {
         [Function("BridgedPostDiscovery")]
-        public async Task Run([TimerTrigger("0 11 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("50 */10 * * * *")] TimerInfo myTimer)
         {
-            var cutoff = DateTimeOffset.UtcNow.AddDays(-2);
+            var cutoff = DateTimeOffset.UtcNow.AddDays(-1);
 
             List<Pandacap.ActivityPub.IPost> posts = [
                 .. await context.Posts
@@ -34,22 +31,25 @@ namespace Pandacap.Functions
             if (posts.Count == 0)
                 return;
 
-            var did = await bridgyFedDIDProvider.GetDIDAsync();
-            if (did == null)
-                return;
-
             var httpClient = httpClientFactory.CreateClient();
+
+            var linkPattern = GetLinkHeaderValueRegex();
 
             foreach (var post in posts)
             {
-                await foreach (var link in constellationClient.ListLinksAsync(
-                    post.GetObjectId(hostInformation),
-                    "app.bsky.feed.post",
-                    ".bridgyOriginalUrl",
-                    CancellationToken.None))
+                using var resp = await httpClient.GetAsync(
+                    $"https://ap.brid.gy/convert/atproto/{post.GetObjectId(hostInformation)}");
+
+                var linkHeaderValues = resp.EnsureSuccessStatusCode().Headers.TryGetValues("Link", out var links)
+                    ? links
+                    : [];
+
+                foreach (var value in linkHeaderValues)
                 {
-                    if (link.Components.DID != did)
-                        continue;
+                    var match = linkPattern.Match(value);
+                    if (!match.Success) continue;
+
+                    ATProtoRefUri link = new(match.Groups[1].Value);
 
                     var remotePost = await RecordEnumeration.BlueskyPost.GetRecordAsync(
                         httpClient,
@@ -77,5 +77,8 @@ namespace Pandacap.Functions
 
             await context.SaveChangesAsync();
         }
+
+        [GeneratedRegex(@"^<(at://[^\>]+)>")]
+        private static partial Regex GetLinkHeaderValueRegex();
     }
 }

@@ -42,7 +42,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<ATProtoFeedReader>()
                 .AddScoped<ATProtoHandleLookupClient>()
-                .AddScoped<BridgyFedDIDProvider>()
                 .AddScoped<CompositeInboxProvider>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<ConstellationClient>()

@@ -2,13 +2,11 @@
 using Pandacap.Clients.ATProto;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.ATProto;
 using Pandacap.PlatformBadges;
 
 namespace Pandacap.Notifications
 {
     public class ATProtoNotificationHandler(
-        BridgyFedDIDProvider bridgyFedDIDProvider,
         ConstellationClient constellationClient,
         DIDResolver didResolver,
         IHttpClientFactory httpClientFactory,
@@ -170,7 +168,13 @@ namespace Pandacap.Notifications
         {
             List<Notification> notifications = [];
 
-            if (await bridgyFedDIDProvider.GetDIDAsync() is string did)
+            var did = await context.Posts
+                .OrderByDescending(post => post.PublishedTime)
+                .Where(post => post.BlueskyDID != null)
+                .Select(post => post.BlueskyDID)
+                .FirstOrDefaultAsync();
+
+            if (did != null)
             {
                 notifications.AddRange(
                     await GetNotificationsAsync(

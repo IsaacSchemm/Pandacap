@@ -152,7 +152,7 @@ The web app and function app must have the appropriate IAM permissions to access
 Function app responsibilities:
 
 * `BridgedPostDiscovery`
-    * populates likes back to Bluesky for your posts from the past 2 days
+    * adds the "View on Bluesky" link to posts of yours that have been bridged
 * `FavoriteIngest`
     * check accounts for new favorites / likes / upvotes
 * `InboxCleanup`

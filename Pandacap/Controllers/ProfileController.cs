@@ -16,7 +16,6 @@ using Pandacap.LowLevel.MyLinks;
 using Pandacap.Models;
 using System.Diagnostics;
 using System.Text;
-using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -26,7 +25,6 @@ namespace Pandacap.Controllers
         ATProtoFeedReader atProtoFeedReader,
         ATProtoHandleLookupClient atProtoHandleLookupClient,
         BlobServiceClient blobServiceClient,
-        BridgyFedDIDProvider bridgyFedDIDProvider,
         CompositeFavoritesProvider compositeFavoritesProvider,
         DIDResolver didResolver,
         PandacapDbContext context,
@@ -59,6 +57,31 @@ namespace Pandacap.Controllers
                 username: appInfo.Username);
         }
 
+        private async Task<string?> FindBlueskyHandleAsync(
+            IEnumerable<IEnumerable<Post>> postLists)
+        {
+            var did = postLists
+                .SelectMany(x => x)
+                .OrderByDescending(x => x.PublishedTime)
+                .Where(x => x.BlueskyDID != null)
+                .Select(x => x.BlueskyDID)
+                .FirstOrDefault();
+
+            if (did == null)
+                return null;
+
+            try
+            {
+                var document = await didResolver.ResolveAsync(did);
+                return document.Handle;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return did;
+            }
+        }
+
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             string? userId = userManager.GetUserId(User);
@@ -78,36 +101,44 @@ namespace Pandacap.Controllers
                 var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
                 var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
+                var artwork = await context.Posts
+                    .Where(post => post.Type == PostType.Artwork)
+                    .Where(post => post.PublishedTime >= threeMonthsAgo)
+                    .OrderByDescending(post => post.PublishedTime)
+                    .Take(8)
+                    .ToListAsync(cancellationToken);
+
+                var favorites = await compositeFavoritesProvider
+                    .GetAllAsync()
+                    .Where(post => post.Thumbnails.Any())
+                    .TakeWhile(post => post.FavoritedAt >= oneMonthAgo)
+                    .OrderByDescending(favorite => favorite.FavoritedAt.Date)
+                    .ThenByDescending(favorite => favorite.PostedAt)
+                    .Take(12)
+                    .ToListAsync(cancellationToken);
+
+                var textPosts = await context.Posts
+                    .Where(post => post.Type == PostType.StatusUpdate || post.Type == PostType.JournalEntry)
+                    .Where(post => post.PublishedTime >= oneMonthAgo)
+                    .OrderByDescending(post => post.PublishedTime)
+                    .Take(5)
+                    .ToListAsync(cancellationToken);
+
+                var links = await context.Posts
+                    .Where(post => post.Type == PostType.Link)
+                    .Where(post => post.PublishedTime >= oneMonthAgo)
+                    .OrderByDescending(post => post.PublishedTime)
+                    .Take(5)
+                    .ToListAsync(cancellationToken);
+
                 return new ProfileViewModel
                 {
-                    BridgyFedDID = await bridgyFedDIDProvider.GetDIDAsync(),
+                    BlueskyHandle = await FindBlueskyHandleAsync([artwork, textPosts, links]),
                     MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
-                    RecentArtwork = await context.Posts
-                        .Where(post => post.Type == PostType.Artwork)
-                        .Where(post => post.PublishedTime >= threeMonthsAgo)
-                        .OrderByDescending(post => post.PublishedTime)
-                        .Take(8)
-                        .ToListAsync(cancellationToken),
-                    RecentFavorites = await compositeFavoritesProvider
-                        .GetAllAsync()
-                        .Where(post => post.Thumbnails.Any())
-                        .TakeWhile(post => post.FavoritedAt >= oneMonthAgo)
-                        .OrderByDescending(favorite => favorite.FavoritedAt.Date)
-                        .ThenByDescending(favorite => favorite.PostedAt)
-                        .Take(12)
-                        .ToListAsync(cancellationToken),
-                    RecentTextPosts = await context.Posts
-                        .Where(post => post.Type == PostType.StatusUpdate || post.Type == PostType.JournalEntry)
-                        .Where(post => post.PublishedTime >= oneMonthAgo)
-                        .OrderByDescending(post => post.PublishedTime)
-                        .Take(5)
-                        .ToListAsync(cancellationToken),
-                    RecentLinks = await context.Posts
-                        .Where(post => post.Type == PostType.Link)
-                        .Where(post => post.PublishedTime >= oneMonthAgo)
-                        .OrderByDescending(post => post.PublishedTime)
-                        .Take(5)
-                        .ToListAsync(cancellationToken),
+                    RecentArtwork = artwork,
+                    RecentFavorites = favorites,
+                    RecentTextPosts = textPosts,
+                    RecentLinks = links,
                     FollowerCount = await context.Followers.DocumentCountAsync(cancellationToken),
                     FollowingCount = await context.Follows.DocumentCountAsync(cancellationToken)
                         + await context.GeneralFeeds.DocumentCountAsync(cancellationToken)
