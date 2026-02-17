@@ -37,45 +37,49 @@ namespace Pandacap.Functions
 
             foreach (var post in posts)
             {
-                using var resp = await httpClient.GetAsync(
-                    $"https://ap.brid.gy/convert/atproto/{post.GetObjectId(hostInformation)}");
+                var link = await GetBridgedPostRefUriAsync(httpClient, post, "bsky")
+                    ?? await GetBridgedPostRefUriAsync(httpClient, post, "atproto");
 
-                var linkHeaderValues = resp.EnsureSuccessStatusCode().Headers.TryGetValues("Link", out var links)
-                    ? links
-                    : [];
+                if (link == null)
+                    continue;
 
-                foreach (var value in linkHeaderValues)
+                if (post is Post p)
                 {
-                    var match = linkPattern.Match(value);
-                    if (!match.Success) continue;
-
-                    ATProtoRefUri link = new(match.Groups[1].Value);
-
-                    var remotePost = await RecordEnumeration.BlueskyPost.GetRecordAsync(
-                        httpClient,
-                        "atproto.brid.gy",
-                        link.Components.DID,
-                        link.Components.RecordKey);
-
-                    if (remotePost.Value.BridgyOriginalUrl == post.GetObjectId(hostInformation))
-                    {
-                        if (post is Post p)
-                        {
-                            p.BlueskyDID ??= link.Components.DID;
-                            p.BlueskyRecordKey ??= link.Components.RecordKey;
-                        }
-                        else if (post is AddressedPost a)
-                        {
-                            a.BlueskyDID ??= link.Components.DID;
-                            a.BlueskyRecordKey ??= link.Components.RecordKey;
-                        }
-
-                        break;
-                    }
+                    p.BlueskyDID ??= link.Components.DID;
+                    p.BlueskyRecordKey ??= link.Components.RecordKey;
+                }
+                else if (post is AddressedPost a)
+                {
+                    a.BlueskyDID ??= link.Components.DID;
+                    a.BlueskyRecordKey ??= link.Components.RecordKey;
                 }
             }
 
             await context.SaveChangesAsync();
+        }
+
+        private async Task<ATProtoRefUri?> GetBridgedPostRefUriAsync(
+            HttpClient httpClient,
+            Pandacap.ActivityPub.IPost post,
+            string targetProtocol)
+        {
+            using var resp = await httpClient.GetAsync(
+                $"https://ap.brid.gy/convert/{targetProtocol}/{post.GetObjectId(hostInformation)}");
+
+            var linkHeaderValues = resp.EnsureSuccessStatusCode().Headers.TryGetValues("Link", out var links)
+                ? links
+                : [];
+
+            foreach (var value in linkHeaderValues)
+            {
+                var linkPattern = GetLinkHeaderValueRegex();
+                var match = linkPattern.Match(value);
+                if (!match.Success) continue;
+
+                return new(match.Groups[1].Value);
+            }
+
+            return null;
         }
 
         [GeneratedRegex(@"^<(at://[^\>]+)>")]
