@@ -78,18 +78,6 @@ namespace Pandacap.Controllers
             string actorId = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
             var actor = await activityPubRemoteActorService.FetchActorAsync(actorId, cancellationToken);
 
-            if (Uri.TryCreate(actor.Id, UriKind.Absolute, out Uri? idUri) && $".{idUri.Host}".EndsWith(".brid.gy"))
-            {
-                context.BridgyFedActivities.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    Json = json,
-                    ReceivedAt = DateTimeOffset.UtcNow
-                });
-
-                await context.SaveChangesAsync(cancellationToken);
-            }
-
             string type = expansionObj["@type"]![0]!.Value<string>()!;
 
             // Verify HTTP signature against the public key

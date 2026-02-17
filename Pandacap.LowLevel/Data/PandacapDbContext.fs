@@ -34,7 +34,6 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.ATProtoInboxItems: DbSet<ATProtoInboxItem> = this.Set()
     member this.RemoteActivityPubAddressedPosts: DbSet<RemoteActivityPubAddressedPost> = this.Set()
     member this.RemoteActivityPubReplies: DbSet<RemoteActivityPubReply> = this.Set()
-    member this.BridgyFedActivities: DbSet<BridgyFedActivity> = this.Set()
     member this.ActivityPubOutboundActivities: DbSet<ActivityPubOutboundActivity> = this.Set()
     member this.ActivityPubFavorites: DbSet<ActivityPubFavorite> = this.Set()
     member this.BlueskyPostFavorites: DbSet<BlueskyPostFavorite> = this.Set()
