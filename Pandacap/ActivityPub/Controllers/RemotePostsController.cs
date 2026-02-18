@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using Pandacap.HighLevel;
 using Pandacap.Models;
 using System.Net;
 using System.Security.Authentication;
@@ -13,6 +12,7 @@ namespace Pandacap.Controllers
 {
     public class RemotePostsController(
         ActivityPubRemotePostService activityPubRemotePostService,
+        ActivityPubRequestHandler activityPubRequestHandler,
         ApplicationInformation appInfo,
         PandacapDbContext context,
         ActivityPub.Mapper mapper,
@@ -78,17 +78,13 @@ namespace Pandacap.Controllers
 
             var inboxes = actors.Select(a => a.SharedInbox ?? a.Inbox).Distinct();
 
-            foreach (string inbox in inboxes)
-            {
-                context.ActivityPubOutboundActivities.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    Inbox = inbox,
-                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+            await Task.WhenAll(
+                inboxes
+                .Select(inbox => activityPubRequestHandler.PostAsync(
+                    new Uri(inbox),
+                    ActivityPub.Serializer.SerializeWithContext(
                         postTranslator.BuildObjectCreate(
-                            addressedPost))
-                });
-            }
+                            addressedPost)))));
 
             await context.SaveChangesAsync(cancellationToken);
 
