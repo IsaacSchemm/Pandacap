@@ -25,9 +25,13 @@ namespace Pandacap.HighLevel
         public async Task<string> GetPublicKeyAsync()
         {
             var key = await _keyClient.Value.GetKeyAsync("activitypub");
-            byte[] arr = key.Value.Key.ToRSA().ExportSubjectPublicKeyInfo();
-            string str = Convert.ToBase64String(arr);
-            return $"-----BEGIN PUBLIC KEY-----\n{str}\n-----END PUBLIC KEY-----";
+            var arr = key.Value.Key.ToRSA().ExportSubjectPublicKeyInfo();
+
+            return string.Join("\n", [
+                "-----BEGIN PUBLIC KEY-----",
+                .. Convert.ToBase64String(arr).Chunk(64).Select(array => new string(array)),
+                "-----END PUBLIC KEY-----"
+            ]);
         }
 
         /// <summary>
