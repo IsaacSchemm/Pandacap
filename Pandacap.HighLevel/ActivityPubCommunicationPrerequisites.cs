@@ -30,7 +30,8 @@ namespace Pandacap.HighLevel
             return string.Join("\n", [
                 "-----BEGIN PUBLIC KEY-----",
                 .. Convert.ToBase64String(arr).Chunk(64).Select(array => new string(array)),
-                "-----END PUBLIC KEY-----"
+                "-----END PUBLIC KEY-----",
+                ""
             ]);
         }
 
