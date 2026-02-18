@@ -78,6 +78,8 @@ namespace Pandacap.Controllers
 
             var inboxes = actors.Select(a => a.SharedInbox ?? a.Inbox).Distinct();
 
+            await context.SaveChangesAsync(cancellationToken);
+
             await Task.WhenAll(
                 inboxes
                 .Select(inbox => activityPubRequestHandler.PostAsync(
@@ -85,8 +87,6 @@ namespace Pandacap.Controllers
                     ActivityPub.Serializer.SerializeWithContext(
                         postTranslator.BuildObjectCreate(
                             addressedPost)))));
-
-            await context.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction("Index", "AddressedPosts", new { id = addressedPost.Id });
         }
