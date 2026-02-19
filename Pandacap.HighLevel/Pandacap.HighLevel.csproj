@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -14,11 +14,11 @@
     <PackageReference Include="DeviantArtFs" Version="11.0.0" />
     <PackageReference Include="DnsClient" Version="1.8.0" />
     <PackageReference Include="json-ld.net" Version="1.0.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
     <PackageReference Include="NSign.SignatureProviders" Version="1.2.2" />
     <PackageReference Include="System.Linq.Async" Version="7.0.0" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="9.0.11" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
