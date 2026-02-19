@@ -7,7 +7,7 @@
     ViewBag.Title = Model.Title;
 }
 
-@if (Model.Items.Current.Any(item => item is IInboxPost))
+@if (Model.Items.Any(item => item is IInboxPost))
 {
     <form id="dismissForm" asp-controller="Inbox" asp-action="Dismiss" method="post"></form>
 }
@@ -30,7 +30,7 @@
     }
 </p>
 
-@if (!Model.Items.Current.Any())
+@if (!Model.Items.Any())
 {
     <p>
         Showing <strong>0</strong> items.
@@ -38,19 +38,19 @@
 }
 else
 {
-    var minDate = Model.Items.Current.Select(item => item.PostedAt).Min().UtcDateTime;
-    var maxDate = Model.Items.Current.Select(item => item.PostedAt).Max().UtcDateTime;
+    var minDate = Model.Items.Select(item => item.PostedAt).Min().UtcDateTime;
+    var maxDate = Model.Items.Select(item => item.PostedAt).Max().UtcDateTime;
 
     <p>
         Showing
-        <strong>@Model.Items.Current.Count()</strong>
+        <strong>@Model.Items.Count()</strong>
         item(s) posted between
         <strong>@minDate.ToLongDateString()</strong> (@minDate.ToShortTimeString())
         and
         <strong>@maxDate.ToLongDateString()</strong> (@maxDate.ToShortTimeString()).
     </p>
 
-    var groups = Model.Items.Current.GroupBy(item => new {
+    var groups = Model.Items.GroupBy(item => new {
         Username = item.Username,
         ProfileUrl = item.ProfileUrl
     });
@@ -60,7 +60,7 @@ else
         <partial name="_ListGroup" model="@group" />
     }
 
-    @if (Model.Items.Current.Any(item => item is IInboxPost))
+    @if (Model.Items.Any(item => item is IInboxPost))
     {
         <hr />
 
@@ -73,15 +73,15 @@ else
         </button>
     }
 
-    @if (Model.Items.Next is string id)
+    @if (Model.Next is string id)
     {
         <hr />
 
         <a asp-route-q="@Model.Q"
            asp-route-next="@id"
-           asp-route-count="@Model.Items.Current.Count"
+           asp-route-count="@Model.Items.Count()"
            class="btn btn-primary">
-            Next @Model.Items.Current.Count items &raquo;
+            Next @Model.Items.Count() items &raquo;
         </a>
     }
 }

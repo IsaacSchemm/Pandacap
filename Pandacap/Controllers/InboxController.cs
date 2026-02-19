@@ -44,7 +44,8 @@ namespace Pandacap.Controllers
             return ListView(new ListViewModel
             {
                 Title = "Inbox (Image Posts)",
-                Items = posts
+                Items = posts.Current,
+                Next = posts.Next
             });
         }
 
@@ -68,7 +69,8 @@ namespace Pandacap.Controllers
             return ListView(new ListViewModel
             {
                 Title = "Inbox (Text Posts)",
-                Items = posts
+                Items = posts.Current,
+                Next = posts.Next
             });
         }
 
@@ -91,7 +93,8 @@ namespace Pandacap.Controllers
             return ListView(new ListViewModel
             {
                 Title = "Inbox (Shares)",
-                Items = posts
+                Items = posts.Current,
+                Next = posts.Next
             });
         }
 
@@ -113,7 +116,8 @@ namespace Pandacap.Controllers
             return ListView(new ListViewModel
             {
                 Title = "Inbox (Podcasts)",
-                Items = posts
+                Items = posts.Current,
+                Next = posts.Next
             });
         }
 

@@ -25,7 +25,7 @@
     }
 </p>
 
-@foreach (var post in Model.Items.Current)
+@foreach (var post in Model.Items)
 {
     var postAge = DateTimeOffset.UtcNow - post.PostedAt;
 
@@ -111,14 +111,14 @@
     </div>
 }
 
-@if (Model.Items.Next is string id)
+@if (Model.Next is string id)
 {
     <hr />
 
     <a asp-route-q="@Model.Q"
         asp-route-next="@id"
-        asp-route-count="@Model.Items.Current.Count"
+        asp-route-count="@Model.Items.Count()"
         class="btn btn-primary">
-        Next @Model.Items.Current.Count items &raquo;
+        Next @Model.Items.Count() items &raquo;
     </a>
 }

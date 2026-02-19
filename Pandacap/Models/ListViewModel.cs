@@ -1,4 +1,6 @@
-﻿namespace Pandacap.Models
+﻿using Pandacap.Data;
+
+namespace Pandacap.Models
 {
     public class ListViewModel
     {
@@ -6,7 +8,9 @@
 
         public string? Q { get; set; }
 
-        public required ListPage Items { get; set; }
+        public required IEnumerable<IPost> Items { get; set; }
+
+        public string? Next { get; set; }
 
         public bool RSS { get; set; }
 

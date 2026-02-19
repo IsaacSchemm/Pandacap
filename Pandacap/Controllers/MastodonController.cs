@@ -30,9 +30,8 @@ namespace Pandacap.Controllers
                 new ListViewModel
                 {
                     Title = $"Local feed for {host}",
-                    Items = new ListPage(
-                        Current: posts,
-                        Next: posts.Select(p => p.Id).LastOrDefault())
+                    Items = posts,
+                    Next = posts.Select(p => p.Id).LastOrDefault()
                 });
         }
     }

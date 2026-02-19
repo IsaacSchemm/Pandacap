@@ -13,22 +13,18 @@ type InteractionTranslator(hostInformation: HostInformation) =
         pair "first" $"https://{hostInformation.ApplicationHostname}/Favorites"
     ]
 
-    member _.BuildLikedCollectionPage(currentPage: string, posts: IListPage) = dict [
+    member _.BuildLikedCollectionPage(currentPage: string, posts: ILike seq, nextPage: string) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Liked"
 
         pair "orderedItems" [
-            for x in posts.Current do
-                match x with
-                | :? ILike as l -> l.ObjectId
-                | _ -> ()
+            for x in posts do
+                x.ObjectId
         ]
 
-        match posts.Next with
-        | None -> ()
-        | Some id ->
-            pair "next" $"https://{hostInformation.ApplicationHostname}/Favorites?next={id}&count={Seq.length posts.Current}"
+        if not (String.IsNullOrEmpty(nextPage)) then
+            pair "next" nextPage
     ]
 
     member _.BuildLike(likeGuid: Guid, remoteObjectId: string) = dict [

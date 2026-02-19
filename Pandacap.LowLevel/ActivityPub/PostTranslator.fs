@@ -109,20 +109,16 @@ type PostTranslator(hostInformation: HostInformation) =
         pair "first" $"https://{hostInformation.ApplicationHostname}/Gallery/Composite"
     ]
 
-    member _.BuildOutboxCollectionPage(currentPage: string, posts: IListPage) = dict [
+    member _.BuildOutboxCollectionPage(currentPage: string, posts: IPost seq, nextPage: string) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Outbox"
 
         pair "orderedItems" [
-            for x in posts.Current do
-                match x with
-                | :? IPost as p -> p.GetObjectId(hostInformation)
-                | _ -> ()
+            for x in posts do
+                x.GetObjectId(hostInformation)
         ]
 
-        match posts.Next with
-        | None -> ()
-        | Some id ->
-            pair "next" $"https://{hostInformation.ApplicationHostname}/Gallery/Composite?next={id}&count={Seq.length posts.Current}"
+        if not (String.IsNullOrEmpty(nextPage)) then
+            pair "next" nextPage
     ]

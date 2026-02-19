@@ -34,7 +34,8 @@ namespace Pandacap.Controllers
             return View(new ListViewModel
             {
                 Title = "Favorites > Gallery",
-                Items = listPage
+                Items = listPage.Current,
+                Next = listPage.Next
             });
         }
 
@@ -54,7 +55,8 @@ namespace Pandacap.Controllers
             return View(new ListViewModel
             {
                 Title = "Favorites > Text Posts",
-                Items = listPage
+                Items = listPage.Current,
+                Next = listPage.Next
             });
         }
 

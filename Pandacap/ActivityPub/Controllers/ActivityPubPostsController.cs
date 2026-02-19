@@ -29,7 +29,8 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = "ActivityPub Posts",
-                Items = posts
+                Items = posts.Current,
+                Next = posts.Next
             });
         }
     }

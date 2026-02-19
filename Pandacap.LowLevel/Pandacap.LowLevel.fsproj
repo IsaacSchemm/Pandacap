@@ -31,7 +31,6 @@
     <Compile Include="ActivityPub\IImage.fs" />
     <Compile Include="ActivityPub\IAddressing.fs" />
     <Compile Include="ActivityPub\IPost.fs" />
-    <Compile Include="ActivityPub\IListPage.fs" />
     <Compile Include="ActivityPub\ILike.fs" />
     <Compile Include="ActivityPub\IFollow.fs" />
     <Compile Include="ActivityPub\Avatar.fs" />

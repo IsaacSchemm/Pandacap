@@ -16,7 +16,7 @@
     </li>
 </ul>
 
-@if (!Model.Items.Current.Any())
+@if (!Model.Items.Any())
 {
     <p>
         Showing <strong>0</strong> items.
@@ -24,12 +24,12 @@
 }
 else
 {
-    var minDate = Model.Items.Current.Select(item => item.PostedAt).Min().UtcDateTime;
-    var maxDate = Model.Items.Current.Select(item => item.PostedAt).Max().UtcDateTime;
+    var minDate = Model.Items.Select(item => item.PostedAt).Min().UtcDateTime;
+    var maxDate = Model.Items.Select(item => item.PostedAt).Max().UtcDateTime;
 
     <p>
         Showing
-        <strong>@Model.Items.Current.Count()</strong>
+        <strong>@Model.Items.Count()</strong>
         item(s) posted between
         <strong>@minDate.ToLongDateString()</strong> (@minDate.ToShortTimeString())
         and
@@ -38,7 +38,7 @@ else
 
     <div class="container-fluid">
         <div class="row">
-            @foreach (var item in Model.Items.Current)
+            @foreach (var item in Model.Items)
             {
                 string url = User.Identity?.IsAuthenticated == true
                     ? item.InternalUrl
@@ -97,15 +97,15 @@ else
         <partial name="_Manage" model="@Model" />
     }
 
-    @if (Model.Items.Next is string id)
+    @if (Model.Next is string id)
     {
         <hr />
 
         <a asp-route-q="@Model.Q"
            asp-route-next="@id"
-           asp-route-count="@Model.Items.Current.Count"
+           asp-route-count="@Model.Items.Count()"
            class="btn btn-primary">
-            Next @Model.Items.Current.Count items &raquo;
+            Next @Model.Items.Count() items &raquo;
         </a>
     }
 }

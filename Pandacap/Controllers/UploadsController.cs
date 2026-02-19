@@ -16,15 +16,17 @@ namespace Pandacap.Controllers
     {
         public async Task<IActionResult> Index(int? count, Guid? next)
         {
-            var uploads = context.Uploads
+            var uploads = await context.Uploads
                 .OrderByDescending(post => post.UploadedAt)
                 .AsAsyncEnumerable()
-                .SkipUntil(post => post.Id == next || next == null);
+                .SkipUntil(post => post.Id == next || next == null)
+                .AsListPage(count ?? 20);
 
             return View("List", new ListViewModel
             {
-                Items = await uploads.AsListPage(count ?? 20),
-                Title = "Uploads"
+                Title = "Uploads",
+                Items = uploads.Current,
+                Next = uploads.Next
             });
         }
 

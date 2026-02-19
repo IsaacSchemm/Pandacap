@@ -14,9 +14,9 @@ namespace Pandacap
         /// <param name="asyncSeq">The source asynchronous sequence</param>
         /// <param name="count">The number of items per page</param>
         /// <returns></returns>
-        public static async Task<ListPage> AsListPage(this IAsyncEnumerable<IPost> asyncSeq, int count)
+        public static async Task<ListPage<T>> AsListPage<T>(this IAsyncEnumerable<T> asyncSeq, int count) where T : IPost
         {
-            List<IPost> accumulator = [];
+            List<T> accumulator = [];
             string? next = null;
 
             await foreach (var item in asyncSeq)
@@ -29,7 +29,7 @@ namespace Pandacap
                     break;
             }
 
-            return new ListPage(
+            return new ListPage<T>(
                 [.. accumulator],
                 next);
         }

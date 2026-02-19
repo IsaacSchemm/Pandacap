@@ -11,6 +11,7 @@ namespace Pandacap.Controllers
 {
     public class FavoritesController(
         PandacapDbContext context,
+        ActivityPub.HostInformation hostInformation,
         ActivityPub.InteractionTranslator interactionTranslator,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler) : Controller
     {
@@ -29,7 +30,10 @@ namespace Pandacap.Controllers
                     ActivityPub.Serializer.SerializeWithContext(
                         interactionTranslator.BuildLikedCollectionPage(
                             Request.GetEncodedUrl(),
-                            listPage)),
+                            listPage.Current,
+                            listPage.Next == null
+                                ? null
+                                : $"https://{hostInformation.ApplicationHostname}/Favorites?next={listPage.Next}&count={listPage.Current.Length}")),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -37,7 +41,8 @@ namespace Pandacap.Controllers
             return View("List", new ListViewModel
             {
                 Title = "Favorites",
-                Items = listPage
+                Items = listPage.Current,
+                Next = listPage.Next
             });
         }
 

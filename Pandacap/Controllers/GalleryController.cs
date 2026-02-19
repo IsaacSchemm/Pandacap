@@ -17,6 +17,7 @@ namespace Pandacap.Controllers
     public class GalleryController(
         PandacapDbContext context,
         Pandacap.HighLevel.RssOutbound.FeedBuilder feedBuilder,
+        ActivityPub.HostInformation hostInformation,
         ActivityPub.PostTranslator postTranslator) : Controller
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
@@ -61,7 +62,10 @@ namespace Pandacap.Controllers
                     ActivityPub.Serializer.SerializeWithContext(
                         postTranslator.BuildOutboxCollectionPage(
                             Request.GetEncodedUrl(),
-                            listPage)),
+                            listPage.Current,
+                            listPage.Next == null
+                                ? null
+                                : $"https://{hostInformation.ApplicationHostname}/Gallery/Composite?next={listPage.Next}&count={listPage.Current.Length}")),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -71,7 +75,8 @@ namespace Pandacap.Controllers
             return View("GalleryList", new ListViewModel
             {
                 Title = title,
-                Items = listPage,
+                Items = listPage.Current,
+                Next = listPage.Next,
                 RSS = true,
                 Atom = true
             });
@@ -175,27 +180,6 @@ namespace Pandacap.Controllers
                 .SkipUntil(f => f.Id == next || next == null);
 
             return await RenderAsync("All Posts", posts, count);
-        }
-
-        [Obsolete]
-        [Authorize]
-        public async Task<IActionResult> AddressedPosts(Guid? next, int? count)
-        {
-            DateTimeOffset startTime = await GetPublishedTimeAsync(next) ?? DateTimeOffset.MaxValue;
-
-            var posts = await context.AddressedPosts
-                .Where(d => d.PublishedTime <= startTime)
-                .OrderByDescending(d => d.PublishedTime)
-                .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == next || next == null)
-                .OfType<IPost>()
-                .AsListPage(count ?? 20);
-
-            return View("List", new ListViewModel
-            {
-                Title = "Addressed Posts",
-                Items = posts
-            });
         }
     }
 }

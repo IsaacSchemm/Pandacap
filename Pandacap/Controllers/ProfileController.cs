@@ -200,7 +200,8 @@ namespace Pandacap.Controllers
             {
                 Title = "Search",
                 Q = q,
-                Items = posts
+                Items = posts.Current,
+                Next = posts.Next
             });
         }
 

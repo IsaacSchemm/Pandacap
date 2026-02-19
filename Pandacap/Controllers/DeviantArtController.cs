@@ -65,9 +65,8 @@ namespace Pandacap.Controllers
                 new ListViewModel
                 {
                     Title = "DeviantArt Home Feed",
-                    Items = new ListPage(
-                        Current: [.. page.results.OrEmpty().Select(d => new PostWrapper(d))],
-                        Next: page.next_offset.OrNull()?.ToString())
+                    Items = [.. page.results.OrEmpty().Select(d => new PostWrapper(d))],
+                    Next = page.next_offset.OrNull()?.ToString()
                 });
         }
 
