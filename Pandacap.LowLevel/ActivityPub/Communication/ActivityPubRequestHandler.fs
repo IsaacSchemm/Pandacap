@@ -12,7 +12,7 @@ open Pandacap.Html
 type ActivityPubRequestHandler(
     prerequisites: IActivityPubCommunicationPrerequisites,
     httpClientFactory: IHttpClientFactory,
-    mapper: Mapper
+    hostInformation: HostInformation
 ) =
     let mediaTypes = [
         "application/activity+json"
@@ -42,7 +42,7 @@ type ActivityPubRequestHandler(
             |> Seq.map fst
             |> String.concat " "
 
-        req.Headers.Add("Signature", $"keyId=\"{mapper.ActorId}#main-key\",algorithm=\"rsa-sha256\",headers=\"{headerNames}\",signature=\"{Convert.ToBase64String(signature)}\"")
+        req.Headers.Add("Signature", $"keyId=\"{hostInformation.ActorId}#main-key\",algorithm=\"rsa-sha256\",headers=\"{headerNames}\",signature=\"{Convert.ToBase64String(signature)}\"")
     }
 
     let rec getAsync (url: Uri) (includeSignature: bool) (cancellationToken: CancellationToken) = task {

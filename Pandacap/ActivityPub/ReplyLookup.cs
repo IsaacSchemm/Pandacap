@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -10,7 +11,7 @@ namespace Pandacap
     public class ReplyLookup(
         ApplicationInformation appInfo,
         IDbContextFactory<PandacapDbContext> contextFactory,
-        ActivityPub.Mapper mapper)
+        HostInformation hostInformation)
     {
         public async Task<bool> IsOriginalPostStoredAsync(
             string id,
@@ -62,12 +63,14 @@ namespace Pandacap
                 .Where(r => r.InReplyTo == originalObjectId)
                 .AsAsyncEnumerable())
             {
-                string objectId = mapper.GetObjectId(addressedPost);
+                ActivityPub.IPost activityPubPost = addressedPost;
+
+                string objectId = activityPubPost.GetObjectId(hostInformation);
 
                 yield return new ReplyModel
                 {
                     CreatedAt = addressedPost.PublishedTime,
-                    CreatedBy = mapper.ActorId,
+                    CreatedBy = hostInformation.ActorId,
                     HtmlContent = addressedPost.HtmlContent,
                     Name = null,
                     ObjectId = objectId,

@@ -3,20 +3,20 @@
 open System
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor's post interactions.
-type InteractionTranslator(mapper: Mapper) =
+type InteractionTranslator(hostInformation: HostInformation) =
     let pair key value = (key, value :> obj)
 
     member _.BuildLikedCollection(posts: int) = dict [
-        pair "id" mapper.LikedRootId
+        pair "id" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Liked"
         pair "type" "Collection"
         pair "totalItems" posts
-        pair "first" mapper.LikedPageId
+        pair "first" $"https://{hostInformation.ApplicationHostname}/Favorites"
     ]
 
     member _.BuildLikedCollectionPage(currentPage: string, posts: IListPage) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
-        pair "partOf" mapper.LikedRootId
+        pair "partOf" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Liked"
 
         pair "orderedItems" [
             for x in posts.Current do
@@ -28,19 +28,19 @@ type InteractionTranslator(mapper: Mapper) =
         match posts.Next with
         | None -> ()
         | Some id ->
-            pair "next" $"{mapper.LikedPageId}?next={id}&count={Seq.length posts.Current}"
+            pair "next" $"https://{hostInformation.ApplicationHostname}/Favorites?next={id}&count={Seq.length posts.Current}"
     ]
 
     member _.BuildLike(likeGuid: Guid, remoteObjectId: string) = dict [
-        pair "id" (mapper.GetLikeId(likeGuid))
+        pair "id" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Like/{likeGuid}"
         pair "type" "Like"
-        pair "actor" mapper.ActorId
+        pair "actor" hostInformation.ActorId
         pair "object" remoteObjectId
     ]
 
     member this.BuildLikeUndo(likeGuid: Guid, remoteObjectId: string) = dict [
-        pair "id" (mapper.GetTransientId())
+        pair "id" (hostInformation.GenerateTransientObjectId())
         pair "type" "Undo"
-        pair "actor" mapper.ActorId
+        pair "actor" hostInformation.ActorId
         pair "object" (this.BuildLike(likeGuid, remoteObjectId))
     ]

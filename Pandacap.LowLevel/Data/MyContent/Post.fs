@@ -158,7 +158,7 @@ type Post() =
             new Pandacap.ActivityPub.IAddressing with
                 member _.InReplyTo = null
                 member _.To = ["https://www.w3.org/ns/activitystreams#Public"]
-                member _.Cc = [hostInfo.ActivityPubFollowersRootId]
+                member _.Cc = [$"https://{hostInfo.ApplicationHostname}/ActivityPub/Following"]
                 member _.Audience = null
         }
         member this.Html = this.BodyWithLinks

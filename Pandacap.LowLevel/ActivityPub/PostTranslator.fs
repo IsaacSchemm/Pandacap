@@ -3,7 +3,7 @@
 open System
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor's posts.
-type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
+type PostTranslator(hostInformation: HostInformation) =
     let pair key value = (key, value :> obj)
 
     member _.BuildObject(post: IPost) = dict [
@@ -20,7 +20,7 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
         if not (String.IsNullOrEmpty(post.Html)) then
             pair "content" post.Html
 
-        pair "attributedTo" mapper.ActorId
+        pair "attributedTo" hostInformation.ActorId
         pair "tag" [
             for tag in post.Tags do dict [
                 pair "type" "Hashtag"
@@ -67,8 +67,8 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
 
     member this.BuildObjectCreate(post: IPost) = dict [
         pair "type" "Create"
-        pair "id" (mapper.GetCreateId(post))
-        pair "actor" mapper.ActorId
+        pair "id" $"{post.GetObjectId(hostInformation)}/Created"
+        pair "actor" hostInformation.ActorId
         pair "published" post.PublishedTime
 
         let addressing = post.GetAddressing(hostInformation)
@@ -81,8 +81,8 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
 
     member this.BuildObjectUpdate(post: IPost) = dict [
         pair "type" "Update"
-        pair "id" (mapper.GetTransientId())
-        pair "actor" mapper.ActorId
+        pair "id" (hostInformation.GenerateTransientObjectId())
+        pair "actor" hostInformation.ActorId
         pair "published" DateTimeOffset.UtcNow
 
         let addressing = post.GetAddressing(hostInformation)
@@ -95,34 +95,34 @@ type PostTranslator(hostInformation: HostInformation, mapper: Mapper) =
 
     member _.BuildObjectDelete(post: IPost) = dict [
         pair "type" "Delete"
-        pair "id" (mapper.GetTransientId())
-        pair "actor" mapper.ActorId
+        pair "id" (hostInformation.GenerateTransientObjectId())
+        pair "actor" hostInformation.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" ["https://www.w3.org/ns/activitystreams#Public"]
-        pair "object" (mapper.GetObjectId(post))
+        pair "object" (post.GetObjectId(hostInformation))
     ]
 
     member _.BuildOutboxCollection(posts: int) = dict [
-        pair "id" mapper.OutboxRootId
+        pair "id" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Outbox"
         pair "type" "OrderedCollection"
         pair "totalItems" posts
-        pair "first" mapper.FirstOutboxPageId
+        pair "first" $"https://{hostInformation.ApplicationHostname}/Gallery/Composite"
     ]
 
     member _.BuildOutboxCollectionPage(currentPage: string, posts: IListPage) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
-        pair "partOf" mapper.OutboxRootId
+        pair "partOf" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Outbox"
 
         pair "orderedItems" [
             for x in posts.Current do
                 match x with
-                | :? IPost as p -> mapper.GetObjectId(p)
+                | :? IPost as p -> p.GetObjectId(hostInformation)
                 | _ -> ()
         ]
 
         match posts.Next with
         | None -> ()
         | Some id ->
-            pair "next" $"{mapper.FirstOutboxPageId}?next={id}&count={Seq.length posts.Current}"
+            pair "next" $"https://{hostInformation.ApplicationHostname}/Gallery/Composite?next={id}&count={Seq.length posts.Current}"
     ]

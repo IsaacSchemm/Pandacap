@@ -12,7 +12,7 @@ namespace Pandacap.Controllers
     public class AddressedPostsController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
-        ActivityPub.Mapper mapper,
+        ActivityPub.HostInformation hostInformation,
         ActivityPub.PostTranslator postTranslator,
         ReplyLookup replyLookup) : Controller
     {
@@ -34,6 +34,8 @@ namespace Pandacap.Controllers
 
             bool loggedIn = User.Identity?.IsAuthenticated == true;
 
+            ActivityPub.IPost activityPubPost = post;
+
             return View(new AddressedPostViewModel
             {
                 Post = post,
@@ -48,7 +50,7 @@ namespace Pandacap.Controllers
                 Replies = User.Identity?.IsAuthenticated == true
                     ? await replyLookup
                         .CollectRepliesAsync(
-                            mapper.GetObjectId(post),
+                            activityPubPost.GetObjectId(hostInformation),
                             cancellationToken)
                         .ToListAsync(cancellationToken)
                     : []
@@ -111,8 +113,10 @@ namespace Pandacap.Controllers
             if (post == null)
                 return NotFound();
 
+            ActivityPub.IPost activityPubPost = post;
+
             var activities = await context.PostActivities
-                .Where(a => a.InReplyTo == mapper.GetObjectId(post))
+                .Where(a => a.InReplyTo == activityPubPost.GetObjectId(hostInformation))
                 .ToListAsync();
 
             HashSet<string> actorIds = [];

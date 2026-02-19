@@ -33,7 +33,6 @@ namespace Pandacap.HighLevel
                     applicationHostname: appInfo.ApplicationHostname,
                     applicationName: UserAgentInformation.ApplicationName,
                     websiteUrl: UserAgentInformation.WebsiteUrl))
-                .AddScoped<ActivityPub.Mapper>()
                 .AddScoped<ActivityPub.ProfileTranslator>()
                 .AddScoped<ActivityPub.PostTranslator>()
                 .AddScoped<ActivityPub.RelationshipTranslator>()

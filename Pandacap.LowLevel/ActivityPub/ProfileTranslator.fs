@@ -4,28 +4,28 @@ open System
 open System.Net
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor.
-type ProfileTranslator(hostInformation: HostInformation, mapper: Mapper) =
+type ProfileTranslator(hostInformation: HostInformation) =
     let pair key value = (key, value :> obj)
 
     member _.BuildProfile(info: Profile) = dict [
-        pair "id" mapper.ActorId
+        pair "id" hostInformation.ActorId
         pair "type" "Person"
-        pair "inbox" mapper.InboxId
-        pair "outbox" mapper.OutboxRootId
-        pair "followers" mapper.FollowersRootId
-        pair "following" mapper.FollowingRootId
-        pair "liked" mapper.LikedRootId
+        pair "inbox" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Inbox"
+        pair "outbox" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Outbox"
+        pair "followers" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Followers"
+        pair "following" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Following"
+        pair "liked" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Liked"
         pair "preferredUsername" info.Username
         pair "name" info.Username
         pair "summary" (String.concat "" [
             $"<p>Hosted by <a href='{hostInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(hostInformation.ApplicationName)}</a>.</p>"
         ])
-        pair "url" mapper.ActorId
+        pair "url" hostInformation.ActorId
         pair "discoverable" true
         pair "indexable" true
         pair "publicKey" {|
-            id = $"{mapper.ActorId}#main-key"
-            owner = mapper.ActorId
+            id = $"{hostInformation.ActorId}#main-key"
+            owner = hostInformation.ActorId
             publicKeyPem = info.PublicKeyPem
         |}
         for avatar in info.Avatars do
@@ -46,8 +46,8 @@ type ProfileTranslator(hostInformation: HostInformation, mapper: Mapper) =
 
     member this.BuildProfileUpdate(info) = dict [
         pair "type" "Update"
-        pair "id" (mapper.GetTransientId())
-        pair "actor" mapper.ActorId
+        pair "id" (hostInformation.GenerateTransientObjectId())
+        pair "actor" hostInformation.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "object" (this.BuildProfile(info))
     ]

@@ -6,9 +6,7 @@ using Pandacap.Data;
 using Pandacap.Html;
 using Pandacap.Models;
 using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Threading;
 
 namespace Pandacap.Controllers
 {
@@ -17,8 +15,8 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
+        ActivityPub.HostInformation hostInformation,
         IHttpClientFactory httpClientFactory,
-        ActivityPub.Mapper mapper,
         PostCreator postCreator,
         ActivityPub.PostTranslator postTranslator,
         ReplyLookup replyLookup) : Controller
@@ -46,13 +44,15 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
+            ActivityPub.IPost activityPubPost = post;
+
             return View(new UserPostViewModel
             {
                 Post = post,
                 Replies = User.Identity?.IsAuthenticated == true
                     ? await replyLookup
                         .CollectRepliesAsync(
-                            mapper.GetObjectId(post),
+                            activityPubPost.GetObjectId(hostInformation),
                             cancellationToken)
                         .ToListAsync(cancellationToken)
                     : []

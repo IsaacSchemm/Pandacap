@@ -15,8 +15,8 @@ namespace Pandacap.Controllers
         ActivityPubRemotePostService activityPubRemotePostService,
         PandacapDbContext context,
         JsonLdExpansionService expansionService,
+        ActivityPub.HostInformation hostInformation,
         ActivityPub.InteractionTranslator interactionTranslator,
-        ActivityPub.Mapper mapper,
         MastodonVerifier mastodonVerifier,
         ActivityPub.PostTranslator postTranslator,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
@@ -93,7 +93,7 @@ namespace Pandacap.Controllers
                 string fActor = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
                 string fObject = expansionObj["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
 
-                if (fActor == actor.Id && fObject == mapper.ActorId)
+                if (fActor == actor.Id && fObject == hostInformation.ActorId)
                     await AddFollowAsync(activityId, actor);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Undo")
@@ -104,7 +104,7 @@ namespace Pandacap.Controllers
                     {
                         string fActor = objectToUndo["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
                         string fObject = objectToUndo["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
-                        if (fActor == actor.Id && fObject == mapper.ActorId)
+                        if (fActor == actor.Id && fObject == hostInformation.ActorId)
                         {
                             await foreach (var follower in context.Followers
                                 .Where(f => f.ActorId == fActor)
@@ -143,7 +143,7 @@ namespace Pandacap.Controllers
                     string followId = obj["@id"]!.Value<string>()!;
 
                     foreach (var follow in follows)
-                        if (mapper.GetFollowId(follow.FollowGuid) == followId)
+                        if (followId.EndsWith($"/ActivityPub/Follow/{follow.FollowGuid}"))
                             follow.Accepted = true;
                 }
 
@@ -160,7 +160,7 @@ namespace Pandacap.Controllers
                     string followId = obj["@id"]!.Value<string>()!;
 
                     foreach (var follow in follows)
-                        if (mapper.GetFollowId(follow.FollowGuid) == followId)
+                        if (followId.EndsWith($"/ActivityPub/Follow/{follow.FollowGuid}"))
                             follow.Accepted = false;
                 }
 
@@ -186,7 +186,7 @@ namespace Pandacap.Controllers
 
                     if (Uri.TryCreate(interactedWithId, UriKind.Absolute, out Uri? uri)
                         && uri != null
-                        && Uri.TryCreate(mapper.ActorId, UriKind.Absolute, out Uri? me)
+                        && Uri.TryCreate(hostInformation.ActorId, UriKind.Absolute, out Uri? me)
                         && me != null
                         && uri.Host == me.Host)
                     {
@@ -217,7 +217,7 @@ namespace Pandacap.Controllers
                         .FirstOrDefaultAsync(cancellationToken);
 
                     bool isMention = remotePost.Recipients
-                        .Any(addressee => addressee.Id == mapper.ActorId);
+                        .Any(addressee => addressee.Id == hostInformation.ActorId);
 
                     if (inReplyTo != null)
                     {

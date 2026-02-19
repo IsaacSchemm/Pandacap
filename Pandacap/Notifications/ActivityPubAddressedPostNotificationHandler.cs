@@ -1,18 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub;
 using Pandacap.Data;
 using Pandacap.PlatformBadges;
-using static Pandacap.Clients.ATProto.XRPC.Com.Atproto;
 
 namespace Pandacap.Notifications
 {
     public class ActivityPubAddressedPostNotificationHandler(
         IDbContextFactory<PandacapDbContext> contextFactory,
-        ActivityPub.Mapper mapper
+        HostInformation hostInformation
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
-            Uri myActor = new(mapper.ActorId);
+            Uri myActor = new(hostInformation.ActorId);
             string baseUrl = myActor.GetLeftPart(UriPartial.Authority);
 
             var activityContext = await contextFactory.CreateDbContextAsync();

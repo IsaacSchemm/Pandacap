@@ -15,7 +15,7 @@ namespace Pandacap.Controllers
         ActivityPubRequestHandler activityPubRequestHandler,
         ApplicationInformation appInfo,
         PandacapDbContext context,
-        ActivityPub.Mapper mapper,
+        ActivityPub.HostInformation hostInformation,
         ActivityPub.PostTranslator postTranslator) : Controller
     {
         [HttpGet]
@@ -58,7 +58,7 @@ namespace Pandacap.Controllers
 
             List<RemoteActor> actors = [post.AttributedTo];
             foreach (var recipient in post.Recipients)
-                if (recipient is RemoteAddressee.Actor actor && actor.Id != mapper.ActorId)
+                if (recipient is RemoteAddressee.Actor actor && actor.Id != hostInformation.ActorId)
                     actors.Add(actor.Item);
 
             var communities = actors.Where(a => a.Type == "https://www.w3.org/ns/activitystreams#Group");
