@@ -10,11 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel.DeviantArt;
-using Pandacap.Clients;
+using Pandacap.Html;
 using Pandacap.Models;
 using Pandacap.PlatformBadges;
 using Stash = DeviantArtFs.Api.Stash;
-using Pandacap.Html;
 
 namespace Pandacap.Controllers
 {
@@ -49,24 +48,22 @@ namespace Pandacap.Controllers
             string? IPost.Usericon => null;
         }
 
-        public async Task<IActionResult> HomeFeed(
-            int? next = null)
+        public async Task<IActionResult> HomeFeed()
         {
             if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var token, _))
                 return Content("No DeviantArt account is connected.");
 
             var page = await DeviantArtFs.Api.Browse.PageHomeAsync(
                 token,
-                PagingLimit.NewPagingLimit(24),
-                PagingOffset.NewPagingOffset(next ?? 20));
+                PagingLimit.NewPagingLimit(100),
+                PagingOffset.StartingOffset);
 
             return View(
                 "List",
                 new ListViewModel
                 {
                     Title = "DeviantArt Home Feed",
-                    Items = [.. page.results.OrEmpty().Select(d => new PostWrapper(d))],
-                    Next = page.next_offset.OrNull()?.ToString()
+                    Items = [.. page.results.OrEmpty().Select(d => new PostWrapper(d))]
                 });
         }
 
