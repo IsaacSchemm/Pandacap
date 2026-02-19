@@ -5,6 +5,11 @@
 
 * - Web Deploy/
 * - Zip Deploy/
+* - One Deploy/
+
+* - Web Deploy.json
+* - Zip Deploy.json
+* - One Deploy.json
 
 # User-specific files
 *.rsuser

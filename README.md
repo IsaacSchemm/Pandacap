@@ -257,7 +257,7 @@ The key vault is for a single encryption key called `activitypub` that is used t
 1. Create Azure resources:
     1. Create a Web app in the Azure portal, using the .NET 10 runtime stack.
         * Use the Identity pane to create a system-assigned managed identity for the web app.
-    1. Create a Function App in the Azure portal, using the .NET 10 runtime stack. (If you are using a paid App Service plan for the web app, you could reuse that plan; otherwise, a Flex Consumption plan is fine.)
+    1. Create a Function App in the Azure portal, using the .NET 10 runtime stack. (If you are using a paid App Service plan for the web app, you could reuse that plan; otherwise, a Consumption plan is fine.
         * Use the Identity pane to create a system-assigned managed identity for the Function App.
     1. Create a Key Vault in the Azure portal; use Azure role-based access control (RBAC).
         * Create a 2048-bit RSA key in this vault called "activitypub".
