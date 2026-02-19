@@ -17,9 +17,9 @@
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.DeviantArt" Version="10.0.0" />
     <PackageReference Include="AspNet.Security.OAuth.Reddit" Version="10.0.0" />
-    <PackageReference Include="AspNetCore.SassCompiler" Version="1.94.2" />
+    <PackageReference Include="AspNetCore.SassCompiler" Version="1.97.1" />
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.26.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
@@ -36,7 +36,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
     <PackageReference Include="NAudio" Version="2.2.1" />
-    <PackageReference Include="Svg.Skia" Version="3.2.1" />
+    <PackageReference Include="Svg.Skia" Version="3.4.1" />
   </ItemGroup>
 
   <ItemGroup>
