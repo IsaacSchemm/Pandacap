@@ -213,7 +213,7 @@ namespace Pandacap.Controllers
 
                     string? inReplyTo = await remotePost.InReplyTo
                         .ToAsyncEnumerable()
-                        .WhereAwait(async id => await replyLookup.IsOriginalPostStoredAsync(id, cancellationToken))
+                        .Where(async (id, token) => await replyLookup.IsOriginalPostStoredAsync(id, token))
                         .FirstOrDefaultAsync(cancellationToken);
 
                     bool isMention = remotePost.Recipients
