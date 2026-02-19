@@ -1,6 +1,7 @@
 ﻿namespace Pandacap.Data
 
 open System
+open Pandacap.ActivityPub
 open Pandacap.PlatformBadges
 
 /// An ActivityPub actor who this Pandacap actor is following.
@@ -13,7 +14,7 @@ type Follow() =
     member val IncludeImageShares = false with get, set
     member val IncludeTextShares = false with get, set
 
-    interface Pandacap.ActivityPub.IFollow with
+    interface IActivityPubFollow with
         member this.ActorId = this.ActorId
 
     interface IFollow with

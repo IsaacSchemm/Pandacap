@@ -3,7 +3,7 @@
 open System
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor's post interactions.
-type InteractionTranslator(hostInformation: HostInformation) =
+type ActivityPubInteractionTranslator(hostInformation: ActivityPubHostInformation) =
     let pair key value = (key, value :> obj)
 
     member _.BuildLikedCollection(posts: int) = dict [
@@ -13,7 +13,7 @@ type InteractionTranslator(hostInformation: HostInformation) =
         pair "first" $"https://{hostInformation.ApplicationHostname}/Favorites"
     ]
 
-    member _.BuildLikedCollectionPage(currentPage: string, posts: ILike seq, nextPage: string) = dict [
+    member _.BuildLikedCollectionPage(currentPage: string, posts: IActivityPubLike seq, nextPage: string) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Liked"

@@ -3,7 +3,7 @@
 open System
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor's relationships.
-type RelationshipTranslator(hostInformation: HostInformation) =
+type ActivityPubRelationshipTranslator(hostInformation: ActivityPubHostInformation) =
     let pair key value = (key, value :> obj)
 
     member _.BuildFollowAccept(followId: string) = dict [
@@ -20,7 +20,7 @@ type RelationshipTranslator(hostInformation: HostInformation) =
         pair "items" []
     ]
 
-    member _.BuildFollowingCollection(following: IFollow seq) = dict [
+    member _.BuildFollowingCollection(following: IActivityPubFollow seq) = dict [
         pair "id" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Following"
         pair "type" "Collection"
         pair "totalItems" (Seq.length following)

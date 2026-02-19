@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -16,7 +17,7 @@ namespace Pandacap
         ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubRemotePostService activityPubRemotePostService,
         PandacapDbContext context,
-        ActivityPub.InteractionTranslator interactionTranslator)
+        ActivityPubInteractionTranslator interactionTranslator)
     {
         private async IAsyncEnumerable<InboxActivityStreamsImage> CollectAttachmentsAsync(
             RemotePost remotePost,
@@ -214,7 +215,7 @@ namespace Pandacap
                     {
                         Id = Guid.NewGuid(),
                         Inbox = actor.Inbox,
-                        JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                        JsonBody = ActivityPubSerializer.SerializeWithContext(
                             interactionTranslator.BuildLikeUndo(
                                 item.Id,
                                 item.ObjectId))

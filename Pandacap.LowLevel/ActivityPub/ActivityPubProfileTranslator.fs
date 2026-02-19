@@ -4,10 +4,10 @@ open System
 open System.Net
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor.
-type ProfileTranslator(hostInformation: HostInformation) =
+type ActivityPubProfileTranslator(hostInformation: ActivityPubHostInformation) =
     let pair key value = (key, value :> obj)
 
-    member _.BuildProfile(info: Profile) = dict [
+    member _.BuildProfile(info: ActivityPubProfile) = dict [
         pair "id" hostInformation.ActorId
         pair "type" "Person"
         pair "inbox" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Inbox"

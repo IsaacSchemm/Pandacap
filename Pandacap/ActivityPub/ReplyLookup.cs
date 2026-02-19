@@ -11,7 +11,7 @@ namespace Pandacap
     public class ReplyLookup(
         ApplicationInformation appInfo,
         IDbContextFactory<PandacapDbContext> contextFactory,
-        HostInformation hostInformation)
+        ActivityPubHostInformation hostInformation)
     {
         public async Task<bool> IsOriginalPostStoredAsync(
             string id,
@@ -63,7 +63,7 @@ namespace Pandacap
                 .Where(r => r.InReplyTo == originalObjectId)
                 .AsAsyncEnumerable())
             {
-                ActivityPub.IPost activityPubPost = addressedPost;
+                IActivityPubPost activityPubPost = addressedPost;
 
                 string objectId = activityPubPost.GetObjectId(hostInformation);
 

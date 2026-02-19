@@ -1,4 +1,4 @@
 ﻿namespace Pandacap.ActivityPub
 
-type IFollow =
+type IActivityPubFollow =
     abstract member ActorId: string

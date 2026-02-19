@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.ActivityPub
 
-type IAddressing =
+type IActivityPubAddressing =
     abstract member InReplyTo: string
     abstract member To: string seq
     abstract member Cc: string seq

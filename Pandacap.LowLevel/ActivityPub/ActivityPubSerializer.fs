@@ -3,8 +3,8 @@
 open System.Collections.Generic
 open System.Text.Json
 
-module Serializer =
-    /// A JSON-LD context that includes all fields used by Pandacap.
+module ActivityPubSerializer =
+    /// A JSON-LD context that includes the set of fields used by Pandacap.
     let Context: obj list = [
         "https://w3id.org/security/v1"
         "https://www.w3.org/ns/activitystreams"

@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.ActivityPub
 
-type Avatar = {
+type ActivityPubAvatar = {
     MediaType: string
     Url: string
 }

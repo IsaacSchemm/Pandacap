@@ -1,4 +1,4 @@
 ﻿namespace Pandacap.ActivityPub
 
-type ILike =
+type IActivityPubLike =
     abstract member ObjectId: string

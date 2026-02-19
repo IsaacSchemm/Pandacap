@@ -3,7 +3,7 @@
 open System
 
 /// Information about the Pandacap deployment, in an ActivityPub context.
-type HostInformation = {
+type ActivityPubHostInformation = {
     ApplicationHostname: string
     ApplicationName: string
     WebsiteUrl: string

@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations
+open Pandacap.ActivityPub
 open Pandacap.Html
 open Pandacap.PlatformBadges
 
@@ -29,7 +30,7 @@ type ActivityPubFavorite() =
     member val InReplyTo = nullString with get, set
     member val Attachments = new ResizeArray<ActivityPubFavoriteImage>() with get, set
 
-    interface Pandacap.ActivityPub.ILike with
+    interface IActivityPubLike with
         member this.ObjectId = this.ObjectId
 
     interface IFavorite with

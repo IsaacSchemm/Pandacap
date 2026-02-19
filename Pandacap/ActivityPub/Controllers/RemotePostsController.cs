@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.ConfigurationObjects;
@@ -15,8 +16,8 @@ namespace Pandacap.Controllers
         ActivityPubRequestHandler activityPubRequestHandler,
         ApplicationInformation appInfo,
         PandacapDbContext context,
-        ActivityPub.HostInformation hostInformation,
-        ActivityPub.PostTranslator postTranslator) : Controller
+        ActivityPubHostInformation hostInformation,
+        ActivityPubPostTranslator postTranslator) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Index(string id, CancellationToken cancellationToken)
@@ -84,7 +85,7 @@ namespace Pandacap.Controllers
                 inboxes
                 .Select(inbox => activityPubRequestHandler.PostAsync(
                     new Uri(inbox),
-                    ActivityPub.Serializer.SerializeWithContext(
+                    ActivityPubSerializer.SerializeWithContext(
                         postTranslator.BuildObjectCreate(
                             addressedPost)))));
 

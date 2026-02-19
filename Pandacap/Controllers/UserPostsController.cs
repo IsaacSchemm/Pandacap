@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub;
 using Pandacap.Data;
 using Pandacap.Html;
 using Pandacap.Models;
@@ -15,10 +16,10 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
-        ActivityPub.HostInformation hostInformation,
+        ActivityPubHostInformation hostInformation,
         IHttpClientFactory httpClientFactory,
         PostCreator postCreator,
-        ActivityPub.PostTranslator postTranslator,
+        ActivityPubPostTranslator postTranslator,
         ReplyLookup replyLookup) : Controller
     {
         [Route("{id}")]
@@ -39,12 +40,12 @@ namespace Pandacap.Controllers
                     return StatusCode((int)HttpStatusCode.NotAcceptable);
 
                 return Content(
-                    ActivityPub.Serializer.SerializeWithContext(postTranslator.BuildObject(post)),
+                    ActivityPubSerializer.SerializeWithContext(postTranslator.BuildObject(post)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
 
-            ActivityPub.IPost activityPubPost = post;
+            IActivityPubPost activityPubPost = post;
 
             return View(new UserPostViewModel
             {
@@ -258,7 +259,7 @@ namespace Pandacap.Controllers
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
                         postTranslator.BuildObjectDelete(
                             post)),
                     Inbox = inbox,

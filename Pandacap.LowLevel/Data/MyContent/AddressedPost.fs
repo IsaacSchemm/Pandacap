@@ -2,6 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations.Schema
+open Pandacap.ActivityPub
 open Pandacap.Html
 open Pandacap.PlatformBadges
 
@@ -58,10 +59,10 @@ type AddressedPost() =
         member _.Usericon = null
         member _.Username = null
 
-    interface Pandacap.ActivityPub.IPost with
+    interface IActivityPubPost with
         member this.GetObjectId(hostInfo) = $"https://{hostInfo.ApplicationHostname}/AddressedPosts/{this.Id}"
         member this.GetAddressing(_) = {
-            new Pandacap.ActivityPub.IAddressing with
+            new IActivityPubAddressing with
                 member _.InReplyTo = this.InReplyTo
                 member _.To = this.Addressing.To
                 member _.Cc = this.Addressing.Cc

@@ -1,5 +1,6 @@
 ﻿using DnsClient;
 using Microsoft.Extensions.DependencyInjection;
+using Pandacap.ActivityPub;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Clients;
@@ -29,14 +30,14 @@ namespace Pandacap.HighLevel
                             UseCache = true
                         }))
                 .AddSingleton(appInfo)
-                .AddSingleton(new ActivityPub.HostInformation(
+                .AddSingleton(new ActivityPubHostInformation(
                     applicationHostname: appInfo.ApplicationHostname,
                     applicationName: UserAgentInformation.ApplicationName,
                     websiteUrl: UserAgentInformation.WebsiteUrl))
-                .AddScoped<ActivityPub.ProfileTranslator>()
-                .AddScoped<ActivityPub.PostTranslator>()
-                .AddScoped<ActivityPub.RelationshipTranslator>()
-                .AddScoped<ActivityPub.InteractionTranslator>()
+                .AddScoped<ActivityPubProfileTranslator>()
+                .AddScoped<ActivityPubPostTranslator>()
+                .AddScoped<ActivityPubRelationshipTranslator>()
+                .AddScoped<ActivityPubInteractionTranslator>()
                 .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
                 .AddScoped<ActivityPubRequestHandler>()
                 .AddScoped<ATProtoFeedReader>()

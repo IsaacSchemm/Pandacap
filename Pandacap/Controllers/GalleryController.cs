@@ -1,13 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
+﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Clients;
-using Pandacap.ConfigurationObjects;
+using Pandacap.ActivityPub;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.RssOutbound;
-using Pandacap.LowLevel.MyLinks;
 using Pandacap.Models;
 using System.Net;
 using System.Text;
@@ -16,9 +13,9 @@ namespace Pandacap.Controllers
 {
     public class GalleryController(
         PandacapDbContext context,
-        Pandacap.HighLevel.RssOutbound.FeedBuilder feedBuilder,
-        ActivityPub.HostInformation hostInformation,
-        ActivityPub.PostTranslator postTranslator) : Controller
+        FeedBuilder feedBuilder,
+        ActivityPubHostInformation hostInformation,
+        ActivityPubPostTranslator postTranslator) : Controller
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
         {
@@ -59,7 +56,7 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 return Content(
-                    ActivityPub.Serializer.SerializeWithContext(
+                    ActivityPubSerializer.SerializeWithContext(
                         postTranslator.BuildOutboxCollectionPage(
                             Request.GetEncodedUrl(),
                             listPage.Current,

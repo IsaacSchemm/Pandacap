@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using Pandacap.ActivityPub;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Data;
@@ -15,12 +16,12 @@ namespace Pandacap.Controllers
         ActivityPubRemotePostService activityPubRemotePostService,
         PandacapDbContext context,
         JsonLdExpansionService expansionService,
-        ActivityPub.HostInformation hostInformation,
-        ActivityPub.InteractionTranslator interactionTranslator,
+        ActivityPubHostInformation hostInformation,
+        ActivityPubInteractionTranslator interactionTranslator,
         MastodonVerifier mastodonVerifier,
-        ActivityPub.PostTranslator postTranslator,
+        ActivityPubPostTranslator postTranslator,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
-        ActivityPub.RelationshipTranslator relationshipTranslator,
+        ActivityPubRelationshipTranslator relationshipTranslator,
         ReplyLookup replyLookup) : Controller
     {
         private static new readonly IEnumerable<JToken> Empty = [];
@@ -30,7 +31,7 @@ namespace Pandacap.Controllers
             int followers = await context.Followers.DocumentCountAsync();
 
             return Content(
-                ActivityPub.Serializer.SerializeWithContext(
+                ActivityPubSerializer.SerializeWithContext(
                     relationshipTranslator.BuildFollowersCollection(followers)),
                 "application/activity+json",
                 Encoding.UTF8);
@@ -41,7 +42,7 @@ namespace Pandacap.Controllers
             var follows = await context.Follows.ToListAsync();
 
             return Content(
-                ActivityPub.Serializer.SerializeWithContext(
+                ActivityPubSerializer.SerializeWithContext(
                     relationshipTranslator.BuildFollowingCollection(follows)),
                 "application/activity+json",
                 Encoding.UTF8);
@@ -54,7 +55,7 @@ namespace Pandacap.Controllers
                 .DocumentCountAsync();
 
             return Content(
-                ActivityPub.Serializer.SerializeWithContext(
+                ActivityPubSerializer.SerializeWithContext(
                     interactionTranslator.BuildLikedCollection(
                         posts)),
                 "application/activity+json",
@@ -384,7 +385,7 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = actor.Inbox,
-                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
                         relationshipTranslator.BuildFollowAccept(objectId)),
                     StoredAt = DateTimeOffset.UtcNow
                 });
@@ -398,7 +399,7 @@ namespace Pandacap.Controllers
         {
             int count = await context.Posts.DocumentCountAsync();
             return Content(
-                ActivityPub.Serializer.SerializeWithContext(
+                ActivityPubSerializer.SerializeWithContext(
                     postTranslator.BuildOutboxCollection(
                         count)),
                 "application/activity+json",
@@ -416,7 +417,7 @@ namespace Pandacap.Controllers
                 return NotFound();
 
             return Content(
-                ActivityPub.Serializer.SerializeWithContext(
+                ActivityPubSerializer.SerializeWithContext(
                     relationshipTranslator.BuildFollow(
                         follow.FollowGuid,
                         follow.ActorId)),
@@ -435,7 +436,7 @@ namespace Pandacap.Controllers
                 return NotFound();
 
             return Content(
-                ActivityPub.Serializer.SerializeWithContext(
+                ActivityPubSerializer.SerializeWithContext(
                     interactionTranslator.BuildLike(
                         id,
                         post.ObjectId)),

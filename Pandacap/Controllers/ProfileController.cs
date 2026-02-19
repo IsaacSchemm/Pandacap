@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Pandacap.ActivityPub;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Clients.ATProto;
@@ -34,22 +35,22 @@ namespace Pandacap.Controllers
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
         IMyLinkService myLinkService,
-        ActivityPub.ProfileTranslator profileTranslator,
-        ActivityPub.RelationshipTranslator relationshipTranslator,
+        ActivityPubProfileTranslator profileTranslator,
+        ActivityPubRelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager,
         WebFingerService webFingerService) : Controller
     {
-        private async Task<ActivityPub.Profile> GetActivityPubProfileAsync(
+        private async Task<ActivityPubProfile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
         {
             string key = await keyProvider.GetPublicKeyAsync();
 
             var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
 
-            return new ActivityPub.Profile(
+            return new ActivityPubProfile(
                 avatars: avatar == null
                     ? []
-                    : [new ActivityPub.Avatar(
+                    : [new(
                         avatar.ContentType,
                         $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}")],
                 links: await myLinkService.GetLinksAsync(cancellationToken),
@@ -89,7 +90,7 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 return Content(
-                    ActivityPub.Serializer.SerializeWithContext(
+                    ActivityPubSerializer.SerializeWithContext(
                         profileTranslator.BuildProfile(
                             await GetActivityPubProfileAsync(cancellationToken))),
                     "application/activity+json",
@@ -218,7 +219,7 @@ namespace Pandacap.Controllers
             });
         }
 
-        public IActionResult Following(CancellationToken cancellationToken)
+        public IActionResult Following()
         {
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
@@ -270,7 +271,7 @@ namespace Pandacap.Controllers
             {
                 Id = followGuid,
                 Inbox = actor.Inbox,
-                JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                JsonBody = ActivityPubSerializer.SerializeWithContext(
                     relationshipTranslator.BuildFollow(
                         followGuid,
                         actor.Id)),
@@ -322,7 +323,7 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = follow.Inbox,
-                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
                         relationshipTranslator.BuildFollowUndo(
                             follow.FollowGuid,
                             follow.ActorId)),
@@ -510,7 +511,7 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
 
-        public IActionResult Feeds(CancellationToken cancellationToken)
+        public IActionResult Feeds()
         {
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
@@ -567,7 +568,7 @@ namespace Pandacap.Controllers
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
                         profileTranslator.BuildProfileUpdate(
                             await GetActivityPubProfileAsync(cancellationToken))),
                     Inbox = inbox,

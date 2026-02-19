@@ -1,5 +1,5 @@
 ﻿namespace Pandacap.ActivityPub
 
-type ILink =
+type IActivityPubLink =
     abstract member Href: string
     abstract member MediaType: string

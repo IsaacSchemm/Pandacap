@@ -9,7 +9,7 @@ namespace Pandacap.Functions
 {
     public partial class BridgedPostDiscovery(
         PandacapDbContext context,
-        HostInformation hostInformation,
+        ActivityPubHostInformation hostInformation,
         IHttpClientFactory httpClientFactory)
     {
         [Function("BridgedPostDiscovery")]
@@ -17,7 +17,7 @@ namespace Pandacap.Functions
         {
             var cutoff = DateTimeOffset.UtcNow.AddDays(-1);
 
-            List<Pandacap.ActivityPub.IPost> posts = [
+            List<IActivityPubPost> posts = [
                 .. await context.Posts
                     .Where(p => p.PublishedTime > cutoff)
                     .Where(p => p.BlueskyDID == null)
@@ -60,7 +60,7 @@ namespace Pandacap.Functions
 
         private async Task<ATProtoRefUri?> GetBridgedPostRefUriAsync(
             HttpClient httpClient,
-            Pandacap.ActivityPub.IPost post,
+            IActivityPubPost post,
             string targetProtocol)
         {
             using var resp = await httpClient.GetAsync(

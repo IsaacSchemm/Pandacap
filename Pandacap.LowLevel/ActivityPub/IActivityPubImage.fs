@@ -1,7 +1,7 @@
 ﻿namespace Pandacap.ActivityPub
 
-type IImage =
-    abstract member GetUrl: appInfo: HostInformation -> string
+type IActivityPubImage =
+    abstract member GetUrl: appInfo: ActivityPubHostInformation -> string
     abstract member AltText: string
     abstract member MediaType: string
     abstract member HorizontalFocalPoint: decimal option

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Models;
@@ -11,8 +12,8 @@ namespace Pandacap.Controllers
 {
     public class FavoritesController(
         PandacapDbContext context,
-        ActivityPub.HostInformation hostInformation,
-        ActivityPub.InteractionTranslator interactionTranslator,
+        ActivityPubHostInformation hostInformation,
+        ActivityPubInteractionTranslator interactionTranslator,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler) : Controller
     {
         public async Task<IActionResult> Index(Guid? next, int? count)
@@ -27,7 +28,7 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 return Content(
-                    ActivityPub.Serializer.SerializeWithContext(
+                    ActivityPubSerializer.SerializeWithContext(
                         interactionTranslator.BuildLikedCollectionPage(
                             Request.GetEncodedUrl(),
                             listPage.Current,

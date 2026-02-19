@@ -7,7 +7,7 @@ namespace Pandacap.Notifications
 {
     public class ActivityPubNotificationHandler(
         IDbContextFactory<PandacapDbContext> contextFactory,
-        HostInformation hostInformation
+        ActivityPubHostInformation hostInformation
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()

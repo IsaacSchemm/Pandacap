@@ -3,10 +3,10 @@
 open System
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor's posts.
-type PostTranslator(hostInformation: HostInformation) =
+type ActivityPubPostTranslator(hostInformation: ActivityPubHostInformation) =
     let pair key value = (key, value :> obj)
 
-    member _.BuildObject(post: IPost) = dict [
+    member _.BuildObject(post: IActivityPubPost) = dict [
         let id = post.GetObjectId(hostInformation)
 
         pair "id" id
@@ -65,7 +65,7 @@ type PostTranslator(hostInformation: HostInformation) =
             pair "attachment" attachments
     ]
 
-    member this.BuildObjectCreate(post: IPost) = dict [
+    member this.BuildObjectCreate(post: IActivityPubPost) = dict [
         pair "type" "Create"
         pair "id" $"{post.GetObjectId(hostInformation)}/Created"
         pair "actor" hostInformation.ActorId
@@ -79,7 +79,7 @@ type PostTranslator(hostInformation: HostInformation) =
         pair "object" (this.BuildObject(post))
     ]
 
-    member this.BuildObjectUpdate(post: IPost) = dict [
+    member this.BuildObjectUpdate(post: IActivityPubPost) = dict [
         pair "type" "Update"
         pair "id" (hostInformation.GenerateTransientObjectId())
         pair "actor" hostInformation.ActorId
@@ -93,7 +93,7 @@ type PostTranslator(hostInformation: HostInformation) =
         pair "object" (this.BuildObject(post))
     ]
 
-    member _.BuildObjectDelete(post: IPost) = dict [
+    member _.BuildObjectDelete(post: IActivityPubPost) = dict [
         pair "type" "Delete"
         pair "id" (hostInformation.GenerateTransientObjectId())
         pair "actor" hostInformation.ActorId
@@ -109,7 +109,7 @@ type PostTranslator(hostInformation: HostInformation) =
         pair "first" $"https://{hostInformation.ApplicationHostname}/Gallery/Composite"
     ]
 
-    member _.BuildOutboxCollectionPage(currentPage: string, posts: IPost seq, nextPage: string) = dict [
+    member _.BuildOutboxCollectionPage(currentPage: string, posts: IActivityPubPost seq, nextPage: string) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
         pair "partOf" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Outbox"

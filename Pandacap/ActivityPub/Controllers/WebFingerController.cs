@@ -7,7 +7,7 @@ namespace Pandacap.Controllers
     [Route("")]
     public class WebFingerController(
         ApplicationInformation appInfo,
-        HostInformation hostInformation) : Controller
+        ActivityPubHostInformation hostInformation) : Controller
     {
         [HttpGet]
         [Route(".well-known/webfinger")]

@@ -3,6 +3,7 @@
 open System
 open System.ComponentModel.DataAnnotations.Schema
 open System.Net
+open Pandacap.ActivityPub
 open Pandacap.PlatformBadges
 
 type PostType =
@@ -152,10 +153,10 @@ type Post() =
         member _.Usericon = null
         member _.Username = null
 
-    interface Pandacap.ActivityPub.IPost with
+    interface IActivityPubPost with
         member this.GetObjectId(hostInfo) = $"https://{hostInfo.ApplicationHostname}/UserPosts/{this.Id}"
         member _.GetAddressing(hostInfo) = {
-            new Pandacap.ActivityPub.IAddressing with
+            new IActivityPubAddressing with
                 member _.InReplyTo = null
                 member _.To = ["https://www.w3.org/ns/activitystreams#Public"]
                 member _.Cc = [$"https://{hostInfo.ApplicationHostname}/ActivityPub/Following"]
@@ -164,7 +165,7 @@ type Post() =
         member this.Html = this.BodyWithLinks
         member this.Links = seq {
             for link in this.Links do {
-                new Pandacap.ActivityPub.ILink with
+                new IActivityPubLink with
                     member _.Href = link.Url
                     member _.MediaType = "text/html"
             }
@@ -172,7 +173,7 @@ type Post() =
         member this.Images = seq {
             if not (isNull this.Images) then
                 for image in this.Images do {
-                    new Pandacap.ActivityPub.IImage with
+                    new Pandacap.ActivityPub.IActivityPubImage with
                         member _.GetUrl(appInfo) = $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{this.Id}/{image.Raster.Id}"
                         member _.HorizontalFocalPoint =
                             image.FocalPoint

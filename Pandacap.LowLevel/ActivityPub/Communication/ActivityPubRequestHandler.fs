@@ -12,7 +12,7 @@ open Pandacap.Html
 type ActivityPubRequestHandler(
     prerequisites: IActivityPubCommunicationPrerequisites,
     httpClientFactory: IHttpClientFactory,
-    hostInformation: HostInformation
+    hostInformation: ActivityPubHostInformation
 ) =
     let mediaTypes = [
         "application/activity+json"

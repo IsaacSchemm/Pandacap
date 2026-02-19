@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Pandacap.ActivityPub;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Data;
@@ -12,7 +13,7 @@ namespace Pandacap.Controllers
         ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubRequestHandler activityPubRequestHandler,
         PandacapDbContext context,
-        ActivityPub.PostTranslator postTranslator) : Controller
+        ActivityPubPostTranslator postTranslator) : Controller
     {
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -60,7 +61,7 @@ namespace Pandacap.Controllers
 
             await activityPubRequestHandler.PostAsync(
                 new Uri(actor.Inbox),
-                ActivityPub.Serializer.SerializeWithContext(
+                ActivityPubSerializer.SerializeWithContext(
                     postTranslator.BuildObjectCreate(
                         addressedPost)));
 

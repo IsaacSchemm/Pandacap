@@ -1,5 +1,5 @@
-﻿using FSharp.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub;
 using Pandacap.Data;
 using Pandacap.Html;
 
@@ -9,7 +9,7 @@ namespace Pandacap
         DeliveryInboxCollector deliveryInboxCollector,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory,
-        ActivityPub.PostTranslator postTranslator)
+        ActivityPubPostTranslator postTranslator)
     {
         public interface IViewModel
         {
@@ -143,7 +143,7 @@ namespace Pandacap
                     context.ActivityPubOutboundActivities.Add(new()
                     {
                         Id = Guid.NewGuid(),
-                        JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                        JsonBody = ActivityPubSerializer.SerializeWithContext(
                             postTranslator.BuildObjectCreate(
                                 post)),
                         Inbox = inbox,

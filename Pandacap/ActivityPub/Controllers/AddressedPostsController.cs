@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Data;
 using Pandacap.Models;
@@ -12,8 +13,8 @@ namespace Pandacap.Controllers
     public class AddressedPostsController(
         ActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
-        ActivityPub.HostInformation hostInformation,
-        ActivityPub.PostTranslator postTranslator,
+        ActivityPubHostInformation hostInformation,
+        ActivityPubPostTranslator postTranslator,
         ReplyLookup replyLookup) : Controller
     {
         [Route("{id}")]
@@ -28,13 +29,13 @@ namespace Pandacap.Controllers
 
             if (Request.IsActivityPub())
                 return Content(
-                    ActivityPub.Serializer.SerializeWithContext(postTranslator.BuildObject(post)),
+                    ActivityPubSerializer.SerializeWithContext(postTranslator.BuildObject(post)),
                     "application/activity+json",
                     Encoding.UTF8);
 
             bool loggedIn = User.Identity?.IsAuthenticated == true;
 
-            ActivityPub.IPost activityPubPost = post;
+            IActivityPubPost activityPubPost = post;
 
             return View(new AddressedPostViewModel
             {
@@ -91,7 +92,7 @@ namespace Pandacap.Controllers
             {
                 Id = Guid.NewGuid(),
                 Inbox = remoteActor.SharedInbox ?? remoteActor.Inbox,
-                JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                JsonBody = ActivityPubSerializer.SerializeWithContext(
                     postTranslator.BuildObjectCreate(
                         addressedPost))
             });
@@ -113,7 +114,7 @@ namespace Pandacap.Controllers
             if (post == null)
                 return NotFound();
 
-            ActivityPub.IPost activityPubPost = post;
+            IActivityPubPost activityPubPost = post;
 
             var activities = await context.PostActivities
                 .Where(a => a.InReplyTo == activityPubPost.GetObjectId(hostInformation))
@@ -147,7 +148,7 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = inbox,
-                    JsonBody = ActivityPub.Serializer.SerializeWithContext(
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
                         postTranslator.BuildObjectDelete(
                             post))
                 });
