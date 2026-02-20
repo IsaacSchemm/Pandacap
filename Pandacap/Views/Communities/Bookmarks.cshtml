@@ -8,6 +8,8 @@
     ViewBag.Title = "Communities";
 }
 
+<h1>Bookmarked Lemmy communities</h1>
+
 @if (!Model.Any())
 {
     <p>
@@ -16,12 +18,12 @@
 }
 else
 {
-    @foreach (var item in Model)
+    foreach (var item in Model)
     {
-        <div class="mb-3">
+        <div class="my-4">
             <div>
                 <img height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" />
-                <span style="display: inline-block; vertical-align: top">
+                <span class="mx-2" style="display: inline-block; vertical-align: top">
                     <a asp-action="ViewCommunity" asp-route-actorId="@item.ActorId">
                         <strong>
                             @item.Name
@@ -29,27 +31,25 @@ else
                     </a>
                     <br />
                     @item.Host
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form asp-action="RemoveBookmark" onsubmit="return confirm('Are you sure you want to remove this bookmark?')">
+                            <input type="hidden" name="id" value="@item.ActorId" />
+                            <button type="submit" class="btn btn-danger btn-sm mt-2 py-0">
+                                Remove bookmark
+                            </button>
+                        </form>
+                    }
                 </span>
             </div>
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <details>
-                    <summary>Options</summary>
-                    <form asp-action="RemoveBookmark">
-                        <input type="hidden" name="id" value="@item.ActorId" />
-                        <button type="submit" class="btn btn-danger btn-sm">
-                            Remove
-                        </button>
-                    </form>
-                </details>
-            }
         </div>
     }
 }
 
 @if (User.Identity?.IsAuthenticated == true)
 {
-    <hr />
+    <h1>Add bookmark</h1>
 
     <form asp-action="AddBookmark">
         <div class="mb-3">

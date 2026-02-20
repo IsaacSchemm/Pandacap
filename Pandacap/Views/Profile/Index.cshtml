@@ -68,8 +68,6 @@
 
     @if (User.Identity?.IsAuthenticated == true)
     {
-        <a asp-controller="Communities" asp-action="Bookmarks">Communities (@Model.CommunityBookmarksCount)</a>
-        @:&middot;
         <a asp-action="Followers">Followers (@Model.FollowerCount)</a>
         @:&middot;
         <a asp-controller="ActivityPubPosts" asp-action="Index">Posts</a>
