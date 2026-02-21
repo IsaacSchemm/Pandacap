@@ -5,7 +5,7 @@ namespace Pandacap.HighLevel.FurAffinity
 {
     public static partial class FurAffinityExtensions
     {
-        public static DateTimeOffset? GetPublishedTime(this FAExport.Submission submission) =>
+        public static DateTimeOffset? GetPublishedTime(this FA.Submission submission) =>
             GetFurAffinityThumbnailPattern().Match(submission.thumbnail) is Match match
             && match.Success
             && long.TryParse(match.Groups[1].Value, out long ts)

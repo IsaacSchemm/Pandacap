@@ -12,19 +12,6 @@ module FAExport =
         client.DefaultRequestHeaders.UserAgent.ParseAdd(credentials.UserAgent)
         client
 
-    type User = {
-        name: string
-        profile: string
-        avatar: string
-        full_name: string
-    }
-
-    let GetUserAsync factory credentials (name: string) cancellationToken = task {
-        use client = getClient factory credentials
-        use! resp = client.GetAsync($"/user/{Uri.EscapeDataString(name)}.json", cancellationToken = cancellationToken)
-        return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<User>(cancellationToken)
-    }
-
     type Submission = {
         id: int
         title: string
@@ -33,29 +20,6 @@ module FAExport =
         name: string
         profile: string
         profile_name: string
-    }
-
-    [<RequireQualifiedAccess>]
-    type FavoritesPage =
-    | First
-    | After of int
-    | Before of int
-
-    let GetFavoritesAsync factory credentials (name: string) sfw pagination cancellationToken = task {
-        let qs = String.concat "&" [
-            "full=1"
-
-            match pagination with
-            | FavoritesPage.First -> ()
-            | FavoritesPage.After x -> $"next={x}"
-            | FavoritesPage.Before x -> $"next={x}"
-
-            if sfw then "sfw=1"
-        ]
-
-        use client = getClient factory credentials
-        use! resp = client.GetAsync($"/user/{Uri.EscapeDataString(name)}/favorites.json?{qs}", cancellationToken = cancellationToken)
-        return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Submission list>(cancellationToken)
     }
 
     module Notifications =

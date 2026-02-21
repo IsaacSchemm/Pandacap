@@ -2,6 +2,7 @@
 
 open System
 open System.Net.Http
+open System.Text.Json
 open FSharp.Data
 
 module FA =
@@ -26,15 +27,22 @@ module FA =
 
     let private handler = lazy new SocketsHttpHandler(UseCookies = false, PooledConnectionLifetime = TimeSpan.FromMinutes(5L))
 
-    let private getClient (credentials: IFurAffinityCredentials) =
+    type Domain =
+    | WWW
+    | SFW
+
+    let private getClient (credentials: IFurAffinityCredentials) (domain: Domain) =
         let client = new HttpClient(handler.Value, disposeHandler = false)
-        client.BaseAddress <- new Uri("https://www.furaffinity.net/")
+        client.BaseAddress <-
+            match domain with
+            | WWW -> new Uri("https://www.furaffinity.net/")
+            | SFW -> new Uri("https://sfw.furaffinity.net/")
         client.DefaultRequestHeaders.Add("Cookie", $"a={credentials.A}; b={credentials.B}")
         client.DefaultRequestHeaders.UserAgent.ParseAdd(credentials.UserAgent)
         client
 
     let WhoamiAsync credentials cancellationToken = task {
-        use client = getClient credentials
+        use client = getClient credentials WWW
         use! resp = client.GetAsync("/help/", cancellationToken = cancellationToken)
         ignore (resp.EnsureSuccessStatusCode())
 
@@ -47,7 +55,7 @@ module FA =
     }
 
     let GetTimeZoneAsync credentials cancellationToken = task {
-        use client = getClient credentials
+        use client = getClient credentials WWW
         use! resp = client.GetAsync("/controls/settings/", cancellationToken = cancellationToken)
 
         let! html = resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken)
@@ -107,7 +115,7 @@ module FA =
         ]
 
     let ListPostOptionsAsync credentials cancellationToken = task {
-        use client = getClient credentials
+        use client = getClient credentials WWW
         use! resp = client.GetAsync("/browse/", cancellationToken = cancellationToken)
         ignore (resp.EnsureSuccessStatusCode())
 
@@ -123,7 +131,7 @@ module FA =
     }
 
     let ListGalleryFoldersAsync credentials cancellationToken = task {
-        use client = getClient credentials
+        use client = getClient credentials WWW
         use! resp = client.GetAsync("/controls/folders/submissions/", cancellationToken = cancellationToken)
         ignore (resp.EnsureSuccessStatusCode())
 
@@ -170,7 +178,7 @@ module FA =
             | None -> failwith $"Form \"{formName}\" with hidden input \"key\" not found in HTML from server"
 
     let PostArtworkAsync credentials file (metadata: ArtworkMetadata) cancellationToken = task {
-        use client = getClient credentials
+        use client = getClient credentials WWW
 
         let! artwork_submission_page_key = task {
             use! resp = client.GetAsync("/submit/", cancellationToken = cancellationToken)
@@ -223,6 +231,77 @@ module FA =
             if html.Contains "Security code missing or invalid." then
                 failwith "Security code missing or invalid for page"
 
+            let redirectMessages =
+                HtmlDocument.Parse(html).CssSelect(".redirect-message")
+                |> Seq.map (fun node -> node.InnerText())
+                |> Seq.toList
+
+            if redirectMessages <> [] then
+                failwithf "Could not post to Fur Affinity: %A" redirectMessages
+
             return resp.RequestMessage.RequestUri
         }
+    }
+
+    type SubmissionDataElement = {
+        avatar_mtime: string
+        description: string
+        lower: string
+        title: string
+        username: string
+    } with
+        member this.AvatarModifiedTime = DateTimeOffset.FromUnixTimeSeconds(int64 this.avatar_mtime)
+
+    type Submission = {
+        id: int
+        fav_id: int64
+        submission_data: SubmissionDataElement
+        title: string
+        thumbnail: string
+    }
+
+    [<RequireQualifiedAccess>]
+    type FavoritesPage =
+    | First
+    | After of int64
+    | Before of int64
+
+    let GetFavoritesAsync credentials (name: string) domain pagination cancellationToken = task {
+        let path =
+            match pagination with
+            | FavoritesPage.First -> $"/favorites/{Uri.EscapeDataString(name)}"
+            | FavoritesPage.After fav_id -> $"/favorites/{Uri.EscapeDataString(name)}/{fav_id}/next"
+            | FavoritesPage.Before fav_id -> $"/favorites/{Uri.EscapeDataString(name)}/{fav_id}/prev"
+
+        use client = getClient credentials domain
+        use! resp = client.GetAsync(path, cancellationToken = cancellationToken)
+
+        let! html = resp.Content.ReadAsStringAsync(cancellationToken)
+
+        let subset = html.Substring(List.max [0; html.IndexOf("""<div id="standardpage">""")])
+
+        let document = HtmlDocument.Parse(subset)
+
+        let submissionData =
+            document.CssSelect("#js-submissionData")
+            |> Seq.map (fun node -> node.InnerText())
+            |> Seq.map (fun json -> JsonSerializer.Deserialize<Map<int, SubmissionDataElement>>(json))
+            |> Seq.tryHead
+            |> Option.defaultValue Map.empty
+
+        return
+            seq {
+                for sid, submissionDataElement in Map.toSeq submissionData do
+                    match document.CssSelect($"#sid-{sid}") |> Seq.tryHead with
+                    | None -> ()
+                    | Some figure -> {
+                        id = sid
+                        fav_id = figure.Attribute("data-fav-id").Value() |> int64
+                        submission_data = submissionDataElement
+                        title = figure.CssSelect("figcaption p a").Head.InnerText()
+                        thumbnail = figure.CssSelect("img").Head.Attribute("src").Value()
+                    }
+            }
+            |> Seq.sortByDescending (fun fav -> fav.fav_id)
+            |> Seq.toList
     }

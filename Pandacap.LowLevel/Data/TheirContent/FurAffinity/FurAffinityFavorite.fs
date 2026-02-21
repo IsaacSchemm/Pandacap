@@ -8,6 +8,7 @@ type FurAffinityFavoriteUser() =
     member val Name = "" with get, set
     member val ProfileName = "" with get, set
     member val Url = "" with get, set
+    [<Obsolete("Will be replaced with an avatar URL field")>] member val AvatarModifiedTime = nullDateTimeOffset with get, set
 
 type FurAffinityFavorite() =
     [<Key>]
@@ -44,5 +45,10 @@ type FurAffinityFavorite() =
                 member _.AltText = null
                 member _.Url = this.Thumbnail
         }]
-        member this.Usericon = $"https://a.furaffinity.net/{this.PostedAt.ToUnixTimeSeconds()}/{Uri.EscapeDataString(this.PostedBy.ProfileName)}.gif"
+        member this.Usericon =
+            let avatar_mtime =
+                this.PostedBy.AvatarModifiedTime
+                |> Option.ofNullable
+                |> Option.defaultValue this.PostedAt
+            $"https://a.furaffinity.net/{avatar_mtime.ToUnixTimeSeconds()}/{Uri.EscapeDataString(this.PostedBy.ProfileName)}.gif"
         member this.Username = this.PostedBy.Name

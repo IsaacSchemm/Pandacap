@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub;
 using Pandacap.Clients.ATProto;
 using Pandacap.Data;
+using System.Net;
 using System.Text.RegularExpressions;
 
 namespace Pandacap.Functions
@@ -21,6 +22,7 @@ namespace Pandacap.Functions
                 .. await context.Posts
                     .Where(p => p.PublishedTime > cutoff)
                     .Where(p => p.BlueskyDID == null)
+                    .Where(p => p.Type != PostType.Scraps)
                     .ToListAsync(),
                 .. await context.AddressedPosts
                     .Where(p => p.PublishedTime > cutoff)
@@ -65,6 +67,9 @@ namespace Pandacap.Functions
         {
             using var resp = await httpClient.GetAsync(
                 $"https://ap.brid.gy/convert/{targetProtocol}/{post.GetObjectId(hostInformation)}");
+
+            if (resp.StatusCode == HttpStatusCode.NotFound)
+                return null;
 
             var linkHeaderValues = resp.EnsureSuccessStatusCode().Headers.TryGetValues("Link", out var links)
                 ? links

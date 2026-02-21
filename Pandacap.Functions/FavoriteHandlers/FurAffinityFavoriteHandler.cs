@@ -7,8 +7,7 @@ using Pandacap.HighLevel.FurAffinity;
 namespace Pandacap.Functions.FavoriteHandlers
 {
     public partial class FurAffinityFavoriteHandler(
-        PandacapDbContext context,
-        IHttpClientFactory httpClientFactory)
+        PandacapDbContext context)
     {
         public async Task ImportFavoritesAsync()
         {
@@ -19,17 +18,16 @@ namespace Pandacap.Functions.FavoriteHandlers
 
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
-            async IAsyncEnumerable<FAExport.Submission> enumerateAsync()
+            async IAsyncEnumerable<FA.Submission> enumerateAsync()
             {
-                var pagination = FAExport.FavoritesPage.First;
+                var pagination = FA.FavoritesPage.First;
 
                 while (true)
                 {
-                    var page = await FAExport.GetFavoritesAsync(
-                        httpClientFactory,
+                    var page = await FA.GetFavoritesAsync(
                         credentials,
                         credentials.Username,
-                        sfw: true,
+                        FA.Domain.SFW,
                         pagination,
                         CancellationToken.None);
 
@@ -39,11 +37,11 @@ namespace Pandacap.Functions.FavoriteHandlers
                     if (page.Length == 0)
                         yield break;
 
-                    pagination = FAExport.FavoritesPage.NewAfter(page.Select(x => x.id).Last());
+                    pagination = FA.FavoritesPage.NewAfter(page.Select(x => x.fav_id).Last());
                 }
             }
 
-            Stack<FAExport.Submission> items = [];
+            Stack<FA.Submission> items = [];
 
             await foreach (var submission in enumerateAsync())
             {
@@ -67,12 +65,13 @@ namespace Pandacap.Functions.FavoriteHandlers
                     SubmissionId = submission.id,
                     Title = submission.title,
                     Thumbnail = submission.thumbnail,
-                    Link = submission.link,
+                    Link = $"https://www.furaffinity.net/view/{submission.id}/",
                     PostedBy = new()
                     {
-                        Name = submission.name,
-                        ProfileName = submission.profile_name,
-                        Url = submission.profile
+                        Name = submission.submission_data.username,
+                        ProfileName = submission.submission_data.lower,
+                        Url = $"https://www.furaffinity.net/user/{Uri.EscapeDataString(submission.submission_data.lower)}",
+                        AvatarModifiedTime = submission.submission_data.AvatarModifiedTime
                     },
                     PostedAt = submission.GetPublishedTime() ?? DateTimeOffset.MinValue,
                     FavoritedAt = DateTime.UtcNow.Date
