@@ -71,7 +71,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                         Name = submission.submission_data.username,
                         ProfileName = submission.submission_data.lower,
                         Url = $"https://www.furaffinity.net/user/{Uri.EscapeDataString(submission.submission_data.lower)}",
-                        AvatarModifiedTime = submission.submission_data.AvatarModifiedTime
+                        AvatarUrl = submission.submission_data.AvatarUrl
                     },
                     PostedAt = submission.GetPublishedTime() ?? DateTimeOffset.MinValue,
                     FavoritedAt = DateTime.UtcNow.Date

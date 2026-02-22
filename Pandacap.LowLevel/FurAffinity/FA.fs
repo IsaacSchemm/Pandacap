@@ -250,7 +250,7 @@ module FA =
         title: string
         username: string
     } with
-        member this.AvatarModifiedTime = DateTimeOffset.FromUnixTimeSeconds(int64 this.avatar_mtime)
+        member this.AvatarUrl = $"https://a.furaffinity.net/{Uri.EscapeDataString(this.avatar_mtime)}/{Uri.EscapeDataString(this.lower)}.gif"
 
     type Submission = {
         id: int
