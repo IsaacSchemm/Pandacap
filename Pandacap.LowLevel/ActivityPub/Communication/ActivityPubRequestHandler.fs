@@ -14,10 +14,7 @@ type ActivityPubRequestHandler(
     httpClientFactory: IHttpClientFactory,
     hostInformation: ActivityPubHostInformation
 ) =
-    let mediaTypes = [
-        "application/activity+json"
-        "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
-    ]
+    let activityMediaType = "application/activity+json"
 
     let addSignatureAsync (req: HttpRequestMessage) = task {
         let headers = [
@@ -55,8 +52,7 @@ type ActivityPubRequestHandler(
             if includeSignature then
                 do! addSignatureAsync req
 
-            for mediaType in mediaTypes do
-                req.Headers.Accept.ParseAdd(mediaType)
+            req.Headers.Accept.ParseAdd(activityMediaType)
 
             use httpClient = httpClientFactory.CreateClient()
 
@@ -75,11 +71,11 @@ type ActivityPubRequestHandler(
                 let href =
                     body
                     |> LinkRelAlternate.ParseFromHtml
-                    |> Seq.where (fun attr -> mediaTypes |> Seq.contains attr.Type)
+                    |> Seq.where (fun attr -> attr.Type = activityMediaType)
                     |> Seq.map (fun attr -> new Uri(url, attr.Href))
                     |> Seq.except [url]
                     |> Seq.tryHead
-                    |> Option.defaultWith (fun () -> failwithf "Request returned an HTML response with no link rel=alternate for %A" mediaTypes)
+                    |> Option.defaultWith (fun () -> failwithf "Request returned an HTML response with no link rel=alternate for %s" activityMediaType)
 
                 return! getAsync href true cancellationToken
             | _ ->
@@ -109,7 +105,7 @@ type ActivityPubRequestHandler(
         do! addSignatureAsync req
 
         req.Content <- new ByteArrayContent(body)
-        req.Content.Headers.ContentType <- new MediaTypeHeaderValue(Seq.head mediaTypes)
+        req.Content.Headers.ContentType <- MediaTypeHeaderValue.Parse(activityMediaType)
 
         use httpClient = httpClientFactory.CreateClient()
 
