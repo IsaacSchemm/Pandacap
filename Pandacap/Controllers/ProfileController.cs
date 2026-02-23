@@ -99,7 +99,7 @@ namespace Pandacap.Controllers
 
             async Task<ProfileViewModel> buildModel()
             {
-                var oneMonthAgo = DateTime.UtcNow.AddMonths(-3);
+                var oneMonthAgo = DateTime.UtcNow.AddMonths(-1);
                 var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
                 var artwork = await context.Posts

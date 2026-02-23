@@ -8,20 +8,30 @@
     ViewData["Title"] = "Main Page";
 }
 
-<h1>
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <a asp-action="UploadAvatar"><img width="50" height="50" src="/Blobs/Avatar" alt="" /></a>
-    }
-    else
-    {
-        <img width="50" height="50" src="/Blobs/Avatar" alt="" />
-    }
-    @appInfo.Username
-</h1>
-
+<p>
+    <img width="50" height="50" src="/Blobs/Avatar" alt="" />
+    <span style="display: inline-block; vertical-align: top">
+        <strong>@appInfo.Username</strong>
+        <br />
+        <span class="small text-muted" style="user-select: all">@@@(appInfo.Username)@@@(appInfo.ApplicationHostname)</span>
+    </span>
+</p>
 
 <p>
+    <a asp-action="FollowingAndFeeds">Following (@Model.FollowingCount)</a>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        @:&middot;
+        <a asp-action="Followers">Followers (@Model.FollowerCount)</a>
+        @:&middot;
+        <a asp-controller="ActivityPubPosts" asp-action="Index">Posts</a>
+        @:&middot;
+        <a asp-controller="Favorites" asp-action="Index">Favorites (@Model.FavoritesCount)</a>
+    }
+
+    <br />
+
     @if (Model.MyLinks.Count > 0)
     {
         for (int i = 0; i < Model.MyLinks.Count; i++)
@@ -34,47 +44,99 @@
             var link = Model.MyLinks[i];
             <a href="@link.url" target="_blank">@link.platformName</a>
         }
-        <br />
     }
-    <a asp-action="FollowingAndFeeds">Following (@Model.FollowingCount)</a>
 </p>
 
 <p>
-    <a href="https://@appInfo.ApplicationHostname" target="_blank" style="text-decoration: none">
-        <img alt=""
+    <span class="visually-hidden">Actor ID:</span>
+
+    <tt style="user-select: all">@@@appInfo.Username@@@appInfo.ApplicationHostname</tt>
+
+    <a href="https://@appInfo.ApplicationHostname" style="text-decoration: none">
+        <img alt="Fediverse icon"
              src="/images/Fediverse_logo.svg"
              width="16"
              height="16" />
-        <span class="visually-hidden">ActivityPub actor ID</span>
     </a>
 
-    <tt style="user-select: all">@@@appInfo.Username@@@appInfo.ApplicationHostname</tt>
+    <img alt="Mastodon icon"
+         title="Mastodon"
+         src="https://mastodon.social/packs/assets/favicon-16x16-74JBPGmr.png"
+         width="16"
+         height="16" />
+
+    <img alt="Pixelfed icon"
+         title="Pixelfed"
+         src="https://pixelfed.social/img/favicon.png"
+         width="16"
+         height="16" />
+
+    <img alt="wafrn icon"
+         title="wafrn"
+         src="https://app.wafrn.net/favicon.ico"
+         width="16"
+         height="16" />
 
     <br />
 
     @if (Model.BlueskyHandle != null)
     {
+        <tt style="user-select: all">@@@Model.BlueskyHandle</tt>
+
         <a href="https://bsky.app/profile/@Model.BlueskyHandle" target="_blank" style="text-decoration: none">
             <img alt="Bluesky"
+                 title="Bluesky"
                  src="https://web-cdn.bsky.app/static/favicon-16x16.png"
                  width="16"
                  height="16" />
         </a>
 
-        <tt style="user-select: all">@@@Model.BlueskyHandle</tt>
+        <a href="https://blacksky.community/profile/@Model.BlueskyHandle" target="_blank" style="text-decoration: none">
+            <img alt="Blacksky"
+                 title="Blacksky"
+                 src="https://blacksky.community/static/favicon-16x16.png"
+                 width="16"
+                 height="16" />
+        </a>
 
         <br />
     }
 
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <a asp-action="Followers">Followers (@Model.FollowerCount)</a>
-        @:&middot;
-        <a asp-controller="ActivityPubPosts" asp-action="Index">Posts</a>
-        @:&middot;
-        <a asp-controller="Favorites" asp-action="Index">Favorites (@Model.FavoritesCount)</a>
-    }
+    <a href="https://browser.pub/https://@appInfo.ApplicationHostname" target="_blank" class="small">
+        View on browser.pub
+    </a>
 </p>
+
+@* <p>
+    @if (Model.MyLinks.Count > 0)
+    {
+        foreach (var group in Model.MyLinks.GroupBy(link => link.linkText))
+        {
+            <tt style="user-select: all">@group.Key</tt>
+
+            foreach (var link in group)
+            {
+                var iconUrl = link.platformName switch
+                {
+                    "DeviantArt" => "https://st.deviantart.net/eclipse/icons/favicon-v2-16x16.png",
+                    "Fur Affinity" => "https://www.furaffinity.net/themes/beta/img/favicon.ico",
+                    "Weasyl" => "https://www.weasyl.com/img/favicon-YIHdjAYHmG.png",
+                    _ => "/icon/tr_gray.svg"
+                };
+
+                <a href="@link.url" target="_blank" style="text-decoration: none">
+                    <img alt="@link.platformName"
+                    title="@link.platformName"
+                    src="@iconUrl"
+                    width="16"
+                    height="16" />
+                </a>
+            }
+
+            <br />
+        }
+    }
+</p> *@
 
 <h2 class="my-4">
     Newest artwork
