@@ -12,12 +12,58 @@
     <img width="50" height="50" src="/Blobs/Avatar" alt="" />
     <span style="display: inline-block; vertical-align: top">
         <strong>@appInfo.Username</strong>
+
         <br />
+
         <span class="small text-muted" style="user-select: all">@@@(appInfo.Username)@@@(appInfo.ApplicationHostname)</span>
+
+        <img alt="Mastodon icon"
+             title="Mastodon"
+             src="https://mastodon.social/packs/assets/favicon-16x16-74JBPGmr.png"
+             width="16"
+             height="16" />
+
+        <img alt="Pixelfed icon"
+             title="Pixelfed"
+             src="https://pixelfed.social/img/favicon.png"
+             width="16"
+             height="16" />
+
+        <img alt="wafrn icon"
+             title="wafrn"
+             src="https://app.wafrn.net/favicon.ico"
+             width="16"
+             height="16" />
+
+        <br />
+
+        <span class="small text-muted" style="user-select: all">@@@Model.BlueskyHandle</span>
+
+        <a href="https://bsky.app/profile/@Model.BlueskyHandle" target="_blank" style="text-decoration: none">
+            <img alt="Bluesky"
+                 title="Bluesky"
+                 src="https://web-cdn.bsky.app/static/favicon-16x16.png"
+                 width="16"
+                 height="16" />
+        </a>
+
+        <a href="https://blacksky.community/profile/@Model.BlueskyHandle" target="_blank" style="text-decoration: none">
+            <img alt="Blacksky"
+                 title="Blacksky"
+                 src="https://blacksky.community/static/favicon-16x16.png"
+                 width="16"
+                 height="16" />
+        </a>
     </span>
 </p>
 
 <p>
+    <a href="https://browser.pub/https://@appInfo.ApplicationHostname" target="_blank">
+       Timeline
+    </a>
+
+    <br />
+
     <a asp-action="FollowingAndFeeds">Following (@Model.FollowingCount)</a>
 
     @if (User.Identity?.IsAuthenticated == true)
@@ -46,97 +92,6 @@
         }
     }
 </p>
-
-<p>
-    <span class="visually-hidden">Actor ID:</span>
-
-    <tt style="user-select: all">@@@appInfo.Username@@@appInfo.ApplicationHostname</tt>
-
-    <a href="https://@appInfo.ApplicationHostname" style="text-decoration: none">
-        <img alt="Fediverse icon"
-             src="/images/Fediverse_logo.svg"
-             width="16"
-             height="16" />
-    </a>
-
-    <img alt="Mastodon icon"
-         title="Mastodon"
-         src="https://mastodon.social/packs/assets/favicon-16x16-74JBPGmr.png"
-         width="16"
-         height="16" />
-
-    <img alt="Pixelfed icon"
-         title="Pixelfed"
-         src="https://pixelfed.social/img/favicon.png"
-         width="16"
-         height="16" />
-
-    <img alt="wafrn icon"
-         title="wafrn"
-         src="https://app.wafrn.net/favicon.ico"
-         width="16"
-         height="16" />
-
-    <br />
-
-    @if (Model.BlueskyHandle != null)
-    {
-        <tt style="user-select: all">@@@Model.BlueskyHandle</tt>
-
-        <a href="https://bsky.app/profile/@Model.BlueskyHandle" target="_blank" style="text-decoration: none">
-            <img alt="Bluesky"
-                 title="Bluesky"
-                 src="https://web-cdn.bsky.app/static/favicon-16x16.png"
-                 width="16"
-                 height="16" />
-        </a>
-
-        <a href="https://blacksky.community/profile/@Model.BlueskyHandle" target="_blank" style="text-decoration: none">
-            <img alt="Blacksky"
-                 title="Blacksky"
-                 src="https://blacksky.community/static/favicon-16x16.png"
-                 width="16"
-                 height="16" />
-        </a>
-
-        <br />
-    }
-
-    <a href="https://browser.pub/https://@appInfo.ApplicationHostname" target="_blank" class="small">
-        View on browser.pub
-    </a>
-</p>
-
-@* <p>
-    @if (Model.MyLinks.Count > 0)
-    {
-        foreach (var group in Model.MyLinks.GroupBy(link => link.linkText))
-        {
-            <tt style="user-select: all">@group.Key</tt>
-
-            foreach (var link in group)
-            {
-                var iconUrl = link.platformName switch
-                {
-                    "DeviantArt" => "https://st.deviantart.net/eclipse/icons/favicon-v2-16x16.png",
-                    "Fur Affinity" => "https://www.furaffinity.net/themes/beta/img/favicon.ico",
-                    "Weasyl" => "https://www.weasyl.com/img/favicon-YIHdjAYHmG.png",
-                    _ => "/icon/tr_gray.svg"
-                };
-
-                <a href="@link.url" target="_blank" style="text-decoration: none">
-                    <img alt="@link.platformName"
-                    title="@link.platformName"
-                    src="@iconUrl"
-                    width="16"
-                    height="16" />
-                </a>
-            }
-
-            <br />
-        }
-    }
-</p> *@
 
 <h2 class="my-4">
     Newest artwork
@@ -210,38 +165,25 @@
 
 @if (User.Identity?.IsAuthenticated == true)
 {
-    <hr />
-
     <div id="admin" class="container mb-3">
         <div class="row">
-            <div class="col col-12 col-xl-4">
+            <div class="col col-12">
                 <div class="card my-3">
                     <div class="card-header">
                         ActivityPub
                     </div>
                     <div class="card-body">
                         <form method="get" asp-controller="RemotePosts" asp-action="Index">
-                            <div class="mb-3">
-                                <label for="id" class="form-label">
-                                    Object ID (URL)
-                                </label>
-                                <input type="url" class="form-control" name="id" placeholder="https://" />
+                            <div class="input-group">
+                                <span class="input-group-text">Object ID</span>
+                                <input name="id"
+                                       type="text"
+                                       class="form-control"
+                                       placeholder="https://">
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    View post
+                                </button>
                             </div>
-                            <button type="submit" class="btn btn-outline-primary">
-                                View post
-                            </button>
-                        </form>
-                        <hr />
-                        <form method="get" asp-controller="Mastodon" asp-action="StartViewingLocalTimeline">
-                            <div class="mb-3">
-                                <label for="id" class="form-label">
-                                    Hostname
-                                </label>
-                                <input type="text" class="form-control" name="host" placeholder="example.com" />
-                            </div>
-                            <button type="submit" class="btn btn-outline-primary">
-                                View local timeline
-                            </button>
                         </form>
                     </div>
                 </div>
@@ -279,20 +221,22 @@
             <div class="col col-12 col-xl-4">
                 <div class="card my-3">
                     <div class="card-header">
-                        Browser
+                        DeviantArt
                     </div>
-                    <div class="card-body">
+                    <div class="card-body text-center">
                         <a asp-controller="DeviantArt" asp-action="HomeFeed" class="btn btn-outline-primary">
-                            View DeviantArt home feed
+                            View home feed
                         </a>
                     </div>
                 </div>
+            </div>
 
+            <div class="col col-12 col-xl-4">
                 <div class="card my-3">
                     <div class="card-header">
                         Credentials
                     </div>
-                    <div class="card-body">
+                    <div class="card-body text-center">
                         <a asp-controller="FurAffinity" asp-action="Setup" class="btn btn-outline-primary mb-2">
                             Add Fur Affinity account
                         </a>
