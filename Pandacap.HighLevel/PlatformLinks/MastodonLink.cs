@@ -9,13 +9,11 @@ namespace Pandacap.HighLevel.PlatformLinks
     {
         public PlatformLinkCategory Category => PlatformLinkCategory.ActivityPub;
 
-        public string PlatformName => Host;
-
         public string Username => $"@{ApplicationInformation.Username}@{ApplicationInformation.ApplicationHostname}";
 
         public string? IconUrl => null;
 
-        public string? ViewProfileUrl => null;
+        public string? ViewProfileUrl => $"https://{Host}/{Username}";
 
         public string? GetViewPostUrl(Post post) => null;
     }

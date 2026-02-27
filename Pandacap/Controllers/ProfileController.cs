@@ -14,7 +14,6 @@ using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.FeedReaders;
 using Pandacap.HighLevel.PlatformLinks;
-using Pandacap.LowLevel.MyLinks;
 using Pandacap.Models;
 using System.Diagnostics;
 using System.Text;
@@ -35,7 +34,6 @@ namespace Pandacap.Controllers
         IHttpClientFactory httpClientFactory,
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
-        IMyLinkService myLinkService,
         PlatformLinkProvider platformLinkProvider,
         ActivityPubProfileTranslator profileTranslator,
         ActivityPubRelationshipTranslator relationshipTranslator,
@@ -55,7 +53,7 @@ namespace Pandacap.Controllers
                     : [new(
                         avatar.ContentType,
                         $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}")],
-                links: await myLinkService.GetLinksAsync(cancellationToken),
+                links: [.. await platformLinkProvider.GetActivityPubProfileLinksAsync(cancellationToken)],
                 publicKeyPem: key,
                 username: appInfo.Username);
         }
@@ -112,7 +110,6 @@ namespace Pandacap.Controllers
                 return new ProfileViewModel
                 {
                     PlatformLinks = await platformLinkProvider.GetPlatformLinksAsync(cancellationToken),
-                    MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                     RecentArtwork = artwork,
                     RecentFavorites = favorites,
                     RecentTextPosts = textPosts,

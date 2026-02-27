@@ -9,14 +9,12 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string Host => "www.weasyl.com";
 
-        public string PlatformName => "Weasyl";
-
         public string? IconUrl => null;
 
         public string? ViewProfileUrl => $"https://www.weasyl.com/~{Uri.EscapeDataString(Username)}";
 
         public string? GetViewPostUrl(Post post) =>
-            post.WeasylSubmitId is int submitId ? $"https://www.weasyl.com/~x/submissions/{submitId}"
+            post.WeasylSubmitId is int submitId ? $"https://www.weasyl.com/~{Uri.EscapeDataString(Username)}/submissions/{submitId}"
             : post.WeasylJournalId is int journalId ? $"https://www.weasyl.com/journal/{journalId}/"
             : null;
     }

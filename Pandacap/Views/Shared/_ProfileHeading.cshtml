@@ -1,0 +1,35 @@
+﻿@using Pandacap.ConfigurationObjects
+@using Pandacap.HighLevel.PlatformLinks
+@model IProfileHeadingModel
+@inject ApplicationInformation appInfo
+
+<p>
+    <img width="50" height="50" src="/Blobs/Avatar" alt="" />
+    <span style="display: inline-block; vertical-align: top">
+        <strong>@appInfo.Username</strong>
+
+        @if (Model.PlatformLinks.FirstOrDefault(link => link.Category == PlatformLinkCategory.ActivityPub) is IPlatformLink apLink)
+        {
+            <br />
+
+            @* <img alt="@apLink.Host icon"
+                 src="@apLink.IconUrl"
+                 width="16"
+                 height="16" /> *@
+
+            <span class="small text-muted" style="user-select: all">@apLink.Username</span>
+        }
+
+        @if (Model.PlatformLinks.FirstOrDefault(link => link.Category == PlatformLinkCategory.ATProto) is IPlatformLink atLink)
+        {
+            <br />
+
+            @* <img alt="@atLink.Host icon"
+                 src="@atLink.IconUrl"
+                 width="16"
+                 height="16" /> *@
+
+            <span class="small text-muted" style="user-select: all">@atLink.Username</span>
+        }
+    </span>
+</p>

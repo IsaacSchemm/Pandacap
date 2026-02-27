@@ -5,7 +5,6 @@ namespace Pandacap.HighLevel.PlatformLinks
     public interface IPlatformLink
     {
         PlatformLinkCategory Category { get; }
-        string PlatformName { get; }
         string Host { get; }
         string Username { get; }
 

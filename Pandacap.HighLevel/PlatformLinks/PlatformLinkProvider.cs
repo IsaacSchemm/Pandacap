@@ -10,7 +10,6 @@ using System.Runtime.CompilerServices;
 namespace Pandacap.HighLevel.PlatformLinks
 {
     public class PlatformLinkProvider(
-        ActivityPubHostInformation activityPubHostInformation,
         ApplicationInformation appInfo,
         PandacapDbContext context,
         DIDResolver didResolver,
@@ -25,10 +24,30 @@ namespace Pandacap.HighLevel.PlatformLinks
             await memoryCache.GetOrCreateAsync<IReadOnlyList<IPlatformLink>>(
                 KEY,
                 async _ =>
-                    await GetUnderlyingPlatformLinksAsync(cancellationToken)
-                    .Select(async (link, ct) => await ResolveIconAsync(link, ct))
-                    .ToListAsync(cancellationToken))
+                {
+                    var links = await GetUnderlyingPlatformLinksAsync(cancellationToken)
+                        .ToListAsync(cancellationToken);
+
+                    return await Task.WhenAll(
+                        links
+                        .Select(link => ResolveIconAsync(link, cancellationToken)));
+                },
+                new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1)
+                })
             ?? [];
+
+        public async Task<IEnumerable<ActivityPubProfileLink>> GetActivityPubProfileLinksAsync(
+            CancellationToken cancellationToken)
+        =>
+            await GetUnderlyingPlatformLinksAsync(cancellationToken)
+                .Where(link => link.Category == PlatformLinkCategory.External)
+                .Select(link => new ActivityPubProfileLink(
+                    platformName: link.Host,
+                    username: link.Username,
+                    viewProfileUrl: link.ViewProfileUrl))
+                .ToListAsync(cancellationToken);
 
         private async Task<IPlatformLink> ResolveIconAsync(
             IPlatformLink platformLink,
@@ -37,6 +56,7 @@ namespace Pandacap.HighLevel.PlatformLinks
             try
             {
                 using var client = httpClientFactory.CreateClient();
+                client.Timeout = TimeSpan.FromSeconds(5);
                 using var req = new HttpRequestMessage(HttpMethod.Get, $"https://{platformLink.Host}");
                 req.Headers.Accept.ParseAdd("text/html");
                 using var resp = await client.SendAsync(req, cancellationToken);
@@ -66,9 +86,10 @@ namespace Pandacap.HighLevel.PlatformLinks
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             yield return new MastodonLink(appInfo, "mastodon.social");
+            yield return new MastodonLink(appInfo, "activitypub.academy");
             yield return new MastodonLink(appInfo, "pixelfed.social");
             yield return new WafrnLink(appInfo, "app.wafrn.net");
-            yield return new BrowserPubLink(activityPubHostInformation, appInfo, "browser.pub");
+            yield return new MastodonLink(appInfo, "browser.pub");
 
             var did = await context.Posts
                 .OrderByDescending(post => post.PublishedTime)
@@ -91,19 +112,16 @@ namespace Pandacap.HighLevel.PlatformLinks
                 }
 
                 yield return new BlueskyStyleATProtoPlatformLink(
-                    "Bluesky",
                     "bsky.app",
                     did,
                     handle);
 
                 yield return new BlueskyStyleATProtoPlatformLink(
-                    "Blacksky",
                     "blacksky.community",
                     did,
                     handle);
 
                 yield return new BlueskyStyleATProtoPlatformLink(
-                    "Red Dwarf",
                     "reddwarf.app",
                     did,
                     handle);

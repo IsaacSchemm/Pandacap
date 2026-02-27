@@ -20,36 +20,7 @@
     </div>
 }
 
-<p>
-    <img width="50" height="50" src="/Blobs/Avatar" alt="" />
-    <span style="display: inline-block; vertical-align: top">
-        <strong>@appInfo.Username</strong>
-
-        @if (Model.PlatformLinks.FirstOrDefault(link => link.Category == PlatformLinkCategory.ActivityPub) is IPlatformLink apLink)
-        {
-            <br />
-
-            <img alt="@apLink.PlatformName icon"
-                 src="@apLink.IconUrl"
-                 width="16"
-                 height="16" />
-
-            <span class="small text-muted" style="user-select: all">@apLink.Username</span>
-        }
-
-        @if (Model.PlatformLinks.FirstOrDefault(link => link.Category == PlatformLinkCategory.ATProto) is IPlatformLink atLink)
-        {
-            <br />
-
-            <img alt="@atLink.PlatformName icon"
-                 src="@atLink.IconUrl"
-                 width="16"
-                 height="16" />
-
-            <span class="small text-muted" style="user-select: all">@atLink.Username</span>
-        }
-    </span>
-</p>
+<partial name="_ProfileHeading" model="Model" />
 
 <h1>@Model.Post.Title</h1>
 
@@ -62,29 +33,25 @@
     View on:
 </div>
 
-@foreach (var linkGroup in Model.PlatformLinks.GroupBy(link => new
-{
-    link.Category,
-    Name = link.Category == Pandacap.HighLevel.PlatformLinks.PlatformLinkCategory.External
-        ? link.PlatformName
-        : null
-}))
+@foreach (var linkGroup in Model.PlatformLinks
+    .Where(link => link.GetViewPostUrl(Model.Post) != null)
+    .GroupBy(link => new
+    {
+        HeaderName = link.Category == PlatformLinkCategory.External
+            ? link.Host
+            : $"{link.Category}"
+    }))
 {
     <div class="social-block">
         @foreach (var link in linkGroup)
         {
-            if (link.GetViewPostUrl(Model.Post) is not string url)
-            {
-                continue;
-            }
-
             <div>
-                <a href="@url" target="_blank">
+                <a href="@link.GetViewPostUrl(Model.Post)" target="_blank">
                     <img alt=""
                          src="@link.IconUrl"
                          class="social-icon-inline" />
 
-                    @link.PlatformName
+                    @link.Host
                 </a>
             </div>
         }

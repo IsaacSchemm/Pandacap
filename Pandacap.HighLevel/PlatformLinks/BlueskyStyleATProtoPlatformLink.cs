@@ -3,7 +3,6 @@
 namespace Pandacap.HighLevel.PlatformLinks
 {
     public record BlueskyStyleATProtoPlatformLink(
-        string PlatformName,
         string Host,
         string DID,
         string? Handle) : IPlatformLink
@@ -18,16 +17,9 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string? IconUrl => null;
 
-        public string? GetViewPostUrl(Post post)
-        {
-            if (post.BlueskyDID == null || post.BlueskyRecordKey == null)
-                return null;
-
-            string handleToUse = post.BlueskyDID == DID
-                ? Handle ?? DID
-                : post.BlueskyDID;
-
-            return $"https://{Host}/profile/{Uri.EscapeDataString(handleToUse)}/post/{Uri.EscapeDataString(post.BlueskyRecordKey)}";
-        }
+        public string? GetViewPostUrl(Post post) =>
+            post.BlueskyDID == null || post.BlueskyRecordKey == null
+            ? null
+            : $"https://{Host}/profile/{Uri.EscapeDataString(post.BlueskyDID)}/post/{Uri.EscapeDataString(post.BlueskyRecordKey)}";
     }
 }

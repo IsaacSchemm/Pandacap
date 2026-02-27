@@ -1,14 +1,11 @@
 ﻿using Pandacap.Data;
 using Pandacap.HighLevel.PlatformLinks;
-using Pandacap.LowLevel.MyLinks;
 
 namespace Pandacap.Models
 {
-    public class ProfileViewModel
+    public class ProfileViewModel : IProfileHeadingModel
     {
         public IReadOnlyList<IPlatformLink> PlatformLinks { get; set; } = [];
-
-        public IReadOnlyList<MyLink> MyLinks { get; set; } = [];
 
         public IReadOnlyList<Post> RecentArtwork { get; set; } = [];
         public IReadOnlyList<IPost> RecentFavorites { get; set; } = [];

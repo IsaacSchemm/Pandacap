@@ -1,10 +1,8 @@
 ﻿namespace Pandacap.ActivityPub
 
-open Pandacap.LowLevel.MyLinks
-
 type ActivityPubProfile = {
     Avatars: ActivityPubAvatar list
-    Links: MyLink list
+    Links: ActivityPubProfileLink list
     PublicKeyPem: string
     Username: string
 }

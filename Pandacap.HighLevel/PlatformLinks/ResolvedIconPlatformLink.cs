@@ -10,8 +10,6 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string Host => UnderlyingLink.Host;
 
-        public string PlatformName => UnderlyingLink.PlatformName;
-
         public string Username => UnderlyingLink.Username;
 
         public string? IconUrl => iconUrl;

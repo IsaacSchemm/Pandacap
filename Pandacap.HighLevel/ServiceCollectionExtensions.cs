@@ -13,7 +13,6 @@ using Pandacap.HighLevel.Lemmy;
 using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.Weasyl;
-using Pandacap.LowLevel.MyLinks;
 
 namespace Pandacap.HighLevel
 {
@@ -58,7 +57,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<FurryNetworkClient>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
-                .AddScoped<IMyLinkService, MyLinkService>()
                 .AddScoped<PlatformLinkProvider>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WebFingerService>();

@@ -35,12 +35,11 @@ type ActivityPubProfileTranslator(hostInformation: ActivityPubHostInformation) =
                 url = avatar.Url
             |}
         pair "attachment" [
-            for link in info.Links do
-                if link.platformName <> "ActivityPub" then {|
-                    ``type`` = "PropertyValue"
-                    name = WebUtility.HtmlEncode(link.platformName)
-                    value = $"<a href='{link.url}'>{WebUtility.HtmlEncode(link.linkText)}</a>"
-                |}
+            for link in info.Links do {|
+                ``type`` = "PropertyValue"
+                name = WebUtility.HtmlEncode(link.PlatformName)
+                value = $"<a href='{link.ViewProfileUrl}'>{WebUtility.HtmlEncode(link.Username)}</a>"
+            |}
         ]
     ]
 

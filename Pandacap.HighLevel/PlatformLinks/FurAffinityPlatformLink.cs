@@ -9,8 +9,6 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string Host => "www.furaffinity.net";
 
-        public string PlatformName => "Fur Affinity";
-
         public string? IconUrl => null;
 
         public string? ViewProfileUrl => $"https://www.furaffinity.net/user/{Uri.EscapeDataString(Username)}";

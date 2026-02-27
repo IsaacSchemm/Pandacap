@@ -8,8 +8,6 @@
   <ItemGroup>
     <Compile Include="ConfigurationObjects\ApplicationInformation.fs" />
     <Compile Include="ConfigurationObjects\UserAgentInformation.fs" />
-    <Compile Include="MyLinks\MyLink.fs" />
-    <Compile Include="MyLinks\IMyLinkService.fs" />
     <Compile Include="PlatformBadges\Badge.fs" />
     <Compile Include="PlatformBadges\NotificationPlatform.fs" />
     <Compile Include="PlatformBadges\PostPlatform.fs" />
@@ -34,6 +32,7 @@
     <Compile Include="ActivityPub\IActivityPubLike.fs" />
     <Compile Include="ActivityPub\IActivityPubFollow.fs" />
     <Compile Include="ActivityPub\ActivityPubAvatar.fs" />
+    <Compile Include="activitypub\ActivityPubProfileLink.fs" />
     <Compile Include="ActivityPub\ActivityPubProfile.fs" />
     <Compile Include="ActivityPub\ActivityPubProfileTranslator.fs" />
     <Compile Include="ActivityPub\ActivityPubPostTranslator.fs" />

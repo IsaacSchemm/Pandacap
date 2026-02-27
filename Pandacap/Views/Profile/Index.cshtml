@@ -9,36 +9,7 @@
     ViewData["Title"] = "Main Page";
 }
 
-<p>
-    <img width="50" height="50" src="/Blobs/Avatar" alt="" />
-    <span style="display: inline-block; vertical-align: top">
-        <strong>@appInfo.Username</strong>
-
-        @if (Model.PlatformLinks.FirstOrDefault(link => link.Category == PlatformLinkCategory.ActivityPub) is IPlatformLink apLink)
-        {
-            <br />
-
-            <img alt="@apLink.PlatformName icon"
-                 src="@apLink.IconUrl"
-                 width="16"
-                 height="16" />
-
-            <span class="small text-muted" style="user-select: all">@apLink.Username</span>
-        }
-
-        @if (Model.PlatformLinks.FirstOrDefault(link => link.Category == PlatformLinkCategory.ATProto) is IPlatformLink atLink)
-        {
-            <br />
-
-            <img alt="@atLink.PlatformName icon"
-                 src="@atLink.IconUrl"
-                 width="16"
-                 height="16" />
-
-            <span class="small text-muted" style="user-select: all">@atLink.Username</span>
-        }
-    </span>
-</p>
+<partial name="_ProfileHeading" model="Model" />
 
 <p>
     <a asp-action="FollowingAndFeeds">Following (@Model.FollowingCount)</a>
@@ -58,26 +29,16 @@
     View on:
 </div>
 
-@foreach (var linkGroup in Model.PlatformLinks.GroupBy(link => new
-{
-    //HeaderIcon = link.Category.GetIconUrl(),
-    HeaderName = link.Category == PlatformLinkCategory.External
-        ? link.PlatformName
-        : $"{link.Category}"
-}))
+@foreach (var linkGroup in Model.PlatformLinks
+    .Where(link => link.ViewProfileUrl != null)
+    .GroupBy(link => new
+    {
+        HeaderName = link.Category == PlatformLinkCategory.External
+            ? link.Host
+            : $"{link.Category}"
+    }))
 {
     <div class="social-block">
-        @* <div>
-            @if (linkGroup.Key.HeaderIcon != null)
-            {
-                <img alt=""
-                     src="@linkGroup.Key.HeaderIcon"
-                     class="social-icon-inline" />
-            }
-
-            @linkGroup.Key.HeaderName
-        </div> *@
-
         @foreach (var link in linkGroup)
         {
             if (link.ViewProfileUrl == null)
@@ -91,7 +52,7 @@
                          src="@link.IconUrl"
                          class="social-icon-inline" />
 
-                    @link.PlatformName
+                    @link.Host
                 </a>
             </div>
         }
