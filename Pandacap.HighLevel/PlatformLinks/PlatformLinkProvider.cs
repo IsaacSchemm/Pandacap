@@ -53,6 +53,9 @@ namespace Pandacap.HighLevel.PlatformLinks
             IPlatformLink platformLink,
             CancellationToken cancellationToken)
         {
+            if (platformLink.IconUrl != null)
+                return platformLink;
+
             try
             {
                 using var client = httpClientFactory.CreateClient();
@@ -111,20 +114,9 @@ namespace Pandacap.HighLevel.PlatformLinks
                     Console.Error.WriteLine(ex);
                 }
 
-                yield return new BlueskyStyleATProtoPlatformLink(
-                    "bsky.app",
-                    did,
-                    handle);
-
-                yield return new BlueskyStyleATProtoPlatformLink(
-                    "blacksky.community",
-                    did,
-                    handle);
-
-                yield return new BlueskyStyleATProtoPlatformLink(
-                    "reddwarf.app",
-                    did,
-                    handle);
+                yield return new BlueskyStyleATProtoPlatformLink("bsky.app", did, handle);
+                yield return new BlueskyStyleATProtoPlatformLink("blacksky.community", did, handle);
+                yield return new BlueskyStyleATProtoPlatformLink("reddwarf.app", did, handle);
             }
 
             await foreach (var x in context.DeviantArtCredentials)
