@@ -12,32 +12,7 @@ module FAExport =
         client.DefaultRequestHeaders.UserAgent.ParseAdd(credentials.UserAgent)
         client
 
-    type Submission = {
-        id: int
-        title: string
-        thumbnail: string
-        link: string
-        name: string
-        profile: string
-        profile_name: string
-    }
-
     module Notifications =
-        type Submissions = {
-            new_submissions: Submission list
-        }
-
-        let GetSubmissionsAsync factory credentials (from: int) (sfw: bool) cancellationToken = task {
-            let qs = String.concat "&" [
-                $"from={from}"
-                if sfw then "sfw=1"
-            ]
-
-            use client = getClient factory credentials
-            use! resp = client.GetAsync($"/notifications/submissions.json?{qs}", cancellationToken = cancellationToken)
-            return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Submissions>()
-        }
-
         type Watch = {
             watch_id: int
             name: string
@@ -120,24 +95,6 @@ module FAExport =
             use! resp = client.GetAsync($"/notifications/others.json", cancellationToken = cancellationToken)
             return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Others>()
         }
-
-    type Note = {
-        note_id: int
-        subject: string
-        is_inbound: bool
-        is_read: bool
-        name: string
-        profile: string
-        profile_name: string
-        user_deleted: bool
-        posted_at: DateTime
-    }
-
-    let GetNotesAsync factory credentials (folder: string) cancellationToken = task {
-        use client = getClient factory credentials
-        use! resp = client.GetAsync($"/notes/{Uri.EscapeDataString(folder)}.json", cancellationToken = cancellationToken)
-        return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Note list>()
-    }
 
     type PostedJournal = {
         url: string

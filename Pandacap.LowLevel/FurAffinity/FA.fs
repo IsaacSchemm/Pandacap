@@ -330,18 +330,61 @@ module FA =
             |> Seq.tryHead
             |> Option.defaultValue Map.empty
 
-        return
-            seq {
-                for sid, submissionDataElement in Map.toSeq submissionData do
-                    match document.CssSelect($"#sid-{sid}") |> Seq.tryHead with
-                    | None -> ()
-                    | Some figure -> {
-                        id = sid
-                        fav_id = 0L
-                        submission_data = submissionDataElement
-                        title = figure.CssSelect("figcaption p a").Head.InnerText()
-                        thumbnail = figure.CssSelect("img").Head.Attribute("src").Value()
-                    }
+        return [
+            for sid, submissionDataElement in Map.toSeq submissionData do
+                match document.CssSelect($"#sid-{sid}") |> Seq.tryHead with
+                | None -> ()
+                | Some figure -> {
+                    id = sid
+                    fav_id = 0L
+                    submission_data = submissionDataElement
+                    title = figure.CssSelect("figcaption p a").Head.InnerText()
+                    thumbnail = figure.CssSelect("img").Head.Attribute("src").Value()
+                }
+        ]
+    }
+
+    type Note = {
+        note_id: int
+        subject: string
+        userDisplayName: string
+        time: DateTimeOffset
+    }
+
+    let GetNotesAsync credentials cancellationToken = task {
+        use client = getClient credentials WWW
+        use! resp = client.GetAsync("/msg/pms", cancellationToken = cancellationToken)
+
+        let! html = resp.Content.ReadAsStringAsync(cancellationToken)
+
+        let document = HtmlDocument.Parse(html)
+
+        return [
+            for noteListItem in document.CssSelect("#notes-list tr.note") @ document.CssSelect("#notes-list .note-list-container") do {
+                note_id =
+                    noteListItem.CssSelect("input[type=checkbox]")
+                    |> Seq.exactlyOne
+                    |> HtmlNode.tryGetAttribute "value"
+                    |> Option.get
+                    |> HtmlAttribute.value
+                    |> int
+                subject =
+                    noteListItem.CssSelect("a.notelink")
+                    |> Seq.exactlyOne
+                    |> HtmlNode.innerText
+                userDisplayName =
+                    noteListItem.CssSelect(".js-displayName")
+                    |> Seq.tryHead
+                    |> Option.map HtmlNode.innerText
+                    |> Option.toObj
+                time =
+                    noteListItem.CssSelect("span[data-time]")
+                    |> Seq.exactlyOne
+                    |> HtmlNode.tryGetAttribute "data-time"
+                    |> Option.get
+                    |> HtmlAttribute.value
+                    |> int64
+                    |> DateTimeOffset.FromUnixTimeSeconds
             }
-            |> Seq.toList
+        ]
     }
