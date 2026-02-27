@@ -59,15 +59,8 @@ namespace Pandacap.Controllers
         }
 
         private async Task<string?> FindBlueskyHandleAsync(
-            IEnumerable<IEnumerable<Post>> postLists)
+            string? did)
         {
-            var did = postLists
-                .SelectMany(x => x)
-                .OrderByDescending(x => x.PublishedTime)
-                .Where(x => x.BlueskyDID != null)
-                .Select(x => x.BlueskyDID)
-                .FirstOrDefault();
-
             if (did == null)
                 return null;
 
@@ -132,9 +125,17 @@ namespace Pandacap.Controllers
                     .Take(5)
                     .ToListAsync(cancellationToken);
 
+                var did = new[] { artwork, textPosts, links }
+                    .SelectMany(x => x)
+                    .OrderByDescending(x => x.PublishedTime)
+                    .Where(x => x.BlueskyDID != null)
+                    .Select(x => x.BlueskyDID)
+                    .FirstOrDefault();
+
                 return new ProfileViewModel
                 {
-                    BlueskyHandle = await FindBlueskyHandleAsync([artwork, textPosts, links]),
+                    BlueskyDID = did,
+                    BlueskyHandle = await FindBlueskyHandleAsync(did),
                     MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                     RecentArtwork = artwork,
                     RecentFavorites = favorites,

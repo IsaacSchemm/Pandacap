@@ -24,7 +24,7 @@
     <span style="display: inline-block; vertical-align: top">
         <strong>@appInfo.Username</strong>
         <br />
-        <span class="small text-muted" style="user-select: all">@@@(appInfo.Username)@@@(appInfo.ApplicationHostname)</span>
+        <span class="small text-muted" style="user-select: all">@appInfo.ApplicationHostname</span>
     </span>
 </p>
 
@@ -34,6 +34,103 @@
     @Model.Post.PublishedTime.UtcDateTime.ToLongDateString()
     @Model.Post.PublishedTime.UtcDateTime.ToShortTimeString()
 </p>
+
+<div class="social-block">
+    View on:
+</div>
+
+@if (Model.Post.BlueskyDID != null)
+{
+    <div class="social-block">
+        <a href="https://bsky.app/profile/@Model.Post.BlueskyDID/post/@Model.Post.BlueskyRecordKey" target="_blank">
+            <img alt=""
+                 src="https://web-cdn.bsky.app/static/favicon-16x16.png"
+                 class="social-icon-inline" />
+
+            Bluesky
+        </a>
+
+        <br />
+
+        <a href="https://blacksky.community/profile/@Model.Post.BlueskyDID/post/@Model.Post.BlueskyRecordKey" target="_blank">
+            <img alt=""
+                 src="https://blacksky.community/static/favicon-16x16.png"
+                 class="social-icon-inline" />
+
+            Blacksky
+        </a>
+
+        <br />
+
+        <a href="https://reddwarf.app/profile/@Model.Post.BlueskyDID/post/@Model.Post.BlueskyRecordKey" target="_blank" style="text-decoration: none">
+            <img alt=""
+                 src="https://reddwarf.app/redstar.png"
+                 class="social-icon-inline" />
+
+            Red Dwarf
+        </a>
+    </div>
+}
+
+@if (Model.Post.DeviantArtUrl != null)
+{
+    <div class="social-block">
+        <a href="@Model.Post.DeviantArtUrl" target="_blank">
+            <img alt=""
+                 src="https://st.deviantart.net/eclipse/icons/da_favicon_v2.ico"
+                 class="social-icon-inline" />
+            DeviantArt
+        </a>
+    </div>
+}
+
+@if (Model.Post.FurAffinitySubmissionId is int faSubmissionId)
+{
+    <div class="social-block">
+        <a href="https://www.furaffinity.net/view/@(faSubmissionId)/" target="_blank">
+            <img alt=""
+                 src="https://sfw.furaffinity.net/themes/beta/img/favicon.ico"
+                 class="social-icon-inline" />
+            Fur Affinity
+        </a>
+    </div>
+}
+
+@if (Model.Post.FurAffinityJournalId is int faJournalId)
+{
+    <div class="social-block">
+        <a href="https://www.furaffinity.net/journal/@(faJournalId)/" target="_blank">
+            <img alt=""
+                 src="https://sfw.furaffinity.net/themes/beta/img/favicon.ico"
+                 class="social-icon-inline" />
+            Fur Affinity
+        </a>
+    </div>
+}
+
+@if (Model.Post.WeasylSubmitId is int submitid)
+{
+    <div class="social-block">
+        <a href="https://www.weasyl.com/~x/submissions/@(submitid)" target="_blank">
+            <img alt=""
+                 src="https://www.weasyl.com/img/favicon-oP29Tyisif.svg"
+                 class="social-icon-inline" />
+            Weasyl
+        </a>
+    </div>
+}
+
+@if (Model.Post.WeasylJournalId is int journalid)
+{
+    <div class="social-block">
+        <a href="https://www.weasyl.com/journal/@(journalid)" target="_blank">
+            <img alt=""
+                 src="https://www.weasyl.com/img/favicon-oP29Tyisif.svg"
+                 class="social-icon-inline" />
+            Weasyl
+        </a>
+    </div>
+}
 
 @foreach (var image in Model.Post.Images)
 {
@@ -104,50 +201,6 @@
         }
     </p>
 }
-
-<div class="mb-3 text-end">
-    @if (Model.Post.BlueskyDID is string did && Model.Post.BlueskyRecordKey is string rkey)
-    {
-        <a href="https://bsky.app/profile/@(Model.Post.BlueskyDID)/post/@(Model.Post.BlueskyRecordKey)" class="btn btn-sm btn-outline-primary" target="_blank">
-            View on Bluesky
-        </a>
-    }
-
-    @if (Model.Post.DeviantArtUrl is string daurl)
-    {
-        <a href="@daurl" class="btn btn-sm btn-outline-primary" target="_blank">
-            View on DeviantArt
-        </a>
-    }
-
-    @if (Model.Post.FurAffinitySubmissionId is int faSubmissionId)
-    {
-        <a href="https://www.furaffinity.net/view/@(faSubmissionId)/" class="btn btn-sm btn-outline-primary" target="_blank">
-            View on Fur Affinity
-        </a>
-    }
-
-    @if (Model.Post.FurAffinityJournalId is int faJournalId)
-    {
-        <a href="https://www.furaffinity.net//journal/@(faJournalId)/" class="btn btn-sm btn-outline-primary" target="_blank">
-            View on Fur Affinity
-        </a>
-    }
-
-    @if (Model.Post.WeasylSubmitId is int submitid)
-    {
-        <a href="https://www.weasyl.com/~x/submissions/@(submitid)" class="btn btn-sm btn-outline-primary" target="_blank">
-            View on Weasyl
-        </a>
-    }
-
-    @if (Model.Post.WeasylJournalId is int journalid)
-    {
-        <a href="https://www.weasyl.com/journal/@(journalid)" class="btn btn-sm btn-outline-primary" target="_blank">
-            View on Weasyl
-        </a>
-    }
-</div>
 
 @if (User.Identity?.IsAuthenticated == true)
 {

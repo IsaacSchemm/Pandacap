@@ -6,6 +6,7 @@ namespace Pandacap.Models
     public class ProfileViewModel
     {
         public string? BlueskyHandle { get; set; }
+        public string? BlueskyDID { get; set; }
 
         public IReadOnlyList<MyLink> MyLinks { get; set; } = [];
 

@@ -54,6 +54,25 @@ img.feed-image {
     }
 }
 
+.social-block {
+    color: var(--bs-secondary-color);
+    display: inline-block;
+    font-size: 0.875em;
+    line-height: calc(var(--bs-body-line-height)/0.875);
+    margin: 0 1em 1em 0;
+    vertical-align: top;
+}
+
+    .social-block a {
+        text-decoration: none;
+    }
+
+.social-icon-inline {
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+}
+
 .lemmy-banner img {
     width: 100%;
     height: 240px;
