@@ -59,7 +59,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<IMyLinkService, MyLinkService>()
-                .AddScoped<PlatformLinkService>()
+                .AddScoped<PlatformLinkProvider>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WebFingerService>();
         }

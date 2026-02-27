@@ -7,9 +7,11 @@ namespace Pandacap.HighLevel.PlatformLinks
     {
         public PlatformLinkCategory Category => PlatformLinkCategory.External;
 
+        public string Host => "www.deviantart.com";
+
         public string PlatformName => "DeviantArt";
 
-        public string? IconUrl => "https://st.deviantart.net/eclipse/icons/da_favicon_v2.ico";
+        public string? IconUrl => null;
 
         public string? ViewProfileUrl => $"https://www.deviantart.com/{Uri.EscapeDataString(Username)}";
 

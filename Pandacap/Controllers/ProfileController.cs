@@ -36,7 +36,7 @@ namespace Pandacap.Controllers
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
         IMyLinkService myLinkService,
-        PlatformLinkService platformLinkService,
+        PlatformLinkProvider platformLinkProvider,
         ActivityPubProfileTranslator profileTranslator,
         ActivityPubRelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager,
@@ -111,7 +111,7 @@ namespace Pandacap.Controllers
 
                 return new ProfileViewModel
                 {
-                    PlatformLinks = await platformLinkService.GetPlatformLinksAsync().ToListAsync(cancellationToken),
+                    PlatformLinks = await platformLinkProvider.GetPlatformLinksAsync(cancellationToken),
                     MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                     RecentArtwork = artwork,
                     RecentFavorites = favorites,

@@ -19,7 +19,7 @@ namespace Pandacap.Controllers
         DeliveryInboxCollector deliveryInboxCollector,
         ActivityPubHostInformation hostInformation,
         IHttpClientFactory httpClientFactory,
-        PlatformLinkService platformLinkService,
+        PlatformLinkProvider platformLinkProvider,
         PostCreator postCreator,
         ActivityPubPostTranslator postTranslator,
         ReplyLookup replyLookup) : Controller
@@ -51,7 +51,7 @@ namespace Pandacap.Controllers
 
             return View(new UserPostViewModel
             {
-                PlatformLinks = await platformLinkService.GetPlatformLinksAsync().ToListAsync(cancellationToken),
+                PlatformLinks = await platformLinkProvider.GetPlatformLinksAsync(cancellationToken),
                 Post = post,
                 Replies = User.Identity?.IsAuthenticated == true
                     ? await replyLookup

@@ -60,13 +60,24 @@
 
 @foreach (var linkGroup in Model.PlatformLinks.GroupBy(link => new
 {
-    link.Category,
-    Name = link.Category == PlatformLinkCategory.External
+    //HeaderIcon = link.Category.GetIconUrl(),
+    HeaderName = link.Category == PlatformLinkCategory.External
         ? link.PlatformName
-        : null
+        : $"{link.Category}"
 }))
 {
     <div class="social-block">
+        @* <div>
+            @if (linkGroup.Key.HeaderIcon != null)
+            {
+                <img alt=""
+                     src="@linkGroup.Key.HeaderIcon"
+                     class="social-icon-inline" />
+            }
+
+            @linkGroup.Key.HeaderName
+        </div> *@
+
         @foreach (var link in linkGroup)
         {
             if (link.ViewProfileUrl == null)

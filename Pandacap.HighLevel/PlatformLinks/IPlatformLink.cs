@@ -6,6 +6,7 @@ namespace Pandacap.HighLevel.PlatformLinks
     {
         PlatformLinkCategory Category { get; }
         string PlatformName { get; }
+        string Host { get; }
         string Username { get; }
 
         string? IconUrl { get; }

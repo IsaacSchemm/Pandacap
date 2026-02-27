@@ -7,9 +7,11 @@ namespace Pandacap.HighLevel.PlatformLinks
     {
         public PlatformLinkCategory Category => PlatformLinkCategory.External;
 
+        public string Host => "www.weasyl.com";
+
         public string PlatformName => "Weasyl";
 
-        public string? IconUrl => "https://www.weasyl.com/img/favicon-oP29Tyisif.svg";
+        public string? IconUrl => null;
 
         public string? ViewProfileUrl => $"https://www.weasyl.com/~{Uri.EscapeDataString(Username)}";
 

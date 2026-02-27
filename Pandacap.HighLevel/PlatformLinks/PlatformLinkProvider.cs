@@ -4,23 +4,69 @@ using Pandacap.ActivityPub;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Pandacap.Html;
+using System.Runtime.CompilerServices;
 
 namespace Pandacap.HighLevel.PlatformLinks
 {
-    public class PlatformLinkService(
+    public class PlatformLinkProvider(
         ActivityPubHostInformation activityPubHostInformation,
         ApplicationInformation appInfo,
         PandacapDbContext context,
-        DIDResolver didResolver)
+        DIDResolver didResolver,
+        IHttpClientFactory httpClientFactory,
+        IMemoryCache memoryCache)
     {
-        public async IAsyncEnumerable<IPlatformLink> GetPlatformLinksAsync()
+        private const string KEY = "9d3b19b8-b641-4ea2-8f03-0edd775618d3";
+
+        public async Task<IReadOnlyList<IPlatformLink>> GetPlatformLinksAsync(
+            CancellationToken cancellationToken)
+        =>
+            await memoryCache.GetOrCreateAsync<IReadOnlyList<IPlatformLink>>(
+                KEY,
+                async _ =>
+                    await GetUnderlyingPlatformLinksAsync(cancellationToken)
+                    .Select(async (link, ct) => await ResolveIconAsync(link, ct))
+                    .ToListAsync(cancellationToken))
+            ?? [];
+
+        private async Task<IPlatformLink> ResolveIconAsync(
+            IPlatformLink platformLink,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                using var client = httpClientFactory.CreateClient();
+                using var req = new HttpRequestMessage(HttpMethod.Get, $"https://{platformLink.Host}");
+                req.Headers.Accept.ParseAdd("text/html");
+                using var resp = await client.SendAsync(req, cancellationToken);
+                var html = await resp
+                    .EnsureSuccessStatusCode()
+                    .Content
+                    .ReadAsStringAsync(cancellationToken);
+                var href = ImageFinder
+                    .FindFaviconsInHTML(html)
+                    .LastOrDefault();
+                if (href != null)
+                {
+                    return new ResolvedIconPlatformLink(
+                        platformLink,
+                        new Uri(req.RequestUri!, href).AbsoluteUri);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+            }
+
+            return platformLink;
+        }
+
+        private async IAsyncEnumerable<IPlatformLink> GetUnderlyingPlatformLinksAsync(
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             yield return new MastodonLink(appInfo, "mastodon.social");
-            yield return new MastodonLink(appInfo, "activitypub.academy");
-            yield return new PixelfedLink(appInfo, "pixelfed.social");
+            yield return new MastodonLink(appInfo, "pixelfed.social");
             yield return new WafrnLink(appInfo, "app.wafrn.net");
             yield return new BrowserPubLink(activityPubHostInformation, appInfo, "browser.pub");
 
@@ -28,7 +74,7 @@ namespace Pandacap.HighLevel.PlatformLinks
                 .OrderByDescending(post => post.PublishedTime)
                 .Where(post => post.BlueskyDID != null)
                 .Select(post => post.BlueskyDID)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (did != null)
             {
@@ -46,21 +92,18 @@ namespace Pandacap.HighLevel.PlatformLinks
 
                 yield return new BlueskyStyleATProtoPlatformLink(
                     "Bluesky",
-                    "https://web-cdn.bsky.app/static/favicon-16x16.png",
                     "bsky.app",
                     did,
                     handle);
 
                 yield return new BlueskyStyleATProtoPlatformLink(
                     "Blacksky",
-                    "https://blacksky.community/static/favicon-16x16.png",
                     "blacksky.community",
                     did,
                     handle);
 
                 yield return new BlueskyStyleATProtoPlatformLink(
                     "Red Dwarf",
-                    "https://reddwarf.app/redstar.png",
                     "reddwarf.app",
                     did,
                     handle);

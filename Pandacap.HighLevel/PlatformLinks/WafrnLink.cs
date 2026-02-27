@@ -13,7 +13,7 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string Username => $"@{ApplicationInformation.Username}@{ApplicationInformation.ApplicationHostname}";
 
-        public string? IconUrl => $"https://{Host}/favicon.ico";
+        public string? IconUrl => null;
 
         public string? ViewProfileUrl => $"https://{Host}/blog/{Username}";
 

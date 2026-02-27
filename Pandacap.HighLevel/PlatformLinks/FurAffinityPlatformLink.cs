@@ -7,9 +7,11 @@ namespace Pandacap.HighLevel.PlatformLinks
     {
         public PlatformLinkCategory Category => PlatformLinkCategory.External;
 
+        public string Host => "www.furaffinity.net";
+
         public string PlatformName => "Fur Affinity";
 
-        public string? IconUrl => "https://sfw.furaffinity.net/themes/beta/img/favicon.ico";
+        public string? IconUrl => null;
 
         public string? ViewProfileUrl => $"https://www.furaffinity.net/user/{Uri.EscapeDataString(Username)}";
 
