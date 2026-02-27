@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub;
 using Pandacap.Data;
+using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.Html;
 using Pandacap.Models;
 using System.Net;
@@ -18,6 +19,7 @@ namespace Pandacap.Controllers
         DeliveryInboxCollector deliveryInboxCollector,
         ActivityPubHostInformation hostInformation,
         IHttpClientFactory httpClientFactory,
+        PlatformLinkService platformLinkService,
         PostCreator postCreator,
         ActivityPubPostTranslator postTranslator,
         ReplyLookup replyLookup) : Controller
@@ -49,6 +51,7 @@ namespace Pandacap.Controllers
 
             return View(new UserPostViewModel
             {
+                PlatformLinks = await platformLinkService.GetPlatformLinksAsync().ToListAsync(cancellationToken),
                 Post = post,
                 Replies = User.Identity?.IsAuthenticated == true
                     ? await replyLookup

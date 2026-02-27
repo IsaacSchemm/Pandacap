@@ -1,6 +1,7 @@
 ﻿@using Pandacap.ConfigurationObjects
 @using Pandacap.Data
 @using Pandacap.HighLevel
+@using Pandacap.HighLevel.PlatformLinks
 @model ProfileViewModel
 @inject ApplicationInformation appInfo
 
@@ -12,40 +13,30 @@
     <img width="50" height="50" src="/Blobs/Avatar" alt="" />
     <span style="display: inline-block; vertical-align: top">
         <strong>@appInfo.Username</strong>
-        <br />
-        <span class="small text-muted" style="user-select: all">@appInfo.ApplicationHostname</span>
 
-        @* <br />
+        @if (Model.PlatformLinks.FirstOrDefault(link => link.Category == PlatformLinkCategory.ActivityPub) is IPlatformLink apLink)
+        {
+            <br />
 
-        <img alt="Fediverse icon"
-             src="~/images/Fediverse_logo.svg"
-             title="ActivityPub"
-             width="16"
-             height="16" />
+            <img alt="@apLink.PlatformName icon"
+                 src="@apLink.IconUrl"
+                 width="16"
+                 height="16" />
 
-        <img alt="Mastodon logo"
-             title="Mastodon"
-             src="https://mastodon.social/packs/assets/favicon-16x16-74JBPGmr.png"
-             width="16"
-             height="16" />
+            <span class="small text-muted" style="user-select: all">@apLink.Username</span>
+        }
 
-        <span class="small text-muted" style="user-select: all">@@@(appInfo.Username)@@@(appInfo.ApplicationHostname)</span>
+        @if (Model.PlatformLinks.FirstOrDefault(link => link.Category == PlatformLinkCategory.ATProto) is IPlatformLink atLink)
+        {
+            <br />
 
-        <br />
+            <img alt="@atLink.PlatformName icon"
+                 src="@atLink.IconUrl"
+                 width="16"
+                 height="16" />
 
-        <img alt="atproto icon"
-             title="atproto"
-             src="https://atproto.com/en/icon.ico"
-             width="16"
-             height="16" />
-
-        <img alt="Bluesky logo"
-             title="Bluesky"
-             src="https://web-cdn.bsky.app/static/favicon-16x16.png"
-             width="16"
-             height="16" />
-
-        <span class="small text-muted" style="user-select: all">@@@Model.BlueskyHandle</span> *@
+            <span class="small text-muted" style="user-select: all">@atLink.Username</span>
+        }
     </span>
 </p>
 
@@ -63,175 +54,36 @@
     }
 </p>
 
-@* <div>
-    <div class="social-block">
-        <img alt=""
-             src="https://mastodon.social/packs/assets/favicon-16x16-74JBPGmr.png"
-             class="social-icon-inline" />
-
-        Mastodon
-
-        <img alt=""
-             src="https://pixelfed.social/img/favicon.png"
-             class="social-icon-inline" />
-
-        Pixelfed
-
-        <img alt=""
-             src="https://app.wafrn.net/favicon.ico"
-             class="social-icon-inline" />
-
-        wafrn
-
-        <br />
-
-        <span style="user-select: all">@@@(appInfo.Username)@@@(appInfo.ApplicationHostname)</span>
-
-        <br />
-
-        <span style="user-select: all">https://@appInfo.ApplicationHostname</span>
-    </div>
-
-    @if (Model.BlueskyHandle != null)
-    {
-        <div class="social-block">
-            <img alt=""
-                 src="https://atproto.com/en/icon.ico"
-                 class="social-icon-inline" />
-
-            atproto
-
-            <br />
-
-            <span style="user-select: all">@@@Model.BlueskyHandle</span>
-
-            <br />
-
-            <span style="user-select: all">@Model.BlueskyDID</span>
-        </div>
-    }
-
-    <div class="social-block">
-        <img alt=""
-             src="/images/feed-icon.svg"
-             class="social-icon-inline" />
-
-        Feeds
-
-        <br />
-
-        <span style="user-select: all">https://@(appInfo.ApplicationHostname)/Gallery/Composite?format=atom</span>
-
-        <br />
-
-        <span style="user-select: all">https://@(appInfo.ApplicationHostname)/Gallery/Composite?format=rss</span>
-    </div>
-</div> *@
-
 <div class="social-block">
     View on:
 </div>
 
-<div class="social-block">
-    <a href="https://mastodon.social/@@@appInfo.Username@@@appInfo.ApplicationHostname" target="_blank">
-        <img alt=""
-                src="https://mastodon.social/packs/assets/favicon-16x16-74JBPGmr.png"
-                class="social-icon-inline" />
-
-        mastodon.social
-    </a>
-
-    <br />
-
-    <a href="https://pixelfed.social/@@@appInfo.Username@@@appInfo.ApplicationHostname" target="_blank">
-        <img alt=""
-                src="https://pixelfed.social/img/favicon.png"
-                class="social-icon-inline" />
-
-        pixelfed.social
-    </a>
-
-    <br />
-
-    <a href="https://app.wafrn.net/blog/@@@appInfo.Username@@@appInfo.ApplicationHostname" target="_blank">
-        <img alt=""
-                src="https://app.wafrn.net/favicon.ico"
-                class="social-icon-inline" />
-
-        app.wafrn.net
-    </a>
-
-    <br />
-
-    <a href="https://browser.pub/https://@appInfo.ApplicationHostname" target="_blank">
-        <img alt=""
-                src="https://browser.pub/icon.svg"
-                class="social-icon-inline" />
-
-        browser.pub
-    </a>
-</div>
-
-@if (Model.BlueskyDID != null)
+@foreach (var linkGroup in Model.PlatformLinks.GroupBy(link => new
+{
+    link.Category,
+    Name = link.Category == PlatformLinkCategory.External
+        ? link.PlatformName
+        : null
+}))
 {
     <div class="social-block">
-        <a href="https://bsky.app/profile/@Model.BlueskyHandle" target="_blank">
-            <img alt=""
-                    src="https://web-cdn.bsky.app/static/favicon-16x16.png"
-                    class="social-icon-inline" />
-
-            Bluesky
-        </a>
-
-        <br />
-
-        <a href="https://blacksky.community/profile/@Model.BlueskyHandle" target="_blank">
-            <img alt=""
-                    src="https://blacksky.community/static/favicon-16x16.png"
-                    class="social-icon-inline" />
-
-            Blacksky
-        </a>
-
-        <br />
-
-        <a href="https://reddwarf.app/profile/@Model.BlueskyHandle" target="_blank" style="text-decoration: none">
-            <img alt=""
-                    src="https://reddwarf.app/redstar.png"
-                    class="social-icon-inline" />
-
-            Red Dwarf
-        </a>
-    </div>
-}
-
-@foreach (var link in Model.MyLinks)
-{
-    <div class="social-block">
-        <a href="@link.url" target="_blank">
-            @switch (link.platformName)
+        @foreach (var link in linkGroup)
+        {
+            if (link.ViewProfileUrl == null)
             {
-                case "DeviantArt":
-                    <img alt=""
-                            src="https://st.deviantart.net/eclipse/icons/da_favicon_v2.ico"
-                            class="social-icon-inline" />
-                    break;
-
-                case "Fur Affinity":
-                    <img alt=""
-                            src="https://sfw.furaffinity.net/themes/beta/img/favicon.ico"
-                            class="social-icon-inline" />
-                    break;
-
-                case "Weasyl":
-                    <img alt=""
-                            src="https://www.weasyl.com/img/favicon-oP29Tyisif.svg"
-                            class="social-icon-inline" />
-                    break;
+                continue;
             }
 
-            @link.platformName
-        </a>
+            <div>
+                <a href="@link.ViewProfileUrl" target="_blank">
+                    <img alt=""
+                         src="@link.IconUrl"
+                         class="social-icon-inline" />
+
+                    @link.PlatformName
+                </a>
+            </div>
+        }
     </div>
 }
 

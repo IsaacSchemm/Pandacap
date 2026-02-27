@@ -10,6 +10,7 @@ using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.HighLevel.FeedReaders;
 using Pandacap.HighLevel.Lemmy;
+using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.Weasyl;
 using Pandacap.LowLevel.MyLinks;
@@ -58,6 +59,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<IMyLinkService, MyLinkService>()
+                .AddScoped<PlatformLinkService>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WebFingerService>();
         }

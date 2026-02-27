@@ -13,6 +13,7 @@ using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.FeedReaders;
+using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.LowLevel.MyLinks;
 using Pandacap.Models;
 using System.Diagnostics;
@@ -35,6 +36,7 @@ namespace Pandacap.Controllers
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
         IMyLinkService myLinkService,
+        PlatformLinkService platformLinkService,
         ActivityPubProfileTranslator profileTranslator,
         ActivityPubRelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager,
@@ -56,24 +58,6 @@ namespace Pandacap.Controllers
                 links: await myLinkService.GetLinksAsync(cancellationToken),
                 publicKeyPem: key,
                 username: appInfo.Username);
-        }
-
-        private async Task<string?> FindBlueskyHandleAsync(
-            string? did)
-        {
-            if (did == null)
-                return null;
-
-            try
-            {
-                var document = await didResolver.ResolveAsync(did);
-                return document.Handle;
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine(ex);
-                return did;
-            }
         }
 
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
@@ -125,17 +109,9 @@ namespace Pandacap.Controllers
                     .Take(5)
                     .ToListAsync(cancellationToken);
 
-                var did = new[] { artwork, textPosts, links }
-                    .SelectMany(x => x)
-                    .OrderByDescending(x => x.PublishedTime)
-                    .Where(x => x.BlueskyDID != null)
-                    .Select(x => x.BlueskyDID)
-                    .FirstOrDefault();
-
                 return new ProfileViewModel
                 {
-                    BlueskyDID = did,
-                    BlueskyHandle = await FindBlueskyHandleAsync(did),
+                    PlatformLinks = await platformLinkService.GetPlatformLinksAsync().ToListAsync(cancellationToken),
                     MyLinks = await myLinkService.GetLinksAsync(cancellationToken),
                     RecentArtwork = artwork,
                     RecentFavorites = favorites,

@@ -1,5 +1,6 @@
 ﻿@using Pandacap.ConfigurationObjects
 @using Pandacap.Data
+@using Pandacap.HighLevel.PlatformLinks
 @model UserPostViewModel
 @inject ApplicationInformation appInfo
 
@@ -23,8 +24,30 @@
     <img width="50" height="50" src="/Blobs/Avatar" alt="" />
     <span style="display: inline-block; vertical-align: top">
         <strong>@appInfo.Username</strong>
-        <br />
-        <span class="small text-muted" style="user-select: all">@appInfo.ApplicationHostname</span>
+
+        @if (Model.PlatformLinks.FirstOrDefault(link => link.Category == PlatformLinkCategory.ActivityPub) is IPlatformLink apLink)
+        {
+            <br />
+
+            <img alt="@apLink.PlatformName icon"
+                 src="@apLink.IconUrl"
+                 width="16"
+                 height="16" />
+
+            <span class="small text-muted" style="user-select: all">@apLink.Username</span>
+        }
+
+        @if (Model.PlatformLinks.FirstOrDefault(link => link.Category == PlatformLinkCategory.ATProto) is IPlatformLink atLink)
+        {
+            <br />
+
+            <img alt="@atLink.PlatformName icon"
+                 src="@atLink.IconUrl"
+                 width="16"
+                 height="16" />
+
+            <span class="small text-muted" style="user-select: all">@atLink.Username</span>
+        }
     </span>
 </p>
 
@@ -39,96 +62,32 @@
     View on:
 </div>
 
-@if (Model.Post.BlueskyDID != null)
+@foreach (var linkGroup in Model.PlatformLinks.GroupBy(link => new
+{
+    link.Category,
+    Name = link.Category == Pandacap.HighLevel.PlatformLinks.PlatformLinkCategory.External
+        ? link.PlatformName
+        : null
+}))
 {
     <div class="social-block">
-        <a href="https://bsky.app/profile/@Model.Post.BlueskyDID/post/@Model.Post.BlueskyRecordKey" target="_blank">
-            <img alt=""
-                 src="https://web-cdn.bsky.app/static/favicon-16x16.png"
-                 class="social-icon-inline" />
+        @foreach (var link in linkGroup)
+        {
+            if (link.GetViewPostUrl(Model.Post) is not string url)
+            {
+                continue;
+            }
 
-            Bluesky
-        </a>
+            <div>
+                <a href="@url" target="_blank">
+                    <img alt=""
+                         src="@link.IconUrl"
+                         class="social-icon-inline" />
 
-        <br />
-
-        <a href="https://blacksky.community/profile/@Model.Post.BlueskyDID/post/@Model.Post.BlueskyRecordKey" target="_blank">
-            <img alt=""
-                 src="https://blacksky.community/static/favicon-16x16.png"
-                 class="social-icon-inline" />
-
-            Blacksky
-        </a>
-
-        <br />
-
-        <a href="https://reddwarf.app/profile/@Model.Post.BlueskyDID/post/@Model.Post.BlueskyRecordKey" target="_blank" style="text-decoration: none">
-            <img alt=""
-                 src="https://reddwarf.app/redstar.png"
-                 class="social-icon-inline" />
-
-            Red Dwarf
-        </a>
-    </div>
-}
-
-@if (Model.Post.DeviantArtUrl != null)
-{
-    <div class="social-block">
-        <a href="@Model.Post.DeviantArtUrl" target="_blank">
-            <img alt=""
-                 src="https://st.deviantart.net/eclipse/icons/da_favicon_v2.ico"
-                 class="social-icon-inline" />
-            DeviantArt
-        </a>
-    </div>
-}
-
-@if (Model.Post.FurAffinitySubmissionId is int faSubmissionId)
-{
-    <div class="social-block">
-        <a href="https://www.furaffinity.net/view/@(faSubmissionId)/" target="_blank">
-            <img alt=""
-                 src="https://sfw.furaffinity.net/themes/beta/img/favicon.ico"
-                 class="social-icon-inline" />
-            Fur Affinity
-        </a>
-    </div>
-}
-
-@if (Model.Post.FurAffinityJournalId is int faJournalId)
-{
-    <div class="social-block">
-        <a href="https://www.furaffinity.net/journal/@(faJournalId)/" target="_blank">
-            <img alt=""
-                 src="https://sfw.furaffinity.net/themes/beta/img/favicon.ico"
-                 class="social-icon-inline" />
-            Fur Affinity
-        </a>
-    </div>
-}
-
-@if (Model.Post.WeasylSubmitId is int submitid)
-{
-    <div class="social-block">
-        <a href="https://www.weasyl.com/~x/submissions/@(submitid)" target="_blank">
-            <img alt=""
-                 src="https://www.weasyl.com/img/favicon-oP29Tyisif.svg"
-                 class="social-icon-inline" />
-            Weasyl
-        </a>
-    </div>
-}
-
-@if (Model.Post.WeasylJournalId is int journalid)
-{
-    <div class="social-block">
-        <a href="https://www.weasyl.com/journal/@(journalid)" target="_blank">
-            <img alt=""
-                 src="https://www.weasyl.com/img/favicon-oP29Tyisif.svg"
-                 class="social-icon-inline" />
-            Weasyl
-        </a>
+                    @link.PlatformName
+                </a>
+            </div>
+        }
     </div>
 }
 

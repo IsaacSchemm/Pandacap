@@ -1,12 +1,12 @@
 ﻿using Pandacap.Data;
+using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.LowLevel.MyLinks;
 
 namespace Pandacap.Models
 {
     public class ProfileViewModel
     {
-        public string? BlueskyHandle { get; set; }
-        public string? BlueskyDID { get; set; }
+        public IReadOnlyList<IPlatformLink> PlatformLinks { get; set; } = [];
 
         public IReadOnlyList<MyLink> MyLinks { get; set; } = [];
 
