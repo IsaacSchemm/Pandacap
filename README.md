@@ -98,7 +98,7 @@ You can crosspost to any or all of these platforms and view their notifications 
 
 Posts from users you follow on these platforms will appear in the Pandacap inbox, and posts you add to your favorites on these platforms will appear in Pandacap's Favorites automatically.
 
-Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for most functions, and Weasyl support relies on a PHP proxy script (included in this repository).
+Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for some functions, and Weasyl support relies on a PHP proxy script (included in this repository).
 
 ### Reddit
 
@@ -125,7 +125,7 @@ Libraries:
     * **ConfigurationObjects**: Contains objects that store deployment-level data (i.e. hostname, username) and codebase-level data (e.g. software name, public website).
     * **PlatformBadges**: Contains types that represent the platforms supported by Pandacap and corresponding displayable badges for the UI.
     * **Html**:  Parses and scrapes data from HTML pages.
-    * **FurAffinity**: Connects to FurAffinity and FAExport.
+    * **FurAffinity**: Connects to Fur Affinity and FAExport.
     * **ActivityPub**: Creates objects representing posts, favorites, the user profile, etc., which can be sent to, or retrieved by, other servers via ActivityPub.
         * **Communication**: Sends and retrieves objects to/from remote servers via ActivityPub.
         * **Inbound**: Parses objects recieved or retrieved via ActivityPub (posts and actors), converting them into an abstracted form.

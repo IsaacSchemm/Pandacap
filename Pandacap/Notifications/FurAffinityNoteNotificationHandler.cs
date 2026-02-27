@@ -28,7 +28,7 @@ namespace Pandacap.Notifications
                         PostPlatformModule.GetBadge(PostPlatform.FurAffinity),
                         viewAllUrl: "https://www.furaffinity.net/msg/others/"),
                     PostUrl = $"https://www.furaffinity.net/viewmessage/{note.note_id}",
-                    Timestamp = DateTimeOffset.UtcNow,
+                    Timestamp = note.time,
                     UserName = note.userDisplayName
                 };
         }

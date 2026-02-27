@@ -18,18 +18,18 @@ namespace Pandacap.Notifications
         public IAsyncEnumerable<Notification> GetNotificationsAsync() =>
             new INotificationHandler[]
             {
-                //activityPubAddressedPostNotificationHandler,
-                //activityPubNotificationHandler,
-                //activityPubNotificationReplyHandler,
-                //atProtoNotificationHandler,
-                //deviantArtFeedNotificationHandler,
-                //deviantArtNoteNotificationHandler,
+                activityPubAddressedPostNotificationHandler,
+                activityPubNotificationHandler,
+                activityPubNotificationReplyHandler,
+                atProtoNotificationHandler,
+                deviantArtFeedNotificationHandler,
+                deviantArtNoteNotificationHandler,
                 furAffinityNoteNotificationHandler,
-                //furAffinityNotificationHandler,
-                //weasylNoteNotificationHandler,
-                //weasylNotificationHandler
+                furAffinityNotificationHandler,
+                weasylNoteNotificationHandler,
+                weasylNotificationHandler
             }
-            //.Select(handler => new NotificationFailureHandler(handler))
+            .Select(handler => new NotificationFailureHandler(handler))
             .Select(handler => handler.GetNotificationsAsync())
             .MergeNewest(post => post.Timestamp);
     }

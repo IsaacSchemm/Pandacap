@@ -388,3 +388,32 @@ module FA =
             }
         ]
     }
+
+    type Notification = {
+        time: DateTimeOffset
+        text: string
+    }
+
+    let GetNotificationsAsync credentials cancellationToken = task {
+        use client = getClient credentials WWW
+        use! resp = client.GetAsync("/msg/others/", cancellationToken = cancellationToken)
+
+        let! html = resp.Content.ReadAsStringAsync(cancellationToken)
+
+        let document = HtmlDocument.Parse(html)
+
+        return [
+            for item in document.CssSelect(".message-stream li") do
+                let time =
+                    item.CssSelect("span[data-time]")
+                    |> Seq.tryHead
+                    |> Option.bind (HtmlNode.tryGetAttribute "data-time")
+                    |> Option.map (HtmlAttribute.value >> int64 >> DateTimeOffset.FromUnixTimeSeconds)
+                match time with
+                | None -> ()
+                | Some t -> {
+                    text = HtmlNode.innerText item
+                    time = t
+                }
+        ]
+    }

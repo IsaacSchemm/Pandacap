@@ -13,64 +13,6 @@ module FAExport =
         client
 
     module Notifications =
-        type Watch = {
-            watch_id: int
-            name: string
-            profile: string
-            profile_name: string
-            avatar: string
-            posted_at: DateTime
-            deleted: bool
-        }
-
-        type SubmissionComment = {
-            comment_id: int
-            name: string
-            profile: string
-            profile_name: string
-            is_reply: bool
-            your_submission: bool
-            their_submission: bool
-            submission_id: int
-            title: string
-            posted_at: DateTime
-            deleted: bool
-        }
-
-        type JournalComment = {
-            comment_id: int
-            name: string
-            profile: string
-            profile_name: string
-            is_reply: bool
-            your_journal: bool
-            their_journal: bool
-            journal_id: int
-            title: string
-            posted_at: DateTime
-            deleted: bool
-        }
-
-        type Shout = {
-            shout_id: int
-            name: string
-            profile: string
-            profile_name: string
-            posted_at: DateTime
-            deleted: bool
-        }
-
-        type Favorite = {
-            favorite_notification_id: int
-            name: string
-            profile: string
-            profile_name: string
-            submission_id: int
-            submission_name: string
-            posted_at: DateTime
-            deleted: bool
-        }
-
         type Journal = {
             journal_id: int
             title: string
@@ -82,11 +24,6 @@ module FAExport =
         }
 
         type Others = {
-            new_watches: Watch list
-            new_submission_comments: SubmissionComment list
-            new_journal_comments: Journal list
-            new_shouts: Shout list
-            new_favorites: Favorite list
             new_journals: Journal list
         }
 
