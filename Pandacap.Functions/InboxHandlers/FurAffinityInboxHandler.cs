@@ -29,29 +29,26 @@ namespace Pandacap.Functions.InboxHandlers
                 .DefaultIfEmpty(0)
                 .Single();
 
-            async IAsyncEnumerable<FAExport.Submission> enumerateAsync(bool sfw)
+            async IAsyncEnumerable<FA.Submission> enumerateAsync(bool sfw)
             {
-                int from = int.MaxValue;
+                var pagination = FA.SubmissionsPage.NewFromOldest(lastSeenId + 1);
 
                 while (true)
                 {
-                    var page = await FAExport.Notifications.GetSubmissionsAsync(
-                        httpClientFactory,
+                    var page = await FA.GetSubmissionsAsync(
                         credentials,
-                        from,
-                        sfw,
+                        sfw ? FA.Domain.SFW : FA.Domain.WWW,
+                        pagination,
                         CancellationToken.None);
 
-                    if (page.new_submissions.IsEmpty)
+                    if (page.IsEmpty)
                         break;
 
-                    foreach (var submission in page.new_submissions)
+                    foreach (var submission in page)
                     {
-                        if (submission.id <= lastSeenId)
-                            yield break;
-
                         yield return submission;
-                        from = submission.id - 1;
+
+                        pagination = FA.SubmissionsPage.NewFromOldest(submission.id + 1);
                     }
                 }
             }
@@ -71,11 +68,12 @@ namespace Pandacap.Functions.InboxHandlers
                     SubmissionId = submission.id,
                     Title = submission.title,
                     Thumbnail = submission.thumbnail,
-                    Link = submission.link,
+                    Link = $"https://www.furaffinity.net/view/{submission.id}/",
                     PostedBy = new()
                     {
-                        Name = submission.name,
-                        Url = submission.profile
+                        Name = submission.submission_data.username,
+                        Url = $"https://www.furaffinity.net/user/{Uri.EscapeDataString(submission.submission_data.lower)}",
+                        Avatar = submission.submission_data.AvatarUrl
                     },
                     PostedAt =
                         GetFurAffinityThumbnailPattern().Match(submission.thumbnail) is Match match

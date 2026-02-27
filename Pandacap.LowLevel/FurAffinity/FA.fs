@@ -305,3 +305,43 @@ module FA =
             |> Seq.sortByDescending (fun fav -> fav.fav_id)
             |> Seq.toList
     }
+
+    [<RequireQualifiedAccess>]
+    type SubmissionsPage = FromOldest of int64
+
+    let GetSubmissionsAsync credentials domain pagination cancellationToken = task {
+        let path =
+            match pagination with
+            | SubmissionsPage.FromOldest sid -> $"/msg/submissions/old~{sid}@48/"
+
+        use client = getClient credentials domain
+        use! resp = client.GetAsync(path, cancellationToken = cancellationToken)
+
+        let! html = resp.Content.ReadAsStringAsync(cancellationToken)
+
+        let subset = html.Substring(List.max [0; html.IndexOf("""<div id="standardpage">""")])
+
+        let document = HtmlDocument.Parse(subset)
+
+        let submissionData =
+            document.CssSelect("#js-submissionData")
+            |> Seq.map (fun node -> node.InnerText())
+            |> Seq.map (fun json -> JsonSerializer.Deserialize<Map<int, SubmissionDataElement>>(json))
+            |> Seq.tryHead
+            |> Option.defaultValue Map.empty
+
+        return
+            seq {
+                for sid, submissionDataElement in Map.toSeq submissionData do
+                    match document.CssSelect($"#sid-{sid}") |> Seq.tryHead with
+                    | None -> ()
+                    | Some figure -> {
+                        id = sid
+                        fav_id = 0L
+                        submission_data = submissionDataElement
+                        title = figure.CssSelect("figcaption p a").Head.InnerText()
+                        thumbnail = figure.CssSelect("img").Head.Attribute("src").Value()
+                    }
+            }
+            |> Seq.toList
+    }
