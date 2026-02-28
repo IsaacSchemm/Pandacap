@@ -1,6 +1,5 @@
 ﻿@using Pandacap.ConfigurationObjects
 @using Pandacap.HighLevel.PlatformLinks
-@model IProfileHeadingModel
 @inject ApplicationInformation appInfo
 
 <p>
@@ -11,29 +10,5 @@
         <br />
 
         <span class="small text-muted" style="user-select: all">@appInfo.ActivityPubWebFingerHandle</span>
-
-        @foreach (var handle in Model.PlatformLinks
-            .Where(x => x.Category == PlatformLinkCategory.ATProto)
-            .Select(x => x.Username)
-            .Take(1))
-        {
-            <br />
-
-            <span class="small text-muted" style="user-select: all">@handle</span>
-        }
-
-        @* @foreach (var group in Model.PlatformLinks
-            .Where(x => x.Username != null)
-            .GroupBy(x => x.Username))
-        {
-            <br />
-
-            <span class="small text-muted" style="user-select: all">@group.Key</span>
-
-            foreach (var link in group)
-            {
-                <img alt="icon for @link.Host" src="@link.IconUrl" width="16" height="16" />
-            }
-        } *@
     </span>
 </p>
