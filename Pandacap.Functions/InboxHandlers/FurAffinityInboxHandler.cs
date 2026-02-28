@@ -105,34 +105,35 @@ namespace Pandacap.Functions.InboxHandlers
                 .DefaultIfEmpty(0)
                 .Single();
 
-            var notifications = await FAExport.Notifications.GetOthersAsync(
-                httpClientFactory,
+            var notifications = await FA.GetNotificationsAsync(
                 credentials,
                 CancellationToken.None);
-            
-            var timeZoneInfo = await FA.GetTimeZoneAsync(credentials, CancellationToken.None);
 
-            DateTimeOffset convertToUtc(DateTime dateTime) =>
-                TimeZoneInfo.ConvertTimeToUtc(
-                    DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified),
-                    timeZoneInfo);
-
-            foreach (var journal in notifications.new_journals)
+            foreach (var notification in notifications)
             {
-                if (journal.journal_id <= lastSeenId)
+                if (notification.journalId is not int journalId)
                     continue;
+
+                if (journalId <= lastSeenId)
+                    continue;
+
+                var journal = await FA.GetJournalAsync(
+                    credentials,
+                    journalId,
+                    CancellationToken.None);
 
                 context.InboxFurAffinityJournals.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JournalId = journal.journal_id,
+                    JournalId = journalId,
                     Title = journal.title,
                     PostedBy = new()
                     {
-                        Name = journal.name,
-                        Url = journal.profile
+                        Name = journal.Username,
+                        Url = journal.Profile,
+                        Avatar = journal.avatar
                     },
-                    PostedAt = convertToUtc(journal.posted_at)
+                    PostedAt = notification.time
                 });
             }
 

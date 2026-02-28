@@ -7,6 +7,7 @@ open Pandacap.PlatformBadges
 type InboxFurAffinityJournalUser() =
     member val Name = "" with get, set
     member val Url = "" with get, set
+    member val Avatar = nullString with get, set
 
 type InboxFurAffinityJournal() =
     [<Key>]
@@ -37,5 +38,5 @@ type InboxFurAffinityJournal() =
         member this.PostedAt = this.PostedAt
         member this.ProfileUrl = this.PostedBy.Url
         member _.Thumbnails = []
-        member _.Usericon = null
+        member this.Usericon = this.PostedBy.Avatar
         member this.Username = this.PostedBy.Name

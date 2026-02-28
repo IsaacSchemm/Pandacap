@@ -12,27 +12,6 @@ module FAExport =
         client.DefaultRequestHeaders.UserAgent.ParseAdd(credentials.UserAgent)
         client
 
-    module Notifications =
-        type Journal = {
-            journal_id: int
-            title: string
-            name: string
-            profile: string
-            profile_name: string
-            posted_at: DateTime
-            deleted: bool
-        }
-
-        type Others = {
-            new_journals: Journal list
-        }
-
-        let GetOthersAsync factory credentials cancellationToken = task {
-            use client = getClient factory credentials
-            use! resp = client.GetAsync($"/notifications/others.json", cancellationToken = cancellationToken)
-            return! resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<Others>()
-        }
-
     type PostedJournal = {
         url: string
     }

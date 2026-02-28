@@ -389,9 +389,68 @@ module FA =
         ]
     }
 
+    type Journal = {
+        title: string
+        url: string
+        avatar: string
+    } with
+        member this.Username =
+            this.avatar.Split('/')
+            |> Array.last
+            |> (fun str -> str.Split('.'))
+            |> Array.head
+        member this.Profile =
+            $"https://www.furaffinity.net/user/{this.Username}/"
+
+    let GetJournalAsync credentials (journalId: int64) cancellationToken = task {
+        use client = getClient credentials WWW
+        use! resp = client.GetAsync($"/journal/{journalId}/", cancellationToken = cancellationToken)
+
+        let! html = resp.Content.ReadAsStringAsync(cancellationToken)
+
+        let document = HtmlDocument.Parse(html)
+
+        let metaTags = seq {
+            for meta in document.CssSelect("meta") do
+                let property =
+                    meta
+                    |> HtmlNode.tryGetAttribute "property"
+                    |> Option.map (HtmlAttribute.value)
+                let content =
+                    meta
+                    |> HtmlNode.tryGetAttribute "content"
+                    |> Option.map (HtmlAttribute.value)
+                match property, content with
+                | Some p, Some c -> {| property = p; content = c|}
+                | _ -> ()
+        }
+
+        return {
+            title =
+                metaTags
+                |> Seq.where (fun meta -> meta.property = "og:title")
+                |> Seq.map (fun meta -> meta.content)
+                |> Seq.tryHead
+                |> Option.defaultValue $"{journalId}"
+            url =
+                metaTags
+                |> Seq.where (fun meta -> meta.property = "og:url")
+                |> Seq.map (fun meta -> meta.content)
+                |> Seq.tryHead
+                |> Option.defaultValue resp.RequestMessage.RequestUri.AbsoluteUri
+            avatar =
+                metaTags
+                |> Seq.where (fun meta -> meta.property = "og:image")
+                |> Seq.map (fun meta -> meta.content)
+                |> Seq.tryHead
+                |> Option.toObj
+        }
+    }
+
     type Notification = {
         time: DateTimeOffset
         text: string
+        journalId: Nullable<int>
     }
 
     let GetNotificationsAsync credentials cancellationToken = task {
@@ -411,9 +470,32 @@ module FA =
                     |> Option.map (HtmlAttribute.value >> int64 >> DateTimeOffset.FromUnixTimeSeconds)
                 match time with
                 | None -> ()
-                | Some t -> {
-                    text = HtmlNode.innerText item
-                    time = t
-                }
+                | Some t ->
+                    let journalId =
+                        item.CssSelect("input[type=checkbox]")
+                        |> Seq.map (fun node -> {|
+                            name =
+                                node
+                                |> HtmlNode.tryGetAttribute "name"
+                                |> Option.map HtmlAttribute.value
+                                |> Option.defaultValue ""
+                            value =
+                                node
+                                |> HtmlNode.tryGetAttribute "value"
+                                |> Option.map HtmlAttribute.value
+                                |> Option.defaultValue ""
+                        |})
+                        |> Seq.where (fun x -> x.name = "journals[]")
+                        |> Seq.choose (fun x ->
+                            match Int32.TryParse(x.value) with
+                            | true, v -> Some v
+                            | false, _ -> None)
+                        |> Seq.tryHead
+
+                    {
+                        text = HtmlNode.innerText item
+                        time = t
+                        journalId = Option.toNullable journalId
+                    }
         ]
     }
