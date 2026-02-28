@@ -56,16 +56,22 @@ img.feed-image {
 
 .social-block {
     color: var(--bs-secondary-color);
-    display: inline-block;
     font-size: 0.875em;
     line-height: calc(var(--bs-body-line-height)/0.875);
     margin: 0 1em 1em 0;
     vertical-align: top;
+    width: 150px;
 }
 
     .social-block a {
         text-decoration: none;
     }
+
+@media (min-width: 992px) {
+    .social-block {
+        display: inline-block;
+    }
+}
 
 .social-icon-inline {
     width: 16px;

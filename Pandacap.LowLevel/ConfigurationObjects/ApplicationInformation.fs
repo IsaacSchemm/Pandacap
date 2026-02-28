@@ -15,4 +15,5 @@ type ApplicationInformation = {
     /// The hostname for a website that hosts PHP scripts which proxy requests
     /// to Weasyl (to avoid a filter on Azure's outgoing IP address blocks).
     WeasylProxyHost: string
-}
+} with
+    member this.ActivityPubWebFingerHandle = $"@{this.Username}@{this.ApplicationHostname}"

@@ -11,7 +11,7 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string PlatformName => Host;
 
-        public string Username => $"@{ApplicationInformation.Username}@{ApplicationInformation.ApplicationHostname}";
+        public string Username => ApplicationInformation.ActivityPubWebFingerHandle;
 
         public string? IconUrl => null;
 

@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 namespace Pandacap.HighLevel.PlatformLinks
 {
     public class PlatformLinkProvider(
+        ActivityPubHostInformation activityPubHostInformation,
         ApplicationInformation appInfo,
         PandacapDbContext context,
         DIDResolver didResolver,
@@ -88,11 +89,11 @@ namespace Pandacap.HighLevel.PlatformLinks
         private async IAsyncEnumerable<IPlatformLink> GetUnderlyingPlatformLinksAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            yield return new BrowserPubLink(activityPubHostInformation, appInfo, "browser.pub");
             yield return new MastodonLink(appInfo, "mastodon.social");
             yield return new MastodonLink(appInfo, "activitypub.academy");
             yield return new MastodonLink(appInfo, "pixelfed.social");
             yield return new WafrnLink(appInfo, "app.wafrn.net");
-            yield return new MastodonLink(appInfo, "browser.pub");
 
             var did = await context.Posts
                 .OrderByDescending(post => post.PublishedTime)
