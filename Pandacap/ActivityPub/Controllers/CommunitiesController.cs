@@ -66,7 +66,7 @@ namespace Pandacap.Controllers
 
             var branches = Lemmy.Restructure(comments);
 
-            return View(new PostViewModel(community, post, branches));
+            return View(new LemmyPostViewModel(community, post, branches));
         }
 
         public async Task<IActionResult> Bookmarks()

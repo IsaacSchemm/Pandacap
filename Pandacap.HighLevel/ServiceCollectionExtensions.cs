@@ -59,6 +59,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<FurryNetworkClient>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
+                .AddScoped<PlatformIconProvider>()
                 .AddScoped<PlatformLinkProvider>()
                 .AddScoped<IResolver, ActivityPubResolver>()
                 .AddScoped<IResolver, BlueskyResolver>()

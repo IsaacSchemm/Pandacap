@@ -3,6 +3,7 @@
 @using Pandacap.HighLevel.PlatformLinks
 @model UserPostViewModel
 @inject ApplicationInformation appInfo
+@inject PlatformIconProvider platformIconProvider
 
 @{
     ViewBag.Title = Model.Post.Type == PostType.StatusUpdate
@@ -34,7 +35,6 @@
 </div>
 
 @foreach (var linkGroup in Model.PlatformLinks
-    .Where(link => link.GetViewPostUrl(Model.Post) != null)
     .GroupBy(link => new
     {
         HeaderName = link.Category == PlatformLinkCategory.External
@@ -48,7 +48,7 @@
             <div>
                 <a href="@link.GetViewPostUrl(Model.Post)" target="_blank">
                     <img alt=""
-                         src="@link.IconUrl"
+                         src="@await platformIconProvider.ResolveIconAsync(link.Host)"
                          class="social-icon-inline" />
 
                     @link.Host

@@ -13,8 +13,6 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string Username => ApplicationInformation.ActivityPubWebFingerHandle;
 
-        public string? IconUrl => null;
-
         public string? ViewProfileUrl => $"https://{Host}/blog/{Username}";
 
         public string? GetViewPostUrl(Post post) => null;
