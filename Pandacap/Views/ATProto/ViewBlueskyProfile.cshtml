@@ -1,0 +1,33 @@
+﻿@model BlueskyProfileViewModel
+@using Pandacap.Clients.ATProto
+
+@{
+    ViewBag.Title = "View Bluesky Profile";
+}
+
+<p>
+    @if (Model.AvatarCID != null)
+    {
+        <img height="50" src="/ATProto/GetBlob?did=@Model.DID&cid=@Model.AvatarCID" alt="" />
+    }
+    <span style="display: inline-block; vertical-align: top">
+        <a href="https://bsky.app/profile/@@@Model.Handle" target="_blank">
+            <strong>@@@Model.Handle</strong>
+        </a>
+
+        <br>
+
+        <span class="small text-muted" style="user-select: all">@Model.DID</span>
+    </span>
+</p>
+
+<form asp-controller="Profile" asp-action="AddATProtoFeed">
+    <input type="hidden" class="form-control" name="handle" value="@Model.DID" />
+    <div class="row mb-3">
+        <div class="col-md-3 mt-auto">
+            <button type="submit" class="btn btn-primary">
+                Subscribe to feed
+            </button>
+        </div>
+    </div>
+</form>

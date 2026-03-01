@@ -237,6 +237,9 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Follow(string id)
         {
+            if (await context.Follows.Where(f => f.ActorId == id).DocumentCountAsync() > 0)
+                return RedirectToAction(nameof(UpdateFollow), new { id });
+
             var actor = await activityPubRemoteActorService.FetchActorAsync(id);
 
             Guid followGuid = Guid.NewGuid();
@@ -266,7 +269,7 @@ namespace Pandacap.Controllers
 
             await context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(FollowingAndFeeds));
+            return RedirectToAction(nameof(UpdateFollow), new { id });
         }
 
         [HttpPost]
@@ -322,6 +325,9 @@ namespace Pandacap.Controllers
             string did = handle.StartsWith("did:")
                 ? handle
                 : await atProtoHandleLookupClient.FindDIDAsync(handle);
+
+            if (await context.ATProtoFeeds.Where(a => a.DID == did).DocumentCountAsync() > 0)
+                return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
 
             var document = await didResolver.ResolveAsync(did);
 

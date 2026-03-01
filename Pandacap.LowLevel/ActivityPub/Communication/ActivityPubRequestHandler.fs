@@ -9,6 +9,8 @@ open System.Threading
 open Pandacap.ActivityPub
 open Pandacap.Html
 
+exception ActivityPubAlternateLinkNotFoundException
+
 type ActivityPubRequestHandler(
     prerequisites: IActivityPubCommunicationPrerequisites,
     httpClientFactory: IHttpClientFactory,
@@ -75,7 +77,7 @@ type ActivityPubRequestHandler(
                     |> Seq.map (fun attr -> new Uri(url, attr.Href))
                     |> Seq.except [url]
                     |> Seq.tryHead
-                    |> Option.defaultWith (fun () -> failwithf "Request returned an HTML response with no link rel=alternate for %s" activityMediaType)
+                    |> Option.defaultWith (fun () -> raise ActivityPubAlternateLinkNotFoundException)
 
                 return! getAsync href true cancellationToken
             | _ ->

@@ -41,6 +41,28 @@ namespace Pandacap.Controllers
             }
         }
 
+        public async Task<IActionResult> ViewBlueskyProfile(
+            string did)
+        {
+            using var client = httpClientFactory.CreateClient();
+
+            var doc = await didResolver.ResolveAsync(did);
+
+            var profiles = await RecordEnumeration.BlueskyProfile.ListRecordsAsync(
+                client,
+                doc.PDS,
+                did,
+                1,
+                null,
+                ATProtoListDirection.Forward);
+
+            return View(
+                new BlueskyProfileViewModel(
+                    DID: did,
+                    Handle: doc.Handle,
+                    AvatarCID: profiles.Items.Select(r => r.Value.AvatarCID).FirstOrDefault()));
+        }
+
         public async Task<IActionResult> ViewBlueskyPost(
             string did,
             string rkey,
@@ -70,14 +92,19 @@ namespace Pandacap.Controllers
 
             if (!inFavoritesAsBlueskyPost)
             {
-                // Posts whose original version is available via ActivityPub
-                // fediverseId is used by wafrn, bridgyOriginalUrl is used by Bridgy Fed
-                if ((post.Value.FediverseId ?? post.Value.BridgyOriginalUrl) is string apId)
+                // wafrn posts
+                if (post.Value.FediverseId is string apId)
                 {
                     return RedirectToAction("Index", "RemotePosts", new { id = apId });
                 }
 
-                // Posts which are bridged into ActivityPub via Bridgy Fed
+                // Posts which are bridged from ActivityPub to atproto
+                if (post.Value.BridgyOriginalUrl is string bridgedFromApId)
+                {
+                    return RedirectToAction("Index", "RemotePosts", new { id = bridgedFromApId });
+                }
+
+                // Posts which are bridged from atproto to ActivityPub
                 // Fetch the ActivityPub version instead so we can send likes and replies
                 var bridgyFedObjectId = $"https://bsky.brid.gy/convert/ap/at://{did}/app.bsky.feed.post/{rkey}";
 

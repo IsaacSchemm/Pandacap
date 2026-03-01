@@ -6,16 +6,18 @@
     ViewBag.Title = "View Remote Post";
 }
 
-<h1>
-    <img height="50" src="@(post.AttributedTo.IconUrl ?? "/images/trgray.svg")" alt="" />
+<p>
+    <img width="50" height="50" src="@(post.AttributedTo.IconUrl ?? "/images/trgray.svg")" alt="">
     <span style="display: inline-block; vertical-align: top">
-        <strong>
-            <a href="@post.AttributedTo.Id" target="_blank">
-                @(post.AttributedTo.PreferredUsername ?? post.AttributedTo.Id)
-            </a>
-        </strong>
+        <a href="@post.AttributedTo.Url" target="_blank">
+            <strong>@post.AttributedTo.PreferredUsername</strong>
+        </a>
+
+        <br>
+
+        <span class="small text-muted" style="user-select: all">@post.AttributedTo.Id</span>
     </span>
-</h1>
+</p>
 
 <dl>
     @foreach (var to in post.To)

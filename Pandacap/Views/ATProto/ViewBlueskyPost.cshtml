@@ -7,19 +7,21 @@
     var post = Model.Record.Value;
 }
 
-<h1>
+<p>
     @if (Model.AvatarCID != null)
     {
         <img height="50" src="/ATProto/GetBlob?did=@Model.DID&cid=@Model.AvatarCID" alt="" />
     }
     <span style="display: inline-block; vertical-align: top">
-        <strong>
-            <a href="https://bsky.app/profile/@Model.DID" target="_blank">
-                @@@Model.Handle
-            </a>
-        </strong>
+        <a href="https://bsky.app/profile/@@@Model.Handle" target="_blank">
+            <strong>@@@Model.Handle</strong>
+        </a>
+
+        <br>
+
+        <span class="small text-muted" style="user-select: all">@Model.DID</span>
     </span>
-</h1>
+</p>
 
 <hr />
 

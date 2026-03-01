@@ -50,6 +50,14 @@ namespace Pandacap.HighLevel.PlatformLinks
                     viewProfileUrl: link.ViewProfileUrl))
                 .ToListAsync(cancellationToken);
 
+        public async Task<IEnumerable<string>> GetBlueskyStyleHostsAsync(
+            CancellationToken cancellationToken)
+        =>
+            await GetUnderlyingPlatformLinksAsync(cancellationToken)
+                .OfType<BlueskyStyleATProtoPlatformLink>()
+                .Select(link => link.Host)
+                .ToListAsync(cancellationToken);
+
         private async Task<IPlatformLink> ResolveIconAsync(
             IPlatformLink platformLink,
             CancellationToken cancellationToken)

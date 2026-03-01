@@ -21,18 +21,13 @@ type internal CustomDocumentLoader(cache: IMemoryCache) =
                 DateTimeOffset.UtcNow.AddHours(1))
 
 type JsonLdExpansionService(cache: IMemoryCache) =
-    let errors = [
-        JsonLdError.Error.RecursiveContextInclusion
-        JsonLdError.Error.LoadingRemoteContextFailed
-    ]
-
     member _.Expand(jObject: JObject) =
         let options = new JsonLdOptions(
             documentLoader = new CustomDocumentLoader(cache))
 
         try
             JsonLdProcessor.Expand(jObject, options) |> Seq.head
-        with :? JsonLdError as ex when errors |> Seq.contains (ex.GetType()) ->
+        with :? JsonLdError ->
             jObject["@context"] <- new JArray(
                 new JValue("https://www.w3.org/ns/activitystreams"),
                 new JValue("https://w3id.org/security/v1"))

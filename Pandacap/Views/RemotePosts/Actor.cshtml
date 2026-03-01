@@ -1,0 +1,30 @@
+﻿@using Pandacap.ActivityPub.Inbound
+@model RemoteActor
+
+@{
+    ViewBag.Title = "View Remote Object";
+}
+
+<p>
+    <img width="50" height="50" src="@(Model.IconUrl ?? "/images/trgray.svg")" alt="">
+    <span style="display: inline-block; vertical-align: top">
+        <a href="@Model.Url" target="_blank">
+            <strong>@Model.PreferredUsername</strong>
+        </a>
+
+        <br>
+
+        <span class="small text-muted" style="user-select: all">@Model.Id</span>
+    </span>
+</p>
+
+<form asp-controller="Profile" asp-action="Follow">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <div class="row mb-3">
+        <div class="col-md-3 mt-auto">
+            <button type="submit" class="btn btn-primary">
+                Send follow request
+            </button>
+        </div>
+    </div>
+</form>

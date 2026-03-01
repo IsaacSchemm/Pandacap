@@ -1,7 +1,6 @@
 ﻿using DnsClient;
 using DnsClient.Protocol;
 using Pandacap.Clients.ATProto;
-using Pandacap.ConfigurationObjects;
 
 namespace Pandacap.HighLevel.ATProto
 {
@@ -59,6 +58,9 @@ namespace Pandacap.HighLevel.ATProto
             string handle,
             CancellationToken cancellationToken = default)
         {
+            if (handle.StartsWith("did:"))
+                return handle;
+
             var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             List<Task<string?>> tasks = [

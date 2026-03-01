@@ -56,6 +56,8 @@
     <Compile Include="ATProto\RecordEnumeration.fs" />
     <Compile Include="ATProto\ConstellationClient.fs" />
     <Compile Include="Twtxt\Reader.fs" />
+    <Folder Include="Resolvers\" />
+    <Compile Include="resolvers\ResolverResult.fs" />
     <Compile Include="Podcasts\WmaZipSplitter.fs" />
     <Compile Include="Data\IPost.fs" />
     <Compile Include="Data\IInboxPost.fs" />
@@ -127,5 +129,7 @@
     <PackageReference Include="SimpleBase" Version="5.6.0" />
     <PackageReference Include="System.Drawing.Common" Version="10.0.3" />
   </ItemGroup>
+
+  <ItemGroup />
 
 </Project>

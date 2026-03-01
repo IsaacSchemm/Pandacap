@@ -11,6 +11,7 @@ using Pandacap.HighLevel.DeviantArt;
 using Pandacap.HighLevel.FeedReaders;
 using Pandacap.HighLevel.Lemmy;
 using Pandacap.HighLevel.PlatformLinks;
+using Pandacap.HighLevel.Resolvers;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.Weasyl;
 
@@ -44,6 +45,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ATProtoHandleLookupClient>()
                 .AddScoped<CompositeInboxProvider>()
                 .AddScoped<CompositeFavoritesProvider>()
+                .AddScoped<CompositeResolver>()
                 .AddScoped<ConstellationClient>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DIDResolver>()
@@ -58,6 +60,9 @@ namespace Pandacap.HighLevel
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<PlatformLinkProvider>()
+                .AddScoped<IResolver, ActivityPubResolver>()
+                .AddScoped<IResolver, BlueskyResolver>()
+                .AddScoped<IResolver, WebFingerResolver>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WebFingerService>();
         }

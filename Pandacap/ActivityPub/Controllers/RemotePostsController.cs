@@ -12,6 +12,7 @@ using System.Security.Authentication;
 namespace Pandacap.Controllers
 {
     public class RemotePostsController(
+        ActivityPubRemoteActorService activityPubRemoteActorService,
         ActivityPubRemotePostService activityPubRemotePostService,
         ActivityPubRequestHandler activityPubRequestHandler,
         ApplicationInformation appInfo,
@@ -19,6 +20,33 @@ namespace Pandacap.Controllers
         ActivityPubHostInformation hostInformation,
         ActivityPubPostTranslator postTranslator) : Controller
     {
+        [HttpGet]
+        public async Task<IActionResult> Actor(string id, CancellationToken cancellationToken)
+        {
+            if (!Uri.TryCreate(id, UriKind.Absolute, out Uri? uri) || uri == null)
+                return NotFound();
+
+            if (uri.Host == appInfo.ApplicationHostname)
+                return Redirect(uri.AbsoluteUri);
+
+            if (User.Identity?.IsAuthenticated != true)
+                return Redirect(uri.AbsoluteUri);
+
+            try
+            {
+                var actor = await activityPubRemoteActorService.FetchActorAsync(id, cancellationToken);
+
+                //if (await context.Follows.AnyAsync(f => f.ActorId == id, cancellationToken))
+                //    return RedirectToAction("UpdateFollow", "Profile", new { id });
+
+                return View(actor);
+            }
+            catch (HttpRequestException ex) when (ex.InnerException is AuthenticationException)
+            {
+                return Redirect(uri.AbsoluteUri);
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> Index(string id, CancellationToken cancellationToken)
         {
