@@ -345,8 +345,7 @@ namespace Pandacap.Controllers
                     .. repo.collections.Intersect([
                         NSIDs.App.Bsky.Actor.Profile,
                         NSIDs.App.Bsky.Feed.Post,
-                        NSIDs.App.Bsky.Feed.Repost,
-                        NSIDs.Com.Whtwnd.Blog.Entry
+                        NSIDs.App.Bsky.Feed.Repost
                     ])
                 ]
             });
@@ -377,9 +376,7 @@ namespace Pandacap.Controllers
                 IgnoreImages = feed.IgnoreImages,
                 IncludeBlueskyLikes = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Like),
                 IncludeBlueskyPosts = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Post),
-                IncludeBlueskyReposts = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Repost),
-                IncludeWhiteWindBlogEntries = feed.NSIDs.Contains(NSIDs.Com.Whtwnd.Blog.Entry),
-                IncludeLeafletDocuments = feed.NSIDs.Contains(NSIDs.Pub.Leaflet.Document)
+                IncludeBlueskyReposts = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Repost)
             });
         }
 
@@ -426,16 +423,6 @@ namespace Pandacap.Controllers
                     follow.NSIDs.Add(NSIDs.App.Bsky.Feed.Repost);
                 else
                     follow.NSIDs.Remove(NSIDs.App.Bsky.Feed.Repost);
-
-                if (model.IncludeWhiteWindBlogEntries)
-                    follow.NSIDs.Add(NSIDs.Com.Whtwnd.Blog.Entry);
-                else
-                    follow.NSIDs.Remove(NSIDs.Com.Whtwnd.Blog.Entry);
-
-                if (model.IncludeLeafletDocuments)
-                    follow.NSIDs.Add(NSIDs.Pub.Leaflet.Document);
-                else
-                    follow.NSIDs.Remove(NSIDs.Pub.Leaflet.Document);
 
                 follow.LastCommitCID = null;
             }

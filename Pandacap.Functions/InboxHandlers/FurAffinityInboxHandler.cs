@@ -6,8 +6,7 @@ using System.Text.RegularExpressions;
 namespace Pandacap.Functions.InboxHandlers
 {
     public partial class FurAffinityInboxHandler(
-        PandacapDbContext context,
-        IHttpClientFactory httpClientFactory)
+        PandacapDbContext context)
     {
         [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
         private static partial Regex GetFurAffinityThumbnailPattern();

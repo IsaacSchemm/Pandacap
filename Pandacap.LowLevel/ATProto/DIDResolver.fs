@@ -5,7 +5,6 @@ open System.Net.Http
 open System.Net.Http.Json
 open System.Text.Json.Serialization
 open Microsoft.Extensions.Caching.Memory
-open Pandacap.ConfigurationObjects
 
 module DIDResolver =
     type Service = {

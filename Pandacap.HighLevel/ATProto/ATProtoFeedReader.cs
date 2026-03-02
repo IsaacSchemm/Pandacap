@@ -86,40 +86,6 @@ namespace Pandacap.HighLevel.ATProto
             });
         }
 
-        private void AddToContext(
-            ATProtoFeed feed,
-            ATProtoRecord<WhitewindBlogEntry> entry)
-        {
-            context.ATProtoInboxItems.Add(new()
-            {
-                CID = entry.Ref.CID,
-                PDS = feed.CurrentPDS,
-                DID = entry.Ref.Uri.Components.DID,
-                Collection = entry.Ref.Uri.Components.Collection,
-                RecordKey = entry.Ref.Uri.Components.RecordKey,
-                FeedTitle = feed.Handle,
-                Title = entry.Value.Title,
-                Timestamp = entry.Value.CreatedAt ?? DateTimeOffset.UtcNow
-            });
-        }
-
-        private void AddToContext(
-            ATProtoFeed feed,
-            ATProtoRecord<LeafletDocument> document)
-        {
-            context.ATProtoInboxItems.Add(new()
-            {
-                CID = document.Ref.CID,
-                PDS = feed.CurrentPDS,
-                DID = document.Ref.Uri.Components.DID,
-                Collection = document.Ref.Uri.Components.Collection,
-                RecordKey = document.Ref.Uri.Components.RecordKey,
-                FeedTitle = feed.Handle,
-                Title = document.Value.Title,
-                Timestamp = document.Value.PublishedAt
-            });
-        }
-
         private void AddLikeToContext(
             ATProtoFeed feed,
             ATProtoRecord<BlueskyInteraction> like,
@@ -324,52 +290,6 @@ namespace Pandacap.HighLevel.ATProto
                         continue;
 
                     AddRepostToContext(feed, repost, info);
-                }
-            }
-
-            if (feed.NSIDs.Contains(NSIDs.Com.Whtwnd.Blog.Entry))
-            {
-                var blogEntries = await RecordEnumeration.WhitewindBlogEntry.FindNewestRecordsAsync(
-                    client,
-                    pds,
-                    did,
-                    pageSize: 20);
-
-                foreach (var blogEntry in blogEntries)
-                {
-                    seenThisTime.Add(blogEntry.Ref.CID);
-
-                    if (seenLastTime.Contains(blogEntry.Ref.CID))
-                        continue;
-
-                    var existing = await context.ATProtoInboxItems.FindAsync(blogEntry.Ref.CID);
-                    if (existing != null)
-                        context.ATProtoInboxItems.Remove(existing);
-
-                    AddToContext(feed, blogEntry);
-                }
-            }
-
-            if (feed.NSIDs.Contains(NSIDs.Pub.Leaflet.Document))
-            {
-                var documents = await RecordEnumeration.LeafletDocument.FindNewestRecordsAsync(
-                    client,
-                    pds,
-                    did,
-                    pageSize: 20);
-
-                foreach (var document in documents)
-                {
-                    seenThisTime.Add(document.Ref.CID);
-
-                    if (seenLastTime.Contains(document.Ref.CID))
-                        continue;
-
-                    var existing = await context.ATProtoInboxItems.FindAsync(document.Ref.CID);
-                    if (existing != null)
-                        context.ATProtoInboxItems.Remove(existing);
-
-                    AddToContext(feed, document);
                 }
             }
 

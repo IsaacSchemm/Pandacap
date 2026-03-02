@@ -4,7 +4,6 @@ open System
 open System.Net.Http
 open System.Net.Http.Json
 open System.Threading
-open System.Threading.Tasks
 open Pandacap.ConfigurationObjects
 
 type ConstellationHost = {
