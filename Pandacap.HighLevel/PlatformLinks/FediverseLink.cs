@@ -3,15 +3,14 @@ using Pandacap.Data;
 
 namespace Pandacap.HighLevel.PlatformLinks
 {
-    public record MastodonLink(
+    public record FediverseLink(
         ApplicationInformation ApplicationInformation,
-        string Host) : IPlatformLink
+        string Host,
+        string PlatformName) : IPlatformLink
     {
         public PlatformLinkCategory Category => PlatformLinkCategory.ActivityPub;
 
         public string Username => ApplicationInformation.ActivityPubWebFingerHandle;
-
-        public string? PlatformName => Host;
 
         public string? ViewProfileUrl => null;
 

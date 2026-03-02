@@ -51,10 +51,10 @@ namespace Pandacap.HighLevel.PlatformLinks
         private async IAsyncEnumerable<IPlatformLink> GetUnderlyingPlatformLinksAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            yield return new FediverseLink(appInfo, "mastodon.social", "Mastodon");
+            yield return new FediverseLink(appInfo, "pixelfed.social", "Pixelfed");
+            yield return new FediverseLink(appInfo, "app.wafrn.net", "wafrn");
             yield return new BrowserPubLink(activityPubHostInformation, appInfo, "browser.pub");
-            yield return new MastodonLink(appInfo, "mastodon.social");
-            yield return new MastodonLink(appInfo, "pixelfed.social");
-            yield return new WafrnLink(appInfo, "app.wafrn.net");
 
             var did = await context.Posts
                 .OrderByDescending(post => post.PublishedTime)
@@ -76,9 +76,9 @@ namespace Pandacap.HighLevel.PlatformLinks
                     Console.Error.WriteLine(ex);
                 }
 
-                yield return new BlueskyStyleATProtoPlatformLink("bsky.app", did, handle);
-                yield return new BlueskyStyleATProtoPlatformLink("blacksky.community", did, handle);
-                yield return new BlueskyStyleATProtoPlatformLink("reddwarf.app", did, handle);
+                yield return new BlueskyStyleATProtoPlatformLink("Bluesky", "bsky.app", did, handle);
+                yield return new BlueskyStyleATProtoPlatformLink("Blacksky", "blacksky.community", did, handle);
+                yield return new BlueskyStyleATProtoPlatformLink("Red Dwarf", "reddwarf.app", did, handle);
             }
 
             await foreach (var x in context.DeviantArtCredentials)

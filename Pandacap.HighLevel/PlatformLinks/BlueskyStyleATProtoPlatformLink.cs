@@ -3,6 +3,7 @@
 namespace Pandacap.HighLevel.PlatformLinks
 {
     public record BlueskyStyleATProtoPlatformLink(
+        string PlatformName,
         string Host,
         string DID,
         string? Handle) : IPlatformLink
@@ -14,8 +15,6 @@ namespace Pandacap.HighLevel.PlatformLinks
         public string? ViewProfileUrl => $"https://{Host}/profile/{Uri.EscapeDataString(Handle ?? DID)}";
 
         public PlatformLinkCategory Category => PlatformLinkCategory.ATProto;
-
-        public string? PlatformName => Host;
 
         public string? GetViewPostUrl(Post post) =>
             post.BlueskyDID == null || post.BlueskyRecordKey == null
