@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Pandacap.ActivityPub;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
-using Pandacap.Clients;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.HighLevel.ATProto;
@@ -52,11 +51,9 @@ namespace Pandacap.HighLevel
                 .AddScoped<FavoritesFeedBuilder>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<IFeedReader, AtomRssFeedReader>()
-                .AddScoped<IFeedReader, ESPNContributorFeedReader>()
                 .AddScoped<IFeedReader, JsonFeedReader>()
                 .AddScoped<IFeedReader, TwtxtFeedReader>()
                 .AddScoped<FeedRefresher>()
-                .AddScoped<FurryNetworkClient>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<PlatformIconProvider>()

@@ -13,7 +13,6 @@
     <Compile Include="PlatformBadges\PostPlatform.fs" />
     <Compile Include="Html\Scraper.fs" />
     <Compile Include="Html\DeviantArtScraper.fs" />
-    <Compile Include="Html\ESPNScraper.fs" />
     <Compile Include="Html\SheezyArtScraper.fs" />
     <Compile Include="Html\WeasylScraper.fs" />
     <Compile Include="Html\ImageFinder.fs" />
@@ -106,7 +105,6 @@
     <Compile Include="Data\TheirContent\Weasyl\InboxWeasylSubmission.fs" />
     <Compile Include="Data\TheirContent\Weasyl\WeasylFavoriteSubmission.fs" />
     <Compile Include="Data\PandacapDbContext.fs" />
-    <Compile Include="Clients\FurryNetwork.fs" />
     <Compile Include="Clients\JsonFeed.fs" />
     <Compile Include="Clients\Lemmy.fs" />
   </ItemGroup>
