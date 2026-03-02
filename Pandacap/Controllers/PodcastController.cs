@@ -14,22 +14,6 @@ namespace Pandacap.Controllers
         IHttpClientFactory httpClientFactory,
         WmaZipSplitter wmaZipSplitter) : Controller
     {
-        public async Task<IActionResult> Player(Guid id)
-        {
-            var generalItem = await context.GeneralInboxItems
-                .Where(i => i.Id == id)
-                .Where(i => i.AudioUrl != null)
-                .SingleOrDefaultAsync();
-
-            return generalItem == null
-                ? NotFound()
-                : View(new PlayerModel
-                {
-                    Title = generalItem.Title,
-                    Url = generalItem.AudioUrl
-                });
-        }
-
         public async Task<IActionResult> GetContentType(
             string url,
             CancellationToken cancellationToken)

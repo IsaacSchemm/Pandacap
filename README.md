@@ -108,7 +108,7 @@ Pandacap can connect to a Reddit account, to monitor it for upvotes on top-level
 
 Pandacap can follow RSS and Atom feeds. New posts are added to the appropriate section of the Pandacap inbox.
 
-Posts with `audio/mpeg` attachments are sent to the Podcasts section, where you can download the file or play it in a pop-up window.
+Posts with `audio/mpeg` attachments are sent to the Podcasts section, where you can download the file in its original form or as a set of 5-minute-long uncompressed .wma files (for burning to CD).
 
 Pandacap also makes your own posts available over RSS and Atom; the Gallery and Text Posts pages have links to these feeds.
 
