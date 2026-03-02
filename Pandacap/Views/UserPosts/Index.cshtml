@@ -30,33 +30,33 @@
     @Model.Post.PublishedTime.UtcDateTime.ToShortTimeString()
 </p>
 
-<div class="small text-muted">
-    View on:
-</div>
+<details>
+    <summary class="small text-muted">View on:</summary>
 
-@foreach (var linkGroup in Model.PlatformLinks
-    .GroupBy(link => new
-    {
-        HeaderName = link.Category == PlatformLinkCategory.External
-            ? link.Host
-            : $"{link.Category}"
-    }))
-{
-    <div class="social-block">
-        @foreach (var link in linkGroup)
+    @foreach (var linkGroup in Model.PlatformLinks
+        .GroupBy(link => new
         {
-            <div>
-                <a href="@link.GetViewPostUrl(Model.Post)" target="_blank">
-                    <img alt=""
-                         src="@await platformIconProvider.ResolveIconAsync(link.Host)"
-                         class="social-icon-inline" />
+            HeaderName = link.Category == PlatformLinkCategory.External
+        ? link.Host
+        : $"{link.Category}"
+        }))
+    {
+        <div class="social-block">
+            @foreach (var link in linkGroup)
+            {
+                <div>
+                    <a href="@link.GetViewPostUrl(Model.Post)" target="_blank">
+                        <img alt=""
+                             src="@await platformIconProvider.ResolveIconAsync(link.Host)"
+                             class="social-icon-inline" />
 
-                    @link.PlatformName
-                </a>
-            </div>
-        }
-    </div>
-}
+                        @link.PlatformName
+                    </a>
+                </div>
+            }
+        </div>
+    }
+</details>
 
 @foreach (var image in Model.Post.Images)
 {

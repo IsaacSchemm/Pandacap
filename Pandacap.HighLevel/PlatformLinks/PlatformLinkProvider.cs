@@ -18,7 +18,7 @@ namespace Pandacap.HighLevel.PlatformLinks
         private const string KEY = "9d3b19b8-b641-4ea2-8f03-0edd775618d3";
 
         public async Task<IReadOnlyList<IPlatformLink>> GetPlatformLinksAsync(
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         =>
             await memoryCache.GetOrCreateAsync<IReadOnlyList<IPlatformLink>>(
                 KEY,
