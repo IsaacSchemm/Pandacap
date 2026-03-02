@@ -23,6 +23,8 @@
         <a asp-controller="ActivityPubPosts" asp-action="Index">Posts</a>
         @:&middot;
         <a asp-controller="Favorites" asp-action="Index">Favorites (@Model.FavoritesCount)</a>
+        @:&middot;
+        <a asp-action="UploadAvatar">Avatar</a>
     }
 </p>
 
@@ -54,12 +56,12 @@
     </div>
 }
 
-<h2 class="my-4">
-    ActivityPub / atproto
-</h2>
-
 @if (User.Identity?.IsAuthenticated == true)
 {
+    <h2 class="my-4">
+        ActivityPub / atproto
+    </h2>
+
     <form method="post" asp-controller="Resolver" asp-action="Index">
         <div class="input-group mb-3">
             <span class="input-group-text">External handle or URL</span>

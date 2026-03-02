@@ -568,6 +568,31 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PushActorUpdate(
+            CancellationToken cancellationToken)
+        {
+            foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
+                cancellationToken: cancellationToken))
+            {
+                context.ActivityPubOutboundActivities.Add(new()
+                {
+                    Id = Guid.NewGuid(),
+                    JsonBody = ActivityPubSerializer.SerializeWithContext(
+                        profileTranslator.BuildProfileUpdate(
+                            await GetActivityPubProfileAsync(cancellationToken))),
+                    Inbox = inbox,
+                    StoredAt = DateTimeOffset.UtcNow
+                });
+            }
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction(nameof(Index));
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

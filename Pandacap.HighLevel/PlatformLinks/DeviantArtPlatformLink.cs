@@ -9,6 +9,8 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string Host => "www.deviantart.com";
 
+        public string? PlatformName => "DeviantArt";
+
         public string? ViewProfileUrl => $"https://www.deviantart.com/{Uri.EscapeDataString(Username)}";
 
         public string? GetViewPostUrl(Post post) => post.DeviantArtUrl;

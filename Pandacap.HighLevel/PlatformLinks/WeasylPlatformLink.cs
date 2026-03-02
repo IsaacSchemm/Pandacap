@@ -9,6 +9,8 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string Host => "www.weasyl.com";
 
+        public string? PlatformName => "Weasyl";
+
         public string? ViewProfileUrl => $"https://www.weasyl.com/~{Uri.EscapeDataString(Username)}";
 
         public string? GetViewPostUrl(Post post) =>

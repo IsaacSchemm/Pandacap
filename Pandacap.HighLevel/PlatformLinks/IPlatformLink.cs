@@ -8,6 +8,7 @@ namespace Pandacap.HighLevel.PlatformLinks
         string Host { get; }
         string Username { get; }
 
+        string? PlatformName { get; }
         string? ViewProfileUrl { get; }
 
         string? GetViewPostUrl(Post post);

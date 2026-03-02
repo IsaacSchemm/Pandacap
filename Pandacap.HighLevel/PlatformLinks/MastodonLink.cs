@@ -11,6 +11,8 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string Username => ApplicationInformation.ActivityPubWebFingerHandle;
 
+        public string? PlatformName => Host;
+
         public string? ViewProfileUrl => null;
 
         public string? GetViewPostUrl(Post post) => null;

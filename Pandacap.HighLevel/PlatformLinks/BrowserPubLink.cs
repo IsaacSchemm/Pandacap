@@ -13,7 +13,7 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string Username => ApplicationInformation.ActivityPubWebFingerHandle;
 
-        public string? IconUrl => null;
+        public string? PlatformName => "BrowserPub";
 
         public string? ViewProfileUrl => $"https://{Host}/{Username}";
 

@@ -35,7 +35,7 @@ namespace Pandacap.HighLevel.PlatformLinks
             await GetUnderlyingPlatformLinksAsync(cancellationToken)
                 .Where(link => link.Category == PlatformLinkCategory.External)
                 .Select(link => new ActivityPubProfileLink(
-                    platformName: link.Host,
+                    platformName: link.PlatformName,
                     username: link.Username,
                     viewProfileUrl: link.ViewProfileUrl))
                 .ToListAsync(cancellationToken);
@@ -53,7 +53,6 @@ namespace Pandacap.HighLevel.PlatformLinks
         {
             yield return new BrowserPubLink(activityPubHostInformation, appInfo, "browser.pub");
             yield return new MastodonLink(appInfo, "mastodon.social");
-            yield return new MastodonLink(appInfo, "activitypub.academy");
             yield return new MastodonLink(appInfo, "pixelfed.social");
             yield return new WafrnLink(appInfo, "app.wafrn.net");
 

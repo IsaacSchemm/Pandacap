@@ -15,6 +15,8 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public PlatformLinkCategory Category => PlatformLinkCategory.ATProto;
 
+        public string? PlatformName => Host;
+
         public string? GetViewPostUrl(Post post) =>
             post.BlueskyDID == null || post.BlueskyRecordKey == null
             ? null
