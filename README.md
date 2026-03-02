@@ -1,12 +1,13 @@
 # Pandacap
 
-A single-user art gallery, feed reader, and social media server, built using F# and C#.
+A single-user art gallery, feed reader, and ActivityPub server, built using F# and C#.
 
 On the home page:
 
 * Your avatar and username
-* Links to your attached accounts
 * Your ActivityPub handle
+* Your atproto handle, if any
+* Links to your attached accounts
 * Links to users and feeds you follow
 * Up to 8 of your **image posts**
 * Up to 12 image posts from your **favorites**
@@ -19,7 +20,7 @@ Features:
 * View posts from users or feeds you follow in the **inbox**, split among **image posts**, **text posts**, **shares**, and **podcasts**, and grouped by author
     * Non-ActivityPub posts are periodically imported (~3 times per day)
 * View **notifications** from activity on your posts or from your attached accounts
-* Add posts to your **favorites** or import them from attached accounts
+* Manually add posts to your **favorites** or automatically import them from attached accounts
 
 Some of the things Pandacap does **not** do:
 
@@ -55,7 +56,7 @@ Posts from users you follow are sent to the appropriate section of the Pandacap 
 When you click on an ActivityPub post as a logged-in user, Pandacap will always fetch the post from its original instance.
 
 Activities (such as `Like`, `Dislike`, `Announce`) and replies to your posts are shown in the Notifications section. (Mentions that are not replies go to the Pandacap inbox.)
-Adding a post to your Favorites is equivalent to a `Like`.
+Adding an ActivityPub post to your Favorites is equivalent to a `Like`.
 
 ### ATProto
 
@@ -75,10 +76,9 @@ Bluesky's CDN is used for thumbnails and avatars.
 #### Posting
 
 Pandacap allows you to enable and disable Bridgy Fed from the profile page while logged in.
-You can also add a separate atproto account from the profile page and crosspost to it (as is done with DeviantArt, etc.)
 
-Pandacap uses [Constellation](https://github.com/at-microcosm/microcosm-rs/tree/main/constellation) to find atproto links back to your bridged posts.
 Once per hour, if you've posted a new post (and have Bridgy Fed enabled), Pandacap will find the bridged version of your post and add a "View on Bluesky" link to the post's page.
+(This is then also used to populate your atproto handle and links on the home page.)
 
 #### Notifications
 
@@ -98,7 +98,7 @@ You can crosspost to any or all of these platforms and view their notifications 
 
 Posts from users you follow on these platforms will appear in the Pandacap inbox, and posts you add to your favorites on these platforms will appear in Pandacap's Favorites automatically.
 
-Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) for some functions, and Weasyl support relies on a PHP proxy script (included in this repository).
+Fur Affinity support relies on [FAExport](https://faexport.spangle.org.uk/) when posting new journal entries, and Weasyl support relies on a PHP proxy script (included in this repository).
 
 ### Reddit
 
@@ -130,6 +130,8 @@ Libraries:
         * **Communication**: Sends and retrieves objects to/from remote servers via ActivityPub.
         * **Inbound**: Parses objects recieved or retrieved via ActivityPub (posts and actors), converting them into an abstracted form.
     * **ATProto**: Contains atproto client code and abstractions.
+    * **Twtxt**: A client to read the twtxt feed format.
+    * **Resolvers**: Helps implement the ActivityPub/atproto lookup form (by URL or handle) available when logged in.
     * **Podcasts**: Code for splitting and re-encoding podcasts for transfer to an audio CD.
     * **Data**: Contains the EF Core data models that are used in the Cosmos DB database to store the user's data.
     * **Clients**: Contains miscellaneous small API clients.

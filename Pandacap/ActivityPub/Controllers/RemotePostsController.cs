@@ -36,9 +36,6 @@ namespace Pandacap.Controllers
             {
                 var actor = await activityPubRemoteActorService.FetchActorAsync(id, cancellationToken);
 
-                //if (await context.Follows.AnyAsync(f => f.ActorId == id, cancellationToken))
-                //    return RedirectToAction("UpdateFollow", "Profile", new { id });
-
                 return View(actor);
             }
             catch (HttpRequestException ex) when (ex.InnerException is AuthenticationException)
