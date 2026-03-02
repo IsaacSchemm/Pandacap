@@ -1,8 +1,8 @@
 class PPSPlayer {
     readonly playing = ko.observable(false);
     readonly durationMs = ko.observable(0);
-    readonly currentTimeMs = ko.observable(0);
-    readonly vol = ko.observable(0);
+    readonly currentTimeMs = ko.observable<string | number>(0);
+    readonly vol = ko.observable<string | number>(0);
     readonly muted = ko.observable(false);
     readonly canSelectAudioOutput = ko.observable("mediaDevices" in navigator && "selectAudioOutput" in navigator.mediaDevices);
     readonly canCast = ko.observable(false);
@@ -91,11 +91,11 @@ class PPSPlayer {
         // Listen for changes made to the seek / volume bars and update media
         this.currentTimeMs.subscribe(value => {
             if (this.updateInterface) return;
-            mediaElement.currentTime = value / 1000;
+            mediaElement.currentTime = +value / 1000;
         });
         this.vol.subscribe(value => {
             if (this.updateInterface) return;
-            mediaElement.volume = value;
+            mediaElement.volume = +value;
         });
 
         // Google Cast
@@ -159,12 +159,12 @@ class PPSPlayer {
     volumeUp() {
         this.vol(
             Math.min(
-                this.vol() * Math.pow(10, .3),
+                +this.vol() * Math.pow(10, .3),
                 1));
     }
 
     volumeDown() {
-        this.vol(this.vol() / Math.pow(10, .3));
+        this.vol(+this.vol() / Math.pow(10, .3));
     }
 
     async selectAudioOutput() {
