@@ -131,6 +131,27 @@ type Post() =
         this.Images
         |> Seq.collect (fun i -> i.Renditions)
 
+    [<NotMapped>]
+    member this.PlainText = String.concat "\n\n" [
+        if not (String.IsNullOrWhiteSpace(this.Title)) then
+            $"Post Title: {this.Title}"
+
+        for image in this.Images do
+            if not (String.IsNullOrWhiteSpace(image.AltText)) then
+                $"Image Description: {image.AltText}"
+
+        if not (String.IsNullOrWhiteSpace(this.Body)) then
+            this.Body
+
+        for link in this.Links do
+            $"Link: {link.Title} ({link.Url})"
+
+        String.concat " " [
+            for tag in this.Tags do
+                $"#{tag}"
+        ]
+    ]
+
     interface IPost with
         member _.Platform = Pandacap
         member _.Url = null

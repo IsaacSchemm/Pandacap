@@ -41,6 +41,7 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.FurAffinityFavorites: DbSet<FurAffinityFavorite> = this.Set()
     member this.RedditUpvotedPosts: DbSet<RedditUpvotedPost> = this.Set()
     member this.WeasylFavoriteSubmissions: DbSet<WeasylFavoriteSubmission> = this.Set()
+    member this.PostEmbeddings: DbSet<PostEmbedding> = this.Set()
 
     override _.OnModelCreating(builder) =
         base.OnModelCreating(builder)

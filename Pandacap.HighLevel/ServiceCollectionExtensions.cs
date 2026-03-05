@@ -12,6 +12,7 @@ using Pandacap.HighLevel.Lemmy;
 using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.Resolvers;
 using Pandacap.HighLevel.RssOutbound;
+using Pandacap.HighLevel.VectorSearch;
 using Pandacap.HighLevel.Weasyl;
 
 namespace Pandacap.HighLevel
@@ -48,6 +49,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<ConstellationClient>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DIDResolver>()
+                .AddScoped<EmbeddingsProvider>()
                 .AddScoped<FavoritesFeedBuilder>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<IFeedReader, AtomRssFeedReader>()

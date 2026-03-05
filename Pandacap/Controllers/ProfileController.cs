@@ -1,3 +1,5 @@
+using Azure.Search.Documents;
+using Azure.Search.Documents.Models;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +16,7 @@ using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.FeedReaders;
 using Pandacap.HighLevel.PlatformLinks;
+using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Models;
 using System.Diagnostics;
 using System.Text;
@@ -30,6 +33,7 @@ namespace Pandacap.Controllers
         DIDResolver didResolver,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
+        EmbeddingsProvider embeddingsProvider,
         FeedRefresher feedRefresher,
         IHttpClientFactory httpClientFactory,
         IActivityPubCommunicationPrerequisites keyProvider,
@@ -139,8 +143,96 @@ namespace Pandacap.Controllers
             return View(await getModel());
         }
 
-        public async Task<IActionResult> Search(string? q, Guid? next, int? count)
+        public async Task<IActionResult> Search(string? q, Guid? next, int? count, bool? all, CancellationToken cancellationToken)
         {
+            if (User.Identities.Any(x => x.IsAuthenticated))
+            {
+                var vector = await embeddingsProvider.EmbedAsync(q!, cancellationToken);
+
+                var endpoint = "https://pandacap-srch.search.windows.net";
+                var key = "";
+
+                SearchClient searchClient = new(
+                    new Uri(endpoint),
+                    "post-embedding-index",
+                    new Azure.AzureKeyCredential(key));
+
+                VectorSearchOptions vectorSearchOptions = new();
+
+                if (all == true)
+                {
+                    vectorSearchOptions.Queries.Add(
+                        new VectorizedQuery(vector!.ToArray())
+                        {
+                            Fields = { "Text" },
+                            Weight = 4
+                        });
+                }
+                else
+                {
+                    vectorSearchOptions.Queries.Add(
+                        new VectorizedQuery(vector!.ToArray())
+                        {
+                            Fields = { "ImageAltText", "Tags" },
+                            Weight = 4
+                        });
+
+                    vectorSearchOptions.Queries.Add(
+                        new VectorizedQuery(vector!.ToArray())
+                        {
+                            Fields = { "Text" },
+                            Weight = 2
+                        });
+
+                    vectorSearchOptions.Queries.Add(
+                        new VectorizedQuery(vector!.ToArray())
+                        {
+                            Fields = { "AdditionalText" },
+                            Weight = 1
+                        });
+                }
+
+                var resultsResponse = await searchClient.SearchAsync<PostEmbedding>(
+                    new SearchOptions
+                    {
+                        Debug = QueryDebugMode.Vector,
+                        IncludeTotalCount = true,
+                        VectorSearch = new VectorSearchOptions
+                        {
+                            Queries =
+                            {
+                                new VectorizedQuery(vector!.ToArray())
+                                {
+                                    Fields = { "Text" }
+                                }
+                            }
+                        }
+                    },
+                    cancellationToken);
+
+                var ids = await resultsResponse.Value
+                    .GetResultsAsync()
+                    .Select(r => r.Document.Id)
+                    .ToListAsync(cancellationToken);
+
+                var postList = await context.Posts
+                    .Where(p => ids.Contains(p.Id))
+                    .AsAsyncEnumerable()
+                    .OrderBy(p => ids.IndexOf(p.Id))
+                    .ToListAsync(cancellationToken);
+
+                await foreach (var x in resultsResponse.Value.GetResultsAsync())
+                    foreach (var y in postList.Where(p => p.Id == x.Document.Id))
+                        y.Title += $" ({x.Score})";
+
+                return View("List", new ListViewModel
+                {
+                    Title = "Search",
+                    Q = q,
+                    Items = postList
+                });
+            }
+
             var query = q?.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
             var posts = await context.Posts

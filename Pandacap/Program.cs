@@ -6,17 +6,14 @@ using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Pandacap;
 using Pandacap.ActivityPub.Inbound;
-using Pandacap.Clients;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.ATProto;
+using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Notifications;
 using Pandacap.Podcasts;
 using Pandacap.Signatures;
-using System.IdentityModel.Tokens.Jwt;
-using static Pandacap.Clients.ATProto.DIDResolverModule;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,6 +91,11 @@ if (builder.Configuration["RedditAppId"] is string redditAppId
         o.ClientSecret = builder.Configuration["RedditAppSecret"]!;
         o.SaveTokens = true;
     });
+}
+
+if (builder.Configuration["VectorSearchEmbeddingsEndpoint"] is string vsee)
+{
+    builder.Services.AddSingleton(new VectorSearchConfig(EmbeddingsEndpoint: vsee));
 }
 
 builder.Services.AddSingleton(new ConstellationHost(

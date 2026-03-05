@@ -72,6 +72,7 @@
     <Compile Include="Data\MyContent\AddressedPost.fs" />
     <Compile Include="Data\MyContent\Avatar.fs" />
     <Compile Include="Data\MyContent\Post.fs" />
+    <Compile Include="Data\MyContent\PostEmbedding.fs" />
     <Compile Include="Data\MyContent\Upload.fs" />
     <Compile Include="Data\Relationships\IFollow.fs" />
     <Compile Include="Data\Relationships\ATProtoFeed.fs" />
@@ -110,7 +111,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.AI.Vision.ImageAnalysis" Version="1.0.0" />
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
     <PackageReference Include="CommonMark.NET" Version="0.15.1" />
     <PackageReference Include="DeviantArtFs" Version="11.0.0" />

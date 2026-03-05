@@ -2,6 +2,7 @@ using Azure.Identity;
 using DeviantArtFs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pandacap.Clients.ATProto;
@@ -11,6 +12,7 @@ using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
+using Pandacap.HighLevel.VectorSearch;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -34,6 +36,15 @@ var host = new HostBuilder()
             }
         }
 
+        if (Environment.GetEnvironmentVariable("StorageAccountHostname") is string storageAccountHostname)
+        {
+            services.AddAzureClients(clientBuilder =>
+            {
+                clientBuilder.AddBlobServiceClient(new Uri($"https://{storageAccountHostname}"));
+                clientBuilder.UseCredential(new DefaultAzureCredential());
+            });
+        }
+
         if (Environment.GetEnvironmentVariable("ConstellationHost") is string constellationHost)
             services.AddSingleton(new ConstellationHost(constellationHost));
 
@@ -51,6 +62,11 @@ var host = new HostBuilder()
             services.AddSingleton(new RedditAppInformation(
                 redditAppId,
                 redditAppSecret));
+        }
+
+        if (Environment.GetEnvironmentVariable("VectorSearchEmbeddingsEndpoint") is string vsee)
+        {
+            services.AddSingleton(new VectorSearchConfig(EmbeddingsEndpoint: vsee));
         }
 
         services
