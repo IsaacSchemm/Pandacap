@@ -168,14 +168,14 @@ module FA =
             | name, FilePart data -> content.Add(new ByteArrayContent(data), name, "image.dat")
         content
 
-    let private extractAuthenticityToken (formName: string) (html: HtmlDocument) =
+    let private extractAuthenticityToken (action: string) (html: HtmlDocument) =
         let m =
-            html.CssSelect($"form[name={formName}] input[name=key]")
+            html.CssSelect($"form[action={action}] input[name=key]")
             |> Seq.map (fun e -> e.AttributeValue("value"))
             |> Seq.tryHead
         match m with
             | Some token -> token
-            | None -> failwith $"Form \"{formName}\" with hidden input \"key\" not found in HTML from server"
+            | None -> failwith $"Form with action \"{action}\" and hidden input \"key\" not found in HTML from server"
 
     let PostArtworkAsync credentials file (metadata: ArtworkMetadata) cancellationToken = task {
         use client = getClient credentials WWW
@@ -184,7 +184,7 @@ module FA =
             use! resp = client.GetAsync("/submit/", cancellationToken = cancellationToken)
             ignore (resp.EnsureSuccessStatusCode())
             let! html = resp.Content.ReadAsStringAsync(cancellationToken)
-            let token = html |> HtmlDocument.Parse |> extractAuthenticityToken "myform"
+            let token = html |> HtmlDocument.Parse |> extractAuthenticityToken "/submit/upload"
             return token
         }
 
@@ -201,7 +201,7 @@ module FA =
             let! html = resp.Content.ReadAsStringAsync(cancellationToken)
             if html.Contains "Security code missing or invalid." then
                 failwith "Security code missing or invalid for page"
-            return html |> HtmlDocument.Parse |> extractAuthenticityToken "myform"
+            return html |> HtmlDocument.Parse |> extractAuthenticityToken "/submit/finalize/"
         }
 
         return! task {
@@ -498,4 +498,42 @@ module FA =
                         journalId = Option.toNullable journalId
                     }
         ]
+    }
+
+    let PostJournalAsync credentials subject (rating: Rating) message cancellationToken = task {
+        use client = getClient credentials WWW
+
+        let! journal_submission_page_key = task {
+            use! resp = client.GetAsync("/controls/journal/", cancellationToken = cancellationToken)
+            ignore (resp.EnsureSuccessStatusCode())
+            let! html = resp.Content.ReadAsStringAsync(cancellationToken)
+            let token = html |> HtmlDocument.Parse |> extractAuthenticityToken "/controls/journal/"
+            return token
+        }
+
+        use req = new HttpRequestMessage(System.Net.Http.HttpMethod.Post, "/controls/journal/")
+        req.Content <- new FormUrlEncodedContent(dict [
+            "id", "0"
+            "key", journal_submission_page_key
+            "do", "update"
+
+            "subject", subject
+            "rating", rating.ToString("d")
+            "message", message
+        ])
+
+        use! resp = client.SendAsync(req, cancellationToken = cancellationToken)
+        let! html = resp.Content.ReadAsStringAsync(cancellationToken)
+        if html.Contains "Security code missing or invalid." then
+            failwith "Security code missing or invalid for page"
+
+        let redirectMessages =
+            HtmlDocument.Parse(html).CssSelect(".redirect-message")
+            |> Seq.map (fun node -> node.InnerText())
+            |> Seq.toList
+
+        if redirectMessages <> [] then
+            failwithf "Could not post to Fur Affinity: %A" redirectMessages
+
+        return resp.RequestMessage.RequestUri
     }

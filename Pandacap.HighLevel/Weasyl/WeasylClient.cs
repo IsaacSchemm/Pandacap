@@ -9,17 +9,25 @@ namespace Pandacap.HighLevel
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Matching response JSON from Weasyl")]
     public partial class WeasylClient(
         ApplicationInformation appInfo,
-        IHttpClientFactory httpClientFactory,
         string apiKey)
     {
-        private HttpClient CreateClient()
+        private readonly Lazy<HttpClient> Client = new(() =>
         {
-            var client = httpClientFactory.CreateClient();
+            var clientHandler = new HttpClientHandler
+            {
+                AllowAutoRedirect = false
+            };
+
+            var client = new HttpClient(clientHandler);
+
             client.DefaultRequestHeaders.Add(
                 "X-Weasyl-API-Key",
                 apiKey);
+
             return client;
-        }
+        });
+
+        private HttpClient CreateClient() => Client.Value;
 
         private Uri WeasylProxyHost => new("https://" + appInfo.WeasylProxyHost);
         private Uri WeasylProxy => new(WeasylProxyHost, "/pandacap/weasyl_proxy.php");
@@ -305,9 +313,11 @@ namespace Pandacap.HighLevel
 
             using var client = CreateClient();
             using var resp = await client.SendAsync(req);
-            resp.EnsureSuccessStatusCode();
 
-            var match = JournalUri().Match(resp.RequestMessage?.RequestUri?.LocalPath ?? "");
+            var uri = resp.Headers.Location
+                ?? resp.EnsureSuccessStatusCode().RequestMessage?.RequestUri;
+
+            var match = JournalUri().Match(uri?.LocalPath ?? "");
             return match.Success && int.TryParse(match.Groups[1].Value, out int journalid)
                 ? journalid
                 : null;

@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.Models;
 using Pandacap.Podcasts;
 using System.Net;
 
@@ -10,7 +8,6 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class PodcastController(
-        PandacapDbContext context,
         IHttpClientFactory httpClientFactory,
         WmaZipSplitter wmaZipSplitter) : Controller
     {

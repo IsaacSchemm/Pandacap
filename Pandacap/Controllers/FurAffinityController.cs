@@ -7,15 +7,13 @@ using Pandacap.Data;
 using Pandacap.FurAffinity;
 using Pandacap.HighLevel;
 using Pandacap.Models;
-using System.Linq;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class FurAffinityController(
         BlobServiceClient blobServiceClient,
-        PandacapDbContext context,
-        IHttpClientFactory httpClientFactory) : Controller
+        PandacapDbContext context) : Controller
     {
         public async Task<IActionResult> Setup()
         {
@@ -88,14 +86,14 @@ namespace Pandacap.Controllers
             if (post.FurAffinitySubmissionId != null || post.FurAffinityJournalId != null)
                 throw new Exception("Already posted to Fur Affinity");
 
-            var journal = await FAExport.PostJournalAsync(
-                httpClientFactory,
+            var journalUri = await FA.PostJournalAsync(
                 credentials,
                 post.Title,
+                FA.Rating.General,
                 post.Body,
                 cancellationToken);
 
-            post.FurAffinityJournalId = int.Parse(new Uri(journal!.url).Segments[2].TrimEnd('/'));
+            post.FurAffinityJournalId = int.Parse(journalUri.Segments[2].TrimEnd('/'));
 
             await context.SaveChangesAsync(cancellationToken);
 
