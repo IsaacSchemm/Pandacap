@@ -148,7 +148,7 @@ namespace Pandacap.Controllers
         {
             var query = q?.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
-            var posts = await context.Posts
+            var posts = await context.Posts 
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(d => d.Id == next || next == null)
