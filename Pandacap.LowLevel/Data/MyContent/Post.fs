@@ -132,13 +132,26 @@ type Post() =
         |> Seq.collect (fun i -> i.Renditions)
 
     [<NotMapped>]
-    member this.PlainText = String.concat "\n\n" [
+    member this.ShortPlainText = String.concat "\n\n" [
         if not (String.IsNullOrWhiteSpace(this.Title)) then
-            $"Post Title: {this.Title}"
+            $"{this.Title}"
+        else if not (String.IsNullOrWhiteSpace(this.Body)) then
+            this.Body
+
+        String.concat " " [
+            for tag in this.Tags do
+                $"#{tag}"
+        ]
+    ]
+
+    [<NotMapped>]
+    member this.LongPlainText = String.concat "\n\n" [
+        if not (String.IsNullOrWhiteSpace(this.Title)) then
+            $"{this.Title}"
 
         for image in this.Images do
             if not (String.IsNullOrWhiteSpace(image.AltText)) then
-                $"Image Description: {image.AltText}"
+                $"{image.AltText}"
 
         if not (String.IsNullOrWhiteSpace(this.Body)) then
             this.Body

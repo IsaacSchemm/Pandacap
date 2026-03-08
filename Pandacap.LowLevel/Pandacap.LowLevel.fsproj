@@ -72,7 +72,6 @@
     <Compile Include="Data\MyContent\AddressedPost.fs" />
     <Compile Include="Data\MyContent\Avatar.fs" />
     <Compile Include="Data\MyContent\Post.fs" />
-    <Compile Include="Data\MyContent\PostEmbedding.fs" />
     <Compile Include="Data\MyContent\Upload.fs" />
     <Compile Include="Data\Relationships\IFollow.fs" />
     <Compile Include="Data\Relationships\ATProtoFeed.fs" />

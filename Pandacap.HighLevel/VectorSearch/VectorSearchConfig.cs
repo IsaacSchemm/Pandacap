@@ -1,5 +1,7 @@
 ﻿namespace Pandacap.HighLevel.VectorSearch
 {
     public record VectorSearchConfig(
-        string EmbeddingsEndpoint);
+        string EmbeddingsEndpoint,
+        string SearchEndpoint,
+        string IndexName);
 }

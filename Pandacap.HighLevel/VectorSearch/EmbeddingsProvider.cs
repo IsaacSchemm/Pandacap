@@ -37,7 +37,7 @@ namespace Pandacap.HighLevel.VectorSearch
                 HttpPipelinePosition.PerRetry);
         }
 
-        public async Task<List<float>?> EmbedAsync(
+        public async Task<float[]?> EmbedAsync(
             string? text,
             CancellationToken cancellationToken = default)
         {
@@ -59,10 +59,10 @@ namespace Pandacap.HighLevel.VectorSearch
                 },
                 cancellationToken);
 
-            return embeddingsResult.Value.Data[0].Embedding.ToObjectFromJson<List<float>>();
+            return embeddingsResult.Value.Data[0].Embedding.ToObjectFromJson<float[]>();
         }
 
-        public async Task<List<float>?> EmbedAsync(
+        public async Task<float[]?> EmbedAsync(
             PostBlobRef? postBlobRef,
             CancellationToken cancellationToken = default)
         {
@@ -91,7 +91,7 @@ namespace Pandacap.HighLevel.VectorSearch
                 },
                 cancellationToken);
 
-            return embeddingsResult.Value.Data[0].Embedding.ToObjectFromJson<List<float>>();
+            return embeddingsResult.Value.Data[0].Embedding.ToObjectFromJson<float[]>();
         }
     }
 }

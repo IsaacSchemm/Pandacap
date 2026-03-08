@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Azure.Storage.Blobs;
@@ -143,70 +144,44 @@ namespace Pandacap.Controllers
             return View(await getModel());
         }
 
-        public async Task<IActionResult> Search(string? q, Guid? next, int? count, bool? all, CancellationToken cancellationToken)
+        public async Task<IActionResult> Search(string? q, Guid? next, int? count, bool? full, CancellationToken cancellationToken)
         {
             if (User.Identities.Any(x => x.IsAuthenticated))
             {
                 var vector = await embeddingsProvider.EmbedAsync(q!, cancellationToken);
 
                 var endpoint = "https://pandacap-srch.search.windows.net";
-                var key = "";
 
                 SearchClient searchClient = new(
                     new Uri(endpoint),
-                    "post-embedding-index",
-                    new Azure.AzureKeyCredential(key));
+                    "post-embedding-index-2",
+                    new DefaultAzureCredential());
 
                 VectorSearchOptions vectorSearchOptions = new();
 
-                if (all == true)
+                vectorSearchOptions.Queries.Add(
+                    new VectorizedQuery(vector!.ToArray())
+                    {
+                        Fields = { "ShortText" },
+                        Weight = 100
+                    });
+
+                if (full == true)
                 {
                     vectorSearchOptions.Queries.Add(
-                        new VectorizedQuery(vector!.ToArray())
-                        {
-                            Fields = { "Text" },
-                            Weight = 4
-                        });
-                }
-                else
-                {
-                    vectorSearchOptions.Queries.Add(
-                        new VectorizedQuery(vector!.ToArray())
-                        {
-                            Fields = { "ImageAltText", "Tags" },
-                            Weight = 4
-                        });
-
-                    vectorSearchOptions.Queries.Add(
-                        new VectorizedQuery(vector!.ToArray())
-                        {
-                            Fields = { "Text" },
-                            Weight = 2
-                        });
-
-                    vectorSearchOptions.Queries.Add(
-                        new VectorizedQuery(vector!.ToArray())
-                        {
-                            Fields = { "AdditionalText" },
-                            Weight = 1
-                        });
+                    new VectorizedQuery(vector!.ToArray())
+                    {
+                        Fields = { "LongText" },
+                        Weight = 50
+                    });
                 }
 
-                var resultsResponse = await searchClient.SearchAsync<PostEmbedding>(
+                var resultsResponse = await searchClient.SearchAsync<EmbeddedPost>(
                     new SearchOptions
                     {
                         Debug = QueryDebugMode.Vector,
                         IncludeTotalCount = true,
-                        VectorSearch = new VectorSearchOptions
-                        {
-                            Queries =
-                            {
-                                new VectorizedQuery(vector!.ToArray())
-                                {
-                                    Fields = { "Text" }
-                                }
-                            }
-                        }
+                        VectorSearch = vectorSearchOptions
                     },
                     cancellationToken);
 
