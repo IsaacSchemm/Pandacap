@@ -1,4 +1,5 @@
-﻿using Azure.AI.Inference;
+﻿using Azure;
+using Azure.AI.Inference;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.Identity;
@@ -13,9 +14,8 @@ namespace Pandacap.HighLevel.VectorSearch
         public const string MODEL = "text-embedding-3-small";
 
         private readonly BlobServiceClient _blobServiceClient;
-        private readonly AzureAIInferenceClientOptions _clientOptions;
-        private readonly IEnumerable<VectorSearchConfig> _configs;
-        private readonly DefaultAzureCredential _credential;
+        private readonly EmbeddingsClient? _embeddingsClient;
+        private readonly ImageEmbeddingsClient? _imageEmbeddingsClient;
 
         public EmbeddingsProvider(
             BlobServiceClient blobServiceClient,
@@ -23,18 +23,29 @@ namespace Pandacap.HighLevel.VectorSearch
         {
             _blobServiceClient = blobServiceClient;
 
-            _credential = new();
+            var credential = new DefaultAzureCredential();
 
-            _configs = configs;
-
-            _clientOptions = new();
+            var clientOptions = new AzureAIInferenceClientOptions();
 
             BearerTokenAuthenticationPolicy tokenPolicy = new(
-                _credential,
+                credential,
                 ["https://cognitiveservices.azure.com/.default"]);
-            _clientOptions.AddPolicy(
+            clientOptions.AddPolicy(
                 tokenPolicy,
                 HttpPipelinePosition.PerRetry);
+
+            if (configs.FirstOrDefault() is VectorSearchConfig config)
+            {
+                _embeddingsClient = new EmbeddingsClient(
+                    new Uri(config.EmbeddingsEndpoint),
+                    credential,
+                    clientOptions);
+
+                _imageEmbeddingsClient = new ImageEmbeddingsClient(
+                    new Uri(config.EmbeddingsEndpoint),
+                    credential,
+                    clientOptions);
+            }
         }
 
         public async Task<float[]?> EmbedAsync(
@@ -43,23 +54,27 @@ namespace Pandacap.HighLevel.VectorSearch
         {
             if (text == null)
                 return null;
-            if (_configs.FirstOrDefault() is not VectorSearchConfig config)
+
+            if (_embeddingsClient == null)
                 return null;
 
-            var client = new EmbeddingsClient(
-                new Uri(config.EmbeddingsEndpoint),
-                _credential,
-                _clientOptions);
+            try
+            {
+                var embeddingsResult = await _embeddingsClient.EmbedAsync(
+                    new([new(text)])
+                    {
+                        Dimensions = DIMENSIONS,
+                        Model = MODEL
+                    },
+                    cancellationToken);
 
-            var embeddingsResult = await client.EmbedAsync(
-                new([new(text)])
-                {
-                    Dimensions = DIMENSIONS,
-                    Model = MODEL
-                },
-                cancellationToken);
-
-            return embeddingsResult.Value.Data[0].Embedding.ToObjectFromJson<float[]>();
+                return embeddingsResult.Value.Data[0].Embedding.ToObjectFromJson<float[]>();
+            }
+            catch (RequestFailedException ex) when (ex.Status == 424)
+            {
+                Console.Error.WriteLine(ex);
+                return null;
+            }
         }
 
         public async Task<float[]?> EmbedAsync(
@@ -68,7 +83,8 @@ namespace Pandacap.HighLevel.VectorSearch
         {
             if (postBlobRef == null)
                 return null;
-            if (_configs.FirstOrDefault() is not VectorSearchConfig config)
+
+            if (_imageEmbeddingsClient == null)
                 return null;
 
             var blobDownloadResult = await _blobServiceClient
@@ -78,12 +94,7 @@ namespace Pandacap.HighLevel.VectorSearch
 
             var dataUrl = $"data:{postBlobRef.ContentType};base64,{Convert.ToBase64String(blobDownloadResult.Value.Content)}";
 
-            var client = new ImageEmbeddingsClient(
-                new Uri(config.EmbeddingsEndpoint),
-                _credential,
-                _clientOptions);
-
-            var embeddingsResult = await client.EmbedAsync(
+            var embeddingsResult = await _imageEmbeddingsClient.EmbedAsync(
                 new([new(dataUrl)])
                 {
                     Dimensions = DIMENSIONS,

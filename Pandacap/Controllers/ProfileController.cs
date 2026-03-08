@@ -185,29 +185,39 @@ namespace Pandacap.Controllers
             });
         }
 
-        public async Task<IActionResult> VectorSearch(string q, int? count, int? next, CancellationToken cancellationToken)
+        [Authorize]
+        public async Task<IActionResult> VectorSearch(string q, int? index, int? count, CancellationToken cancellationToken)
         {
-            int skip = next ?? 0;
+            int skip = index ?? 0;
             int take = count ?? 20;
 
             var posts = await vectorSearchIndexClient
                 .GetResultsAsync(q, skip, cancellationToken)
-                .Take(take + 1)
+                .Take(take)
                 .SelectMany(e => context.Posts
                     .Where(p => p.Id == e.Document.Id)
                     .AsAsyncEnumerable()
-                    .Select(p => new VectorSearchDisplayResult(p, e.Score)))
+                    .Select(p => new VectorSearchResultViewModel(
+                        Post: p,
+                        Score: e.Score)))
                 .ToListAsync(cancellationToken);
 
-            return View("List", new ListViewModel
+            return View(new VectorSearchViewModel
             {
-                Title = "Search",
                 Q = q,
-                Items = posts.Take(take),
-                Next = posts.Skip(take).Any()
-                    ? $"{skip + take}"
-                    : null
+                Skip = skip,
+                Items = posts
             });
+        }
+
+        [Authorize]
+        public async Task IndexAll(CancellationToken cancellationToken)
+        {
+            await vectorSearchIndexClient.IndexAllAsync(
+                context.Posts
+                    .OrderByDescending(p => p.PublishedTime)
+                    .AsAsyncEnumerable(),
+                cancellationToken);
         }
 
         [Authorize]

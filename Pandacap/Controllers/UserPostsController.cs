@@ -1,13 +1,10 @@
-﻿using Azure.Identity;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub;
 using Pandacap.Data;
 using Pandacap.HighLevel.PlatformLinks;
-using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Html;
 using Pandacap.Models;
 using System.Net;
@@ -20,7 +17,6 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
-        EmbeddingsProvider embeddingsProvider,
         ActivityPubHostInformation hostInformation,
         IHttpClientFactory httpClientFactory,
         PlatformLinkProvider platformLinkProvider,
@@ -52,61 +48,6 @@ namespace Pandacap.Controllers
             }
 
             IActivityPubPost activityPubPost = post;
-
-            var c = new Azure.Search.Documents.SearchClient(
-                new Uri("https://pandacap-srch.search.windows.net"),
-                "post-embedding-index-2",
-                new DefaultAzureCredential());
-
-            var b = new Azure.Search.Documents.Models.IndexDocumentsBatch<EmbeddedPost>();
-            b.Actions.Add(new Azure.Search.Documents.Models.IndexDocumentsAction<EmbeddedPost>(
-                Azure.Search.Documents.Models.IndexActionType.Upload,
-                new()
-                {
-                    Id = id,
-                    ShortText = await embeddingsProvider.EmbedAsync(post.ShortPlainText, cancellationToken),
-                    LongText = await embeddingsProvider.EmbedAsync(post.LongPlainText, cancellationToken),
-                    PublishedTime = post.PublishedTime
-                }));
-
-            await c.IndexDocumentsAsync(
-                b,
-                new Azure.Search.Documents.IndexDocumentsOptions
-                {
-                    ThrowOnAnyError = true
-                },
-                cancellationToken);
-
-            //await foreach (var embedding in context.PostEmbeddings)
-            //    if (embedding.Model != EmbeddingsProvider.MODEL)
-            //        context.PostEmbeddings.Remove(embedding);
-
-            //await context.SaveChangesAsync(cancellationToken);
-
-            //var postEmbedding = await context.PostEmbeddings
-            //    .Where(sp => sp.Id == id)
-            //    .FirstOrDefaultAsync(cancellationToken);
-
-            //if (postEmbedding == null)
-            //{
-                //postEmbedding = new()
-                //{
-                //    Id = id,
-                //    Model = EmbeddingsProvider.MODEL,
-                //    Text = await embeddingsProvider.EmbedAsync(post.PlainText, cancellationToken),
-                //    PublishedTime = post.PublishedTime
-                //};
-
-            //    context.PostEmbeddings.Add(postEmbedding);
-
-            //    await context.SaveChangesAsync(cancellationToken);
-
-            //    return Json(new
-            //    {
-            //        post.PlainText,
-            //        postEmbedding
-            //    });
-            //}
 
             return View(new UserPostViewModel
             {

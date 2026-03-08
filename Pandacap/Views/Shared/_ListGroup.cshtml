@@ -71,13 +71,6 @@
                             <a href="@url">@item.DisplayTitle</a>
                         </label>
                     }
-
-                    @if (item is VectorSearchDisplayResult vectorSearchDisplayResult)
-                    {
-                        <div class="small text-muted">
-                            @($"{vectorSearchDisplayResult.Score:0.000}")
-                        </div>
-                    }
                 </div>
             }
         </div>
@@ -139,13 +132,6 @@
                     @item.PostedAt.UtcDateTime.ToLongDateString()
                 </a>
             </div>
-
-            @if (item is VectorSearchDisplayResult vectorSearchDisplayResult)
-            {
-                <div class="small text-muted">
-                    @($"{vectorSearchDisplayResult.Score:0.000}")
-                </div>
-            }
         </div>
     }
 }

@@ -169,9 +169,9 @@ type Post() =
         member _.Platform = Pandacap
         member _.Url = null
         member this.DisplayTitle =
-            match this.Type with
-            | PostType.StatusUpdate -> "Status update"
-            | _ -> this.Title
+            if not (String.IsNullOrWhiteSpace(this.Title))
+            then this.Title
+            else this.Body |> Pandacap.Html.TextConverter.FromHtml |> Pandacap.Html.ExcerptGenerator.FromText 60
         member this.Id = $"{this.Id}"
         member this.InternalUrl = $"/UserPosts/{this.Id}"
         member this.ExternalUrl = $"/UserPosts/{this.Id}"
