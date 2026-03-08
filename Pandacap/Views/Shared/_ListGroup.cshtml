@@ -1,5 +1,6 @@
 ﻿@using Pandacap.Data
 @using Pandacap.HighLevel
+@using Pandacap.HighLevel.VectorSearch
 @using Pandacap.Models
 @model IEnumerable<IPost>
 
@@ -37,8 +38,8 @@
             @foreach (var item in withThumbnails)
             {
                 string url = User.Identity?.IsAuthenticated == true
-                ? item.InternalUrl
-                : item.ExternalUrl;
+                    ? item.InternalUrl
+                    : item.ExternalUrl;
 
                 var thumbnail = item.Thumbnails.FirstOrDefault();
                 <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
@@ -53,6 +54,7 @@
                             </a>
                         </div>
                     }
+
                     @if (item is Post post && post.Type == PostType.StatusUpdate)
                     {
                         <div class="post-body">
@@ -68,6 +70,13 @@
                             }
                             <a href="@url">@item.DisplayTitle</a>
                         </label>
+                    }
+
+                    @if (item is VectorSearchDisplayResult vectorSearchDisplayResult)
+                    {
+                        <div class="small text-muted">
+                            @($"{vectorSearchDisplayResult.Score:0.000}")
+                        </div>
                     }
                 </div>
             }
@@ -130,6 +139,13 @@
                     @item.PostedAt.UtcDateTime.ToLongDateString()
                 </a>
             </div>
+
+            @if (item is VectorSearchDisplayResult vectorSearchDisplayResult)
+            {
+                <div class="small text-muted">
+                    @($"{vectorSearchDisplayResult.Score:0.000}")
+                </div>
+            }
         </div>
     }
 }

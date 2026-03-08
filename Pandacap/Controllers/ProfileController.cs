@@ -34,7 +34,6 @@ namespace Pandacap.Controllers
         DIDResolver didResolver,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
-        EmbeddingsProvider embeddingsProvider,
         FeedRefresher feedRefresher,
         IHttpClientFactory httpClientFactory,
         IActivityPubCommunicationPrerequisites keyProvider,
@@ -43,6 +42,7 @@ namespace Pandacap.Controllers
         ActivityPubProfileTranslator profileTranslator,
         ActivityPubRelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager,
+        VectorSearchIndexClient vectorSearchIndexClient,
         WebFingerService webFingerService) : Controller
     {
         private async Task<ActivityPubProfile> GetActivityPubProfileAsync(
@@ -144,70 +144,8 @@ namespace Pandacap.Controllers
             return View(await getModel());
         }
 
-        public async Task<IActionResult> Search(string? q, Guid? next, int? count, bool? full, CancellationToken cancellationToken)
+        public async Task<IActionResult> Search(string? q, Guid? next, int? count)
         {
-            if (User.Identities.Any(x => x.IsAuthenticated))
-            {
-                var vector = await embeddingsProvider.EmbedAsync(q!, cancellationToken);
-
-                var endpoint = "https://pandacap-srch.search.windows.net";
-
-                SearchClient searchClient = new(
-                    new Uri(endpoint),
-                    "post-embedding-index-2",
-                    new DefaultAzureCredential());
-
-                VectorSearchOptions vectorSearchOptions = new();
-
-                vectorSearchOptions.Queries.Add(
-                    new VectorizedQuery(vector!.ToArray())
-                    {
-                        Fields = { "ShortText" },
-                        Weight = 100
-                    });
-
-                if (full == true)
-                {
-                    vectorSearchOptions.Queries.Add(
-                    new VectorizedQuery(vector!.ToArray())
-                    {
-                        Fields = { "LongText" },
-                        Weight = 50
-                    });
-                }
-
-                var resultsResponse = await searchClient.SearchAsync<EmbeddedPost>(
-                    new SearchOptions
-                    {
-                        Debug = QueryDebugMode.Vector,
-                        IncludeTotalCount = true,
-                        VectorSearch = vectorSearchOptions
-                    },
-                    cancellationToken);
-
-                var ids = await resultsResponse.Value
-                    .GetResultsAsync()
-                    .Select(r => r.Document.Id)
-                    .ToListAsync(cancellationToken);
-
-                var postList = await context.Posts
-                    .Where(p => ids.Contains(p.Id))
-                    .AsAsyncEnumerable()
-                    .OrderBy(p => ids.IndexOf(p.Id))
-                    .ToListAsync(cancellationToken);
-
-                await foreach (var x in resultsResponse.Value.GetResultsAsync())
-                    foreach (var y in postList.Where(p => p.Id == x.Document.Id))
-                        y.Title += $" ({x.Score})";
-
-                return View("List", new ListViewModel
-                {
-                    Title = "Search",
-                    Q = q,
-                    Items = postList
-                });
-            }
-
             var query = q?.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
             var posts = await context.Posts
@@ -244,6 +182,31 @@ namespace Pandacap.Controllers
                 Q = q,
                 Items = posts.Current,
                 Next = posts.Next
+            });
+        }
+
+        public async Task<IActionResult> VectorSearch(string q, int? count, int? next, CancellationToken cancellationToken)
+        {
+            int skip = next ?? 0;
+            int take = count ?? 20;
+
+            var posts = await vectorSearchIndexClient
+                .GetResultsAsync(q, skip, cancellationToken)
+                .Take(take + 1)
+                .SelectMany(e => context.Posts
+                    .Where(p => p.Id == e.Document.Id)
+                    .AsAsyncEnumerable()
+                    .Select(p => new VectorSearchDisplayResult(p, e.Score)))
+                .ToListAsync(cancellationToken);
+
+            return View("List", new ListViewModel
+            {
+                Title = "Search",
+                Q = q,
+                Items = posts.Take(take),
+                Next = posts.Skip(take).Any()
+                    ? $"{skip + take}"
+                    : null
             });
         }
 

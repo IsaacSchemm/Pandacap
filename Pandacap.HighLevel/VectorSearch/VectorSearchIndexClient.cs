@@ -1,11 +1,7 @@
 ﻿using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Pandacap.HighLevel.VectorSearch
 {
@@ -13,10 +9,9 @@ namespace Pandacap.HighLevel.VectorSearch
         EmbeddingsProvider embeddingsProvider,
         VectorSearchConfig vectorSearchConfig)
     {
-        public async IAsyncEnumerable<EmbeddedPost> GetResultsAsync(
+        public async IAsyncEnumerable<SearchResult<EmbeddedPost>> GetResultsAsync(
             string query,
             int skip,
-            int top,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var client = new SearchClient(
@@ -44,15 +39,28 @@ namespace Pandacap.HighLevel.VectorSearch
                     Weight = 50
                 });
 
-            var results = await client.SearchAsync<EmbeddedPost>(
-                new SearchOptions
-                {
-                    VectorSearch = vectorSearchOptions
-                },
-                cancellationToken);
+            while (true)
+            {
+                var results = await client.SearchAsync<EmbeddedPost>(
+                    new SearchOptions
+                    {
+                        Skip = skip,
+                        VectorSearch = vectorSearchOptions
+                    },
+                    cancellationToken);
 
-            await foreach (var result in results.Value.GetResultsAsync())
-                yield return result.Document;
+                var any = false;
+
+                await foreach (var result in results.Value.GetResultsAsync())
+                {
+                    any = true;
+                    skip++;
+                    yield return result;
+                }
+
+                if (!any)
+                    break;
+            }
         }
     }
 }

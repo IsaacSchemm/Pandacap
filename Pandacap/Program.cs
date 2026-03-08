@@ -93,9 +93,14 @@ if (builder.Configuration["RedditAppId"] is string redditAppId
     });
 }
 
-if (builder.Configuration["VectorSearchEmbeddingsEndpoint"] is string vsee)
+if (builder.Configuration["VectorSearchEmbeddingsEndpoint"] is string embeddingsEndpoint
+    && builder.Configuration["VectorSearchSearchEndpoint"] is string searchEndpoint
+    && builder.Configuration["VectorSearchIndexName"] is string indexName)
 {
-    builder.Services.AddSingleton(new VectorSearchConfig(EmbeddingsEndpoint: vsee));
+    builder.Services.AddSingleton(new VectorSearchConfig(
+        EmbeddingsEndpoint: embeddingsEndpoint,
+        SearchEndpoint: searchEndpoint,
+        IndexName: indexName));
 }
 
 builder.Services.AddSingleton(new ConstellationHost(

@@ -63,6 +63,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<IResolver, ActivityPubResolver>()
                 .AddScoped<IResolver, BlueskyResolver>()
                 .AddScoped<IResolver, WebFingerResolver>()
+                .AddScoped<VectorSearchIndexClient>()
                 .AddScoped<WeasylClientFactory>()
                 .AddScoped<WebFingerService>();
         }
