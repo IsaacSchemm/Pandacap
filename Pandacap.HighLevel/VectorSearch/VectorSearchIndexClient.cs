@@ -119,5 +119,21 @@ namespace Pandacap.HighLevel.VectorSearch
                         cancellationToken);
             }
         }
+
+        public async Task DeletePostAsync(
+            Guid id,
+            CancellationToken cancellationToken = default)
+        {
+            var client = new SearchClient(
+                new(vectorSearchConfig.SearchEndpoint),
+                vectorSearchConfig.IndexName,
+                new DefaultAzureCredential());
+
+            await client.DeleteDocumentsAsync(
+                keyName: "Id",
+                keyValues: [$"{id}"],
+                new IndexDocumentsOptions { ThrowOnAnyError = true },
+                cancellationToken: cancellationToken);
+        }
     }
 }

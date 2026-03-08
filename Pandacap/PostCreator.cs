@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub;
 using Pandacap.Data;
+using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Html;
 
 namespace Pandacap
@@ -9,7 +10,8 @@ namespace Pandacap
         DeliveryInboxCollector deliveryInboxCollector,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory,
-        ActivityPubPostTranslator postTranslator)
+        ActivityPubPostTranslator postTranslator,
+        VectorSearchIndexClient vectorSearchIndexClient)
     {
         public interface IViewModel
         {
@@ -153,6 +155,10 @@ namespace Pandacap
             }
 
             await context.SaveChangesAsync(cancellationToken);
+
+            await vectorSearchIndexClient.IndexAllAsync(
+                AsyncEnumerable.Repeat(post, 1),
+                cancellationToken);
 
             return id;
         }
