@@ -8,13 +8,16 @@ namespace Pandacap.HighLevel.VectorSearch
 {
     public class VectorSearchIndexClient(
         EmbeddingsProvider embeddingsProvider,
-        VectorSearchConfig vectorSearchConfig)
+        IEnumerable<VectorSearchConfig> vectorSearchConfigs)
     {
         public async IAsyncEnumerable<SearchResult<EmbeddedPost>> GetResultsAsync(
             string query,
             int skip,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            if (vectorSearchConfigs.SingleOrDefault() is not VectorSearchConfig vectorSearchConfig)
+                yield break;
+
             var client = new SearchClient(
                 new(vectorSearchConfig.SearchEndpoint),
                 vectorSearchConfig.IndexName,
@@ -68,6 +71,9 @@ namespace Pandacap.HighLevel.VectorSearch
             IAsyncEnumerable<Post> posts,
             CancellationToken cancellationToken = default)
         {
+            if (vectorSearchConfigs.SingleOrDefault() is not VectorSearchConfig vectorSearchConfig)
+                return;
+
             var client = new SearchClient(
                 new(vectorSearchConfig.SearchEndpoint),
                 vectorSearchConfig.IndexName,
@@ -124,6 +130,9 @@ namespace Pandacap.HighLevel.VectorSearch
             Guid id,
             CancellationToken cancellationToken = default)
         {
+            if (vectorSearchConfigs.SingleOrDefault() is not VectorSearchConfig vectorSearchConfig)
+                return;
+
             var client = new SearchClient(
                 new(vectorSearchConfig.SearchEndpoint),
                 vectorSearchConfig.IndexName,
