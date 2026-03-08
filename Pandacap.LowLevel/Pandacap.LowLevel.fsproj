@@ -21,7 +21,6 @@
     <Compile Include="Html\LinkRelAlternate.fs" />
     <Compile Include="FurAffinity\IFurAffinityCredentials.fs" />
     <Compile Include="FurAffinity\FA.fs" />
-    <Compile Include="FurAffinity\FAExport.fs" />
     <Compile Include="ActivityPub\ActivityPubHostInformation.fs" />
     <Compile Include="ActivityPub\ActivityPubSerializer.fs" />
     <Compile Include="ActivityPub\IActivityPubLink.fs" />
