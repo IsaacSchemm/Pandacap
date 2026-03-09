@@ -12,13 +12,13 @@ namespace Pandacap.HighLevel.PlatformLinks
             ? $"@{Handle}"
             : DID;
 
-        public string? ViewProfileUrl => $"https://{Host}/profile/{Uri.EscapeDataString(Handle ?? DID)}";
+        public string? ViewProfileUrl => $"https://{Host}/profile/{Handle ?? DID}";
 
         public PlatformLinkCategory Category => PlatformLinkCategory.ATProto;
 
         public string? GetViewPostUrl(Post post) =>
             post.BlueskyDID == null || post.BlueskyRecordKey == null
             ? null
-            : $"https://{Host}/profile/{Uri.EscapeDataString(post.BlueskyDID)}/post/{Uri.EscapeDataString(post.BlueskyRecordKey)}";
+            : $"https://{Host}/profile/{post.BlueskyDID}/post/{post.BlueskyRecordKey}";
     }
 }

@@ -157,7 +157,7 @@ builder.Services.AddRateLimiter(options =>
     options.AddFixedWindowLimiter("vectorSearch", opt =>
     {
         opt.PermitLimit = 50;
-        opt.Window = TimeSpan.FromHours(12);
+        opt.Window = TimeSpan.FromDays(1);
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         opt.QueueLimit = 0;
     });
