@@ -1,0 +1,108 @@
+{
+  "@odata.etag": "\"0x8DE7D66C9AE2423\"",
+  "name": "post-embedding-index",
+  "defaultScoringProfile": "prefer-newer",
+  "purviewEnabled": false,
+  "fields": [
+    {
+      "name": "Id",
+      "type": "Edm.String",
+      "searchable": false,
+      "filterable": true,
+      "retrievable": true,
+      "stored": true,
+      "sortable": false,
+      "facetable": false,
+      "key": true,
+      "synonymMaps": []
+    },
+    {
+      "name": "ShortText",
+      "type": "Collection(Edm.Single)",
+      "searchable": true,
+      "filterable": false,
+      "retrievable": false,
+      "stored": false,
+      "sortable": false,
+      "facetable": false,
+      "key": false,
+      "dimensions": 1536,
+      "vectorSearchProfile": "vector-profile-1772660434487",
+      "synonymMaps": []
+    },
+    {
+      "name": "LongText",
+      "type": "Collection(Edm.Single)",
+      "searchable": true,
+      "filterable": false,
+      "retrievable": false,
+      "stored": false,
+      "sortable": false,
+      "facetable": false,
+      "key": false,
+      "dimensions": 1536,
+      "vectorSearchProfile": "vector-profile-1772660434487",
+      "synonymMaps": []
+    },
+    {
+      "name": "PublishedTime",
+      "type": "Edm.DateTimeOffset",
+      "searchable": false,
+      "filterable": true,
+      "retrievable": true,
+      "stored": true,
+      "sortable": true,
+      "facetable": false,
+      "key": false,
+      "synonymMaps": []
+    }
+  ],
+  "scoringProfiles": [
+    {
+      "name": "prefer-newer",
+      "functionAggregation": "sum",
+      "functions": [
+        {
+          "fieldName": "PublishedTime",
+          "interpolation": "logarithmic",
+          "type": "freshness",
+          "boost": 1.5,
+          "freshness": {
+            "boostingDuration": "P1825D"
+          }
+        }
+      ]
+    }
+  ],
+  "suggesters": [],
+  "analyzers": [],
+  "normalizers": [],
+  "tokenizers": [],
+  "tokenFilters": [],
+  "charFilters": [],
+  "similarity": {
+    "@odata.type": "#Microsoft.Azure.Search.BM25Similarity"
+  },
+  "vectorSearch": {
+    "algorithms": [
+      {
+        "name": "vector-config-1772660436816",
+        "kind": "hnsw",
+        "hnswParameters": {
+          "metric": "cosine",
+          "m": 4,
+          "efConstruction": 400,
+          "efSearch": 500
+        }
+      }
+    ],
+    "profiles": [
+      {
+        "name": "vector-profile-1772660434487",
+        "algorithm": "vector-config-1772660436816"
+      }
+    ],
+    "vectorizers": [],
+    "compressions": []
+  }
+}

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub;
 using Pandacap.Data;
 using Pandacap.HighLevel.PlatformLinks;
+using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Html;
 using Pandacap.Models;
 using System.Net;
@@ -22,7 +23,8 @@ namespace Pandacap.Controllers
         PlatformLinkProvider platformLinkProvider,
         PostCreator postCreator,
         ActivityPubPostTranslator postTranslator,
-        ReplyLookup replyLookup) : Controller
+        ReplyLookup replyLookup,
+        VectorSearchIndexClient vectorSearchIndexClient) : Controller
     {
         [Route("{id}")]
         public async Task<IActionResult> Index(
@@ -280,6 +282,8 @@ namespace Pandacap.Controllers
                     .GetBlobContainerClient("blobs")
                     .DeleteBlobIfExistsAsync($"{blob.Id}", cancellationToken: cancellationToken);
             }
+
+            await vectorSearchIndexClient.DeletePostAsync(post.Id, cancellationToken: cancellationToken);
 
             return RedirectToAction("Index", "Profile");
         }

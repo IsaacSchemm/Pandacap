@@ -2,6 +2,7 @@ using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub;
@@ -14,8 +15,10 @@ using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.FeedReaders;
 using Pandacap.HighLevel.PlatformLinks;
+using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Models;
 using System.Diagnostics;
+using System.Net;
 using System.Text;
 
 namespace Pandacap.Controllers
@@ -38,8 +41,11 @@ namespace Pandacap.Controllers
         ActivityPubProfileTranslator profileTranslator,
         ActivityPubRelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager,
+        VectorSearchIndexClient vectorSearchIndexClient,
         WebFingerService webFingerService) : Controller
     {
+        //private static readonly SemaphoreSlim _searchVectorGenerationFlag = new(100, 100);
+
         private async Task<ActivityPubProfile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
         {
@@ -143,7 +149,7 @@ namespace Pandacap.Controllers
         {
             var query = q?.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
-            var posts = await context.Posts
+            var posts = await context.Posts 
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(d => d.Id == next || next == null)
@@ -178,6 +184,44 @@ namespace Pandacap.Controllers
                 Items = posts.Current,
                 Next = posts.Next
             });
+        }
+
+        [EnableRateLimiting("vectorSearch")]
+        public async Task<IActionResult> VectorSearch(string q, int? index, int? count, CancellationToken cancellationToken)
+        {
+            if (q.Length > 50)
+                return StatusCode((int)HttpStatusCode.RequestEntityTooLarge);
+
+            int skip = index ?? 0;
+            int take = count ?? 20;
+
+            var posts = await vectorSearchIndexClient
+                .GetResultsAsync(q, skip, cancellationToken)
+                .Take(take)
+                .SelectMany(e => context.Posts
+                    .Where(p => p.Id == e.Document.Id)
+                    .AsAsyncEnumerable()
+                    .Select(p => new VectorSearchResultViewModel(
+                        Post: p,
+                        Score: e.Score)))
+                .ToListAsync(cancellationToken);
+
+            return View(new VectorSearchViewModel
+            {
+                Q = q,
+                Skip = skip,
+                Items = posts
+            });
+        }
+
+        [Authorize]
+        public async Task IndexAll(CancellationToken cancellationToken)
+        {
+            await vectorSearchIndexClient.IndexAllAsync(
+                context.Posts
+                    .OrderByDescending(p => p.PublishedTime)
+                    .AsAsyncEnumerable(),
+                cancellationToken);
         }
 
         [Authorize]

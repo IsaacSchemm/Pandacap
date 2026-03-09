@@ -1,0 +1,70 @@
+﻿@using Pandacap.Data
+@using Pandacap.HighLevel
+@using Pandacap.Models
+@model VectorSearchViewModel
+
+@{
+    ViewBag.Title = "Vector Search";
+}
+
+<h1>Vector Search</h1>
+
+@if (!Model.Items.Any())
+{
+    <p>
+        Showing <strong>0</strong> items.
+    </p>
+}
+else
+{
+    var minDate = Model.Items.Select(item => item.Post.PostedAt).Min().UtcDateTime;
+    var maxDate = Model.Items.Select(item => item.Post.PostedAt).Max().UtcDateTime;
+
+    <p>
+        Showing
+        <strong>@Model.Items.Count()</strong>
+        item(s) posted between
+        <strong>@minDate.ToLongDateString()</strong> (@minDate.ToShortTimeString())
+        and
+        <strong>@maxDate.ToLongDateString()</strong> (@maxDate.ToShortTimeString()).
+    </p>
+
+    <div class="container-fluid">
+        <div class="row">
+            @foreach (var item in Model.Items)
+            {
+                IPost px = item.Post;
+
+                var thumbnail = px.Thumbnails.FirstOrDefault();
+                <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
+                    <div class="card">
+                        <a href="@px.ExternalUrl" style="text-decoration: none">
+                            <img src="@(thumbnail?.Url ?? "/images/transparent.svg")"
+                                 alt="@thumbnail?.AltText"
+                                 referrerpolicy="no-referrer"
+                                 class="feed-image" />
+                        </a>
+                    </div>
+
+                    <div style="max-width: 100%; max-height: 3rem; overflow: hidden">
+                        <a href="@px.ExternalUrl">@px.DisplayTitle</a>
+                    </div>
+
+                    <div class="small text-muted">
+                        @item.Post.PostedAt.UtcDateTime.ToLongDateString()
+                        <br />
+                        @($"{item.Score:0.000}")
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <hr />
+
+    <a asp-route-q="@Model.Q"
+        asp-route-index="@(Model.Skip + Model.Items.Count())"
+        class="btn btn-primary">
+        Next @Model.Items.Count() items &raquo;
+    </a>
+}

@@ -131,13 +131,47 @@ type Post() =
         this.Images
         |> Seq.collect (fun i -> i.Renditions)
 
+    [<NotMapped>]
+    member this.ShortPlainText = String.concat "\n\n" [
+        if not (String.IsNullOrWhiteSpace(this.Title)) then
+            $"{this.Title}"
+        else if not (String.IsNullOrWhiteSpace(this.Body)) then
+            this.Body
+
+        String.concat " " [
+            for tag in this.Tags do
+                $"#{tag}"
+        ]
+    ]
+
+    [<NotMapped>]
+    member this.LongPlainText = String.concat "\n\n" [
+        if not (String.IsNullOrWhiteSpace(this.Title)) then
+            $"{this.Title}"
+
+        for image in this.Images do
+            if not (String.IsNullOrWhiteSpace(image.AltText)) then
+                $"{image.AltText}"
+
+        if not (String.IsNullOrWhiteSpace(this.Body)) then
+            this.Body
+
+        for link in this.Links do
+            $"Link: {link.Title} ({link.Url})"
+
+        String.concat " " [
+            for tag in this.Tags do
+                $"#{tag}"
+        ]
+    ]
+
     interface IPost with
         member _.Platform = Pandacap
         member _.Url = null
         member this.DisplayTitle =
-            match this.Type with
-            | PostType.StatusUpdate -> "Status update"
-            | _ -> this.Title
+            if not (String.IsNullOrWhiteSpace(this.Title))
+            then this.Title
+            else this.Body |> Pandacap.Html.TextConverter.FromHtml |> Pandacap.Html.ExcerptGenerator.FromText 60
         member this.Id = $"{this.Id}"
         member this.InternalUrl = $"/UserPosts/{this.Id}"
         member this.ExternalUrl = $"/UserPosts/{this.Id}"

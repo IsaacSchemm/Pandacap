@@ -56,6 +56,37 @@
     }
 </details>
 
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-6">
+            <form asp-action="Search" method="get">
+                <div class="input-group my-3">
+                    <span class="input-group-text">Text search</span>
+                    <input name="q"
+                           type="text"
+                           class="form-control">
+                    <button class="btn btn-primary" type="submit">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-6">
+            <form asp-action="VectorSearch" method="get">
+                <div class="input-group my-3">
+                    <span class="input-group-text">Vector search</span>
+                    <input name="q"
+                           type="text"
+                           class="form-control">
+                    <button class="btn btn-primary" type="submit">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @if (User.Identity?.IsAuthenticated == true)
 {
     <h2 class="my-4">
@@ -78,19 +109,6 @@
 <h2 class="my-4">
     Newest artwork
 </h2>
-
-<form asp-action="Search" method="get">
-    <div class="input-group mb-3">
-        <input name="q"
-               type="text"
-               class="form-control"
-               placeholder="Search (ID / Title / Tag)"
-               aria-label="Search by ID, title, or tag">
-        <button class="btn btn-primary" type="submit">
-            Search
-        </button>
-    </div>
-</form>
 
 <partial name="_ListGroup" model="@Model.RecentArtwork" />
 
