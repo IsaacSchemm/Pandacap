@@ -2,6 +2,7 @@ using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub;
@@ -185,21 +186,11 @@ namespace Pandacap.Controllers
             });
         }
 
+        [EnableRateLimiting("vectorSearch")]
         public async Task<IActionResult> VectorSearch(string q, int? index, int? count, CancellationToken cancellationToken)
         {
-            //if (User.Identity?.IsAuthenticated != true)
-            //{
-            //    if (q.Length > 100)
-            //        return StatusCode((int)HttpStatusCode.RequestEntityTooLarge);
-
-            //    if (_searchVectorGenerationFlag.CurrentCount == 0)
-            //        return StatusCode((int)HttpStatusCode.TooManyRequests);
-
-            //    await _searchVectorGenerationFlag.WaitAsync(cancellationToken);
-
-            //    var _ = Task.Delay(TimeSpan.FromDays(1), CancellationToken.None)
-            //        .ContinueWith(_ => _searchVectorGenerationFlag.Release());
-            //}
+            if (q.Length > 50)
+                return StatusCode((int)HttpStatusCode.RequestEntityTooLarge);
 
             int skip = index ?? 0;
             int take = count ?? 20;

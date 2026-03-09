@@ -1,6 +1,7 @@
 using Azure.Identity;
 using DeviantArtFs;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -14,6 +15,7 @@ using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Notifications;
 using Pandacap.Podcasts;
 using Pandacap.Signatures;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -150,6 +152,17 @@ builder.Services
     .AddEntityFrameworkStores<PandacapIdentityDbContext>();
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("vectorSearch", opt =>
+    {
+        opt.PermitLimit = 50;
+        opt.Window = TimeSpan.FromHours(12);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -174,6 +187,9 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Profile}/{action=Index}");
+
+app.UseRateLimiter();
+
 app.MapRazorPages();
 
 app.Run();
