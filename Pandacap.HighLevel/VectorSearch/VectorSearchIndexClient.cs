@@ -1,6 +1,7 @@
 ﻿using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Pandacap.Data;
 using System.Runtime.CompilerServices;
 
@@ -8,8 +9,11 @@ namespace Pandacap.HighLevel.VectorSearch
 {
     public class VectorSearchIndexClient(
         EmbeddingsProvider embeddingsProvider,
+        IMemoryCache memoryCache,
         IEnumerable<VectorSearchConfig> vectorSearchConfigs)
     {
+        private const string CACHE_KEY_PREFIX = "d3c7d794-32bc-41c2-af69-01ac7e33168f";
+
         public async IAsyncEnumerable<SearchResult<EmbeddedPost>> GetResultsAsync(
             string query,
             int skip,
@@ -23,9 +27,13 @@ namespace Pandacap.HighLevel.VectorSearch
                 vectorSearchConfig.IndexName,
                 new DefaultAzureCredential());
 
-            var vector = await embeddingsProvider.EmbedAsync(
-                query,
-                cancellationToken);
+            var vector = await memoryCache.GetOrCreateAsync(
+                $"{CACHE_KEY_PREFIX}:{query}",
+                _ => embeddingsProvider.EmbedAsync(query, cancellationToken),
+                new MemoryCacheEntryOptions
+                {
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                });
 
             VectorSearchOptions vectorSearchOptions = new();
 

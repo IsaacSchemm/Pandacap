@@ -1,6 +1,3 @@
-using Azure.Identity;
-using Azure.Search.Documents;
-using Azure.Search.Documents.Models;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -20,6 +17,7 @@ using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Models;
 using System.Diagnostics;
+using System.Net;
 using System.Text;
 
 namespace Pandacap.Controllers
@@ -45,6 +43,8 @@ namespace Pandacap.Controllers
         VectorSearchIndexClient vectorSearchIndexClient,
         WebFingerService webFingerService) : Controller
     {
+        //private static readonly SemaphoreSlim _searchVectorGenerationFlag = new(100, 100);
+
         private async Task<ActivityPubProfile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
         {
@@ -185,9 +185,22 @@ namespace Pandacap.Controllers
             });
         }
 
-        [Authorize]
         public async Task<IActionResult> VectorSearch(string q, int? index, int? count, CancellationToken cancellationToken)
         {
+            //if (User.Identity?.IsAuthenticated != true)
+            //{
+            //    if (q.Length > 100)
+            //        return StatusCode((int)HttpStatusCode.RequestEntityTooLarge);
+
+            //    if (_searchVectorGenerationFlag.CurrentCount == 0)
+            //        return StatusCode((int)HttpStatusCode.TooManyRequests);
+
+            //    await _searchVectorGenerationFlag.WaitAsync(cancellationToken);
+
+            //    var _ = Task.Delay(TimeSpan.FromDays(1), CancellationToken.None)
+            //        .ContinueWith(_ => _searchVectorGenerationFlag.Release());
+            //}
+
             int skip = index ?? 0;
             int take = count ?? 20;
 
