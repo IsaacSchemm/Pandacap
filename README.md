@@ -4,7 +4,22 @@ Demo: https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/
 
 A single-user art gallery and feed reader with ActivityPub support.
 
-On the home page:
+Note: This project is just a hobby of mine. It doesn't have a stable feature set, functionality may get added or removed without notice, and I'm not able to provide any support for it.
+
+## Design Philosophy
+
+A quick summary of the design philosophy:
+
+1. Pandacap should present itself to visitors as a personal website, not a social media platform.
+2. Pandacap should not show any content to logged-out users that was not either created or bookmarked by the admin.
+3. Pandacap should keep shares separate from original content, and keep image content separate from text.
+4. No page on Pandacap should have infinite content; pages should have a maximum length and present a "next page" button when appropriate.
+5. Pandacap should use an inbox paradigm for incoming content: posts should be added to the inbox when they arrive, and manually removed by the admin after they've read them.
+6. Pandacap should be deployable to Microsoft Azure in such a way as to minimize idle costs (at the expense of performance and scalability, if necessary).
+
+## Home Page
+
+The home page shows:
 
 * Your avatar and username
 * Your ActivityPub handle
@@ -16,7 +31,7 @@ On the home page:
 * Up to 5 of your **text posts** (from the past month)
 * Up to 5 of your **links** (from the past month)
 
-Features:
+## Features
 
 * Create **image posts**, **text posts**, and **links**, which are available on the site, via RSS/Atom, and via ActivityPub
 * Crosspost your image posts and text posts to attached DeviantArt, Fur Affinity, or Weasyl accounts
@@ -31,18 +46,20 @@ Features:
     * ActivityPub and Bluesky posts can be added manually
     * Favorites from DeviantArt, Fur Affinity, and Weasyl are imported automatically
 
-Some of the things Pandacap does **not** do:
+## Screenshots
 
-* Act as an OAuth server.
-* Act as an atproto PDS.
-* Allow the user to post directly to an atproto PDS (Bridgy Fed can be used instead).
-* Host more than one user account.
-* Host any public-facing content that is not intentionally placed there by the user.
-* Let you "repost" / "boost" someone else's post.
+* [Main Page](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/e3a78ccc-02b4-4bfe-9c88-f0cbde2be5b2)
+* [Inbox (Image Posts)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/0e21e890-cb4f-4353-aa19-bed8b59fd9e7)
+* [Inbox (Text Posts)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/2b3ee683-505f-40a8-b738-d82629c405ea)
+* [Inbox (Shares)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/1bf13e41-4f30-4f5d-9c6f-36688c180505)
+* [View Remote Post](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/47f2c898-5d08-4ec3-a241-55b7f7c707be)
+* [View Bluesky Post](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/f4d45fb8-35b0-41de-8122-8bf5cbe96115)
+* [Notifications](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/8d9b18b2-2520-4bfe-84c3-3b6f009d5a4d)
 
 ## Techincal Information
 
-Pandacap is designed to run on Microsoft Azure, using high-level resources like Azure App Service and Cosmos DB.
+Pandacap is written on ASP.NET Core with a mix of C# and F#.
+It is designed to run on Microsoft Azure, using high-level resources like Azure App Service and Cosmos DB.
 This version is not designed to run on a VPS or a local machine.
 
 To log in for the first time, the instance owner must use a Microsoft account that they have explicitly allowed in the associated Entra ID app registration.
@@ -75,7 +92,7 @@ and you can choose to ignore boosts or to treat all posts from the user as text 
 Pandacap stores some information about an ActivityPub post (like the ID, author, and thumbnail) when adding it to the inbox,
 but when you click on an ActivityPub post as a logged-in user, Pandacap will always fetch the post from its original instance.
 
-Activities (such as `Like`, `Dislike`, `Announce`) and replies to your posts are shown in the Notifications section. (Mentions that are not replies go to the Pandacap inbox.)
+Activities (such as `Like`, `Dislike`, `Announce`) and replies to your posts are shown in the Notifications section.
 
 Adding an ActivityPub post to your Favorites will send a `Like` activity.
 
@@ -83,17 +100,17 @@ Adding an ActivityPub post to your Favorites will send a `Like` activity.
 
 #### Following
 
-Pandacap allows you to follow atproto accounts as feeds.
+Pandacap allows you to follow atproto accounts as feeds. Individual DIDs or handles can be provided to Pandacap, which will store the DID and then treat the account as a feed. Each time it refreshes the feed, it will resolve the DID to a PDS and then query that PDS directly to detect changes, and (if necessary) for profile updates and any new posts (up to 20 per feed per run).
+
 For each user, you can choose whether to follow Bluesky posts, reposts, and/or likes.
 
 Pandacap will also look for Bluesky profile data (name and icon) when it refreshes the feed (every 8 hours, just like for RSS feeds).
 
-If you view a Bluesky post while logged in, and Pandacap detects that the post is available via Bridgy Fed,
-it will show the bridged ActivityPub version of the post, which allows you to like it (by adding it to your favorites) or reply to it.
+If you view a Bluesky post while logged in, and Pandacap detects that the post is available via Bridgy Fed, it will show the bridged ActivityPub version of the post, which allows you to like it (by adding it to your favorites) or reply to it.
 
 All data is fetched (unauthenticated) from the individual user's PDS, using `com.atproto.repo.listRecords`; the Bluesky AppView is not used.
 
-Bluesky's CDN is used for thumbnails and avatars.
+Pandacap's only use of Bluesky infrastructure is its CDN, for showing thumbnails of posts on the public Favorites page.
 
 #### Posting
 
@@ -126,6 +143,8 @@ Weasyl support relies on a PHP proxy script (included in this repository).
 
 Pandacap can connect to a Reddit account, to monitor it for upvotes on top-level posts and add these posts to your Favorites.
 
+No integration with the inbox or notification sections is included.
+
 ### RSS / Atom
 
 Pandacap can follow RSS and Atom feeds. New posts are added to the appropriate section of the Pandacap inbox.
@@ -139,29 +158,16 @@ Pandacap also makes your own posts available over RSS and Atom; the Gallery and 
 Deployable applications:
 
 * **Pandacap**: The main ASP.NET Core project. Hosts public content (artwork, status updates, journals) and private content (e.g. inbox and notification pages).
-* **Pandacap.Functions**: Runs periodic tasks (see below for more details).
+* **Pandacap.Functions**: Runs periodic tasks.
 
 Libraries:
 
-* **Pandacap.LowLevel**
-    * **ConfigurationObjects**: Contains objects that store deployment-level data (i.e. hostname, username) and codebase-level data (e.g. software name, public website).
-    * **PlatformBadges**: Contains types that represent the platforms supported by Pandacap and corresponding displayable badges for the UI.
-    * **Html**:  Parses and scrapes data from HTML pages.
-    * **FurAffinity**: Connects to Fur Affinity and FAExport.
-    * **ActivityPub**: Creates objects representing posts, favorites, the user profile, etc., which can be sent to, or retrieved by, other servers via ActivityPub.
-        * **Communication**: Sends and retrieves objects to/from remote servers via ActivityPub.
-        * **Inbound**: Parses objects recieved or retrieved via ActivityPub (posts and actors), converting them into an abstracted form.
-    * **ATProto**: Contains atproto client code and abstractions.
-    * **Twtxt**: A client to read the twtxt feed format.
-    * **Resolvers**: Helps implement the ActivityPub/atproto lookup form (by URL or handle) which is available when logged in.
-    * **Podcasts**: Code for splitting and re-encoding podcasts for transfer to an audio CD.
-    * **Data**: Contains the EF Core data models that are used in the Cosmos DB database to store the user's data.
-    * **Clients**: Contains miscellaneous small API clients.
-* **Pandacap.HighLevel**: Contains shared Pandacap code, including RSS/Atom feed support and code to assemble the user's notifications and favorites into composite lists.
+* **Pandacap.LowLevel**: Contains shared F# Pandcap code.
+* **Pandacap.HighLevel**: Contains shared C# Pandacap code.
 
 ## Deployment
 
-This application runs on the following Azure resources:
+This application runs on:
 
 * A Cosmos DB NoSQL database (for data storage)
 * An Azure Functions app
@@ -169,7 +175,7 @@ This application runs on the following Azure resources:
 * A Key Vault
 * A blob storage account
 
-ASP.NET Core Identity is backed by an in-memory database (since 11.1.0); the only allowed login method is via Microsoft account, but DeviantArt and Reddit accounts can be added in user management (which will connect these accounts to Pandacap's main database).
+ASP.NET Core Identity is backed by an in-memory database, so after the application is rebooted, it will prompt you again to create a user account after you authenticate. Pandacap's actual data is stored in Cosmos DB, and Pandacap's own code only ever checks whether you're validly logged in or not.
 
 The web app and function app must have the appropriate IAM permissions to access the storage account (Storage Blob Data Contributor) and the key vault (Key Vault Crypto User).
 
