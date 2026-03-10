@@ -76,33 +76,5 @@ namespace Pandacap.HighLevel.VectorSearch
                 return null;
             }
         }
-
-        public async Task<float[]?> EmbedAsync(
-            PostBlobRef? postBlobRef,
-            CancellationToken cancellationToken = default)
-        {
-            if (postBlobRef == null)
-                return null;
-
-            if (_imageEmbeddingsClient == null)
-                return null;
-
-            var blobDownloadResult = await _blobServiceClient
-                .GetBlobContainerClient("blobs")
-                .GetBlobClient($"{postBlobRef.Id}")
-                .DownloadContentAsync(cancellationToken: cancellationToken);
-
-            var dataUrl = $"data:{postBlobRef.ContentType};base64,{Convert.ToBase64String(blobDownloadResult.Value.Content)}";
-
-            var embeddingsResult = await _imageEmbeddingsClient.EmbedAsync(
-                new([new(dataUrl)])
-                {
-                    Dimensions = DIMENSIONS,
-                    Model = MODEL
-                },
-                cancellationToken);
-
-            return embeddingsResult.Value.Data[0].Embedding.ToObjectFromJson<float[]>();
-        }
     }
 }

@@ -38,17 +38,20 @@ namespace Pandacap.HighLevel.VectorSearch
                     SlidingExpiration = TimeSpan.FromMinutes(10)
                 });
 
+            if (vector == null)
+                yield break;
+
             VectorSearchOptions vectorSearchOptions = new();
 
             vectorSearchOptions.Queries.Add(
-                new VectorizedQuery(vector!.ToArray())
+                new VectorizedQuery(vector)
                 {
                     Fields = { "ShortText" },
                     Weight = 100
                 });
 
             vectorSearchOptions.Queries.Add(
-                new VectorizedQuery(vector!.ToArray())
+                new VectorizedQuery(vector)
                 {
                     Fields = { "LongText" },
                     Weight = 50
