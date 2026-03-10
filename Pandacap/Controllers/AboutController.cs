@@ -6,7 +6,7 @@ namespace Pandacap.Controllers
     {
         public IActionResult Index()
         {
-            return Redirect("https://lakora.us/pandacap/");
+            return Redirect("https://github.com/IsaacSchemm/Pandacap/blob/main/README.md");
         }
     }
 }
