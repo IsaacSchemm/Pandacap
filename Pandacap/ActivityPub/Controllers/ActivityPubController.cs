@@ -173,7 +173,8 @@ namespace Pandacap.Controllers
                 || type == "https://www.w3.org/ns/activitystreams#Listen"
                 || type == "https://www.w3.org/ns/activitystreams#Read"
                 || type == "https://www.w3.org/ns/activitystreams#View"
-                || type == "https://www.w3.org/ns/activitystreams#Announce")
+                || type == "https://www.w3.org/ns/activitystreams#Announce"
+                || type == "https://ns.mia.jetzt/as#Bite")
             {
                 foreach (string interactedWithId in activityPubRemotePostService.GetAnnouncementSubjectIds(expansionObj))
                 {
