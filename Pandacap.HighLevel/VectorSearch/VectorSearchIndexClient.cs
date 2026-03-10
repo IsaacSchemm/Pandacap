@@ -14,6 +14,9 @@ namespace Pandacap.HighLevel.VectorSearch
     {
         private const string CACHE_KEY_PREFIX = "d3c7d794-32bc-41c2-af69-01ac7e33168f";
 
+        public bool VectorSearchEnabled =>
+            vectorSearchConfigs.Any();
+
         public async IAsyncEnumerable<SearchResult<EmbeddedPost>> GetResultsAsync(
             string query,
             int skip,

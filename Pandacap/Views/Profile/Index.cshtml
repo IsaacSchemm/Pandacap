@@ -71,19 +71,22 @@
                 </div>
             </form>
         </div>
-        <div class="col-lg-6">
-            <form asp-action="VectorSearch" method="get">
-                <div class="input-group my-3">
-                    <span class="input-group-text">Vector search</span>
-                    <input name="q"
-                           type="text"
-                           class="form-control">
-                    <button class="btn btn-primary" type="submit">
-                        Search
-                    </button>
-                </div>
-            </form>
-        </div>
+        @if (Model.VectorSearchEnabled)
+        {
+            <div class="col-lg-6">
+                <form asp-action="VectorSearch" method="get">
+                    <div class="input-group my-3">
+                        <span class="input-group-text">Vector search</span>
+                        <input name="q"
+                        type="text"
+                        class="form-control">
+                        <button class="btn btn-primary" type="submit">
+                            Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
     </div>
 </div>
 

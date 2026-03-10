@@ -16,6 +16,7 @@ namespace Pandacap.Models
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
         public int FavoritesCount { get; set; }
-        public int CommunityBookmarksCount { get; set; }
+
+        public bool VectorSearchEnabled { get; set; }
     }
 }

@@ -80,6 +80,7 @@ namespace Pandacap.Controllers
 
             async Task<ProfileViewModel> buildModel()
             {
+                var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
                 var oneMonthAgo = DateTime.UtcNow.AddMonths(-1);
                 var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
@@ -93,7 +94,7 @@ namespace Pandacap.Controllers
                 var favorites = await compositeFavoritesProvider
                     .GetAllAsync()
                     .Where(post => post.Thumbnails.Any())
-                    .TakeWhile(post => post.FavoritedAt >= oneMonthAgo)
+                    .TakeWhile(post => post.FavoritedAt >= oneWeekAgo)
                     .OrderByDescending(favorite => favorite.FavoritedAt.Date)
                     .ThenByDescending(favorite => favorite.PostedAt)
                     .Take(12)
@@ -125,7 +126,7 @@ namespace Pandacap.Controllers
                         + await context.GeneralFeeds.DocumentCountAsync(cancellationToken)
                         + await context.ATProtoFeeds.DocumentCountAsync(cancellationToken),
                     FavoritesCount = await context.ActivityPubFavorites.DocumentCountAsync(cancellationToken),
-                    CommunityBookmarksCount = await context.CommunityBookmarks.DocumentCountAsync(cancellationToken)
+                    VectorSearchEnabled = vectorSearchIndexClient.VectorSearchEnabled
                 };
             }
 
