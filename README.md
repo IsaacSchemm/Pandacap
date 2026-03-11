@@ -17,6 +17,16 @@ A quick summary of the design philosophy:
 5. Pandacap should use an inbox paradigm for incoming content: posts should be added to the inbox when they arrive, and manually removed by the admin after they've read them.
 6. Pandacap should be deployable to Microsoft Azure in such a way as to minimize idle costs (at the expense of performance and scalability, if necessary).
 
+## Screenshots
+
+* [Main Page](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/e3a78ccc-02b4-4bfe-9c88-f0cbde2be5b2)
+* [Inbox (Image Posts)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/0e21e890-cb4f-4353-aa19-bed8b59fd9e7)
+* [Inbox (Text Posts)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/2b3ee683-505f-40a8-b738-d82629c405ea)
+* [Inbox (Shares)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/1bf13e41-4f30-4f5d-9c6f-36688c180505)
+* [View Remote Post](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/47f2c898-5d08-4ec3-a241-55b7f7c707be)
+* [View Bluesky Post](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/f4d45fb8-35b0-41de-8122-8bf5cbe96115)
+* [Notifications](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/8d9b18b2-2520-4bfe-84c3-3b6f009d5a4d)
+
 ## Home Page
 
 The home page shows:
@@ -45,16 +55,6 @@ The home page shows:
 * Add posts to your **favorites**
     * ActivityPub and Bluesky posts can be added manually
     * Favorites from DeviantArt, Fur Affinity, and Weasyl are imported automatically
-
-## Screenshots
-
-* [Main Page](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/e3a78ccc-02b4-4bfe-9c88-f0cbde2be5b2)
-* [Inbox (Image Posts)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/0e21e890-cb4f-4353-aa19-bed8b59fd9e7)
-* [Inbox (Text Posts)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/2b3ee683-505f-40a8-b738-d82629c405ea)
-* [Inbox (Shares)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/1bf13e41-4f30-4f5d-9c6f-36688c180505)
-* [View Remote Post](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/47f2c898-5d08-4ec3-a241-55b7f7c707be)
-* [View Bluesky Post](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/f4d45fb8-35b0-41de-8122-8bf5cbe96115)
-* [Notifications](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/8d9b18b2-2520-4bfe-84c3-3b6f009d5a4d)
 
 ## Techincal Information
 
@@ -240,6 +240,13 @@ Application settings (for the web app only):
 | Authentication:Microsoft:TenantId     | Tenant ID of your Entra (AAD) directory
 | Authentication:Microsoft:ClientId     | Application (client) ID of the app registration you've created in Entra
 | Authentication:Microsoft:ClientSecret | A client secret generated for the app registration
+| VectorSearchEmbeddingsEndpoint        | (optional) The target URI for an embedding model in Microsoft Foundry
+| VectorSearchSearchEndpoint            | (optional) The URI of an Azure AI Search resource
+| VectorSearchIndexName                 | (optional) The name of the index in Azure AI Search to populate and use
+
+[Vector search](https://learn.microsoft.com/en-us/azure/search/vector-search-how-to-create-index)
+uses embeddings generated from the title, alt text, description, links, and tags in your posts.
+Vector search is not enabled in the Pandacap demo instance.
 
 Web app user secrets example:
 

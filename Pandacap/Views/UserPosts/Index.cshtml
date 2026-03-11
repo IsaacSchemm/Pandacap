@@ -61,13 +61,15 @@
 @foreach (var image in Model.Post.Images)
 {
     <p align="center">
-        <picture>
-            <source srcset="/Blobs/UserPosts/@Model.Post.Id/@image.Primary.Id" type="@image.Primary.ContentType" />
-            <img src="/Blobs/UserPosts/@Model.Post.Id/@image.Raster.Id"
-                    alt="@image.AltText"
-                    title="@image.AltText"
-                    style="width: 100%; max-width: 640px; max-height: 480px; object-fit: contain" />
-        </picture>
+        <a href="/Blobs/UserPosts/@Model.Post.Id/@image.Primary.Id" target="_blank">
+            <picture>
+                <source srcset="/Blobs/UserPosts/@Model.Post.Id/@image.Primary.Id" type="@image.Primary.ContentType" />
+                <img src="/Blobs/UserPosts/@Model.Post.Id/@image.Raster.Id"
+                     alt="@image.AltText"
+                     title="@image.AltText"
+                     style="width: 100%; max-width: 640px; max-height: 480px; object-fit: contain" />
+            </picture>
+        </a>
     </p>
 
     <p align="center">

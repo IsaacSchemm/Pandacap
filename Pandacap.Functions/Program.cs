@@ -64,16 +64,6 @@ var host = new HostBuilder()
                 redditAppSecret));
         }
 
-        if (Environment.GetEnvironmentVariable("VectorSearchEmbeddingsEndpoint") is string embeddingsEndpoint
-            && Environment.GetEnvironmentVariable("VectorSearchSearchEndpoint") is string searchEndpoint
-            && Environment.GetEnvironmentVariable("VectorSearchIndexName") is string indexName)
-        {
-            services.AddSingleton(new VectorSearchConfig(
-                EmbeddingsEndpoint: embeddingsEndpoint,
-                SearchEndpoint: searchEndpoint,
-                IndexName: indexName));
-        }
-
         services
             .AddMemoryCache()
             .AddPandacapServices(new(
