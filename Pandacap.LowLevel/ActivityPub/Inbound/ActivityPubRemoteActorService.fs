@@ -43,6 +43,14 @@ type ActivityPubRemoteActorService(
                 object
                 |> list "https://www.w3.org/ns/activitystreams#preferredUsername"
                 |> first node_value
+            Name =
+                object
+                |> list "https://www.w3.org/ns/activitystreams#name"
+                |> first node_value
+            Summary =
+                object
+                |> list "https://www.w3.org/ns/activitystreams#summary"
+                |> first node_value
             Url =
                 object
                 |> list "https://www.w3.org/ns/activitystreams#url"

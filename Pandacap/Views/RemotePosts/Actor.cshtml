@@ -9,7 +9,7 @@
     <img width="50" height="50" src="@(Model.IconUrl ?? "/images/trgray.svg")" alt="">
     <span style="display: inline-block; vertical-align: top">
         <a href="@Model.Url" target="_blank">
-            <strong>@Model.PreferredUsername</strong>
+            <strong>@(Model.Name ?? Model.PreferredUsername)</strong>
         </a>
 
         <br>
@@ -18,13 +18,33 @@
     </span>
 </p>
 
+<p>
+    <span class="badge" style="background-color: navy; color: white">
+        @Model.Type?.Replace("https://www.w3.org/ns/activitystreams#", "")
+    </span>
+</p>
+
 <form asp-controller="Profile" asp-action="Follow">
     <input type="hidden" name="id" value="@Model.Id" />
     <div class="row mb-3">
         <div class="col-md-3 mt-auto">
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-sm btn-primary">
                 Send follow request
             </button>
         </div>
     </div>
 </form>
+
+@if (Model.Type == "https://www.w3.org/ns/activitystreams#Group")
+{
+    <form asp-controller="Communities" asp-action="ViewCommunity">
+        <input type="hidden" name="actorId" value="@Model.Id" />
+        <div class="row mb-3">
+            <div class="col-md-3 mt-auto">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    View community (Lemmy API)
+                </button>
+            </div>
+        </div>
+    </form>
+}

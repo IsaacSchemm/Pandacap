@@ -6,6 +6,8 @@ type RemoteActor = {
     Inbox: string
     SharedInbox: string
     PreferredUsername: string
+    Name: string
+    Summary: string
     Url: string
     IconUrl: string
     KeyId: string

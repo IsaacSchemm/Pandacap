@@ -29,24 +29,15 @@ namespace Pandacap.HighLevel.Resolvers
                         json));
             }
             catch (ActivityPubAlternateLinkNotFoundException) { }
+            catch (NotActivityPubException) { }
 
             if (obj == null)
                 yield break;
 
-            foreach (var objectType in obj["@type"]?.Values<string>() ?? [])
-            {
-                switch (objectType)
-                {
-                    case "https://www.w3.org/ns/activitystreams#Person":
-                        yield return ResolverResult.NewActivityPubActor(url);
-                        yield break;
-                    case "https://www.w3.org/ns/activitystreams#Article":
-                    case "https://www.w3.org/ns/activitystreams#Note":
-                    case "https://www.w3.org/ns/activitystreams#Page":
-                        yield return ResolverResult.NewActivityPubPost(url);
-                        yield break;
-                }
-            }
+            if (obj["http://www.w3.org/ns/ldp#inbox"] != null)
+                yield return ResolverResult.NewActivityPubActor(url);
+            else
+                yield return ResolverResult.NewActivityPubPost(url);
         }
     }
 }

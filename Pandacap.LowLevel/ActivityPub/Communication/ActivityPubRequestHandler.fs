@@ -10,6 +10,7 @@ open Pandacap.ActivityPub
 open Pandacap.Html
 
 exception ActivityPubAlternateLinkNotFoundException
+exception NotActivityPubException
 
 type ActivityPubRequestHandler(
     prerequisites: IActivityPubCommunicationPrerequisites,
@@ -80,8 +81,11 @@ type ActivityPubRequestHandler(
                     |> Option.defaultWith (fun () -> raise ActivityPubAlternateLinkNotFoundException)
 
                 return! getAsync href true cancellationToken
-            | _ ->
+            | Some "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
+            | Some "application/activity+json" ->
                 return body
+            | _ ->
+                return raise NotActivityPubException
         with _ when includeSignature ->
             return! getAsync url false cancellationToken
     }
