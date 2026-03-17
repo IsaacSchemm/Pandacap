@@ -12,8 +12,6 @@
     <Compile Include="PlatformBadges\NotificationPlatform.fs" />
     <Compile Include="PlatformBadges\PostPlatform.fs" />
     <Compile Include="Html\Scraper.fs" />
-    <Compile Include="Html\DeviantArtScraper.fs" />
-    <Compile Include="Html\SheezyArtScraper.fs" />
     <Compile Include="Html\WeasylScraper.fs" />
     <Compile Include="Html\ImageFinder.fs" />
     <Compile Include="Html\ExcerptGenerator.fs" />
