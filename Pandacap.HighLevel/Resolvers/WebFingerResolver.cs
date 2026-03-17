@@ -1,15 +1,14 @@
 ﻿using Pandacap.ActivityPub.Inbound;
 using Pandacap.Resolvers;
-using System.Runtime.CompilerServices;
 
 namespace Pandacap.HighLevel.Resolvers
 {
     internal class WebFingerResolver(
         WebFingerService webFingerService) : IResolver
     {
-        public async IAsyncEnumerable<ResolverResult> ResolveAsync(
+        public async Task<ResolverResult> ResolveAsync(
             string input,
-            [EnumeratorCancellation] CancellationToken cancellationToken)
+            CancellationToken cancellationToken)
         {
             var split = input.Split('@');
 
@@ -17,12 +16,10 @@ namespace Pandacap.HighLevel.Resolvers
             {
                 case ["", var handle, var hostname] when handle != "" && hostname != "":
                     var id = await webFingerService.ResolveIdForHandleAsync(input);
-                    yield return ResolverResult.NewActivityPubActor(id);
-
-                    break;
+                    return ResolverResult.NewActivityPubActor(id);
 
                 default:
-                    break;
+                    return ResolverResult.None;
             }
         }
     }

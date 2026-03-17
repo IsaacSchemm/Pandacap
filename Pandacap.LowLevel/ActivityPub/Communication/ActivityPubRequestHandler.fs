@@ -9,8 +9,7 @@ open System.Threading
 open Pandacap.ActivityPub
 open Pandacap.Html
 
-exception ActivityPubAlternateLinkNotFoundException
-exception NotActivityPubException
+exception ActivityJsonNotFoundException
 
 type ActivityPubRequestHandler(
     prerequisites: IActivityPubCommunicationPrerequisites,
@@ -78,14 +77,17 @@ type ActivityPubRequestHandler(
                     |> Seq.map (fun attr -> new Uri(url, attr.Href))
                     |> Seq.except [url]
                     |> Seq.tryHead
-                    |> Option.defaultWith (fun () -> raise ActivityPubAlternateLinkNotFoundException)
+                    |> Option.defaultWith (fun () -> raise ActivityJsonNotFoundException)
 
                 return! getAsync href true cancellationToken
+
             | Some "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
             | Some "application/activity+json" ->
                 return body
+
             | _ ->
-                return raise NotActivityPubException
+                return raise ActivityJsonNotFoundException
+
         with _ when includeSignature ->
             return! getAsync url false cancellationToken
     }

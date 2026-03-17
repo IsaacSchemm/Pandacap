@@ -25,10 +25,8 @@ namespace Pandacap.Controllers
                 return RedirectToAction("ViewBlueskyPost", "ATProto", new { blueskyPost.did, blueskyPost.rkey });
             else if (result is ResolverResult.BlueskyProfile blueskyProfile)
                 return RedirectToAction("ViewBlueskyProfile", "ATProto", new { blueskyProfile.did });
-            else if (Uri.TryCreate(url, UriKind.Absolute, out Uri? _))
-                return Redirect(url);
             else
-                return NotFound();
+                return Content($"Could not find a matching ActivityPub or atproto item for the URL or handle: {url}");
         }
     }
 }

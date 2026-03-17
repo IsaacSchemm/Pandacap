@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.Resolvers;
-using System.Runtime.CompilerServices;
 
 namespace Pandacap.HighLevel.Resolvers
 {
@@ -9,35 +8,30 @@ namespace Pandacap.HighLevel.Resolvers
         ActivityPubRequestHandler activityPubRequestHandler,
         JsonLdExpansionService jsonLdExpansionService) : IResolver
     {
-        public async IAsyncEnumerable<ResolverResult> ResolveAsync(
+        public async Task<ResolverResult> ResolveAsync(
             string url,
-            [EnumeratorCancellation] CancellationToken cancellationToken)
+            CancellationToken cancellationToken)
         {
-            JToken? obj = null;
-
             if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
-            {
-                yield break;
-            }
+                return ResolverResult.None;
 
             try
             {
-                var json = await activityPubRequestHandler.GetJsonAsync(uri, cancellationToken);
+                var json = await activityPubRequestHandler.GetJsonAsync(
+                    uri,
+                    cancellationToken);
 
-                obj = jsonLdExpansionService.Expand(
+                var obj = jsonLdExpansionService.Expand(
                     JObject.Parse(
                         json));
+
+                return obj["http://www.w3.org/ns/ldp#inbox"] != null
+                    ? ResolverResult.NewActivityPubActor(url)
+                    : ResolverResult.NewActivityPubPost(url);
             }
-            catch (ActivityPubAlternateLinkNotFoundException) { }
-            catch (NotActivityPubException) { }
+            catch (ActivityJsonNotFoundException) { }
 
-            if (obj == null)
-                yield break;
-
-            if (obj["http://www.w3.org/ns/ldp#inbox"] != null)
-                yield return ResolverResult.NewActivityPubActor(url);
-            else
-                yield return ResolverResult.NewActivityPubPost(url);
+            return ResolverResult.None;
         }
     }
 }

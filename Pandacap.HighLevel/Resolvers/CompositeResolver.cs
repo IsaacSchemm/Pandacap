@@ -15,12 +15,9 @@ namespace Pandacap.HighLevel.Resolvers
             {
                 try
                 {
-                    await foreach (var result in resolver.ResolveAsync(
-                        url,
-                        cancellationToken))
-                    {
-                        return result;
-                    }
+                    var res = await resolver.ResolveAsync(url, cancellationToken);
+                    if (!res.IsNone)
+                        return res;
                 }
                 catch (Exception ex)
                 {

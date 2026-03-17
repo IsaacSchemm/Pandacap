@@ -4,7 +4,7 @@ namespace Pandacap.HighLevel.Resolvers
 {
     public interface IResolver
     {
-        IAsyncEnumerable<ResolverResult> ResolveAsync(
+        Task<ResolverResult> ResolveAsync(
             string url,
             CancellationToken cancellationToken);
     }
