@@ -1,16 +1,16 @@
-﻿using Pandacap.HighLevel.Weasyl;
+﻿using Pandacap.HighLevel;
 using Pandacap.PlatformBadges;
-using Pandacap.HighLevel;
+using Pandacap.Weasyl.Interfaces;
 
 namespace Pandacap.Notifications
 {
     public class WeasylNotificationHandler(
-        WeasylClientFactory weasylClientFactory
+        UserAwareClientFactory userAwareClientFactory
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
-            if (await weasylClientFactory.CreateWeasylClientAsync() is not WeasylClient client)
+            if (await userAwareClientFactory.CreateWeasylClientAsync() is not IWeasylClient client)
                 yield break;
 
             var platform = new NotificationPlatform(
@@ -18,7 +18,7 @@ namespace Pandacap.Notifications
                 PostPlatformModule.GetBadge(PostPlatform.Weasyl),
                 viewAllUrl: "https://www.weasyl.com/messages/notifications");
 
-            var notifications = await client.ExtractNotificationsAsync();
+            var notifications = await client.ExtractNotificationsAsync(CancellationToken.None);
 
             foreach (var notification in notifications.OrderByDescending(x => x.Time))
             {

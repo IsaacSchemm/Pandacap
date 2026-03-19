@@ -6,9 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Http.fs" />
     <Compile Include="Scraper.fs" />
     <Compile Include="Multipart.fs" />
+    <Compile Include="FurAffinityHttpHandlerProvider.fs" />
     <Compile Include="FurAffinityClient.fs" />
     <Compile Include="FurAffinityClientFactory.fs" />
   </ItemGroup>

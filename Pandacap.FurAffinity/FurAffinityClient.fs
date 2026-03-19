@@ -7,9 +7,13 @@ open FSharp.Data
 open Pandacap.FurAffinity.Models
 open Pandacap.FurAffinity.Interfaces
 
-type internal FurAffinityClient(domain: Domain, credentials: IFurAffinityCredentials) =
+type internal FurAffinityClient(
+    httpMessageHandler: HttpMessageHandler,
+    domain: Domain,
+    credentials: IFurAffinityCredentials
+) =
     let client =
-        let client = new HttpClient(Http.handler.Value, disposeHandler = false)
+        let client = new HttpClient(httpMessageHandler, disposeHandler = false)
         client.BaseAddress <-
             match domain with
             | WWW -> new Uri("https://www.furaffinity.net/")

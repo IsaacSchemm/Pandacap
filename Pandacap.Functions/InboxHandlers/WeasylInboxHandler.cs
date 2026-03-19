@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.Weasyl;
+using Pandacap.Weasyl.Interfaces;
+using Pandacap.Weasyl.Models;
 
 namespace Pandacap.Functions.InboxHandlers
 {
     public class WeasylInboxHandler(
         PandacapDbContext context,
-        WeasylClientFactory weasylClientFactory)
+        UserAwareClientFactory userAwareClientFactory)
     {
         /// <summary>
         /// Imports new posts from the past three days that have not yet been
@@ -16,7 +17,7 @@ namespace Pandacap.Functions.InboxHandlers
         /// <returns></returns>
         public async Task ImportSubmissionsByUsersWeWatchAsync()
         {
-            if (await weasylClientFactory.CreateWeasylClientAsync() is not WeasylClient weasylClient)
+            if (await userAwareClientFactory.CreateWeasylClientAsync() is not IWeasylClient weasylClient)
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
@@ -25,9 +26,9 @@ namespace Pandacap.Functions.InboxHandlers
                 .Where(item => item.PostedAt >= someTimeAgo)
                 .ToListAsync();
 
-            Dictionary<string, WeasylClient.AvatarResponse> avatars = [];
+            Dictionary<string, Weasyl.Models.WeasylApi.AvatarResponse> avatars = [];
 
-            await foreach (var submission in weasylClient.GetMessagesSubmissionsAsync())
+            await foreach (var submission in weasylClient.GetMessagesSubmissionsAsync(CancellationToken.None))
             {
                 if (submission.posted_at < someTimeAgo)
                     break;
@@ -37,7 +38,10 @@ namespace Pandacap.Functions.InboxHandlers
 
                 if (!avatars.TryGetValue(submission.owner_login, out var avatarResponse))
                 {
-                    avatarResponse = await weasylClient.GetAvatarAsync(submission.owner_login);
+                    avatarResponse = await weasylClient.GetAvatarAsync(
+                        submission.owner_login,
+                        CancellationToken.None);
+
                     avatars[submission.owner_login] = avatarResponse;
                 }
 
@@ -74,7 +78,7 @@ namespace Pandacap.Functions.InboxHandlers
         /// <returns></returns>
         public async Task ImportJournalsByUsersWeWatchAsync()
         {
-            if (await weasylClientFactory.CreateWeasylClientAsync() is not WeasylClient weasylClient)
+            if (await userAwareClientFactory.CreateWeasylClientAsync() is not IWeasylClient weasylClient)
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
@@ -83,9 +87,9 @@ namespace Pandacap.Functions.InboxHandlers
                 .Where(item => item.PostedAt >= someTimeAgo)
                 .ToListAsync();
 
-            Dictionary<string, WeasylClient.AvatarResponse> avatars = [];
+            Dictionary<string, Weasyl.Models.WeasylApi.AvatarResponse> avatars = [];
 
-            var journals = await weasylClient.ExtractJournalsAsync();
+            var journals = await weasylClient.ExtractJournalsAsync(CancellationToken.None);
 
             foreach (var journal in journals)
             {
@@ -95,7 +99,9 @@ namespace Pandacap.Functions.InboxHandlers
                 if (existingPosts.Any(p => p.Url == journal.post.href))
                     continue;
 
-                var avatar = await weasylClient.GetAvatarAsync(journal.user.name);
+                var avatar = await weasylClient.GetAvatarAsync(
+                    journal.user.name,
+                    CancellationToken.None);
 
                 context.InboxWeasylJournals.Add(new()
                 {

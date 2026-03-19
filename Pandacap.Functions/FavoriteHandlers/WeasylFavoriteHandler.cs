@@ -1,32 +1,34 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.Weasyl;
+using Pandacap.Weasyl.Interfaces;
+using Pandacap.Weasyl.Models;
+using Pandacap.Weasyl.Models.WeasylApi;
 
 namespace Pandacap.Functions.FavoriteHandlers
 {
     public partial class WeasylFavoriteHandler(
         PandacapDbContext context,
-        WeasylClientFactory weasylClientFactory)
+        UserAwareClientFactory userAwareClientFactory)
     {
-        public async Task ImportFavoriteSubmissionsAsync()
+        public async Task ImportFavoriteSubmissionsAsync(CancellationToken cancellationToken = default)
         {
-            if (await weasylClientFactory.CreateWeasylClientAsync() is not WeasylClient client)
+            if (await userAwareClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
                 return;
 
-            var self = await client.WhoamiAsync();
+            var self = await client.WhoamiAsync(cancellationToken);
 
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
-            Stack<WeasylClient.Submission> items = [];
+            Stack<Submission> items = [];
 
-            await foreach (int submitid in client.ExtractFavoriteSubmitidsAsync(self.userid))
+            await foreach (int submitid in client.ExtractFavoriteSubmitidsAsync(self.userid, cancellationToken))
             {
-                var submission = await client.ViewSubmissionAsync(submitid);
+                var submission = await client.ViewSubmissionAsync(submitid, cancellationToken);
 
                 var existing = await context.WeasylFavoriteSubmissions
                     .Where(item => item.Submitid == submission.submitid)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
 
                 if (existing.Count > 1)
                     context.RemoveRange(existing);
@@ -53,7 +55,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                     {
                         Login = submission.owner_login,
                         DisplayName = submission.owner,
-                        Avatar = (submission.owner_media?.avatar ?? [])
+                        Avatar = submission.Avatars
                             .Select(a => a.url)
                             .FirstOrDefault()
                     },
@@ -70,7 +72,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                 });
             }
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
     }
 }

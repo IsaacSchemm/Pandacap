@@ -15,7 +15,8 @@ using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.Resolvers;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.VectorSearch;
-using Pandacap.HighLevel.Weasyl;
+using Pandacap.Weasyl;
+using Pandacap.Weasyl.Interfaces;
 
 namespace Pandacap.HighLevel
 {
@@ -71,7 +72,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<IResolver, BlueskyHandleResolver>()
                 .AddScoped<IResolver, WebFingerResolver>()
                 .AddScoped<VectorSearchIndexClient>()
-                .AddScoped<WeasylClientFactory>()
+                .AddScoped<IWeasylClientFactory, WeasylClientFactory>()
                 .AddScoped<WebFingerService>();
         }
     }

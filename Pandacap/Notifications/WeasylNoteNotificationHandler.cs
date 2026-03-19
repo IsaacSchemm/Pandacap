@@ -1,16 +1,16 @@
 ﻿using Pandacap.HighLevel;
-using Pandacap.HighLevel.Weasyl;
 using Pandacap.PlatformBadges;
+using Pandacap.Weasyl.Interfaces;
 
 namespace Pandacap.Notifications
 {
     public class WeasylNoteNotificationHandler(
-        WeasylClientFactory weasylClientFactory
+        UserAwareClientFactory userAwareClientFactory
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
-            if (await weasylClientFactory.CreateWeasylClientAsync() is not WeasylClient client)
+            if (await userAwareClientFactory.CreateWeasylClientAsync() is not IWeasylClient client)
                 yield break;
 
             var platform = new NotificationPlatform(
@@ -18,7 +18,7 @@ namespace Pandacap.Notifications
                 PostPlatformModule.GetBadge(PostPlatform.Weasyl),
                 viewAllUrl: "https://www.weasyl.com/notes");
 
-            foreach (var note in await client.GetNotesAsync())
+            foreach (var note in await client.GetNotesAsync(CancellationToken.None))
             {
                 yield return new Notification
                 {
