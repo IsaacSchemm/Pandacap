@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.FurAffinity;
+using Pandacap.FurAffinity.Extensions;
+using Pandacap.FurAffinity.Interfaces;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.FurAffinity;
 
 namespace Pandacap.Functions.FavoriteHandlers
 {
     public partial class FurAffinityFavoriteHandler(
-        PandacapDbContext context)
+        PandacapDbContext context,
+        IFurAffinityClientFactory furAffinityClientFactory)
     {
         public async Task ImportFavoritesAsync()
         {
@@ -18,16 +19,18 @@ namespace Pandacap.Functions.FavoriteHandlers
 
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
-            async IAsyncEnumerable<FA.Submission> enumerateAsync()
+            async IAsyncEnumerable<FurAffinity.Models.Submission> enumerateAsync()
             {
-                var pagination = FA.FavoritesPage.First;
+                var pagination = FurAffinity.Models.FavoritesPage.First;
+
+                var client = furAffinityClientFactory.CreateClient(
+                    credentials,
+                    FurAffinity.Models.Domain.SFW);
 
                 while (true)
                 {
-                    var page = await FA.GetFavoritesAsync(
-                        credentials,
+                    var page = await client.GetFavoritesAsync(
                         credentials.Username,
-                        FA.Domain.SFW,
                         pagination,
                         CancellationToken.None);
 
@@ -37,11 +40,11 @@ namespace Pandacap.Functions.FavoriteHandlers
                     if (page.Length == 0)
                         yield break;
 
-                    pagination = FA.FavoritesPage.NewAfter(page.Select(x => x.fav_id).Last());
+                    pagination = FurAffinity.Models.FavoritesPage.NewAfter(page.Select(x => x.fav_id).Last());
                 }
             }
 
-            Stack<FA.Submission> items = [];
+            Stack<FurAffinity.Models.Submission> items = [];
 
             await foreach (var submission in enumerateAsync())
             {

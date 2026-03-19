@@ -5,6 +5,8 @@ using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
+using Pandacap.FurAffinity;
+using Pandacap.FurAffinity.Interfaces;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.HighLevel.FeedReaders;
@@ -56,6 +58,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<IFeedReader, JsonFeedReader>()
                 .AddScoped<IFeedReader, TwtxtFeedReader>()
                 .AddScoped<FeedRefresher>()
+                .AddScoped<IFurAffinityClientFactory, FurAffinityClientFactory>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<PlatformIconProvider>()

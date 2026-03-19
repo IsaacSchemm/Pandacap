@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.FurAffinity;
+using Pandacap.FurAffinity.Interfaces;
 using System.Text.RegularExpressions;
 
 namespace Pandacap.Functions.InboxHandlers
 {
     public partial class FurAffinityInboxHandler(
-        PandacapDbContext context)
+        PandacapDbContext context,
+        IFurAffinityClientFactory furAffinityClientFactory)
     {
         [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
         private static partial Regex GetFurAffinityThumbnailPattern();
@@ -28,15 +30,17 @@ namespace Pandacap.Functions.InboxHandlers
                 .DefaultIfEmpty(0)
                 .Single();
 
-            async IAsyncEnumerable<FA.Submission> enumerateAsync(bool sfw)
+            async IAsyncEnumerable<FurAffinity.Models.Submission> enumerateAsync(bool sfw)
             {
-                var pagination = FA.SubmissionsPage.NewFromOldest(lastSeenId + 1);
+                var pagination = FurAffinity.Models.SubmissionsPage.NewFromOldest(lastSeenId + 1);
+
+                var client = furAffinityClientFactory.CreateClient(
+                    credentials,
+                    sfw ? FurAffinity.Models.Domain.SFW : FurAffinity.Models.Domain.WWW);
 
                 while (true)
                 {
-                    var page = await FA.GetSubmissionsAsync(
-                        credentials,
-                        sfw ? FA.Domain.SFW : FA.Domain.WWW,
+                    var page = await client.GetSubmissionsAsync(
                         pagination,
                         CancellationToken.None);
 
@@ -47,7 +51,7 @@ namespace Pandacap.Functions.InboxHandlers
                     {
                         yield return submission;
 
-                        pagination = FA.SubmissionsPage.NewFromOldest(submission.id + 1);
+                        pagination = FurAffinity.Models.SubmissionsPage.NewFromOldest(submission.id + 1);
                     }
                 }
             }
@@ -94,6 +98,8 @@ namespace Pandacap.Functions.InboxHandlers
             if (credentials == null)
                 return;
 
+            var client = furAffinityClientFactory.CreateClient(credentials);
+
             var maxIds = await context.InboxFurAffinityJournals
                 .OrderByDescending(s => s.JournalId)
                 .Select(s => s.JournalId)
@@ -104,8 +110,7 @@ namespace Pandacap.Functions.InboxHandlers
                 .DefaultIfEmpty(0)
                 .Single();
 
-            var notifications = await FA.GetNotificationsAsync(
-                credentials,
+            var notifications = await client.GetNotificationsAsync(
                 CancellationToken.None);
 
             foreach (var notification in notifications)
@@ -116,8 +121,7 @@ namespace Pandacap.Functions.InboxHandlers
                 if (journalId <= lastSeenId)
                     continue;
 
-                var journal = await FA.GetJournalAsync(
-                    credentials,
+                var journal = await client.GetJournalAsync(
                     journalId,
                     CancellationToken.None);
 

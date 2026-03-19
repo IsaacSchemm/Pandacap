@@ -1,11 +1,11 @@
-﻿using Pandacap.FurAffinity;
+﻿using Pandacap.FurAffinity.Models;
 using System.Text.RegularExpressions;
 
-namespace Pandacap.HighLevel.FurAffinity
+namespace Pandacap.FurAffinity.Extensions
 {
     public static partial class FurAffinityExtensions
     {
-        public static DateTimeOffset? GetPublishedTime(this FA.Submission submission) =>
+        public static DateTimeOffset? GetPublishedTime(this Submission submission) =>
             GetFurAffinityThumbnailPattern().Match(submission.thumbnail) is Match match
             && match.Success
             && long.TryParse(match.Groups[1].Value, out long ts)

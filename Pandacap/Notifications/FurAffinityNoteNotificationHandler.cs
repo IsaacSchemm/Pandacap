@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
-using Pandacap.FurAffinity;
+using Pandacap.FurAffinity.Interfaces;
 using Pandacap.PlatformBadges;
 
 namespace Pandacap.Notifications
 {
     public class FurAffinityNoteNotificationHandler(
-        PandacapDbContext context
+        PandacapDbContext context,
+        IFurAffinityClientFactory furAffinityClientFactory
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
@@ -15,9 +16,9 @@ namespace Pandacap.Notifications
             if (credentials == null)
                 yield break;
 
-            var notes = await FA.GetNotesAsync(
-                credentials,
-                CancellationToken.None);
+            var notes = await furAffinityClientFactory
+                .CreateClient(credentials)
+                .GetNotesAsync(CancellationToken.None);
 
             foreach (var note in notes)
                 yield return new Notification

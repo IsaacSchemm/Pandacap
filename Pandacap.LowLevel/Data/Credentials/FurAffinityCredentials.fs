@@ -2,7 +2,7 @@
 
 open System.ComponentModel.DataAnnotations
 open Pandacap.ConfigurationObjects
-open Pandacap.FurAffinity
+open Pandacap.FurAffinity.Interfaces
 open Pandacap.PlatformBadges
 
 /// The active credentials for Fur Affinity.

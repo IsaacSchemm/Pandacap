@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Domain.fs" />
+    <Compile Include="Rating.fs" />
+    <Compile Include="ArtworkMetadata.fs" />
+    <Compile Include="PostOption.fs" />
+    <Compile Include="PostOptionsCollection.fs" />
+    <Compile Include="GalleryFolder.fs" />
+    <Compile Include="SubmissionDataElement.fs" />
+    <Compile Include="Submission.fs" />
+    <Compile Include="SubmissionsPage.fs" />
+    <Compile Include="FavoritesPage.fs" />
+    <Compile Include="Note.fs" />
+    <Compile Include="Journal.fs" />
+    <Compile Include="Notification.fs" />
+  </ItemGroup>
+
+</Project>

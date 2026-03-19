@@ -23,6 +23,7 @@
     <PackageReference Include="RestSharp" Version="113.1.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Pandacap.FurAffinity.Extensions\Pandacap.FurAffinity.Extensions.csproj" />
     <ProjectReference Include="..\Pandacap.HighLevel\Pandacap.HighLevel.csproj" />
   </ItemGroup>
   <ItemGroup>
