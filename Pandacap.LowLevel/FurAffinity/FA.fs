@@ -48,10 +48,14 @@ module FA =
 
         let! html = resp.Content.ReadAsStringAsync(cancellationToken)
         let document = HtmlDocument.Parse html
-        return String.concat " / " [
+
+        return Seq.head (seq {
+            for item in document.CssSelect(".loggedin_user_avatar") do
+                item.AttributeValue("alt")
+
             for item in document.CssSelect("#my-username") do
                 item.InnerText().Trim().TrimStart('~')
-        ]
+        })
     }
 
     let GetTimeZoneAsync credentials cancellationToken = task {
@@ -272,7 +276,7 @@ module FA =
             | FavoritesPage.First -> $"/favorites/{Uri.EscapeDataString(name)}"
             | FavoritesPage.After fav_id -> $"/favorites/{Uri.EscapeDataString(name)}/{fav_id}/next"
             | FavoritesPage.Before fav_id -> $"/favorites/{Uri.EscapeDataString(name)}/{fav_id}/prev"
-
+            
         use client = getClient credentials domain
         use! resp = client.GetAsync(path, cancellationToken = cancellationToken)
 
@@ -319,9 +323,7 @@ module FA =
 
         let! html = resp.Content.ReadAsStringAsync(cancellationToken)
 
-        let subset = html.Substring(List.max [0; html.IndexOf("""<div id="standardpage">""")])
-
-        let document = HtmlDocument.Parse(subset)
+        let document = HtmlDocument.Parse(html)
 
         let submissionData =
             document.CssSelect("#js-submissionData")
@@ -463,14 +465,9 @@ module FA =
 
         return [
             for item in document.CssSelect(".message-stream li") do
-                let time =
-                    item.CssSelect("span[data-time]")
-                    |> Seq.tryHead
-                    |> Option.bind (HtmlNode.tryGetAttribute "data-time")
-                    |> Option.map (HtmlAttribute.value >> int64 >> DateTimeOffset.FromUnixTimeSeconds)
-                match time with
+                match Seq.tryHead (item.CssSelect("span[data-time]")) with
                 | None -> ()
-                | Some t ->
+                | Some timeNode ->
                     let journalId =
                         item.CssSelect("input[type=checkbox]")
                         |> Seq.map (fun node -> {|
@@ -493,8 +490,14 @@ module FA =
                         |> Seq.tryHead
 
                     {
-                        text = HtmlNode.innerText item
-                        time = t
+                        text = (HtmlNode.innerText item).Replace(HtmlNode.innerText timeNode, "").Trim()
+                        time =
+                            timeNode
+                            |> HtmlNode.tryGetAttribute "data-time"
+                            |> Option.get
+                            |> HtmlAttribute.value
+                            |> int64
+                            |> DateTimeOffset.FromUnixTimeSeconds
                         journalId = Option.toNullable journalId
                     }
         ]
@@ -502,7 +505,6 @@ module FA =
 
     let PostJournalAsync credentials subject (rating: Rating) message cancellationToken = task {
         use client = getClient credentials WWW
-
         let! journal_submission_page_key = task {
             use! resp = client.GetAsync("/controls/journal/", cancellationToken = cancellationToken)
             ignore (resp.EnsureSuccessStatusCode())
