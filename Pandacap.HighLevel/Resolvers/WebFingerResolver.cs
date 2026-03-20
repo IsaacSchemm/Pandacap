@@ -12,15 +12,18 @@ namespace Pandacap.HighLevel.Resolvers
         {
             var split = input.Split('@');
 
-            switch (split)
+            try
             {
-                case ["", var handle, var hostname] when handle != "" && hostname != "":
-                    var id = await webFingerService.ResolveIdForHandleAsync(input);
-                    return ResolverResult.NewActivityPubActor(id);
-
-                default:
-                    return ResolverResult.None;
+                switch (split)
+                {
+                    case ["", var handle, var hostname] when handle != "" && hostname != "":
+                        var id = await webFingerService.ResolveIdForHandleAsync(input);
+                        return ResolverResult.NewActivityPubActor(id);
+                }
             }
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) { }
+
+            return ResolverResult.None;
         }
     }
 }
