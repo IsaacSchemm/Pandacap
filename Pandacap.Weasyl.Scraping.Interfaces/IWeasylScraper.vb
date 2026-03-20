@@ -4,7 +4,7 @@ Imports Pandacap.Weasyl.Scraping.Models
 Public Interface IWeasylScraper
     Function ExtractFavoriteSubmitids(html As String) As SubmissionsPage
 
-    Function ExtractNotificationGroups(html As String) As FSharpList(Of NotificationGroup)
+    Function ExtractNotificationGroups(html As String) As FSharpList(Of NotificationGroupCollection)
 
     Function ExtractNotifications(html As String) As FSharpList(Of ExtractedNotification)
 

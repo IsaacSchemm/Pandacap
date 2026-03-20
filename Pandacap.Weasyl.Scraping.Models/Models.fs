@@ -18,6 +18,11 @@ type NotificationGroup = {
     posts: NotificationLink option
 }
 
+type NotificationGroupCollection = {
+    id: string
+    notifications: NotificationGroup list
+}
+
 type ExtractedNotification = {
     Id: string
     PostUrl: string

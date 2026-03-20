@@ -17,6 +17,8 @@ using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Weasyl;
 using Pandacap.Weasyl.Interfaces;
+using Pandacap.Weasyl.Scraping;
+using Pandacap.Weasyl.Scraping.Interfaces;
 
 namespace Pandacap.HighLevel
 {
@@ -60,6 +62,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<IFeedReader, TwtxtFeedReader>()
                 .AddScoped<FeedRefresher>()
                 .AddScoped<IFurAffinityClientFactory, FurAffinityClientFactory>()
+                .AddSingleton<IFurAffinityHttpHandlerProvider, FurAffinityHttpHandlerProvider>()
                 .AddScoped<JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<PlatformIconProvider>()
@@ -71,8 +74,11 @@ namespace Pandacap.HighLevel
                 .AddScoped<IResolver, BlueskyAppViewProfileResolver>()
                 .AddScoped<IResolver, BlueskyHandleResolver>()
                 .AddScoped<IResolver, WebFingerResolver>()
+                .AddScoped<UserAwareClientFactory>()
                 .AddScoped<VectorSearchIndexClient>()
                 .AddScoped<IWeasylClientFactory, WeasylClientFactory>()
+                .AddSingleton<IWeasylHttpHandlerProvider, WeasylHttpHandlerProvider>()
+                .AddScoped<IWeasylScraper, WeasylScraper>()
                 .AddScoped<WebFingerService>();
         }
     }

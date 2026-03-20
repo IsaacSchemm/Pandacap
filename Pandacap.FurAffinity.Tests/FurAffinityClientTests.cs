@@ -197,10 +197,6 @@ namespace Pandacap.FurAffinity.Tests
         }
 
         [TestMethod]
-        public void PostArtworkAsync() =>
-            Assert.Inconclusive("No unit tests implemented for write operations");
-
-        [TestMethod]
         [DataRow("favoritesPageModern.html")]
         public async Task GetFavoritesAsync_CollectsSubmissions_FirstPage(string fileName)
         {
@@ -492,9 +488,5 @@ namespace Pandacap.FurAffinity.Tests
                         journalId: 654321)
                 ]);
         }
-
-        [TestMethod]
-        public void PostJournalAsync_FollowsProcess() =>
-            Assert.Inconclusive("No unit tests implemented for write operations");
     }
 }
