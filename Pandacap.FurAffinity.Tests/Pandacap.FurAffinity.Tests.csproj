@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="helpPageModern.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="foldersPageModern.html" />
+    <EmbeddedResource Include="notificationsPageModern.html" />
+    <EmbeddedResource Include="journalPageModern.html" />
+    <EmbeddedResource Include="notesPageModern.html" />
+    <EmbeddedResource Include="submissionsPageModern.html" />
+    <EmbeddedResource Include="favoritesPageModern.html" />
+    <EmbeddedResource Include="browsePageModern.html" />
+    <EmbeddedResource Include="helpPageModern.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="8.9.0" />
+    <PackageReference Include="MSTest" Version="4.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+</Project>

@@ -29,42 +29,13 @@ type internal FurAffinityClient(
 
             let! html = resp.Content.ReadAsStringAsync(cancellationToken)
             let document = HtmlDocument.Parse html
-            return String.concat " / " [
-                for item in document.CssSelect("#my-username") do
-                    item.InnerText().Trim().TrimStart('~')
-            ]
-        }
-
-        member _.GetTimeZoneAsync(cancellationToken) = task {
-            use! resp = client.GetAsync("/controls/settings/", cancellationToken = cancellationToken)
-
-            let! html = resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken)
-            let document = HtmlDocument.Parse(html)
-
-            let upstreamTimeZone = {|
-                Name =
-                    document.CssSelect("select[name=timezone] option[selected]")
-                    |> Seq.map (fun option -> option.InnerText())
-                    |> Seq.head
-                DaylightSaving =
-                    document.CssSelect("input[name=timezone_dst]")
-                    |> Seq.exists (fun checkbox -> checkbox.TryGetAttribute("checked") |> Option.isSome)
-            |}
 
             return Seq.head (seq {
-                for tz in TimeZoneInfo.GetSystemTimeZones() do
-                    if upstreamTimeZone.Name.EndsWith(tz.Id) then
-                        match upstreamTimeZone.DaylightSaving, tz.SupportsDaylightSavingTime with
-                        | true, true -> tz
-                        | false, false -> tz
-                        | false, true -> TimeZoneInfo.CreateCustomTimeZone(
-                            upstreamTimeZone.Name,
-                            tz.BaseUtcOffset,
-                            upstreamTimeZone.Name,
-                            upstreamTimeZone.Name)
-                        | true, false -> ()
+                for item in document.CssSelect(".loggedin_user_avatar") do
+                    item.AttributeValue("alt")
 
-                TimeZoneInfo.Utc
+                for item in document.CssSelect("#my-username") do
+                    item.InnerText().Trim().TrimStart('~')
             })
         }
 
@@ -220,9 +191,7 @@ type internal FurAffinityClient(
 
             let! html = resp.Content.ReadAsStringAsync(cancellationToken)
 
-            let subset = html.Substring(List.max [0; html.IndexOf("""<div id="standardpage">""")])
-
-            let document = HtmlDocument.Parse(subset)
+            let document = HtmlDocument.Parse(html)
 
             let submissionData =
                 document.CssSelect("#js-submissionData")
@@ -335,14 +304,9 @@ type internal FurAffinityClient(
 
             return [
                 for item in document.CssSelect(".message-stream li") do
-                    let time =
-                        item.CssSelect("span[data-time]")
-                        |> Seq.tryHead
-                        |> Option.bind (HtmlNode.tryGetAttribute "data-time")
-                        |> Option.map (HtmlAttribute.value >> int64 >> DateTimeOffset.FromUnixTimeSeconds)
-                    match time with
+                    match Seq.tryHead (item.CssSelect("span[data-time]")) with
                     | None -> ()
-                    | Some t ->
+                    | Some timeNode ->
                         let journalId =
                             item.CssSelect("input[type=checkbox]")
                             |> Seq.map (fun node -> {|
@@ -365,8 +329,14 @@ type internal FurAffinityClient(
                             |> Seq.tryHead
 
                         {
-                            text = HtmlNode.innerText item
-                            time = t
+                            text = (HtmlNode.innerText item).Replace(HtmlNode.innerText timeNode, "").Trim()
+                            time =
+                                timeNode
+                                |> HtmlNode.tryGetAttribute "data-time"
+                                |> Option.get
+                                |> HtmlAttribute.value
+                                |> int64
+                                |> DateTimeOffset.FromUnixTimeSeconds
                             journalId = Option.toNullable journalId
                         }
             ]
