@@ -1,18 +1,13 @@
-﻿Imports Pandacap.Platforms
+﻿Imports Pandacap.UI.Badges
 
 ''' <summary>
 ''' A user or feed which the Pandacap admin is following, as shown in the UI.
 ''' </summary>
 Public Interface IFollow
     ''' <summary>
-    ''' The platform this user or feed originates from. Used to render badges that show the origin of a remote post.
+    ''' A badge that shows the origin of a remote user or feed.
     ''' </summary>
-    ReadOnly Property Platform As PostPlatform
-
-    ''' <summary>
-    ''' A URL that corresponds to where the post is hosted. Used to render badges that show the origin of a remote post.
-    ''' </summary>
-    ReadOnly Property Url As String
+    ReadOnly Property Badge As Badge
 
     ''' <summary>
     ''' A URL where unauthenticated users can view this user or feed, if any.

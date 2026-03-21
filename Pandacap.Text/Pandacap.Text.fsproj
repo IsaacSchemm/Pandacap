@@ -6,8 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="PlatformBadge.fs" />
-    <Compile Include="PostPlatform.fs" />
+    <Compile Include="ExcerptGenerator.fs" />
+    <Compile Include="TextConverter.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Data" Version="8.1.2" />
   </ItemGroup>
 
 </Project>

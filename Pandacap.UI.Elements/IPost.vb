@@ -1,18 +1,13 @@
-Imports Pandacap.Platforms
+Imports Pandacap.UI.Badges
 
 ''' <summary>
 ''' A post that can be shown in one of Pandacap's "paged" areas, like the gallery or inbox.
 ''' </summary>
 Public Interface IPost
     ''' <summary>
-    ''' The platform this post originates from. Used to render badges that show the origin of a remote post.
+    ''' A badge that shows the origin of a remote post.
     ''' </summary>
-    ReadOnly Property Platform As PostPlatform
-
-    ''' <summary>
-    ''' A URL that corresponds to where the post is hosted. Used to render badges that show the origin of a remote post.
-    ''' </summary>
-    ReadOnly Property Url As String
+    ReadOnly Property Badge As Badge
 
     ''' <summary>
     ''' The title to be shown for this post in a paged view.
