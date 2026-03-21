@@ -81,6 +81,7 @@ type ActivityPubRequestHandler(
 
                 return! getAsync href true cancellationToken
 
+            | Some "application/ld+json"
             | Some "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
             | Some "application/activity+json" ->
                 return body
