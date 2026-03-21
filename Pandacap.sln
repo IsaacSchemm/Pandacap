@@ -58,6 +58,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.Signat
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.Weasyl.Scraping", "Pandacap.Weasyl.Scraping\Pandacap.Weasyl.Scraping.fsproj", "{BC0A08B1-3F1F-426B-A98E-C825C593F8A8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{00225A79-E604-4112-A0D0-1DE8669CB7D0}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.Database.Interfaces", "Pandacap.Database.Interfaces\Pandacap.Database.Interfaces.vbproj", "{3AAB6719-BEE5-496F-926D-9401C3665462}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.Platforms", "Pandacap.Platforms\Pandacap.Platforms.fsproj", "{AEC6BB26-93B8-4E07-82EF-5DD102A97693}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{D0C4624D-7E0E-436F-A9AD-8C9F8A11E818}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -140,6 +148,14 @@ Global
 		{BC0A08B1-3F1F-426B-A98E-C825C593F8A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC0A08B1-3F1F-426B-A98E-C825C593F8A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC0A08B1-3F1F-426B-A98E-C825C593F8A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AAB6719-BEE5-496F-926D-9401C3665462}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AAB6719-BEE5-496F-926D-9401C3665462}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AAB6719-BEE5-496F-926D-9401C3665462}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AAB6719-BEE5-496F-926D-9401C3665462}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEC6BB26-93B8-4E07-82EF-5DD102A97693}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEC6BB26-93B8-4E07-82EF-5DD102A97693}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEC6BB26-93B8-4E07-82EF-5DD102A97693}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEC6BB26-93B8-4E07-82EF-5DD102A97693}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,6 +176,8 @@ Global
 		{7D668449-F199-49AF-8B99-D08390B7AF37} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{B6A0256C-FC1B-48D0-83DA-727389B069CE} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{BC0A08B1-3F1F-426B-A98E-C825C593F8A8} = {B6B64DB4-8214-4E97-BCAE-F834CC9D429C}
+		{3AAB6719-BEE5-496F-926D-9401C3665462} = {00225A79-E604-4112-A0D0-1DE8669CB7D0}
+		{AEC6BB26-93B8-4E07-82EF-5DD102A97693} = {D0C4624D-7E0E-436F-A9AD-8C9F8A11E818}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}
