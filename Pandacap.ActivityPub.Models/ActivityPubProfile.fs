@@ -5,4 +5,5 @@ type ActivityPubProfile = {
     Links: ActivityPubProfileLink list
     PublicKeyPem: string
     Username: string
+    SummaryHtml: string
 }

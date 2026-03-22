@@ -4,9 +4,8 @@
     {
         /// <summary>
         /// The ActivityPub object ID / URL for this post.
-        /// Relative URLs are allowed and will be interpreted as being relative to the root of the Pandacap instance.
         /// </summary>
-        IActivityPubPandacapRelativePath ObjectId { get; }
+        string ObjectId { get; }
 
         /// <summary>
         /// The addressing of the post (e.g. To, CC).

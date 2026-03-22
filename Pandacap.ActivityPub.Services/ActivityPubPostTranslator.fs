@@ -1,15 +1,16 @@
 namespace Pandacap.ActivityPub.Services
 
 open System
+open Pandacap.ActivityPub.Static
 open Pandacap.ActivityPub.Models.Interfaces
-open Pandacap.ActivityPub.Models
+open Pandacap.ActivityPub.Services.Interfaces
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor's posts.
-type ActivityPubPostTranslator(hostInformation: ActivityPubHostInformation) =
+type ActivityPubPostTranslator() =
     let pair key value = (key, value :> obj)
 
     member _.BuildObject(post: IActivityPubPost) = dict [
-        let id = hostInformation.GetObjectId(post)
+        let id = post.ObjectId
 
         pair "id" id
         pair "url" id
@@ -22,17 +23,17 @@ type ActivityPubPostTranslator(hostInformation: ActivityPubHostInformation) =
         if not (String.IsNullOrEmpty(post.Html)) then
             pair "content" post.Html
 
-        pair "attributedTo" hostInformation.ActorId
+        pair "attributedTo" (ActivityPubHostInformation.GetActorId())
         pair "tag" [
             for tag in post.Tags do dict [
                 pair "type" "Hashtag"
                 pair "name" $"#{tag}"
-                pair "href" $"https://{hostInformation.ApplicationHostname}/Profile/Search?q=%%23{Uri.EscapeDataString(tag)}"
+                pair "href" $"https://{ActivityPubHostInformation.ApplicationHostname}/Profile/Search?q=%%23{Uri.EscapeDataString(tag)}"
             ]
         ]
         pair "published" post.PublishedTime
 
-        let addressing = hostInformation.GetAddressing(post)
+        let addressing = post.Addressing
 
         if not (isNull addressing.InReplyTo) then
             pair "inReplyTo" addressing.InReplyTo
@@ -52,7 +53,7 @@ type ActivityPubPostTranslator(hostInformation: ActivityPubHostInformation) =
 
             for image in post.Images do dict [
                 pair "type" "Image"
-                pair "url" (hostInformation.GetAbsoluteUri(image.Location))
+                pair "url" image.Url
                 pair "mediaType" image.MediaType
 
                 if not (String.IsNullOrEmpty(image.AltText)) then
@@ -71,11 +72,11 @@ type ActivityPubPostTranslator(hostInformation: ActivityPubHostInformation) =
 
     member this.BuildObjectCreate(post: IActivityPubPost) = dict [
         pair "type" "Create"
-        pair "id" $"{hostInformation.GetObjectId(post)}/Created"
-        pair "actor" hostInformation.ActorId
+        pair "id" $"{post.ObjectId}/Created"
+        pair "actor" (ActivityPubHostInformation.GetActorId())
         pair "published" post.PublishedTime
 
-        let addressing = hostInformation.GetAddressing(post)
+        let addressing = post.Addressing
 
         pair "to" addressing.To
         pair "cc" addressing.Cc
@@ -85,11 +86,11 @@ type ActivityPubPostTranslator(hostInformation: ActivityPubHostInformation) =
 
     member this.BuildObjectUpdate(post: IActivityPubPost) = dict [
         pair "type" "Update"
-        pair "id" (hostInformation.GenerateTransientObjectId())
-        pair "actor" hostInformation.ActorId
+        pair "id" (ActivityPubHostInformation.GenerateTransientObjectId())
+        pair "actor" (ActivityPubHostInformation.GetActorId())
         pair "published" DateTimeOffset.UtcNow
 
-        let addressing = hostInformation.GetAddressing(post)
+        let addressing = post.Addressing
 
         pair "to" addressing.To
         pair "cc" addressing.Cc
@@ -99,30 +100,57 @@ type ActivityPubPostTranslator(hostInformation: ActivityPubHostInformation) =
 
     member _.BuildObjectDelete(post: IActivityPubPost) = dict [
         pair "type" "Delete"
-        pair "id" (hostInformation.GenerateTransientObjectId())
-        pair "actor" hostInformation.ActorId
+        pair "id" (ActivityPubHostInformation.GenerateTransientObjectId())
+        pair "actor" (ActivityPubHostInformation.GetActorId())
         pair "published" DateTimeOffset.UtcNow
         pair "to" ["https://www.w3.org/ns/activitystreams#Public"]
-        pair "object" (hostInformation.GetObjectId(post))
+        pair "object" post.ObjectId
     ]
 
     member _.BuildOutboxCollection(posts: int) = dict [
-        pair "id" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Outbox"
+        pair "id" $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Outbox"
         pair "type" "OrderedCollection"
         pair "totalItems" posts
-        pair "first" $"https://{hostInformation.ApplicationHostname}/Gallery/Composite"
+        pair "first" $"https://{ActivityPubHostInformation.ApplicationHostname}/Gallery/Composite"
     ]
 
     member _.BuildOutboxCollectionPage(currentPage: string, posts: IActivityPubPost seq, nextPage: string) = dict [
         pair "id" currentPage
         pair "type" "OrderedCollectionPage"
-        pair "partOf" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Outbox"
+        pair "partOf" $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Outbox"
 
-        pair "orderedItems" [
-            for x in posts do
-                hostInformation.GetObjectId(x)
-        ]
+        pair "orderedItems" [for x in posts do x.ObjectId]
 
         if not (String.IsNullOrEmpty(nextPage)) then
             pair "next" nextPage
     ]
+
+    interface IActivityPubPostTranslator with
+        member this.BuildObject(post) =
+            post
+            |> this.BuildObject
+            |> ActivityPubSerializer.SerializeWithContext
+
+        member this.BuildObjectCreate(post) =
+            post
+            |> this.BuildObjectCreate
+            |> ActivityPubSerializer.SerializeWithContext
+
+        member this.BuildObjectDelete(post) =
+            post
+            |> this.BuildObjectDelete
+            |> ActivityPubSerializer.SerializeWithContext
+
+        member this.BuildObjectUpdate(post) =
+            post
+            |> this.BuildObjectUpdate
+            |> ActivityPubSerializer.SerializeWithContext
+
+        member this.BuildOutboxCollection(postCount) =
+            postCount
+            |> this.BuildOutboxCollection
+            |> ActivityPubSerializer.SerializeWithContext
+
+        member this.BuildOutboxCollectionPage(currentPageId, posts, nextPageId) =
+            this.BuildOutboxCollectionPage(currentPageId, posts, nextPageId)
+            |> ActivityPubSerializer.SerializeWithContext

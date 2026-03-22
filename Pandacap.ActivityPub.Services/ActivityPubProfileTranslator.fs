@@ -2,32 +2,33 @@ namespace Pandacap.ActivityPub.Services
 
 open System
 open System.Net
+open Pandacap.ActivityPub.Static
 open Pandacap.ActivityPub.Models
 open Pandacap.ActivityPub.Services.Interfaces
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor.
-type ActivityPubProfileTranslator(hostInformation: ActivityPubHostInformation) =
+type ActivityPubProfileTranslator() =
     let pair key value = (key, value :> obj)
 
     member _.BuildProfile(info: ActivityPubProfile) = dict [
-        pair "id" hostInformation.ActorId
+        let actorId = ActivityPubHostInformation.GetActorId()
+
+        pair "id" actorId
         pair "type" "Person"
-        pair "inbox" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Inbox"
-        pair "outbox" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Outbox"
-        pair "followers" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Followers"
-        pair "following" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Following"
-        pair "liked" $"https://{hostInformation.ApplicationHostname}/ActivityPub/Liked"
+        pair "inbox" $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Inbox"
+        pair "outbox" $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Outbox"
+        pair "followers" $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Followers"
+        pair "following" $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Following"
+        pair "liked" $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Liked"
         pair "preferredUsername" info.Username
         pair "name" info.Username
-        pair "summary" (String.concat "" [
-            $"<p>Hosted by <a href='{hostInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(hostInformation.ApplicationName)}</a>.</p>"
-        ])
-        pair "url" hostInformation.ActorId
+        pair "summary" info.SummaryHtml
+        pair "url" actorId
         pair "discoverable" true
         pair "indexable" true
         pair "publicKey" {|
-            id = $"{hostInformation.ActorId}#main-key"
-            owner = hostInformation.ActorId
+            id = $"{actorId}#main-key"
+            owner = actorId
             publicKeyPem = info.PublicKeyPem
         |}
         for avatar in info.Avatars do
@@ -47,8 +48,8 @@ type ActivityPubProfileTranslator(hostInformation: ActivityPubHostInformation) =
 
     member this.BuildProfileUpdate(info) = dict [
         pair "type" "Update"
-        pair "id" (hostInformation.GenerateTransientObjectId())
-        pair "actor" hostInformation.ActorId
+        pair "id" (ActivityPubHostInformation.GenerateTransientObjectId())
+        pair "actor" (ActivityPubHostInformation.GetActorId())
         pair "published" DateTimeOffset.UtcNow
         pair "object" (this.BuildProfile(info))
     ]

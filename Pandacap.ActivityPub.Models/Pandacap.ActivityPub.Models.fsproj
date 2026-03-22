@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="ActivityPubHostInformation.fs" />
     <Compile Include="ActivityPubAvatar.fs" />
     <Compile Include="ActivityPubProfileLink.fs" />
     <Compile Include="ActivityPubProfile.fs" />

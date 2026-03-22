@@ -2,7 +2,7 @@
 {
     public interface IActivityPubImage
     {
-        IActivityPubPandacapRelativePath Location { get; }
+        string Url { get; }
         string AltText { get; }
         string MediaType { get; }
         string? HorizontalFocalPoint { get; }
