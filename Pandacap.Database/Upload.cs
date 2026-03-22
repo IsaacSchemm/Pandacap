@@ -30,13 +30,13 @@ namespace Pandacap.Database
 
         DateTimeOffset IPost.PostedAt => UploadedAt;
 
-        string IPost.ProfileUrl => null!;
+        string? IPost.ProfileUrl => null;
 
         IEnumerable<IPostThumbnail> IPost.Thumbnails => [this];
 
-        string IPost.Username => null!;
+        string? IPost.Username => null;
 
-        string IPost.Usericon => null!;
+        string? IPost.Usericon => null;
 
         string IPostThumbnail.Url => $"/Blobs/Uploads/{Id}";
     }

@@ -136,7 +136,7 @@ namespace Pandacap.Database
 
         DateTimeOffset IPost.PostedAt => PublishedTime;
 
-        string IPost.ProfileUrl => null!;
+        string? IPost.ProfileUrl => null;
 
         private class Thumbnail(Post post, Image image) : IPostThumbnail
         {
@@ -146,8 +146,8 @@ namespace Pandacap.Database
 
         IEnumerable<IPostThumbnail> IPost.Thumbnails => Images.Select(i => new Thumbnail(this, i));
 
-        string IPost.Username => null!;
+        string? IPost.Username => null;
 
-        string IPost.Usericon => null!;
+        string? IPost.Usericon => null;
     }
 }

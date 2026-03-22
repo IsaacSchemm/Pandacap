@@ -72,12 +72,12 @@ namespace Pandacap.Database
 
         DateTimeOffset IPost.PostedAt => PublishedTime;
 
-        string IPost.ProfileUrl => null!;
+        string? IPost.ProfileUrl => null;
 
         IEnumerable<IPostThumbnail> IPost.Thumbnails => [];
 
-        string IPost.Username => null!;
+        string? IPost.Username => null;
 
-        string IPost.Usericon => null!;
+        string? IPost.Usericon => null;
     }
 }

@@ -14,7 +14,7 @@
     <ProjectReference Include="..\Pandacap.Constants\Pandacap.Constants.fsproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity.Interfaces\Pandacap.FurAffinity.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Text\Pandacap.Text.fsproj" />
-    <ProjectReference Include="..\Pandacap.UI.Elements\Pandacap.UI.Elements.vbproj" />
+    <ProjectReference Include="..\Pandacap.UI.Elements\Pandacap.UI.Elements.csproj" />
   </ItemGroup>
 
 </Project>
