@@ -12,7 +12,7 @@ type ActivityPubRelationshipTranslator() =
     member _.BuildFollowAccept(followId: string) = dict [
         pair "type" "Accept"
         pair "id" (ActivityPubHostInformation.GenerateTransientObjectId())
-        pair "actor" (ActivityPubHostInformation.GetActorId())
+        pair "actor" ActivityPubHostInformation.ActorId
         pair "object" followId
     ]
 
@@ -33,14 +33,14 @@ type ActivityPubRelationshipTranslator() =
     member _.BuildFollow(followGuid: Guid, remoteActorId: string) = dict [
         pair "id" $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Follow/{followGuid}"
         pair "type" "Follow"
-        pair "actor" (ActivityPubHostInformation.GetActorId())
+        pair "actor" ActivityPubHostInformation.ActorId
         pair "object" remoteActorId
     ]
 
     member this.BuildFollowUndo(followGuid: Guid, remoteActorId: string) = dict [
         pair "id" (ActivityPubHostInformation.GenerateTransientObjectId())
         pair "type" "Undo"
-        pair "actor" (ActivityPubHostInformation.GetActorId())
+        pair "actor" ActivityPubHostInformation.ActorId
         pair "object" (this.BuildFollow(followGuid, remoteActorId))
     ]
 

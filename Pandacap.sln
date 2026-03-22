@@ -80,7 +80,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub.Servic
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.ActivityPub.Services.Interfaces", "Pandacap.ActivityPub.Services.Interfaces\Pandacap.ActivityPub.Services.Interfaces.vbproj", "{97EC6910-FDBA-4F73-893E-68D7B1C2FA4F}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub.Static", "Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.fsproj", "{C63F1D66-93C6-4161-8C72-07572367D8D7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.Static", "Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.csproj", "{EC1C9F28-C6F2-4FC1-9273-E3F3761AD46F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -200,10 +200,10 @@ Global
 		{97EC6910-FDBA-4F73-893E-68D7B1C2FA4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97EC6910-FDBA-4F73-893E-68D7B1C2FA4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97EC6910-FDBA-4F73-893E-68D7B1C2FA4F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C63F1D66-93C6-4161-8C72-07572367D8D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C63F1D66-93C6-4161-8C72-07572367D8D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C63F1D66-93C6-4161-8C72-07572367D8D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C63F1D66-93C6-4161-8C72-07572367D8D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC1C9F28-C6F2-4FC1-9273-E3F3761AD46F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC1C9F28-C6F2-4FC1-9273-E3F3761AD46F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC1C9F28-C6F2-4FC1-9273-E3F3761AD46F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC1C9F28-C6F2-4FC1-9273-E3F3761AD46F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -233,7 +233,7 @@ Global
 		{2AC6C033-21C6-4AED-8571-2D1DB39ECD88} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{47CA9C73-985A-4F7C-8EDC-8B345BF206FA} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{97EC6910-FDBA-4F73-893E-68D7B1C2FA4F} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
-		{C63F1D66-93C6-4161-8C72-07572367D8D7} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
+		{EC1C9F28-C6F2-4FC1-9273-E3F3761AD46F} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

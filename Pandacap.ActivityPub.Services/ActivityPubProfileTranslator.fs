@@ -11,9 +11,7 @@ type ActivityPubProfileTranslator() =
     let pair key value = (key, value :> obj)
 
     member _.BuildProfile(info: ActivityPubProfile) = dict [
-        let actorId = ActivityPubHostInformation.GetActorId()
-
-        pair "id" actorId
+        pair "id" ActivityPubHostInformation.ActorId
         pair "type" "Person"
         pair "inbox" $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Inbox"
         pair "outbox" $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Outbox"
@@ -23,12 +21,12 @@ type ActivityPubProfileTranslator() =
         pair "preferredUsername" info.Username
         pair "name" info.Username
         pair "summary" info.SummaryHtml
-        pair "url" actorId
+        pair "url" ActivityPubHostInformation.ActorId
         pair "discoverable" true
         pair "indexable" true
         pair "publicKey" {|
-            id = $"{actorId}#main-key"
-            owner = actorId
+            id = $"{ActivityPubHostInformation.ActorId}#main-key"
+            owner = ActivityPubHostInformation.ActorId
             publicKeyPem = info.PublicKeyPem
         |}
         for avatar in info.Avatars do
@@ -49,7 +47,7 @@ type ActivityPubProfileTranslator() =
     member this.BuildProfileUpdate(info) = dict [
         pair "type" "Update"
         pair "id" (ActivityPubHostInformation.GenerateTransientObjectId())
-        pair "actor" (ActivityPubHostInformation.GetActorId())
+        pair "actor" ActivityPubHostInformation.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "object" (this.BuildProfile(info))
     ]

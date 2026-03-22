@@ -32,13 +32,13 @@ type ActivityPubInteractionTranslator() =
     member _.BuildLike(likeGuid: Guid, remoteObjectId: string) = dict [
         pair "id" $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Like/{likeGuid}"
         pair "type" "Like"
-        pair "actor" (ActivityPubHostInformation.GetActorId())
+        pair "actor" ActivityPubHostInformation.ActorId
         pair "object" remoteObjectId
     ]
 
     member this.BuildLikeUndo(likeGuid: Guid, remoteObjectId: string) = dict [
         pair "id" (ActivityPubHostInformation.GenerateTransientObjectId())
         pair "type" "Undo"
-        pair "actor" (ActivityPubHostInformation.GetActorId())
+        pair "actor" ActivityPubHostInformation.ActorId
         pair "object" (this.BuildLike(likeGuid, remoteObjectId))
     ]

@@ -16,7 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ActivityPub.Models\Pandacap.ActivityPub.Models.fsproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Services.Interfaces\Pandacap.ActivityPub.Services.Interfaces.vbproj" />
-    <ProjectReference Include="..\Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.fsproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.csproj" />
   </ItemGroup>
 
 </Project>

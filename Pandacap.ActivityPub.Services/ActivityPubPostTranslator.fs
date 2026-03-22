@@ -23,7 +23,7 @@ type ActivityPubPostTranslator() =
         if not (String.IsNullOrEmpty(post.Html)) then
             pair "content" post.Html
 
-        pair "attributedTo" (ActivityPubHostInformation.GetActorId())
+        pair "attributedTo" ActivityPubHostInformation.ActorId
         pair "tag" [
             for tag in post.Tags do dict [
                 pair "type" "Hashtag"
@@ -73,7 +73,7 @@ type ActivityPubPostTranslator() =
     member this.BuildObjectCreate(post: IActivityPubPost) = dict [
         pair "type" "Create"
         pair "id" $"{post.ObjectId}/Created"
-        pair "actor" (ActivityPubHostInformation.GetActorId())
+        pair "actor" ActivityPubHostInformation.ActorId
         pair "published" post.PublishedTime
 
         let addressing = post.Addressing
@@ -87,7 +87,7 @@ type ActivityPubPostTranslator() =
     member this.BuildObjectUpdate(post: IActivityPubPost) = dict [
         pair "type" "Update"
         pair "id" (ActivityPubHostInformation.GenerateTransientObjectId())
-        pair "actor" (ActivityPubHostInformation.GetActorId())
+        pair "actor" ActivityPubHostInformation.ActorId
         pair "published" DateTimeOffset.UtcNow
 
         let addressing = post.Addressing
@@ -101,7 +101,7 @@ type ActivityPubPostTranslator() =
     member _.BuildObjectDelete(post: IActivityPubPost) = dict [
         pair "type" "Delete"
         pair "id" (ActivityPubHostInformation.GenerateTransientObjectId())
-        pair "actor" (ActivityPubHostInformation.GetActorId())
+        pair "actor" ActivityPubHostInformation.ActorId
         pair "published" DateTimeOffset.UtcNow
         pair "to" ["https://www.w3.org/ns/activitystreams#Public"]
         pair "object" post.ObjectId
