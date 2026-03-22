@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Pandacap.ActivityPub.Services.Inbound.Interfaces</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" Version="10.1.201" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.Models.Inbound\Pandacap.ActivityPub.Models.Inbound.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Pandacap.ActivityPub.Models">
+      <HintPath>..\Pandacap.ActivityPub.Models\obj\Debug\net10.0\ref\Pandacap.ActivityPub.Models.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

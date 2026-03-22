@@ -11,8 +11,6 @@
     <Compile Include="ActivityPubProfile.fs" />
     <Compile Include="RemoteActor.fs" />
     <Compile Include="RemoteAddressee.fs" />
-    <Compile Include="Attachment.fs" />
-    <Compile Include="RemotePost.fs" />
   </ItemGroup>
 
   <ItemGroup>

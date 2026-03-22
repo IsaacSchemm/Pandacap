@@ -11,6 +11,15 @@
     <Compile Include="ActivityPubPostTranslator.fs" />
     <Compile Include="ActivityPubRelationshipTranslator.fs" />
     <Compile Include="ActivityPubInteractionTranslator.fs" />
+    <Compile Include="JsonLdExpansionService.fs" />
+    <Compile Include="ActivityPubRequestHandler.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Data" Version="8.1.2" />
+    <PackageReference Include="json-ld.net" Version="1.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>

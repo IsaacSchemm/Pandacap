@@ -1,4 +1,4 @@
-﻿namespace Pandacap.ActivityPub.Models
+﻿namespace Pandacap.ActivityPub.Models.Inbound
 
 type RemoteAttachment = {
     MediaType: string
