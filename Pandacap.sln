@@ -88,6 +88,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub.Servic
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub.Models.Inbound", "Pandacap.ActivityPub.Models.Inbound\Pandacap.ActivityPub.Models.Inbound.fsproj", "{BE953C4C-C744-4D77-A7F5-63BFD4603C3E}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.ActivityPub.SignatureValidation.Interfaces", "Pandacap.ActivityPub.SignatureValidation.Interfaces\Pandacap.ActivityPub.SignatureValidation.Interfaces.vbproj", "{42B68BC9-793D-4DB3-A080-FEB4E9259975}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -222,6 +224,10 @@ Global
 		{BE953C4C-C744-4D77-A7F5-63BFD4603C3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE953C4C-C744-4D77-A7F5-63BFD4603C3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE953C4C-C744-4D77-A7F5-63BFD4603C3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42B68BC9-793D-4DB3-A080-FEB4E9259975}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42B68BC9-793D-4DB3-A080-FEB4E9259975}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42B68BC9-793D-4DB3-A080-FEB4E9259975}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42B68BC9-793D-4DB3-A080-FEB4E9259975}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -255,6 +261,7 @@ Global
 		{9332EC00-619A-49CD-8D85-8E1422756E78} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{6A0CF02C-BAC9-4687-9B1B-FB7D82DEEB3F} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{BE953C4C-C744-4D77-A7F5-63BFD4603C3E} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
+		{42B68BC9-793D-4DB3-A080-FEB4E9259975} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

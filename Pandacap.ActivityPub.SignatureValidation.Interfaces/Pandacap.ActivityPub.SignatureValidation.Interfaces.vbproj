@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Pandacap.ActivityPub.SignatureValidation.Interfaces</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.Signatures.Interfaces\Pandacap.ActivityPub.Signatures.Interfaces.vbproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Pandacap.ActivityPub.Models.Inbound">
+      <HintPath>..\Pandacap.ActivityPub.Models.Inbound\obj\Debug\net10.0\ref\Pandacap.ActivityPub.Models.Inbound.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
