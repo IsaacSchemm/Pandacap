@@ -24,10 +24,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.Services.Inbound.Interfaces\Pandacap.ActivityPub.Services.Inbound.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Services.Inbound\Pandacap.ActivityPub.Services.Inbound.fsproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Services.Interfaces\Pandacap.ActivityPub.Services.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Services\Pandacap.ActivityPub.Services.fsproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
     <ProjectReference Include="..\Pandacap.LowLevel\Pandacap.LowLevel.fsproj" />
     <ProjectReference Include="..\Pandacap.Weasyl.Scraping\Pandacap.Weasyl.Scraping.fsproj" />
     <ProjectReference Include="..\Pandacap.Weasyl\Pandacap.Weasyl.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Pandacap.ActivityPub.Models">
+      <HintPath>..\Pandacap.ActivityPub.Models\obj\Debug\net10.0\ref\Pandacap.ActivityPub.Models.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

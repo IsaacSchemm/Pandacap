@@ -7,6 +7,10 @@ using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Pandacap;
 using Pandacap.ActivityPub.Inbound;
+using Pandacap.ActivityPub.Services.Inbound;
+using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.ActivityPub.Signatures;
+using Pandacap.ActivityPub.Signatures.Interfaces;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -14,7 +18,6 @@ using Pandacap.HighLevel;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Notifications;
 using Pandacap.Podcasts;
-using Pandacap.Signatures;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -120,7 +123,7 @@ builder.Services
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
     .AddScoped<ActivityPubAddressedPostNotificationHandler>()
     .AddScoped<ActivityPubNotificationHandler>()
-    .AddScoped<ActivityPubRemoteActorService>()
+    .AddScoped<IActivityPubRemoteActorService, ActivityPubRemoteActorService>()
     .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<ActivityPubReplyNotificationHandler>()
     .AddScoped<CompositeFavoritesProvider>()
@@ -131,7 +134,7 @@ builder.Services
     .AddScoped<DeviantArtNoteNotificationHandler>()
     .AddScoped<FurAffinityNoteNotificationHandler>()
     .AddScoped<FurAffinityNotificationHandler>()
-    .AddScoped<MastodonVerifier>()
+    .AddScoped<IMastodonVerifier, MastodonVerifier>()
     .AddScoped<PostCreator>()
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>()

@@ -1,0 +1,3 @@
+namespace Pandacap.ActivityPub.Models
+
+exception ActivityJsonNotFoundException

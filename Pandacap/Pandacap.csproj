@@ -41,6 +41,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.Signatures.Interfaces\Pandacap.ActivityPub.Signatures.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Signatures\Pandacap.ActivityPub.Signatures.csproj" />
     <ProjectReference Include="..\Pandacap.HighLevel\Pandacap.HighLevel.csproj" />
   </ItemGroup>
 

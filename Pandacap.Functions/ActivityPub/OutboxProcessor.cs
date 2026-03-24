@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub.Communication;
+using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
 using System.Net;
 
@@ -11,7 +11,7 @@ namespace Pandacap.Functions.ActivityPub
     /// <param name="activityPubRequestHandler">An object that can make signed HTTP ActivityPub requests</param>
     /// <param name="context">The database context</param>
     public class OutboxProcessor(
-        ActivityPubRequestHandler activityPubRequestHandler,
+        IActivityPubRequestHandler activityPubRequestHandler,
         PandacapDbContext context)
     {
         /// <summary>
@@ -47,7 +47,10 @@ namespace Pandacap.Functions.ActivityPub
 
                     try
                     {
-                        await activityPubRequestHandler.PostAsync(new Uri(activity.Inbox), activity.JsonBody);
+                        await activityPubRequestHandler.PostAsync(
+                            new Uri(activity.Inbox),
+                            activity.JsonBody,
+                            CancellationToken.None);
                         context.ActivityPubOutboundActivities.Remove(activity);
                     }
                     catch (HttpRequestException ex) when (ex.StatusCode is HttpStatusCode code && (int)code % 100 == 4)

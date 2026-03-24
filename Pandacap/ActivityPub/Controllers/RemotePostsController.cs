@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
-using Pandacap.ActivityPub.Communication;
-using Pandacap.ActivityPub.Inbound;
+using Pandacap.ActivityPub.Models;
+using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.ActivityPub.Static;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.Models;
@@ -12,13 +13,12 @@ using System.Security.Authentication;
 namespace Pandacap.Controllers
 {
     public class RemotePostsController(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
-        ActivityPubRemotePostService activityPubRemotePostService,
-        ActivityPubRequestHandler activityPubRequestHandler,
+        IActivityPubRemoteActorService activityPubRemoteActorService,
+        IActivityPubRemotePostService activityPubRemotePostService,
+        IActivityPubRequestHandler activityPubRequestHandler,
         ApplicationInformation appInfo,
         PandacapDbContext context,
-        ActivityPubHostInformation hostInformation,
-        ActivityPubPostTranslator postTranslator) : Controller
+        IActivityPubPostTranslator postTranslator) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Actor(string id, CancellationToken cancellationToken)
@@ -84,7 +84,7 @@ namespace Pandacap.Controllers
 
             List<RemoteActor> actors = [post.AttributedTo];
             foreach (var recipient in post.Recipients)
-                if (recipient is RemoteAddressee.Actor actor && actor.Id != hostInformation.ActorId)
+                if (recipient is RemoteAddressee.Actor actor && actor.Id != ActivityPubHostInformation.ActorId)
                     actors.Add(actor.Item);
 
             var communities = actors.Where(a => a.Type == "https://www.w3.org/ns/activitystreams#Group");
@@ -110,9 +110,9 @@ namespace Pandacap.Controllers
                 inboxes
                 .Select(inbox => activityPubRequestHandler.PostAsync(
                     new Uri(inbox),
-                    ActivityPubSerializer.SerializeWithContext(
-                        postTranslator.BuildObjectCreate(
-                            addressedPost)))));
+                    postTranslator.BuildObjectCreate(
+                        addressedPost), 
+                    cancellationToken)));
 
             return RedirectToAction("Index", "AddressedPosts", new { id = addressedPost.Id });
         }

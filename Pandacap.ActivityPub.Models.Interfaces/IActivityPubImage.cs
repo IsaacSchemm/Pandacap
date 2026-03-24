@@ -5,7 +5,7 @@
         string Url { get; }
         string AltText { get; }
         string MediaType { get; }
-        string? HorizontalFocalPoint { get; }
-        string? VerticalFocalPoint { get; }
+        decimal? HorizontalFocalPoint { get; }
+        decimal? VerticalFocalPoint { get; }
     }
 }

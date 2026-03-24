@@ -2,7 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations
-open Pandacap.ActivityPub
+open Pandacap.ActivityPub.Models.Interfaces
 open Pandacap.Html
 open Pandacap.PlatformBadges
 

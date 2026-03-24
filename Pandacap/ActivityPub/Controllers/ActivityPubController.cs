@@ -1,27 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
-using Pandacap.ActivityPub;
-using Pandacap.ActivityPub.Communication;
-using Pandacap.ActivityPub.Inbound;
+using Pandacap.ActivityPub.Models;
+using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.ActivityPub.Signatures.Interfaces;
+using Pandacap.ActivityPub.Static;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.Signatures;
 using System.Text;
 
 namespace Pandacap.Controllers
 {
     public class ActivityPubController(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
-        ActivityPubRemotePostService activityPubRemotePostService,
+        IActivityPubRemoteActorService activityPubRemoteActorService,
+        IActivityPubRemotePostService activityPubRemotePostService,
         PandacapDbContext context,
-        JsonLdExpansionService expansionService,
-        ActivityPubHostInformation hostInformation,
-        ActivityPubInteractionTranslator interactionTranslator,
-        MastodonVerifier mastodonVerifier,
-        ActivityPubPostTranslator postTranslator,
+        IJsonLdExpansionService expansionService,
+        IActivityPubInteractionTranslator interactionTranslator,
+        IMastodonVerifier mastodonVerifier,
+        IActivityPubPostTranslator postTranslator,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
-        ActivityPubRelationshipTranslator relationshipTranslator,
+        IActivityPubRelationshipTranslator relationshipTranslator,
         ReplyLookup replyLookup) : Controller
     {
         private static new readonly IEnumerable<JToken> Empty = [];
@@ -31,8 +31,7 @@ namespace Pandacap.Controllers
             int followers = await context.Followers.DocumentCountAsync();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    relationshipTranslator.BuildFollowersCollection(followers)),
+                relationshipTranslator.BuildFollowersCollection(followers),
                 "application/activity+json",
                 Encoding.UTF8);
         }
@@ -42,8 +41,7 @@ namespace Pandacap.Controllers
             var follows = await context.Follows.ToListAsync();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    relationshipTranslator.BuildFollowingCollection(follows)),
+                relationshipTranslator.BuildFollowingCollection(follows),
                 "application/activity+json",
                 Encoding.UTF8);
         }
@@ -55,9 +53,8 @@ namespace Pandacap.Controllers
                 .DocumentCountAsync();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    interactionTranslator.BuildLikedCollection(
-                        posts)),
+                interactionTranslator.BuildLikedCollection(
+                    posts),
                 "application/activity+json",
                 Encoding.UTF8);
         }
@@ -94,7 +91,7 @@ namespace Pandacap.Controllers
                 string fActor = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
                 string fObject = expansionObj["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
 
-                if (fActor == actor.Id && fObject == hostInformation.ActorId)
+                if (fActor == actor.Id && fObject == ActivityPubHostInformation.ActorId)
                     await AddFollowAsync(activityId, actor);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Undo")
@@ -105,7 +102,7 @@ namespace Pandacap.Controllers
                     {
                         string fActor = objectToUndo["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
                         string fObject = objectToUndo["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
-                        if (fActor == actor.Id && fObject == hostInformation.ActorId)
+                        if (fActor == actor.Id && fObject == ActivityPubHostInformation.ActorId)
                         {
                             await foreach (var follower in context.Followers
                                 .Where(f => f.ActorId == fActor)
@@ -188,7 +185,7 @@ namespace Pandacap.Controllers
 
                     if (Uri.TryCreate(interactedWithId, UriKind.Absolute, out Uri? uri)
                         && uri != null
-                        && Uri.TryCreate(hostInformation.ActorId, UriKind.Absolute, out Uri? me)
+                        && Uri.TryCreate(ActivityPubHostInformation.ActorId, UriKind.Absolute, out Uri? me)
                         && me != null
                         && uri.Host == me.Host)
                     {
@@ -219,7 +216,7 @@ namespace Pandacap.Controllers
                         .FirstOrDefaultAsync(cancellationToken);
 
                     bool isMention = remotePost.Recipients
-                        .Any(addressee => addressee.Id == hostInformation.ActorId);
+                        .Any(addressee => addressee.Id == ActivityPubHostInformation.ActorId);
 
                     if (inReplyTo != null)
                     {
@@ -386,8 +383,7 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = actor.Inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        relationshipTranslator.BuildFollowAccept(objectId)),
+                    JsonBody = relationshipTranslator.BuildFollowAccept(objectId),
                     StoredAt = DateTimeOffset.UtcNow
                 });
             }
@@ -400,9 +396,8 @@ namespace Pandacap.Controllers
         {
             int count = await context.Posts.DocumentCountAsync();
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    postTranslator.BuildOutboxCollection(
-                        count)),
+                postTranslator.BuildOutboxCollection(
+                    count),
                 "application/activity+json",
                 Encoding.UTF8);
         }
@@ -418,10 +413,9 @@ namespace Pandacap.Controllers
                 return NotFound();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    relationshipTranslator.BuildFollow(
-                        follow.FollowGuid,
-                        follow.ActorId)),
+                relationshipTranslator.BuildFollow(
+                    follow.FollowGuid,
+                    follow.ActorId),
                 "application/activity+json",
                 Encoding.UTF8);
         }
@@ -437,10 +431,9 @@ namespace Pandacap.Controllers
                 return NotFound();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    interactionTranslator.BuildLike(
-                        id,
-                        post.ObjectId)),
+                interactionTranslator.BuildLike(
+                    id,
+                    post.ObjectId),
                 "application/activity+json",
                 Encoding.UTF8);
         }

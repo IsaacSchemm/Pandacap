@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
+using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.ActivityPub.Static;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.RssOutbound;
@@ -14,8 +15,7 @@ namespace Pandacap.Controllers
     public class GalleryController(
         PandacapDbContext context,
         FeedBuilder feedBuilder,
-        ActivityPubHostInformation hostInformation,
-        ActivityPubPostTranslator postTranslator) : Controller
+        IActivityPubPostTranslator postTranslator) : Controller
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
         {
@@ -56,13 +56,12 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        postTranslator.BuildOutboxCollectionPage(
-                            Request.GetEncodedUrl(),
-                            listPage.Current,
-                            listPage.Next == null
-                                ? null
-                                : $"https://{hostInformation.ApplicationHostname}/Gallery/Composite?next={listPage.Next}&count={listPage.Current.Length}")),
+                    postTranslator.BuildOutboxCollectionPage(
+                        Request.GetEncodedUrl(),
+                        listPage.Current,
+                        listPage.Next == null
+                            ? null
+                            : $"https://{ActivityPubHostInformation.ApplicationHostname}/Gallery/Composite?next={listPage.Next}&count={listPage.Current.Length}"),
                     "application/activity+json",
                     Encoding.UTF8);
             }

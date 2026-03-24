@@ -1,8 +1,10 @@
 ﻿using DnsClient;
 using Microsoft.Extensions.DependencyInjection;
-using Pandacap.ActivityPub;
-using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
+using Pandacap.ActivityPub.Services;
+using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.ActivityPub.Static;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.FurAffinity;
@@ -28,6 +30,8 @@ namespace Pandacap.HighLevel
             this IServiceCollection services,
             ApplicationInformation appInfo)
         {
+            ActivityPubHostInformation.ApplicationHostname = appInfo.ApplicationHostname;
+
             return services
                 .AddSingleton<ILookupClient>(
                     new LookupClient(
@@ -36,16 +40,12 @@ namespace Pandacap.HighLevel
                             UseCache = true
                         }))
                 .AddSingleton(appInfo)
-                .AddSingleton(new ActivityPubHostInformation(
-                    applicationHostname: appInfo.ApplicationHostname,
-                    applicationName: UserAgentInformation.ApplicationName,
-                    websiteUrl: UserAgentInformation.WebsiteUrl))
-                .AddScoped<ActivityPubProfileTranslator>()
-                .AddScoped<ActivityPubPostTranslator>()
-                .AddScoped<ActivityPubRelationshipTranslator>()
-                .AddScoped<ActivityPubInteractionTranslator>()
+                .AddScoped<IActivityPubProfileTranslator, ActivityPubProfileTranslator>()
+                .AddScoped<IActivityPubPostTranslator, ActivityPubPostTranslator>()
+                .AddScoped<IActivityPubRelationshipTranslator, ActivityPubRelationshipTranslator>()
+                .AddScoped<IActivityPubInteractionTranslator, ActivityPubInteractionTranslator>()
                 .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
-                .AddScoped<ActivityPubRequestHandler>()
+                .AddScoped<IActivityPubRequestHandler, ActivityPubRequestHandler>()
                 .AddScoped<ATProtoFeedReader>()
                 .AddScoped<ATProtoHandleLookupClient>()
                 .AddScoped<CompositeInboxProvider>()
@@ -63,10 +63,11 @@ namespace Pandacap.HighLevel
                 .AddScoped<FeedRefresher>()
                 .AddScoped<IFurAffinityClientFactory, FurAffinityClientFactory>()
                 .AddSingleton<IFurAffinityHttpHandlerProvider, FurAffinityHttpHandlerProvider>()
-                .AddScoped<JsonLdExpansionService>()
+                .AddScoped<IJsonLdExpansionService, JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<PlatformIconProvider>()
                 .AddScoped<PlatformLinkProvider>()
+                .AddScoped<IActivityPubRemotePostService, ActivityPubRemotePostService>()
                 .AddScoped<IResolver, ActivityPubResolver>()
                 .AddScoped<IResolver, ATUriResolver>()
                 .AddScoped<IResolver, ATUriResolver>()
@@ -79,7 +80,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<IWeasylClientFactory, WeasylClientFactory>()
                 .AddSingleton<IWeasylHttpHandlerProvider, WeasylHttpHandlerProvider>()
                 .AddScoped<IWeasylScraper, WeasylScraper>()
-                .AddScoped<WebFingerService>();
+                .AddScoped<IWebFingerService, WebFingerService>();
         }
     }
 }

@@ -1,11 +1,10 @@
-﻿using Pandacap.ActivityPub;
+﻿using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 
 namespace Pandacap.HighLevel.PlatformLinks
 {
     public record BrowserPubLink(
-        ActivityPubHostInformation ActivityPubHostInformation,
         ApplicationInformation ApplicationInformation,
         string Host) : IPlatformLink
     {
@@ -20,7 +19,7 @@ namespace Pandacap.HighLevel.PlatformLinks
         public string? GetViewPostUrl(Post post)
         {
             IActivityPubPost p = post;
-            return $"https://{Host}/{p.GetObjectId(ActivityPubHostInformation)}";
+            return $"https://{Host}/{p.ObjectId}";
         }
     }
 }

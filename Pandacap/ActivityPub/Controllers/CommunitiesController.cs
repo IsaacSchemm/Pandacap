@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub.Inbound;
+using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.Clients;
 using Pandacap.Data;
 using Pandacap.HighLevel.Lemmy;
-using Pandacap.Clients;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
@@ -12,7 +12,7 @@ namespace Pandacap.Controllers
     public class CommunitiesController(
         PandacapDbContext context,
         LemmyClient lemmyClient,
-        ActivityPubRemoteActorService remoteActorService
+        IActivityPubRemoteActorService remoteActorService
     ) : Controller
     {
         public async Task<IActionResult> ViewCommunity(

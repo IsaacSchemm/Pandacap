@@ -3,7 +3,8 @@
 open System
 open System.ComponentModel.DataAnnotations.Schema
 open System.Net
-open Pandacap.ActivityPub
+open Pandacap.ActivityPub.Models.Interfaces
+open Pandacap.ActivityPub.Static
 open Pandacap.PlatformBadges
 
 type PostType =
@@ -188,12 +189,12 @@ type Post() =
         member _.Username = null
 
     interface IActivityPubPost with
-        member this.GetObjectId(hostInfo) = $"https://{hostInfo.ApplicationHostname}/UserPosts/{this.Id}"
-        member _.GetAddressing(hostInfo) = {
+        member this.ObjectId = $"https://{ActivityPubHostInformation.ApplicationHostname}/UserPosts/{this.Id}"
+        member _.Addressing = {
             new IActivityPubAddressing with
                 member _.InReplyTo = null
                 member _.To = ["https://www.w3.org/ns/activitystreams#Public"]
-                member _.Cc = [$"https://{hostInfo.ApplicationHostname}/ActivityPub/Followers"]
+                member _.Cc = [$"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Followers"]
                 member _.Audience = null
         }
         member this.Html = this.BodyWithLinks
@@ -207,21 +208,23 @@ type Post() =
         member this.Images = seq {
             if not (isNull this.Images) then
                 for image in this.Images do {
-                    new Pandacap.ActivityPub.IActivityPubImage with
-                        member _.GetUrl(appInfo) = $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{this.Id}/{image.Raster.Id}"
+                    new IActivityPubImage with
+                        member _.Url = $"https://{ActivityPubHostInformation.ApplicationHostname}/Blobs/UserPosts/{this.Id}/{image.Raster.Id}"
                         member _.HorizontalFocalPoint =
                             image.FocalPoint
                             |> Option.ofObj
                             |> Option.map (fun f -> f.Horizontal)
+                            |> Option.toNullable
                         member _.MediaType = image.Raster.ContentType
                         member _.VerticalFocalPoint =
                             image.FocalPoint
                             |> Option.ofObj
                             |> Option.map (fun f -> f.Vertical)
+                            |> Option.toNullable
                         member _.AltText = image.AltText
                 }
         }
-        member this.IsJournal = this.Type = PostType.JournalEntry
+        member this.IsArticle = this.Type = PostType.JournalEntry
         member this.PublishedTime = this.PublishedTime
         member this.Tags = this.Tags
         member this.Title = this.Title

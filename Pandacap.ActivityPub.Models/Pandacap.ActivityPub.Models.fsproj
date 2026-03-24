@@ -11,10 +11,12 @@
     <Compile Include="ActivityPubProfile.fs" />
     <Compile Include="RemoteActor.fs" />
     <Compile Include="RemoteAddressee.fs" />
+    <Compile Include="ActivityJsonNotFoundException.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ActivityPub.Models.Interfaces\Pandacap.ActivityPub.Models.Interfaces.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Signatures.Interfaces\Pandacap.ActivityPub.Signatures.Interfaces.vbproj" />
   </ItemGroup>
 
 </Project>

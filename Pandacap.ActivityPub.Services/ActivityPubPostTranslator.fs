@@ -59,8 +59,8 @@ type ActivityPubPostTranslator() =
                 if not (String.IsNullOrEmpty(image.AltText)) then
                     pair "name" image.AltText
 
-                match image.HorizontalFocalPoint, image.VerticalFocalPoint with
-                | h, v when not (isNull h) && not (isNull v) ->
+                match Option.ofNullable image.HorizontalFocalPoint, Option.ofNullable image.VerticalFocalPoint with
+                | Some h, Some v ->
                     pair "focalPoint" [h; v]
                 | _ -> ()
             ]

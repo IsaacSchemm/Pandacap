@@ -1,7 +1,7 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Keys.Cryptography;
-using Pandacap.ActivityPub.Communication;
+using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ConfigurationObjects;
 
 namespace Pandacap.HighLevel
@@ -22,9 +22,9 @@ namespace Pandacap.HighLevel
         /// Retrieves the public key and renders it in PEM format for use in the ActivityPub actor object.
         /// </summary>
         /// <returns>An object that contains the public key in PEM format</returns>
-        public async Task<string> GetPublicKeyAsync()
+        public async Task<string> GetPublicKeyAsync(CancellationToken cancellationToken)
         {
-            var key = await _keyClient.Value.GetKeyAsync("activitypub");
+            var key = await _keyClient.Value.GetKeyAsync("activitypub", cancellationToken: cancellationToken);
             var arr = key.Value.Key.ToRSA().ExportSubjectPublicKeyInfo();
 
             return string.Join("\n", [
@@ -40,10 +40,10 @@ namespace Pandacap.HighLevel
         /// </summary>
         /// <param name="data">The data to sign</param>
         /// <returns>An RSA SHA-256 signature</returns>
-        public async Task<byte[]> SignRsaSha256Async(byte[] data)
+        public async Task<byte[]> SignRsaSha256Async(byte[] data, CancellationToken cancellationToken)
         {
             var cryptographyClient = _keyClient.Value.GetCryptographyClient("activitypub");
-            var result = await cryptographyClient.SignDataAsync(SignatureAlgorithm.RS256, data);
+            var result = await cryptographyClient.SignDataAsync(SignatureAlgorithm.RS256, data, cancellationToken);
             return result.Signature;
         }
     }

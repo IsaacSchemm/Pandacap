@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
-using Pandacap.ActivityPub.Inbound;
+using Pandacap.ActivityPub.Models;
+using Pandacap.ActivityPub.Models.Inbound;
+using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 
@@ -14,10 +16,10 @@ namespace Pandacap
     /// <param name="context">The database context</param>
     /// <param name="interactionTranslator">An object that builds the ActivityPub objects and activities associated with Pandacap objects</param>
     public class RemoteActivityPubPostHandler(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
-        ActivityPubRemotePostService activityPubRemotePostService,
+        IActivityPubRemoteActorService activityPubRemoteActorService,
+        IActivityPubRemotePostService activityPubRemotePostService,
         PandacapDbContext context,
-        ActivityPubInteractionTranslator interactionTranslator)
+        IActivityPubInteractionTranslator interactionTranslator)
     {
         private async IAsyncEnumerable<InboxActivityStreamsImage> CollectAttachmentsAsync(
             RemotePost remotePost,
@@ -33,8 +35,8 @@ namespace Pandacap
                 {
                     yield return new()
                     {
-                        Name = attachment.name,
-                        Url = attachment.url
+                        Name = attachment.Name,
+                        Url = attachment.Url
                     };
                 }
             }
@@ -160,15 +162,15 @@ namespace Pandacap
         /// </summary>
         /// <param name="objectId">The ActivityPub object ID (URL).</param>
         /// <returns></returns>
-        public async Task AddRemoteFavoriteAsync(string objectId)
+        public async Task AddRemoteFavoriteAsync(string objectId, CancellationToken cancellationToken)
         {
-            var remotePost = await activityPubRemotePostService.FetchPostAsync(objectId, CancellationToken.None);
+            var remotePost = await activityPubRemotePostService.FetchPostAsync(objectId, cancellationToken);
 
             string? originalActorId = remotePost.AttributedTo.Id;
             if (originalActorId == null)
                 return;
 
-            var originalActor = await activityPubRemoteActorService.FetchActorAsync(originalActorId);
+            var originalActor = await activityPubRemoteActorService.FetchActorAsync(originalActorId, cancellationToken);
 
             Guid likeGuid = Guid.NewGuid();
 
@@ -188,12 +190,12 @@ namespace Pandacap
                 Attachments = [
                     .. remotePost.Attachments.Select(attachment => new ActivityPubFavoriteImage
                     {
-                        Name = attachment.name,
-                        Url = attachment.url
+                        Name = attachment.Name,
+                        Url = attachment.Url
                     })
                 ]
             });
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
 
         /// <summary>
@@ -201,7 +203,7 @@ namespace Pandacap
         /// </summary>
         /// <param name="objectId">The ActivityPub object ID (URL).</param>
         /// <returns></returns>
-        public async Task RemoveRemoteFavoritesAsync(IEnumerable<string> objectIds)
+        public async Task RemoveRemoteFavoritesAsync(IEnumerable<string> objectIds, CancellationToken cancellationToken)
         {
             await foreach (var item in context.ActivityPubFavorites
                 .Where(a => objectIds.Contains(a.ObjectId))
@@ -209,23 +211,22 @@ namespace Pandacap
             {
                 try
                 {
-                    var actor = await activityPubRemoteActorService.FetchActorAsync(item.CreatedBy);
+                    var actor = await activityPubRemoteActorService.FetchActorAsync(item.CreatedBy, cancellationToken);
 
                     context.ActivityPubOutboundActivities.Add(new()
                     {
                         Id = Guid.NewGuid(),
                         Inbox = actor.Inbox,
-                        JsonBody = ActivityPubSerializer.SerializeWithContext(
-                            interactionTranslator.BuildLikeUndo(
-                                item.Id,
-                                item.ObjectId))
+                        JsonBody = interactionTranslator.BuildLikeUndo(
+                            item.Id,
+                            item.ObjectId)
                     });
                 }
                 catch (Exception) { }
 
                 context.Remove(item);
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(cancellationToken);
             }
         }
     }

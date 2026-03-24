@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
-using Pandacap.ActivityPub.Inbound;
+using Pandacap.ActivityPub.Models.Interfaces;
+using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
 using Pandacap.Models;
 using System.Text;
@@ -11,10 +12,9 @@ namespace Pandacap.Controllers
 {
     [Route("AddressedPosts")]
     public class AddressedPostsController(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
+        IActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
-        ActivityPubHostInformation hostInformation,
-        ActivityPubPostTranslator postTranslator,
+        IActivityPubPostTranslator postTranslator,
         ReplyLookup replyLookup) : Controller
     {
         [Route("{id}")]
@@ -29,7 +29,7 @@ namespace Pandacap.Controllers
 
             if (Request.IsActivityPub())
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(postTranslator.BuildObject(post)),
+                    postTranslator.BuildObject(post),
                     "application/activity+json",
                     Encoding.UTF8);
 
@@ -51,7 +51,7 @@ namespace Pandacap.Controllers
                 Replies = User.Identity?.IsAuthenticated == true
                     ? await replyLookup
                         .CollectRepliesAsync(
-                            activityPubPost.GetObjectId(hostInformation),
+                            activityPubPost.ObjectId,
                             cancellationToken)
                         .ToListAsync(cancellationToken)
                     : []
@@ -92,9 +92,8 @@ namespace Pandacap.Controllers
             {
                 Id = Guid.NewGuid(),
                 Inbox = remoteActor.SharedInbox ?? remoteActor.Inbox,
-                JsonBody = ActivityPubSerializer.SerializeWithContext(
-                    postTranslator.BuildObjectCreate(
-                        addressedPost))
+                JsonBody = postTranslator.BuildObjectCreate(
+                    addressedPost)
             });
 
             await context.SaveChangesAsync(cancellationToken);
@@ -105,7 +104,7 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             var post = await context.AddressedPosts
                 .Where(p => p.Id == id)
@@ -117,7 +116,7 @@ namespace Pandacap.Controllers
             IActivityPubPost activityPubPost = post;
 
             var activities = await context.PostActivities
-                .Where(a => a.InReplyTo == activityPubPost.GetObjectId(hostInformation))
+                .Where(a => a.InReplyTo == activityPubPost.ObjectId)
                 .ToListAsync();
 
             HashSet<string> actorIds = [];
@@ -134,7 +133,7 @@ namespace Pandacap.Controllers
             {
                 try
                 {
-                    var actor = await activityPubRemoteActorService.FetchActorAsync(actorId);
+                    var actor = await activityPubRemoteActorService.FetchActorAsync(actorId, cancellationToken);
                     string inbox = actor.SharedInbox ?? actor.Inbox;
                     if (inbox != null)
                         inboxes.Add(inbox);
@@ -148,9 +147,8 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        postTranslator.BuildObjectDelete(
-                            post))
+                    JsonBody = postTranslator.BuildObjectDelete(
+                        post)
                 });
             }
 

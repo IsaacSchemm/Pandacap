@@ -1,12 +1,13 @@
 ﻿using Newtonsoft.Json.Linq;
-using Pandacap.ActivityPub.Communication;
+using Pandacap.ActivityPub.Models;
+using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Resolvers;
 
 namespace Pandacap.HighLevel.Resolvers
 {
     internal class ActivityPubResolver(
-        ActivityPubRequestHandler activityPubRequestHandler,
-        JsonLdExpansionService jsonLdExpansionService) : IResolver
+        IActivityPubRequestHandler activityPubRequestHandler,
+        IJsonLdExpansionService jsonLdExpansionService) : IResolver
     {
         public async Task<ResolverResult> ResolveAsync(
             string url,

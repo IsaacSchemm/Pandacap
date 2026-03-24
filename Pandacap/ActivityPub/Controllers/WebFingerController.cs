@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Pandacap.ActivityPub;
+using Pandacap.ActivityPub.Static;
 using Pandacap.ConfigurationObjects;
 
 namespace Pandacap.Controllers
 {
     [Route("")]
     public class WebFingerController(
-        ApplicationInformation appInfo,
-        ActivityPubHostInformation hostInformation) : Controller
+        ApplicationInformation appInfo) : Controller
     {
         [HttpGet]
         [Route(".well-known/webfinger")]
@@ -15,25 +14,25 @@ namespace Pandacap.Controllers
         {
             string handle = $"acct:{appInfo.Username}@{appInfo.ApplicationHostname}";
 
-            if (resource == handle || resource == hostInformation.ActorId)
+            if (resource == handle || resource == ActivityPubHostInformation.ActorId)
             {
                 return Json(new
                 {
                     subject = handle,
-                    aliases = new[] { hostInformation.ActorId },
+                    aliases = new[] { ActivityPubHostInformation.ActorId },
                     links = new[]
                     {
                         new
                         {
                             rel = "http://webfinger.net/rel/profile-page",
                             type = "text/html",
-                            href = hostInformation.ActorId
+                            href = ActivityPubHostInformation.ActorId
                         },
                         new
                         {
                             rel = "self",
                             type = "application/activity+json",
-                            href = hostInformation.ActorId
+                            href = ActivityPubHostInformation.ActorId
                         }
                     }
                 });

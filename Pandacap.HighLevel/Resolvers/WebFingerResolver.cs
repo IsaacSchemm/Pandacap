@@ -1,10 +1,10 @@
-﻿using Pandacap.ActivityPub.Inbound;
+﻿using Pandacap.ActivityPub.Services.Inbound.Interfaces;
 using Pandacap.Resolvers;
 
 namespace Pandacap.HighLevel.Resolvers
 {
     internal class WebFingerResolver(
-        WebFingerService webFingerService) : IResolver
+        IWebFingerService webFingerService) : IResolver
     {
         public async Task<ResolverResult> ResolveAsync(
             string input,
@@ -17,7 +17,7 @@ namespace Pandacap.HighLevel.Resolvers
                 switch (split)
                 {
                     case ["", var handle, var hostname] when handle != "" && hostname != "":
-                        var id = await webFingerService.ResolveIdForHandleAsync(input);
+                        var id = await webFingerService.ResolveIdForHandleAsync(input, cancellationToken);
                         return ResolverResult.NewActivityPubActor(id);
                 }
             }

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
+using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Html;
@@ -10,7 +10,7 @@ namespace Pandacap
         DeliveryInboxCollector deliveryInboxCollector,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory,
-        ActivityPubPostTranslator postTranslator,
+        IActivityPubPostTranslator postTranslator,
         VectorSearchIndexClient vectorSearchIndexClient)
     {
         public interface IViewModel
@@ -145,9 +145,7 @@ namespace Pandacap
                     context.ActivityPubOutboundActivities.Add(new()
                     {
                         Id = Guid.NewGuid(),
-                        JsonBody = ActivityPubSerializer.SerializeWithContext(
-                            postTranslator.BuildObjectCreate(
-                                post)),
+                        JsonBody = postTranslator.BuildObjectCreate(post),
                         Inbox = inbox,
                         StoredAt = DateTimeOffset.UtcNow
                     });

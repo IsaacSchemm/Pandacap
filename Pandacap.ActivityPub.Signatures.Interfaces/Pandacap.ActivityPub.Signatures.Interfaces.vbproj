@@ -5,4 +5,9 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
+    <PackageReference Include="NSign.Abstractions" Version="1.2.3" />
+  </ItemGroup>
+
 </Project>

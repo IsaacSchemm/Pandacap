@@ -1,7 +1,7 @@
 ﻿namespace Pandacap.Data
 
 open System
-open Pandacap.ActivityPub
+open Pandacap.ActivityPub.Models.Interfaces
 open Pandacap.PlatformBadges
 
 /// An ActivityPub actor who this Pandacap actor is following.

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Pandacap.ActivityPub;
+using Pandacap.ActivityPub.Models;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 namespace Pandacap.HighLevel.PlatformLinks
 {
     public class PlatformLinkProvider(
-        ActivityPubHostInformation activityPubHostInformation,
         ApplicationInformation appInfo,
         PandacapDbContext context,
         DIDResolver didResolver,
@@ -54,7 +53,7 @@ namespace Pandacap.HighLevel.PlatformLinks
             yield return new FediverseLink(appInfo, "mastodon.social", "Mastodon");
             yield return new FediverseLink(appInfo, "pixelfed.social", "Pixelfed");
             yield return new FediverseLink(appInfo, "app.wafrn.net", "wafrn");
-            yield return new BrowserPubLink(activityPubHostInformation, appInfo, "browser.pub");
+            yield return new BrowserPubLink(appInfo, "browser.pub");
 
             var did = await context.Posts
                 .OrderByDescending(post => post.PublishedTime)

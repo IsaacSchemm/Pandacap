@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
+using Pandacap.ActivityPub.Models.Interfaces;
+using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
 using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.VectorSearch;
@@ -18,11 +19,10 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
-        ActivityPubHostInformation hostInformation,
         IHttpClientFactory httpClientFactory,
         PlatformLinkProvider platformLinkProvider,
         PostCreator postCreator,
-        ActivityPubPostTranslator postTranslator,
+        IActivityPubPostTranslator postTranslator,
         ReplyLookup replyLookup,
         VectorSearchIndexClient vectorSearchIndexClient) : Controller
     {
@@ -44,7 +44,7 @@ namespace Pandacap.Controllers
                     return StatusCode((int)HttpStatusCode.NotAcceptable);
 
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(postTranslator.BuildObject(post)),
+                    postTranslator.BuildObject(post),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -58,7 +58,7 @@ namespace Pandacap.Controllers
                 Replies = User.Identity?.IsAuthenticated == true
                     ? await replyLookup
                         .CollectRepliesAsync(
-                            activityPubPost.GetObjectId(hostInformation),
+                            activityPubPost.ObjectId,
                             cancellationToken)
                         .ToListAsync(cancellationToken)
                     : []
@@ -264,9 +264,7 @@ namespace Pandacap.Controllers
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        postTranslator.BuildObjectDelete(
-                            post)),
+                    JsonBody = postTranslator.BuildObjectDelete(post),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });

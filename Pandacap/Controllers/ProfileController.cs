@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Pandacap.ActivityPub;
-using Pandacap.ActivityPub.Communication;
-using Pandacap.ActivityPub.Inbound;
+using Pandacap.ActivityPub.Models;
+using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -24,7 +24,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ProfileController(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
+        IActivityPubRemoteActorService activityPubRemoteActorService,
         ApplicationInformation appInfo,
         ATProtoFeedReader atProtoFeedReader,
         ATProtoHandleLookupClient atProtoHandleLookupClient,
@@ -38,18 +38,18 @@ namespace Pandacap.Controllers
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
         PlatformLinkProvider platformLinkProvider,
-        ActivityPubProfileTranslator profileTranslator,
-        ActivityPubRelationshipTranslator relationshipTranslator,
+        IActivityPubProfileTranslator profileTranslator,
+        IActivityPubRelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager,
         VectorSearchIndexClient vectorSearchIndexClient,
-        WebFingerService webFingerService) : Controller
+        IWebFingerService webFingerService) : Controller
     {
         //private static readonly SemaphoreSlim _searchVectorGenerationFlag = new(100, 100);
 
         private async Task<ActivityPubProfile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
         {
-            string key = await keyProvider.GetPublicKeyAsync();
+            string key = await keyProvider.GetPublicKeyAsync(cancellationToken);
 
             var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
 
@@ -61,7 +61,8 @@ namespace Pandacap.Controllers
                         $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}")],
                 links: [.. await platformLinkProvider.GetActivityPubProfileLinksAsync(cancellationToken)],
                 publicKeyPem: key,
-                username: appInfo.Username);
+                username: appInfo.Username,
+                summaryHtml: $"<p>Hosted by <a href='{UserAgentInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(UserAgentInformation.ApplicationName)}</a>.</p>");
         }
 
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
@@ -71,9 +72,8 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        profileTranslator.BuildProfile(
-                            await GetActivityPubProfileAsync(cancellationToken))),
+                    profileTranslator.BuildProfile(
+                        await GetActivityPubProfileAsync(cancellationToken)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -280,12 +280,12 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Follow(string id)
+        public async Task<IActionResult> Follow(string id, CancellationToken cancellationToken)
         {
             if (await context.Follows.Where(f => f.ActorId == id).DocumentCountAsync() > 0)
                 return RedirectToAction(nameof(UpdateFollow), new { id });
 
-            var actor = await activityPubRemoteActorService.FetchActorAsync(id);
+            var actor = await activityPubRemoteActorService.FetchActorAsync(id, cancellationToken);
 
             Guid followGuid = Guid.NewGuid();
 
@@ -293,10 +293,9 @@ namespace Pandacap.Controllers
             {
                 Id = followGuid,
                 Inbox = actor.Inbox,
-                JsonBody = ActivityPubSerializer.SerializeWithContext(
-                    relationshipTranslator.BuildFollow(
-                        followGuid,
-                        actor.Id)),
+                JsonBody = relationshipTranslator.BuildFollow(
+                    followGuid,
+                    actor.Id),
                 StoredAt = DateTimeOffset.UtcNow
             });
 
@@ -320,18 +319,18 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> FollowHandle(string handle)
+        public async Task<IActionResult> FollowHandle(string handle, CancellationToken cancellationToken)
         {
-            var id = await webFingerService.ResolveIdForHandleAsync(handle);
-            return await Follow(id);
+            var id = await webFingerService.ResolveIdForHandleAsync(handle, cancellationToken);
+            return await Follow(id, cancellationToken);
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> FollowThreadsHandle(string handle)
+        public async Task<IActionResult> FollowThreadsHandle(string handle, CancellationToken cancellationToken)
         {
-            return await FollowHandle($"@{handle.TrimStart('@')}@threads.net");
+            return await FollowHandle($"@{handle.TrimStart('@')}@threads.net", cancellationToken);
         }
 
         [HttpPost]
@@ -345,10 +344,9 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = follow.Inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        relationshipTranslator.BuildFollowUndo(
-                            follow.FollowGuid,
-                            follow.ActorId)),
+                    JsonBody = relationshipTranslator.BuildFollowUndo(
+                        follow.FollowGuid,
+                        follow.ActorId),
                     StoredAt = DateTimeOffset.UtcNow
                 });
 
@@ -580,9 +578,8 @@ namespace Pandacap.Controllers
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        profileTranslator.BuildProfileUpdate(
-                            await GetActivityPubProfileAsync(cancellationToken))),
+                    JsonBody = profileTranslator.BuildProfileUpdate(
+                        await GetActivityPubProfileAsync(cancellationToken)),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });
@@ -612,9 +609,8 @@ namespace Pandacap.Controllers
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        profileTranslator.BuildProfileUpdate(
-                            await GetActivityPubProfileAsync(cancellationToken))),
+                    JsonBody = profileTranslator.BuildProfileUpdate(
+                        await GetActivityPubProfileAsync(cancellationToken)),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });

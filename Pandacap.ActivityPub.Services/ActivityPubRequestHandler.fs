@@ -8,9 +8,8 @@ open System.Text
 open System.Threading
 open FSharp.Data
 open Pandacap.ActivityPub.Static
+open Pandacap.ActivityPub.Models
 open Pandacap.ActivityPub.Services.Interfaces
-
-exception ActivityJsonNotFoundException
 
 type ActivityPubRequestHandler(
     prerequisites: IActivityPubCommunicationPrerequisites,

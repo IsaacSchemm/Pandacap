@@ -16,32 +16,6 @@
     <Compile Include="Html\ExcerptGenerator.fs" />
     <Compile Include="Html\TextConverter.fs" />
     <Compile Include="Html\LinkRelAlternate.fs" />
-    <Compile Include="ActivityPub\ActivityPubHostInformation.fs" />
-    <Compile Include="ActivityPub\ActivityPubSerializer.fs" />
-    <Compile Include="ActivityPub\IActivityPubLink.fs" />
-    <Compile Include="ActivityPub\IActivityPubImage.fs" />
-    <Compile Include="ActivityPub\IActivityPubAddressing.fs" />
-    <Compile Include="ActivityPub\IActivityPubPost.fs" />
-    <Compile Include="ActivityPub\IActivityPubLike.fs" />
-    <Compile Include="ActivityPub\IActivityPubFollow.fs" />
-    <Compile Include="ActivityPub\ActivityPubAvatar.fs" />
-    <Compile Include="activitypub\ActivityPubProfileLink.fs" />
-    <Compile Include="ActivityPub\ActivityPubProfile.fs" />
-    <Compile Include="ActivityPub\ActivityPubProfileTranslator.fs" />
-    <Compile Include="ActivityPub\ActivityPubPostTranslator.fs" />
-    <Compile Include="ActivityPub\ActivityPubRelationshipTranslator.fs" />
-    <Compile Include="ActivityPub\ActivityPubInteractionTranslator.fs" />
-    <Compile Include="ActivityPub\Communication\IActivityPubCommunicationPrerequisites.fs" />
-    <Compile Include="ActivityPub\Communication\ActivityPubRequestHandler.fs" />
-    <Compile Include="ActivityPub\Communication\JsonLdExpansionService.fs" />
-    <Compile Include="ActivityPub\Inbound\Shared.fs" />
-    <Compile Include="ActivityPub\Inbound\RemoteActor.fs" />
-    <Compile Include="ActivityPub\Inbound\RemoteAddressee.fs" />
-    <Compile Include="ActivityPub\Inbound\ActivityPubRemoteActorService.fs" />
-    <Compile Include="ActivityPub\Inbound\Attachment.fs" />
-    <Compile Include="ActivityPub\Inbound\RemotePost.fs" />
-    <Compile Include="ActivityPub\Inbound\ActivityPubRemotePostService.fs" />
-    <Compile Include="ActivityPub\Inbound\WebFingerService.fs" />
     <Compile Include="ATProto\DIDResolver.fs" />
     <Compile Include="ATProto\NSIDs.fs" />
     <Compile Include="ATProto\Types.fs" />
@@ -122,6 +96,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.Models.Interfaces\Pandacap.ActivityPub.Models.Interfaces.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.csproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity.Interfaces\Pandacap.FurAffinity.Interfaces.vbproj" />
   </ItemGroup>
 
