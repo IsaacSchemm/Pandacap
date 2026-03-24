@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
-using Pandacap.ActivityPub.Models;
+using Pandacap.ActivityPub.Models.Inbound;
 using Pandacap.ActivityPub.Services.Inbound.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Signatures.Interfaces;

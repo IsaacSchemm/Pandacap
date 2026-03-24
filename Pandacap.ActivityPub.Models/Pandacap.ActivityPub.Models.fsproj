@@ -9,8 +9,6 @@
     <Compile Include="ActivityPubAvatar.fs" />
     <Compile Include="ActivityPubProfileLink.fs" />
     <Compile Include="ActivityPubProfile.fs" />
-    <Compile Include="RemoteActor.fs" />
-    <Compile Include="RemoteAddressee.fs" />
     <Compile Include="ActivityJsonNotFoundException.fs" />
   </ItemGroup>
 

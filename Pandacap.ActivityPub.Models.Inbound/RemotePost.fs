@@ -1,7 +1,6 @@
 ﻿namespace Pandacap.ActivityPub.Models.Inbound
 
 open System
-open Pandacap.ActivityPub.Models
 
 type RemotePost = {
     Id: string

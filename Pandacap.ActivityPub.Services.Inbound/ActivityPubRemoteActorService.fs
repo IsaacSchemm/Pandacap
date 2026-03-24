@@ -6,7 +6,7 @@ open System.Net.Http
 open System.Threading
 open System.Threading.Tasks
 open Newtonsoft.Json.Linq
-open Pandacap.ActivityPub.Models
+open Pandacap.ActivityPub.Models.Inbound
 open Pandacap.ActivityPub.Services.Interfaces
 open Pandacap.ActivityPub.Services.Inbound.Interfaces
 
