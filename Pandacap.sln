@@ -90,6 +90,10 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub.Models
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.ActivityPub.SignatureValidation.Interfaces", "Pandacap.ActivityPub.SignatureValidation.Interfaces\Pandacap.ActivityPub.SignatureValidation.Interfaces.vbproj", "{42B68BC9-793D-4DB3-A080-FEB4E9259975}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.SignatureValidation.Tests", "Pandacap.ActivityPub.SignatureValidation.Tests\Pandacap.ActivityPub.SignatureValidation.Tests.csproj", "{B409BD4E-9A63-4025-B8F9-2A5EFF3144BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.SignatureValidation", "Pandacap.ActivityPub.SignatureValidation\Pandacap.ActivityPub.SignatureValidation.csproj", "{67D7CB0D-81D0-46C3-B9E9-AD543B382B3E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -228,6 +232,14 @@ Global
 		{42B68BC9-793D-4DB3-A080-FEB4E9259975}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42B68BC9-793D-4DB3-A080-FEB4E9259975}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42B68BC9-793D-4DB3-A080-FEB4E9259975}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B409BD4E-9A63-4025-B8F9-2A5EFF3144BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B409BD4E-9A63-4025-B8F9-2A5EFF3144BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B409BD4E-9A63-4025-B8F9-2A5EFF3144BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B409BD4E-9A63-4025-B8F9-2A5EFF3144BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67D7CB0D-81D0-46C3-B9E9-AD543B382B3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67D7CB0D-81D0-46C3-B9E9-AD543B382B3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67D7CB0D-81D0-46C3-B9E9-AD543B382B3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67D7CB0D-81D0-46C3-B9E9-AD543B382B3E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -262,6 +274,8 @@ Global
 		{6A0CF02C-BAC9-4687-9B1B-FB7D82DEEB3F} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{BE953C4C-C744-4D77-A7F5-63BFD4603C3E} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{42B68BC9-793D-4DB3-A080-FEB4E9259975} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
+		{B409BD4E-9A63-4025-B8F9-2A5EFF3144BE} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
+		{67D7CB0D-81D0-46C3-B9E9-AD543B382B3E} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}
