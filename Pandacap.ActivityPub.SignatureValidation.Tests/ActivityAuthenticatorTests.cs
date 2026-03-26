@@ -1,5 +1,6 @@
 ﻿using JsonLD.Core;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.Services.Interfaces;
@@ -298,35 +299,63 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
             Assert.IsNull(result);
         }
 
-        //[TestMethod]
-        //public async Task Authenticate_PassesToVerifier_Succeeds()
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [TestMethod]
+        public async Task AcquireKeyAsync_CachesResponses()
+        {
+            var cancellationToken = CancellationToken.None;
 
-        //[TestMethod]
-        //public async Task Authenticate_PassesToVerifier_Fails()
-        //{
-        //    throw new NotImplementedException();
-        //}
+            var handlerMock = new Mock<IActivityPubRequestHandler>(MockBehavior.Strict);
+            handlerMock
+                .Setup(handler => handler.GetJsonAsync(
+                    new("https://activitypub.academy/users/dubonus_ladinut"),
+                    cancellationToken))
+                .ReturnsAsync(@"{
+                    ""@context"": [
+                        ""https://www.w3.org/ns/activitystreams"",
+                        ""https://w3id.org/security/v1""
+                    ],
+                    ""id"": ""https://activitypub.academy/users/dubonus_ladinut"",
+                    ""type"": ""Person"",
+                    ""publicKey"": {
+                        ""id"": ""https://activitypub.academy/users/dubonus_ladinut#main-key"",
+                        ""owner"": ""https://activitypub.academy/users/dubonus_ladinut"",
+                        ""publicKeyPem"": ""-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxtMke49NEZcyP0jgZdKH\n+uyqxBOLKBZOOO9q7zeOhcT+M2+ce6bT0QXFYEPK+bfhN1g9bkFso/hj4v9pauvq\nkVfSwqKOh5HywMDMjQVlsDD3uVJwHQtjnybkMAamIZcRfIGyiTiKkz0gpnN5jipi\nwpIq8QBW6E7h1QiupiCmq4Um4y1qsXwDSGDGUwu3AQ9A5HVujKtuNxPlSFnMj8y8\nHIs1YN14F3KybU38x0DlZtd9rpuDgQcrwQyTPy91rBPN/Cttd6vwDL8rlBmiTFJX\nJs/ai+eMNWDzSM45RNWY9SZT0N4AY4ZmShZrd6ESSrRFD9M+8FbC5D7NPmJEqlds\nTwIDAQAB\n-----END PUBLIC KEY-----\n""
+                    }
+                }");
 
-        //[TestMethod]
-        //public async Task Authorize_ExtractsAndFetchesClaimedActor_KeyFound()
-        //{
-        //    throw new NotImplementedException();
-        //}
+            var headersMock = new Mock<IHeaderDictionary>(MockBehavior.Strict);
+            headersMock
+                .Setup(headers => headers["signature"])
+                .Returns(MASTODON_SIGNATURE);
+            var requestMock = new Mock<HttpRequest>(MockBehavior.Strict);
+            requestMock
+                .Setup(req => req.Headers)
+                .Returns(headersMock.Object);
 
-        //[TestMethod]
-        //public async Task Authorize_ExtractsAndFetchesClaimedActor_KeyNotFound()
-        //{
-        //    throw new NotImplementedException();
-        //}
+            var authenticator = GetActivityAuthenticator(
+                handlerMock.Object);
+
+            await authenticator.AcquireKeyAsync(
+                requestMock.Object,
+                cancellationToken);
+
+            await authenticator.AcquireKeyAsync(
+                requestMock.Object,
+                cancellationToken);
+
+            handlerMock.Verify(
+                handler => handler.GetJsonAsync(
+                    new("https://activitypub.academy/users/dubonus_ladinut"),
+                    cancellationToken),
+                Times.Once);
+        }
 
         private static IActivityAuthenticator GetActivityAuthenticator(
             IActivityPubRequestHandler activityPubRequestHandler)
         => new ActivityAuthenticator(
             UseOrMock(activityPubRequestHandler),
-            new JsonLdExpansionService());
+            new JsonLdExpansionService(),
+            new MemoryCache(new MemoryCacheOptions()));
 
         private static T UseOrMock<T>(T dependency) where T : class =>
             dependency ?? new Mock<T>(MockBehavior.Strict).Object;

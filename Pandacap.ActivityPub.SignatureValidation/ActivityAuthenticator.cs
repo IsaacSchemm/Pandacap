@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
@@ -9,7 +10,8 @@ namespace Pandacap.ActivityPub.SignatureValidation
 {
     public partial class ActivityAuthenticator(
         IActivityPubRequestHandler activityPubRequestHandler,
-        IJsonLdExpansionService jsonLdExpansionService) : IActivityAuthenticator
+        IJsonLdExpansionService jsonLdExpansionService,
+        IMemoryCache memoryCache) : IActivityAuthenticator
     {
         public async Task<IKeyWithOwner> AcquireKeyAsync(
             HttpRequest request,
@@ -32,7 +34,7 @@ namespace Pandacap.ActivityPub.SignatureValidation
                 if (keyUri.Fragment.Length > 0)
                     keyUri = new Uri(keyUri.GetLeftPart(UriPartial.Query));
 
-                if (await FetchAndExpand(keyUri, cancellationToken) is not JToken expandedObjects)
+                if (await FetchAndExpandAsync(keyUri, cancellationToken) is not JToken expandedObjects)
                     continue;
 
                 JToken expandedObject = expandedObjects.Single();
@@ -54,7 +56,7 @@ namespace Pandacap.ActivityPub.SignatureValidation
                     if (actorUri.Fragment.Length > 0)
                         actorUri = new Uri(actorUri.GetLeftPart(UriPartial.Query));
 
-                    if (await FetchAndExpand(actorUri, cancellationToken) is not JToken expandedActorObjects)
+                    if (await FetchAndExpandAsync(actorUri, cancellationToken) is not JToken expandedActorObjects)
                         continue;
 
                     expandedObject = expandedActorObjects.Single();
@@ -83,7 +85,7 @@ namespace Pandacap.ActivityPub.SignatureValidation
                     if (newKeyUri.Fragment.Length > 0)
                         newKeyUri = new Uri(keyUri.GetLeftPart(UriPartial.Query));
 
-                    if (await FetchAndExpand(newKeyUri, cancellationToken) is not JToken expandedKeyObjects)
+                    if (await FetchAndExpandAsync(newKeyUri, cancellationToken) is not JToken expandedKeyObjects)
                         continue;
 
                     var p1 = expandedKeyObjects.Single()["https://w3id.org/security#publicKeyPem"];
@@ -104,18 +106,27 @@ namespace Pandacap.ActivityPub.SignatureValidation
             return null!;
         }
 
-        private async Task<JToken?> FetchAndExpand(
+        private async Task<JToken?> FetchAndExpandAsync(
             Uri uri,
             CancellationToken cancellationToken)
         {
+            var cacheKey = $"{CACHE_KEY_PREFIX}-{uri.AbsoluteUri}";
+
+            if (memoryCache.TryGetValue<JToken>(cacheKey, out var cached))
+                return cached;
+
             try
             {
                 var json = await activityPubRequestHandler.GetJsonAsync(
                     uri,
                     cancellationToken);
 
-                return jsonLdExpansionService.Expand(
-                    JObject.Parse(json));
+                return memoryCache.Set(
+                    cacheKey,
+                    jsonLdExpansionService.Expand(
+                        JObject.Parse(
+                            json)),
+                    absoluteExpirationRelativeToNow: TimeSpan.FromMinutes(30));
             }
             catch (ActivityJsonNotFoundException)
             {
@@ -127,6 +138,8 @@ namespace Pandacap.ActivityPub.SignatureValidation
             string Owner,
             string KeyId,
             string KeyPem) : IKeyWithOwner { }
+
+        private const string CACHE_KEY_PREFIX = "9c01fdb0-21ca-43ae-afb1-14c424e81a9c";
 
         [GeneratedRegex("keyId=\"([^\"]+)\"")]
         private static partial Regex GetKeyIdPattern();
