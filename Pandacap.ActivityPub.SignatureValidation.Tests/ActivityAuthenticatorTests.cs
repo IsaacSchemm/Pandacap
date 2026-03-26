@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Newtonsoft.Json.Linq;
+using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.SignatureValidation.Interfaces;
 
@@ -328,9 +329,14 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                     ""type"": ""Person"",
                     ""publicKey"": [
                         ""https://activitypub.academy/users/dubonus_ladinut#wrong-key-1"",
-                        ""https://activitypub.academy/users/dubonus_ladinut#wrong-key-2""
+                        ""https://activitypub.academy/users/dubonus_ladinut/wrong-key-2""
                     ]
                 }");
+            handlerMock
+                .Setup(handler => handler.GetJsonAsync(
+                    new("https://activitypub.academy/users/dubonus_ladinut/wrong-key-2"),
+                    cancellationToken))
+                .Throws<ActivityJsonNotFoundException>();
 
             var headersMock = new Mock<IHeaderDictionary>(MockBehavior.Strict);
             headersMock
