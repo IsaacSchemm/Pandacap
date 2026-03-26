@@ -5,6 +5,7 @@ using Pandacap.ActivityPub.Models.Inbound;
 using Pandacap.ActivityPub.Services.Inbound.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Signatures.Interfaces;
+using Pandacap.ActivityPub.SignatureValidation.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -13,6 +14,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ActivityPubController(
+        IActivityAuthenticator activityAuthenticator,
         IActivityPubRemoteActorService activityPubRemoteActorService,
         IActivityPubRemotePostService activityPubRemotePostService,
         PandacapDbContext context,
@@ -60,7 +62,7 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
-        public async Task Inbox(CancellationToken cancellationToken)
+        public async Task<IActionResult> Inbox(CancellationToken cancellationToken)
         {
             using var sr = new StreamReader(Request.Body);
             string json = await sr.ReadToEndAsync(cancellationToken);
@@ -70,19 +72,25 @@ namespace Pandacap.Controllers
             JObject document = JObject.Parse(json);
             var expansionObj = expansionService.Expand(document);
             if (expansionObj == null)
-                return;
+                return BadRequest("Could not turn incoming JSON into fully expanded JSON-LD. (Is the context correct?)");
 
-            // Find out which ActivityPub actor they say they are, and grab that actor's information and public key
+            // Find out which ActivityPub actor they say they are
             string actorId = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
+
+            // Verify signature
+            var validKey = await activityAuthenticator
+                .AcquireKeysAsync(Request, cancellationToken)
+                .Where(key => key.Owner == actorId)
+                .Where(key => mastodonVerifier.VerifyRequestSignature(Request, key) == NSign.VerificationResult.SuccessfullyVerified)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (validKey == null)
+                return Unauthorized("Could not verify signature.");
+
+            // Grab that actor's information and public key
             var actor = await activityPubRemoteActorService.FetchActorAsync(actorId, cancellationToken);
 
             string type = expansionObj["@type"]![0]!.Value<string>()!;
-
-            // Verify HTTP signature against the public key
-            var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(Request, actor);
-
-            if (signatureVerificationResult != NSign.VerificationResult.SuccessfullyVerified)
-                return;
 
             if (type == "https://www.w3.org/ns/activitystreams#Follow")
             {
@@ -358,6 +366,8 @@ namespace Pandacap.Controllers
                     await context.SaveChangesAsync(cancellationToken);
                 }
             }
+
+            return Accepted();
         }
 
         private async Task AddFollowAsync(string objectId, RemoteActor actor)

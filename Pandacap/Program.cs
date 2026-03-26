@@ -11,6 +11,8 @@ using Pandacap.ActivityPub.Services.Inbound;
 using Pandacap.ActivityPub.Services.Inbound.Interfaces;
 using Pandacap.ActivityPub.Signatures;
 using Pandacap.ActivityPub.Signatures.Interfaces;
+using Pandacap.ActivityPub.SignatureValidation;
+using Pandacap.ActivityPub.SignatureValidation.Interfaces;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -135,6 +137,7 @@ builder.Services
     .AddScoped<FurAffinityNoteNotificationHandler>()
     .AddScoped<FurAffinityNotificationHandler>()
     .AddScoped<IMastodonVerifier, MastodonVerifier>()
+    .AddScoped<IActivityAuthenticator, ActivityAuthenticator>()
     .AddScoped<PostCreator>()
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>()
