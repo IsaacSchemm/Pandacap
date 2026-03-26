@@ -62,24 +62,29 @@ namespace Pandacap.ActivityPub.SignatureValidation
                     expandedObject = expandedActorObjects.Single();
                 }
 
-                var key = expandedObject["https://w3id.org/security#publicKey"]
-                    .Select(t => t)
-                    .Where(t => t["@id"].Value<string>() == keyId)
-                    .FirstOrDefault();
+                var key =
+                    expandedObject["https://w3id.org/security#publicKey"]
+                        .Where(t => t["@id"].Value<string>() == keyId)
+                        .FirstOrDefault();
+
+                if (key == null)
+                    if (expandedObject["https://w3id.org/security#publicKey"].Count() == 1)
+                        key = expandedObject["https://w3id.org/security#publicKey"][0];
 
                 if (key == null)
                     continue;
 
-                var pems = key["https://w3id.org/security#publicKeyPem"];
+                var newKeyId = key["@id"].Value<string>();
 
                 var keyPem = (key["https://w3id.org/security#publicKeyPem"] ?? Enumerable.Empty<JToken>())
                     .SelectMany(t => t)
                     .SelectMany(t => t)
                     .Select(t => t.Value<string>())
                     .FirstOrDefault();
+
                 if (keyPem == null)
                 {
-                    if (!Uri.TryCreate(keyId, UriKind.Absolute, out var newKeyUri))
+                    if (!Uri.TryCreate(newKeyId, UriKind.Absolute, out var newKeyUri))
                         continue;
 
                     if (newKeyUri.Fragment.Length > 0)
@@ -87,8 +92,6 @@ namespace Pandacap.ActivityPub.SignatureValidation
 
                     if (await FetchAndExpandAsync(newKeyUri, cancellationToken) is not JToken expandedKeyObjects)
                         continue;
-
-                    var p1 = expandedKeyObjects.Single()["https://w3id.org/security#publicKeyPem"];
 
                     keyPem = expandedKeyObjects.Single()["https://w3id.org/security#publicKeyPem"]
                         .SelectMany(t => t)
@@ -98,7 +101,7 @@ namespace Pandacap.ActivityPub.SignatureValidation
                 }
 
                 return new Key(
-                    KeyId: keyId,
+                    KeyId: newKeyId,
                     KeyPem: keyPem,
                     Owner: expandedObject["@id"]?.Value<string>());
             }

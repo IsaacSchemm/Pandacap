@@ -257,7 +257,7 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
         }
 
         [TestMethod]
-        public async Task AcquireKeyAsync_FindsActorObject_KeyIdDoesNotMatch()
+        public async Task AcquireKeyAsync_FindsActorObject_SingleKeyIdDoesNotMatch()
         {
             var cancellationToken = CancellationToken.None;
 
@@ -278,6 +278,58 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                         ""owner"": ""https://activitypub.academy/users/dubonus_ladinut"",
                         ""publicKeyPem"": ""-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxtMke49NEZcyP0jgZdKH\n+uyqxBOLKBZOOO9q7zeOhcT+M2+ce6bT0QXFYEPK+bfhN1g9bkFso/hj4v9pauvq\nkVfSwqKOh5HywMDMjQVlsDD3uVJwHQtjnybkMAamIZcRfIGyiTiKkz0gpnN5jipi\nwpIq8QBW6E7h1QiupiCmq4Um4y1qsXwDSGDGUwu3AQ9A5HVujKtuNxPlSFnMj8y8\nHIs1YN14F3KybU38x0DlZtd9rpuDgQcrwQyTPy91rBPN/Cttd6vwDL8rlBmiTFJX\nJs/ai+eMNWDzSM45RNWY9SZT0N4AY4ZmShZrd6ESSrRFD9M+8FbC5D7NPmJEqlds\nTwIDAQAB\n-----END PUBLIC KEY-----\n""
                     }
+                }");
+
+            var headersMock = new Mock<IHeaderDictionary>(MockBehavior.Strict);
+            headersMock
+                .Setup(headers => headers["signature"])
+                .Returns(MASTODON_SIGNATURE);
+            var requestMock = new Mock<HttpRequest>(MockBehavior.Strict);
+            requestMock
+                .Setup(req => req.Headers)
+                .Returns(headersMock.Object);
+
+            var authenticator = GetActivityAuthenticator(
+                handlerMock.Object);
+
+            var result = await authenticator.AcquireKeyAsync(
+                requestMock.Object,
+                cancellationToken);
+
+            Assert.AreEqual(
+                "https://activitypub.academy/users/dubonus_ladinut",
+                result.Owner);
+
+            Assert.AreEqual(
+                "https://activitypub.academy/users/dubonus_ladinut#wrong-key",
+                result.KeyId);
+
+            Assert.AreEqual(
+                MASTODON_PEM_KEY,
+                result.KeyPem);
+        }
+
+        [TestMethod]
+        public async Task AcquireKeyAsync_FindsActorObject_KeyIdsDoNotMatch()
+        {
+            var cancellationToken = CancellationToken.None;
+
+            var handlerMock = new Mock<IActivityPubRequestHandler>(MockBehavior.Strict);
+            handlerMock
+                .Setup(handler => handler.GetJsonAsync(
+                    new("https://activitypub.academy/users/dubonus_ladinut"),
+                    cancellationToken))
+                .ReturnsAsync(@"{
+                    ""@context"": [
+                        ""https://www.w3.org/ns/activitystreams"",
+                        ""https://w3id.org/security/v1""
+                    ],
+                    ""id"": ""https://activitypub.academy/users/dubonus_ladinut"",
+                    ""type"": ""Person"",
+                    ""publicKey"": [
+                        ""https://activitypub.academy/users/dubonus_ladinut#wrong-key-1"",
+                        ""https://activitypub.academy/users/dubonus_ladinut#wrong-key-2""
+                    ]
                 }");
 
             var headersMock = new Mock<IHeaderDictionary>(MockBehavior.Strict);
