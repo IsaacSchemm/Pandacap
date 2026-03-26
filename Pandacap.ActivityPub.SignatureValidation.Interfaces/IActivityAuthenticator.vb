@@ -1,7 +1,5 @@
 ﻿Imports System.Threading
 Imports Microsoft.AspNetCore.Http
-Imports NSign
-Imports Pandacap.ActivityPub.Signatures.Interfaces
 
 Public Interface IActivityAuthenticator
     ''' <summary>
@@ -10,6 +8,6 @@ Public Interface IActivityAuthenticator
     ''' <param name="request">The HTTP request</param>
     ''' <param name="cancellationToken">A cancellation token</param>
     ''' <returns></returns>
-    Function AcquireKeyAsync(request As HttpRequest,
-                             cancellationToken As CancellationToken) As Task(Of IKeyWithOwner)
+    Function AcquireKeysAsync(request As HttpRequest,
+                              Optional cancellationToken As CancellationToken = Nothing) As IAsyncEnumerable(Of IKeyWithOwner)
 End Interface

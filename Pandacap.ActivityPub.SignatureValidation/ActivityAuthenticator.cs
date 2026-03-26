@@ -6,7 +6,6 @@ using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Signatures.Interfaces;
 using Pandacap.ActivityPub.SignatureValidation.Interfaces;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 
 namespace Pandacap.ActivityPub.SignatureValidation
@@ -16,9 +15,9 @@ namespace Pandacap.ActivityPub.SignatureValidation
         IJsonLdExpansionService jsonLdExpansionService,
         IMemoryCache memoryCache) : IActivityAuthenticator
     {
-        public async Task<IKeyWithOwner> AcquireKeyAsync(
+        async IAsyncEnumerable<IKeyWithOwner> IActivityAuthenticator.AcquireKeysAsync(
             HttpRequest request,
-            CancellationToken cancellationToken)
+            [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var keyIds = GetSignatureHeaderValues(request)
                 .SelectMany(ExtractKeyIds);
@@ -33,10 +32,8 @@ namespace Pandacap.ActivityPub.SignatureValidation
                     .FirstOrDefaultAsync(cancellationToken);
 
                 if (key != null)
-                    return key;
+                    yield return key;
             }
-
-            return null!;
         }
 
         private static IEnumerable<string> GetSignatureHeaderValues(HttpRequest request)

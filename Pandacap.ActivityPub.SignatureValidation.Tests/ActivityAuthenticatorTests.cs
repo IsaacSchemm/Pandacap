@@ -51,9 +51,13 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
             var authenticator = GetActivityAuthenticator(
                 handlerMock.Object);
 
-            var result = await authenticator.AcquireKeyAsync(
-                requestMock.Object,
-                cancellationToken);
+            var results = await authenticator
+                .AcquireKeysAsync(
+                    requestMock.Object,
+                    cancellationToken)
+                .ToListAsync(cancellationToken);
+
+            var result = results.Single();
 
             Assert.AreEqual(
                 "https://activitypub.academy/users/dubonus_ladinut",
@@ -116,9 +120,13 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
             var authenticator = GetActivityAuthenticator(
                 handlerMock.Object);
 
-            var result = await authenticator.AcquireKeyAsync(
-                requestMock.Object,
-                cancellationToken);
+            var results = await authenticator
+                .AcquireKeysAsync(
+                    requestMock.Object,
+                    cancellationToken)
+                .ToListAsync(cancellationToken);
+
+            var result = results.Single();
 
             Assert.AreEqual(
                 "https://activitypub.academy/users/dubonus_ladinut",
@@ -178,9 +186,13 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
             var authenticator = GetActivityAuthenticator(
                 handlerMock.Object);
 
-            var result = await authenticator.AcquireKeyAsync(
-                requestMock.Object,
-                cancellationToken);
+            var results = await authenticator
+                .AcquireKeysAsync(
+                    requestMock.Object,
+                    cancellationToken)
+                .ToListAsync(cancellationToken);
+
+            var result = results.Single();
 
             Assert.AreEqual(
                 "https://activitypub.academy/users/dubonus_ladinut",
@@ -240,9 +252,13 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
             var authenticator = GetActivityAuthenticator(
                 handlerMock.Object);
 
-            var result = await authenticator.AcquireKeyAsync(
-                requestMock.Object,
-                cancellationToken);
+            var results = await authenticator
+                .AcquireKeysAsync(
+                    requestMock.Object,
+                    cancellationToken)
+                .ToListAsync(cancellationToken);
+
+            var result = results.Single();
 
             Assert.AreEqual(
                 "https://www.example.com/keys/dubonus_ladinut/actor",
@@ -293,9 +309,13 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
             var authenticator = GetActivityAuthenticator(
                 handlerMock.Object);
 
-            var result = await authenticator.AcquireKeyAsync(
-                requestMock.Object,
-                cancellationToken);
+            var results = await authenticator
+                .AcquireKeysAsync(
+                    requestMock.Object,
+                    cancellationToken)
+                .ToListAsync(cancellationToken);
+
+            var result = results.Single();
 
             Assert.AreEqual(
                 "https://activitypub.academy/users/dubonus_ladinut",
@@ -350,11 +370,13 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
             var authenticator = GetActivityAuthenticator(
                 handlerMock.Object);
 
-            var result = await authenticator.AcquireKeyAsync(
-                requestMock.Object,
-                cancellationToken);
+            var results = await authenticator
+                .AcquireKeysAsync(
+                    requestMock.Object,
+                    cancellationToken)
+                .ToListAsync(cancellationToken);
 
-            Assert.IsNull(result);
+            Assert.IsEmpty(results);
         }
 
         [TestMethod]
@@ -393,13 +415,16 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
             var authenticator = GetActivityAuthenticator(
                 handlerMock.Object);
 
-            await authenticator.AcquireKeyAsync(
-                requestMock.Object,
-                cancellationToken);
-
-            await authenticator.AcquireKeyAsync(
-                requestMock.Object,
-                cancellationToken);
+            await authenticator
+                 .AcquireKeysAsync(
+                     requestMock.Object,
+                     cancellationToken)
+                 .ToListAsync(cancellationToken);
+            await authenticator
+                 .AcquireKeysAsync(
+                     requestMock.Object,
+                     cancellationToken)
+                 .ToListAsync(cancellationToken);
 
             handlerMock.Verify(
                 handler => handler.GetJsonAsync(
@@ -408,6 +433,109 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                 Times.Once);
         }
 
+        [TestMethod]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "MSTEST0049:Flow TestContext.CancellationToken to async operations", Justification = "Testing situation where token is not provided")]
+        public async Task AcquireKeyAsync_DoesNotRequireExplicitCancellationToken()
+        {
+            var handlerMock = new Mock<IActivityPubRequestHandler>(MockBehavior.Strict);
+            handlerMock
+                .Setup(handler => handler.GetJsonAsync(
+                    new("https://activitypub.academy/users/dubonus_ladinut"),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(@"{
+                    ""@context"": [
+                        ""https://www.w3.org/ns/activitystreams"",
+                        ""https://w3id.org/security/v1""
+                    ],
+                    ""id"": ""https://activitypub.academy/users/dubonus_ladinut"",
+                    ""type"": ""Person"",
+                    ""publicKey"": {
+                        ""id"": ""https://activitypub.academy/users/dubonus_ladinut#main-key"",
+                        ""owner"": ""https://activitypub.academy/users/dubonus_ladinut"",
+                        ""publicKeyPem"": ""-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxtMke49NEZcyP0jgZdKH\n+uyqxBOLKBZOOO9q7zeOhcT+M2+ce6bT0QXFYEPK+bfhN1g9bkFso/hj4v9pauvq\nkVfSwqKOh5HywMDMjQVlsDD3uVJwHQtjnybkMAamIZcRfIGyiTiKkz0gpnN5jipi\nwpIq8QBW6E7h1QiupiCmq4Um4y1qsXwDSGDGUwu3AQ9A5HVujKtuNxPlSFnMj8y8\nHIs1YN14F3KybU38x0DlZtd9rpuDgQcrwQyTPy91rBPN/Cttd6vwDL8rlBmiTFJX\nJs/ai+eMNWDzSM45RNWY9SZT0N4AY4ZmShZrd6ESSrRFD9M+8FbC5D7NPmJEqlds\nTwIDAQAB\n-----END PUBLIC KEY-----\n""
+                    }
+                }");
+
+            var headersMock = new Mock<IHeaderDictionary>(MockBehavior.Strict);
+            headersMock
+                .Setup(headers => headers["signature"])
+                .Returns(MASTODON_SIGNATURE);
+            var requestMock = new Mock<HttpRequest>(MockBehavior.Strict);
+            requestMock
+                .Setup(req => req.Headers)
+                .Returns(headersMock.Object);
+
+            var authenticator = GetActivityAuthenticator(
+                handlerMock.Object);
+
+            await authenticator
+                 .AcquireKeysAsync(
+                     requestMock.Object)
+                 .ToListAsync();
+
+            handlerMock.Verify(
+                handler => handler.GetJsonAsync(
+                    new("https://activitypub.academy/users/dubonus_ladinut"),
+                    CancellationToken.None),
+                Times.Once);
+        }
+
+        [TestMethod]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "MSTEST0049:Flow TestContext.CancellationToken to async operations", Justification = "Testing situation where token is not provided")]
+        public async Task AcquireKeyAsync_GetsCancellationTokenFromAsyncEnumerable()
+        {
+            var handlerMock = new Mock<IActivityPubRequestHandler>(MockBehavior.Strict);
+            handlerMock
+                .Setup(handler => handler.GetJsonAsync(
+                    new("https://activitypub.academy/users/dubonus_ladinut"),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(@"{
+                    ""@context"": [
+                        ""https://www.w3.org/ns/activitystreams"",
+                        ""https://w3id.org/security/v1""
+                    ],
+                    ""id"": ""https://activitypub.academy/users/dubonus_ladinut"",
+                    ""type"": ""Person"",
+                    ""publicKey"": {
+                        ""id"": ""https://activitypub.academy/users/dubonus_ladinut#main-key"",
+                        ""owner"": ""https://activitypub.academy/users/dubonus_ladinut"",
+                        ""publicKeyPem"": ""-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxtMke49NEZcyP0jgZdKH\n+uyqxBOLKBZOOO9q7zeOhcT+M2+ce6bT0QXFYEPK+bfhN1g9bkFso/hj4v9pauvq\nkVfSwqKOh5HywMDMjQVlsDD3uVJwHQtjnybkMAamIZcRfIGyiTiKkz0gpnN5jipi\nwpIq8QBW6E7h1QiupiCmq4Um4y1qsXwDSGDGUwu3AQ9A5HVujKtuNxPlSFnMj8y8\nHIs1YN14F3KybU38x0DlZtd9rpuDgQcrwQyTPy91rBPN/Cttd6vwDL8rlBmiTFJX\nJs/ai+eMNWDzSM45RNWY9SZT0N4AY4ZmShZrd6ESSrRFD9M+8FbC5D7NPmJEqlds\nTwIDAQAB\n-----END PUBLIC KEY-----\n""
+                    }
+                }");
+
+            var headersMock = new Mock<IHeaderDictionary>(MockBehavior.Strict);
+            headersMock
+                .Setup(headers => headers["signature"])
+                .Returns(MASTODON_SIGNATURE);
+            var requestMock = new Mock<HttpRequest>(MockBehavior.Strict);
+            requestMock
+                .Setup(req => req.Headers)
+                .Returns(headersMock.Object);
+
+            var authenticator = GetActivityAuthenticator(
+                handlerMock.Object);
+            
+            using var cts = new CancellationTokenSource();
+
+            await authenticator
+                 .AcquireKeysAsync(
+                     requestMock.Object)
+                 .ToListAsync(cts.Token);
+
+            handlerMock.Verify(
+                handler => handler.GetJsonAsync(
+                    new("https://activitypub.academy/users/dubonus_ladinut"),
+                    CancellationToken.None),
+                Times.Never);
+
+            handlerMock.Verify(
+                handler => handler.GetJsonAsync(
+                    new("https://activitypub.academy/users/dubonus_ladinut"),
+                    cts.Token),
+                Times.Once);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "Testing interface, not public class methods")]
         private static IActivityAuthenticator GetActivityAuthenticator(
             IActivityPubRequestHandler activityPubRequestHandler)
         => new ActivityAuthenticator(
