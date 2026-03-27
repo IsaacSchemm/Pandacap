@@ -23,7 +23,7 @@ type ActivityPubRemoteActorService(
         let object =
             json
             |> JObject.Parse
-            |> expansionService.Expand
+            |> expansionService.ExpandFirst
 
         return {
             Type = object

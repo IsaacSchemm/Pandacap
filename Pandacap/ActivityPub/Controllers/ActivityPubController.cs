@@ -70,7 +70,7 @@ namespace Pandacap.Controllers
             // Expand JSON-LD
             // This is important to do, because objects can be replaced with IDs, pretty much anything can be an array, etc.
             JObject document = JObject.Parse(json);
-            var expansionObj = expansionService.Expand(document);
+            var expansionObj = expansionService.ExpandFirst(document);
             if (expansionObj == null)
                 return BadRequest("Could not turn incoming JSON into fully expanded JSON-LD. (Is the context correct?)");
 

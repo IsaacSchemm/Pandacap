@@ -132,6 +132,6 @@ type ActivityPubRemotePostService(
         member this.FetchPostAsync(url: string, cancellationToken: CancellationToken) = task {
             let uri = new Uri(url)
             let! json = requestHandler.GetJsonAsync(uri, cancellationToken)
-            let object = json |> JObject.Parse |> expansionService.Expand
+            let object = json |> JObject.Parse |> expansionService.ExpandFirst
             return! (this :> IActivityPubRemotePostService).ParseExpandedObjectAsync(object, cancellationToken)
         }

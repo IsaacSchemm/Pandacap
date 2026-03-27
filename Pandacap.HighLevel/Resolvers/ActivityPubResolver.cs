@@ -22,7 +22,7 @@ namespace Pandacap.HighLevel.Resolvers
                     uri,
                     cancellationToken);
 
-                var obj = jsonLdExpansionService.Expand(
+                var obj = jsonLdExpansionService.ExpandFirst(
                     JObject.Parse(
                         json));
 

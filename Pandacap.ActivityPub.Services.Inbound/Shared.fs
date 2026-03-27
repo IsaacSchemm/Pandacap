@@ -16,7 +16,7 @@ let combine name items = Seq.collect (list name) items
 /// Given an expanded object, extracts the node identifier as a string.
 let node_id (obj: JToken) = (obj["@id"]).Value<string>()
 
-/// Given an expanded object, extracts the type as a string.
+/// Given an expanded object, extracts the type(s) as a list of strings.
 let node_type (obj: JToken) =
     if isNull (obj["@type"])
     then Seq.empty

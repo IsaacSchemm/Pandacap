@@ -23,7 +23,7 @@ type internal CustomDocumentLoader(cache: IMemoryCache) =
 
 type JsonLdExpansionService(cache: IMemoryCache) =
     interface IJsonLdExpansionService with
-        member _.Expand(jObject: JObject) =
+        member _.ExpandFirst(jObject: JObject) =
             let options = new JsonLdOptions(
                 documentLoader = new CustomDocumentLoader(cache))
 
