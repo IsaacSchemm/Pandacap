@@ -1,4 +1,4 @@
-﻿using Pandacap.ActivityPub.Models.Inbound;
+﻿using Pandacap.ActivityPub.RemoteObjects.Models;
 using Pandacap.Data;
 
 namespace Pandacap.Models

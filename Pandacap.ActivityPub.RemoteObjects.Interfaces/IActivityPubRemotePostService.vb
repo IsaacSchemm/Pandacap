@@ -1,7 +1,7 @@
 ﻿Imports System.Threading
 Imports Microsoft.FSharp.Collections
 Imports Newtonsoft.Json.Linq
-Imports Pandacap.ActivityPub.Models.Inbound
+Imports Pandacap.ActivityPub.RemoteObjects.Models
 
 Public Interface IActivityPubRemotePostService
     Function GetAnnouncementSubjectIds(expandedAnnounceObject As JToken) As FSharpList(Of String)

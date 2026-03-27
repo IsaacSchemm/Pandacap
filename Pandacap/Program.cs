@@ -7,8 +7,8 @@ using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Pandacap;
 using Pandacap.ActivityPub.Inbound;
+using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services.Inbound;
-using Pandacap.ActivityPub.Services.Inbound.Interfaces;
 using Pandacap.ActivityPub.Signatures;
 using Pandacap.ActivityPub.Signatures.Interfaces;
 using Pandacap.ActivityPub.SignatureValidation;
@@ -126,7 +126,7 @@ builder.Services
     .AddScoped<ActivityPubAddressedPostNotificationHandler>()
     .AddScoped<ActivityPubNotificationHandler>()
     .AddScoped<IActivityPubRemoteActorService, ActivityPubRemoteActorService>()
-    .AddScoped<ActivityPubRemotePostService>()
+    .AddScoped<IActivityPubRemotePostService, ActivityPubRemotePostService>()
     .AddScoped<ActivityPubReplyNotificationHandler>()
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<CompositeNotificationHandler>()

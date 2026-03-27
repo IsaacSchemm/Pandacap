@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub.Models;
-using Pandacap.ActivityPub.Models.Inbound;
-using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.ActivityPub.RemoteObjects.Interfaces;
+using Pandacap.ActivityPub.RemoteObjects.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
 using Pandacap.HighLevel;

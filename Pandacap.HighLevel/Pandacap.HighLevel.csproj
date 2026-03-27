@@ -24,8 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ActivityPub.Services.Inbound.Interfaces\Pandacap.ActivityPub.Services.Inbound.Interfaces.vbproj" />
-    <ProjectReference Include="..\Pandacap.ActivityPub.Services.Inbound\Pandacap.ActivityPub.Services.Inbound.fsproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.RemoteObjects\Pandacap.ActivityPub.RemoteObjects.fsproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Services.Interfaces\Pandacap.ActivityPub.Services.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Services\Pandacap.ActivityPub.Services.fsproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />

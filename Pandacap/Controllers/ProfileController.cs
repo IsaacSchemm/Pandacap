@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Models;
-using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;

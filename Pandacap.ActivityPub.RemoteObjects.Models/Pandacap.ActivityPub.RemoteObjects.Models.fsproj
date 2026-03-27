@@ -12,8 +12,4 @@
     <Compile Include="RemotePost.fs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ActivityPub.Models\Pandacap.ActivityPub.Models.fsproj" />
-  </ItemGroup>
-
 </Project>

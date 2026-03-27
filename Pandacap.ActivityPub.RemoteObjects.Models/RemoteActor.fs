@@ -1,6 +1,4 @@
-﻿namespace Pandacap.ActivityPub.Models.Inbound
-
-open Pandacap.ActivityPub.Signatures.Interfaces
+﻿namespace Pandacap.ActivityPub.RemoteObjects.Models
 
 type RemoteActor = {
     Type: string
@@ -14,7 +12,4 @@ type RemoteActor = {
     IconUrl: string
     KeyId: string
     KeyPem: string
-} with
-    interface IKey with
-        member this.KeyId = this.KeyId
-        member this.KeyPem = this.KeyPem
+}

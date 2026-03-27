@@ -1,5 +1,5 @@
 Imports System.Threading
-Imports Pandacap.ActivityPub.Models.Inbound
+Imports Pandacap.ActivityPub.RemoteObjects.Models
 
 Public Interface IActivityPubRemoteActorService
     Function FetchActorAsync(url As String,

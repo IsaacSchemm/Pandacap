@@ -1,8 +1,8 @@
 ﻿using DnsClient;
 using Microsoft.Extensions.DependencyInjection;
 using Pandacap.ActivityPub.Inbound;
+using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services;
-using Pandacap.ActivityPub.Services.Inbound.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Clients.ATProto;

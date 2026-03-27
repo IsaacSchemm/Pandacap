@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.Clients;
 using Pandacap.Data;
 using Pandacap.HighLevel.Lemmy;

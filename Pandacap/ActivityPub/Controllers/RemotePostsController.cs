@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub.Models.Inbound;
-using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+using Pandacap.ActivityPub.RemoteObjects.Interfaces;
+using Pandacap.ActivityPub.RemoteObjects.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.ConfigurationObjects;

@@ -1,4 +1,4 @@
-﻿namespace Pandacap.ActivityPub.Models.Inbound
+﻿namespace Pandacap.ActivityPub.RemoteObjects.Models
 
 open System
 

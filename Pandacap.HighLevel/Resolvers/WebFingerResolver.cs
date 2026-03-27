@@ -1,4 +1,4 @@
-﻿using Pandacap.ActivityPub.Services.Inbound.Interfaces;
+﻿using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.Resolvers;
 
 namespace Pandacap.HighLevel.Resolvers
