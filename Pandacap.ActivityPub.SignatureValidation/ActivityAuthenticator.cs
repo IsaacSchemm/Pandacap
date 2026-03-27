@@ -3,7 +3,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.ActivityPub.Signatures.Interfaces;
 using Pandacap.ActivityPub.SignatureValidation.Interfaces;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -15,162 +14,28 @@ namespace Pandacap.ActivityPub.SignatureValidation
         IJsonLdExpansionService jsonLdExpansionService,
         IMemoryCache memoryCache) : IActivityAuthenticator
     {
-        async IAsyncEnumerable<IKeyWithOwner> IActivityAuthenticator.AcquireKeysAsync(
-            HttpRequest request,
-            [EnumeratorCancellation] CancellationToken cancellationToken)
-        {
-            var keyIds = GetSignatureHeaderValues(request)
-                .SelectMany(ExtractKeyIds);
+        private const string CACHE_KEY_PREFIX = "9c01fdb0-21ca-43ae-afb1-14c424e81a9c";
 
-            foreach (var keyId in keyIds)
-            {
-                var key = await FetchAndExpandAsync(RemoveFragment(keyId), cancellationToken)
-                    .Select(async (token, ct) => GetObjectTypes(token).Contains("Key")
-                        ? await GetExpandedActorObjectForOwnerAsync(token, ct)
-                        : token)
-                    .SelectMany(actor => GetKeysToUseFromActorAsync(actor, keyId))
-                    .FirstOrDefaultAsync(cancellationToken);
+        [GeneratedRegex("keyId=\"([^\"]+)\"")]
+        private static partial Regex GetKeyIdPattern();
 
-                if (key != null)
-                    yield return key;
-            }
-        }
+        private record Key(
+            string Owner,
+            string KeyId,
+            string KeyPem) : IKeyWithOwner { }
 
-        private static IEnumerable<string> GetSignatureHeaderValues(HttpRequest request)
-        {
-            foreach (var val in request.Headers[NSign.Constants.Headers.Signature])
-                if (val is not null)
-                    yield return val;
-        }
+        private static IEnumerable<string> GetSignatureHeaderValues(HttpRequest request) =>
+            request.Headers[NSign.Constants.Headers.Signature]
+            .OfType<string>();
 
-        private static IEnumerable<Uri> ExtractKeyIds(string? signatureHeaderValue)
-        {
-            if (signatureHeaderValue is null)
-                yield break;
-
-            var matches = GetKeyIdPattern().Matches(signatureHeaderValue);
-            for (var i = 0; i < matches.Count; i++)
-                if (Uri.TryCreate(matches[i].Groups[1].Value, UriKind.Absolute, out var uri))
-                    yield return uri;
-        }
-
-        private static Uri RemoveFragment(Uri uri) =>
-            uri.Fragment.Length == 0
-            ? uri
-            : new Uri(uri.GetLeftPart(UriPartial.Query));
-
-        private async IAsyncEnumerable<JToken> FetchAndExpandAsync(
-            Uri uri,
-            [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            if (uri.Fragment.Length > 0)
-                throw new ArgumentException("Must pass a URI without a fragment", nameof(uri));
-
-            if (await FetchAsync(uri, cancellationToken) is string json)
-                yield return jsonLdExpansionService.Expand(JObject.Parse(json));
-        }
-
-        private static IEnumerable<string> GetObjectTypes(JToken expandedObject)
-        {
-            if (expandedObject["@type"] is JToken token)
-                foreach (var val in token.Values<string>())
-                    if (val != null)
-                        yield return val;
-        }
-
-        private static IEnumerable<Uri> GetOwners(JToken expandedObject)
-        {
-            if (expandedObject["https://w3id.org/security#owner"] is JToken owners)
-                foreach (var owner in owners)
-                    if (owner["@id"] is JToken id)
-                        if (id.Value<string>() is string str)
-                            if (Uri.TryCreate(str, UriKind.Absolute, out var uri))
-                                yield return uri;
-        }
-
-        private async Task<JToken> GetExpandedActorObjectForOwnerAsync(
-            JToken expandedObject,
-            CancellationToken cancellationToken)
-        {
-            foreach (var ownerUri in GetOwners(expandedObject))
-            {
-                await foreach (var actor in FetchAndExpandAsync(
-                    RemoveFragment(ownerUri),
-                    cancellationToken))
-                {
-                    return actor;
-                }
-            }
-
-            return expandedObject;
-        }
-
-        private static string? GetPublicKeyPem(JToken publicKey)
-        {
-            if (publicKey["https://w3id.org/security#publicKeyPem"] is JToken pemTokens)
-                foreach (var pemToken in pemTokens)
-                    if (pemToken["@value"] is JToken value)
-                        if (value.Value<string>() is string publicKeyPem)
-                            return publicKeyPem;
-
-            return null;
-        }
-
-        private async Task<string?> GetPublicKeyPemAsync(
-            JToken publicKey,
-            CancellationToken cancellationToken)
-        {
-            if (GetPublicKeyPem(publicKey) is string pem)
-                return pem;
-
-            if (publicKey["@id"] is JToken id && id.Value<string>() is string publicKeyId)
-                if (Uri.TryCreate(publicKeyId, UriKind.Absolute, out var uri))
-                    await foreach (var expandedKeyObject in FetchAndExpandAsync(RemoveFragment(uri), cancellationToken))
-                        if (GetPublicKeyPem(expandedKeyObject) is string found)
-                            return found;
-
-            return null;
-        }
-
-        private async IAsyncEnumerable<Key> GetKeysFromActorAsync(
-            JToken expandedObject,
-            [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            if (expandedObject["@id"] is not JToken idToken || idToken.Value<string>() is not string actorId)
-                yield break;
-
-            if (expandedObject["https://w3id.org/security#publicKey"] is not JToken publicKeys)
-                yield break;
-
-            foreach (var publicKey in publicKeys)
-                if (publicKey["@id"] is JToken id && id.Value<string>() is string publicKeyId)
-                    if (await GetPublicKeyPemAsync(publicKey, cancellationToken) is string pem)
-                        yield return new Key(
-                            actorId,
-                            publicKeyId,
-                            pem);
-        }
-
-        private async IAsyncEnumerable<Key> GetKeysToUseFromActorAsync(
-            JToken expandedObject,
-            Uri keyId,
-            [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            var keys = await GetKeysFromActorAsync(expandedObject, cancellationToken)
-                .ToListAsync(cancellationToken);
-
-            foreach (var key in keys)
-            {
-                if (key.KeyId == keyId.OriginalString)
-                {
-                    yield return key;
-                    yield break;
-                }
-            }
-
-            if (keys.Count == 1)
-                yield return keys[0];
-        }
+        private static IEnumerable<Uri> ExtractKeyIds(string signatureHeaderValue) =>
+            GetKeyIdPattern()
+            .Matches(signatureHeaderValue)
+            .Select(match =>
+                Uri.TryCreate(match.Groups[1].Value, UriKind.Absolute, out var uri)
+                ? uri
+                : null)
+            .OfType<Uri>();
 
         private async Task<string?> FetchAsync(
             Uri uri,
@@ -198,16 +63,102 @@ namespace Pandacap.ActivityPub.SignatureValidation
             }
         }
 
-        private record PublicKey(string KeyId, string KeyPem) : IKey;
+        private async IAsyncEnumerable<JToken> FetchAndExpand_OrEmptyIfNotActivityJson_Async(
+            Uri uri,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var effectiveUri = uri.Fragment.Length == 0
+                ? uri
+                : new Uri(uri.GetLeftPart(UriPartial.Query));
 
-        private record Key(
-            string Owner,
-            string KeyId,
-            string KeyPem) : IKeyWithOwner { }
+            if (await FetchAsync(effectiveUri, cancellationToken) is string json)
+                yield return jsonLdExpansionService.Expand(JObject.Parse(json));
+        }
 
-        private const string CACHE_KEY_PREFIX = "9c01fdb0-21ca-43ae-afb1-14c424e81a9c";
+        private static IEnumerable<string> GetObjectTypes(JToken expandedObject) =>
+            expandedObject
+            .ExtractArrayElements("@type")
+            .Select(typeToken => typeToken.Value<string>())
+            .OfType<string>();
 
-        [GeneratedRegex("keyId=\"([^\"]+)\"")]
-        private static partial Regex GetKeyIdPattern();
+        private async IAsyncEnumerable<JToken> ExtractOrFetchKeyOwnerAsync(
+            JToken actorOrKey,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            if (GetObjectTypes(actorOrKey).Contains("Key"))
+            {
+                await foreach (var owner in actorOrKey
+                    .ExtractArrayElements("https://w3id.org/security#owner")
+                    .SelectMany(owner => owner.ExtractUriValue_AsSingleton("@id"))
+                    .ToAsyncEnumerable()
+                    .SelectMany(ownerUri => FetchAndExpand_OrEmptyIfNotActivityJson_Async(ownerUri)))
+                {
+                    yield return owner;
+                }
+            }
+            else
+            {
+                yield return actorOrKey;
+            }
+        }
+
+        private static IEnumerable<string> GetLocalPublicKeyPems(JToken publicKey) =>
+            publicKey
+            .ExtractArrayElements("https://w3id.org/security#publicKeyPem")
+            .SelectMany(pemToken => pemToken.ExtractStringValue_AsSingleton("@value"));
+
+        private IAsyncEnumerable<string> GetRemotePublicKeyPemsAsync(
+            JToken publicKey)
+        =>
+            publicKey
+            .ExtractUriValue_AsSingleton("@id")
+            .ToAsyncEnumerable()
+            .SelectMany(uri => FetchAndExpand_OrEmptyIfNotActivityJson_Async(uri))
+            .SelectMany(GetLocalPublicKeyPems);
+
+        private IAsyncEnumerable<string> GetPublicKeyPemsAsync(
+            JToken publicKey)
+        =>
+            AsyncEnumerable.Concat(
+                GetLocalPublicKeyPems(publicKey).ToAsyncEnumerable(),
+                GetRemotePublicKeyPemsAsync(publicKey));
+
+        private async IAsyncEnumerable<Key> GetAllKeysFromActorAsync(
+            JToken expandedObject)
+        {
+            foreach (var actorId in expandedObject.ExtractStringValue_AsSingleton("@id"))
+                foreach (var publicKey in expandedObject.ExtractArrayElements("https://w3id.org/security#publicKey"))
+                    foreach (var publicKeyId in publicKey.ExtractStringValue_AsSingleton("@id"))
+                        await foreach (var pem in GetPublicKeyPemsAsync(publicKey))
+                            yield return new Key(
+                                actorId,
+                                publicKeyId,
+                                pem);
+        }
+
+        private IAsyncEnumerable<Key> GetAppropriateKeysFromActorAsync(
+            JToken expandedObject,
+            Uri keyId)
+        =>
+            GetAllKeysFromActorAsync(expandedObject)
+            .OrderBy(key => key.KeyId == keyId.OriginalString ? 1 : 2)
+            .Take(1);
+
+        private IAsyncEnumerable<IKeyWithOwner> AcquireKeysAsync(
+            Uri keyId,
+            CancellationToken cancellationToken = default)
+        =>
+            FetchAndExpand_OrEmptyIfNotActivityJson_Async(keyId, cancellationToken)
+            .SelectMany(token => ExtractOrFetchKeyOwnerAsync(token))
+            .SelectMany(actor => GetAppropriateKeysFromActorAsync(actor, keyId));
+
+        IAsyncEnumerable<IKeyWithOwner> IActivityAuthenticator.AcquireKeysAsync(
+            HttpRequest request,
+            CancellationToken cancellationToken)
+        =>
+            GetSignatureHeaderValues(request)
+            .SelectMany(ExtractKeyIds)
+            .ToAsyncEnumerable()
+            .SelectMany(keyId => AcquireKeysAsync(keyId, cancellationToken));
     }
 }
