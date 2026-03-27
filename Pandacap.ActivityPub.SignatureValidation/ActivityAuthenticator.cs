@@ -67,8 +67,7 @@ namespace Pandacap.ActivityPub.SignatureValidation
                 throw new ArgumentException("Must pass a URI without a fragment", nameof(uri));
 
             if (await FetchAsync(uri, cancellationToken) is string json)
-                foreach (var obj in jsonLdExpansionService.Expand(JObject.Parse(json)))
-                    yield return obj;
+                yield return jsonLdExpansionService.Expand(JObject.Parse(json));
         }
 
         private static IEnumerable<string> GetObjectTypes(JToken expandedObject)

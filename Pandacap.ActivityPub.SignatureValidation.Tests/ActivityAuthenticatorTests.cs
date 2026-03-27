@@ -549,7 +549,7 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
         private class JsonLdExpansionService : IJsonLdExpansionService
         {
             public JToken Expand(JObject jObject) =>
-                JsonLdProcessor.Expand(jObject);
+                JsonLdProcessor.Expand(jObject).Single();
         }
     }
 }

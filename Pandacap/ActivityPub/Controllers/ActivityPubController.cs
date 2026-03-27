@@ -78,14 +78,21 @@ namespace Pandacap.Controllers
             string actorId = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
 
             // Verify signature
-            var validKey = await activityAuthenticator
-                .AcquireKeysAsync(Request, cancellationToken)
-                .Where(key => key.Owner == actorId)
-                .Where(key => mastodonVerifier.VerifyRequestSignature(Request, key) == NSign.VerificationResult.SuccessfullyVerified)
-                .FirstOrDefaultAsync(cancellationToken);
+            try
+            {
+                var validKey = await activityAuthenticator
+                    .AcquireKeysAsync(Request, cancellationToken)
+                    .Where(key => key.Owner == actorId)
+                    .Where(key => mastodonVerifier.VerifyRequestSignature(Request, key) == NSign.VerificationResult.SuccessfullyVerified)
+                    .FirstOrDefaultAsync(cancellationToken);
 
-            if (validKey == null)
-                return Unauthorized("Could not verify signature.");
+                if (validKey == null)
+                    return Unauthorized("Could not verify signature.");
+            }
+            catch (Exception)
+            {
+                return Unauthorized("Could not attempt to verify signature.");
+            }
 
             // Grab that actor's information and public key
             var actor = await activityPubRemoteActorService.FetchActorAsync(actorId, cancellationToken);
