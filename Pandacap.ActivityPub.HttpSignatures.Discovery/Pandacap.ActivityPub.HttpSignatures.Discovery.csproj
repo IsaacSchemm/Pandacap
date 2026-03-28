@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces\Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Services.Interfaces\Pandacap.ActivityPub.Services.Interfaces.vbproj" />
-    <ProjectReference Include="..\Pandacap.ActivityPub.SignatureValidation.Interfaces\Pandacap.ActivityPub.SignatureValidation.Interfaces.vbproj" />
   </ItemGroup>
 
 </Project>

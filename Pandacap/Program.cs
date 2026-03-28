@@ -6,11 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Pandacap;
-using Pandacap.ActivityPub.RemoteObjects.Interfaces;
-using Pandacap.ActivityPub.Signatures;
-using Pandacap.ActivityPub.Signatures.Interfaces;
-using Pandacap.ActivityPub.SignatureValidation;
-using Pandacap.ActivityPub.SignatureValidation.Interfaces;
+using Pandacap.ActivityPub.HttpSignatures.Discovery;
+using Pandacap.ActivityPub.HttpSignatures.Validation;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -121,8 +118,8 @@ builder.Services
         username: builder.Configuration["ActivityPubUsername"],
         keyVaultHostname: builder.Configuration["KeyVaultHostname"],
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
-    .AddActivityPubKeyAcquisition()
-    .AddActivityPubKeyVerification()
+    .AddActivityPubKeyFinder()
+    .AddActivityPubSignatureValidator()
     .AddScoped<ActivityPubAddressedPostNotificationHandler>()
     .AddScoped<ActivityPubNotificationHandler>()
     .AddScoped<ActivityPubReplyNotificationHandler>()

@@ -15,8 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ActivityPub.SignatureValidation.Interfaces\Pandacap.ActivityPub.SignatureValidation.Interfaces.vbproj" />
-    <ProjectReference Include="..\Pandacap.ActivityPub.SignatureValidation\Pandacap.ActivityPub.SignatureValidation.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Discovery\Pandacap.ActivityPub.HttpSignatures.Discovery.csproj" />
   </ItemGroup>
 
   <ItemGroup>

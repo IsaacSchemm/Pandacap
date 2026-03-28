@@ -1,31 +1,27 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
+using Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces;
+using Pandacap.ActivityPub.HttpSignatures.Discovery.Models;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.ActivityPub.SignatureValidation.Interfaces;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
-namespace Pandacap.ActivityPub.SignatureValidation
+namespace Pandacap.ActivityPub.HttpSignatures.Discovery
 {
-    internal partial class ActivityAuthenticator(
+    internal partial class ActivityPubKeyFinder(
         IActivityPubRequestHandler activityPubRequestHandler,
         IJsonLdExpansionService jsonLdExpansionService,
-        IMemoryCache memoryCache) : IActivityAuthenticator
+        IMemoryCache memoryCache) : IActivityPubKeyFinder
     {
         private const string CACHE_KEY_PREFIX = "9c01fdb0-21ca-43ae-afb1-14c424e81a9c";
 
         [GeneratedRegex("keyId=\"([^\"]+)\"")]
         private static partial Regex GetKeyIdPattern();
 
-        private record Key(
-            string Owner,
-            string KeyId,
-            string KeyPem) : IKeyWithOwner { }
-
         private static IEnumerable<string> GetSignatureHeaderValues(HttpRequest request) =>
-            request.Headers[NSign.Constants.Headers.Signature]
+            request.Headers["signature"]
             .OfType<string>();
 
         private static IEnumerable<Uri> ExtractKeyIds(string signatureHeaderValue)
@@ -125,7 +121,7 @@ namespace Pandacap.ActivityPub.SignatureValidation
                 yield return pem;
         }
 
-        private async IAsyncEnumerable<Key> GetAllKeysFromActorAsync(
+        private async IAsyncEnumerable<ActorKey> GetAllKeysFromActorAsync(
             JToken expandedObject,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
@@ -135,18 +131,20 @@ namespace Pandacap.ActivityPub.SignatureValidation
             foreach (var publicKey in expandedObject.ExtractArrayElements("https://w3id.org/security#publicKey"))
                 if (publicKey.TryExtractStringValue("@id") is string publicKeyId)
                     await foreach (var pem in GetPublicKeyPemsAsync(publicKey, cancellationToken))
-                        yield return new Key(
-                            actorId,
-                            publicKeyId,
-                            pem);
+                        yield return new ActorKey
+                        {
+                            KeyId = publicKeyId,
+                            KeyPem = pem,
+                            Owner = actorId
+                        };
         }
 
-        private async Task<Key?> GetAppropriateKeyFromActorAsync(
+        private async Task<ActorKey?> GetAppropriateKeyFromActorAsync(
             JToken expandedObject,
             Uri keyId,
             CancellationToken cancellationToken)
         {
-            var foundKeys = new List<Key>();
+            var foundKeys = new List<ActorKey>();
 
             await foreach (var key in GetAllKeysFromActorAsync(expandedObject, cancellationToken))
             {
@@ -163,17 +161,17 @@ namespace Pandacap.ActivityPub.SignatureValidation
             return null;
         }
 
-        private async IAsyncEnumerable<IKeyWithOwner> AcquireKeysAsync(
+        private async IAsyncEnumerable<ActorKey> AcquireKeysAsync(
             Uri keyId,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             if (await TryFetchAndExpandAsync(keyId, cancellationToken) is JToken token)
                 await foreach (var actor in GetKeyOwnerAsync(token, cancellationToken))
-                    if (await GetAppropriateKeyFromActorAsync(actor, keyId, cancellationToken) is Key key)
+                    if (await GetAppropriateKeyFromActorAsync(actor, keyId, cancellationToken) is ActorKey key)
                         yield return key;
         }
 
-        async IAsyncEnumerable<IKeyWithOwner> IActivityAuthenticator.AcquireKeysAsync(
+        public async IAsyncEnumerable<ActorKey> AcquireKeysAsync(
             HttpRequest request,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {

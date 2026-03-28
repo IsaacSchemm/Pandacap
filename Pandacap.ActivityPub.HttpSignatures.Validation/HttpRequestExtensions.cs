@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using NSign.Signatures;
 using static NSign.Constants;
 
-namespace Pandacap.ActivityPub.Signatures;
+namespace Pandacap.ActivityPub.HttpSignatures.Validation;
 
 internal static class HttpRequestExtensions
 {

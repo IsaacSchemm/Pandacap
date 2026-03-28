@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace Pandacap.ActivityPub.SignatureValidation
+namespace Pandacap.ActivityPub.HttpSignatures.Discovery
 {
     internal static class JsonLdExtensions
     {

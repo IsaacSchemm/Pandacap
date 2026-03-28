@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ActivityPub.Signatures\Pandacap.ActivityPub.Signatures.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Validation\Pandacap.ActivityPub.HttpSignatures.Validation.csproj" />
   </ItemGroup>
 
   <ItemGroup>

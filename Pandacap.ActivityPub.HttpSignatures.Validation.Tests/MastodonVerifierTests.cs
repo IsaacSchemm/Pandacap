@@ -3,27 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using NSign;
 using NSign.Signatures;
-using Pandacap.ActivityPub.Signatures.Interfaces;
 
-namespace Pandacap.ActivityPub.Signatures.Tests
+namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
 {
     [TestClass]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1861:Avoid constant arrays as arguments", Justification = "Makes tests difficult to read")]
     public class MastodonVerifierTests
     {
-        private class PartialMockVerifier : MastodonVerifier
-        {
-            public readonly MastodonSignatureComponents Expected = new()
-            {
-                keyId = $"{Guid.NewGuid()}",
-                signature = $"{Guid.NewGuid()}"
-            };
-
-            internal override MastodonSignatureComponents ParseSignatureValue(IEnumerable<string> parts)
-            {
-                return Expected;
-            }
-        }
-
         [TestMethod]
         public void VerifyRequestSignature_VerifiesRealSignature()
         {

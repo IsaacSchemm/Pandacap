@@ -41,10 +41,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ActivityPub.Signatures.Interfaces\Pandacap.ActivityPub.Signatures.Interfaces.vbproj" />
-    <ProjectReference Include="..\Pandacap.ActivityPub.Signatures\Pandacap.ActivityPub.Signatures.csproj" />
-    <ProjectReference Include="..\Pandacap.ActivityPub.SignatureValidation.Interfaces\Pandacap.ActivityPub.SignatureValidation.Interfaces.vbproj" />
-    <ProjectReference Include="..\Pandacap.ActivityPub.SignatureValidation.Tests\Pandacap.ActivityPub.SignatureValidation.Tests.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Discovery\Pandacap.ActivityPub.HttpSignatures.Discovery.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Validation\Pandacap.ActivityPub.HttpSignatures.Validation.csproj" />
     <ProjectReference Include="..\Pandacap.HighLevel\Pandacap.HighLevel.csproj" />
   </ItemGroup>
 

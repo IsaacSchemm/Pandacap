@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Discovery.Models\Pandacap.ActivityPub.HttpSignatures.Discovery.Models.csproj" />
+  </ItemGroup>
+
+</Project>

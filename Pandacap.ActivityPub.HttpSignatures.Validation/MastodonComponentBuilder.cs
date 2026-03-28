@@ -7,7 +7,7 @@ using Microsoft.Extensions.Primitives;
 using NSign.Signatures;
 using static NSign.Constants;
 
-namespace Pandacap.ActivityPub.Signatures;
+namespace Pandacap.ActivityPub.HttpSignatures.Validation;
 
 public class MastodonComponentBuilder(HttpRequest _message) : ISignatureComponentVisitor
 {

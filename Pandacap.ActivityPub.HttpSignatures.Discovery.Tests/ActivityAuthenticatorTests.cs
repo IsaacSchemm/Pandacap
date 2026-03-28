@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Newtonsoft.Json.Linq;
+using Pandacap.ActivityPub.HttpSignatures.Discovery;
+using Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.ActivityPub.SignatureValidation.Interfaces;
 
-namespace Pandacap.ActivityPub.SignatureValidation.Tests
+namespace Pandacap.ActivityPub.HttpSignatures.Discovery.Tests
 {
     [TestClass]
     public sealed class ActivityAuthenticatorTests
@@ -48,7 +49,7 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                 .Setup(req => req.Headers)
                 .Returns(headersMock.Object);
 
-            var authenticator = GetActivityAuthenticator(
+            var authenticator = GetActivityPubKeyFinder(
                 handlerMock.Object);
 
             var results = await authenticator
@@ -117,7 +118,7 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                 .Setup(req => req.Headers)
                 .Returns(headersMock.Object);
 
-            var authenticator = GetActivityAuthenticator(
+            var authenticator = GetActivityPubKeyFinder(
                 handlerMock.Object);
 
             var results = await authenticator
@@ -183,7 +184,7 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                 .Setup(req => req.Headers)
                 .Returns(headersMock.Object);
 
-            var authenticator = GetActivityAuthenticator(
+            var authenticator = GetActivityPubKeyFinder(
                 handlerMock.Object);
 
             var results = await authenticator
@@ -249,7 +250,7 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                 .Setup(req => req.Headers)
                 .Returns(headersMock.Object);
 
-            var authenticator = GetActivityAuthenticator(
+            var authenticator = GetActivityPubKeyFinder(
                 handlerMock.Object);
 
             var results = await authenticator
@@ -306,7 +307,7 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                 .Setup(req => req.Headers)
                 .Returns(headersMock.Object);
 
-            var authenticator = GetActivityAuthenticator(
+            var authenticator = GetActivityPubKeyFinder(
                 handlerMock.Object);
 
             var results = await authenticator
@@ -367,7 +368,7 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                 .Setup(req => req.Headers)
                 .Returns(headersMock.Object);
 
-            var authenticator = GetActivityAuthenticator(
+            var authenticator = GetActivityPubKeyFinder(
                 handlerMock.Object);
 
             var results = await authenticator
@@ -412,7 +413,7 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                 .Setup(req => req.Headers)
                 .Returns(headersMock.Object);
 
-            var authenticator = GetActivityAuthenticator(
+            var authenticator = GetActivityPubKeyFinder(
                 handlerMock.Object);
 
             await authenticator
@@ -465,7 +466,7 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                 .Setup(req => req.Headers)
                 .Returns(headersMock.Object);
 
-            var authenticator = GetActivityAuthenticator(
+            var authenticator = GetActivityPubKeyFinder(
                 handlerMock.Object);
 
             await authenticator
@@ -512,7 +513,7 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
                 .Setup(req => req.Headers)
                 .Returns(headersMock.Object);
 
-            var authenticator = GetActivityAuthenticator(
+            var authenticator = GetActivityPubKeyFinder(
                 handlerMock.Object);
             
             using var cts = new CancellationTokenSource();
@@ -536,9 +537,9 @@ namespace Pandacap.ActivityPub.SignatureValidation.Tests
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "Testing interface, not public class methods")]
-        private static IActivityAuthenticator GetActivityAuthenticator(
+        private static IActivityPubKeyFinder GetActivityPubKeyFinder(
             IActivityPubRequestHandler activityPubRequestHandler)
-        => new ActivityAuthenticator(
+        => new ActivityPubKeyFinder(
             UseOrMock(activityPubRequestHandler),
             new JsonLdExpansionService(),
             new MemoryCache(new MemoryCacheOptions()));

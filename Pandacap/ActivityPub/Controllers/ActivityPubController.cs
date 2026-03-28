@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces;
+using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.ActivityPub.Signatures.Interfaces;
-using Pandacap.ActivityPub.SignatureValidation.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -14,13 +14,13 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ActivityPubController(
-        IActivityAuthenticator activityAuthenticator,
+        IActivityPubKeyFinder activityPubKeyFinder,
         IActivityPubRemoteActorService activityPubRemoteActorService,
         IActivityPubRemotePostService activityPubRemotePostService,
+        IActivityPubSignatureValidator activityPubSignatureValidator,
         PandacapDbContext context,
         IJsonLdExpansionService expansionService,
         IActivityPubInteractionTranslator interactionTranslator,
-        IMastodonVerifier mastodonVerifier,
         IActivityPubPostTranslator postTranslator,
         RemoteActivityPubPostHandler remoteActivityPubPostHandler,
         IActivityPubRelationshipTranslator relationshipTranslator,
@@ -80,10 +80,10 @@ namespace Pandacap.Controllers
             // Verify signature
             try
             {
-                var validKey = await activityAuthenticator
+                var validKey = await activityPubKeyFinder
                     .AcquireKeysAsync(Request, cancellationToken)
                     .Where(key => key.Owner == actorId)
-                    .Where(key => mastodonVerifier.VerifyRequestSignature(Request, key) == NSign.VerificationResult.SuccessfullyVerified)
+                    .Where(key => activityPubSignatureValidator.VerifyRequestSignature(Request, key) == NSign.VerificationResult.SuccessfullyVerified)
                     .FirstOrDefaultAsync(cancellationToken);
 
                 if (validKey == null)

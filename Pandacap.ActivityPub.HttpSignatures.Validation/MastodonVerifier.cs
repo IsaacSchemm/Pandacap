@@ -5,13 +5,13 @@
 using Microsoft.AspNetCore.Http;
 using NSign;
 using NSign.Signatures;
-using Pandacap.ActivityPub.Signatures.Interfaces;
+using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Pandacap.ActivityPub.Signatures;
+namespace Pandacap.ActivityPub.HttpSignatures.Validation;
 
-internal partial class MastodonVerifier : IMastodonVerifier
+internal partial class MastodonVerifier : IActivityPubSignatureValidator
 {
     private readonly HashSet<string> DerivedComponents = [
         Constants.DerivedComponents.Authority,
