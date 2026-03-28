@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="AssemblyAttributes.fs" />
     <Compile Include="ActivityPubSerializer.fs" />
     <Compile Include="ActivityPubProfileTranslator.fs" />
     <Compile Include="ActivityPubPostTranslator.fs" />
@@ -13,6 +14,7 @@
     <Compile Include="ActivityPubInteractionTranslator.fs" />
     <Compile Include="JsonLdExpansionService.fs" />
     <Compile Include="ActivityPubRequestHandler.fs" />
+    <Compile Include="DependencyInjectionExtensions.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -21,7 +21,7 @@ type internal CustomDocumentLoader(cache: IMemoryCache) =
                 base.LoadDocument(url),
                 DateTimeOffset.UtcNow.AddHours(1))
 
-type JsonLdExpansionService(cache: IMemoryCache) =
+type internal JsonLdExpansionService(cache: IMemoryCache) =
     interface IJsonLdExpansionService with
         member _.ExpandFirst(jObject: JObject) =
             let options = new JsonLdOptions(

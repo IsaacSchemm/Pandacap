@@ -6,9 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Pandacap;
-using Pandacap.ActivityPub.Inbound;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
-using Pandacap.ActivityPub.Services.Inbound;
 using Pandacap.ActivityPub.Signatures;
 using Pandacap.ActivityPub.Signatures.Interfaces;
 using Pandacap.ActivityPub.SignatureValidation;
@@ -123,10 +121,10 @@ builder.Services
         username: builder.Configuration["ActivityPubUsername"],
         keyVaultHostname: builder.Configuration["KeyVaultHostname"],
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
+    .AddActivityPubKeyAcquisition()
+    .AddActivityPubKeyVerification()
     .AddScoped<ActivityPubAddressedPostNotificationHandler>()
     .AddScoped<ActivityPubNotificationHandler>()
-    .AddScoped<IActivityPubRemoteActorService, ActivityPubRemoteActorService>()
-    .AddScoped<IActivityPubRemotePostService, ActivityPubRemotePostService>()
     .AddScoped<ActivityPubReplyNotificationHandler>()
     .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<CompositeNotificationHandler>()
@@ -136,8 +134,6 @@ builder.Services
     .AddScoped<DeviantArtNoteNotificationHandler>()
     .AddScoped<FurAffinityNoteNotificationHandler>()
     .AddScoped<FurAffinityNotificationHandler>()
-    .AddScoped<IMastodonVerifier, MastodonVerifier>()
-    .AddScoped<IActivityAuthenticator, ActivityAuthenticator>()
     .AddScoped<PostCreator>()
     .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>()

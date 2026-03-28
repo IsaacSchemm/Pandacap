@@ -6,10 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="AssemblyAttributes.fs" />
     <Compile Include="Shared.fs" />
     <Compile Include="ActivityPubRemoteActorService.fs" />
     <Compile Include="ActivityPubRemotePostService.fs" />
     <Compile Include="WebFingerService.fs" />
+    <Compile Include="DependencyInjectionExtensions.fs" />
   </ItemGroup>
 
   <ItemGroup>

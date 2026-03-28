@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Pandacap.ActivityPub.Signatures;
 
-public partial class MastodonVerifier : IMastodonVerifier
+internal partial class MastodonVerifier : IMastodonVerifier
 {
     private readonly HashSet<string> DerivedComponents = [
         Constants.DerivedComponents.Authority,

@@ -1,4 +1,4 @@
-﻿namespace Pandacap.ActivityPub.Services.Inbound
+﻿namespace Pandacap.ActivityPub.RemoteObjects
 
 open System
 open System.Net
@@ -10,7 +10,7 @@ open Pandacap.ActivityPub.RemoteObjects.Interfaces
 open Pandacap.ActivityPub.RemoteObjects.Models
 open Pandacap.ActivityPub.Services.Interfaces
 
-type ActivityPubRemoteActorService(
+type internal ActivityPubRemoteActorService(
     expansionService: IJsonLdExpansionService,
     requestHandler: IActivityPubRequestHandler
 ) =

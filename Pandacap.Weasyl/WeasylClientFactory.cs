@@ -3,7 +3,7 @@ using Pandacap.Weasyl.Scraping.Interfaces;
 
 namespace Pandacap.Weasyl
 {
-    public class WeasylClientFactory(
+    internal class WeasylClientFactory(
         IWeasylHttpHandlerProvider weasylHttpHandlerProvider,
         IWeasylScraper weasylScraper) : IWeasylClientFactory
     {

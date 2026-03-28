@@ -6,7 +6,7 @@ open Pandacap.ActivityPub.Models.Interfaces
 open Pandacap.ActivityPub.Services.Interfaces
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor's post interactions.
-type ActivityPubInteractionTranslator() =
+type internal ActivityPubInteractionTranslator() =
     let pair key value = (key, value :> obj)
 
     member _.BuildLikedCollection(posts: int) = dict [

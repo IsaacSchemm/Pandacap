@@ -7,7 +7,7 @@ open Pandacap.ActivityPub.Models
 open Pandacap.ActivityPub.Services.Interfaces
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor.
-type ActivityPubProfileTranslator() =
+type internal ActivityPubProfileTranslator() =
     let pair key value = (key, value :> obj)
 
     member _.BuildProfile(info: ActivityPubProfile) = dict [

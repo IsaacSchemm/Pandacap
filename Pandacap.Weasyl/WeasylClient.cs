@@ -10,7 +10,7 @@ using Pandacap.Weasyl.Scraping.Models;
 
 namespace Pandacap.Weasyl
 {
-    public partial class WeasylClient(
+    internal partial class WeasylClient(
         HttpMessageHandler httpMessageHandler,
         string apiKey,
         string phpProxyHost,

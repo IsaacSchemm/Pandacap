@@ -6,7 +6,7 @@ open FSharp.Data
 open Pandacap.Weasyl.Scraping.Interfaces
 open Pandacap.Weasyl.Scraping.Models
 
-type WeasylScraper() =
+type internal WeasylScraper() =
     let extractFavoriteSubmitids (html: string) = 
         let doc = HtmlDocument.Parse(html)
         

@@ -11,7 +11,7 @@ open Pandacap.ActivityPub.Static
 open Pandacap.ActivityPub.Models
 open Pandacap.ActivityPub.Services.Interfaces
 
-type ActivityPubRequestHandler(
+type internal ActivityPubRequestHandler(
     prerequisites: IActivityPubCommunicationPrerequisites,
     httpClientFactory: IHttpClientFactory
 ) =

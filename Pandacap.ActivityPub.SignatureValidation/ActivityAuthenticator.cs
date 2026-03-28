@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace Pandacap.ActivityPub.SignatureValidation
 {
-    public partial class ActivityAuthenticator(
+    internal partial class ActivityAuthenticator(
         IActivityPubRequestHandler activityPubRequestHandler,
         IJsonLdExpansionService jsonLdExpansionService,
         IMemoryCache memoryCache) : IActivityAuthenticator

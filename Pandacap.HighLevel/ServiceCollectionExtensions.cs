@@ -1,6 +1,6 @@
 ﻿using DnsClient;
 using Microsoft.Extensions.DependencyInjection;
-using Pandacap.ActivityPub.Inbound;
+using Pandacap.ActivityPub.RemoteObjects;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services;
 using Pandacap.ActivityPub.Services.Interfaces;
@@ -40,12 +40,12 @@ namespace Pandacap.HighLevel
                             UseCache = true
                         }))
                 .AddSingleton(appInfo)
-                .AddScoped<IActivityPubProfileTranslator, ActivityPubProfileTranslator>()
-                .AddScoped<IActivityPubPostTranslator, ActivityPubPostTranslator>()
-                .AddScoped<IActivityPubRelationshipTranslator, ActivityPubRelationshipTranslator>()
-                .AddScoped<IActivityPubInteractionTranslator, ActivityPubInteractionTranslator>()
+                .AddActivityPubServices()
+                .AddActivityPubRemoteObjectServices()
+                .AddFurAffinityClient()
+                .AddWeasylClient()
+                .AddWeasylScraper()
                 .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
-                .AddScoped<IActivityPubRequestHandler, ActivityPubRequestHandler>()
                 .AddScoped<ATProtoFeedReader>()
                 .AddScoped<ATProtoHandleLookupClient>()
                 .AddScoped<CompositeInboxProvider>()
@@ -61,13 +61,9 @@ namespace Pandacap.HighLevel
                 .AddScoped<IFeedReader, JsonFeedReader>()
                 .AddScoped<IFeedReader, TwtxtFeedReader>()
                 .AddScoped<FeedRefresher>()
-                .AddScoped<IFurAffinityClientFactory, FurAffinityClientFactory>()
-                .AddSingleton<IFurAffinityHttpHandlerProvider, FurAffinityHttpHandlerProvider>()
-                .AddScoped<IJsonLdExpansionService, JsonLdExpansionService>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<PlatformIconProvider>()
                 .AddScoped<PlatformLinkProvider>()
-                .AddScoped<IActivityPubRemotePostService, ActivityPubRemotePostService>()
                 .AddScoped<IResolver, ActivityPubResolver>()
                 .AddScoped<IResolver, ATUriResolver>()
                 .AddScoped<IResolver, ATUriResolver>()
@@ -76,11 +72,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<IResolver, BlueskyHandleResolver>()
                 .AddScoped<IResolver, WebFingerResolver>()
                 .AddScoped<UserAwareClientFactory>()
-                .AddScoped<VectorSearchIndexClient>()
-                .AddScoped<IWeasylClientFactory, WeasylClientFactory>()
-                .AddSingleton<IWeasylHttpHandlerProvider, WeasylHttpHandlerProvider>()
-                .AddScoped<IWeasylScraper, WeasylScraper>()
-                .AddScoped<IWebFingerService, WebFingerService>();
+                .AddScoped<VectorSearchIndexClient>();
         }
     }
 }

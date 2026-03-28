@@ -3,7 +3,7 @@ namespace Pandacap.FurAffinity
 open Pandacap.FurAffinity.Models
 open Pandacap.FurAffinity.Interfaces
 
-type FurAffinityClientFactory(handlerProvider: IFurAffinityHttpHandlerProvider) =
+type internal FurAffinityClientFactory(handlerProvider: IFurAffinityHttpHandlerProvider) =
     interface IFurAffinityClientFactory with
         member _.CreateClient(credentials) =
             new FurAffinityClient(

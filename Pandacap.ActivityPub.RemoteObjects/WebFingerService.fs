@@ -1,4 +1,4 @@
-﻿namespace Pandacap.ActivityPub.Inbound
+﻿namespace Pandacap.ActivityPub.RemoteObjects
 
 open System
 open System.Net.Http
@@ -9,7 +9,7 @@ module internal WebFingerService =
     let readAsAsync<'T> cancellationToken (_: 'T) (resp: HttpResponseMessage) =
         resp.EnsureSuccessStatusCode().Content.ReadFromJsonAsync<'T>(cancellationToken)
 
-type WebFingerService(httpClientFactory: IHttpClientFactory) =
+type internal WebFingerService(httpClientFactory: IHttpClientFactory) =
     interface IWebFingerService with
         member _.ResolveIdForHandleAsync(handle, cancellationToken) = task {
             let host = handle.Split('@') |> Array.last
