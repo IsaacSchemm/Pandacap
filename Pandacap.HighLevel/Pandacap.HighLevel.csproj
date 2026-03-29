@@ -18,7 +18,6 @@
     <PackageReference Include="json-ld.net" Version="1.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
-    <PackageReference Include="NSign.SignatureProviders" Version="1.2.2" />
     <PackageReference Include="System.Linq.Async" Version="7.0.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.3" />
   </ItemGroup>

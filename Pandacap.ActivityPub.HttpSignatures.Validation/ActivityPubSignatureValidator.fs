@@ -13,13 +13,8 @@ module internal ActivityPubSignatureValidator =
     module Strings =
         let trimAndRemoveEmpty = StringSplitOptions.RemoveEmptyEntries ||| StringSplitOptions.TrimEntries
 
-        let splitBy (separators: char seq) (str: string) =
-            str.Split(Array.ofSeq separators, trimAndRemoveEmpty)
-
-        let rec deparenthesize (str: string) =
-            if str.StartsWith('(') && str.EndsWith(')')
-            then str.Substring(1, str.Length - 2)
-            else str
+        let splitBy (separators: char array) (str: string) =
+            str.Split(separators, trimAndRemoveEmpty)
 
         let extractCommaSeparatedKeyValuePairs (str: string) = Map.ofList [
             for pair in str.Split(',', trimAndRemoveEmpty) do
@@ -28,38 +23,10 @@ module internal ActivityPubSignatureValidator =
                 | _ -> ()
         ]
 
-    type SignatureComponent =
-    | HttpHeaderComponent of string
-    | DerivedComponent of string
-
-    module SignatureComponents =
-        let toComponent (name: string): SignatureComponent =
-            match name with
-            | "authority"
-            | "status"
-            | "request-target"
-            | "target-uri"
-            | "path"
-            | "method"
-            | "query"
-            | "scheme"
-            | "query-param"
-            | "signature-params" ->
-                DerivedComponent $"@{name}"
-            | _ ->
-                HttpHeaderComponent name
-
-        let parse (names: string) = [
-            for name in names |> Strings.splitBy [' '; '"'] do
-                name
-                |> Strings.deparenthesize
-                |> toComponent
-        ]
-
     type SignatureElement = {
         KeyId: string
         Signature: string
-        SignatureComponents: SignatureComponent list
+        SignatureComponents: string list
     }
 
     let parseHeaderValues (request: HttpRequest) = seq {
@@ -75,26 +42,24 @@ module internal ActivityPubSignatureValidator =
                 yield {
                     KeyId = keyId.Trim('"')
                     Signature = signature.Trim('"')
-                    SignatureComponents = SignatureComponents.parse concatenatedHeaderNameString
+                    SignatureComponents =
+                        concatenatedHeaderNameString
+                        |> Strings.splitBy [| ' '; '"' |]
+                        |> List.ofArray
                 }
             | _ -> ()
     }
 
     module SigningDocument =
-        let build (components: SignatureComponent seq) (request: HttpRequest) = String.concat "\n" (seq {
+        let build (components: string seq) (request: HttpRequest) = String.concat "\n" (seq {
             let uri = new Uri(request.GetEncodedUrl())
             for comp in components do
                 match comp with
-                | DerivedComponent "@request-target" ->
+                | "(request-target)" ->
                     yield $"""(request-target): {request.Method.ToLowerInvariant()} {uri.PathAndQuery}"""
-                | DerivedComponent "@authority" ->
-                    yield $"host: {uri.Authority.ToLowerInvariant()}"
-                | DerivedComponent x ->
-                    printfn "%s" x
-                    ()
-                | HttpHeaderComponent "host" ->
+                | "host" ->
                     yield $"""host: {uri.Authority.ToLowerInvariant()}"""
-                | HttpHeaderComponent name ->
+                | name ->
                     match request.Headers[name].ToString() with
                     | "" | null -> ()
                     | value ->
