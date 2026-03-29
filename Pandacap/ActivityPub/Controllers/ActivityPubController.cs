@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
+using Pandacap.ActivityPub.HttpSignatures.Validation.Models;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
@@ -83,7 +84,7 @@ namespace Pandacap.Controllers
                 var validKey = await activityPubKeyFinder
                     .AcquireKeysAsync(Request, cancellationToken)
                     .Where(key => key.Owner == actorId)
-                    .Where(key => activityPubSignatureValidator.VerifyRequestSignature(Request, key) == NSign.VerificationResult.SuccessfullyVerified)
+                    .Where(key => activityPubSignatureValidator.VerifyRequestSignature(Request, key) == VerificationResult.SuccessfullyVerified)
                     .FirstOrDefaultAsync(cancellationToken);
 
                 if (validKey == null)

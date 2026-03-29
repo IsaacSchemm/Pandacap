@@ -4,10 +4,10 @@ open System
 open System.Security.Cryptography
 open System.Text
 open Microsoft.AspNetCore.Http
-open NSign
-open NSign.Signatures
+open Microsoft.AspNetCore.Http.Extensions
 open Pandacap.ActivityPub.HttpSignatures
 open Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces
+open Pandacap.ActivityPub.HttpSignatures.Validation.Models
 
 module internal ActivityPubSignatureValidator =
     module Strings =
@@ -28,13 +28,11 @@ module internal ActivityPubSignatureValidator =
                 | _ -> ()
         ]
 
-    type SignatureElement = {
-        Spec: SignatureInputSpec
-        KeyId: string
-        Signature: string
-    }
+    type SignatureComponent =
+    | HttpHeaderComponent of string
+    | DerivedComponent of string
 
-    module Spec =
+    module SignatureComponents =
         let toComponent (name: string): SignatureComponent =
             match name with
             | "authority"
@@ -47,22 +45,25 @@ module internal ActivityPubSignatureValidator =
             | "scheme"
             | "query-param"
             | "signature-params" ->
-                new DerivedComponent($"@{name}")
+                DerivedComponent $"@{name}"
             | _ ->
-                new HttpHeaderComponent(name)
+                HttpHeaderComponent name
 
-        let parse (names: string) =
-            let spec = new SignatureInputSpec("spec")
+        let parse (names: string) = [
             for name in names |> Strings.splitBy [' '; '"'] do
                 name
                 |> Strings.deparenthesize
                 |> toComponent
-                |> spec.SignatureParameters.AddComponent
-                |> ignore
-            spec
+        ]
+
+    type SignatureElement = {
+        KeyId: string
+        Signature: string
+        SignatureComponents: SignatureComponent list
+    }
 
     let parseHeaderValues (request: HttpRequest) = seq {
-        for headerValue in request.Headers[Constants.Headers.Signature] do
+        for headerValue in request.Headers["signature"] do
             let pairs = Strings.extractCommaSeparatedKeyValuePairs headerValue
 
             match
@@ -74,20 +75,44 @@ module internal ActivityPubSignatureValidator =
                 yield {
                     KeyId = keyId.Trim('"')
                     Signature = signature.Trim('"')
-                    Spec = Spec.parse concatenatedHeaderNameString
+                    SignatureComponents = SignatureComponents.parse concatenatedHeaderNameString
                 }
             | _ -> ()
     }
 
-    let verifySignature (componentBuilder: ComponentBuilder) (key: IKey) (signatureElement: SignatureElement) =
+    module SigningDocument =
+        let build (components: SignatureComponent seq) (request: HttpRequest) = String.concat "\n" (seq {
+            let uri = new Uri(request.GetEncodedUrl())
+            for comp in components do
+                match comp with
+                | DerivedComponent "@request-target" ->
+                    yield $"""(request-target): {request.Method.ToLowerInvariant()} {uri.PathAndQuery}"""
+                | DerivedComponent "@authority" ->
+                    yield $"host: {uri.Authority.ToLowerInvariant()}"
+                | DerivedComponent x ->
+                    printfn "%s" x
+                    ()
+                | HttpHeaderComponent "host" ->
+                    yield $"""host: {uri.Authority.ToLowerInvariant()}"""
+                | HttpHeaderComponent name ->
+                    match request.Headers[name].ToString() with
+                    | "" | null -> ()
+                    | value ->
+                        if name = "content-digest"
+                        then yield $"digest: {value}"
+                        else yield $"{name}: {value}"
+        })
+
+    let verifySignature (request: HttpRequest) (key: IKey) (signatureElement: SignatureElement) =
         use algorithm = RSA.Create()
         algorithm.ImportFromPem(key.KeyPem)
 
-        let visitor: ISignatureComponentVisitor = componentBuilder
-        visitor.Visit(signatureElement.Spec.SignatureParameters)
+        let signingDocument =
+            request
+            |> SigningDocument.build signatureElement.SignatureComponents
 
         algorithm.VerifyData(
-            Encoding.UTF8.GetBytes(componentBuilder.SigningDocument),
+            Encoding.UTF8.GetBytes(signingDocument),
             Convert.FromBase64String(signatureElement.Signature),
             HashAlgorithmName.SHA256,
             RSASignaturePadding.Pkcs1)
@@ -104,7 +129,6 @@ module internal ActivityPubSignatureValidator =
             | _ -> false
 
     let verifyRequestSignature request (key: IKey) =
-        let componentBuilder = new ComponentBuilder(request)
         let signatureElements = parseHeaderValues request
 
         let matching =
@@ -112,11 +136,11 @@ module internal ActivityPubSignatureValidator =
             |> Seq.where (fun elem -> Uris.areMatching elem.KeyId key.KeyId)
 
         if matching |> Seq.isEmpty then
-            VerificationResult.NoMatchingVerifierFound
-        else if matching |> Seq.exists (verifySignature componentBuilder key) then
-            VerificationResult.SuccessfullyVerified
+            NoMatchingVerifierFound
+        else if matching |> Seq.exists (verifySignature request key) then
+            SuccessfullyVerified
         else
-            VerificationResult.SignatureMismatch
+            SignatureMismatch
 
 type ActivityPubSignatureValidator() =
     interface IActivityPubSignatureValidator with

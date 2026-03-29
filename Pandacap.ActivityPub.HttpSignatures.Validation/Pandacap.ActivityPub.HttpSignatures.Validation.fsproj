@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Compile Include="AssemblyAttributes.fs" />
-    <Compile Include="ComponentBuilder.fs" />
     <Compile Include="ActivityPubSignatureValidator.fs" />
     <Compile Include="DependencyInjectionExtensions.fs" />
   </ItemGroup>

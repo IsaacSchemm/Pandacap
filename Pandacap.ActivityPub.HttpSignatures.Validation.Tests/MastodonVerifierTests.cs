@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Moq;
-using NSign;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
+using Pandacap.ActivityPub.HttpSignatures.Validation.Models;
 
 namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
 {

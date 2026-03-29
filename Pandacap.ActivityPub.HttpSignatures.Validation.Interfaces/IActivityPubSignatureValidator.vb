@@ -1,5 +1,5 @@
 Imports Microsoft.AspNetCore.Http
-Imports NSign
+Imports Pandacap.ActivityPub.HttpSignatures.Validation.Models
 
 Public Interface IActivityPubSignatureValidator
     Function VerifyRequestSignature(message As HttpRequest,
