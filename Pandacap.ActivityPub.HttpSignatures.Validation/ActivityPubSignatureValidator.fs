@@ -10,92 +10,115 @@ open Pandacap.ActivityPub.HttpSignatures
 open Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces
 
 module internal ActivityPubSignatureValidator =
-    let allDerivedComponents = [
-        Constants.DerivedComponents.Authority
-        Constants.DerivedComponents.Status
-        Constants.DerivedComponents.RequestTarget
-        Constants.DerivedComponents.TargetUri
-        Constants.DerivedComponents.Path
-        Constants.DerivedComponents.Method
-        Constants.DerivedComponents.Query
-        Constants.DerivedComponents.Scheme
-        Constants.DerivedComponents.QueryParam
-        Constants.DerivedComponents.SignatureParams
-    ]
+    module Strings =
+        let trimAndRemoveEmpty = StringSplitOptions.RemoveEmptyEntries ||| StringSplitOptions.TrimEntries
 
-    type SignatureElement =
-    | Spec of SignatureInputSpec
-    | KeyId of string
-    | Signature of string
+        let splitBy (separators: char seq) (str: string) =
+            str.Split(Array.ofSeq separators, trimAndRemoveEmpty)
 
-    let verifySignature (componentBuilder: ComponentBuilder) (key: IKey) (signatureElements: SignatureElement seq) =
-        let spec = List.head [for e in signatureElements do match e with Spec x -> x | _ -> ()]
-        let signature = List.head [for e in signatureElements do match e with Signature x -> x | _ -> ()]
+        let rec deparenthesize (str: string) =
+            if str.StartsWith('(') && str.EndsWith(')')
+            then str.Substring(1, str.Length - 2)
+            else str
 
-        use algorithm = RSA.Create()
-        algorithm.ImportFromPem(key.KeyPem)
+        let extractCommaSeparatedKeyValuePairs (str: string) = Map.ofList [
+            for pair in str.Split(',', trimAndRemoveEmpty) do
+                match pair.Split('=', 2, trimAndRemoveEmpty) with
+                | [| name; value |] -> yield (name, value)
+                | _ -> ()
+        ]
 
-        (componentBuilder :> ISignatureComponentVisitor).Visit(spec.SignatureParameters)
+    type SignatureElement = {
+        Spec: SignatureInputSpec
+        KeyId: string
+        Signature: string
+    }
 
-        algorithm.VerifyData(
-            Encoding.UTF8.GetBytes(componentBuilder.SigningDocument),
-            Convert.FromBase64String(signature),
-            HashAlgorithmName.SHA256,
-            RSASignaturePadding.Pkcs1)
+    module Spec =
+        let toComponent (name: string): SignatureComponent =
+            match name with
+            | "authority"
+            | "status"
+            | "request-target"
+            | "target-uri"
+            | "path"
+            | "method"
+            | "query"
+            | "scheme"
+            | "query-param"
+            | "signature-params" ->
+                new DerivedComponent($"@{name}")
+            | _ ->
+                new HttpHeaderComponent(name)
 
-    let rec deparenthesize (str: string) =
-        if str.StartsWith('(') && str.EndsWith(')')
-        then str.Substring(1, str.Length - 2)
-        else str
-
-    let parseHeaderValue (headerValue: string) = [
-        let splitOptions = StringSplitOptions.RemoveEmptyEntries ||| StringSplitOptions.TrimEntries
-
-        for keyValuePair in headerValue.Split(',', splitOptions) do
-            match keyValuePair.Split('=', 2, splitOptions) with
-            | [| "keyId"; value |] ->
-                yield KeyId (value.Trim('"'))
-            | [| "signature"; value |] ->
-                yield Signature (value.Trim('"'))
-            | [| "headers"; value |] ->
-                let spec = new SignatureInputSpec("spec")
-                for str in value.Split([| ' '; '"' |], splitOptions) do
-                    let name = deparenthesize str
-                    spec.SignatureParameters.AddComponent(
-                        if allDerivedComponents |> List.contains name then new DerivedComponent(name) :> SignatureComponent
-                        else if allDerivedComponents |> List.contains $"@{name}" then new DerivedComponent($"@{name}")
-                        else new HttpHeaderComponent(name)) |> ignore
-                yield Spec spec
-            | _ -> ()
-    ]
+        let parse (names: string) =
+            let spec = new SignatureInputSpec("spec")
+            for name in names |> Strings.splitBy [' '; '"'] do
+                name
+                |> Strings.deparenthesize
+                |> toComponent
+                |> spec.SignatureParameters.AddComponent
+                |> ignore
+            spec
 
     let parseHeaderValues (request: HttpRequest) = seq {
         for headerValue in request.Headers[Constants.Headers.Signature] do
-            parseHeaderValue headerValue
+            let pairs = Strings.extractCommaSeparatedKeyValuePairs headerValue
+
+            match
+                pairs |> Map.tryFind "keyId",
+                pairs |> Map.tryFind "signature",
+                pairs |> Map.tryFind "headers"
+            with
+            | Some keyId, Some signature, Some concatenatedHeaderNameString ->
+                yield {
+                    KeyId = keyId.Trim('"')
+                    Signature = signature.Trim('"')
+                    Spec = Spec.parse concatenatedHeaderNameString
+                }
+            | _ -> ()
     }
 
+    let verifySignature (componentBuilder: ComponentBuilder) (key: IKey) (signatureElement: SignatureElement) =
+        use algorithm = RSA.Create()
+        algorithm.ImportFromPem(key.KeyPem)
+
+        let visitor: ISignatureComponentVisitor = componentBuilder
+        visitor.Visit(signatureElement.Spec.SignatureParameters)
+
+        algorithm.VerifyData(
+            Encoding.UTF8.GetBytes(componentBuilder.SigningDocument),
+            Convert.FromBase64String(signatureElement.Signature),
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1)
+
+    module Uris =
+        let (|ValidUri|_|) (str: string) =
+            match Uri.TryCreate(str, UriKind.Absolute) with
+            | true, uri -> Some uri
+            | false, _ -> None
+
+        let rec areMatching str1 str2 =
+            match (str1, str2) with
+            | (ValidUri str1, ValidUri str2) when str1 = str2 -> true
+            | _ -> false
+
+    let verifyRequestSignature request (key: IKey) =
+        let componentBuilder = new ComponentBuilder(request)
+        let signatureElements = parseHeaderValues request
+
+        let matching =
+            signatureElements
+            |> Seq.where (fun elem -> Uris.areMatching elem.KeyId key.KeyId)
+
+        if matching |> Seq.isEmpty then
+            VerificationResult.NoMatchingVerifierFound
+        else if matching |> Seq.exists (verifySignature componentBuilder key) then
+            VerificationResult.SuccessfullyVerified
+        else
+            VerificationResult.SignatureMismatch
+
 type ActivityPubSignatureValidator() =
-    let tryCreateUri (str: string) =
-        match Uri.TryCreate(str, UriKind.Absolute) with
-        | true, uri -> Some uri
-        | false, _ -> None
-
     interface IActivityPubSignatureValidator with
-        member this.VerifyRequestSignature(request, key) = Seq.head (seq {
-            let builder = new ComponentBuilder(request)
-            let parsedHeaders = ActivityPubSignatureValidator.parseHeaderValues request
-            let mutable defaultResult = VerificationResult.NoMatchingVerifierFound
-
-            for parsedHeader in parsedHeaders do
-                let keyId = List.head [for e in parsedHeader do match e with ActivityPubSignatureValidator.KeyId x -> x | _ -> ()]
-                
-                match tryCreateUri keyId, tryCreateUri key.KeyId with
-                | Some uri1, Some uri2 when uri1 = uri2 ->
-                    if ActivityPubSignatureValidator.verifySignature builder key parsedHeader then
-                        yield VerificationResult.SuccessfullyVerified
-                    else
-                        defaultResult <- VerificationResult.SignatureMismatch
-                | _ -> ()
-
-            yield defaultResult
-        })
+        member _.VerifyRequestSignature(request, key) =
+            ActivityPubSignatureValidator.verifyRequestSignature request key
