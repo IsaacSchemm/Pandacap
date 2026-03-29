@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Validation\Pandacap.ActivityPub.HttpSignatures.Validation.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Validation\Pandacap.ActivityPub.HttpSignatures.Validation.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

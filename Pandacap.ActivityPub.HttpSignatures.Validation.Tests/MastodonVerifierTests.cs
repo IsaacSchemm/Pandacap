@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Moq;
 using NSign;
+using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
 
 namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
 {
@@ -57,7 +58,7 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
                 .Setup(key => key.KeyPem)
                 .Returns("-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvl6GB0lDhDcCVIIRdqFo\nlf4OaKvIIbrhoZdea/Dk/WsSbmmimVx4lblgyGKCTp9AXg86jmhjLCnQmB4qfqv7\nPA92ewh/NsgGgmOJ3eHwsSKVuBlUmzUc/ldVbgT1zUKgCw88amZDsWqMg0w0zt4I\n8q8CQOQQzVoWibEGy+WgJIA/ELs/fOnN+iWZlHePWC37k1njm+HOQtStxRJWUKaG\nZzcAvtWSX7G+OQGlUFnPLwQp3TnfcitF9zeoFsl/s3VfViAr+RiJ2UCtE12yePus\neOoj4fskwCj2SsdEKaL+PtFe3ko0MGxYgwMdFUK8q5gyzUbGzbcHQuAoqN+PRiEc\nRQIDAQAB\n-----END PUBLIC KEY-----\n");
 
-            var verifier = new MastodonVerifier();
+            var verifier = GetActivityPubSignatureValidator();
 
             Assert.AreEqual(
                 actual: verifier.VerifyRequestSignature(
@@ -133,7 +134,7 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
                 .Setup(key => key.KeyPem)
                 .Returns("-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmcLc5iiK8/XPYUjM8jap\n9Kcfa9qUmT8iGT1XzkkIcx7CLsgQwg7cfWdwS35tNfNX9ma0w2ka4rxw8Wa6S0ge\nLLq6Ve5BG0iGkxzs5Yy5EmXjz/GGU1bX31zFR+lJSkhV89sT+drXJRvxnxMbAxjp\n+dAyweLze54OxEgmRilHJ2fG4WgFvh7diMja0NAjDNPVZ1yGbdKksWuX0YqNtPd7\nfBWXUFP+yjNmjRVXp7XbsCUQxW55oKsN3hZntEc9J7CI9NDhpXaZbnvTz84M7nqX\n3RTRmUw813jvXzAvZBMbYnGMxScGQnhtKYxntffuyaHRXT+w9aMZFysBbGJ+kp7+\n4wIDAQAB\n-----END PUBLIC KEY-----\n");
 
-            var verifier = new MastodonVerifier();
+            var verifier = GetActivityPubSignatureValidator();
 
             Assert.AreEqual(
                 actual: verifier.VerifyRequestSignature(
@@ -209,7 +210,7 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
                 .Setup(key => key.KeyPem)
                 .Returns("-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAswpp2Bcrvc3or1sQFTlU\naoY46CULzMlu+1eGKZYqMaNyuDFLnXYhT/lgu/sUuw9wweQ4a0mPi6jcKwX0v+Fh\nXUlfmq2taTnAm+M0hYkT/Thw/GipeQTmulNsc6xB8Dzpi8rHGc9YIl8n3z8kIdgO\n+MlgC+DxVX2anEDQGUmqIXp3QYVeDFC8KbKf49x4As3o7XNU7HHqF1lNydhrSLVW\no6v/zJRQAfUHrj39vgayYBK+wNhW/HymsYvnOWz/+53yTBCo3aCDZE1gTpBzGl8q\nva1u3PlEHBHuZKJSLBHdCUIVrcL+VBM6UKJ94Su1cu7Bd3dDtAusq2Wf2nDA++UE\nSwIDAQAB\n-----END PUBLIC KEY-----\n");
 
-            var verifier = new MastodonVerifier();
+            var verifier = GetActivityPubSignatureValidator();
 
             Assert.AreEqual(
                 actual: verifier.VerifyRequestSignature(
@@ -267,7 +268,7 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
                 .Setup(key => key.KeyPem)
                 .Returns("-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvl6GB0lDhDcCVIIRdqFo\nlf4OaKvIIbrhoZdea/Dk/WsSbmmimVx4lblgyGKCTp9AXg86jmhjLCnQmB4qfqv7\nPA92ewh/NsgGgmOJ3eHwsSKVuBlUmzUc/ldVbgT1zUKgCw88amZDsWqMg0w0zt4I\n8q8CQOQQzVoWibEGy+WgJIA/ELs/fOnN+iWZlHePWC37k1njm+HOQtStxRJWUKaG\nZzcAvtWSX7G+OQGlUFnPLwQp3TnfcitF9zeoFsl/s3VfViAr+RiJ2UCtE12yePus\neOoj4fskwCj2SsdEKaL+PtFe3ko0MGxYgwMdFUK8q5gyzUbGzbcHQuAoqN+PRiEc\nRQIDAQAB\n-----END PUBLIC KEY-----\n");
 
-            var verifier = new MastodonVerifier();
+            var verifier = GetActivityPubSignatureValidator();
 
             Assert.AreEqual(
                 actual: verifier.VerifyRequestSignature(
@@ -322,7 +323,7 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
                 .Setup(key => key.KeyId)
                 .Returns("https://pandacap.example.com#main-key");
 
-            var verifier = new MastodonVerifier();
+            var verifier = GetActivityPubSignatureValidator();
 
             Assert.AreEqual(
                 actual: verifier.VerifyRequestSignature(
@@ -330,5 +331,9 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
                     keyMock.Object),
                 expected: VerificationResult.NoMatchingVerifierFound);
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "No implicit interface implementation exists")]
+        private static IActivityPubSignatureValidator GetActivityPubSignatureValidator() =>
+            new ActivityPubSignatureValidator();
     }
 }

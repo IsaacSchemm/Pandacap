@@ -92,13 +92,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.HttpSi
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces", "Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces\Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces.vbproj", "{DF477F9A-EA6E-4E04-ACB7-7B306DC62271}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.HttpSignatures.Validation", "Pandacap.ActivityPub.HttpSignatures.Validation\Pandacap.ActivityPub.HttpSignatures.Validation.csproj", "{23F5C63B-1197-4E94-B903-DD68CD7E9FB7}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.HttpSignatures", "Pandacap.ActivityPub.HttpSignatures\Pandacap.ActivityPub.HttpSignatures.csproj", "{4A575477-89F2-4E92-A344-3A1433AA1CFB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.HttpSignatures.Discovery.Tests", "Pandacap.ActivityPub.HttpSignatures.Discovery.Tests\Pandacap.ActivityPub.HttpSignatures.Discovery.Tests.csproj", "{A8E1AFF0-0B31-1091-3F03-FE55DF3D19FB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.HttpSignatures.Validation.Tests", "Pandacap.ActivityPub.HttpSignatures.Validation.Tests\Pandacap.ActivityPub.HttpSignatures.Validation.Tests.csproj", "{A631B167-250F-24B3-165C-BE05B5B53576}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub.HttpSignatures.Validation", "Pandacap.ActivityPub.HttpSignatures.Validation\Pandacap.ActivityPub.HttpSignatures.Validation.fsproj", "{EB6B4880-1383-4666-BD65-6D57B66C593C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -238,10 +238,6 @@ Global
 		{DF477F9A-EA6E-4E04-ACB7-7B306DC62271}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF477F9A-EA6E-4E04-ACB7-7B306DC62271}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF477F9A-EA6E-4E04-ACB7-7B306DC62271}.Release|Any CPU.Build.0 = Release|Any CPU
-		{23F5C63B-1197-4E94-B903-DD68CD7E9FB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{23F5C63B-1197-4E94-B903-DD68CD7E9FB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23F5C63B-1197-4E94-B903-DD68CD7E9FB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{23F5C63B-1197-4E94-B903-DD68CD7E9FB7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4A575477-89F2-4E92-A344-3A1433AA1CFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4A575477-89F2-4E92-A344-3A1433AA1CFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A575477-89F2-4E92-A344-3A1433AA1CFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -254,6 +250,10 @@ Global
 		{A631B167-250F-24B3-165C-BE05B5B53576}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A631B167-250F-24B3-165C-BE05B5B53576}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A631B167-250F-24B3-165C-BE05B5B53576}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB6B4880-1383-4666-BD65-6D57B66C593C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB6B4880-1383-4666-BD65-6D57B66C593C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB6B4880-1383-4666-BD65-6D57B66C593C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB6B4880-1383-4666-BD65-6D57B66C593C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -289,10 +289,10 @@ Global
 		{4CA9CCFA-17DD-4733-B9F9-7BE64D7C6AD6} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
 		{ADD5D676-3272-444F-851F-84FC5AA7DD52} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
 		{DF477F9A-EA6E-4E04-ACB7-7B306DC62271} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
-		{23F5C63B-1197-4E94-B903-DD68CD7E9FB7} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
 		{4A575477-89F2-4E92-A344-3A1433AA1CFB} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
 		{A8E1AFF0-0B31-1091-3F03-FE55DF3D19FB} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
 		{A631B167-250F-24B3-165C-BE05B5B53576} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
+		{EB6B4880-1383-4666-BD65-6D57B66C593C} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

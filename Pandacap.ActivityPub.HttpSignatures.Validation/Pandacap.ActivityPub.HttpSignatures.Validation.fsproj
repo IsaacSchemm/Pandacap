@@ -2,9 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="AssemblyAttributes.fs" />
+    <Compile Include="ComponentBuilder.fs" />
+    <Compile Include="ActivityPubSignatureValidator.fs" />
+    <Compile Include="DependencyInjectionExtensions.fs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
