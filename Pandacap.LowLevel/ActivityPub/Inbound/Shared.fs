@@ -14,7 +14,10 @@ let list (name: string) (obj: JToken) =
 let combine name items = Seq.collect (list name) items
 
 /// Given an expanded object, extracts the node identifier as a string.
-let node_id (obj: JToken) = (obj["@id"]).Value<string>()
+let node_id (obj: JToken) =
+    if isNull (obj["@id"])
+    then null
+    else (obj["@id"]).Value<string>()
 
 /// Given an expanded object, extracts the type as a string.
 let node_type (obj: JToken) =
