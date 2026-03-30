@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Models;
+using Pandacap.ActivityPub.JsonLd.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
 using Pandacap.ActivityPub.Services.Interfaces;

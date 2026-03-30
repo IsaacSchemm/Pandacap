@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Pandacap.ActivityPub.JsonLd.Interfaces;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Resolvers;

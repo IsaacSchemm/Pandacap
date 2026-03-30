@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Discovery.Models;
 using Pandacap.ActivityPub.JsonLd;
+using Pandacap.ActivityPub.JsonLd.Interfaces;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
 using System.Runtime.CompilerServices;

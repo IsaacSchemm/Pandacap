@@ -5,6 +5,7 @@ open System.Threading
 open System.Threading.Tasks
 open Newtonsoft.Json.Linq
 open Ganss.Xss
+open Pandacap.ActivityPub.JsonLd.Interfaces
 open Pandacap.ActivityPub.RemoteObjects.Interfaces
 open Pandacap.ActivityPub.RemoteObjects.Models
 open Pandacap.ActivityPub.Services.Interfaces

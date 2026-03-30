@@ -13,5 +13,4 @@ module DependencyInjectionExtensions =
             .AddScoped<IActivityPubPostTranslator, ActivityPubPostTranslator>()
             .AddScoped<IActivityPubRelationshipTranslator, ActivityPubRelationshipTranslator>()
             .AddScoped<IActivityPubInteractionTranslator, ActivityPubInteractionTranslator>()
-            .AddScoped<IJsonLdExpansionService, JsonLdExpansionService>()
             .AddScoped<IActivityPubRequestHandler, ActivityPubRequestHandler>()
