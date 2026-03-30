@@ -90,8 +90,8 @@ type internal ActivityPubRemotePostService(
                 PostedAt =
                     object
                     |> list "https://www.w3.org/ns/activitystreams#published"
-                    |> List.map node_value
-                    |> List.map DateTimeOffset.Parse
+                    |> List.map (fun token -> token["@value"].Value<DateTime>())
+                    |> List.map DateTimeOffset
                     |> List.tryHead
                     |> Option.defaultValue DateTimeOffset.UtcNow
                 Sensitive =

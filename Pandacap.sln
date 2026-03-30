@@ -106,6 +106,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.JsonLd
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.ActivityPub.JsonLd.Interfaces", "Pandacap.ActivityPub.JsonLd.Interfaces\Pandacap.ActivityPub.JsonLd.Interfaces.vbproj", "{521B7272-EAE6-42EB-B043-CDC512D5BEE0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.RemoteObjects.Tests", "Pandacap.ActivityPub.RemoteObjects.Tests\Pandacap.ActivityPub.RemoteObjects.Tests.csproj", "{6B8D4955-A95F-4A7D-884B-49EDBDA0CB1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -272,6 +274,10 @@ Global
 		{521B7272-EAE6-42EB-B043-CDC512D5BEE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{521B7272-EAE6-42EB-B043-CDC512D5BEE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{521B7272-EAE6-42EB-B043-CDC512D5BEE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B8D4955-A95F-4A7D-884B-49EDBDA0CB1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B8D4955-A95F-4A7D-884B-49EDBDA0CB1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B8D4955-A95F-4A7D-884B-49EDBDA0CB1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B8D4955-A95F-4A7D-884B-49EDBDA0CB1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -314,6 +320,7 @@ Global
 		{87D761C8-70C6-46A3-B541-1631FBE13CB3} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
 		{751E95BB-E525-470F-A70B-44073720AE7D} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{521B7272-EAE6-42EB-B043-CDC512D5BEE0} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
+		{6B8D4955-A95F-4A7D-884B-49EDBDA0CB1F} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}
