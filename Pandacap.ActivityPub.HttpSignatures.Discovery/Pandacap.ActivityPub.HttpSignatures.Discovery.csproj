@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces\Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.JsonLd\Pandacap.ActivityPub.JsonLd.csproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Services.Interfaces\Pandacap.ActivityPub.Services.Interfaces.vbproj" />
   </ItemGroup>
 

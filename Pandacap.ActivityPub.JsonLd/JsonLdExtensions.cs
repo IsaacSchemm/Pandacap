@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace Pandacap.ActivityPub.HttpSignatures.Discovery
+namespace Pandacap.ActivityPub.JsonLd
 {
-    internal static class JsonLdExtensions
+    public static class JsonLdExtensions
     {
         public static IEnumerable<JToken> ExtractArrayElements(this JToken parent, string key)
         {

@@ -102,6 +102,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub.HttpSi
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.ActivityPub.HttpSignatures.Validation.Models", "Pandacap.ActivityPub.HttpSignatures.Validation.Models\Pandacap.ActivityPub.HttpSignatures.Validation.Models.fsproj", "{87D761C8-70C6-46A3-B541-1631FBE13CB3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.JsonLd", "Pandacap.ActivityPub.JsonLd\Pandacap.ActivityPub.JsonLd.csproj", "{751E95BB-E525-470F-A70B-44073720AE7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -260,6 +262,10 @@ Global
 		{87D761C8-70C6-46A3-B541-1631FBE13CB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87D761C8-70C6-46A3-B541-1631FBE13CB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87D761C8-70C6-46A3-B541-1631FBE13CB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{751E95BB-E525-470F-A70B-44073720AE7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{751E95BB-E525-470F-A70B-44073720AE7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{751E95BB-E525-470F-A70B-44073720AE7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{751E95BB-E525-470F-A70B-44073720AE7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -300,6 +306,7 @@ Global
 		{A631B167-250F-24B3-165C-BE05B5B53576} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
 		{EB6B4880-1383-4666-BD65-6D57B66C593C} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
 		{87D761C8-70C6-46A3-B541-1631FBE13CB3} = {A2565822-E0B0-420F-AA9A-6279876EFDD0}
+		{751E95BB-E525-470F-A70B-44073720AE7D} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}
