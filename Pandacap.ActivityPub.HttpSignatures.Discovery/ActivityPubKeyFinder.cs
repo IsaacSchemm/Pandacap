@@ -15,14 +15,9 @@ namespace Pandacap.ActivityPub.HttpSignatures.Discovery
         IJsonLdExpansionService jsonLdExpansionService,
         IMemoryCache memoryCache) : IActivityPubKeyFinder
     {
-        private const string CACHE_KEY_PREFIX = "9c01fdb0-21ca-43ae-afb1-14c424e81a9c";
-
+        #region Extract key IDs from HTTP header values
         [GeneratedRegex("keyId=\"([^\"]+)\"")]
         private static partial Regex GetKeyIdPattern();
-
-        private static IEnumerable<string> GetSignatureHeaderValues(HttpRequest request) =>
-            request.Headers["signature"]
-            .OfType<string>();
 
         private static IEnumerable<Uri> ExtractKeyIds(string signatureHeaderValue)
         {
@@ -30,6 +25,10 @@ namespace Pandacap.ActivityPub.HttpSignatures.Discovery
                 if (Uri.TryCreate(match.Groups[1].Value, UriKind.Absolute, out var uri))
                     yield return uri;
         }
+        #endregion
+
+        #region Fetch and cache actor/key objects
+        private const string CACHE_KEY_PREFIX = "9c01fdb0-21ca-43ae-afb1-14c424e81a9c";
 
         private async Task<string?> FetchAsync(
             Uri uri,
@@ -69,7 +68,9 @@ namespace Pandacap.ActivityPub.HttpSignatures.Discovery
                 ? jsonLdExpansionService.ExpandFirst(JObject.Parse(json))
                 : null;
         }
+        #endregion
 
+        #region Get relevant actor
         private static IEnumerable<string> GetObjectTypes(JToken expandedObject)
         {
             foreach (var typeToken in expandedObject.ExtractArrayElements("@type"))
@@ -81,7 +82,8 @@ namespace Pandacap.ActivityPub.HttpSignatures.Discovery
             JToken actorOrKey,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            if (!GetObjectTypes(actorOrKey).Contains("Key")) {
+            if (!GetObjectTypes(actorOrKey).Contains("Key"))
+            {
                 var actor = actorOrKey;
                 yield return actor;
                 yield break;
@@ -92,7 +94,9 @@ namespace Pandacap.ActivityPub.HttpSignatures.Discovery
                     if (await TryFetchAndExpandAsync(id, cancellationToken) is JToken ownerUri)
                         yield return ownerUri;
         }
+        #endregion
 
+        #region Get relevant key
         private static IEnumerable<string> GetLocalPublicKeyPems(JToken publicKey)
         {
             foreach (var pemToken in publicKey.ExtractArrayElements("https://w3id.org/security#publicKeyPem"))
@@ -160,25 +164,18 @@ namespace Pandacap.ActivityPub.HttpSignatures.Discovery
 
             return null;
         }
-
-        private async IAsyncEnumerable<ActorKey> AcquireKeysAsync(
-            Uri keyId,
-            [EnumeratorCancellation] CancellationToken cancellationToken)
-        {
-            if (await TryFetchAndExpandAsync(keyId, cancellationToken) is JToken token)
-                await foreach (var actor in GetKeyOwnerAsync(token, cancellationToken))
-                    if (await GetAppropriateKeyFromActorAsync(actor, keyId, cancellationToken) is ActorKey key)
-                        yield return key;
-        }
+        #endregion
 
         public async IAsyncEnumerable<ActorKey> AcquireKeysAsync(
             HttpRequest request,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            foreach (var headerValue in GetSignatureHeaderValues(request))
+            foreach (var headerValue in request.Headers["signature"].OfType<string>())
                 foreach (var keyId in ExtractKeyIds(headerValue))
-                    await foreach (var key in AcquireKeysAsync(keyId, cancellationToken))
-                        yield return key;
+                    if (await TryFetchAndExpandAsync(keyId, cancellationToken) is JToken token)
+                        await foreach (var actor in GetKeyOwnerAsync(token, cancellationToken))
+                            if (await GetAppropriateKeyFromActorAsync(actor, keyId, cancellationToken) is ActorKey key)
+                                yield return key;
         }
     }
 }
