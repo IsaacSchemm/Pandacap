@@ -188,12 +188,12 @@ module FA =
             use! resp = client.GetAsync("/submit/", cancellationToken = cancellationToken)
             ignore (resp.EnsureSuccessStatusCode())
             let! html = resp.Content.ReadAsStringAsync(cancellationToken)
-            let token = html |> HtmlDocument.Parse |> extractAuthenticityToken "/submit/upload"
+            let token = html |> HtmlDocument.Parse |> extractAuthenticityToken "/submit/upload/"
             return token
         }
 
         let! finalize_submission_page_key = task {
-            use req = new HttpRequestMessage(System.Net.Http.HttpMethod.Post, "/submit/upload")
+            use req = new HttpRequestMessage(System.Net.Http.HttpMethod.Post, "/submit/upload/")
             req.Content <- multipart [
                 "key", FieldPart artwork_submission_page_key
                 "submission_type", FieldPart "submission"
