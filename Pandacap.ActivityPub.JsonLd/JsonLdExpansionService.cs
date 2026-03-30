@@ -16,7 +16,7 @@ namespace Pandacap.ActivityPub.JsonLd
 
             try
             {
-                return JsonLdProcessor.Expand(jObject, options);
+                return JsonLdProcessor.Expand(jObject, options).First();
             }
             catch (JsonLdError)
             {
@@ -24,7 +24,7 @@ namespace Pandacap.ActivityPub.JsonLd
                     new JValue("https://www.w3.org/ns/activitystreams"),
                     new JValue("https://w3id.org/security/v1"));
 
-                return JsonLdProcessor.Expand(jObject, options);
+                return JsonLdProcessor.Expand(jObject, options).First();
             }
         }
 
