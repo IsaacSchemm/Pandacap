@@ -1,5 +1,6 @@
 ﻿using DnsClient;
 using Microsoft.Extensions.DependencyInjection;
+using Pandacap.ActivityPub.JsonLd;
 using Pandacap.ActivityPub.RemoteObjects;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services;
@@ -40,6 +41,7 @@ namespace Pandacap.HighLevel
                             UseCache = true
                         }))
                 .AddSingleton(appInfo)
+                .AddJsonLdExpansionService()
                 .AddActivityPubServices()
                 .AddActivityPubRemoteObjectServices()
                 .AddFurAffinityClient()
