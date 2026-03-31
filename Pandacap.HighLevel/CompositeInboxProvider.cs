@@ -13,11 +13,6 @@ namespace Pandacap.HighLevel
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
-            var atproto = context.ATProtoInboxItems
-                .OrderByDescending(d => d.Timestamp)
-                .AsAsyncEnumerable()
-                .OfType<IInboxPost>();
-
             var bluesky1 = context.BlueskyPostFeedItems
                 .OrderByDescending(d => d.CreatedAt)
                 .AsAsyncEnumerable()
@@ -72,7 +67,6 @@ namespace Pandacap.HighLevel
                 new[]
                 {
                     activityPub,
-                    atproto,
                     bluesky1,
                     bluesky2,
                     bluesky3,
