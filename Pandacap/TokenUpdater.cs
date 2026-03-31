@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.Database;
 
 namespace Pandacap
 {

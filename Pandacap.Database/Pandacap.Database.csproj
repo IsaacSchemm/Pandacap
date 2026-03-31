@@ -11,6 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.Models.Interfaces\Pandacap.ActivityPub.Models.Interfaces.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.csproj" />
     <ProjectReference Include="..\Pandacap.Constants\Pandacap.Constants.fsproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity.Interfaces\Pandacap.FurAffinity.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Text\Pandacap.Text.fsproj" />

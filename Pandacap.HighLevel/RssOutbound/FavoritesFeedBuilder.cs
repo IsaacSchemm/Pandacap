@@ -1,5 +1,5 @@
 ﻿using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
+using Pandacap.UI.Elements;
 using System.Net;
 using System.ServiceModel.Syndication;
 using System.Text;
@@ -32,10 +32,8 @@ namespace Pandacap.HighLevel.RssOutbound
             foreach (var thumbnail in favorite.Thumbnails)
                 yield return $"<p>{linkify($"<img src='{thumbnail.Url}' height='250' alt='{thumbnail.AltText}' />", favorite.ExternalUrl)}</p>";
 
-            string platformName = favorite.Platform.ToString();
-
-            if (favorite.ExternalUrl is string url)
-                yield return $"<p><a href='{url}'>View on {WebUtility.HtmlEncode(platformName)}</a></p>";
+            if (favorite.ExternalUrl is string url && Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
+                yield return $"<p><a href='{url}'>View on {WebUtility.HtmlEncode(uri.Host)}</a></p>";
         }
 
         /// <summary>

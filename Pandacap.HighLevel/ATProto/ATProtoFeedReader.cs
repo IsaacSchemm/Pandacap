@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Clients.ATProto;
-using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.Database;
 
 namespace Pandacap.HighLevel.ATProto
 {
@@ -76,7 +76,7 @@ namespace Pandacap.HighLevel.ATProto
                 Labels = [.. post.Value.Labels],
                 Images = feed.IgnoreImages
                     ? []
-                    : [.. post.Value.Images.Select(i => new BlueskyPostFeedItemImage
+                    : [.. post.Value.Images.Select(i => new BlueskyPostFeedItem.Image
                         {
                             Alt = i.Alt,
                             CID = i.CID
@@ -101,7 +101,7 @@ namespace Pandacap.HighLevel.ATProto
                 Labels = [.. subject.Value.Labels],
                 Images = feed.IgnoreImages
                     ? []
-                    : [.. subject.Value.Images.Select(i => new BlueskyRepostFeedItemImage
+                    : [.. subject.Value.Images.Select(i => new BlueskyRepostFeedItem.Image
                     {
                         Alt = i.Alt,
                         CID = i.CID
@@ -141,7 +141,7 @@ namespace Pandacap.HighLevel.ATProto
                 Labels = [.. subject.Value.Labels],
                 Images = feed.IgnoreImages
                     ? []
-                    : [.. subject.Value.Images.Select(i => new BlueskyRepostFeedItemImage
+                    : [.. subject.Value.Images.Select(i => new BlueskyRepostFeedItem.Image
                     {
                         Alt = i.Alt,
                         CID = i.CID

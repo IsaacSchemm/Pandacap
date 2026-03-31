@@ -3,6 +3,7 @@ using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel;
 
 namespace Pandacap
@@ -20,7 +21,7 @@ namespace Pandacap
         PandacapDbContext context,
         IActivityPubInteractionTranslator interactionTranslator)
     {
-        private async IAsyncEnumerable<InboxActivityStreamsImage> CollectAttachmentsAsync(
+        private async IAsyncEnumerable<InboxActivityStreamsPost.Image> CollectAttachmentsAsync(
             RemotePost remotePost,
             RemoteActor sendingActor)
         {
@@ -68,13 +69,13 @@ namespace Pandacap
             {
                 Id = Guid.NewGuid(),
                 ObjectId = id,
-                Author = new InboxActivityStreamsUser
+                Author = new InboxActivityStreamsPost.User
                 {
                     Id = sendingActor.Id,
                     Username = sendingActor.PreferredUsername,
                     Usericon = sendingActor.IconUrl
                 },
-                PostedBy = new InboxActivityStreamsUser
+                PostedBy = new InboxActivityStreamsPost.User
                 {
                     Id = sendingActor.Id,
                     Username = sendingActor.PreferredUsername,
@@ -187,7 +188,7 @@ namespace Pandacap
                 Name = remotePost.Name,
                 Content = remotePost.SanitizedContent,
                 Attachments = [
-                    .. remotePost.Attachments.Select(attachment => new ActivityPubFavoriteImage
+                    .. remotePost.Attachments.Select(attachment => new ActivityPubFavorite.Image
                     {
                         Name = attachment.Name,
                         Url = attachment.Url

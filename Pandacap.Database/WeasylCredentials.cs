@@ -13,5 +13,9 @@ namespace Pandacap.Database
 
         Badge IExternalCredentials.Badge =>
             Badges.Weasyl.WithText(Login);
+
+        string IExternalCredentials.Id => $"{GetType().Name}-{Login}";
+
+        string IExternalCredentials.Username => Login;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Html;
 
@@ -15,7 +16,7 @@ namespace Pandacap
     {
         public interface IViewModel
         {
-            PostType PostType { get; }
+            Post.PostType PostType { get; }
 
             string? Title { get; }
 
@@ -63,7 +64,7 @@ namespace Pandacap
 
                 context.Remove(upload);
 
-                List<PostBlobRef> renditions = [new()
+                List<Post.Image.BlobRef> renditions = [new()
                 {
                     Id = upload.Id,
                     ContentType = upload.ContentType
@@ -136,7 +137,7 @@ namespace Pandacap
 
             context.Posts.Add(post);
 
-            if (post.Type != PostType.Scraps)
+            if (post.Type != Post.PostType.Scraps)
             {
                 foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
                     isCreate: true,

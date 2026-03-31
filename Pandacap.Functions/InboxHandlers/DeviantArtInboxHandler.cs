@@ -3,6 +3,7 @@ using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.DeviantArt;
 

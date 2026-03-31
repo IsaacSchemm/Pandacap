@@ -1,4 +1,5 @@
-﻿using Pandacap.UI.Badges;
+﻿using Pandacap.ActivityPub.Models.Interfaces;
+using Pandacap.UI.Badges;
 using Pandacap.UI.Elements;
 
 namespace Pandacap.Database
@@ -6,7 +7,7 @@ namespace Pandacap.Database
     /// <summary>
     /// An ActivityPub actor who this Pandacap actor is following.
     /// </summary>
-    public class Follow : RemoteActorRelationship, IFollow
+    public class Follow : RemoteActorRelationship, IFollow, IActivityPubFollow
     {
         /// <summary>
         /// A random ID used in the ActivityPub ID of the Follow activity that was sent.

@@ -1,4 +1,4 @@
-﻿using Pandacap.Data;
+﻿using Pandacap.Database;
 using System.ComponentModel;
 
 namespace Pandacap.Models
@@ -16,7 +16,7 @@ namespace Pandacap.Models
         [DisplayName("Image description (alt text)")]
         public string? AltText { get; set; }
 
-        PostType PostCreator.IViewModel.PostType => PostType.StatusUpdate;
+        Post.PostType PostCreator.IViewModel.PostType => Post.PostType.StatusUpdate;
 
         string? PostCreator.IViewModel.Title => null;
 

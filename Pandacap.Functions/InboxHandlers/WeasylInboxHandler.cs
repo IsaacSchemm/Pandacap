@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.Weasyl.Interfaces;
 using Pandacap.Weasyl.Models;
@@ -51,7 +52,7 @@ namespace Pandacap.Functions.InboxHandlers
                     Submitid = submission.submitid,
                     Title = submission.title,
                     Rating = submission.rating,
-                    PostedBy = new InboxWeasylUser
+                    PostedBy = new InboxWeasylSubmission.User
                     {
                         Login = submission.owner_login,
                         DisplayName = submission.owner,
@@ -59,7 +60,7 @@ namespace Pandacap.Functions.InboxHandlers
                     },
                     PostedAt = submission.posted_at,
                     Thumbnails = submission.media.thumbnail
-                        .Select(t => new InboxWeasylImage
+                        .Select(t => new InboxWeasylSubmission.Image
                         {
                             Url = t.url
                         })

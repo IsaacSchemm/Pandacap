@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Html;
@@ -40,7 +41,7 @@ namespace Pandacap.Controllers
 
             if (Request.IsActivityPub())
             {
-                if (post.Type == PostType.Scraps)
+                if (post.Type == Post.PostType.Scraps)
                     return StatusCode((int)HttpStatusCode.NotAcceptable);
 
                 return Content(

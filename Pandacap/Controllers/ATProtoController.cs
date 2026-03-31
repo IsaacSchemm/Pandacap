@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.Models;
@@ -173,7 +174,7 @@ namespace Pandacap.Controllers
                 },
                 FavoritedAt = DateTimeOffset.UtcNow,
                 Id = Guid.NewGuid(),
-                Images = [.. post.Value.Images.Select(image => new BlueskyPostFavoriteImage
+                Images = [.. post.Value.Images.Select(image => new BlueskyPostFavorite.Image
                 {
                     Alt = image.Alt,
                     CID = image.CID

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.Models;
@@ -84,7 +85,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.Artwork)
+                .Where(d => d.Type == Post.PostType.Artwork)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -101,7 +102,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.Artwork || d.Type == PostType.Scraps)
+                .Where(d => d.Type == Post.PostType.Artwork || d.Type == Post.PostType.Scraps)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -115,7 +116,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.StatusUpdate || d.Type == PostType.JournalEntry)
+                .Where(d => d.Type == Post.PostType.StatusUpdate || d.Type == Post.PostType.JournalEntry)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -129,7 +130,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.JournalEntry)
+                .Where(d => d.Type == Post.PostType.JournalEntry)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -143,7 +144,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.StatusUpdate)
+                .Where(d => d.Type == Post.PostType.StatusUpdate)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -157,7 +158,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.Link)
+                .Where(d => d.Type == Post.PostType.Link)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);

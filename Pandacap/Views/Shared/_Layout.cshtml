@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using Pandacap.ConfigurationObjects
 @using Pandacap.Data
+@using Pandacap.Database
 @inject SignInManager<IdentityUser> SignInManager
 @inject ApplicationInformation appInfo
 
@@ -29,7 +30,7 @@
         <meta property="og:description" content="@up.Body" />
         <meta property="og:site_name" content="@UserAgentInformation.ApplicationName" />
         <meta property="og:url" content="https://@appInfo.ApplicationHostname/UserPosts/@up.Id" />
-        if (up.Images.DefaultIfEmpty(null).First() is PostImage image)
+        if (up.Images.DefaultIfEmpty(null).First() is Post.Image image)
         {
             <meta property="og:image" content="https://@appInfo.ApplicationHostname/Blobs/UserPosts/@up.Id/@image.Raster.Id" />
             <meta property="twitter:image" content="https://@appInfo.ApplicationHostname/Blobs/UserPosts/@up.Id/@image.Raster.Id" />

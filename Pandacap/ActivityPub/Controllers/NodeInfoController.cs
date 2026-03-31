@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel;
 
 namespace Pandacap.Controllers
@@ -32,7 +33,7 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> NodeInfo2_1()
         {
             var posts = await context.Posts
-                .Where(post => post.Type != PostType.Scraps)
+                .Where(post => post.Type != Post.PostType.Scraps)
                 .DocumentCountAsync();
 
             var communityPosts = await context.AddressedPosts

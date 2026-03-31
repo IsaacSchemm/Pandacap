@@ -1,6 +1,6 @@
 ﻿using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
+using Pandacap.Database;
 
 namespace Pandacap.HighLevel.PlatformLinks
 {

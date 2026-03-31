@@ -1,7 +1,7 @@
 ﻿using CodeHollow.FeedReader;
 using CodeHollow.FeedReader.Feeds;
 using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.Html;
 
 namespace Pandacap.HighLevel.FeedReaders

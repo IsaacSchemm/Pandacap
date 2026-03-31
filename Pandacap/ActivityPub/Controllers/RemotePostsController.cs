@@ -6,6 +6,7 @@ using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.Models;
 using System.Net;
 using System.Security.Authentication;

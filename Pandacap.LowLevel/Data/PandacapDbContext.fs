@@ -1,6 +1,7 @@
 ﻿namespace Pandacap.Data
 
 open Microsoft.EntityFrameworkCore
+open Pandacap.Database
 
 type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     inherit DbContext(options)

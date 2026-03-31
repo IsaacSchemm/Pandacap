@@ -2,7 +2,8 @@
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Microsoft.Extensions.Caching.Memory;
-using Pandacap.Data;
+using Pandacap.Database;
+using Pandacap.Database.Extensions;
 using System.Runtime.CompilerServices;
 
 namespace Pandacap.HighLevel.VectorSearch
@@ -113,11 +114,11 @@ namespace Pandacap.HighLevel.VectorSearch
                     if (foundIds.Contains(post.Id))
                         continue;
 
-                    var longText = await embeddingsProvider.EmbedAsync(post.LongPlainText, cancellationToken);
+                    var longText = await embeddingsProvider.EmbedAsync(post.GenerateLongPlainText(), cancellationToken);
                     if (longText == null)
                         continue;
 
-                    var shortText = await embeddingsProvider.EmbedAsync(post.ShortPlainText, cancellationToken);
+                    var shortText = await embeddingsProvider.EmbedAsync(post.GenerateShortPlainText(), cancellationToken);
                     if (shortText == null)
                         continue;
 

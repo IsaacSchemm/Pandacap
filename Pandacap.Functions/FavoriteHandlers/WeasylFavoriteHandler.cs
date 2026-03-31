@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.Weasyl.Interfaces;
 using Pandacap.Weasyl.Models;
@@ -62,7 +63,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                     PostedAt = submission.posted_at,
                     Thumbnails = [
                         .. submission.media.thumbnail
-                            .Select(t => new WeasylFavoriteSubmissionImage
+                            .Select(t => new WeasylFavoriteSubmission.Image
                             {
                                 Url = t.url
                             })

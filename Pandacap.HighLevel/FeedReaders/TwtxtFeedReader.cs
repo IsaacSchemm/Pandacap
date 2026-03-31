@@ -1,6 +1,4 @@
-﻿using Pandacap.Clients;
-using Pandacap.Data;
-using System.Net;
+﻿using Pandacap.Database;
 
 namespace Pandacap.HighLevel.FeedReaders
 {

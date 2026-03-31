@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.FurAffinity.Interfaces;
 using Pandacap.HighLevel;
 using Pandacap.Models;
@@ -132,7 +133,7 @@ namespace Pandacap.Controllers
                 AvailableGenders = options.Genders.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
                 AvailableSpecies = options.Species.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
                 AvailableTypes = options.Types.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
-                Scraps = post.Type == PostType.Scraps
+                Scraps = post.Type == Post.PostType.Scraps
             });
         }
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.Database;
 
 namespace Pandacap.Controllers
 {

@@ -1,5 +1,5 @@
 ﻿using Pandacap.ActivityPub.RemoteObjects.Models;
-using Pandacap.Data;
+using Pandacap.Database;
 
 namespace Pandacap.Models
 {

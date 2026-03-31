@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Data;
+using Pandacap.UI.Elements;
 
 namespace Pandacap.HighLevel
 {

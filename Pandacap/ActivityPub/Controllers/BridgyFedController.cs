@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
+using Pandacap.Database;
 using System.Net;
 
 namespace Pandacap.Controllers

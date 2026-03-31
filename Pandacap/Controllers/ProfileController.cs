@@ -11,12 +11,14 @@ using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.FeedReaders;
 using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Models;
+using Pandacap.UI.Elements;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -85,7 +87,7 @@ namespace Pandacap.Controllers
                 var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
                 var artwork = await context.Posts
-                    .Where(post => post.Type == PostType.Artwork)
+                    .Where(post => post.Type == Post.PostType.Artwork)
                     .Where(post => post.PublishedTime >= threeMonthsAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
@@ -101,14 +103,14 @@ namespace Pandacap.Controllers
                     .ToListAsync(cancellationToken);
 
                 var textPosts = await context.Posts
-                    .Where(post => post.Type == PostType.StatusUpdate || post.Type == PostType.JournalEntry)
+                    .Where(post => post.Type == Post.PostType.StatusUpdate || post.Type == Post.PostType.JournalEntry)
                     .Where(post => post.PublishedTime >= oneMonthAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(5)
                     .ToListAsync(cancellationToken);
 
                 var links = await context.Posts
-                    .Where(post => post.Type == PostType.Link)
+                    .Where(post => post.Type == Post.PostType.Link)
                     .Where(post => post.PublishedTime >= oneMonthAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(5)

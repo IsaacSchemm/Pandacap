@@ -1,4 +1,6 @@
 ﻿using Microsoft.FSharp.Collections;
+using Pandacap.ActivityPub.Models.Interfaces;
+using Pandacap.ActivityPub.Static;
 using Pandacap.Text;
 using Pandacap.UI.Badges;
 using Pandacap.UI.Elements;
@@ -6,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Pandacap.Database
 {
-    public class AddressedPost : IPost
+    public class AddressedPost : IPost, IActivityPubPost, IActivityPubAddressing
     {
         public Guid Id { get; set; }
 
@@ -79,5 +81,25 @@ namespace Pandacap.Database
         string? IPost.Username => null;
 
         string? IPost.Usericon => null;
+
+        string IActivityPubPost.ObjectId => $"https://{ActivityPubHostInformation.ApplicationHostname}/AddressedPosts/{Id}";
+
+        IActivityPubAddressing IActivityPubPost.Addressing => this;
+
+        bool IActivityPubPost.IsArticle => false;
+
+        string IActivityPubPost.Html => HtmlContent;
+
+        IEnumerable<string> IActivityPubPost.Tags => [];
+
+        IEnumerable<IActivityPubLink> IActivityPubPost.Links => [];
+
+        IEnumerable<IActivityPubImage> IActivityPubPost.Images => [];
+
+        IEnumerable<string> IActivityPubAddressing.To => Addressing.To;
+
+        IEnumerable<string> IActivityPubAddressing.Cc => Addressing.Cc;
+
+        string? IActivityPubAddressing.Audience => Community;
     }
 }

@@ -1,6 +1,8 @@
 ﻿@using Pandacap.Data
+@using Pandacap.Database
 @using Pandacap.HighLevel
 @using Pandacap.Models
+@using Pandacap.UI.Elements
 @model ListViewModel
 
 @{
@@ -68,12 +70,9 @@
             }
 
             <p>
-                @foreach (var badge in post.GetBadges())
-                {
-                    <span class="badge" style="background-color: @badge.Background; color: @badge.Color">
-                        @badge.Text
-                    </span>
-                }
+                <span class="badge" style="background-color: @post.Badge.Background; color: @post.Badge.Color">
+                    @post.Badge.Text
+                </span>
             </p>
 
             @if (post is InboxActivityStreamsPost activityStreamsPost)

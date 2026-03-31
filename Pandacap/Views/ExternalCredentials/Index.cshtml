@@ -20,16 +20,15 @@
    <tbody>
         @foreach (var credential in Model.ExternalCredentials)
         {
-            var badge = PostPlatformModule.GetBadge(credential.Platform);
             <tr>
                 <td>
                     @credential.Username
-                    <span class="badge" style="background-color: @badge.Background; color: @badge.Color">
-                        @badge.Text
+                    <span class="badge" style="background-color: @credential.Badge.Background; color: @credential.Badge.Color">
+                        @credential.Badge.Text
                     </span>
                 </td>
                 <td>
-                    <form asp-action="Remove" asp-route-username="@credential.Username" asp-route-platform="@credential.Platform" onsubmit="return confirm('Are you sure you want to remove Pandacap\'s ability to access this account?')">
+                    <form asp-action="Remove" asp-route-username="@credential.Username" asp-route-id="@credential.Id" onsubmit="return confirm('Are you sure you want to remove Pandacap\'s ability to access this account?')">
                         <button class="btn btn-danger btn-sm" type="submit">
                             Remove
                         </button>

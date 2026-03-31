@@ -1,6 +1,6 @@
 ﻿using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
-using System.Net;
+using Pandacap.Database;
+using Pandacap.Database.Extensions;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Xml;
@@ -19,7 +19,10 @@ namespace Pandacap.HighLevel.RssOutbound
         /// <returns>A sequence of HTML strings that should be concatenated</returns>
         private IEnumerable<string> GetHtml(Post post)
         {
-            yield return post.BodyWithLinks;
+            if (post.Html is string html)
+                yield return html;
+
+            yield return post.GenerateLinksHtml();
 
             foreach (var image in post.Images)
                 yield return $"<p><img src='https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.Raster.Id}' height='250' style='max-height: 250px' /></p>";

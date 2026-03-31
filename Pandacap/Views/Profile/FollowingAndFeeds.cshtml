@@ -1,7 +1,8 @@
-﻿@using Pandacap.Data
-@using Pandacap.Clients
+﻿@using Pandacap.Clients
+@using Pandacap.Database
 @using Pandacap.HighLevel
 @using Pandacap.Models
+@using Pandacap.UI.Elements
 @model IEnumerable<IFollow>
 
 @{
@@ -19,11 +20,6 @@ else
     <div class="user-blocks">
         @foreach (var item in Model)
         {
-            if (!Uri.TryCreate(item.Url, UriKind.Absolute, out Uri? uri))
-            {
-                continue;
-            }
-
             <div class="user-block">
                 <a href="@item.LinkUrl" class="avatar"><img width="50" height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" /></a>
                 <span class="text">
@@ -43,12 +39,9 @@ else
 
                     <br />
 
-                    @foreach (var badge in item.GetBadges())
-                    {
-                        <span class="badge" style="background-color: @badge.Background; color: @badge.Color">
-                            @badge.Text
-                        </span>
-                    }
+                    <span class="badge" style="background-color: @item.Badge.Background; color: @item.Badge.Color">
+                        @item.Badge.Text
+                    </span>
 
                     @if (User.Identity?.IsAuthenticated == true)
                     {

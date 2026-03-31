@@ -9,10 +9,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.Html;
 using Pandacap.Models;
-using Pandacap.PlatformBadges;
+using Pandacap.UI.Badges;
+using Pandacap.UI.Elements;
 using Stash = DeviantArtFs.Api.Stash;
 
 namespace Pandacap.Controllers
@@ -32,12 +34,11 @@ namespace Pandacap.Controllers
 
         private record PostWrapper(Deviation Item) : IPost
         {
-            PostPlatform IPost.Platform => PostPlatform.DeviantArt;
-            string IPost.Url => Item.url.OrNull();
+            Badge IPost.Badge => Badges.DeviantArt;
             string IPost.DisplayTitle => Item.title.OrNull() ?? $"{Item.deviationid}";
             string IPost.Id => $"{Item.deviationid}";
-            string? IPost.InternalUrl => Item.url.OrNull();
-            string? IPost.ExternalUrl => Item.url.OrNull();
+            string IPost.InternalUrl => Item.url.OrNull();
+            string IPost.ExternalUrl => Item.url.OrNull();
             DateTimeOffset IPost.PostedAt => Item.published_time.OrNull() ?? DateTimeOffset.MinValue;
             string? IPost.ProfileUrl => null;
             IEnumerable<IPostThumbnail> IPost.Thumbnails => Item.thumbs.OrEmpty()
@@ -67,7 +68,7 @@ namespace Pandacap.Controllers
                 });
         }
 
-        private record FormFile(PostBlobRef BlobRef, BlobDownloadResult DownloadResult) : Stash.IFormFile
+        private record FormFile(Post.Image.BlobRef BlobRef, BlobDownloadResult DownloadResult) : Stash.IFormFile
         {
             string Stash.IFormFile.Filename => "file." + BlobRef.ContentType.Split('/').Last();
             string Stash.IFormFile.ContentType => BlobRef.ContentType;
@@ -89,7 +90,7 @@ namespace Pandacap.Controllers
 
             switch (post.Type)
             {
-                case PostType.StatusUpdate:
+                case Post.PostType.StatusUpdate:
                     if (post.Images.Count > 0)
                         throw new NotImplementedException("Cannot crosspost a status update with an image to DeviantArt");
 
@@ -110,7 +111,7 @@ namespace Pandacap.Controllers
                     await context.SaveChangesAsync(cancellationToken);
 
                     return RedirectToAction("Index", "UserPosts", new { id });
-                case PostType.JournalEntry:
+                case Post.PostType.JournalEntry:
                     var journalResponse = await DeviantArtFs.Api.Deviation.Journal.CreateAsync(
                         token,
                         [
@@ -132,8 +133,8 @@ namespace Pandacap.Controllers
                     await context.SaveChangesAsync(cancellationToken);
 
                     return RedirectToAction("Index", "UserPosts", new { id });
-                case PostType.Artwork:
-                case PostType.Scraps:
+                case Post.PostType.Artwork:
+                case Post.PostType.Scraps:
                     return RedirectToAction(nameof(CrosspostArtwork), new { id });
                 default:
                     throw new NotImplementedException($"Cannot crosspost {post.Type} posts to DeviantArt");

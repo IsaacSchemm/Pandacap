@@ -26,48 +26,6 @@
     <Folder Include="Resolvers\" />
     <Compile Include="resolvers\ResolverResult.fs" />
     <Compile Include="Podcasts\WmaZipSplitter.fs" />
-    <Compile Include="Data\IPost.fs" />
-    <Compile Include="Data\IInboxPost.fs" />
-    <Compile Include="Data\IFavorite.fs" />
-    <Compile Include="Data\TitleGenerator.fs" />
-    <Compile Include="Data\NullValues.fs" />
-    <Compile Include="Data\Credentials\IExternalCredentials.fs" />
-    <Compile Include="Data\Credentials\DeviantArtCredentials.fs" />
-    <Compile Include="Data\Credentials\FurAffinityCredentials.fs" />
-    <Compile Include="Data\Credentials\WeasylCredentials.fs" />
-    <Compile Include="Data\MyContent\ActivityPubOutboundActivity.fs" />
-    <Compile Include="Data\MyContent\AddressedPost.fs" />
-    <Compile Include="Data\MyContent\Avatar.fs" />
-    <Compile Include="Data\MyContent\Post.fs" />
-    <Compile Include="Data\MyContent\Upload.fs" />
-    <Compile Include="Data\Relationships\IFollow.fs" />
-    <Compile Include="Data\Relationships\ATProtoFeed.fs" />
-    <Compile Include="Data\Relationships\RemoteActorRelationship.fs" />
-    <Compile Include="Data\Relationships\CommunityBookmark.fs" />
-    <Compile Include="Data\Relationships\Follow.fs" />
-    <Compile Include="Data\Relationships\Follower.fs" />
-    <Compile Include="Data\Relationships\GeneralFeed.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\ActivityPubFavorite.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\InboxActivityStreamsPost.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\PostActivity.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\RemoteActivityPubAddressedPost.fs" />
-    <Compile Include="Data\TheirContent\ActivityPub\RemoteActivityPubReply.fs" />
-    <Compile Include="Data\TheirContent\FurAffinity\FurAffinityFavorite.fs" />
-    <Compile Include="Data\TheirContent\FurAffinity\InboxFurAffinityJournal.fs" />
-    <Compile Include="Data\TheirContent\FurAffinity\InboxFurAffinitySubmission.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyPostFavorite.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyLikeFeedItem.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyPostFeedItem.fs" />
-    <Compile Include="Data\TheirContent\ATProto\BlueskyRepostFeedItem.fs" />
-    <Compile Include="Data\TheirContent\DeviantArt\DeviantArtFavorite.fs" />
-    <Compile Include="Data\TheirContent\DeviantArt\DeviantArtTextPostCheckStatus.fs" />
-    <Compile Include="Data\TheirContent\DeviantArt\InboxDeviation.fs" />
-    <Compile Include="Data\TheirContent\DeviantArt\InboxArtworkDeviation.fs" />
-    <Compile Include="Data\TheirContent\DeviantArt\InboxTextDeviation.fs" />
-    <Compile Include="Data\TheirContent\Feeds\GeneralInboxItem.fs" />
-    <Compile Include="Data\TheirContent\Weasyl\InboxWeasylJournal.fs" />
-    <Compile Include="Data\TheirContent\Weasyl\InboxWeasylSubmission.fs" />
-    <Compile Include="Data\TheirContent\Weasyl\WeasylFavoriteSubmission.fs" />
     <Compile Include="Data\PandacapDbContext.fs" />
     <Compile Include="Clients\JsonFeed.fs" />
     <Compile Include="Clients\Lemmy.fs" />
@@ -94,6 +52,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ActivityPub.Models.Interfaces\Pandacap.ActivityPub.Models.Interfaces.csproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.csproj" />
+    <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity.Interfaces\Pandacap.FurAffinity.Interfaces.vbproj" />
   </ItemGroup>
 

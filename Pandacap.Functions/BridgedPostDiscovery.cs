@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.Clients.ATProto;
 using Pandacap.Data;
+using Pandacap.Database;
 using System.Net;
 using System.Text.RegularExpressions;
 
@@ -21,7 +22,7 @@ namespace Pandacap.Functions
                 .. await context.Posts
                     .Where(p => p.PublishedTime > cutoff)
                     .Where(p => p.BlueskyDID == null)
-                    .Where(p => p.Type != PostType.Scraps)
+                    .Where(p => p.Type != Post.PostType.Scraps)
                     .ToListAsync(),
                 .. await context.AddressedPosts
                     .Where(p => p.PublishedTime > cutoff)

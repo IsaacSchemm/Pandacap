@@ -2,7 +2,7 @@
 {
     public interface IActivityPubLink
     {
-        string Href { get; }
-        string MediaType { get; }
+        string? Href { get; }
+        string? MediaType { get; }
     }
 }

@@ -14,5 +14,7 @@ namespace Pandacap.Database
 
         Badge IExternalCredentials.Badge =>
             Badges.DeviantArt.WithText(Username);
+
+        string IExternalCredentials.Id => $"{GetType().Name}-{Username}";
     }
 }

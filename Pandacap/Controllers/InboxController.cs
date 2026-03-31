@@ -5,6 +5,7 @@ using Microsoft.FSharp.Collections;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.Models;
+using Pandacap.UI.Elements;
 
 namespace Pandacap.Controllers
 {

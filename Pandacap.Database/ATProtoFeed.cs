@@ -60,6 +60,17 @@ namespace Pandacap.Database
         /// </summary>
         public List<string> NSIDs { get; set; } = [];
 
+        /// <summary>
+        /// The CID of the most recent commit to the atproto repo when Pandacap last checked it.
+        /// </summary>
+        public string? LastCommitCID { get; set; }
+
+        /// <summary>
+        /// Some of the most recent CIDs seen in the repo when Pandacap last checked it.
+        /// Used to tell Panadcap when to stop looking through the repo's objects on the next run.
+        /// </summary>
+        public List<string> LastCIDsSeen { get; set; } = [];
+
         Badge IFollow.Badge => Badges.ATProto;
 
         string? IFollow.LinkUrl => $"https://bsky.app/profile/{Handle}";

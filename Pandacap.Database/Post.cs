@@ -1,15 +1,14 @@
 ﻿using CommonMark;
+using Pandacap.ActivityPub.Models.Interfaces;
+using Pandacap.ActivityPub.Static;
 using Pandacap.Text;
 using Pandacap.UI.Badges;
 using Pandacap.UI.Elements;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace Pandacap.Database
 {
-    public class Post : IPost
+    public class Post : IPost, IActivityPubPost, IActivityPubAddressing
     {
         public Guid Id { get; set; }
 
@@ -72,13 +71,21 @@ namespace Pandacap.Database
 
         public List<Image> Images { get; set; } = [];
 
-        public class Link
+        public class Link : IActivityPubLink
         {
-            public string? Url { get; set; }
+            public string Url { get; set; } = "";
+
             public string? SiteName { get; set; }
+
             public string? Title { get; set; }
+
             public string? Image { get; set; }
+
             public string? Description { get; set; }
+
+            string IActivityPubLink.Href => Url;
+
+            string IActivityPubLink.MediaType => "text/html";
         }
 
         public List<Link> Links { get; set; } = [];
@@ -112,10 +119,7 @@ namespace Pandacap.Database
             };
 
         [NotMapped]
-        public string? Html =>
-            Body != null
-            ? CommonMarkConverter.Convert(Body)
-            : null;
+        public string Html => CommonMarkConverter.Convert(Body ?? "");
 
         [NotMapped]
         public IEnumerable<Image.BlobRef> Blobs =>
@@ -149,5 +153,38 @@ namespace Pandacap.Database
         string? IPost.Username => null;
 
         string? IPost.Usericon => null;
+
+        string IActivityPubPost.ObjectId => $"https://{ActivityPubHostInformation.ApplicationHostname}/UserPosts/{Id}";
+
+        IActivityPubAddressing IActivityPubPost.Addressing => this;
+
+        bool IActivityPubPost.IsArticle => Type == PostType.JournalEntry;
+
+        IEnumerable<string> IActivityPubPost.Tags => Tags;
+
+        IEnumerable<IActivityPubLink> IActivityPubPost.Links => Links;
+
+        IEnumerable<IActivityPubImage> IActivityPubPost.Images => Images.Select(image => new ActivityPubImageAdapter(this, image));
+
+        string? IActivityPubAddressing.InReplyTo => null;
+
+        IEnumerable<string> IActivityPubAddressing.To => ["https://www.w3.org/ns/activitystreams#Public"];
+
+        IEnumerable<string> IActivityPubAddressing.Cc => [$"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Followers"];
+
+        string? IActivityPubAddressing.Audience => null;
+
+        private class ActivityPubImageAdapter(Post post, Image image) : IActivityPubImage
+        {
+            string IActivityPubImage.Url => $"https://{ActivityPubHostInformation.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.Raster.Id}";
+
+            string IActivityPubImage.AltText => image.AltText ?? "";
+
+            string IActivityPubImage.MediaType => image.Raster.ContentType;
+
+            decimal? IActivityPubImage.HorizontalFocalPoint => image.FocalPoint?.Horizontal;
+
+            decimal? IActivityPubImage.VerticalFocalPoint => image.FocalPoint?.Vertical;
+        }
     }
 }
