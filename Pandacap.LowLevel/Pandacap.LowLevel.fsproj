@@ -8,9 +8,6 @@
   <ItemGroup>
     <Compile Include="ConfigurationObjects\ApplicationInformation.fs" />
     <Compile Include="ConfigurationObjects\UserAgentInformation.fs" />
-    <Compile Include="PlatformBadges\Badge.fs" />
-    <Compile Include="PlatformBadges\NotificationPlatform.fs" />
-    <Compile Include="PlatformBadges\PostPlatform.fs" />
     <Compile Include="ATProto\DIDResolver.fs" />
     <Compile Include="ATProto\NSIDs.fs" />
     <Compile Include="ATProto\Types.fs" />
