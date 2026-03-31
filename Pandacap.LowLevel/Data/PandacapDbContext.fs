@@ -7,7 +7,6 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
 
     member this.DeviantArtCredentials: DbSet<DeviantArtCredentials> = this.Set()
     member this.FurAffinityCredentials: DbSet<FurAffinityCredentials> = this.Set()
-    member this.RedditCredentials: DbSet<RedditCredentials> = this.Set()
     member this.WeasylCredentials: DbSet<WeasylCredentials> = this.Set()
     member this.Avatars: DbSet<Avatar> = this.Set()
     member this.Posts: DbSet<Post> = this.Set()
@@ -39,7 +38,6 @@ type PandacapDbContext(options: DbContextOptions<PandacapDbContext>) =
     member this.BlueskyPostFavorites: DbSet<BlueskyPostFavorite> = this.Set()
     member this.DeviantArtFavorites: DbSet<DeviantArtFavorite> = this.Set()
     member this.FurAffinityFavorites: DbSet<FurAffinityFavorite> = this.Set()
-    member this.RedditUpvotedPosts: DbSet<RedditUpvotedPost> = this.Set()
     member this.WeasylFavoriteSubmissions: DbSet<WeasylFavoriteSubmission> = this.Set()
 
     override _.OnModelCreating(builder) =

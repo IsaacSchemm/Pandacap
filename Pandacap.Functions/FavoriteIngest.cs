@@ -6,7 +6,6 @@ namespace Pandacap.Functions
     public class FavoriteIngest(
         DeviantArtFavoriteHandler deviantArtFavoriteHandler,
         FurAffinityFavoriteHandler furAffinityFavoriteHandler,
-        RedditFavoriteHandler redditFavoriteHandler,
         WeasylFavoriteHandler weasylFavoriteHandler)
     {
         [Function("FavoriteIngest")]
@@ -28,7 +27,6 @@ namespace Pandacap.Functions
 
             await c(deviantArtFavoriteHandler.ImportFavoritesAsync());
             await c(furAffinityFavoriteHandler.ImportFavoritesAsync());
-            await c(redditFavoriteHandler.ImportUpvotesAsync());
             await c(weasylFavoriteHandler.ImportFavoriteSubmissionsAsync());
 
             if (exceptions.Count > 0)

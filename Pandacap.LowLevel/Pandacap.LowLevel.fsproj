@@ -63,7 +63,6 @@
     <Compile Include="Data\Credentials\IExternalCredentials.fs" />
     <Compile Include="Data\Credentials\DeviantArtCredentials.fs" />
     <Compile Include="Data\Credentials\FurAffinityCredentials.fs" />
-    <Compile Include="Data\Credentials\RedditCredentials.fs" />
     <Compile Include="Data\Credentials\WeasylCredentials.fs" />
     <Compile Include="Data\MyContent\ActivityPubOutboundActivity.fs" />
     <Compile Include="Data\MyContent\AddressedPost.fs" />
@@ -97,7 +96,6 @@
     <Compile Include="Data\TheirContent\DeviantArt\InboxArtworkDeviation.fs" />
     <Compile Include="Data\TheirContent\DeviantArt\InboxTextDeviation.fs" />
     <Compile Include="Data\TheirContent\Feeds\GeneralInboxItem.fs" />
-    <Compile Include="Data\TheirContent\Reddit\RedditUpvotedPost.fs" />
     <Compile Include="Data\TheirContent\Weasyl\InboxWeasylJournal.fs" />
     <Compile Include="Data\TheirContent\Weasyl\InboxWeasylSubmission.fs" />
     <Compile Include="Data\TheirContent\Weasyl\WeasylFavoriteSubmission.fs" />

@@ -76,7 +76,6 @@ var host = new HostBuilder()
             .AddScoped<FurAffinityFavoriteHandler>()
             .AddScoped<FurAffinityInboxHandler>()
             .AddScoped<OutboxProcessor>()
-            .AddScoped<RedditFavoriteHandler>()
             .AddScoped<WeasylFavoriteHandler>()
             .AddScoped<WeasylInboxHandler>();
 
