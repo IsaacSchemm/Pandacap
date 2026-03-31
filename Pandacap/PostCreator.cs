@@ -3,7 +3,7 @@ using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
 using Pandacap.Database;
 using Pandacap.HighLevel.VectorSearch;
-using Pandacap.Html;
+using Pandacap.Text;
 
 namespace Pandacap
 {
@@ -105,7 +105,7 @@ namespace Pandacap
                     using var resp = await client.GetAsync(linkUrl, cancellationToken);
                     var html = await resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken);
 
-                    var metadata = Scraper.GetOpenGraphMetadata(html);
+                    var metadata = HtmlScraper.GetOpenGraphMetadata(html);
 
                     post.Links = [new()
                     {
@@ -115,7 +115,7 @@ namespace Pandacap
                             : resp.RequestMessage?.RequestUri?.Host,
                         Title = metadata.TryGetValue("og:title", out string? title)
                             ? title
-                            : Scraper.GetTitleFromHtml(html),
+                            : HtmlScraper.GetTitle(html),
                         Image = metadata.TryGetValue("og:image", out string? image)
                             ? image
                             : null,

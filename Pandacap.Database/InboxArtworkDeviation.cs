@@ -2,14 +2,17 @@
 
 namespace Pandacap.Database
 {
-    public class InboxArtworkDeviation : InboxDeviation, IPostThumbnail
+    public class InboxArtworkDeviation : InboxDeviation
     {
         public string ThumbnailUrl { get; set; } = "";
 
-        public override IEnumerable<IPostThumbnail> Thumbnails => [this];
+        public override IEnumerable<IPostThumbnail> Thumbnails => ThumbnailUrl is string url
+            ? [new PostThumbnail(url)]
+            : [];
 
-        string IPostThumbnail.Url => ThumbnailUrl;
-
-        string IPostThumbnail.AltText => "";
+        private record PostThumbnail(string Url) : IPostThumbnail
+        {
+            string IPostThumbnail.AltText => "";
+        }
     }
 }

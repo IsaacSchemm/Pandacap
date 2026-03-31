@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Pandacap.Html;
+using Pandacap.Text;
 
 namespace Pandacap.HighLevel.PlatformLinks
 {
@@ -35,8 +35,8 @@ namespace Pandacap.HighLevel.PlatformLinks
                             .Content
                             .ReadAsStringAsync(cancellationToken);
 
-                        var href = ImageFinder
-                            .FindFaviconsInHTML(html)
+                        var href = HtmlScraper
+                            .FindFavicons(html)
                             .Last();
 
                         return new Uri(req.RequestUri!, href).AbsoluteUri;

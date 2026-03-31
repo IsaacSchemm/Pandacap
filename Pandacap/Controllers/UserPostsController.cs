@@ -8,8 +8,8 @@ using Pandacap.Data;
 using Pandacap.Database;
 using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.VectorSearch;
-using Pandacap.Html;
 using Pandacap.Models;
+using Pandacap.Text;
 using System.Net;
 using System.Text;
 
@@ -225,7 +225,7 @@ namespace Pandacap.Controllers
             return View(new CreateLinkFromUrlViewModel
             {
                 LinkUrl = url,
-                Title = Scraper.GetTitleFromHtml(html)
+                Title = HtmlScraper.GetTitle(html)
             });
         }
 

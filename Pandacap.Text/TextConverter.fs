@@ -2,7 +2,6 @@
 
 open FSharp.Data
 
-/// Allows Pandacap to convert HTML to plain text when possible.
 module TextConverter =
     let FromHtml content =
         let rec getText (node: HtmlNode) = String.concat " " [

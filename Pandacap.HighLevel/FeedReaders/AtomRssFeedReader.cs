@@ -2,7 +2,7 @@
 using CodeHollow.FeedReader.Feeds;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Database;
-using Pandacap.Html;
+using Pandacap.Text;
 
 namespace Pandacap.HighLevel.FeedReaders
 {
@@ -39,8 +39,8 @@ namespace Pandacap.HighLevel.FeedReaders
                     (item.SpecificItem as MediaRssFeedItem)?.Enclosure
                     ?? (item.SpecificItem as Rss20FeedItem)?.Enclosure;
 
-                var image = ImageFinder
-                    .FindImagesInHTML(item.Description ?? "")
+                var image = HtmlScraper
+                    .FindImages(item.Description ?? "")
                     .DefaultIfEmpty(null)
                     .First();
 

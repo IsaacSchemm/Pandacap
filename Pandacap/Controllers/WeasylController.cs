@@ -5,9 +5,8 @@ using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.Database;
 using Pandacap.HighLevel;
-using Pandacap.Html;
+using Pandacap.Text;
 using Pandacap.Weasyl.Interfaces;
-using Pandacap.Weasyl.Models;
 
 namespace Pandacap.Controllers
 {

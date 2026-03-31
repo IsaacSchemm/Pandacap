@@ -19,7 +19,7 @@ namespace Pandacap.Database
 
         public string? Content { get; set; }
 
-        public string LinkUrl { get; set; } = "";
+        public string? LinkUrl { get; set; }
 
         public List<string> ThumbnailUrls { get; set; } = [];
 
@@ -33,9 +33,9 @@ namespace Pandacap.Database
 
         string IPost.Id => $"{Id}";
 
-        string IPost.InternalUrl => LinkUrl;
+        string? IPost.InternalUrl => LinkUrl;
 
-        string IPost.ExternalUrl => LinkUrl;
+        string? IPost.ExternalUrl => LinkUrl;
 
         DateTimeOffset IPost.PostedAt => Timestamp;
 

@@ -25,12 +25,12 @@ namespace Pandacap.UI.Elements
         /// <summary>
         /// A URL where the Pandacap administrator can view this content.
         /// </summary>
-        string InternalUrl { get; }
+        string? InternalUrl { get; }
 
         /// <summary>
         /// A URL where unauthenticated users can view this content.
         /// </summary>
-        string ExternalUrl { get; }
+        string? ExternalUrl { get; }
 
         /// <summary>
         /// The date/time at which this content was posted or added.
