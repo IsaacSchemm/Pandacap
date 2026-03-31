@@ -4,8 +4,8 @@ namespace Pandacap.UI.Elements
 {
     public interface IExternalCredentials
     {
-        string Id { get; }
         string Username { get; }
+        string PlatformName { get; }
         Badge Badge { get; }
     }
 }

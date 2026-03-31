@@ -11,11 +11,10 @@ namespace Pandacap.Database
 
         public string ApiKey { get; set; } = "";
 
-        Badge IExternalCredentials.Badge =>
-            Badges.Weasyl.WithText(Login);
-
-        string IExternalCredentials.Id => $"{GetType().Name}-{Login}";
+        Badge IExternalCredentials.Badge => Badges.Weasyl;
 
         string IExternalCredentials.Username => Login;
+
+        string IExternalCredentials.PlatformName => "Weasyl";
     }
 }

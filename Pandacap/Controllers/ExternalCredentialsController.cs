@@ -30,13 +30,13 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove(
             string username,
-            string id,
+            string platformName,
             CancellationToken cancellationToken)
         {
             var credentials = await GetExternalCredentialsAsync(cancellationToken);
 
             foreach (var credential in credentials)
-                if (credential.Username == username && credential.Id == id)
+                if (credential.Username == username && credential.PlatformName == platformName)
                     context.Remove(credential);
 
             await context.SaveChangesAsync(cancellationToken);

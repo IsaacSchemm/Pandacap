@@ -12,9 +12,8 @@ namespace Pandacap.Database
         public string AccessToken { get; set; } = "";
         public string RefreshToken { get; set; } = "";
 
-        Badge IExternalCredentials.Badge =>
-            Badges.DeviantArt.WithText(Username);
+        Badge IExternalCredentials.Badge => Badges.DeviantArt;
 
-        string IExternalCredentials.Id => $"{GetType().Name}-{Username}";
+        string IExternalCredentials.PlatformName => "DeviantArt";
     }
 }

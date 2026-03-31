@@ -2,6 +2,7 @@
 @using Pandacap.HighLevel
 @using Pandacap.HighLevel.VectorSearch
 @using Pandacap.Models
+@using Pandacap.UI.Badges
 @using Pandacap.UI.Elements
 @model IEnumerable<IPost>
 
@@ -24,7 +25,7 @@
         </h1>
     }
 
-    foreach (var badge in group.Select(p => p.Badge).Distinct())
+    foreach (var badge in group.Select(p => p.Badge).Except([Badges.Pandacap]).Distinct())
     {
         <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color">
             @badge.Text

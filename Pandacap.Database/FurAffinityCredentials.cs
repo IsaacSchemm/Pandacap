@@ -17,9 +17,8 @@ namespace Pandacap.Database
         string IFurAffinityCredentials.UserAgent =>
             UserAgentInformation.UserAgent;
 
-        Badge IExternalCredentials.Badge =>
-            Badges.FurAffinity.WithText(Username);
+        Badge IExternalCredentials.Badge => Badges.FurAffinity;
 
-        string IExternalCredentials.Id => $"{GetType().Name}-{Username}";
+        string IExternalCredentials.PlatformName => "Fur Affinity";
     }
 }
