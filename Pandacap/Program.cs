@@ -83,18 +83,6 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
     });
 }
 
-if (builder.Configuration["RedditAppId"] is string redditAppId
-    && builder.Configuration["RedditAppSecret"] is string redditAppSecret)
-{
-    authenticationBuilder.AddReddit(o => {
-        o.Scope.Add("read");
-        o.Scope.Add("history");
-        o.ClientId = builder.Configuration["RedditAppId"]!;
-        o.ClientSecret = builder.Configuration["RedditAppSecret"]!;
-        o.SaveTokens = true;
-    });
-}
-
 if (builder.Configuration["VectorSearchEmbeddingsEndpoint"] is string embeddingsEndpoint
     && builder.Configuration["VectorSearchSearchEndpoint"] is string searchEndpoint
     && builder.Configuration["VectorSearchIndexName"] is string indexName)

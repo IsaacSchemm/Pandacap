@@ -139,12 +139,6 @@ Posts from users you follow on these platforms will appear in the Pandacap inbox
 
 Weasyl support relies on a PHP proxy script (included in this repository).
 
-### Reddit
-
-Pandacap can connect to a Reddit account, to monitor it for upvotes on top-level posts and add these posts to your Favorites.
-
-No integration with the inbox or notification sections is included.
-
 ### RSS / Atom
 
 Pandacap can follow RSS and Atom feeds. New posts are added to the appropriate section of the Pandacap inbox.
@@ -227,8 +221,6 @@ Application settings (for both the function app and the web app):
 | CosmosDBAccountKey      | Database key
 | DeviantArtClientId      | OAuth client ID from DeviantArt
 | DeviantArtClientSecret  | OAuth secret from DeviantArt
-| RedditAppId             | OAuth client ID from Reddit
-| RedditAppSecret         | OAuth secret from Reddit
 | KeyVaultHostname        | Key vault hostname
 | StorageAccountHostname  | Hostname of the Azure blob storage account used for storing images associated with your posts or avatar
 | WeasylProxyHost         | Hostname that has `/pandacap/weasyl_proxy.php` and `/pandacap/weasyl_submit.php`
@@ -265,9 +257,6 @@ Web app user secrets example:
       "DeviantArtClientId": "...",
       "DeviantArtClientSecret": "...",
       "DeviantArtUsername":  "...",
-      "RedditAppId": "...",
-      "RedditAppSecret": "...",
-      "RedditUsername":  "...",
       "ActivityPubUsername": "userhere",
       "StorageAccountHostname": "example.blob.core.windows.net",
       "KeyVaultHostname": "example.vault.azure.net",
@@ -302,9 +291,6 @@ The key vault is for a single encryption key called `activitypub` that is used t
         * `DeviantArtClientId` (if you want to log in with DeviantArt): A client ID from https://www.deviantart.com/studio/apps.
         * `DeviantArtClientSecret` (if you want to log in with DeviantArt): A client secret from https://www.deviantart.com/studio/apps.
         * `DeviantArtUsername` (if you want to log in with DeviantArt): Only this user will be permitted to log in via DeviantArt; other valid DeviantArt users will be rejected.
-        * `RedditAppId` (if you want to log in with Reddit): An app ID from https://developers.reddit.com/my/apps.
-        * `RedditAppSecret` (if you want to log in with Reddit): An app secret from https://developers.reddit.com/my/apps.
-        * `RedditUsername` (if you want to log in with Reddit): Only this user will be permitted to log in via Reddit; other valid Reddit users will be rejected.
     1. Assign the following environment variables to both the web app and the function app:
         * `ActivityPubUsername`: the username part of the ActivityPub handle (before the `@www.example.com` portion).
         * `ApplicationHostname`: the web app's hostname (e.g. `www.example.com`).

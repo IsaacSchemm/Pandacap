@@ -13,7 +13,6 @@ namespace Pandacap.Controllers
         ) => [
             .. await context.DeviantArtCredentials.ToListAsync(cancellationToken),
             .. await context.FurAffinityCredentials.ToListAsync(cancellationToken),
-            .. await context.RedditCredentials.ToListAsync(cancellationToken),
             .. await context.WeasylCredentials.ToListAsync(cancellationToken),
         ];
 

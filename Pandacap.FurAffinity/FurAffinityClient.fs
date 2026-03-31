@@ -84,12 +84,12 @@ type internal FurAffinityClient(
                 use! resp = client.GetAsync("/submit/", cancellationToken = cancellationToken)
                 ignore (resp.EnsureSuccessStatusCode())
                 let! html = resp.Content.ReadAsStringAsync(cancellationToken)
-                let token = html |> HtmlDocument.Parse |> Scraper.extractAuthenticityToken "/submit/upload"
+                let token = html |> HtmlDocument.Parse |> Scraper.extractAuthenticityToken "/submit/upload/"
                 return token
             }
 
             let! finalize_submission_page_key = task {
-                use req = new HttpRequestMessage(System.Net.Http.HttpMethod.Post, "/submit/upload")
+                use req = new HttpRequestMessage(System.Net.Http.HttpMethod.Post, "/submit/upload/")
                 req.Content <- Multipart.from [
                     "key", Multipart.Field artwork_submission_page_key
                     "submission_type", Multipart.Field "submission"
