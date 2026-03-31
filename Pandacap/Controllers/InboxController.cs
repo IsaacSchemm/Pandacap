@@ -157,14 +157,6 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in context
-                .ATProtoInboxItems
-                .Where(x => ids.Contains(x.CID))
-                .AsAsyncEnumerable())
-            {
-                yield return item;
-            }
-
-            await foreach (var item in context
                 .BlueskyPostFeedItems
                 .Where(item => ids.Contains(item.CID))
                 .AsAsyncEnumerable())
