@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Data;
-using Pandacap.PlatformBadges;
+using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
@@ -26,10 +26,7 @@ namespace Pandacap.Notifications
             {
                 yield return new()
                 {
-                    Platform = new NotificationPlatform(
-                        "ActivityPub",
-                        PostPlatformModule.GetBadge(PostPlatform.ActivityPub),
-                        viewAllUrl: null),
+                    Badge = Badges.ActivityPub,
                     ActivityName = "Reply",
                     Url = $"/RemoteReplies/ViewReply?objectId={Uri.EscapeDataString(reply.ObjectId)}",
                     UserName = reply.Username,

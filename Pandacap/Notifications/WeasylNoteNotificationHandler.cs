@@ -1,5 +1,5 @@
 ﻿using Pandacap.HighLevel;
-using Pandacap.PlatformBadges;
+using Pandacap.UI.Badges;
 using Pandacap.Weasyl.Interfaces;
 
 namespace Pandacap.Notifications
@@ -13,17 +13,12 @@ namespace Pandacap.Notifications
             if (await userAwareClientFactory.CreateWeasylClientAsync() is not IWeasylClient client)
                 yield break;
 
-            var platform = new NotificationPlatform(
-                "Weasyl",
-                PostPlatformModule.GetBadge(PostPlatform.Weasyl),
-                viewAllUrl: "https://www.weasyl.com/notes");
-
             foreach (var note in await client.GetNotesAsync(CancellationToken.None))
             {
                 yield return new Notification
                 {
                     ActivityName = "note",
-                    Platform = platform,
+                    Badge = Badges.Weasyl,
                     Timestamp = note.time,
                     UserName = note.sender,
                     UserUrl = note.sender_url

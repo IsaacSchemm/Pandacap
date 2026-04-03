@@ -1,4 +1,4 @@
-﻿using Pandacap.PlatformBadges;
+﻿using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
@@ -22,10 +22,7 @@ namespace Pandacap.Notifications
                 error = new Notification
                 {
                     ActivityName = ex.GetType().Name,
-                    Platform = new NotificationPlatform(
-                        "Pandacap",
-                        PostPlatformModule.GetBadge(PostPlatform.Pandacap),
-                        null),
+                    Badge = Badges.Pandacap,
                     Timestamp = DateTime.UtcNow,
                     UserName = underlyingHandler.GetType().Name + ": " + ex.Message
                 };

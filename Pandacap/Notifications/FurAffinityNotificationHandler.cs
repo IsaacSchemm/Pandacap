@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.FurAffinity.Interfaces;
-using Pandacap.PlatformBadges;
+using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
@@ -16,11 +16,6 @@ namespace Pandacap.Notifications
             if (credentials == null)
                 yield break;
 
-            var platform = new NotificationPlatform(
-                "Fur Affinity",
-                PostPlatformModule.GetBadge(PostPlatform.FurAffinity),
-                viewAllUrl: "https://www.furaffinity.net/msg/others/");
-
             var others = await furAffinityClientFactory
                 .CreateClient(credentials)
                 .GetNotificationsAsync(CancellationToken.None);
@@ -30,7 +25,7 @@ namespace Pandacap.Notifications
                     yield return new Notification
                     {
                         ActivityName = notification.text,
-                        Platform = platform,
+                        Badge = Badges.FurAffinity,
                         Timestamp = notification.time
                     };
         }

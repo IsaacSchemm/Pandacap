@@ -1,7 +1,6 @@
 ﻿using DeviantArtFs.Extensions;
 using Pandacap.HighLevel.DeviantArt;
-using Pandacap.Clients;
-using Pandacap.PlatformBadges;
+using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
@@ -23,10 +22,7 @@ namespace Pandacap.Notifications
             await foreach (var message in feed)
                 yield return new()
                 {
-                    Platform = new NotificationPlatform(
-                        "DeviantArt",
-                        PostPlatformModule.GetBadge(PostPlatform.DeviantArt),
-                        viewAllUrl: "https://www.deviantart.com/notifications"),
+                    Badge = Badges.DeviantArt,
                     ActivityName = message.type,
                     UserName = message.originator.OrNull()?.username,
                     UserUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(message.originator.OrNull()?.username ?? "")}",

@@ -2,7 +2,7 @@
 using Pandacap.Clients.ATProto;
 using Pandacap.Data;
 using Pandacap.HighLevel;
-using Pandacap.PlatformBadges;
+using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
@@ -79,10 +79,7 @@ namespace Pandacap.Notifications
                     case ("app.bsky.feed.post", ".facets[app.bsky.richtext.facet].features[app.bsky.richtext.facet#mention].did"):
                         yield return new Notification
                         {
-                            Platform = new NotificationPlatform(
-                                "ATProto",
-                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                viewAllUrl: null),
+                            Badge = Badges.ATProto,
                             ActivityName = "Mention",
                             Url = $"https://bsky.app/profile/{link.Components.DID}/post/{link.Components.RecordKey}",
                             UserName = await GetDisplayNameAsync(link.Components.DID),
@@ -96,10 +93,7 @@ namespace Pandacap.Notifications
                     case ("app.bsky.graph.follow", ".subject"):
                         yield return new Notification
                         {
-                            Platform = new NotificationPlatform(
-                                "ATProto",
-                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                viewAllUrl: null),
+                            Badge = Badges.ATProto,
                             ActivityName = "Follow",
                             UserName = await GetDisplayNameAsync(link.Components.DID),
                             UserUrl = $"https://bsky.app/profile/{link.Components.DID}",
@@ -112,10 +106,7 @@ namespace Pandacap.Notifications
                     case ("app.bsky.feed.post", ".reply.parent.uri"):
                         yield return new Notification
                         {
-                            Platform = new NotificationPlatform(
-                                "ATProto",
-                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                viewAllUrl: null),
+                            Badge = Badges.ATProto,
                             ActivityName = "Reply",
                             Url = $"https://bsky.app/profile/{link.Components.DID}/post/{link.Components.RecordKey}",
                             UserName = await GetDisplayNameAsync(link.Components.DID),
@@ -129,10 +120,7 @@ namespace Pandacap.Notifications
                     case ("app.bsky.feed.like", ".subject.uri"):
                         yield return new Notification
                         {
-                            Platform = new NotificationPlatform(
-                                "ATProto",
-                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                viewAllUrl: null),
+                            Badge = Badges.ATProto,
                             ActivityName = "Like",
                             UserName = await GetDisplayNameAsync(link.Components.DID),
                             UserUrl = $"https://bsky.app/profile/{link.Components.DID}",
@@ -145,10 +133,7 @@ namespace Pandacap.Notifications
                     case ("app.bsky.feed.repost", ".subject.uri"):
                         yield return new Notification
                         {
-                            Platform = new NotificationPlatform(
-                                "ATProto",
-                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                viewAllUrl: null),
+                            Badge = Badges.ATProto,
                             ActivityName = "Repost",
                             UserName = await GetDisplayNameAsync(link.Components.DID),
                             UserUrl = $"https://bsky.app/profile/{link.Components.DID}",

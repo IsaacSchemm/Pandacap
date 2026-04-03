@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
 using Pandacap.FurAffinity.Interfaces;
-using Pandacap.PlatformBadges;
+using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
@@ -24,10 +24,7 @@ namespace Pandacap.Notifications
                 yield return new Notification
                 {
                     ActivityName = "note",
-                    Platform = new NotificationPlatform(
-                        "Fur Affinity",
-                        PostPlatformModule.GetBadge(PostPlatform.FurAffinity),
-                        viewAllUrl: "https://www.furaffinity.net/msg/others/"),
+                    Badge = Badges.FurAffinity,
                     PostUrl = $"https://www.furaffinity.net/viewmessage/{note.note_id}",
                     Timestamp = note.time,
                     UserName = note.userDisplayName
