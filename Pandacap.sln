@@ -122,6 +122,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ATProto.Services.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ATProto.Models.Tests", "Pandacap.ATProto.Models.Tests\Pandacap.ATProto.Models.Tests.csproj", "{7BCC8800-C83E-4FC9-BCFD-888DE2B08F62}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FeedIngestion", "FeedIngestion", "{5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.FeedIngestion.Interfaces", "Pandacap.FeedIngestion.Interfaces\Pandacap.FeedIngestion.Interfaces.vbproj", "{B6EBFC7C-97C1-467A-90FD-5C813FC600C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.FeedIngestion.Tests", "Pandacap.FeedIngestion.Tests\Pandacap.FeedIngestion.Tests.csproj", "{CCE1511A-95BE-476B-911B-9CAF6A04FD3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.FeedIngestion", "Pandacap.FeedIngestion\Pandacap.FeedIngestion.csproj", "{70E90959-7EAD-4A91-8EEE-AA44D401E977}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.FeedIngestion.Modules", "Pandacap.FeedIngestion.Modules\Pandacap.FeedIngestion.Modules.fsproj", "{B3233198-E3D3-4243-B273-DB0089BE2F64}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -316,6 +326,22 @@ Global
 		{7BCC8800-C83E-4FC9-BCFD-888DE2B08F62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BCC8800-C83E-4FC9-BCFD-888DE2B08F62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BCC8800-C83E-4FC9-BCFD-888DE2B08F62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6EBFC7C-97C1-467A-90FD-5C813FC600C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6EBFC7C-97C1-467A-90FD-5C813FC600C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6EBFC7C-97C1-467A-90FD-5C813FC600C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6EBFC7C-97C1-467A-90FD-5C813FC600C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCE1511A-95BE-476B-911B-9CAF6A04FD3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCE1511A-95BE-476B-911B-9CAF6A04FD3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCE1511A-95BE-476B-911B-9CAF6A04FD3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCE1511A-95BE-476B-911B-9CAF6A04FD3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70E90959-7EAD-4A91-8EEE-AA44D401E977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70E90959-7EAD-4A91-8EEE-AA44D401E977}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70E90959-7EAD-4A91-8EEE-AA44D401E977}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70E90959-7EAD-4A91-8EEE-AA44D401E977}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3233198-E3D3-4243-B273-DB0089BE2F64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3233198-E3D3-4243-B273-DB0089BE2F64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3233198-E3D3-4243-B273-DB0089BE2F64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3233198-E3D3-4243-B273-DB0089BE2F64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -365,6 +391,10 @@ Global
 		{2F957CA3-2B17-4E6D-8393-5136F788E557} = {2AB5FC83-5642-41CF-9FFC-96788FFBE926}
 		{9B681747-1E03-41FF-BC12-1A0F37D57711} = {2AB5FC83-5642-41CF-9FFC-96788FFBE926}
 		{7BCC8800-C83E-4FC9-BCFD-888DE2B08F62} = {2AB5FC83-5642-41CF-9FFC-96788FFBE926}
+		{B6EBFC7C-97C1-467A-90FD-5C813FC600C4} = {5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}
+		{CCE1511A-95BE-476B-911B-9CAF6A04FD3E} = {5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}
+		{70E90959-7EAD-4A91-8EEE-AA44D401E977} = {5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}
+		{B3233198-E3D3-4243-B273-DB0089BE2F64} = {5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

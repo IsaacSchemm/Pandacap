@@ -1,12 +1,14 @@
 ﻿using CodeHollow.FeedReader;
 using CodeHollow.FeedReader.Feeds;
-using Pandacap.ConfigurationObjects;
 using Pandacap.Database;
+using Pandacap.FeedIngestion.Interfaces;
 using Pandacap.Text;
+using System.Runtime.CompilerServices;
 
-namespace Pandacap.HighLevel.FeedReaders
+namespace Pandacap.FeedIngestion
 {
-    internal class AtomRssFeedReader : IFeedReader
+    internal class AtomRssFeedReader(
+        IFeedRequestHandler feedRequestHandler) : IFeedReader
     {
         private static readonly string[] _mediaTypes = [
             "application/atom+xml",
@@ -15,16 +17,17 @@ namespace Pandacap.HighLevel.FeedReaders
             "text/xml"
         ];
 
-        public async IAsyncEnumerable<GeneralInboxItem> ReadFeedAsync(
+        private async IAsyncEnumerable<GeneralInboxItem> ReadFeedAsync(
             string uri,
-            string? contentType)
+            string? contentType,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             if (contentType is string mediaType && !_mediaTypes.Contains(mediaType))
                 yield break;
 
-            var results = await FeedReader.ReadAsync(
-                uri,
-                userAgent: UserAgentInformation.UserAgent);
+            var response = await feedRequestHandler.GetAsync(uri, cancellationToken);
+            var content = await response.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken);
+            var results = FeedReader.ReadFromString(content);
 
             foreach (var item in results.Items)
             {
@@ -62,5 +65,8 @@ namespace Pandacap.HighLevel.FeedReaders
                 };
             }
         }
+
+        IAsyncEnumerable<GeneralInboxItem> IFeedReader.ReadFeedAsync(string uri, string contentType) =>
+            ReadFeedAsync(uri, contentType);
     }
 }

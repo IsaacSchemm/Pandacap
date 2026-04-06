@@ -7,6 +7,7 @@ using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.ATProto.Services;
 using Pandacap.ConfigurationObjects;
+using Pandacap.FeedIngestion;
 using Pandacap.FurAffinity;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
@@ -41,6 +42,7 @@ namespace Pandacap.HighLevel
                 .AddActivityPubServices()
                 .AddActivityPubRemoteObjectServices()
                 .AddATProtoServices()
+                .AddFeedReaders()
                 .AddFurAffinityClient()
                 .AddWeasylClient()
                 .AddWeasylScraper()
@@ -55,9 +57,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<EmbeddingsProvider>()
                 .AddScoped<FavoritesFeedBuilder>()
                 .AddScoped<FeedBuilder>()
-                .AddScoped<IFeedReader, AtomRssFeedReader>()
-                .AddScoped<IFeedReader, JsonFeedReader>()
-                .AddScoped<IFeedReader, TwtxtFeedReader>()
                 .AddScoped<FeedRefresher>()
                 .AddScoped<LemmyClient>()
                 .AddScoped<PlatformIconProvider>()

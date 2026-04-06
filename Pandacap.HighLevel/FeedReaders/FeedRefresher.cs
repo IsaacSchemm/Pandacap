@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Data;
+using Pandacap.FeedIngestion.Interfaces;
 
 namespace Pandacap.HighLevel.FeedReaders
 {

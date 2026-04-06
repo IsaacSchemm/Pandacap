@@ -24,19 +24,19 @@ module internal BlueskyRecords =
             sequence |> AsyncSeq.map (toRecordAbstraction translate)
 
     let private findNewestItems handler pds did collection sample = asyncSeq {
-        let listRecords = XRPC.Com.Atproto.Repo.asyncListRecords handler pds did collection 20 None
+        let listRecords = XRPC.Com.Atproto.Repo.asyncListRecords handler pds did collection 20
 
         let forward = XRPC.Com.Atproto.Repo.Forward
         let reverse = XRPC.Com.Atproto.Repo.Reverse
 
-        let! forwardPage = listRecords forward sample
+        let! forwardPage = listRecords None forward sample
 
         match forwardPage.records with
         | [] -> ()
         | [single] ->
             yield single
         | _ ->
-            let! reversePage = listRecords reverse sample
+            let! reversePage = listRecords None reverse sample
 
             let page =
                 [forwardPage; reversePage]
@@ -55,7 +55,7 @@ module internal BlueskyRecords =
             let mutable cursor = page.cursor
 
             while Option.isSome cursor do
-                let! nextPage = listRecords direction sample
+                let! nextPage = listRecords cursor direction sample
                 yield! nextPage.records
                 cursor <- if List.isEmpty nextPage.records then None else nextPage.cursor
     }

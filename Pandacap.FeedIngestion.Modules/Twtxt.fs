@@ -1,13 +1,12 @@
-﻿namespace Pandacap.Twtxt
+﻿namespace Pandacap.FeedIngestion.Modules
 
 open System
 open System.IO
 open System.Text
 open System.Text.RegularExpressions
-open System.Net
 open System.Web
 
-module Reader =
+module Twtxt =
     let MetadataExpression = new Regex("^# *([^ ]+) *= *(.*)")
     let StatusUpdateExpression = new Regex("^([^\t]+)\t(\(#([^ ]+)\) )?(.*)")
 

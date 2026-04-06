@@ -1,4 +1,4 @@
-﻿namespace Pandacap.LowLevel
+namespace Pandacap.FeedIngestion.Modules
 
 open System
 open System.Text.Json

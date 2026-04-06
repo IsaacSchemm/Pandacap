@@ -1,13 +1,12 @@
-﻿using Pandacap.Clients;
-using Pandacap.Data;
-using Pandacap.Database;
-using Pandacap.LowLevel;
-using System.Net;
+﻿using Pandacap.Database;
+using Pandacap.FeedIngestion.Interfaces;
+using Pandacap.FeedIngestion.Modules;
+using System.Runtime.CompilerServices;
 
-namespace Pandacap.HighLevel.FeedReaders
+namespace Pandacap.FeedIngestion
 {
     internal class JsonFeedReader(
-        IHttpClientFactory httpClientFactory
+        IFeedRequestHandler feedRequestHandler
     ) : IFeedReader
     {
         private static readonly string[] _mediaTypes = [
@@ -15,21 +14,21 @@ namespace Pandacap.HighLevel.FeedReaders
             "text/json"
         ];
 
-        public async IAsyncEnumerable<GeneralInboxItem> ReadFeedAsync(
+        private async IAsyncEnumerable<GeneralInboxItem> ReadFeedAsync(
             string uri,
-            string? contentType)
+            string? contentType,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             if (contentType is string mediaType && !_mediaTypes.Contains(mediaType))
                 yield break;
 
-            using var client = httpClientFactory.CreateClient();
-            using var resp = await client.GetAsync(uri);
+            using var resp = await feedRequestHandler.GetAsync(uri, cancellationToken);
 
             var respContentType = resp.EnsureSuccessStatusCode().Content.Headers.ContentType?.MediaType;
             if (respContentType is string respMediaType && !_mediaTypes.Contains(respMediaType))
                 yield break;
 
-            var content = await resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync();
+            var content = await resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken);
             var feed = JsonFeed.Parse(content);
 
             foreach (var item in feed.items)
@@ -42,8 +41,7 @@ namespace Pandacap.HighLevel.FeedReaders
                     AudioUrl = (item.attachments ?? [])
                         .Where(a => a.mime_type.StartsWith("audio/"))
                         .Select(a => a.url)
-                        .Where(url => url != null)
-                        .FirstOrDefault(),
+                        .FirstOrDefault(url => url != null),
                     FeedIconUrl = feed.favicon ?? feed.icon,
                     FeedTitle = feed.title ?? uri,
                     FeedWebsiteUrl = feed.home_page_url ?? uri,
@@ -57,8 +55,11 @@ namespace Pandacap.HighLevel.FeedReaders
             }
 
             if (feed.next_url != null)
-                await foreach (var item in ReadFeedAsync(uri, feed.next_url))
+                await foreach (var item in ReadFeedAsync(uri, feed.next_url, cancellationToken))
                     yield return item;
         }
+
+        IAsyncEnumerable<GeneralInboxItem> IFeedReader.ReadFeedAsync(string uri, string contentType) =>
+            ReadFeedAsync(uri, contentType);
     }
 }
