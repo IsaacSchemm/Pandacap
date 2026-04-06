@@ -41,7 +41,7 @@ else
         <div class="row">
             @foreach (var item in Model.Items)
             {
-                string url = User.Identity?.IsAuthenticated == true
+                string? url = User.Identity?.IsAuthenticated == true
                     ? item.InternalUrl
                     : item.ExternalUrl;
 

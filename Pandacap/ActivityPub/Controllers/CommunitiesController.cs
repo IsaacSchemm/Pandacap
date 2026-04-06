@@ -27,7 +27,7 @@ namespace Pandacap.Controllers
                 .Where(b => b.ActorId == actorId)
                 .SingleOrDefaultAsync(cancellationToken);
 
-            if (bookmark == null)
+            if (bookmark == null || bookmark.Name == null)
                 return NotFound();
 
             var community = await lemmyClient.GetCommunityAsync(

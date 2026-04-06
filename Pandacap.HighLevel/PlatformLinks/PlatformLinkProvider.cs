@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Models;
-using Pandacap.Clients.ATProto;
+using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using System.Runtime.CompilerServices;
@@ -11,7 +11,7 @@ namespace Pandacap.HighLevel.PlatformLinks
     public class PlatformLinkProvider(
         ApplicationInformation appInfo,
         PandacapDbContext context,
-        DIDResolver didResolver,
+        IDIDResolver didResolver,
         IMemoryCache memoryCache)
     {
         private const string KEY = "9d3b19b8-b641-4ea2-8f03-0edd775618d3";
@@ -67,7 +67,7 @@ namespace Pandacap.HighLevel.PlatformLinks
 
                 try
                 {
-                    var doc = await didResolver.ResolveAsync(did);
+                    var doc = await didResolver.ResolveAsync(did, cancellationToken);
                     handle = doc?.Handle;
                 }
                 catch (Exception ex)

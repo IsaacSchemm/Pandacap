@@ -39,7 +39,7 @@
         <div class="row">
             @foreach (var item in withThumbnails)
             {
-                string url = User.Identity?.IsAuthenticated == true
+                string? url = User.Identity?.IsAuthenticated == true
                     ? item.InternalUrl
                     : item.ExternalUrl;
 
@@ -80,7 +80,7 @@
 
     foreach (var item in withoutThumbnails)
     {
-        string url = User.Identity?.IsAuthenticated == true
+        string? url = User.Identity?.IsAuthenticated == true
             ? item.InternalUrl
             : item.ExternalUrl;
 

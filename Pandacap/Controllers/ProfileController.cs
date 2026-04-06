@@ -8,7 +8,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.Clients.ATProto;
+using Pandacap.ATProto.Models;
+using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.Database;
@@ -29,10 +30,11 @@ namespace Pandacap.Controllers
         IActivityPubRemoteActorService activityPubRemoteActorService,
         ApplicationInformation appInfo,
         ATProtoFeedReader atProtoFeedReader,
+        IATProtoService atProtoService,
         ATProtoHandleLookupClient atProtoHandleLookupClient,
         BlobServiceClient blobServiceClient,
         CompositeFavoritesProvider compositeFavoritesProvider,
-        DIDResolver didResolver,
+        IDIDResolver didResolver,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
         FeedRefresher feedRefresher,
@@ -284,7 +286,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Follow(string id, CancellationToken cancellationToken)
         {
-            if (await context.Follows.Where(f => f.ActorId == id).DocumentCountAsync() > 0)
+            if (await context.Follows.Where(f => f.ActorId == id).DocumentCountAsync(cancellationToken) > 0)
                 return RedirectToAction(nameof(UpdateFollow), new { id });
 
             var actor = await activityPubRemoteActorService.FetchActorAsync(id, cancellationToken);
@@ -313,7 +315,7 @@ namespace Pandacap.Controllers
                 IconUrl = actor.IconUrl
             });
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(UpdateFollow), new { id });
         }
@@ -363,23 +365,27 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddATProtoFeed(string handle)
+        public async Task<IActionResult> AddATProtoFeed(
+            string handle,
+            CancellationToken cancellationToken)
         {
             var client = httpClientFactory.CreateClient();
 
             string did = handle.StartsWith("did:")
                 ? handle
-                : await atProtoHandleLookupClient.FindDIDAsync(handle);
+                : await atProtoHandleLookupClient.FindDIDAsync(
+                    handle,
+                    cancellationToken);
 
-            if (await context.ATProtoFeeds.Where(a => a.DID == did).DocumentCountAsync() > 0)
+            if (await context.ATProtoFeeds.Where(a => a.DID == did).DocumentCountAsync(cancellationToken) > 0)
                 return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
 
-            var document = await didResolver.ResolveAsync(did);
+            var document = await didResolver.ResolveAsync(did, cancellationToken);
 
-            var repo = await XRPC.Com.Atproto.Repo.DescribeRepoAsync(
-                client,
+            var repoCollections = await atProtoService.GetCollectionsInRepoAsync(
                 document.PDS,
-                did);
+                did,
+                cancellationToken);
 
             context.ATProtoFeeds.Add(new ATProtoFeed
             {
@@ -387,7 +393,7 @@ namespace Pandacap.Controllers
                 Handle = document.Handle,
                 CurrentPDS = document.PDS,
                 NSIDs = [
-                    .. repo.collections.Intersect([
+                    .. repoCollections.Intersect([
                         NSIDs.App.Bsky.Actor.Profile,
                         NSIDs.App.Bsky.Feed.Post,
                         NSIDs.App.Bsky.Feed.Repost
@@ -395,7 +401,7 @@ namespace Pandacap.Controllers
                 ]
             });
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
         }
@@ -429,13 +435,14 @@ namespace Pandacap.Controllers
         [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RefreshATProtoFeed(
-            string did)
+            string did,
+            CancellationToken cancellationToken)
         {
             var feed = await context.ATProtoFeeds
                 .Where(f => f.DID == did)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
-            await atProtoFeedReader.RefreshFeedAsync(did);
+            await atProtoFeedReader.RefreshFeedAsync(did, cancellationToken);
 
             return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
         }

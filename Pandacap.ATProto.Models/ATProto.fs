@@ -1,13 +1,4 @@
-﻿namespace Pandacap.Clients.ATProto
-
-open System
-
-type ATProtoTokens = {
-    AccessToken: string
-    RefreshToken: string
-    Handle: string
-    DID: string
-}
+﻿namespace Pandacap.ATProto.Models
 
 type ATProtoRefUri = {
     Raw: string
@@ -47,35 +38,3 @@ type ATProtoPage<'T> = {
 type ATProtoListDirection =
 | Forward
 | Reverse
-
-type BlueskyProfile = {
-    AvatarCID: string
-    DisplayName: string
-    Description: string
-}
-
-type BlueskyImage = {
-    CID: string
-    Alt: string
-}
-
-type BlueskyReplyContext = {
-    Parent: ATProtoRef
-    Root: ATProtoRef
-}
-
-type BlueskyPost = {
-    Text: string
-    Images: BlueskyImage list
-    Quoted: ATProtoRef list
-    InReplyTo: BlueskyReplyContext list
-    BridgyOriginalUrl: string
-    FediverseId: string
-    Labels: string list
-    CreatedAt: DateTimeOffset
-}
-
-type BlueskyInteraction = {
-    CreatedAt: DateTimeOffset
-    Subject: ATProtoRef
-}

@@ -1,11 +1,11 @@
 ﻿using DnsClient;
 using DnsClient.Protocol;
-using Pandacap.Clients.ATProto;
+using Pandacap.ATProto.Services.Interfaces;
 
 namespace Pandacap.HighLevel.ATProto
 {
     public class ATProtoHandleLookupClient(
-        DIDResolver didResolver,
+        IDIDResolver didResolver,
         IHttpClientFactory httpClientFactory,
         ILookupClient lookupClient)
     {
@@ -75,7 +75,7 @@ namespace Pandacap.HighLevel.ATProto
 
                 if (await task is string did)
                 {
-                    var doc = await didResolver.ResolveAsync(did);
+                    var doc = await didResolver.ResolveAsync(did, cancellationToken);
                     if (doc.Handle != handle)
                         continue;
 

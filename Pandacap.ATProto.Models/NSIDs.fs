@@ -1,4 +1,4 @@
-﻿namespace Pandacap.Clients.ATProto
+﻿namespace Pandacap.ATProto.Models
 
 module NSIDs =
     module App =

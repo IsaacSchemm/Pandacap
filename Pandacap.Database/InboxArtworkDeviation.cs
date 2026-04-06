@@ -4,7 +4,7 @@ namespace Pandacap.Database
 {
     public class InboxArtworkDeviation : InboxDeviation
     {
-        public string ThumbnailUrl { get; set; } = "";
+        public string? ThumbnailUrl { get; set; }
 
         public override IEnumerable<IPostThumbnail> Thumbnails => ThumbnailUrl is string url
             ? [new PostThumbnail(url)]

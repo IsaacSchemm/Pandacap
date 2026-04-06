@@ -1,4 +1,4 @@
-﻿using Pandacap.Clients.ATProto;
+﻿using Pandacap.ATProto.Models;
 using Pandacap.Resolvers;
 
 namespace Pandacap.HighLevel.Resolvers

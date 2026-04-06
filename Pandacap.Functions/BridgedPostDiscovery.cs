@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Models.Interfaces;
-using Pandacap.Clients.ATProto;
+using Pandacap.ATProto.Models;
 using Pandacap.Data;
 using Pandacap.Database;
 using System.Net;

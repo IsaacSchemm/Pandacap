@@ -8,7 +8,6 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Pandacap;
 using Pandacap.ActivityPub.HttpSignatures.Discovery;
 using Pandacap.ActivityPub.HttpSignatures.Validation;
-using Pandacap.Clients.ATProto;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
@@ -92,9 +91,6 @@ if (builder.Configuration["VectorSearchEmbeddingsEndpoint"] is string embeddings
         SearchEndpoint: searchEndpoint,
         IndexName: indexName));
 }
-
-builder.Services.AddSingleton(new ConstellationHost(
-    builder.Configuration["ConstellationHost"]));
 
 builder.Services.AddSingleton(new AllowedExternalUserCollection(
     DeviantArtUsers: builder.Configuration["DeviantArtUsername"] is string du ? [du] : [],

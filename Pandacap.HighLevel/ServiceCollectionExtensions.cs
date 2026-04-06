@@ -2,14 +2,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Pandacap.ActivityPub.JsonLd;
 using Pandacap.ActivityPub.RemoteObjects;
-using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
-using Pandacap.Clients.ATProto;
+using Pandacap.ATProto.Services;
 using Pandacap.ConfigurationObjects;
 using Pandacap.FurAffinity;
-using Pandacap.FurAffinity.Interfaces;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.HighLevel.FeedReaders;
@@ -19,9 +17,7 @@ using Pandacap.HighLevel.Resolvers;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Weasyl;
-using Pandacap.Weasyl.Interfaces;
 using Pandacap.Weasyl.Scraping;
-using Pandacap.Weasyl.Scraping.Interfaces;
 
 namespace Pandacap.HighLevel
 {
@@ -44,6 +40,7 @@ namespace Pandacap.HighLevel
                 .AddJsonLdExpansionService()
                 .AddActivityPubServices()
                 .AddActivityPubRemoteObjectServices()
+                .AddATProtoServices()
                 .AddFurAffinityClient()
                 .AddWeasylClient()
                 .AddWeasylScraper()
@@ -53,7 +50,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<CompositeInboxProvider>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<CompositeResolver>()
-                .AddScoped<ConstellationClient>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DIDResolver>()
                 .AddScoped<EmbeddingsProvider>()

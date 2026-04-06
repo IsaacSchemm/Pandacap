@@ -1,18 +1,15 @@
 using Azure.Identity;
 using DeviantArtFs;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Pandacap.Clients.ATProto;
 using Pandacap.Data;
 using Pandacap.Functions;
 using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.VectorSearch;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -44,9 +41,6 @@ var host = new HostBuilder()
                 clientBuilder.UseCredential(new DefaultAzureCredential());
             });
         }
-
-        if (Environment.GetEnvironmentVariable("ConstellationHost") is string constellationHost)
-            services.AddSingleton(new ConstellationHost(constellationHost));
 
         if (Environment.GetEnvironmentVariable("DeviantArtClientId") is string deviantArtClientId
             && Environment.GetEnvironmentVariable("DeviantArtClientSecret") is string deviantArtClientSecret)

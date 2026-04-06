@@ -63,6 +63,9 @@ namespace Pandacap.Functions.InboxHandlers
                 if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                     continue;
 
+                if (deviation.url?.OrNull() is not string url)
+                    continue;
+
                 context.InboxArtworkDeviations.Add(new()
                 {
                     Id = deviation.deviationid,
@@ -76,7 +79,7 @@ namespace Pandacap.Functions.InboxHandlers
                         .OrderByDescending(t => t.height)
                         .Select(t => t.src)
                         .FirstOrDefault(),
-                    LinkUrl = deviation.url?.OrNull()
+                    LinkUrl = url
                 });
             }
 
@@ -133,6 +136,9 @@ namespace Pandacap.Functions.InboxHandlers
                     if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                         continue;
 
+                    if (deviation.url?.OrNull() is not string url)
+                        continue;
+
                     if (publishedTime < cutoff)
                         break;
 
@@ -152,7 +158,7 @@ namespace Pandacap.Functions.InboxHandlers
                         Username = author.username,
                         MatureContent = deviation.is_mature.OrNull() ?? false,
                         Title = deviation.title?.OrNull(),
-                        LinkUrl = deviation.url?.OrNull()
+                        LinkUrl = url
                     });
                 }
             }

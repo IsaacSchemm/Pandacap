@@ -47,7 +47,7 @@ namespace Pandacap.Functions
 
             var atProtoFeeds = await context.ATProtoFeeds.Select(f => new { f.DID }).ToListAsync();
             foreach (var feed in atProtoFeeds)
-                await c(atProtoFeedReader.RefreshFeedAsync(feed.DID));
+                await c(atProtoFeedReader.RefreshFeedAsync(feed.DID, CancellationToken.None));
 
             if (exceptions.Count > 0)
                 throw new AggregateException(exceptions);

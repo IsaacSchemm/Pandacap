@@ -1,63 +1,54 @@
-﻿namespace Pandacap.Clients.ATProto
+namespace Pandacap.ATProto.Services
 
 open System
-open System.Threading.Tasks
+open FSharp.Control
+open Pandacap.ATProto.Models
 
-module RecordEnumeration =
-    let private findNewestItemsAsync httpClient pds did collection pageSize sample = task {
-        let func = XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did collection
-
-        let! forward = func pageSize None ATProtoListDirection.Forward sample
-        let! reverse = func pageSize None ATProtoListDirection.Reverse sample
-
-        let page =
-            [forward; reverse]
-            |> Seq.maxBy (fun page ->
-                page.records
-                |> Seq.map (fun r -> r.uri)
-                |> Seq.tryHead)
-
-        return page.records
-    }
-
-    let private thenMapToRecordAsync<'T, 'U> (translate: 'T -> 'U) (t: Task<XRPC.Com.Atproto.Repo.Record<'T>>) = task {
-        let! x = t
-        return {
-            Ref = {
-                CID = x.cid
-                Uri = { Raw = x.uri }
-            }
-            Value = translate x.value
+module internal BlueskyRecords =
+    let private toRecordAbstraction<'T, 'U> (translate: 'T -> 'U) (record: XRPC.Com.Atproto.Repo.Record<'T>) = {
+        Ref = {
+            CID = record.cid
+            Uri = { Raw = record.uri }
         }
+        Value = translate record.value
     }
 
-    let private thenMapToPageAsync<'T, 'U> (translate: 'T -> 'U) (t: Task<XRPC.Com.Atproto.Repo.Page<'T>>) = task {
-        let! l = t
-        return {
-            Cursor = Option.toObj l.cursor
-            Items = [
-                for x in l.records do {
-                    Ref = {
-                        CID = x.cid
-                        Uri = { Raw = x.uri }
-                    }
-                    Value = translate x.value
-                }
-            ]
+    module private Async =
+        let toRecordAbstraction<'T, 'U> (translate: 'T -> 'U) (workflow: Async<XRPC.Com.Atproto.Repo.Record<'T>>) = async {
+            let! record = workflow
+            return record |> toRecordAbstraction translate
         }
-    }
 
-    let private thenMapAsync<'T, 'U> (translate: 'T -> 'U) (t: Task<XRPC.Com.Atproto.Repo.Record<'T> list>) = task {
-        let! l = t
-        return [
-            for x in l do {
-                Ref = {
-                    CID = x.cid
-                    Uri = { Raw = x.uri }
-                }
-                Value = translate x.value
-            }
-        ]
+    module private AsyncSeq =
+        let toRecordAbstractions<'T, 'U> (translate: 'T -> 'U) (sequence: AsyncSeq<XRPC.Com.Atproto.Repo.Record<'T>>) =
+            sequence |> AsyncSeq.map (toRecordAbstraction translate)
+
+    let private findNewestItems handler pds did collection sample = asyncSeq {
+        let func = XRPC.Com.Atproto.Repo.asyncListRecords handler pds did collection 20
+
+        let! forward = func None Forward sample
+
+        if forward.records.Length <= 1 then
+            yield! forward.records
+        else
+            let! reverse = func None Reverse sample
+
+            let page =
+                [forward; reverse]
+                |> Seq.maxBy (fun page ->
+                    page.records
+                    |> Seq.map (fun r -> r.uri)
+                    |> Seq.tryHead)
+
+            yield! page.records
+
+            let direction = if page = forward then Forward else Reverse
+            let mutable cursor = page.cursor
+
+            while Option.isSome cursor do
+                let! nextPage = func cursor direction sample
+                yield! nextPage.records
+                cursor <- if List.isEmpty nextPage.records then None else nextPage.cursor
     }
 
     module BlueskyProfile =
@@ -89,13 +80,9 @@ module RecordEnumeration =
                 Description = Option.toObj item.description
             }
 
-        let GetRecordAsync httpClient pds did rkey =
-            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.App.Bsky.Actor.Profile rkey sample
-            |> thenMapToRecordAsync translate
-
-        let ListRecordsAsync httpClient pds did limit cursor direction =
-            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.App.Bsky.Actor.Profile limit cursor direction sample
-            |> thenMapToPageAsync translate
+        let asyncFindNewestRecords handler pds did =
+            findNewestItems handler pds did NSIDs.App.Bsky.Actor.Profile sample
+            |> AsyncSeq.toRecordAbstractions translate
 
     module BlueskyPost =
         let private sample = {|
@@ -185,17 +172,13 @@ module RecordEnumeration =
                 CreatedAt = item.createdAt
             }
 
-        let GetRecordAsync httpClient pds did rkey =
-            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.App.Bsky.Feed.Post rkey sample
-            |> thenMapToRecordAsync translate
+        let asyncGetRecord handler pds did rkey =
+            XRPC.Com.Atproto.Repo.asyncGetRecord handler pds did NSIDs.App.Bsky.Feed.Post rkey sample
+            |> Async.toRecordAbstraction translate
 
-        let ListRecordsAsync httpClient pds did limit cursor direction =
-            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.App.Bsky.Feed.Post limit cursor direction sample
-            |> thenMapToPageAsync translate
-
-        let FindNewestRecordsAsync httpClient pds did pageSize =
-            findNewestItemsAsync httpClient pds did NSIDs.App.Bsky.Feed.Post pageSize sample
-            |> thenMapAsync translate
+        let asyncFindNewestRecords handler pds did =
+            findNewestItems handler pds did NSIDs.App.Bsky.Feed.Post sample
+            |> AsyncSeq.toRecordAbstractions translate
 
     module BlueskyLike =
         let private sample = {|
@@ -217,17 +200,9 @@ module RecordEnumeration =
                 }
             }
 
-        let GetRecordAsync httpClient pds did rkey =
-            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.App.Bsky.Feed.Like rkey sample
-            |> thenMapToRecordAsync translate
-
-        let ListRecordsAsync httpClient pds did limit cursor direction =
-            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.App.Bsky.Feed.Like limit cursor direction sample
-            |> thenMapToPageAsync translate
-
-        let FindNewestRecordsAsync httpClient pds did pageSize =
-            findNewestItemsAsync httpClient pds did NSIDs.App.Bsky.Feed.Like pageSize sample
-            |> thenMapAsync translate
+        let asyncFindNewestRecords handler pds did =
+            findNewestItems handler pds did NSIDs.App.Bsky.Feed.Like sample
+            |> AsyncSeq.toRecordAbstractions translate
 
     module BlueskyRepost =
         let private sample = {|
@@ -249,14 +224,6 @@ module RecordEnumeration =
                 }
             }
 
-        let GetRecordAsync httpClient pds did rkey =
-            XRPC.Com.Atproto.Repo.GetRecordAsync httpClient pds did NSIDs.App.Bsky.Feed.Repost rkey sample
-            |> thenMapToRecordAsync translate
-
-        let ListRecordsAsync httpClient pds did limit cursor direction =
-            XRPC.Com.Atproto.Repo.ListRecordsAsync httpClient pds did NSIDs.App.Bsky.Feed.Repost limit cursor direction sample
-            |> thenMapToPageAsync translate
-
-        let FindNewestRecordsAsync httpClient pds did pageSize =
-            findNewestItemsAsync httpClient pds did NSIDs.App.Bsky.Feed.Repost pageSize sample
-            |> thenMapAsync translate
+        let asyncFindNewestRecords handler pds did =
+            findNewestItems handler pds did NSIDs.App.Bsky.Feed.Repost sample
+            |> AsyncSeq.toRecordAbstractions translate

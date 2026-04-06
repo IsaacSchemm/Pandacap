@@ -8,8 +8,6 @@ Note: This project is just a hobby of mine. It doesn't have a stable feature set
 
 ## Design Philosophy
 
-A quick summary of the design philosophy:
-
 1. Pandacap should present itself to visitors as a personal website, not a social media platform.
 2. Pandacap should not show any content to logged-out users that was not either created or bookmarked by the admin.
 3. Pandacap should keep shares separate from original content, and keep image content separate from text.
@@ -216,7 +214,6 @@ Application settings (for both the function app and the web app):
 | ----------------------- | -----------------------------------------------------
 | ActivityPubUsername     | Username to use for ActivityPub and on the home page
 | ApplicationHostname     | Public hostname of the app
-| ConstellationHost       | URL of a Constellation server for adding ATProto activity to the notifications page
 | CosmosDBAccountEndpoint | URL of the database
 | CosmosDBAccountKey      | Database key
 | DeviantArtClientId      | OAuth client ID from DeviantArt
@@ -251,7 +248,6 @@ Web app user secrets example:
           "TenantId": "..."
         }
       },
-      "ConstellationHost": "constellation.microcosm.blue",
       "CosmosDBAccountEndpoint": "https://example.documents.azure.com:443/",
       "CosmosDBAccountKey": "...",
       "DeviantArtClientId": "...",
@@ -294,7 +290,6 @@ The key vault is for a single encryption key called `activitypub` that is used t
     1. Assign the following environment variables to both the web app and the function app:
         * `ActivityPubUsername`: the username part of the ActivityPub handle (before the `@www.example.com` portion).
         * `ApplicationHostname`: the web app's hostname (e.g. `www.example.com`).
-        * `ConstellationHost`: the hostname of a [Constellation](https://constellation.microcosm.blue) instance. Used for looking up interactions with your posts that are bridged to Bluesky via Bridgy Fed.
         * `CosmosDBAccountEndpoint`: the URL of the Cosmos DB server created above (e.g. https://www.example.net:443/).
         * `CosmosDBAccountKey` (optional): if you are using key-based authentication, the key goes here.
         * `KeyVaultHostname`: The hostname to the key vault created above.

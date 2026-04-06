@@ -8,12 +8,6 @@
   <ItemGroup>
     <Compile Include="ConfigurationObjects\ApplicationInformation.fs" />
     <Compile Include="ConfigurationObjects\UserAgentInformation.fs" />
-    <Compile Include="ATProto\DIDResolver.fs" />
-    <Compile Include="ATProto\NSIDs.fs" />
-    <Compile Include="ATProto\Types.fs" />
-    <Compile Include="ATProto\XRPC.fs" />
-    <Compile Include="ATProto\RecordEnumeration.fs" />
-    <Compile Include="ATProto\ConstellationClient.fs" />
     <Compile Include="Twtxt\Reader.fs" />
     <Folder Include="Resolvers\" />
     <Compile Include="resolvers\ResolverResult.fs" />
