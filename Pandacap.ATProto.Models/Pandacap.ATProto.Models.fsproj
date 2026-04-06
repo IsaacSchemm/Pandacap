@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="NSIDs.fs" />
     <Compile Include="ATProto.fs" />
     <Compile Include="Bluesky.fs" />
     <Compile Include="DIDs.fs" />

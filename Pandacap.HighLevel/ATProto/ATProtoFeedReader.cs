@@ -207,7 +207,7 @@ namespace Pandacap.HighLevel.ATProto
                 feed.AvatarCID = profile.Value.AvatarCID;
             }
 
-            if (feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Like))
+            if (feed.NSIDs.Contains("app.bsky.feed.like"))
             {
                 var likes = blueskyService.GetNewestLikesAsync(
                     pds,
@@ -234,7 +234,7 @@ namespace Pandacap.HighLevel.ATProto
                 }
             }
 
-            if (feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Post))
+            if (feed.NSIDs.Contains("app.bsky.feed.post"))
             {
                 var posts = blueskyService.GetNewestPostsAsync(
                     pds,
@@ -258,7 +258,7 @@ namespace Pandacap.HighLevel.ATProto
                 }
             }
 
-            if (feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Repost))
+            if (feed.NSIDs.Contains("app.bsky.feed.repost"))
             {
                 var reposts = blueskyService.GetNewestRepostsAsync(
                     pds,

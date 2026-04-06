@@ -7,17 +7,15 @@ type ATProtoRefUri = {
         this.Raw
 
     member this.Components =
-        let split =
-            this.Raw
-            |> Option.ofObj
-            |> Option.filter (fun uri -> uri.StartsWith("at://"))
-            |> Option.map (fun str -> str.Split('/'))
-            |> Option.defaultValue [||]
+        let array =
+            if not (isNull this.Raw) && this.Raw.StartsWith("at://")
+            then this.Raw.Split('/')
+            else Array.empty
 
         {|
-            DID = split |> Seq.tryItem 2 |> Option.toObj
-            Collection = split |> Seq.tryItem 3 |> Option.toObj
-            RecordKey = split |> Seq.tryItem 4 |> Option.toObj
+            DID = Option.toObj (Array.tryItem 2 array)
+            Collection = Option.toObj (Array.tryItem 3 array)
+            RecordKey = Option.toObj (Array.tryItem 4 array)
         |}
 
 type ATProtoRef = {
@@ -34,7 +32,3 @@ type ATProtoPage<'T> = {
     Items: 'T list
     Cursor: string
 }
-
-type ATProtoListDirection =
-| Forward
-| Reverse

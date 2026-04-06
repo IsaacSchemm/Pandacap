@@ -24,17 +24,22 @@ module internal BlueskyRecords =
             sequence |> AsyncSeq.map (toRecordAbstraction translate)
 
     let private findNewestItems handler pds did collection sample = asyncSeq {
-        let func = XRPC.Com.Atproto.Repo.asyncListRecords handler pds did collection 20
+        let listRecords = XRPC.Com.Atproto.Repo.asyncListRecords handler pds did collection 20 None
 
-        let! forward = func None Forward sample
+        let forward = XRPC.Com.Atproto.Repo.Forward
+        let reverse = XRPC.Com.Atproto.Repo.Reverse
 
-        if forward.records.Length <= 1 then
-            yield! forward.records
-        else
-            let! reverse = func None Reverse sample
+        let! forwardPage = listRecords forward sample
+
+        match forwardPage.records with
+        | [] -> ()
+        | [single] ->
+            yield single
+        | _ ->
+            let! reversePage = listRecords reverse sample
 
             let page =
-                [forward; reverse]
+                [forwardPage; reversePage]
                 |> Seq.maxBy (fun page ->
                     page.records
                     |> Seq.map (fun r -> r.uri)
@@ -42,11 +47,15 @@ module internal BlueskyRecords =
 
             yield! page.records
 
-            let direction = if page = forward then Forward else Reverse
+            let direction =
+                if page = forwardPage
+                then forward
+                else reverse
+
             let mutable cursor = page.cursor
 
             while Option.isSome cursor do
-                let! nextPage = func cursor direction sample
+                let! nextPage = listRecords direction sample
                 yield! nextPage.records
                 cursor <- if List.isEmpty nextPage.records then None else nextPage.cursor
     }
@@ -81,7 +90,7 @@ module internal BlueskyRecords =
             }
 
         let asyncFindNewestRecords handler pds did =
-            findNewestItems handler pds did NSIDs.App.Bsky.Actor.Profile sample
+            findNewestItems handler pds did "app.bsky.actor.profile" sample
             |> AsyncSeq.toRecordAbstractions translate
 
     module BlueskyPost =
@@ -173,11 +182,11 @@ module internal BlueskyRecords =
             }
 
         let asyncGetRecord handler pds did rkey =
-            XRPC.Com.Atproto.Repo.asyncGetRecord handler pds did NSIDs.App.Bsky.Feed.Post rkey sample
+            XRPC.Com.Atproto.Repo.asyncGetRecord handler pds did "app.bsky.feed.post" rkey sample
             |> Async.toRecordAbstraction translate
 
         let asyncFindNewestRecords handler pds did =
-            findNewestItems handler pds did NSIDs.App.Bsky.Feed.Post sample
+            findNewestItems handler pds did "app.bsky.feed.post" sample
             |> AsyncSeq.toRecordAbstractions translate
 
     module BlueskyLike =
@@ -201,7 +210,7 @@ module internal BlueskyRecords =
             }
 
         let asyncFindNewestRecords handler pds did =
-            findNewestItems handler pds did NSIDs.App.Bsky.Feed.Like sample
+            findNewestItems handler pds did "app.bsky.feed.like" sample
             |> AsyncSeq.toRecordAbstractions translate
 
     module BlueskyRepost =
@@ -225,5 +234,5 @@ module internal BlueskyRecords =
             }
 
         let asyncFindNewestRecords handler pds did =
-            findNewestItems handler pds did NSIDs.App.Bsky.Feed.Repost sample
+            findNewestItems handler pds did "app.bsky.feed.repost" sample
             |> AsyncSeq.toRecordAbstractions translate

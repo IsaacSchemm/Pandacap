@@ -1,7 +1,4 @@
-﻿using Microsoft.FSharp.Collections;
-using Moq;
-using Pandacap.ATProto.Models;
-using Pandacap.ATProto.Services.Interfaces;
+﻿using Pandacap.ATProto.Services.Interfaces;
 using System.Net;
 using System.Text;
 
@@ -29,18 +26,18 @@ namespace Pandacap.ATProto.Services.Tests
 
             var regularDictionary = new Dictionary<Uri, string>
             {
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20")] = PWHL_LIKES_FORWARD_3,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&reverse=true")] = PWHL_LIKES_REVERSE_3,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&cursor=3m2anj6v2vc2z")] = @"{""records"":[]}",
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&cursor=3lgqpyss25y27&reverse=true")] = @"{""records"":[]}",
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20")] = PWHL_LIKES_FORWARD_3,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&reverse=true")] = PWHL_LIKES_REVERSE_3,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&cursor=3m2anj6v2vc2z")] = @"{""records"":[]}",
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&cursor=3lgqpyss25y27&reverse=true")] = @"{""records"":[]}",
             };
 
             var invertedDictionary = new Dictionary<Uri, string>
             {
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20")] = PWHL_LIKES_REVERSE_3,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&reverse=true")] = PWHL_LIKES_FORWARD_3,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&cursor=3lgqpyss25y27")] = @"{""records"":[]}",
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&cursor=3m2anj6v2vc2z&reverse=true")] = @"{""records"":[]}",
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20")] = PWHL_LIKES_REVERSE_3,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&reverse=true")] = PWHL_LIKES_FORWARD_3,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&cursor=3lgqpyss25y27")] = @"{""records"":[]}",
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&cursor=3m2anj6v2vc2z&reverse=true")] = @"{""records"":[]}",
             };
 
             foreach (var dict in new[] { regularDictionary, invertedDictionary })
@@ -90,20 +87,20 @@ namespace Pandacap.ATProto.Services.Tests
 
             var regularDictionary = new Dictionary<Uri, string>
             {
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20")] = PWHL_LIKES_FORWARD_20,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&reverse=true")] = PWHL_LIKES_REVERSE_20,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&cursor=3lnzuy3y3kl23")] = PWHL_LIKES_FORWARD_20_NEXT,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&cursor=3lges3k2jnx2y")] = @"{""records"":[]}",
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&cursor=3lqfqdizoqp2k&reverse=true")] = @"{""records"":[]}",
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20")] = PWHL_LIKES_FORWARD_20,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&reverse=true")] = PWHL_LIKES_REVERSE_20,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&cursor=3lnzuy3y3kl23")] = PWHL_LIKES_FORWARD_20_NEXT,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&cursor=3lges3k2jnx2y")] = @"{""records"":[]}",
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&cursor=3lqfqdizoqp2k&reverse=true")] = @"{""records"":[]}",
             };
 
             var invertedDictionary = new Dictionary<Uri, string>
             {
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20")] = PWHL_LIKES_REVERSE_20,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&reverse=true")] = PWHL_LIKES_FORWARD_20,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&cursor=3lqfqdizoqp2k")] = @"{""records"":[]}",
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&cursor=3lnzuy3y3kl23&reverse=true")] = PWHL_LIKES_FORWARD_20_NEXT,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&cursor=3lges3k2jnx2y&reverse=true")] = @"{""records"":[]}",
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20")] = PWHL_LIKES_REVERSE_20,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&reverse=true")] = PWHL_LIKES_FORWARD_20,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&cursor=3lqfqdizoqp2k")] = @"{""records"":[]}",
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&cursor=3lnzuy3y3kl23&reverse=true")] = PWHL_LIKES_FORWARD_20_NEXT,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&cursor=3lges3k2jnx2y&reverse=true")] = @"{""records"":[]}",
             };
 
             foreach (var dict in new[] { regularDictionary, invertedDictionary })
@@ -153,14 +150,14 @@ namespace Pandacap.ATProto.Services.Tests
 
             var regularDictionary = new Dictionary<Uri, string>
             {
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20")] = PWHL_LIKES_FORWARD_20,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&reverse=true")] = PWHL_LIKES_REVERSE_20
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20")] = PWHL_LIKES_FORWARD_20,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&reverse=true")] = PWHL_LIKES_REVERSE_20
             };
 
             var invertedDictionary = new Dictionary<Uri, string>
             {
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20")] = PWHL_LIKES_REVERSE_20,
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Feed.Like}&limit=20&reverse=true")] = PWHL_LIKES_FORWARD_20
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20")] = PWHL_LIKES_REVERSE_20,
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.feed.like"}&limit=20&reverse=true")] = PWHL_LIKES_FORWARD_20
             };
 
             foreach (var dict in new[] { regularDictionary, invertedDictionary })
@@ -198,7 +195,7 @@ namespace Pandacap.ATProto.Services.Tests
 
             var dict = new Dictionary<Uri, string>
             {
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Actor.Profile}&limit=20")] = @"{""records"":[{""uri"":""at://did:plc:6y5lt7n7msot7rm3mgom3knp/app.bsky.actor.profile/self"",""cid"":""bafyreibexevsu2imwbwvepcy4t5cwasljdqxt2xc7hwtumy7fkim542oua"",""value"":{""$type"":""app.bsky.actor.profile"",""avatar"":{""ref"":{""$link"":""bafkreif632npb2cghp52u4jhotzvgwal52i3dqtbgskditifhaxxudzvte""},""size"":537487,""$type"":""blob"",""mimeType"":""image/jpeg""},""banner"":{""ref"":{""$link"":""bafkreicxy2fokh7vxfihwazlhby57dalgro36bjuuu4r2ux6e7f6m4incm""},""size"":552823,""$type"":""blob"",""mimeType"":""image/jpeg""},""createdAt"":""2024-12-03T23:25:07.142Z"",""pinnedPost"":{""cid"":""bafyreid2guz2h3atyjx5emua4cq4frfpn7eooofs2re3ird2sghiusn7yi"",""uri"":""at://did:plc:6y5lt7n7msot7rm3mgom3knp/app.bsky.feed.post/3m3ayjqsht22i""},""description"":""The League Legends Call Home"",""displayName"":""PWHL""}}],""cursor"":""self""}"
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.actor.profile"}&limit=20")] = @"{""records"":[{""uri"":""at://did:plc:6y5lt7n7msot7rm3mgom3knp/app.bsky.actor.profile/self"",""cid"":""bafyreibexevsu2imwbwvepcy4t5cwasljdqxt2xc7hwtumy7fkim542oua"",""value"":{""$type"":""app.bsky.actor.profile"",""avatar"":{""ref"":{""$link"":""bafkreif632npb2cghp52u4jhotzvgwal52i3dqtbgskditifhaxxudzvte""},""size"":537487,""$type"":""blob"",""mimeType"":""image/jpeg""},""banner"":{""ref"":{""$link"":""bafkreicxy2fokh7vxfihwazlhby57dalgro36bjuuu4r2ux6e7f6m4incm""},""size"":552823,""$type"":""blob"",""mimeType"":""image/jpeg""},""createdAt"":""2024-12-03T23:25:07.142Z"",""pinnedPost"":{""cid"":""bafyreid2guz2h3atyjx5emua4cq4frfpn7eooofs2re3ird2sghiusn7yi"",""uri"":""at://did:plc:6y5lt7n7msot7rm3mgom3knp/app.bsky.feed.post/3m3ayjqsht22i""},""description"":""The League Legends Call Home"",""displayName"":""PWHL""}}],""cursor"":""self""}"
             };
 
             var mockRequestHandler = new MockRequestHandler(dict);
@@ -230,7 +227,7 @@ namespace Pandacap.ATProto.Services.Tests
 
             var dict = new Dictionary<Uri, string>
             {
-                [new($"{uriPath}?repo={did}&collection={NSIDs.App.Bsky.Actor.Profile}&limit=20")] = @"{""records"":[],""cursor"":""self""}"
+                [new($"{uriPath}?repo={did}&collection={"app.bsky.actor.profile"}&limit=20")] = @"{""records"":[],""cursor"":""self""}"
             };
 
             var mockRequestHandler = new MockRequestHandler(dict);

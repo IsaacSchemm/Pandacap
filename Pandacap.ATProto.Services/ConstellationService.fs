@@ -20,7 +20,6 @@ type ConstellationService(
     let escape (str: string) = Uri.EscapeDataString(str)
 
     let asyncGetPage target collection path cursor = async {
-        //client.Timeout <- TimeSpan.FromSeconds(3L)
         let qs = String.concat "&" [
             $"target={escape target}"
             $"collection={escape collection}"
@@ -30,7 +29,6 @@ type ConstellationService(
             | Some cursor ->
                 $"cursor={escape cursor}"
         ]
-        //req.Headers.Accept.ParseAdd("application/json")
         let! token = Async.CancellationToken
         use cts = CancellationTokenSource.CreateLinkedTokenSource(token)
         cts.CancelAfter(TimeSpan.FromSeconds(3.0))

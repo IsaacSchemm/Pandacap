@@ -3,7 +3,6 @@ namespace Pandacap.ATProto.Services
 open System
 open System.Net.Http
 open System.Net.Http.Json
-open Pandacap.ATProto.Models
 open Pandacap.ATProto.Services.Interfaces
 
 module XRPC =
@@ -112,6 +111,8 @@ module XRPC =
                         cid = ""
                         value = sample
                     }
+
+                type ListDirection = Forward | Reverse
 
                 let internal asyncListRecords handler pds did collection limit cursor direction sample =
                     {

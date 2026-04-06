@@ -394,9 +394,9 @@ namespace Pandacap.Controllers
                 CurrentPDS = document.PDS,
                 NSIDs = [
                     .. repoCollections.Intersect([
-                        NSIDs.App.Bsky.Actor.Profile,
-                        NSIDs.App.Bsky.Feed.Post,
-                        NSIDs.App.Bsky.Feed.Repost
+                        "app.bsky.actor.profile",
+                        "app.bsky.feed.post",
+                        "app.bsky.feed.repost"
                     ])
                 ]
             });
@@ -425,9 +425,9 @@ namespace Pandacap.Controllers
                 IncludeReplies = feed.IncludeReplies,
                 IncludeQuotePosts = feed.IncludeQuotePosts,
                 IgnoreImages = feed.IgnoreImages,
-                IncludeBlueskyLikes = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Like),
-                IncludeBlueskyPosts = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Post),
-                IncludeBlueskyReposts = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Repost)
+                IncludeBlueskyLikes = feed.NSIDs.Contains("app.bsky.feed.like"),
+                IncludeBlueskyPosts = feed.NSIDs.Contains("app.bsky.feed.post"),
+                IncludeBlueskyReposts = feed.NSIDs.Contains("app.bsky.feed.repost")
             });
         }
 
@@ -462,19 +462,19 @@ namespace Pandacap.Controllers
                 follow.IncludeQuotePosts = model.IncludeQuotePosts;
 
                 if (model.IncludeBlueskyLikes)
-                    follow.NSIDs.Add(NSIDs.App.Bsky.Feed.Like);
+                    follow.NSIDs.Add("app.bsky.feed.like");
                 else
-                    follow.NSIDs.Remove(NSIDs.App.Bsky.Feed.Like);
+                    follow.NSIDs.Remove("app.bsky.feed.like");
 
                 if (model.IncludeBlueskyPosts)
-                    follow.NSIDs.Add(NSIDs.App.Bsky.Feed.Post);
+                    follow.NSIDs.Add("app.bsky.feed.post");
                 else
-                    follow.NSIDs.Remove(NSIDs.App.Bsky.Feed.Post);
+                    follow.NSIDs.Remove("app.bsky.feed.post");
 
                 if (model.IncludeBlueskyReposts)
-                    follow.NSIDs.Add(NSIDs.App.Bsky.Feed.Repost);
+                    follow.NSIDs.Add("app.bsky.feed.repost");
                 else
-                    follow.NSIDs.Remove(NSIDs.App.Bsky.Feed.Repost);
+                    follow.NSIDs.Remove("app.bsky.feed.repost");
 
                 follow.LastCommitCID = null;
             }
