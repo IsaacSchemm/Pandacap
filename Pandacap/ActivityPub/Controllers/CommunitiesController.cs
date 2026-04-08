@@ -2,16 +2,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
-using Pandacap.Clients;
 using Pandacap.Data;
-using Pandacap.HighLevel.Lemmy;
+using Pandacap.Lemmy.Interfaces;
+using Pandacap.Lemmy.Models;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     public class CommunitiesController(
         PandacapDbContext context,
-        LemmyClient lemmyClient,
+        ILemmyClient lemmyClient,
         IActivityPubRemoteActorService remoteActorService
     ) : Controller
     {
@@ -35,14 +35,16 @@ namespace Pandacap.Controllers
                 bookmark.Name,
                 cancellationToken);
 
-            var posts = await lemmyClient.GetPostsAsync(
-                bookmark.Host,
-                community.id,
-                Lemmy.GetPostsSort.Active,
-                page,
-                cancellationToken: cancellationToken);
+            var posts = await lemmyClient
+                .GetPostsAsync(
+                    bookmark.Host,
+                    community.id,
+                    GetPostsSort.Active,
+                    page)
+                .Take(10)
+                .ToListAsync(cancellationToken);
 
-            return View(new CommunityViewModel(actorId, bookmark.Host, community, page, posts));
+            return View(new CommunityViewModel(actorId, bookmark.Host, community, page, [.. posts]));
         }
 
         [Authorize]
@@ -60,11 +62,10 @@ namespace Pandacap.Controllers
                 .GetCommentsAsync(
                     host,
                     id,
-                    Lemmy.GetCommentsSort.Top,
-                    cancellationToken)
+                    GetCommentsSort.Top)
                 .ToListAsync(cancellationToken);
 
-            var branches = Lemmy.Restructure(comments);
+            var branches = lemmyClient.Restructure(comments);
 
             return View(new LemmyPostViewModel(community, post, branches));
         }

@@ -12,7 +12,6 @@ using Pandacap.FurAffinity;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.HighLevel.FeedReaders;
-using Pandacap.HighLevel.Lemmy;
 using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.Resolvers;
 using Pandacap.HighLevel.RssOutbound;
@@ -58,7 +57,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<FavoritesFeedBuilder>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<FeedRefresher>()
-                .AddScoped<LemmyClient>()
                 .AddScoped<PlatformIconProvider>()
                 .AddScoped<PlatformLinkProvider>()
                 .AddScoped<IResolver, ActivityPubResolver>()

@@ -12,7 +12,6 @@
     <Compile Include="resolvers\ResolverResult.fs" />
     <Compile Include="Podcasts\WmaZipSplitter.fs" />
     <Compile Include="Data\PandacapDbContext.fs" />
-    <Compile Include="Clients\Lemmy.fs" />
   </ItemGroup>
 
   <ItemGroup>

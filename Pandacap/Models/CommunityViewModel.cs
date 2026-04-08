@@ -1,12 +1,12 @@
 ﻿using Microsoft.FSharp.Collections;
-using Pandacap.Clients;
+using Pandacap.Lemmy.Models;
 
 namespace Pandacap.Models
 {
     public record CommunityViewModel(
         string ActorId,
         string Host,
-        Lemmy.Community Community,
+        Community Community,
         int Page,
-        FSharpList<Lemmy.PostView> PostObjects);
+        FSharpList<PostView> PostObjects);
 }

@@ -12,6 +12,7 @@ using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.VectorSearch;
+using Pandacap.Lemmy;
 using Pandacap.Notifications;
 using Pandacap.Podcasts;
 using System.Threading.RateLimiting;
@@ -103,6 +104,7 @@ builder.Services
         keyVaultHostname: builder.Configuration["KeyVaultHostname"],
         weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
     .AddActivityPubKeyFinder()
+    .AddLemmyServices()
     .AddActivityPubSignatureValidator()
     .AddScoped<ActivityPubAddressedPostNotificationHandler>()
     .AddScoped<ActivityPubNotificationHandler>()
