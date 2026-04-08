@@ -1,8 +1,6 @@
 namespace Pandacap.Lemmy
 
-open System
 open System.Net.Http
-open System.Net.Http.Json
 open FSharp.Control
 open Pandacap.Lemmy.Models
 open Pandacap.Lemmy.Interfaces
