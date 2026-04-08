@@ -3,6 +3,7 @@
     public static class ActivityPubHostInformation
     {
         private static string? _hostname = null;
+        private static string? _username = null;
 
         public static string ApplicationHostname
         {
@@ -15,6 +16,20 @@
                 _hostname ??= value;
                 if (_hostname != value)
                     throw new Exception("ApplicationHostname defined more than once with different values");
+            }
+        }
+
+        public static string Username
+        {
+            get
+            {
+                return _username ?? throw new Exception("Username not defined");
+            }
+            set
+            {
+                _username ??= value;
+                if (_username != value)
+                    throw new Exception("Username defined more than once with different values");
             }
         }
 

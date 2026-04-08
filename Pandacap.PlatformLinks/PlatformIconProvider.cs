@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.Text;
 
-namespace Pandacap.HighLevel.PlatformLinks
+namespace Pandacap.PlatformLinks
 {
     public class PlatformIconProvider(
         IHttpClientFactory httpClientFactory,
-        IMemoryCache memoryCache)
+        IMemoryCache memoryCache) : IPlatformIconProvider
     {
         private const string KEY = "b593956e-8d55-48c7-81e2-8ffd43fc412c";
 

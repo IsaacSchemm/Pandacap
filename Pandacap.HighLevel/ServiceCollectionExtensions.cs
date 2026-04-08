@@ -12,8 +12,6 @@ using Pandacap.FurAffinity;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.HighLevel.FeedReaders;
-using Pandacap.HighLevel.PlatformLinks;
-using Pandacap.HighLevel.Resolvers;
 using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Weasyl;
@@ -28,6 +26,7 @@ namespace Pandacap.HighLevel
             ApplicationInformation appInfo)
         {
             ActivityPubHostInformation.ApplicationHostname = appInfo.ApplicationHostname;
+            ActivityPubHostInformation.Username = appInfo.Username;
 
             return services
                 .AddSingleton<ILookupClient>(
@@ -50,22 +49,12 @@ namespace Pandacap.HighLevel
                 .AddScoped<ATProtoHandleLookupClient>()
                 .AddScoped<CompositeInboxProvider>()
                 .AddScoped<CompositeFavoritesProvider>()
-                .AddScoped<CompositeResolver>()
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DIDResolver>()
                 .AddScoped<EmbeddingsProvider>()
                 .AddScoped<FavoritesFeedBuilder>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<FeedRefresher>()
-                .AddScoped<PlatformIconProvider>()
-                .AddScoped<PlatformLinkProvider>()
-                .AddScoped<IResolver, ActivityPubResolver>()
-                .AddScoped<IResolver, ATUriResolver>()
-                .AddScoped<IResolver, ATUriResolver>()
-                .AddScoped<IResolver, BlueskyAppViewPostResolver>()
-                .AddScoped<IResolver, BlueskyAppViewProfileResolver>()
-                .AddScoped<IResolver, BlueskyHandleResolver>()
-                .AddScoped<IResolver, WebFingerResolver>()
                 .AddScoped<UserAwareClientFactory>()
                 .AddScoped<VectorSearchIndexClient>();
         }

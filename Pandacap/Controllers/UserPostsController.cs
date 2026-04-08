@@ -6,9 +6,9 @@ using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Data;
 using Pandacap.Database;
-using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Models;
+using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.Text;
 using System.Net;
 using System.Text;
@@ -21,7 +21,7 @@ namespace Pandacap.Controllers
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
         IHttpClientFactory httpClientFactory,
-        PlatformLinkProvider platformLinkProvider,
+        IPlatformLinkProvider platformLinkProvider,
         PostCreator postCreator,
         IActivityPubPostTranslator postTranslator,
         ReplyLookup replyLookup,

@@ -1,6 +1,6 @@
-﻿using Pandacap.Resolvers;
+﻿using Pandacap.Resolvers.Models;
 
-namespace Pandacap.HighLevel.Resolvers
+namespace Pandacap.Resolvers
 {
     public interface IResolver
     {

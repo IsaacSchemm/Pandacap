@@ -8,13 +8,16 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Pandacap;
 using Pandacap.ActivityPub.HttpSignatures.Discovery;
 using Pandacap.ActivityPub.HttpSignatures.Validation;
+using Pandacap.ATProto.HandleResolution;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Lemmy;
 using Pandacap.Notifications;
+using Pandacap.PlatformLinks;
 using Pandacap.Podcasts;
+using Pandacap.Resolvers;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -106,6 +109,9 @@ builder.Services
     .AddActivityPubKeyFinder()
     .AddLemmyServices()
     .AddActivityPubSignatureValidator()
+    .AddATProtoHandleResolution()
+    .AddPlatformLinkProviders()
+    .AddResolvers()
     .AddScoped<ActivityPubAddressedPostNotificationHandler>()
     .AddScoped<ActivityPubNotificationHandler>()
     .AddScoped<ActivityPubReplyNotificationHandler>()

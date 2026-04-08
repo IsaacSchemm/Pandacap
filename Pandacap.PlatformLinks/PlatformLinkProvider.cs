@@ -1,18 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Pandacap.ActivityPub.Models;
 using Pandacap.ATProto.Services.Interfaces;
-using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.PlatformLinks.Interfaces;
 using System.Runtime.CompilerServices;
 
-namespace Pandacap.HighLevel.PlatformLinks
+namespace Pandacap.PlatformLinks
 {
-    public class PlatformLinkProvider(
-        ApplicationInformation appInfo,
+    internal class PlatformLinkProvider(
         PandacapDbContext context,
         IDIDResolver didResolver,
-        IMemoryCache memoryCache)
+        IMemoryCache memoryCache) : IPlatformLinkProvider
     {
         private const string KEY = "9d3b19b8-b641-4ea2-8f03-0edd775618d3";
 
@@ -28,18 +26,7 @@ namespace Pandacap.HighLevel.PlatformLinks
                 })
             ?? [];
 
-        public async Task<IEnumerable<ActivityPubProfileLink>> GetActivityPubProfileLinksAsync(
-            CancellationToken cancellationToken)
-        =>
-            await GetUnderlyingPlatformLinksAsync(cancellationToken)
-                .Where(link => link.Category == PlatformLinkCategory.External)
-                .Select(link => new ActivityPubProfileLink(
-                    platformName: link.PlatformName,
-                    username: link.Username,
-                    viewProfileUrl: link.ViewProfileUrl))
-                .ToListAsync(cancellationToken);
-
-        public async Task<IEnumerable<string>> GetBlueskyStyleHostsAsync(
+        public async Task<IReadOnlyList<string>> GetBlueskyStyleAppViewHostsAsync(
             CancellationToken cancellationToken)
         =>
             await GetUnderlyingPlatformLinksAsync(cancellationToken)
@@ -50,10 +37,10 @@ namespace Pandacap.HighLevel.PlatformLinks
         private async IAsyncEnumerable<IPlatformLink> GetUnderlyingPlatformLinksAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            yield return new FediverseLink(appInfo, "mastodon.social", "Mastodon");
-            yield return new FediverseLink(appInfo, "pixelfed.social", "Pixelfed");
-            yield return new FediverseLink(appInfo, "app.wafrn.net", "wafrn");
-            yield return new BrowserPubLink(appInfo, "browser.pub");
+            yield return new FediverseLink("mastodon.social", "Mastodon");
+            yield return new FediverseLink("pixelfed.social", "Pixelfed");
+            yield return new FediverseLink("app.wafrn.net", "wafrn");
+            yield return new BrowserPubLink("browser.pub");
 
             var did = await context.Posts
                 .OrderByDescending(post => post.PublishedTime)

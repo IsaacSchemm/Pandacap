@@ -1,6 +1,6 @@
-﻿using Pandacap.Database;
+﻿using Pandacap.PlatformLinks.Interfaces;
 
-namespace Pandacap.HighLevel.PlatformLinks
+namespace Pandacap.PlatformLinks
 {
     public record WeasylPlatformLink(
         string Username) : IPlatformLink
@@ -13,7 +13,7 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string? ViewProfileUrl => $"https://www.weasyl.com/~{Uri.EscapeDataString(Username)}";
 
-        public string? GetViewPostUrl(Post post) =>
+        public string? GetViewPostUrl(IPlatformLinkPostSource post) =>
             post.WeasylSubmitId is int submitId ? $"https://www.weasyl.com/~{Uri.EscapeDataString(Username)}/submissions/{submitId}"
             : post.WeasylJournalId is int journalId ? $"https://www.weasyl.com/journal/{journalId}/"
             : null;

@@ -1,8 +1,8 @@
 ﻿@using Pandacap.ConfigurationObjects
-@using Pandacap.HighLevel.PlatformLinks
+@using Pandacap.PlatformLinks.Interfaces
 @inject ApplicationInformation appInfo
-@inject PlatformIconProvider platformIconProvider
-@inject PlatformLinkProvider platformLinkProvider
+@inject IPlatformIconProvider platformIconProvider
+@inject IPlatformLinkProvider platformLinkProvider
 
 @{
     var platformLinks = await platformLinkProvider.GetPlatformLinksAsync();

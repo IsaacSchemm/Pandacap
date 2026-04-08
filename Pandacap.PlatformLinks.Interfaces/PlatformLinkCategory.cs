@@ -1,4 +1,4 @@
-﻿namespace Pandacap.HighLevel.PlatformLinks
+﻿namespace Pandacap.PlatformLinks.Interfaces
 {
     public enum PlatformLinkCategory
     {

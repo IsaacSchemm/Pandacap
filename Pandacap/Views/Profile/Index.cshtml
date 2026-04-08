@@ -1,10 +1,10 @@
 ﻿@using Pandacap.ConfigurationObjects
 @using Pandacap.Data
 @using Pandacap.HighLevel
-@using Pandacap.HighLevel.PlatformLinks
+@using Pandacap.PlatformLinks.Interfaces
 @model ProfileViewModel
 @inject ApplicationInformation appInfo
-@inject PlatformIconProvider platformIconProvider
+@inject IPlatformIconProvider platformIconProvider
 
 @{
     ViewData["Title"] = "Main Page";

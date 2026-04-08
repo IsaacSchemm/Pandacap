@@ -1,6 +1,6 @@
-﻿Imports System.Threading
+Imports System.Threading
 
-Public Interface IATProtoHandleService
+Public Interface IATProtoHandleLookupClient
     Function FindDIDAsync(handle As String,
                           cancellationToken As CancellationToken) As Task(Of String)
 End Interface

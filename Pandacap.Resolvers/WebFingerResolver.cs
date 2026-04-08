@@ -1,7 +1,7 @@
 ﻿using Pandacap.ActivityPub.RemoteObjects.Interfaces;
-using Pandacap.Resolvers;
+using Pandacap.Resolvers.Models;
 
-namespace Pandacap.HighLevel.Resolvers
+namespace Pandacap.Resolvers
 {
     internal class WebFingerResolver(
         IWebFingerService webFingerService) : IResolver

@@ -1,6 +1,6 @@
-﻿using Pandacap.Database;
+﻿using Pandacap.PlatformLinks.Interfaces;
 
-namespace Pandacap.HighLevel.PlatformLinks
+namespace Pandacap.PlatformLinks
 {
     public record BlueskyStyleATProtoPlatformLink(
         string PlatformName,
@@ -16,7 +16,7 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public PlatformLinkCategory Category => PlatformLinkCategory.ATProto;
 
-        public string? GetViewPostUrl(Post post) =>
+        public string? GetViewPostUrl(IPlatformLinkPostSource post) =>
             post.BlueskyDID == null || post.BlueskyRecordKey == null
             ? null
             : $"https://{Host}/profile/{post.BlueskyDID}/post/{post.BlueskyRecordKey}";

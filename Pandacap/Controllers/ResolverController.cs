@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Pandacap.HighLevel.Resolvers;
-using Pandacap.Resolvers;
+using Pandacap.Resolvers.Interfaces;
+using Pandacap.Resolvers.Models;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class ResolverController(
-        CompositeResolver compositeResolver) : Controller
+        ICompositeResolver compositeResolver) : Controller
     {
         [HttpPost]
         [ValidateAntiForgeryToken]

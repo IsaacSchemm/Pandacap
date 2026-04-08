@@ -2,9 +2,9 @@
 using Pandacap.ActivityPub.JsonLd.Interfaces;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.Resolvers;
+using Pandacap.Resolvers.Models;
 
-namespace Pandacap.HighLevel.Resolvers
+namespace Pandacap.Resolvers
 {
     internal class ActivityPubResolver(
         IActivityPubRequestHandler activityPubRequestHandler,

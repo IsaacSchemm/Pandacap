@@ -1,6 +1,4 @@
-﻿using Pandacap.Database;
-
-namespace Pandacap.HighLevel.PlatformLinks
+﻿namespace Pandacap.PlatformLinks.Interfaces
 {
     public interface IPlatformLink
     {
@@ -11,6 +9,6 @@ namespace Pandacap.HighLevel.PlatformLinks
         string? PlatformName { get; }
         string? ViewProfileUrl { get; }
 
-        string? GetViewPostUrl(Post post);
+        string? GetViewPostUrl(IPlatformLinkPostSource post);
     }
 }

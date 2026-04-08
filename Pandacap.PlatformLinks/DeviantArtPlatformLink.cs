@@ -1,6 +1,6 @@
-﻿using Pandacap.Database;
+﻿using Pandacap.PlatformLinks.Interfaces;
 
-namespace Pandacap.HighLevel.PlatformLinks
+namespace Pandacap.PlatformLinks
 {
     public record DeviantArtPlatformLink(
         string Username) : IPlatformLink
@@ -13,6 +13,6 @@ namespace Pandacap.HighLevel.PlatformLinks
 
         public string? ViewProfileUrl => $"https://www.deviantart.com/{Uri.EscapeDataString(Username)}";
 
-        public string? GetViewPostUrl(Post post) => post.DeviantArtUrl;
+        public string? GetViewPostUrl(IPlatformLinkPostSource post) => post.DeviantArtUrl;
     }
 }

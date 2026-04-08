@@ -8,7 +8,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -16,9 +15,9 @@ using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.FeedReaders;
-using Pandacap.HighLevel.PlatformLinks;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Models;
+using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.UI.Elements;
 using System.Diagnostics;
 using System.Net;
@@ -41,7 +40,7 @@ namespace Pandacap.Controllers
         IHttpClientFactory httpClientFactory,
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
-        PlatformLinkProvider platformLinkProvider,
+        IPlatformLinkProvider platformLinkProvider,
         IActivityPubProfileTranslator profileTranslator,
         IActivityPubRelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager,
@@ -57,13 +56,22 @@ namespace Pandacap.Controllers
 
             var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
 
+            var links = await platformLinkProvider.GetPlatformLinksAsync(cancellationToken);
+
             return new ActivityPubProfile(
                 avatars: avatar == null
                     ? []
                     : [new(
                         avatar.ContentType,
                         $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}")],
-                links: [.. await platformLinkProvider.GetActivityPubProfileLinksAsync(cancellationToken)],
+                links: [..
+                    links
+                    .Where(link => link.Category == PlatformLinkCategory.External)
+                    .Select(link => new ActivityPubProfileLink(
+                        platformName: link.PlatformName,
+                        username: link.Username,
+                        viewProfileUrl: link.ViewProfileUrl))
+                ],
                 publicKeyPem: key,
                 username: appInfo.Username,
                 summaryHtml: $"<p>Hosted by <a href='{UserAgentInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(UserAgentInformation.ApplicationName)}</a>.</p>");

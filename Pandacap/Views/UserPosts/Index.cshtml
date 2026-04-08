@@ -1,10 +1,10 @@
 ﻿@using Pandacap.ConfigurationObjects
 @using Pandacap.Data
 @using Pandacap.Database
-@using Pandacap.HighLevel.PlatformLinks
+@using Pandacap.PlatformLinks.Interfaces
 @model UserPostViewModel
 @inject ApplicationInformation appInfo
-@inject PlatformIconProvider platformIconProvider
+@inject IPlatformIconProvider platformIconProvider
 
 @{
     ViewBag.Title = Model.Post.Type == Post.PostType.StatusUpdate

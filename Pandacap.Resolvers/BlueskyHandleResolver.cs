@@ -1,10 +1,10 @@
-﻿using Pandacap.HighLevel.ATProto;
-using Pandacap.Resolvers;
+﻿using Pandacap.ATProto.HandleResolution.Interfaces;
+using Pandacap.Resolvers.Models;
 
-namespace Pandacap.HighLevel.Resolvers
+namespace Pandacap.Resolvers
 {
     internal partial class BlueskyHandleResolver(
-        ATProtoHandleLookupClient atProtoHandleLookupClient
+        IATProtoHandleLookupClient atProtoHandleLookupClient
     ) : IResolver
     {
         public async Task<ResolverResult> ResolveAsync(

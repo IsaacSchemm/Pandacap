@@ -1,6 +1,7 @@
 ﻿using CommonMark;
 using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.Static;
+using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.Text;
 using Pandacap.UI.Badges;
 using Pandacap.UI.Elements;
@@ -8,7 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Pandacap.Database
 {
-    public class Post : IPost, IActivityPubPost, IActivityPubAddressing
+    public class Post : IPost, IActivityPubPost, IActivityPubAddressing, IPlatformLinkPostSource
     {
         public Guid Id { get; set; }
 
@@ -126,6 +127,9 @@ namespace Pandacap.Database
             Images
             .SelectMany(i => i.Renditions);
 
+        [NotMapped]
+        public string ObjectId => $"https://{ActivityPubHostInformation.ApplicationHostname}/UserPosts/{Id}";
+
         Badge IPost.Badge => Badges.Pandacap;
 
         string IPost.DisplayTitle => !string.IsNullOrWhiteSpace(Title)
@@ -154,8 +158,6 @@ namespace Pandacap.Database
 
         string? IPost.Usericon => null;
 
-        string IActivityPubPost.ObjectId => $"https://{ActivityPubHostInformation.ApplicationHostname}/UserPosts/{Id}";
-
         IActivityPubAddressing IActivityPubPost.Addressing => this;
 
         bool IActivityPubPost.IsArticle => Type == PostType.JournalEntry;
@@ -173,6 +175,8 @@ namespace Pandacap.Database
         IEnumerable<string> IActivityPubAddressing.Cc => [$"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Followers"];
 
         string? IActivityPubAddressing.Audience => null;
+
+        string? IPlatformLinkPostSource.ActivityPubObjectId => ObjectId;
 
         private class ActivityPubImageAdapter(Post post, Image image) : IActivityPubImage
         {

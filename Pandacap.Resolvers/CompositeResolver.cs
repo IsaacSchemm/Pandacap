@@ -1,9 +1,11 @@
 ﻿using Pandacap.Resolvers;
+using Pandacap.Resolvers.Interfaces;
+using Pandacap.Resolvers.Models;
 
-namespace Pandacap.HighLevel.Resolvers
+namespace Pandacap.Resolvers
 {
     public class CompositeResolver(
-        IEnumerable<IResolver> resolvers)
+        IEnumerable<IResolver> resolvers) : ICompositeResolver
     {
         public async Task<ResolverResult?> ResolveAsync(
             string url,
