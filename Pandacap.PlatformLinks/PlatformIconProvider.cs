@@ -14,10 +14,13 @@ namespace Pandacap.PlatformLinks
             string host,
             CancellationToken cancellationToken = default)
         =>
-            await memoryCache.GetOrCreateAsync<string?>(
+            await memoryCache.GetOrCreateAsync(
                 $"{KEY}-{host}",
                 async _ =>
                 {
+                    if (host == "pixelfed.social")
+                        return "https://pixelfed.social/img/favicon.png";
+
                     if (host == "www.weasyl.com")
                         return "https://www.weasyl.com/img/favicon-oP29Tyisif.svg";
 
