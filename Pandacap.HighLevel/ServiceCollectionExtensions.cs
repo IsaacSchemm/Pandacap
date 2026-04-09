@@ -46,7 +46,6 @@ namespace Pandacap.HighLevel
                 .AddWeasylScraper()
                 .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
                 .AddScoped<ATProtoFeedReader>()
-                .AddScoped<ATProtoHandleLookupClient>()
                 .AddScoped<CompositeInboxProvider>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<DeviantArtCredentialProvider>()

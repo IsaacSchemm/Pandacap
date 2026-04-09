@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.ATProto.HandleResolution.Interfaces;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
@@ -30,7 +31,7 @@ namespace Pandacap.Controllers
         ApplicationInformation appInfo,
         ATProtoFeedReader atProtoFeedReader,
         IATProtoService atProtoService,
-        ATProtoHandleLookupClient atProtoHandleLookupClient,
+        IATProtoHandleLookupClient atProtoHandleLookupClient,
         BlobServiceClient blobServiceClient,
         CompositeFavoritesProvider compositeFavoritesProvider,
         IDIDResolver didResolver,
