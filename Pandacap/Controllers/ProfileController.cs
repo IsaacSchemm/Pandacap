@@ -293,62 +293,6 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Follow(string id, CancellationToken cancellationToken)
-        {
-            if (await context.Follows.Where(f => f.ActorId == id).DocumentCountAsync(cancellationToken) > 0)
-                return RedirectToAction(nameof(UpdateFollow), new { id });
-
-            var actor = await activityPubRemoteActorService.FetchActorAsync(id, cancellationToken);
-
-            Guid followGuid = Guid.NewGuid();
-
-            context.ActivityPubOutboundActivities.Add(new()
-            {
-                Id = followGuid,
-                Inbox = actor.Inbox,
-                JsonBody = relationshipTranslator.BuildFollow(
-                    followGuid,
-                    actor.Id),
-                StoredAt = DateTimeOffset.UtcNow
-            });
-
-            context.Follows.Add(new()
-            {
-                ActorId = actor.Id,
-                AddedAt = DateTimeOffset.UtcNow,
-                FollowGuid = followGuid,
-                Accepted = false,
-                Inbox = actor.Inbox,
-                SharedInbox = actor.SharedInbox,
-                PreferredUsername = actor.PreferredUsername,
-                IconUrl = actor.IconUrl
-            });
-
-            await context.SaveChangesAsync(cancellationToken);
-
-            return RedirectToAction(nameof(UpdateFollow), new { id });
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> FollowHandle(string handle, CancellationToken cancellationToken)
-        {
-            var id = await webFingerService.ResolveIdForHandleAsync(handle, cancellationToken);
-            return await Follow(id, cancellationToken);
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> FollowThreadsHandle(string handle, CancellationToken cancellationToken)
-        {
-            return await FollowHandle($"@{handle.TrimStart('@')}@threads.net", cancellationToken);
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unfollow(string id)
         {
             await foreach (var follow in context.Follows.Where(f => f.ActorId == id).AsAsyncEnumerable())
@@ -369,50 +313,6 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(FollowingAndFeeds));
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddATProtoFeed(
-            string handle,
-            CancellationToken cancellationToken)
-        {
-            var client = httpClientFactory.CreateClient();
-
-            string did = handle.StartsWith("did:")
-                ? handle
-                : await atProtoHandleLookupClient.FindDIDAsync(
-                    handle,
-                    cancellationToken);
-
-            if (await context.ATProtoFeeds.Where(a => a.DID == did).DocumentCountAsync(cancellationToken) > 0)
-                return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
-
-            var document = await didResolver.ResolveAsync(did, cancellationToken);
-
-            var repoCollections = await atProtoService.GetCollectionsInRepoAsync(
-                document.PDS,
-                did,
-                cancellationToken);
-
-            context.ATProtoFeeds.Add(new ATProtoFeed
-            {
-                DID = did,
-                Handle = document.Handle,
-                CurrentPDS = document.PDS,
-                NSIDs = [
-                    .. repoCollections.Intersect([
-                        "app.bsky.actor.profile",
-                        "app.bsky.feed.post",
-                        "app.bsky.feed.repost"
-                    ])
-                ]
-            });
-
-            await context.SaveChangesAsync(cancellationToken);
-
-            return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
         }
 
         [Authorize]

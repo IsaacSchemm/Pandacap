@@ -70,6 +70,44 @@ namespace Pandacap.Controllers
                     AvatarCID: profile?.Value?.AvatarCID));
         }
 
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddATProtoFeed(
+            string did,
+            CancellationToken cancellationToken)
+        {
+            var client = httpClientFactory.CreateClient();
+
+            if (await context.ATProtoFeeds.Where(a => a.DID == did).DocumentCountAsync() > 0)
+                return RedirectToAction("UpdateATProtoFeed", "Profile", new { did });
+
+            var document = await didResolver.ResolveAsync(did, cancellationToken);
+
+            var collections = await atProtoService.GetCollectionsInRepoAsync(
+                document.PDS,
+                did,
+                cancellationToken);
+
+            context.ATProtoFeeds.Add(new ATProtoFeed
+            {
+                DID = did,
+                Handle = document.Handle,
+                CurrentPDS = document.PDS,
+                NSIDs = [
+                    .. collections.Intersect([
+                        "app.bsky.actor.profile",
+                        "app.bsky.feed.post",
+                        "app.bsky.feed.repost"
+                    ])
+                ]
+            });
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("UpdateATProtoFeed", "Profile", new { did });
+        }
+
         public async Task<IActionResult> ViewBlueskyPost(
             string did,
             string rkey,
