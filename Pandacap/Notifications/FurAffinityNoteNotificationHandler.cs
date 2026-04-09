@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.FurAffinity.Interfaces;
 using Pandacap.UI.Badges;
 

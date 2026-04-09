@@ -1,5 +1,5 @@
 using Microsoft.Azure.Functions.Worker;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel;
 
 namespace Pandacap.Functions

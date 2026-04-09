@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.UI.Elements;
 
 namespace Pandacap.HighLevel

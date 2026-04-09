@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.Data;
 using Pandacap.Database;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Models;

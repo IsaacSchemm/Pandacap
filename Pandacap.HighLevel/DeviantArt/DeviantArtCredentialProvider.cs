@@ -1,6 +1,5 @@
 ﻿using DeviantArtFs;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
 using Pandacap.Database;
 
 namespace Pandacap.HighLevel.DeviantArt

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Pandacap.Data;
 using Pandacap.Podcasts;
 using System.Net;
 

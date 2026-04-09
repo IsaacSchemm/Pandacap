@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
-using Pandacap.Data;
 using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.RssOutbound;

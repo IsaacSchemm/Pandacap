@@ -11,6 +11,7 @@ using Pandacap.ActivityPub.HttpSignatures.Validation;
 using Pandacap.ATProto.HandleResolution;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Lemmy;

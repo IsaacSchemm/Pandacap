@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ATProto.Services.Interfaces;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.PlatformLinks.Interfaces;
 using System.Runtime.CompilerServices;
 

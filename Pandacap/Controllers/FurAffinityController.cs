@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
 using Pandacap.Database;
 using Pandacap.FurAffinity.Interfaces;
 using Pandacap.HighLevel;

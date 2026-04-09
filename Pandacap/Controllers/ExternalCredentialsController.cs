@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.Models;
 using Pandacap.UI.Elements;
 

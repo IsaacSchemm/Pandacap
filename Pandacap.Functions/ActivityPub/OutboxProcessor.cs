@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.Data;
+using Pandacap.Database;
 using System.Net;
 
 namespace Pandacap.Functions.ActivityPub

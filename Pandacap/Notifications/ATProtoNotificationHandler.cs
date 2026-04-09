@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.UI.Badges;
 using System.Runtime.CompilerServices;
 

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
 using Pandacap.Database;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.Models;

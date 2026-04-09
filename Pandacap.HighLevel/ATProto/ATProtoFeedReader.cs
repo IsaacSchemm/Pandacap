@@ -1,10 +1,7 @@
-﻿using AngleSharp.Dom;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
-using NAudio.MediaFoundation;
 using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
-using Pandacap.Data;
 using Pandacap.Database;
 
 namespace Pandacap.HighLevel.ATProto

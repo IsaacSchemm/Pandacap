@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Static;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications

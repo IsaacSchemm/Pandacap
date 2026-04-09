@@ -8,10 +8,7 @@
   <ItemGroup>
     <Compile Include="ConfigurationObjects\ApplicationInformation.fs" />
     <Compile Include="ConfigurationObjects\UserAgentInformation.fs" />
-    <Folder Include="Resolvers\" />
-    <Compile Include="resolvers\ResolverResult.fs" />
     <Compile Include="Podcasts\WmaZipSplitter.fs" />
-    <Compile Include="Data\PandacapDbContext.fs" />
   </ItemGroup>
 
   <ItemGroup>

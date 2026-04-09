@@ -1,8 +1,7 @@
 ﻿using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
 using DeviantArtFs.ResponseTypes;
-using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.DeviantArt;
 

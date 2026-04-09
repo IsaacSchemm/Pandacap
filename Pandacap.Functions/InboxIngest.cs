@@ -1,6 +1,6 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.FeedReaders;

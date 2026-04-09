@@ -1,4 +1,3 @@
-using Pandacap.Data;
 using Pandacap.Database;
 
 namespace Pandacap.Models

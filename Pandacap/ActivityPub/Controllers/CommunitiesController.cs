@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.Lemmy.Interfaces;
 using Pandacap.Lemmy.Models;
 using Pandacap.Models;

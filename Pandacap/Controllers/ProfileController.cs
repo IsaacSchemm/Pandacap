@@ -11,7 +11,6 @@ using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ATProto.HandleResolution.Interfaces;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
 using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
