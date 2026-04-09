@@ -280,63 +280,6 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Follow(string id)
-        {
-            if (await context.Follows.Where(f => f.ActorId == id).DocumentCountAsync() > 0)
-                return RedirectToAction(nameof(UpdateFollow), new { id });
-
-            var actor = await activityPubRemoteActorService.FetchActorAsync(id);
-
-            Guid followGuid = Guid.NewGuid();
-
-            context.ActivityPubOutboundActivities.Add(new()
-            {
-                Id = followGuid,
-                Inbox = actor.Inbox,
-                JsonBody = ActivityPubSerializer.SerializeWithContext(
-                    relationshipTranslator.BuildFollow(
-                        followGuid,
-                        actor.Id)),
-                StoredAt = DateTimeOffset.UtcNow
-            });
-
-            context.Follows.Add(new()
-            {
-                ActorId = actor.Id,
-                AddedAt = DateTimeOffset.UtcNow,
-                FollowGuid = followGuid,
-                Accepted = false,
-                Inbox = actor.Inbox,
-                SharedInbox = actor.SharedInbox,
-                PreferredUsername = actor.PreferredUsername,
-                IconUrl = actor.IconUrl
-            });
-
-            await context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(UpdateFollow), new { id });
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> FollowHandle(string handle)
-        {
-            var id = await webFingerService.ResolveIdForHandleAsync(handle);
-            return await Follow(id);
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> FollowThreadsHandle(string handle)
-        {
-            return await FollowHandle($"@{handle.TrimStart('@')}@threads.net");
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unfollow(string id)
         {
             await foreach (var follow in context.Follows.Where(f => f.ActorId == id).AsAsyncEnumerable())
@@ -358,46 +301,6 @@ namespace Pandacap.Controllers
             await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(FollowingAndFeeds));
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddATProtoFeed(string handle)
-        {
-            var client = httpClientFactory.CreateClient();
-
-            string did = handle.StartsWith("did:")
-                ? handle
-                : await atProtoHandleLookupClient.FindDIDAsync(handle);
-
-            if (await context.ATProtoFeeds.Where(a => a.DID == did).DocumentCountAsync() > 0)
-                return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
-
-            var document = await didResolver.ResolveAsync(did);
-
-            var repo = await XRPC.Com.Atproto.Repo.DescribeRepoAsync(
-                client,
-                document.PDS,
-                did);
-
-            context.ATProtoFeeds.Add(new ATProtoFeed
-            {
-                DID = did,
-                Handle = document.Handle,
-                CurrentPDS = document.PDS,
-                NSIDs = [
-                    .. repo.collections.Intersect([
-                        NSIDs.App.Bsky.Actor.Profile,
-                        NSIDs.App.Bsky.Feed.Post,
-                        NSIDs.App.Bsky.Feed.Repost
-                    ])
-                ]
-            });
-
-            await context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
         }
 
         [Authorize]

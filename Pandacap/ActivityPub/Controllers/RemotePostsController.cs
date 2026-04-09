@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub;
 using Pandacap.ActivityPub.Communication;
 using Pandacap.ActivityPub.Inbound;
 using Pandacap.ConfigurationObjects;
 using Pandacap.Data;
+using Pandacap.HighLevel;
 using Pandacap.Models;
 using System.Net;
 using System.Security.Authentication;
@@ -18,7 +20,8 @@ namespace Pandacap.Controllers
         ApplicationInformation appInfo,
         PandacapDbContext context,
         ActivityPubHostInformation hostInformation,
-        ActivityPubPostTranslator postTranslator) : Controller
+        ActivityPubPostTranslator postTranslator,
+        ActivityPubRelationshipTranslator relationshipTranslator) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Actor(string id, CancellationToken cancellationToken)
@@ -42,6 +45,46 @@ namespace Pandacap.Controllers
             {
                 return Redirect(uri.AbsoluteUri);
             }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Follow(string id)
+        {
+            if (await context.Follows.Where(f => f.ActorId == id).DocumentCountAsync() > 0)
+                return RedirectToAction("UpdateFollow", "Profile", new { id });
+
+            var actor = await activityPubRemoteActorService.FetchActorAsync(id);
+
+            Guid followGuid = Guid.NewGuid();
+
+            context.ActivityPubOutboundActivities.Add(new()
+            {
+                Id = followGuid,
+                Inbox = actor.Inbox,
+                JsonBody = ActivityPubSerializer.SerializeWithContext(
+                    relationshipTranslator.BuildFollow(
+                        followGuid,
+                        actor.Id)),
+                StoredAt = DateTimeOffset.UtcNow
+            });
+
+            context.Follows.Add(new()
+            {
+                ActorId = actor.Id,
+                AddedAt = DateTimeOffset.UtcNow,
+                FollowGuid = followGuid,
+                Accepted = false,
+                Inbox = actor.Inbox,
+                SharedInbox = actor.SharedInbox,
+                PreferredUsername = actor.PreferredUsername,
+                IconUrl = actor.IconUrl
+            });
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("UpdateFollow", "Profile", new { id });
         }
 
         [HttpGet]
