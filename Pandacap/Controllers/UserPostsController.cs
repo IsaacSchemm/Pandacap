@@ -53,7 +53,7 @@ namespace Pandacap.Controllers
 
             return View(new UserPostViewModel
             {
-                PlatformLinks = await platformLinkProvider.GetPlatformLinksAsync(cancellationToken),
+                PlatformLinks = await platformLinkProvider.GetPostLinksAsync(post, cancellationToken),
                 Post = post,
                 Replies = User.Identity?.IsAuthenticated == true
                     ? await replyLookup

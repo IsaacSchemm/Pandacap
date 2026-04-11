@@ -1,25 +1,27 @@
 ﻿using Pandacap.PlatformLinks.Interfaces;
 
-namespace Pandacap.PlatformLinks
+namespace Pandacap.PlatformLinks.LinkTemplates
 {
-    public record BlueskyStyleATProtoPlatformLink(
+    public record BlueskyStyleATProtoPlatformLinkTemplate(
         string PlatformName,
         string IconFilename,
         string Host,
         string DID,
-        string? Handle) : IPlatformLink
+        string? Handle) : ILinkTemplate
     {
-        public string Username => Handle != null
+        public PlatformLinkCategory Category => PlatformLinkCategory.ATProto;
+
+        public string Username =>
+            Handle != null
             ? $"@{Handle}"
             : DID;
-
-        public string? ViewProfileUrl => $"https://{Host}/profile/{Handle ?? DID}";
-
-        public PlatformLinkCategory Category => PlatformLinkCategory.ATProto;
 
         public string? GetViewPostUrl(IPlatformLinkPostSource post) =>
             post.BlueskyDID == null || post.BlueskyRecordKey == null
             ? null
             : $"https://{Host}/profile/{post.BlueskyDID}/post/{post.BlueskyRecordKey}";
+
+        public string? GetViewProfileUrl() =>
+            $"https://{Host}/profile/{Handle ?? DID}";
     }
 }

@@ -2,7 +2,11 @@
 {
     public interface IPlatformLinkProvider
     {
-        Task<IReadOnlyList<IPlatformLink>> GetPlatformLinksAsync(
+        Task<IReadOnlyList<IPlatformLink>> GetPostLinksAsync(
+            IPlatformLinkPostSource post,
+            CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyList<IPlatformLink>> GetProfileLinksAsync(
             CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<string>> GetBlueskyStyleAppViewHostsAsync(

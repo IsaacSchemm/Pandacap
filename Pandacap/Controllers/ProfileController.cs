@@ -56,7 +56,7 @@ namespace Pandacap.Controllers
 
             var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
 
-            var links = await platformLinkProvider.GetPlatformLinksAsync(cancellationToken);
+            var links = await platformLinkProvider.GetProfileLinksAsync(cancellationToken);
 
             return new ActivityPubProfile(
                 avatars: avatar == null
@@ -71,7 +71,7 @@ namespace Pandacap.Controllers
                     .Select(link => new ActivityPubProfileLink(
                         platformName: link.PlatformName,
                         username: link.Username,
-                        viewProfileUrl: link.ViewProfileUrl))
+                        viewProfileUrl: link.Url))
                 ],
                 publicKeyPem: key,
                 username: appInfo.Username,
@@ -129,7 +129,7 @@ namespace Pandacap.Controllers
 
                 return new ProfileViewModel
                 {
-                    PlatformLinks = await platformLinkProvider.GetPlatformLinksAsync(cancellationToken),
+                    PlatformLinks = await platformLinkProvider.GetProfileLinksAsync(cancellationToken),
                     RecentArtwork = artwork,
                     RecentFavorites = favorites,
                     RecentTextPosts = textPosts,

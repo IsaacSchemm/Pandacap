@@ -39,7 +39,7 @@
             @foreach (var link in linkGroup)
             {
                 <div>
-                    <a href="@link.GetViewPostUrl(Model.Post)" target="_blank">
+                    <a href="@link.Url" target="_blank">
                         <img alt=""
                              src="/images/@link.IconFilename"
                              class="social-icon-inline" />

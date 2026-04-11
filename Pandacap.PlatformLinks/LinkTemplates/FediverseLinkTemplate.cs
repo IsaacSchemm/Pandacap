@@ -1,18 +1,18 @@
 ﻿using Pandacap.ActivityPub.Static;
 using Pandacap.PlatformLinks.Interfaces;
 
-namespace Pandacap.PlatformLinks
+namespace Pandacap.PlatformLinks.LinkTemplates
 {
-    public record FediverseLink(
-        string IconFilename,
-        string PlatformName) : IPlatformLink, IActivityPubProfileLink
+    public record FediverseLinkTemplate(
+        string PlatformName,
+        string IconFilename) : ILinkTemplate
     {
         public PlatformLinkCategory Category => PlatformLinkCategory.ActivityPub;
 
         public string Username => $"@{ActivityPubHostInformation.Username}@{ActivityPubHostInformation.ApplicationHostname}";
 
-        public string? ViewProfileUrl => null;
-
         public string? GetViewPostUrl(IPlatformLinkPostSource post) => null;
+
+        public string? GetViewProfileUrl() => null;
     }
 }
