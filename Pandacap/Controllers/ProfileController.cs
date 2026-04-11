@@ -66,7 +66,8 @@ namespace Pandacap.Controllers
                         $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}")],
                 links: [..
                     links
-                    .Where(link => link.Category == PlatformLinkCategory.External)
+                    .Where(link => link.Category != PlatformLinkCategory.ActivityPub)
+                    .Where(link => link.Category != PlatformLinkCategory.ATProto)
                     .Select(link => new ActivityPubProfileLink(
                         platformName: link.PlatformName,
                         username: link.Username,

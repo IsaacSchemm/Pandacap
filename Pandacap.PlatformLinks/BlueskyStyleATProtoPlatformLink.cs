@@ -4,6 +4,7 @@ namespace Pandacap.PlatformLinks
 {
     public record BlueskyStyleATProtoPlatformLink(
         string PlatformName,
+        string IconFilename,
         string Host,
         string DID,
         string? Handle) : IPlatformLink

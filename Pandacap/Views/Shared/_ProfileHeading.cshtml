@@ -1,7 +1,6 @@
 ﻿@using Pandacap.ConfigurationObjects
 @using Pandacap.PlatformLinks.Interfaces
 @inject ApplicationInformation appInfo
-@inject IPlatformIconProvider platformIconProvider
 @inject IPlatformLinkProvider platformLinkProvider
 
 @{
@@ -19,11 +18,9 @@
 
             <span class="small text-muted" style="user-select: all">@ap.Username</span>
 
-            var icon = await platformIconProvider.ResolveIconAsync(ap.Host);
-
             <img alt="@ap.PlatformName icon"
                  title="@ap.PlatformName"
-                 src="@icon"
+                 src="/images/@ap.IconFilename"
                  width="16"
                  height="16" />
         }
@@ -34,11 +31,9 @@
 
             <span class="small text-muted" style="user-select: all">@at.Username</span>
 
-            var icon = await platformIconProvider.ResolveIconAsync(at.Host);
-
             <img alt="@at.PlatformName icon"
                  title="@at.PlatformName"
-                 src="@icon"
+                 src="/images/@at.IconFilename"
                  width="16"
                  height="16" />
         }

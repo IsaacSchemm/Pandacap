@@ -7,7 +7,6 @@ namespace Pandacap.PlatformLinks
     {
         public static IServiceCollection AddPlatformLinkProviders(this IServiceCollection serviceCollection) =>
             serviceCollection
-            .AddScoped<IPlatformIconProvider, PlatformIconProvider>()
             .AddScoped<IPlatformLinkProvider, PlatformLinkProvider>();
     }
 }

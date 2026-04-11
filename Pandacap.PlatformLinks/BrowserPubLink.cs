@@ -13,6 +13,8 @@ namespace Pandacap.PlatformLinks
 
         public string? ViewProfileUrl => $"https://{Host}/{Username}";
 
+        public string? IconFilename => "browserpub.svg";
+
         public string? GetViewPostUrl(IPlatformLinkPostSource post)
         {
             return $"https://{Host}/{post.ActivityPubObjectId}";

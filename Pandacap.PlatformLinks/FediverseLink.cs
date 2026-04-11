@@ -4,7 +4,7 @@ using Pandacap.PlatformLinks.Interfaces;
 namespace Pandacap.PlatformLinks
 {
     public record FediverseLink(
-        string Host,
+        string IconFilename,
         string PlatformName) : IPlatformLink, IActivityPubProfileLink
     {
         public PlatformLinkCategory Category => PlatformLinkCategory.ActivityPub;

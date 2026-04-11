@@ -4,7 +4,6 @@
 @using Pandacap.PlatformLinks.Interfaces
 @model ProfileViewModel
 @inject ApplicationInformation appInfo
-@inject IPlatformIconProvider platformIconProvider
 
 @{
     ViewData["Title"] = "Main Page";
@@ -31,13 +30,7 @@
 <details>
     <summary class="small text-muted">View on:</summary>
 
-    @foreach (var linkGroup in Model.PlatformLinks
-        .GroupBy(link => new
-        {
-            HeaderName = link.Category == PlatformLinkCategory.External
-                ? link.Host
-                : $"{link.Category}"
-        }))
+    @foreach (var linkGroup in Model.PlatformLinks.GroupBy(link => link.Category))
     {
         <div class="social-block">
             @foreach (var link in linkGroup)
@@ -45,7 +38,7 @@
                 <div>
                     <a href="@link.ViewProfileUrl" target="_blank">
                         <img alt=""
-                             src="@await platformIconProvider.ResolveIconAsync(link.Host)"
+                             src="/images/@link.IconFilename"
                              class="social-icon-inline" />
 
                         @link.PlatformName
