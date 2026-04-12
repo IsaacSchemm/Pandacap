@@ -12,7 +12,9 @@
     <span style="display: inline-block; vertical-align: top">
         <strong>@appInfo.Username</strong>
 
-        @if (platformLinks.Where(link => link.Category == PlatformLinkCategory.ActivityPub).FirstOrDefault() is IPlatformLink ap)
+        @if (platformLinks
+            .Where(link => link.Category == PlatformLinkCategory.ActivityPub)
+            .FirstOrDefault() is IPlatformLink ap)
         {
             <br />
 
@@ -25,7 +27,9 @@
                  height="16" />
         }
 
-        @if (platformLinks.Where(link => link.Category == PlatformLinkCategory.ATProto).FirstOrDefault() is IPlatformLink at)
+        @if (platformLinks
+            .Where(link => link.Category == PlatformLinkCategory.ATProto)
+            .FirstOrDefault() is IPlatformLink at)
         {
             <br />
 

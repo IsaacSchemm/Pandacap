@@ -4,8 +4,9 @@
     {
         ActivityPub = 1,
         ATProto = 2,
-        DeviantArt = 3,
-        FurAffinity = 4,
-        Weasyl = 5
+        Syndication = 3,
+        DeviantArt = 4,
+        FurAffinity = 5,
+        Weasyl = 6
     }
 }

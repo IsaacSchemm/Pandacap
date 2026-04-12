@@ -27,27 +27,9 @@
     }
 </p>
 
-<details>
-    <summary class="small text-muted">View on:</summary>
-
-    @foreach (var linkGroup in Model.PlatformLinks.GroupBy(link => link.Category))
-    {
-        <div class="social-block">
-            @foreach (var link in linkGroup)
-            {
-                <div>
-                    <a href="@link.Url" target="_blank">
-                        <img alt=""
-                             src="/images/@link.IconFilename"
-                             class="social-icon-inline" />
-
-                        @link.PlatformName
-                    </a>
-                </div>
-            }
-        </div>
-    }
-</details>
+<div class="mb-3">
+    <partial name="_PlatformLinks" model="@Model.PlatformLinks" />
+</div>
 
 <div class="container-fluid">
     <div class="row">
@@ -71,8 +53,8 @@
                     <div class="input-group my-3">
                         <span class="input-group-text">Vector search</span>
                         <input name="q"
-                        type="text"
-                        class="form-control">
+                               type="text"
+                               class="form-control">
                         <button class="btn btn-primary" type="submit">
                             Search
                         </button>

@@ -31,6 +31,7 @@ namespace Pandacap.PlatformLinks
             var list = await GetLinkTemplatesAsync(cancellationToken);
             return list
                 .Select(link => new PostLink(link, post))
+                .Where(link => link.Url != null)
                 .ToList();
         }
 
@@ -107,20 +108,20 @@ namespace Pandacap.PlatformLinks
 
         private record ProfileLink(ILinkTemplate Template) : IPlatformLink
         {
-            PlatformLinkCategory IPlatformLink.Category => Template.Category;
-            string? IPlatformLink.IconFilename => Template.IconFilename;
-            string? IPlatformLink.PlatformName => Template.PlatformName;
-            string? IPlatformLink.Username => Template.Username;
-            string? IPlatformLink.Url => Template.GetViewProfileUrl();
+            public PlatformLinkCategory Category => Template.Category;
+            public string? IconFilename => Template.IconFilename;
+            public string? PlatformName => Template.PlatformName;
+            public string? Username => Template.Username;
+            public string? Url => Template.GetViewProfileUrl();
         }
 
         private record PostLink(ILinkTemplate Template, IPlatformLinkPostSource Post) : IPlatformLink
         {
-            PlatformLinkCategory IPlatformLink.Category => Template.Category;
-            string? IPlatformLink.IconFilename => Template.IconFilename;
-            string? IPlatformLink.PlatformName => Template.PlatformName;
-            string? IPlatformLink.Username => Template.Username;
-            string? IPlatformLink.Url => Template.GetViewPostUrl(Post);
+            public PlatformLinkCategory Category => Template.Category;
+            public string? IconFilename => Template.IconFilename;
+            public string? PlatformName => Template.PlatformName;
+            public string? Username => null;
+            public string? Url => Template.GetViewPostUrl(Post);
         }
     }
 }
