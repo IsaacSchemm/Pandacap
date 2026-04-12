@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ConfigurationObjects;
 using Pandacap.Database;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.Models;
@@ -20,7 +19,6 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class DeviantArtController(
-        ApplicationInformation appInfo,
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
         DeviantArtCredentialProvider deviantArtCredentialProvider) : Controller
@@ -213,7 +211,7 @@ namespace Pandacap.Controllers
                                 post.Title)),
                         Stash.ArtistComments.NewArtistComments(post.Body),
                         Stash.TagList.Create(post.Tags),
-                        Stash.OriginalUrl.NewOriginalUrl($"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}"),
+                        Stash.OriginalUrl.NoOriginalUrl,
                         is_dirty: false),
                     new FormFile(
                         blob,

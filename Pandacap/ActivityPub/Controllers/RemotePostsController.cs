@@ -18,7 +18,6 @@ namespace Pandacap.Controllers
         IActivityPubRemoteActorService activityPubRemoteActorService,
         IActivityPubRemotePostService activityPubRemotePostService,
         IActivityPubRequestHandler activityPubRequestHandler,
-        ApplicationInformation appInfo,
         PandacapDbContext context,
         IActivityPubPostTranslator postTranslator,
         IActivityPubRelationshipTranslator relationshipTranslator) : Controller
@@ -29,7 +28,7 @@ namespace Pandacap.Controllers
             if (!Uri.TryCreate(id, UriKind.Absolute, out Uri? uri) || uri == null)
                 return NotFound();
 
-            if (uri.Host == appInfo.ApplicationHostname)
+            if (uri.Host == ActivityPubHostInformation.ApplicationHostname)
                 return Redirect(uri.AbsoluteUri);
 
             if (User.Identity?.IsAuthenticated != true)
@@ -94,7 +93,7 @@ namespace Pandacap.Controllers
             if (!Uri.TryCreate(id, UriKind.Absolute, out Uri? uri) || uri == null)
                 return NotFound();
 
-            if (uri.Host == appInfo.ApplicationHostname)
+            if (uri.Host == ActivityPubHostInformation.ApplicationHostname)
                 return Redirect(uri.AbsoluteUri);
 
             if (User.Identity?.IsAuthenticated != true)

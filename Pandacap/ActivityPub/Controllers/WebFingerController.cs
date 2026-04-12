@@ -1,18 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Pandacap.ActivityPub.Static;
-using Pandacap.ConfigurationObjects;
 
 namespace Pandacap.Controllers
 {
     [Route("")]
-    public class WebFingerController(
-        ApplicationInformation appInfo) : Controller
+    public class WebFingerController : Controller
     {
         [HttpGet]
         [Route(".well-known/webfinger")]
         public IActionResult WebFinger(string resource)
         {
-            string handle = $"acct:{appInfo.Username}@{appInfo.ApplicationHostname}";
+            string handle = $"acct:{ActivityPubHostInformation.Username}@{ActivityPubHostInformation.ApplicationHostname}";
 
             if (resource == handle || resource == ActivityPubHostInformation.ActorId)
             {

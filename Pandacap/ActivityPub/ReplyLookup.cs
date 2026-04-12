@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.Static;
-using Pandacap.ConfigurationObjects;
 using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.Models;
@@ -10,7 +9,6 @@ using System.Runtime.CompilerServices;
 namespace Pandacap
 {
     public class ReplyLookup(
-        ApplicationInformation appInfo,
         IDbContextFactory<PandacapDbContext> contextFactory)
     {
         public async Task<bool> IsOriginalPostStoredAsync(
@@ -18,7 +16,7 @@ namespace Pandacap
             CancellationToken cancellationToken)
         {
             if (Uri.TryCreate(id, UriKind.Absolute, out Uri? uri))
-                if (uri.Host == appInfo.ApplicationHostname)
+                if (uri.Host == ActivityPubHostInformation.ApplicationHostname)
                     return true;
 
             using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
@@ -81,7 +79,7 @@ namespace Pandacap
                     Sensitive = false,
                     Summary = null,
                     Usericon = "/Blobs/Avatar",
-                    Username = appInfo.Username
+                    Username = ActivityPubHostInformation.Username
                 };
             }
         }

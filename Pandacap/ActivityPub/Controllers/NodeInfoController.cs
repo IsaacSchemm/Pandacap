@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Pandacap.ConfigurationObjects;
+using Pandacap.ActivityPub.Static;
+using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.HighLevel;
 
@@ -7,7 +8,6 @@ namespace Pandacap.Controllers
 {
     [Route("")]
     public class NodeInfoController(
-        ApplicationInformation appInfo,
         PandacapDbContext context) : Controller
     {
         [HttpGet]
@@ -21,7 +21,7 @@ namespace Pandacap.Controllers
                     new
                     {
                         rel = "http://nodeinfo.diaspora.software/ns/schema/2.1",
-                        href = $"https://{appInfo.ApplicationHostname}/.well-known/nodeinfo/2.1"
+                        href = $"https://{ActivityPubHostInformation.ApplicationHostname}/.well-known/nodeinfo/2.1"
                     }
                 }
             });

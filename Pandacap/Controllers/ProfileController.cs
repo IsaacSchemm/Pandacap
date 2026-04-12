@@ -8,9 +8,11 @@ using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.ActivityPub.Static;
 using Pandacap.ATProto.HandleResolution.Interfaces;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.ConfigurationObjects;
+using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
@@ -26,29 +28,20 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ProfileController(
-        IActivityPubRemoteActorService activityPubRemoteActorService,
-        ApplicationInformation appInfo,
         ATProtoFeedReader atProtoFeedReader,
-        IATProtoService atProtoService,
-        IATProtoHandleLookupClient atProtoHandleLookupClient,
         BlobServiceClient blobServiceClient,
         CompositeFavoritesProvider compositeFavoritesProvider,
-        IDIDResolver didResolver,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
         FeedRefresher feedRefresher,
-        IHttpClientFactory httpClientFactory,
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
         IPlatformLinkProvider platformLinkProvider,
         IActivityPubProfileTranslator profileTranslator,
         IActivityPubRelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager,
-        VectorSearchIndexClient vectorSearchIndexClient,
-        IWebFingerService webFingerService) : Controller
+        VectorSearchIndexClient vectorSearchIndexClient) : Controller
     {
-        //private static readonly SemaphoreSlim _searchVectorGenerationFlag = new(100, 100);
-
         private async Task<ActivityPubProfile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
         {
@@ -63,7 +56,7 @@ namespace Pandacap.Controllers
                     ? []
                     : [new(
                         avatar.ContentType,
-                        $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}")],
+                        $"https://{ActivityPubHostInformation.ApplicationHostname}/Blobs/Avatar/{avatar.Id}")],
                 links: [..
                     links
                     .Where(link => link.Category != PlatformLinkCategory.ActivityPub)
@@ -74,7 +67,7 @@ namespace Pandacap.Controllers
                         viewProfileUrl: link.Url))
                 ],
                 publicKeyPem: key,
-                username: appInfo.Username,
+                username: ActivityPubHostInformation.Username,
                 summaryHtml: $"<p>Hosted by <a href='{UserAgentInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(UserAgentInformation.ApplicationName)}</a>.</p>");
         }
 
