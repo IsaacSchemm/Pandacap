@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="ConfigurationObjects\ApplicationInformation.fs" />
     <Compile Include="Podcasts\WmaZipSplitter.fs" />
   </ItemGroup>
 

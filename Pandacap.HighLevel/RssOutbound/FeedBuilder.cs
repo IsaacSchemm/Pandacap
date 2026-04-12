@@ -1,4 +1,5 @@
-﻿using Pandacap.ConfigurationObjects;
+﻿using Pandacap.Configuration;
+using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.Database.Extensions;
 using System.ServiceModel.Syndication;
@@ -10,7 +11,7 @@ namespace Pandacap.HighLevel.RssOutbound
     /// <summary>
     /// Builds Atom and RSS feeds for the outbox.
     /// </summary>
-    public class FeedBuilder(ApplicationInformation appInfo)
+    public class FeedBuilder
     {
         /// <summary>
         /// Generates an HTML rendition of the post, including image(s), description, and outgoing link(s).
@@ -25,7 +26,7 @@ namespace Pandacap.HighLevel.RssOutbound
             yield return post.GenerateLinksHtml();
 
             foreach (var image in post.Images)
-                yield return $"<p><img src='https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.Raster.Id}' height='250' style='max-height: 250px' /></p>";
+                yield return $"<p><img src='{post.GetImageUrl(image)}' height='250' style='max-height: 250px' /></p>";
         }
 
         /// <summary>
@@ -35,7 +36,7 @@ namespace Pandacap.HighLevel.RssOutbound
         /// <returns>A feed item</returns>
         private SyndicationItem ToSyndicationItem(Post post)
         {
-            string url = $"https://{appInfo.ApplicationHostname}/UserPosts/{post.Id}";
+            string url = post.Url;
 
             var item = new SyndicationItem
             {
@@ -64,14 +65,14 @@ namespace Pandacap.HighLevel.RssOutbound
             var feed = new SyndicationFeed
             {
                 Id = url,
-                Title = new TextSyndicationContent($"@{appInfo.Username}@{appInfo.ApplicationHostname}", TextSyndicationContentKind.Plaintext),
-                Description = new TextSyndicationContent($"Pandacap posts from {appInfo.Username}", TextSyndicationContentKind.Plaintext),
-                Copyright = new TextSyndicationContent($"{appInfo.Username}", TextSyndicationContentKind.Plaintext),
-                LastUpdatedTime = posts.Select(x => x.PublishedTime).Max(),
+                Title = new TextSyndicationContent($"{DeploymentInformation.Username} ({UserAgentInformation.ApplicationName})", TextSyndicationContentKind.Plaintext),
+                Description = new TextSyndicationContent($"{UserAgentInformation.ApplicationName} posts from {DeploymentInformation.Username}", TextSyndicationContentKind.Plaintext),
+                Copyright = new TextSyndicationContent($"{DeploymentInformation.Username}", TextSyndicationContentKind.Plaintext),
+                LastUpdatedTime = posts.Max(x => x.PublishedTime),
                 Items = posts.Select(ToSyndicationItem)
             };
             feed.Links.Add(SyndicationLink.CreateSelfLink(new Uri(url), "application/rss+xml"));
-            feed.Links.Add(SyndicationLink.CreateAlternateLink(new Uri($"https://{appInfo.ApplicationHostname}"), "text/html"));
+            feed.Links.Add(SyndicationLink.CreateAlternateLink(new Uri($"https://{DeploymentInformation.ApplicationHostname}"), "text/html"));
             return feed;
         }
 

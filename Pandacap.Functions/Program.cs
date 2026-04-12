@@ -4,12 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pandacap.Configuration;
 using Pandacap.Database;
 using Pandacap.Functions;
 using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
+using Pandacap.KeyVault;
+using Pandacap.Weasyl;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -58,13 +61,23 @@ var host = new HostBuilder()
                 redditAppSecret));
         }
 
+        DeploymentInformation.ApplicationHostname = Environment.GetEnvironmentVariable("ApplicationHostname")
+            ?? throw new Exception("ApplicationHostname is not defined");
+
+        DeploymentInformation.Username = Environment.GetEnvironmentVariable("ActivityPubUsername")
+            ?? throw new Exception("ActivityPubUsername is not defined");
+
         services
             .AddMemoryCache()
-            .AddPandacapServices(new(
-                applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
-                username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
-                keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
-                weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")))
+            .AddPandacapKeyVault(new()
+            {
+                KeyVaultHost = new Uri("https://" + Environment.GetEnvironmentVariable("KeyVaultHostname"))
+            })
+            .AddPandacapServices()
+            .AddWeasylClient(new()
+            {
+                WeasylProxyHost = new("https://" + Environment.GetEnvironmentVariable("WeasylProxyHost"))
+            })
             .AddScoped<DeviantArtFavoriteHandler>()
             .AddScoped<DeviantArtInboxHandler>()
             .AddScoped<FurAffinityFavoriteHandler>()

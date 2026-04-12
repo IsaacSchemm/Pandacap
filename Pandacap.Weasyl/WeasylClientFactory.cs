@@ -5,13 +5,14 @@ namespace Pandacap.Weasyl
 {
     internal class WeasylClientFactory(
         IWeasylHttpHandlerProvider weasylHttpHandlerProvider,
-        IWeasylScraper weasylScraper) : IWeasylClientFactory
+        IWeasylScraper weasylScraper,
+        WeasylConfiguration weasylConfiguration) : IWeasylClientFactory
     {
-        public IWeasylClient CreateWeasylClient(string apiKey, string phpProxyHost) =>
+        public IWeasylClient CreateWeasylClient(string apiKey) =>
             new WeasylClient(
                 weasylHttpHandlerProvider.GetOrCreateHandler(),
                 apiKey,
-                phpProxyHost,
+                weasylConfiguration.WeasylProxyHost.Host,
                 weasylScraper);
     }
 }

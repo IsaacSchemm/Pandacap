@@ -1,6 +1,5 @@
-﻿@using Pandacap.ConfigurationObjects
+﻿@using Pandacap.Configuration
 @using Pandacap.PlatformLinks.Interfaces
-@inject ApplicationInformation appInfo
 @inject IPlatformLinkProvider platformLinkProvider
 
 @{
@@ -14,7 +13,7 @@
             Handle:
         </span>
 
-        <strong>@appInfo.Username</strong>
+        <strong>@DeploymentInformation.Username</strong>
 
         @if (platformLinks
             .Where(link => link.Category == PlatformLinkCategory.ActivityPub)

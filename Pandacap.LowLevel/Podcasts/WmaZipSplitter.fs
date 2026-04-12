@@ -7,7 +7,6 @@ open System.Net.Http
 open System.Threading
 open NAudio.MediaFoundation
 open NAudio.Wave
-open Pandacap.ConfigurationObjects
 
 type WmaZipSplitter(httpClientFactory: IHttpClientFactory) =
     let _ = MediaFoundationApi.Startup()

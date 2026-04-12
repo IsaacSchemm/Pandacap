@@ -9,17 +9,19 @@ using Pandacap;
 using Pandacap.ActivityPub.HttpSignatures.Discovery;
 using Pandacap.ActivityPub.HttpSignatures.Validation;
 using Pandacap.ATProto.HandleResolution;
-using Pandacap.ConfigurationObjects;
+using Pandacap.Configuration;
 using Pandacap.Constants;
 using Pandacap.Data;
 using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.VectorSearch;
+using Pandacap.KeyVault;
 using Pandacap.Lemmy;
 using Pandacap.Notifications;
 using Pandacap.PlatformLinks;
 using Pandacap.Podcasts;
 using Pandacap.Resolvers;
+using Pandacap.Weasyl;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -102,18 +104,28 @@ builder.Services.AddSingleton(new AllowedExternalUserCollection(
     DeviantArtUsers: builder.Configuration["DeviantArtUsername"] is string du ? [du] : [],
     RedditUsers: builder.Configuration["RedditUsername"] is string ru ? [ru] : []));
 
+DeploymentInformation.ApplicationHostname = builder.Configuration["ApplicationHostname"]
+    ?? throw new Exception("ApplicationHostname is not defined");
+
+DeploymentInformation.Username = builder.Configuration["ActivityPubUsername"]
+    ?? throw new Exception("ActivityPubUsername is not defined");
+
 builder.Services
-    .AddPandacapServices(new(
-        applicationHostname: builder.Configuration["ApplicationHostname"],
-        username: builder.Configuration["ActivityPubUsername"],
-        keyVaultHostname: builder.Configuration["KeyVaultHostname"],
-        weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
     .AddActivityPubKeyFinder()
     .AddLemmyServices()
     .AddActivityPubSignatureValidator()
     .AddATProtoHandleResolution()
+    .AddPandacapKeyVault(new()
+    {
+        KeyVaultHost = new Uri("https://" + builder.Configuration["KeyVaultHostname"])
+    })
+    .AddPandacapServices()
     .AddPlatformLinkProviders()
     .AddResolvers()
+    .AddWeasylClient(new()
+    {
+        WeasylProxyHost = new("https://" + builder.Configuration["WeasylProxyHost"])
+    })
     .AddScoped<ActivityPubAddressedPostNotificationHandler>()
     .AddScoped<ActivityPubNotificationHandler>()
     .AddScoped<ActivityPubReplyNotificationHandler>()

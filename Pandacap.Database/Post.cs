@@ -128,7 +128,23 @@ namespace Pandacap.Database
             .SelectMany(i => i.Renditions);
 
         [NotMapped]
-        public string ObjectId => $"https://{ActivityPubHostInformation.ApplicationHostname}/UserPosts/{Id}";
+        public string Url => $"https://{ActivityPubHostInformation.ApplicationHostname}/UserPosts/{Id}";
+
+        private class ImageAdapter(Post post, Image image) : IActivityPubImage
+        {
+            public string Url => $"https://{ActivityPubHostInformation.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.Raster.Id}";
+
+            string IActivityPubImage.AltText => image.AltText ?? "";
+
+            string IActivityPubImage.MediaType => image.Raster.ContentType;
+
+            decimal? IActivityPubImage.HorizontalFocalPoint => image.FocalPoint?.Horizontal;
+
+            decimal? IActivityPubImage.VerticalFocalPoint => image.FocalPoint?.Vertical;
+        }
+
+        public string GetImageUrl(Image image) =>
+            new ImageAdapter(this, image).Url;
 
         Badge IPost.Badge => Badges.Pandacap;
 
@@ -166,7 +182,9 @@ namespace Pandacap.Database
 
         IEnumerable<IActivityPubLink> IActivityPubPost.Links => Links;
 
-        IEnumerable<IActivityPubImage> IActivityPubPost.Images => Images.Select(image => new ActivityPubImageAdapter(this, image));
+        IEnumerable<IActivityPubImage> IActivityPubPost.Images => Images.Select(image => new ImageAdapter(this, image));
+
+        string IActivityPubPost.ObjectId => Url;
 
         string? IActivityPubAddressing.InReplyTo => null;
 
@@ -176,19 +194,6 @@ namespace Pandacap.Database
 
         string? IActivityPubAddressing.Audience => null;
 
-        string? IPlatformLinkPostSource.ActivityPubObjectId => ObjectId;
-
-        private class ActivityPubImageAdapter(Post post, Image image) : IActivityPubImage
-        {
-            string IActivityPubImage.Url => $"https://{ActivityPubHostInformation.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{image.Raster.Id}";
-
-            string IActivityPubImage.AltText => image.AltText ?? "";
-
-            string IActivityPubImage.MediaType => image.Raster.ContentType;
-
-            decimal? IActivityPubImage.HorizontalFocalPoint => image.FocalPoint?.Horizontal;
-
-            decimal? IActivityPubImage.VerticalFocalPoint => image.FocalPoint?.Vertical;
-        }
+        string? IPlatformLinkPostSource.ActivityPubObjectId => Url;
     }
 }

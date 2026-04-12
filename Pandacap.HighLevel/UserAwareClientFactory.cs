@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.ConfigurationObjects;
+using Pandacap.Configuration;
 using Pandacap.Database;
 using Pandacap.Weasyl.Interfaces;
 
 namespace Pandacap.HighLevel
 {
     public class UserAwareClientFactory(
-        ApplicationInformation applicationInformation,
         PandacapDbContext context,
         IWeasylClientFactory weasylClientFactory)
     {
@@ -15,8 +14,7 @@ namespace Pandacap.HighLevel
             return await context.WeasylCredentials.SingleOrDefaultAsync(cancellationToken) is not WeasylCredentials weasylCredentials
                 ? null
                 : weasylClientFactory.CreateWeasylClient(
-                    apiKey: weasylCredentials.ApiKey,
-                    phpProxyHost: applicationInformation.WeasylProxyHost);
+                    apiKey: weasylCredentials.ApiKey);
         }
     }
 }
