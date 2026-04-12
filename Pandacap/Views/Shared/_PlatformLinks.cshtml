@@ -13,7 +13,7 @@
     <div class="card d-inline-block m-2" style="vertical-align: top" role="region" aria-label="Social link">
         <div class="card-body p-2">
             <div class="d-flex">
-                <div class="flex-grow-1">
+                <span class="flex-grow-1">
                     <a href="@primary.Url" target="_blank" style="text-decoration: none">
                         <img alt=""
                              src="/images/@primary.IconFilename"
@@ -21,9 +21,9 @@
 
                         @primary.PlatformName
                     </a>
-                </div>
+                </span>
 
-                <div class="flex-grow-0">
+                <span class="flex-grow-0">
                     @if (alternate.Any())
                     {
                         <span class="small text-muted">
@@ -33,14 +33,13 @@
                     @foreach (var link in alternate)
                     {
                         <a href="@link.Url" target="_blank" class="small" style="text-decoration: none">
-                            <img alt=""
+                            <img alt="@link.PlatformName"
                                  title="@link.PlatformName"
-                                 aria-label="@link.PlatformName"
                                  src="/images/@link.IconFilename"
                                  class="social-icon-inline" />
                         </a>
                     }
-                </div>
+                </span>
             </div>
 
             <div class="small text-muted">

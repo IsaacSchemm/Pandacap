@@ -8,6 +8,11 @@ img.feed-image {
     height: 250px;
 }
 
+.social-icon-inline {
+    width: 16px;
+    height: 16px;
+}
+
 .btn {
     display: inline-block;
     padding: 0.5em 1em;
