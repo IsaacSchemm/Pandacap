@@ -10,6 +10,10 @@
 <p>
     <img width="50" height="50" src="/Blobs/Avatar" alt="" />
     <span style="display: inline-block; vertical-align: top">
+        <span class="visually-hidden">
+            Handle:
+        </span>
+
         <strong>@appInfo.Username</strong>
 
         @if (platformLinks
@@ -18,13 +22,11 @@
         {
             <br />
 
-            <span class="small text-muted" style="user-select: all">@ap.Username</span>
+            <span class="visually-hidden">
+                ActivityPub / WebFinger handle:
+            </span>
 
-            <img alt="@ap.PlatformName icon"
-                 title="@ap.PlatformName"
-                 src="/images/@ap.IconFilename"
-                 width="16"
-                 height="16" />
+            <span class="small text-muted" style="user-select: all">@ap.Username</span>
         }
 
         @if (platformLinks
@@ -32,6 +34,10 @@
             .FirstOrDefault() is IPlatformLink at)
         {
             <br />
+
+            <span class="visually-hidden">
+                atproto handle:
+            </span>
 
             <span class="small text-muted" style="user-select: all">@at.Username</span>
 

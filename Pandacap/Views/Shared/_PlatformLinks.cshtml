@@ -1,54 +1,6 @@
 ﻿@using Pandacap.PlatformLinks.Interfaces
 @model IEnumerable<IPlatformLink>
 
-@* <table>
-    <thead>
-        <tr class="visually-hidden">
-            <th scope="col">Protocol(s)</th>
-            <th scope="col">Handle</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var group in Model.GroupBy(link => new
-        {
-            link.Category,
-            link.Username
-        }))
-        {
-            <tr>
-                <td class="p-1">
-                    @foreach (var link in group)
-                    {
-                        <div>
-                            @if (link.Url == null)
-                            {
-                                <span class="small" style="text-decoration: none">
-                                    <img alt=""
-                                         src="/images/@link.IconFilename"
-                                         class="social-icon-inline" />
-                                    @link.PlatformName
-                                </span>
-                            }
-                            else
-                            {
-                                <a href="@link.Url" target="_blank" class="small" style="text-decoration: none">
-                                    <img alt=""
-                                            src="/images/@link.IconFilename"
-                                            class="social-icon-inline" />
-                                    @link.PlatformName
-                                </a>
-                            }
-                        </div>
-                    }
-                </td>
-                <td class="p-1" valign="top">
-                    <span class="small text-muted" style="user-select: all">@group.Key.Username</span>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table> *@
-
 @foreach (var group in Model.GroupBy(link => new
 {
     link.Category,
@@ -58,7 +10,7 @@
     var primary = group.First();
     var alternate = group.Skip(1);
 
-    <div class="card d-inline-block m-2" style="vertical-align: top">
+    <div class="card d-inline-block m-2" style="vertical-align: top" role="region" aria-label="Social link">
         <div class="card-body p-2">
             <div class="d-flex">
                 <div class="flex-grow-1">
@@ -83,11 +35,9 @@
                         <a href="@link.Url" target="_blank" class="small" style="text-decoration: none">
                             <img alt=""
                                  title="@link.PlatformName"
+                                 aria-label="@link.PlatformName"
                                  src="/images/@link.IconFilename"
                                  class="social-icon-inline" />
-                            <span class="visually-hidden">
-                                @link.PlatformName
-                            </span>
                         </a>
                     }
                 </div>
