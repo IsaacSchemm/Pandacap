@@ -176,6 +176,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Frontend.Feeds", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.FeedIngestion", "Pandacap.FeedIngestion\Pandacap.FeedIngestion.csproj", "{06361485-894E-7933-2F0C-7692ADB373DB}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.Frontend.ATProto.Interfaces", "Pandacap.Frontend.ATProto.Interfaces\Pandacap.Frontend.ATProto.Interfaces.vbproj", "{5D88140D-8F28-4B1F-84AB-B0BFDA7EB8A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Frontend.ATProto", "Pandacap.Frontend.ATProto\Pandacap.Frontend.ATProto.csproj", "{8183A7D0-2CF2-4F26-AB4C-D04776D749ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -454,6 +458,14 @@ Global
 		{06361485-894E-7933-2F0C-7692ADB373DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06361485-894E-7933-2F0C-7692ADB373DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06361485-894E-7933-2F0C-7692ADB373DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D88140D-8F28-4B1F-84AB-B0BFDA7EB8A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D88140D-8F28-4B1F-84AB-B0BFDA7EB8A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D88140D-8F28-4B1F-84AB-B0BFDA7EB8A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D88140D-8F28-4B1F-84AB-B0BFDA7EB8A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8183A7D0-2CF2-4F26-AB4C-D04776D749ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8183A7D0-2CF2-4F26-AB4C-D04776D749ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8183A7D0-2CF2-4F26-AB4C-D04776D749ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8183A7D0-2CF2-4F26-AB4C-D04776D749ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -525,6 +537,8 @@ Global
 		{0F918273-8DC4-44F6-83DC-6F2E4CF18A71} = {E72C607A-9882-4FD0-8146-492BBF803A72}
 		{3E0C1072-20F9-40A3-96B8-6EFF3C96C084} = {E72C607A-9882-4FD0-8146-492BBF803A72}
 		{06361485-894E-7933-2F0C-7692ADB373DB} = {5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}
+		{5D88140D-8F28-4B1F-84AB-B0BFDA7EB8A5} = {E72C607A-9882-4FD0-8146-492BBF803A72}
+		{8183A7D0-2CF2-4F26-AB4C-D04776D749ED} = {E72C607A-9882-4FD0-8146-492BBF803A72}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

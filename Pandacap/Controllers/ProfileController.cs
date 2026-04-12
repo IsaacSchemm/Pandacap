@@ -10,8 +10,8 @@ using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Constants;
 using Pandacap.Database;
+using Pandacap.Frontend.ATProto.Interfaces;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Inbox.Feeds.Interfaces;
 using Pandacap.Models;
@@ -24,7 +24,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ProfileController(
-        ATProtoFeedReader atProtoFeedReader,
+        IATProtoFeedReader atProtoFeedReader,
         BlobServiceClient blobServiceClient,
         CompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,

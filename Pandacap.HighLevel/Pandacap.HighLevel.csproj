@@ -30,6 +30,8 @@
     <ProjectReference Include="..\Pandacap.Configuration\Pandacap.Configuration.csproj" />
     <ProjectReference Include="..\Pandacap.Database.Extensions\Pandacap.Database.Extensions.fsproj" />
     <ProjectReference Include="..\Pandacap.FeedIngestion\Pandacap.FeedIngestion.csproj" />
+    <ProjectReference Include="..\Pandacap.Frontend.ATProto.Interfaces\Pandacap.Frontend.ATProto.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Frontend.ATProto\Pandacap.Frontend.ATProto.csproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
     <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
     <ProjectReference Include="..\Pandacap.Text\Pandacap.Text.fsproj" />

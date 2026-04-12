@@ -1,14 +1,14 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
+using Pandacap.Frontend.ATProto.Interfaces;
 using Pandacap.Functions.InboxHandlers;
-using Pandacap.HighLevel.ATProto;
 using Pandacap.Inbox.Feeds.Interfaces;
 
 namespace Pandacap.Functions
 {
     public class InboxIngest(
-        ATProtoFeedReader atProtoFeedReader,
+        IATProtoFeedReader atProtoFeedReader,
         PandacapDbContext context,
         DeviantArtInboxHandler deviantArtInboxHandler,
         IFeedRefresher feedRefresher,

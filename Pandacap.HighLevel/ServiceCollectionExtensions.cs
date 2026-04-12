@@ -5,8 +5,8 @@ using Pandacap.ActivityPub.RemoteObjects;
 using Pandacap.ActivityPub.Services;
 using Pandacap.ATProto.Services;
 using Pandacap.FeedIngestion;
+using Pandacap.Frontend.ATProto;
 using Pandacap.FurAffinity;
-using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Weasyl.Scraping;
@@ -25,6 +25,7 @@ namespace Pandacap.HighLevel
                         {
                             UseCache = true
                         }))
+                .AddATProtoFeedReader()
                 .AddJsonLdExpansionService()
                 .AddActivityPubServices()
                 .AddActivityPubRemoteObjectServices()
@@ -32,7 +33,6 @@ namespace Pandacap.HighLevel
                 .AddFeedReaders()
                 .AddFurAffinityClient()
                 .AddWeasylScraper()
-                .AddScoped<ATProtoFeedReader>()
                 .AddScoped<CompositeInboxProvider>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<DeviantArtCredentialProvider>()

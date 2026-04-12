@@ -3,14 +3,15 @@ using Microsoft.FSharp.Collections;
 using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
+using Pandacap.Frontend.ATProto.Interfaces;
 
-namespace Pandacap.HighLevel.ATProto
+namespace Pandacap.Frontend.ATProto
 {
-    public class ATProtoFeedReader(
+    internal class ATProtoFeedReader(
         IATProtoService atProtoService,
         IBlueskyService blueskyService,
-        PandacapDbContext context,
-        IDIDResolver didResolver)
+        IDIDResolver didResolver,
+        PandacapDbContext pandacapDbContext) : IATProtoFeedReader
     {
         private static bool PostMatchesFilters(
             ATProtoFeed feed,
@@ -62,7 +63,7 @@ namespace Pandacap.HighLevel.ATProto
             ATProtoFeed feed,
             ATProtoRecord<BlueskyPost> post)
         {
-            context.BlueskyPostFeedItems.Add(new()
+            pandacapDbContext.BlueskyPostFeedItems.Add(new()
             {
                 Author = new()
                 {
@@ -95,7 +96,7 @@ namespace Pandacap.HighLevel.ATProto
             var subject = subjectData.Subject;
             var pds = subjectData.PDS;
 
-            context.BlueskyRepostFeedItems.Add(new()
+            pandacapDbContext.BlueskyRepostFeedItems.Add(new()
             {
                 CID = like.Ref.CID,
                 CreatedAt = subject.Value.CreatedAt,
@@ -135,7 +136,7 @@ namespace Pandacap.HighLevel.ATProto
             var subject = subjectData.Subject;
             var pds = subjectData.PDS;
 
-            context.BlueskyRepostFeedItems.Add(new()
+            pandacapDbContext.BlueskyRepostFeedItems.Add(new()
             {
                 CID = repost.Ref.CID,
                 CreatedAt = subject.Value.CreatedAt,
@@ -171,7 +172,7 @@ namespace Pandacap.HighLevel.ATProto
             string did,
             CancellationToken cancellationToken)
         {
-            var feed = await context.ATProtoFeeds.SingleAsync(f => f.DID == did, cancellationToken);
+            var feed = await pandacapDbContext.ATProtoFeeds.SingleAsync(f => f.DID == did, cancellationToken);
 
             var doc = await didResolver.ResolveAsync(did, cancellationToken);
 
@@ -210,16 +211,19 @@ namespace Pandacap.HighLevel.ATProto
                     pds,
                     did).Take(20).WithCancellation(cancellationToken);
 
-                await foreach(var like in likes)
+                await foreach (var like in likes)
                 {
                     seenThisTime.Add(like.Ref.CID);
 
                     if (seenLastTime.Contains(like.Ref.CID))
                         continue;
 
-                    var existing = await context.BlueskyLikeFeedItems.FindAsync(like.Ref.CID, cancellationToken);
+                    var existing = await pandacapDbContext.BlueskyLikeFeedItems.FindAsync(
+                        [like.Ref.CID],
+                        cancellationToken);
+
                     if (existing != null)
-                        context.BlueskyLikeFeedItems.Remove(existing);
+                        pandacapDbContext.BlueskyLikeFeedItems.Remove(existing);
 
                     if (await FetchSubjectAsync(like, cancellationToken) is not SubjectData info)
                         continue;
@@ -247,9 +251,11 @@ namespace Pandacap.HighLevel.ATProto
                     if (!PostMatchesFilters(feed, post))
                         continue;
 
-                    var existing = await context.BlueskyPostFeedItems.FindAsync(post.Ref.CID, cancellationToken);
+                    var existing = await pandacapDbContext.BlueskyPostFeedItems.FindAsync(
+                        [post.Ref.CID],
+                        cancellationToken);
                     if (existing != null)
-                        context.BlueskyPostFeedItems.Remove(existing);
+                        pandacapDbContext.BlueskyPostFeedItems.Remove(existing);
 
                     AddToContext(feed, post);
                 }
@@ -268,9 +274,11 @@ namespace Pandacap.HighLevel.ATProto
                     if (seenLastTime.Contains(repost.Ref.CID))
                         continue;
 
-                    var existing = await context.BlueskyRepostFeedItems.FindAsync(repost.Ref.CID, cancellationToken);
+                    var existing = await pandacapDbContext.BlueskyRepostFeedItems.FindAsync(
+                        [repost.Ref.CID],
+                        cancellationToken);
                     if (existing != null)
-                        context.BlueskyRepostFeedItems.Remove(existing);
+                        pandacapDbContext.BlueskyRepostFeedItems.Remove(existing);
 
                     if (await FetchSubjectAsync(repost, cancellationToken) is not SubjectData info)
                         continue;
@@ -284,7 +292,7 @@ namespace Pandacap.HighLevel.ATProto
 
             feed.LastCIDsSeen = [.. seenThisTime];
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }
