@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.Database.Extensions\Pandacap.Database.Extensions.fsproj" />
-    <ProjectReference Include="..\Pandacap.FeedCreation.Outbox.Interfaces\Pandacap.FeedCreation.Outbox.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Frontend.Feeds.Interfaces\Pandacap.Frontend.Feeds.Interfaces.vbproj" />
   </ItemGroup>
 
 </Project>

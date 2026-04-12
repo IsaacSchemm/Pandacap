@@ -2,12 +2,12 @@
 using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.Database.Extensions;
-using Pandacap.FeedCreation.Outbox.Interfaces;
+using Pandacap.Frontend.Feeds.Interfaces;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Xml;
 
-namespace Pandacap.FeedCreation.Outbox
+namespace Pandacap.Frontend.Feeds
 {
     /// <summary>
     /// Builds Atom and RSS feeds for the outbox.

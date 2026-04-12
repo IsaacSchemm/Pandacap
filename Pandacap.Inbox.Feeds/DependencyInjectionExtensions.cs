@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Pandacap.FeedIngestion.Inbox.Interfaces;
+using Pandacap.Inbox.Feeds.Interfaces;
 
-namespace Pandacap.FeedIngestion.Inbox
+namespace Pandacap.Inbox.Feeds
 {
     public static class DependencyInjectionExtensions
     {

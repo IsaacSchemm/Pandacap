@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Pandacap.FeedCreation.Outbox.Interfaces;
+using Pandacap.Frontend.Feeds.Interfaces;
 
-namespace Pandacap.FeedCreation.Outbox
+namespace Pandacap.Frontend.Feeds
 {
     public static class DependencyInjectionExtensions
     {

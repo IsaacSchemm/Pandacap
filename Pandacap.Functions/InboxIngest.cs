@@ -1,9 +1,9 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
-using Pandacap.FeedIngestion.Inbox.Interfaces;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel.ATProto;
+using Pandacap.Inbox.Feeds.Interfaces;
 
 namespace Pandacap.Functions
 {

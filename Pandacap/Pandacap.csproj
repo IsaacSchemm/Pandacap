@@ -44,9 +44,9 @@
     <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Validation\Pandacap.ActivityPub.HttpSignatures.Validation.fsproj" />
     <ProjectReference Include="..\Pandacap.ATProto.HandleResolution\Pandacap.ATProto.HandleResolution.csproj" />
     <ProjectReference Include="..\Pandacap.Audio\Pandacap.Audio.fsproj" />
-    <ProjectReference Include="..\Pandacap.FeedCreation.Outbox\Pandacap.FeedCreation.Outbox.csproj" />
-    <ProjectReference Include="..\Pandacap.FeedIngestion.Inbox\Pandacap.FeedIngestion.Inbox.csproj" />
+    <ProjectReference Include="..\Pandacap.Frontend.Feeds\Pandacap.Frontend.Feeds.csproj" />
     <ProjectReference Include="..\Pandacap.HighLevel\Pandacap.HighLevel.csproj" />
+    <ProjectReference Include="..\Pandacap.Inbox.Feeds\Pandacap.Inbox.Feeds.csproj" />
     <ProjectReference Include="..\Pandacap.Lemmy\Pandacap.Lemmy.fsproj" />
     <ProjectReference Include="..\Pandacap.PlatformLinks\Pandacap.PlatformLinks.csproj" />
     <ProjectReference Include="..\Pandacap.Resolvers\Pandacap.Resolvers.csproj" />

@@ -6,12 +6,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pandacap.Configuration;
 using Pandacap.Database;
-using Pandacap.FeedIngestion.Inbox;
 using Pandacap.Functions;
 using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
+using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
 using Pandacap.Weasyl;
 
