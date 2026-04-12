@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pandacap.Configuration;
 using Pandacap.Database;
+using Pandacap.FeedIngestion.Inbox;
 using Pandacap.Functions;
 using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
@@ -68,6 +69,7 @@ var host = new HostBuilder()
             ?? throw new Exception("ActivityPubUsername is not defined");
 
         services
+            .AddFeedRefresher()
             .AddMemoryCache()
             .AddPandacapKeyVault(new()
             {

@@ -10,9 +10,9 @@ using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Constants;
 using Pandacap.Database;
+using Pandacap.FeedIngestion.Inbox.Interfaces;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.ATProto;
-using Pandacap.HighLevel.FeedReaders;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Models;
 using Pandacap.PlatformLinks.Interfaces;
@@ -29,7 +29,7 @@ namespace Pandacap.Controllers
         CompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
-        FeedRefresher feedRefresher,
+        IFeedRefresher feedRefresher,
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
         IPlatformLinkProvider platformLinkProvider,
@@ -398,9 +398,9 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddFeed(string url)
+        public async Task<IActionResult> AddFeed(string url, CancellationToken cancellationToken)
         {
-            await feedRefresher.AddFeedAsync(url);
+            await feedRefresher.AddFeedAsync(url, cancellationToken);
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
@@ -408,9 +408,9 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RefreshFeed(Guid id)
+        public async Task<IActionResult> RefreshFeed(Guid id, CancellationToken cancellationToken)
         {
-            await feedRefresher.RefreshFeedAsync(id);
+            await feedRefresher.RefreshFeedAsync(id, cancellationToken);
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }

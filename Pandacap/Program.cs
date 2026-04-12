@@ -14,6 +14,8 @@ using Pandacap.Configuration;
 using Pandacap.Constants;
 using Pandacap.Data;
 using Pandacap.Database;
+using Pandacap.FeedCreation.Outbox;
+using Pandacap.FeedIngestion.Inbox;
 using Pandacap.HighLevel;
 using Pandacap.HighLevel.VectorSearch;
 using Pandacap.KeyVault;
@@ -115,6 +117,8 @@ builder.Services
     .AddActivityPubSignatureValidator()
     .AddATProtoHandleResolution()
     .AddAudioServices()
+    .AddFeedBuilder()
+    .AddFeedRefresher()
     .AddLemmyServices()
     .AddPandacapKeyVault(new()
     {

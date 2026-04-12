@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Pandacap.Database;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.RssOutbound;
 using Pandacap.Models;
-using System.Net;
 
 namespace Pandacap.Controllers
 {

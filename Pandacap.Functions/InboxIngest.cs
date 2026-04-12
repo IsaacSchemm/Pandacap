@@ -1,9 +1,9 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
+using Pandacap.FeedIngestion.Inbox.Interfaces;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel.ATProto;
-using Pandacap.HighLevel.FeedReaders;
 
 namespace Pandacap.Functions
 {
@@ -11,7 +11,7 @@ namespace Pandacap.Functions
         ATProtoFeedReader atProtoFeedReader,
         PandacapDbContext context,
         DeviantArtInboxHandler deviantArtInboxHandler,
-        FeedRefresher feedRefresher,
+        IFeedRefresher feedRefresher,
         FurAffinityInboxHandler furAffinityInboxHandler,
         WeasylInboxHandler weasylInboxHandler)
     {
@@ -43,7 +43,7 @@ namespace Pandacap.Functions
 
             var feeds = await context.GeneralFeeds.Select(f => new { f.Id }).ToListAsync();
             foreach (var feed in feeds)
-                await c(feedRefresher.RefreshFeedAsync(feed.Id));
+                await c(feedRefresher.RefreshFeedAsync(feed.Id, CancellationToken.None));
 
             var atProtoFeeds = await context.ATProtoFeeds.Select(f => new { f.DID }).ToListAsync();
             foreach (var feed in atProtoFeeds)

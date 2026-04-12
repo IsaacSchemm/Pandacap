@@ -3,19 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Pandacap.ActivityPub.JsonLd;
 using Pandacap.ActivityPub.RemoteObjects;
 using Pandacap.ActivityPub.Services;
-using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.ActivityPub.Static;
 using Pandacap.ATProto.Services;
-using Pandacap.Configuration;
 using Pandacap.FeedIngestion;
 using Pandacap.FurAffinity;
 using Pandacap.HighLevel.ATProto;
 using Pandacap.HighLevel.DeviantArt;
-using Pandacap.HighLevel.FeedReaders;
-using Pandacap.HighLevel.RssOutbound;
 using Pandacap.HighLevel.VectorSearch;
-using Pandacap.KeyVault;
-using Pandacap.Weasyl;
 using Pandacap.Weasyl.Scraping;
 
 namespace Pandacap.HighLevel
@@ -45,8 +38,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DIDResolver>()
                 .AddScoped<EmbeddingsProvider>()
-                .AddScoped<FeedBuilder>()
-                .AddScoped<FeedRefresher>()
                 .AddScoped<UserAwareClientFactory>()
                 .AddScoped<VectorSearchIndexClient>();
         }

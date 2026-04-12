@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Database;
+using Pandacap.FeedCreation.Outbox.Interfaces;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.RssOutbound;
 using Pandacap.Models;
 using System.Net;
 using System.Text;
@@ -14,7 +14,7 @@ namespace Pandacap.Controllers
 {
     public class GalleryController(
         PandacapDbContext context,
-        FeedBuilder feedBuilder,
+        IFeedBuilder feedBuilder,
         IActivityPubPostTranslator postTranslator) : Controller
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
@@ -35,8 +35,8 @@ namespace Pandacap.Controllers
             {
                 return Content(
                     feedBuilder.ToRssFeed(
-                        await posts.Take(take).ToListAsync(),
-                        Request.GetEncodedUrl()),
+                        Request.GetEncodedUrl(),
+                        await posts.Take(take).ToListAsync()),
                     "application/rss+xml",
                     Encoding.UTF8);
             }
@@ -45,8 +45,8 @@ namespace Pandacap.Controllers
             {
                 return Content(
                     feedBuilder.ToAtomFeed(
-                        await posts.Take(take).ToListAsync(),
-                        Request.GetEncodedUrl()),
+                        Request.GetEncodedUrl(),
+                        await posts.Take(take).ToListAsync()),
                     "application/atom+xml",
                     Encoding.UTF8);
             }

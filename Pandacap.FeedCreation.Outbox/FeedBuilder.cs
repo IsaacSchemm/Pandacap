@@ -2,23 +2,24 @@
 using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.Database.Extensions;
+using Pandacap.FeedCreation.Outbox.Interfaces;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Xml;
 
-namespace Pandacap.HighLevel.RssOutbound
+namespace Pandacap.FeedCreation.Outbox
 {
     /// <summary>
     /// Builds Atom and RSS feeds for the outbox.
     /// </summary>
-    public class FeedBuilder
+    internal class FeedBuilder : IFeedBuilder
     {
         /// <summary>
         /// Generates an HTML rendition of the post, including image(s), description, and outgoing link(s).
         /// </summary>
         /// <param name="post">The submission to render</param>
         /// <returns>A sequence of HTML strings that should be concatenated</returns>
-        private IEnumerable<string> GetHtml(Post post)
+        private static IEnumerable<string> GetHtml(Post post)
         {
             if (post.Html is string html)
                 yield return html;
@@ -87,10 +88,10 @@ namespace Pandacap.HighLevel.RssOutbound
         /// <summary>
         /// Generates an RSS feed for a list of posts.
         /// </summary>
-        /// <param name="posts">A sequence of submissions</param>
         /// <param name="url">The feed's URL</param>
+        /// <param name="posts">A sequence of submissions</param>
         /// <returns>An RSS feed (should be serialized as UTF-8)</returns>
-        public string ToRssFeed(IEnumerable<Post> posts, string url)
+        public string ToRssFeed(string url, IEnumerable<Post> posts)
         {
             var feed = ToSyndicationFeed(posts, url);
 
@@ -107,10 +108,10 @@ namespace Pandacap.HighLevel.RssOutbound
         /// <summary>
         /// Generates an Atom feed for a list of posts.
         /// </summary>
-        /// <param name="posts">A sequence of submissions</param>
         /// <param name="url">The feed's URL</param>
+        /// <param name="posts">A sequence of submissions</param>
         /// <returns>An Atom feed (should be serialized as UTF-8)</returns>
-        public string ToAtomFeed(IEnumerable<Post> posts, string url)
+        public string ToAtomFeed(string url, IEnumerable<Post> posts)
         {
             var feed = ToSyndicationFeed(posts, url);
 

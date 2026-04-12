@@ -1,26 +1,29 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
+using Pandacap.FeedIngestion.Inbox.Interfaces;
 using Pandacap.FeedIngestion.Interfaces;
 
-namespace Pandacap.HighLevel.FeedReaders
+namespace Pandacap.FeedIngestion.Inbox
 {
-    public class FeedRefresher(
-        PandacapDbContext context,
+    internal class FeedRefresher(
         IEnumerable<IFeedReader> feedReaders,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        PandacapDbContext pandacapDbContext) : IFeedRefresher
     {
-        public async Task RefreshFeedAsync(Guid id)
+        public async Task RefreshFeedAsync(
+            Guid id,
+            CancellationToken cancellationToken)
         {
-            var feed = await context.GeneralFeeds
+            var feed = await pandacapDbContext.GeneralFeeds
                 .Where(f => f.Id == id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (feed == null)
                 return;
 
             using var httpClient = httpClientFactory.CreateClient();
             using var headRequest = new HttpRequestMessage(HttpMethod.Head, feed.FeedUrl);
-            using var headResponse = await httpClient.SendAsync(headRequest);
+            using var headResponse = await httpClient.SendAsync(headRequest, cancellationToken);
 
             var newFeedItems = await feedReaders
                 .Select(reader =>
@@ -33,7 +36,7 @@ namespace Pandacap.HighLevel.FeedReaders
                 .SelectMany(item => item)
                 .OrderByDescending(item => item.Timestamp)
                 .TakeWhile(item => item.Timestamp > feed.LastCheckedAt)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             if (newFeedItems.Count > 0)
             {
@@ -41,24 +44,27 @@ namespace Pandacap.HighLevel.FeedReaders
                 feed.FeedWebsiteUrl = newFeedItems[0].FeedWebsiteUrl;
                 feed.FeedIconUrl = newFeedItems[0].FeedIconUrl;
 
-                context.GeneralInboxItems.AddRange(newFeedItems);
+                pandacapDbContext.GeneralInboxItems.AddRange(newFeedItems);
 
                 feed.LastCheckedAt = newFeedItems
-                    .Select(f => f.Timestamp)
-                    .Max();
+                    .Max(f => f.Timestamp);
 
-                await context.SaveChangesAsync();
+                await pandacapDbContext.SaveChangesAsync(cancellationToken);
             }
         }
 
-        public async Task AddFeedAsync(string url)
+        public async Task AddFeedAsync(
+            string url,
+            CancellationToken cancellationToken)
         {
-            var existing = await context.GeneralFeeds.Where(f => f.FeedUrl == url).ToListAsync();
-            context.RemoveRange(existing);
+            var existing = await pandacapDbContext.GeneralFeeds
+                .Where(f => f.FeedUrl == url)
+                .ToListAsync(cancellationToken);
+            pandacapDbContext.RemoveRange(existing);
 
             Guid id = Guid.NewGuid();
 
-            context.GeneralFeeds.Add(new()
+            pandacapDbContext.GeneralFeeds.Add(new()
             {
                 Id = id,
                 FeedUrl = url,
@@ -66,9 +72,9 @@ namespace Pandacap.HighLevel.FeedReaders
                 LastCheckedAt = DateTimeOffset.MinValue
             });
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
-            await RefreshFeedAsync(id);
+            await RefreshFeedAsync(id, cancellationToken);
         }
     }
 }

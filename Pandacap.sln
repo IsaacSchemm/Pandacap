@@ -120,7 +120,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ATProto.Services.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ATProto.Models.Tests", "Pandacap.ATProto.Models.Tests\Pandacap.ATProto.Models.Tests.csproj", "{7BCC8800-C83E-4FC9-BCFD-888DE2B08F62}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FeedIngestion", "FeedIngestion", "{5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Feeds", "Feeds", "{5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.FeedIngestion.Interfaces", "Pandacap.FeedIngestion.Interfaces\Pandacap.FeedIngestion.Interfaces.vbproj", "{B6EBFC7C-97C1-467A-90FD-5C813FC600C4}"
 EndProject
@@ -163,6 +163,14 @@ EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.Audio.Interfaces", "Pandacap.Audio.Interfaces\Pandacap.Audio.Interfaces.vbproj", "{489B2A01-58DA-4CB0-B38F-13262FC4C421}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.Audio", "Pandacap.Audio\Pandacap.Audio.fsproj", "{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.FeedIngestion.Inbox.Interfaces", "Pandacap.FeedIngestion.Inbox.Interfaces\Pandacap.FeedIngestion.Inbox.Interfaces.vbproj", "{0352C558-ABCB-4152-B1FE-63A9F16571C3}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.FeedCreation.Outbox.Interfaces", "Pandacap.FeedCreation.Outbox.Interfaces\Pandacap.FeedCreation.Outbox.Interfaces.vbproj", "{ADD7000B-2230-4F1A-944A-85226DDE19C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.FeedIngestion.Inbox", "Pandacap.FeedIngestion.Inbox\Pandacap.FeedIngestion.Inbox.csproj", "{77528CB5-A768-4E9C-89C2-46034D0BB17E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.FeedCreation.Outbox", "Pandacap.FeedCreation.Outbox\Pandacap.FeedCreation.Outbox.csproj", "{65766AB4-3496-47CD-BFBF-E5C8A4371D93}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -426,6 +434,22 @@ Global
 		{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0352C558-ABCB-4152-B1FE-63A9F16571C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0352C558-ABCB-4152-B1FE-63A9F16571C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0352C558-ABCB-4152-B1FE-63A9F16571C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0352C558-ABCB-4152-B1FE-63A9F16571C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADD7000B-2230-4F1A-944A-85226DDE19C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADD7000B-2230-4F1A-944A-85226DDE19C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADD7000B-2230-4F1A-944A-85226DDE19C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADD7000B-2230-4F1A-944A-85226DDE19C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77528CB5-A768-4E9C-89C2-46034D0BB17E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77528CB5-A768-4E9C-89C2-46034D0BB17E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77528CB5-A768-4E9C-89C2-46034D0BB17E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77528CB5-A768-4E9C-89C2-46034D0BB17E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65766AB4-3496-47CD-BFBF-E5C8A4371D93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65766AB4-3496-47CD-BFBF-E5C8A4371D93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65766AB4-3496-47CD-BFBF-E5C8A4371D93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65766AB4-3496-47CD-BFBF-E5C8A4371D93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -493,6 +517,10 @@ Global
 		{39C3ED25-C8A3-449C-8516-79B4B08B11EB} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{489B2A01-58DA-4CB0-B38F-13262FC4C421} = {C388CF98-A2F7-4DB1-8D49-BCC49C9866A6}
 		{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D} = {C388CF98-A2F7-4DB1-8D49-BCC49C9866A6}
+		{0352C558-ABCB-4152-B1FE-63A9F16571C3} = {5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}
+		{ADD7000B-2230-4F1A-944A-85226DDE19C2} = {5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}
+		{77528CB5-A768-4E9C-89C2-46034D0BB17E} = {5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}
+		{65766AB4-3496-47CD-BFBF-E5C8A4371D93} = {5ED7AC92-94E5-475F-9F45-8E6A1DE1A8F5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}
