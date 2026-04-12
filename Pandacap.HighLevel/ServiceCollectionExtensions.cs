@@ -51,7 +51,6 @@ namespace Pandacap.HighLevel
                 .AddScoped<DeviantArtCredentialProvider>()
                 .AddScoped<DIDResolver>()
                 .AddScoped<EmbeddingsProvider>()
-                .AddScoped<FavoritesFeedBuilder>()
                 .AddScoped<FeedBuilder>()
                 .AddScoped<FeedRefresher>()
                 .AddScoped<UserAwareClientFactory>()
