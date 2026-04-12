@@ -20,8 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pandacap.HighLevel", "Pandacap.HighLevel\Pandacap.HighLevel.csproj", "{93190CA6-63CC-4AA5-9FA2-2CA0215ABA61}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.LowLevel", "Pandacap.LowLevel\Pandacap.LowLevel.fsproj", "{FDC319D0-37C3-4599-99EE-8D1DF523620E}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FurAffinity", "FurAffinity", "{620B7719-A4D3-4D2E-98B8-C6C11F3F29DF}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.FurAffinity", "Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj", "{EA206027-4316-D855-715C-B002BA7EAEFB}"
@@ -160,6 +158,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Configuration", "P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.KeyVault", "Pandacap.KeyVault\Pandacap.KeyVault.csproj", "{39C3ED25-C8A3-449C-8516-79B4B08B11EB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Audio", "Audio", "{C388CF98-A2F7-4DB1-8D49-BCC49C9866A6}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.Audio.Interfaces", "Pandacap.Audio.Interfaces\Pandacap.Audio.Interfaces.vbproj", "{489B2A01-58DA-4CB0-B38F-13262FC4C421}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.Audio", "Pandacap.Audio\Pandacap.Audio.fsproj", "{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -178,10 +182,6 @@ Global
 		{93190CA6-63CC-4AA5-9FA2-2CA0215ABA61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93190CA6-63CC-4AA5-9FA2-2CA0215ABA61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93190CA6-63CC-4AA5-9FA2-2CA0215ABA61}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FDC319D0-37C3-4599-99EE-8D1DF523620E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FDC319D0-37C3-4599-99EE-8D1DF523620E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FDC319D0-37C3-4599-99EE-8D1DF523620E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FDC319D0-37C3-4599-99EE-8D1DF523620E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EA206027-4316-D855-715C-B002BA7EAEFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EA206027-4316-D855-715C-B002BA7EAEFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA206027-4316-D855-715C-B002BA7EAEFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -418,6 +418,14 @@ Global
 		{39C3ED25-C8A3-449C-8516-79B4B08B11EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39C3ED25-C8A3-449C-8516-79B4B08B11EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39C3ED25-C8A3-449C-8516-79B4B08B11EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{489B2A01-58DA-4CB0-B38F-13262FC4C421}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{489B2A01-58DA-4CB0-B38F-13262FC4C421}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{489B2A01-58DA-4CB0-B38F-13262FC4C421}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{489B2A01-58DA-4CB0-B38F-13262FC4C421}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -483,6 +491,8 @@ Global
 		{4E0E770D-64D0-42B2-843A-621C43870B7D} = {9C9BD9BD-6724-485B-AA13-2D7B7A37BBD0}
 		{F5434A85-AE08-425F-A424-30B769972DDD} = {F4386087-38D2-47DB-977A-A7B116726F16}
 		{39C3ED25-C8A3-449C-8516-79B4B08B11EB} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
+		{489B2A01-58DA-4CB0-B38F-13262FC4C421} = {C388CF98-A2F7-4DB1-8D49-BCC49C9866A6}
+		{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D} = {C388CF98-A2F7-4DB1-8D49-BCC49C9866A6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

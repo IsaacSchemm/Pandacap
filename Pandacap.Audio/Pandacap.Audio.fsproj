@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="AudioSplitter.fs" />
+    <Compile Include="DependencyInjectionExtensions.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.Audio.Interfaces\Pandacap.Audio.Interfaces.vbproj" />
+  </ItemGroup>
+
+</Project>

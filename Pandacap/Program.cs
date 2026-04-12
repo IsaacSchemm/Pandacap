@@ -9,6 +9,7 @@ using Pandacap;
 using Pandacap.ActivityPub.HttpSignatures.Discovery;
 using Pandacap.ActivityPub.HttpSignatures.Validation;
 using Pandacap.ATProto.HandleResolution;
+using Pandacap.Audio;
 using Pandacap.Configuration;
 using Pandacap.Constants;
 using Pandacap.Data;
@@ -19,7 +20,6 @@ using Pandacap.KeyVault;
 using Pandacap.Lemmy;
 using Pandacap.Notifications;
 using Pandacap.PlatformLinks;
-using Pandacap.Podcasts;
 using Pandacap.Resolvers;
 using Pandacap.Weasyl;
 using System.Threading.RateLimiting;
@@ -112,9 +112,10 @@ DeploymentInformation.Username = builder.Configuration["ActivityPubUsername"]
 
 builder.Services
     .AddActivityPubKeyFinder()
-    .AddLemmyServices()
     .AddActivityPubSignatureValidator()
     .AddATProtoHandleResolution()
+    .AddAudioServices()
+    .AddLemmyServices()
     .AddPandacapKeyVault(new()
     {
         KeyVaultHost = new Uri("https://" + builder.Configuration["KeyVaultHostname"])
@@ -144,8 +145,7 @@ builder.Services
     .AddScoped<TokenUpdater>()
     .AddScoped<Uploader>()
     .AddScoped<WeasylNoteNotificationHandler>()
-    .AddScoped<WeasylNotificationHandler>()
-    .AddScoped<WmaZipSplitter>();
+    .AddScoped<WeasylNotificationHandler>();
 
 builder.Services.AddHttpClient(string.Empty, client =>
     client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent));
