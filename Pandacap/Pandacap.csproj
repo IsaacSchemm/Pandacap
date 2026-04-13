@@ -50,6 +50,7 @@
     <ProjectReference Include="..\Pandacap.Lemmy\Pandacap.Lemmy.fsproj" />
     <ProjectReference Include="..\Pandacap.PlatformLinks\Pandacap.PlatformLinks.csproj" />
     <ProjectReference Include="..\Pandacap.Resolvers\Pandacap.Resolvers.csproj" />
+    <ProjectReference Include="..\Pandacap.UI.Posts\Pandacap.UI.Posts.csproj" />
     <ProjectReference Include="..\Pandacap.VectorSearch\Pandacap.VectorSearch.csproj" />
   </ItemGroup>
 

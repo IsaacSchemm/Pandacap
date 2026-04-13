@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pandacap.Database;
-using Pandacap.HighLevel;
 using Pandacap.Models;
+using Pandacap.Extensions;
+using Pandacap.UI.Posts.Interfaces;
 
 namespace Pandacap.Controllers
 {
     public class CompositeFavoritesController(
-        CompositeFavoritesProvider compositeFavoritesProvider,
+        ICompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context) : Controller
     {
         public async Task<IActionResult> Artwork(Guid? next, int? count)

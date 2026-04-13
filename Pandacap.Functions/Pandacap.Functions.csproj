@@ -26,6 +26,7 @@
     <ProjectReference Include="..\Pandacap.FurAffinity.Extensions\Pandacap.FurAffinity.Extensions.csproj" />
     <ProjectReference Include="..\Pandacap.HighLevel\Pandacap.HighLevel.csproj" />
     <ProjectReference Include="..\Pandacap.Inbox.Feeds\Pandacap.Inbox.Feeds.csproj" />
+    <ProjectReference Include="..\Pandacap.UI.Posts\Pandacap.UI.Posts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

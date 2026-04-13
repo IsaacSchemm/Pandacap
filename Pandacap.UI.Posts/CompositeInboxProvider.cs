@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
+using Pandacap.Extensions;
 using Pandacap.UI.Elements;
+using Pandacap.UI.Posts.Interfaces;
 
-namespace Pandacap.HighLevel
+namespace Pandacap.UI.Posts
 {
     public class CompositeInboxProvider(
-        PandacapDbContext context)
+        PandacapDbContext context) : ICompositeInboxProvider
     {
         public IAsyncEnumerable<IInboxPost> GetAllInboxPostsAsync()
         {

@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Database;
+using Pandacap.Extensions;
 using Pandacap.UI.Elements;
+using Pandacap.UI.Posts.Interfaces;
 
-namespace Pandacap.HighLevel
+namespace Pandacap.UI.Posts
 {
-    public class CompositeFavoritesProvider(PandacapDbContext context)
+    internal class CompositeFavoritesProvider(PandacapDbContext context) : ICompositeFavoritesProvider
     {
         public IAsyncEnumerable<IFavorite> GetAllAsync()
         {

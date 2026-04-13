@@ -7,6 +7,7 @@ using Pandacap.Database;
 using Pandacap.Frontend.Feeds.Interfaces;
 using Pandacap.HighLevel;
 using Pandacap.Models;
+using Pandacap.Extensions;
 using System.Net;
 using System.Text;
 

@@ -36,6 +36,7 @@
     <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
     <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
     <ProjectReference Include="..\Pandacap.Text\Pandacap.Text.fsproj" />
+    <ProjectReference Include="..\Pandacap.Extensions\Pandacap.Extensions.csproj" />
     <ProjectReference Include="..\Pandacap.Weasyl.Scraping\Pandacap.Weasyl.Scraping.fsproj" />
     <ProjectReference Include="..\Pandacap.Weasyl\Pandacap.Weasyl.csproj" />
   </ItemGroup>

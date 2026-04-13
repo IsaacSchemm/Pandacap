@@ -22,6 +22,7 @@ using Pandacap.Lemmy;
 using Pandacap.Notifications;
 using Pandacap.PlatformLinks;
 using Pandacap.Resolvers;
+using Pandacap.UI.Posts;
 using Pandacap.VectorSearch;
 using Pandacap.VectorSearch.Models;
 using Pandacap.Weasyl;
@@ -128,6 +129,7 @@ builder.Services
     .AddPandacapServices()
     .AddPlatformLinkProviders()
     .AddResolvers()
+    .AddUIPostProviders()
     .AddVectorSearch()
     .AddWeasylClient(new()
     {
@@ -136,7 +138,6 @@ builder.Services
     .AddScoped<ActivityPubAddressedPostNotificationHandler>()
     .AddScoped<ActivityPubNotificationHandler>()
     .AddScoped<ActivityPubReplyNotificationHandler>()
-    .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<CompositeNotificationHandler>()
     .AddScoped<ATProtoNotificationHandler>()
     .AddScoped<DeliveryInboxCollector>()

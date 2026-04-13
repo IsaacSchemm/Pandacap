@@ -6,6 +6,7 @@ using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.Models;
+using Pandacap.Extensions;
 using System.Text;
 
 namespace Pandacap.Controllers

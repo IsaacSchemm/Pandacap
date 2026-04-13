@@ -33,8 +33,6 @@ namespace Pandacap.HighLevel
                 .AddFurAffinityClient()
                 .AddJsonLdExpansionService()
                 .AddWeasylScraper()
-                .AddScoped<CompositeInboxProvider>()
-                .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<DIDResolver>()
                 .AddScoped<UserAwareClientFactory>();
         }

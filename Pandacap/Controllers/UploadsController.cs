@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.Models;
+using Pandacap.Extensions;
 
 namespace Pandacap.Controllers
 {

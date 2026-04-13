@@ -10,12 +10,14 @@ using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Constants;
 using Pandacap.Database;
+using Pandacap.Extensions;
 using Pandacap.Frontend.ATProto.Interfaces;
 using Pandacap.HighLevel;
 using Pandacap.Inbox.Feeds.Interfaces;
 using Pandacap.Models;
 using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.UI.Elements;
+using Pandacap.UI.Posts.Interfaces;
 using Pandacap.VectorSearch.Interfaces;
 using System.Diagnostics;
 using System.Net;
@@ -26,7 +28,7 @@ namespace Pandacap.Controllers
     public class ProfileController(
         IATProtoFeedReader atProtoFeedReader,
         BlobServiceClient blobServiceClient,
-        CompositeFavoritesProvider compositeFavoritesProvider,
+        ICompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
         DeliveryInboxCollector deliveryInboxCollector,
         IFeedRefresher feedRefresher,

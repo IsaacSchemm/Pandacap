@@ -13,6 +13,7 @@ using Pandacap.Functions.InboxHandlers;
 using Pandacap.HighLevel;
 using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
+using Pandacap.UI.Posts;
 using Pandacap.Weasyl;
 
 var host = new HostBuilder()
@@ -76,6 +77,7 @@ var host = new HostBuilder()
                 KeyVaultHost = new Uri("https://" + Environment.GetEnvironmentVariable("KeyVaultHostname"))
             })
             .AddPandacapServices()
+            .AddUIPostProviders()
             .AddWeasylClient(new()
             {
                 WeasylProxyHost = new("https://" + Environment.GetEnvironmentVariable("WeasylProxyHost"))
