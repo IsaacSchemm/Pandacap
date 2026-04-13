@@ -9,6 +9,7 @@ using Pandacap;
 using Pandacap.ActivityPub.HttpSignatures.Discovery;
 using Pandacap.ActivityPub.HttpSignatures.Validation;
 using Pandacap.ActivityPub.JsonLd;
+using Pandacap.ActivityPub.Outbox;
 using Pandacap.ActivityPub.RemoteObjects;
 using Pandacap.ActivityPub.Services;
 using Pandacap.ATProto.HandleResolution;
@@ -123,6 +124,7 @@ DeploymentInformation.Username = builder.Configuration["ActivityPubUsername"]
 
 builder.Services
     .AddActivityPubKeyFinder()
+    .AddActivityPubOutboxServices()
     .AddActivityPubRemoteObjectServices()
     .AddActivityPubServices()
     .AddActivityPubSignatureValidator()
@@ -155,7 +157,6 @@ builder.Services
     .AddScoped<ActivityPubReplyNotificationHandler>()
     .AddScoped<CompositeNotificationHandler>()
     .AddScoped<ATProtoNotificationHandler>()
-    .AddScoped<DeliveryInboxCollector>()
     .AddScoped<DeviantArtFeedNotificationHandler>()
     .AddScoped<DeviantArtNoteNotificationHandler>()
     .AddScoped<FurAffinityNoteNotificationHandler>()

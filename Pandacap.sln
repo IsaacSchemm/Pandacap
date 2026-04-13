@@ -212,6 +212,8 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.Favorites.Interfac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Favorites", "Pandacap.Favorites\Pandacap.Favorites.csproj", "{98488906-B4AF-40C3-B983-9315EDAC9640}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.Outbox.Tests", "Pandacap.ActivityPub.Outbox.Tests\Pandacap.ActivityPub.Outbox.Tests.csproj", "{297BAD5D-3FF4-4FF3-819C-C0D4E356F57F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -534,6 +536,10 @@ Global
 		{98488906-B4AF-40C3-B983-9315EDAC9640}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98488906-B4AF-40C3-B983-9315EDAC9640}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98488906-B4AF-40C3-B983-9315EDAC9640}.Release|Any CPU.Build.0 = Release|Any CPU
+		{297BAD5D-3FF4-4FF3-819C-C0D4E356F57F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{297BAD5D-3FF4-4FF3-819C-C0D4E356F57F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{297BAD5D-3FF4-4FF3-819C-C0D4E356F57F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{297BAD5D-3FF4-4FF3-819C-C0D4E356F57F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -630,6 +636,7 @@ Global
 		{9B55C216-E763-4E63-9137-90424DF283E8} = {DC17E8E8-1C8A-4635-879D-6D5A20B0B785}
 		{4DC3DDF1-CE07-4738-ABFF-A040695B3D89} = {024FE5A4-C2BC-451A-9708-17D349DA0340}
 		{98488906-B4AF-40C3-B983-9315EDAC9640} = {024FE5A4-C2BC-451A-9708-17D349DA0340}
+		{297BAD5D-3FF4-4FF3-819C-C0D4E356F57F} = {DC17E8E8-1C8A-4635-879D-6D5A20B0B785}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

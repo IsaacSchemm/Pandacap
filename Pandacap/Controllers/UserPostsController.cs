@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Models.Interfaces;
+using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Database;
+using Pandacap.Extensions;
 using Pandacap.Models;
 using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.Text;
@@ -18,7 +20,7 @@ namespace Pandacap.Controllers
     public class UserPostsController(
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
-        DeliveryInboxCollector deliveryInboxCollector,
+        IDeliveryInboxCollector deliveryInboxCollector,
         IHttpClientFactory httpClientFactory,
         IPlatformLinkProvider platformLinkProvider,
         PostCreator postCreator,

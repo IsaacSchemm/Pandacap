@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Database;
 using Pandacap.Text;
@@ -7,7 +8,7 @@ using Pandacap.VectorSearch.Interfaces;
 namespace Pandacap
 {
     public class PostCreator(
-        DeliveryInboxCollector deliveryInboxCollector,
+        IDeliveryInboxCollector deliveryInboxCollector,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory,
         IActivityPubPostTranslator postTranslator,

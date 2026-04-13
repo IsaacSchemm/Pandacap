@@ -58,7 +58,7 @@ var host = new HostBuilder()
 
         services
             .AddActivityPubServices()
-            .AddActivityPubOutboxProcessor()
+            .AddActivityPubOutboxServices()
             .AddActivityPubRemoteObjectServices()
             .AddATProtoServices()
             .AddCredentialProviders()

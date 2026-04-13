@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Models;
+using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Constants;
@@ -28,7 +29,7 @@ namespace Pandacap.Controllers
         BlobServiceClient blobServiceClient,
         ICompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
-        DeliveryInboxCollector deliveryInboxCollector,
+        IDeliveryInboxCollector deliveryInboxCollector,
         IFeedRefresher feedRefresher,
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,

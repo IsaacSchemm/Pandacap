@@ -1,6 +1,7 @@
-﻿using Microsoft.Net.Http.Headers;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
 
-namespace Pandacap
+namespace Pandacap.Extensions
 {
     /// <summary>
     /// Extension methods for the ASP.NET Core HttpRequest type.
@@ -25,7 +26,7 @@ namespace Pandacap
         /// <returns></returns>
         public static bool IsActivityPub(this HttpRequest request)
         {
-            var acceptedTypes = request.Headers.Accept
+            var acceptedTypes = request.Headers["Accept"]
                 .SelectMany(str => str?.Split(",") ?? [])
                 .Select(value => MediaTypeHeaderValue.Parse(value))
                 .OrderByDescending(x => x, MediaTypeHeaderValueComparer.QualityComparer);

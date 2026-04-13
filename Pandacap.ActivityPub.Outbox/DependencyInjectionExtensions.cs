@@ -5,7 +5,9 @@ namespace Pandacap.ActivityPub.Outbox
 {
     public static class DependencyInjectionExtensions
     {
-        public static IServiceCollection AddActivityPubOutboxProcessor(this IServiceCollection serviceCollection) =>
-            serviceCollection.AddScoped<IActivityPubOutboxProcessor, OutboxProcessor>();
+        public static IServiceCollection AddActivityPubOutboxServices(this IServiceCollection serviceCollection) =>
+            serviceCollection
+            .AddScoped<IActivityPubOutboxProcessor, OutboxProcessor>()
+            .AddScoped<IDeliveryInboxCollector, DeliveryInboxCollector>();
     }
 }
