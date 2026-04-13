@@ -16,9 +16,6 @@ using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.FurAffinity;
 using Pandacap.Inbox;
-using Pandacap.Inbox.ATProto;
-using Pandacap.Inbox.DeviantArt;
-using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
 using Pandacap.UI.Posts;
 using Pandacap.Weasyl;
@@ -63,12 +60,9 @@ var host = new HostBuilder()
         services
             .AddActivityPubServices()
             .AddActivityPubRemoteObjectServices()
-            .AddATProtoFeedReader()
             .AddATProtoServices()
             .AddCredentialProviders()
-            .AddDeviantArtInboxHandler()
             .AddFeedReaders()
-            .AddFeedRefresher()
             .AddFurAffinityClient()
             .AddInboxPopulator()
             .AddJsonLdExpansionService()

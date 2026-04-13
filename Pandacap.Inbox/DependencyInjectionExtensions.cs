@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pandacap.Inbox.ATProto;
+using Pandacap.Inbox.DeviantArt;
+using Pandacap.Inbox.Feeds;
 using Pandacap.Inbox.Interfaces;
 
 namespace Pandacap.Inbox
@@ -6,6 +9,10 @@ namespace Pandacap.Inbox
     public static class DependencyInjectionExtensions
     {
         public static IServiceCollection AddInboxPopulator(this IServiceCollection serviceCollection) =>
-            serviceCollection.AddScoped<IInboxPopulator, InboxPopulator>();
+            serviceCollection
+            .AddATProtoFeedReader()
+            .AddDeviantArtInboxHandler()
+            .AddFeedRefresher()
+            .AddScoped<IInboxPopulator, InboxPopulator>();
     }
 }

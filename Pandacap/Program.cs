@@ -23,9 +23,6 @@ using Pandacap.FeedIngestion;
 using Pandacap.Frontend.Feeds;
 using Pandacap.FurAffinity;
 using Pandacap.Inbox;
-using Pandacap.Inbox.ATProto;
-using Pandacap.Inbox.DeviantArt;
-using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
 using Pandacap.Lemmy;
 using Pandacap.Notifications;
@@ -129,16 +126,13 @@ builder.Services
     .AddActivityPubRemoteObjectServices()
     .AddActivityPubServices()
     .AddActivityPubSignatureValidator()
-    .AddATProtoFeedReader()
     .AddATProtoHandleResolution()
     .AddATProtoServices()
     .AddAudioServices()
     .AddCredentialProviders()
-    .AddDeviantArtInboxHandler()
     .AddDnsClient()
     .AddFeedBuilder()
     .AddFeedReaders()
-    .AddFeedRefresher()
     .AddFurAffinityClient()
     .AddInboxPopulator()
     .AddJsonLdExpansionService()

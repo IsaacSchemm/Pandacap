@@ -11,6 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pandacap.Inbox.ATProto\Pandacap.Inbox.ATProto.csproj" />
+    <ProjectReference Include="..\Pandacap.Inbox.DeviantArt\Pandacap.Inbox.DeviantArt.csproj" />
+    <ProjectReference Include="..\Pandacap.Inbox.Feeds\Pandacap.Inbox.Feeds.csproj" />
     <ProjectReference Include="..\Pandacap.Inbox.Interfaces\Pandacap.Inbox.Interfaces.vbproj" />
   </ItemGroup>
 
