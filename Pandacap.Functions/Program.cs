@@ -1,20 +1,26 @@
 using Azure.Identity;
 using DeviantArtFs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pandacap.ActivityPub.JsonLd;
+using Pandacap.ActivityPub.RemoteObjects;
+using Pandacap.ActivityPub.Services;
+using Pandacap.ATProto.Services;
 using Pandacap.Configuration;
+using Pandacap.Credentials;
 using Pandacap.Database;
-using Pandacap.Functions;
+using Pandacap.FeedIngestion;
 using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.Functions.InboxHandlers;
-using Pandacap.HighLevel;
+using Pandacap.FurAffinity;
+using Pandacap.Inbox.ATProto;
 using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
 using Pandacap.UI.Posts;
 using Pandacap.Weasyl;
+using Pandacap.Weasyl.Scraping;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -38,29 +44,12 @@ var host = new HostBuilder()
             }
         }
 
-        if (Environment.GetEnvironmentVariable("StorageAccountHostname") is string storageAccountHostname)
-        {
-            services.AddAzureClients(clientBuilder =>
-            {
-                clientBuilder.AddBlobServiceClient(new Uri($"https://{storageAccountHostname}"));
-                clientBuilder.UseCredential(new DefaultAzureCredential());
-            });
-        }
-
         if (Environment.GetEnvironmentVariable("DeviantArtClientId") is string deviantArtClientId
             && Environment.GetEnvironmentVariable("DeviantArtClientSecret") is string deviantArtClientSecret)
         {
             services.AddSingleton(new DeviantArtApp(
                 deviantArtClientId,
                 deviantArtClientSecret));
-        }
-
-        if (Environment.GetEnvironmentVariable("RedditAppId") is string redditAppId
-            && Environment.GetEnvironmentVariable("RedditAppSecret") is string redditAppSecret)
-        {
-            services.AddSingleton(new RedditAppInformation(
-                redditAppId,
-                redditAppSecret));
         }
 
         DeploymentInformation.ApplicationHostname = Environment.GetEnvironmentVariable("ApplicationHostname")
@@ -70,18 +59,26 @@ var host = new HostBuilder()
             ?? throw new Exception("ActivityPubUsername is not defined");
 
         services
+            .AddActivityPubServices()
+            .AddActivityPubRemoteObjectServices()
+            .AddATProtoFeedReader()
+            .AddATProtoServices()
+            .AddCredentialProviders()
+            .AddFeedReaders()
             .AddFeedRefresher()
+            .AddFurAffinityClient()
+            .AddJsonLdExpansionService()
             .AddMemoryCache()
             .AddPandacapKeyVault(new()
             {
                 KeyVaultHost = new Uri("https://" + Environment.GetEnvironmentVariable("KeyVaultHostname"))
             })
-            .AddPandacapServices()
             .AddUIPostProviders()
             .AddWeasylClient(new()
             {
                 WeasylProxyHost = new("https://" + Environment.GetEnvironmentVariable("WeasylProxyHost"))
             })
+            .AddWeasylScraper()
             .AddScoped<DeviantArtFavoriteHandler>()
             .AddScoped<DeviantArtInboxHandler>()
             .AddScoped<FurAffinityFavoriteHandler>()

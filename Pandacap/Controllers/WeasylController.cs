@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Credentials.Interfaces;
 using Pandacap.Database;
-using Pandacap.HighLevel;
 using Pandacap.Text;
 using Pandacap.Weasyl.Interfaces;
 

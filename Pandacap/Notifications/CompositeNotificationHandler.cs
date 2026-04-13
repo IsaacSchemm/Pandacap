@@ -1,5 +1,4 @@
-﻿using Pandacap.HighLevel;
-using Pandacap.Extensions;
+﻿using Pandacap.Extensions;
 
 namespace Pandacap.Notifications
 {

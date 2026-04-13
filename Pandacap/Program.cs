@@ -8,14 +8,21 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Pandacap;
 using Pandacap.ActivityPub.HttpSignatures.Discovery;
 using Pandacap.ActivityPub.HttpSignatures.Validation;
+using Pandacap.ActivityPub.JsonLd;
+using Pandacap.ActivityPub.RemoteObjects;
+using Pandacap.ActivityPub.Services;
 using Pandacap.ATProto.HandleResolution;
+using Pandacap.ATProto.Services;
 using Pandacap.Audio;
 using Pandacap.Configuration;
 using Pandacap.Constants;
+using Pandacap.Credentials;
 using Pandacap.Data;
 using Pandacap.Database;
+using Pandacap.FeedIngestion;
 using Pandacap.Frontend.Feeds;
-using Pandacap.HighLevel;
+using Pandacap.FurAffinity;
+using Pandacap.Inbox.ATProto;
 using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
 using Pandacap.Lemmy;
@@ -26,6 +33,7 @@ using Pandacap.UI.Posts;
 using Pandacap.VectorSearch;
 using Pandacap.VectorSearch.Models;
 using Pandacap.Weasyl;
+using Pandacap.Weasyl.Scraping;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -116,17 +124,25 @@ DeploymentInformation.Username = builder.Configuration["ActivityPubUsername"]
 
 builder.Services
     .AddActivityPubKeyFinder()
+    .AddActivityPubRemoteObjectServices()
+    .AddActivityPubServices()
     .AddActivityPubSignatureValidator()
+    .AddATProtoFeedReader()
     .AddATProtoHandleResolution()
+    .AddATProtoServices()
     .AddAudioServices()
+    .AddCredentialProviders()
+    .AddDnsClient()
     .AddFeedBuilder()
+    .AddFeedReaders()
     .AddFeedRefresher()
+    .AddFurAffinityClient()
+    .AddJsonLdExpansionService()
     .AddLemmyServices()
     .AddPandacapKeyVault(new()
     {
         KeyVaultHost = new Uri("https://" + builder.Configuration["KeyVaultHostname"])
     })
-    .AddPandacapServices()
     .AddPlatformLinkProviders()
     .AddResolvers()
     .AddUIPostProviders()
@@ -135,6 +151,7 @@ builder.Services
     {
         WeasylProxyHost = new("https://" + builder.Configuration["WeasylProxyHost"])
     })
+    .AddWeasylScraper()
     .AddScoped<ActivityPubAddressedPostNotificationHandler>()
     .AddScoped<ActivityPubNotificationHandler>()
     .AddScoped<ActivityPubReplyNotificationHandler>()

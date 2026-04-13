@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
-using Pandacap.HighLevel;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers

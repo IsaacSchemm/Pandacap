@@ -1,5 +1,4 @@
 ﻿using Pandacap.Credentials.Interfaces;
-using Pandacap.HighLevel;
 using Pandacap.UI.Badges;
 using Pandacap.Weasyl.Interfaces;
 using System.Runtime.CompilerServices;

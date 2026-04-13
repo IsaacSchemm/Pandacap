@@ -2,7 +2,6 @@
 using Pandacap.Database;
 using Pandacap.FurAffinity.Extensions;
 using Pandacap.FurAffinity.Interfaces;
-using Pandacap.HighLevel;
 
 namespace Pandacap.Functions.FavoriteHandlers
 {

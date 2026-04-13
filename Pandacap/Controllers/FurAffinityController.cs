@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.FurAffinity.Interfaces;
-using Pandacap.HighLevel;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Database;
 using Pandacap.Credentials.Interfaces;
-using Pandacap.HighLevel;
 
 namespace Pandacap.Functions.InboxHandlers
 {
