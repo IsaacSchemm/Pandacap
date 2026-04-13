@@ -1,30 +1,31 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
+using Pandacap.Favorites.Interfaces;
 using Pandacap.FurAffinity.Extensions;
 using Pandacap.FurAffinity.Interfaces;
 
-namespace Pandacap.Functions.FavoriteHandlers
+namespace Pandacap.Favorites.FurAffinity
 {
     public partial class FurAffinityFavoriteHandler(
         PandacapDbContext context,
-        IFurAffinityClientFactory furAffinityClientFactory)
+        IFurAffinityClientFactory furAffinityClientFactory) : IFavoritesSource
     {
-        public async Task ImportFavoritesAsync()
+        public async Task ImportFavoritesAsync(CancellationToken cancellationToken)
         {
-            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync();
+            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken);
 
             if (credentials == null)
                 return;
 
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
-            async IAsyncEnumerable<FurAffinity.Models.Submission> enumerateAsync()
+            async IAsyncEnumerable<Pandacap.FurAffinity.Models.Submission> enumerateAsync()
             {
-                var pagination = FurAffinity.Models.FavoritesPage.First;
+                var pagination = Pandacap.FurAffinity.Models.FavoritesPage.First;
 
                 var client = furAffinityClientFactory.CreateClient(
                     credentials,
-                    FurAffinity.Models.Domain.SFW);
+                    Pandacap.FurAffinity.Models.Domain.SFW);
 
                 while (true)
                 {
@@ -39,17 +40,17 @@ namespace Pandacap.Functions.FavoriteHandlers
                     if (page.Length == 0)
                         yield break;
 
-                    pagination = FurAffinity.Models.FavoritesPage.NewAfter(page.Select(x => x.fav_id).Last());
+                    pagination = Pandacap.FurAffinity.Models.FavoritesPage.NewAfter(page.Select(x => x.fav_id).Last());
                 }
             }
 
-            Stack<FurAffinity.Models.Submission> items = [];
+            Stack<Pandacap.FurAffinity.Models.Submission> items = [];
 
-            await foreach (var submission in enumerateAsync())
+            await foreach (var submission in enumerateAsync().WithCancellation(cancellationToken))
             {
                 var existing = await context.FurAffinityFavorites
                     .Where(item => item.SubmissionId == submission.id)
-                    .CountAsync();
+                    .CountAsync(cancellationToken);
                 if (existing > 0)
                     break;
 
@@ -80,7 +81,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                 });
             }
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
     }
 }

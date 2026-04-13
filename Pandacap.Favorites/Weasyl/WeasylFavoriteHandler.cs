@@ -1,14 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Credentials.Interfaces;
 using Pandacap.Database;
+using Pandacap.Favorites.Interfaces;
 using Pandacap.Weasyl.Interfaces;
 using Pandacap.Weasyl.Models.WeasylApi;
 
-namespace Pandacap.Functions.FavoriteHandlers
+namespace Pandacap.Favorites.Weasyl
 {
     public partial class WeasylFavoriteHandler(
         PandacapDbContext context,
-        IUserAwareWeasylClientFactory userAwareWeasylClientFactory)
+        IUserAwareWeasylClientFactory userAwareWeasylClientFactory) : IFavoritesSource
     {
         public async Task ImportFavoriteSubmissionsAsync(CancellationToken cancellationToken = default)
         {
@@ -73,5 +74,8 @@ namespace Pandacap.Functions.FavoriteHandlers
 
             await context.SaveChangesAsync(cancellationToken);
         }
+
+        Task IFavoritesSource.ImportFavoritesAsync(CancellationToken cancellationToken) =>
+            ImportFavoriteSubmissionsAsync(cancellationToken);
     }
 }

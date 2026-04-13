@@ -11,8 +11,8 @@ using Pandacap.ATProto.Services;
 using Pandacap.Configuration;
 using Pandacap.Credentials;
 using Pandacap.Database;
+using Pandacap.Favorites;
 using Pandacap.FeedIngestion;
-using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.FurAffinity;
 using Pandacap.Inbox;
 using Pandacap.KeyVault;
@@ -62,6 +62,7 @@ var host = new HostBuilder()
             .AddActivityPubRemoteObjectServices()
             .AddATProtoServices()
             .AddCredentialProviders()
+            .AddFavoritesHandlers()
             .AddFeedReaders()
             .AddFurAffinityClient()
             .AddInboxHandlers()
@@ -76,10 +77,7 @@ var host = new HostBuilder()
             {
                 WeasylProxyHost = new("https://" + Environment.GetEnvironmentVariable("WeasylProxyHost"))
             })
-            .AddWeasylScraper()
-            .AddScoped<DeviantArtFavoriteHandler>()
-            .AddScoped<FurAffinityFavoriteHandler>()
-            .AddScoped<WeasylFavoriteHandler>();
+            .AddWeasylScraper();
 
         services.AddHttpClient();
     })

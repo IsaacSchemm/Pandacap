@@ -4,18 +4,19 @@ using DeviantArtFs.ResponseTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Credentials.Interfaces;
 using Pandacap.Database;
+using Pandacap.Favorites.Interfaces;
 
-namespace Pandacap.Functions.FavoriteHandlers
+namespace Pandacap.Favorites.DeviantArt
 {
     public class DeviantArtFavoriteHandler(
         PandacapDbContext context,
-        IDeviantArtCredentialProvider deviantArtCredentialProvider)
+        IDeviantArtCredentialProvider deviantArtCredentialProvider) : IFavoritesSource
     {
         /// <summary>
         /// Looks for new DeviantArt favorites and adds them to the Favorites page.
         /// </summary>
         /// <returns></returns>
-        public async Task ImportFavoritesAsync()
+        public async Task ImportFavoritesAsync(CancellationToken cancellationToken)
         {
             var credentials = await deviantArtCredentialProvider.GetTokenAsync();
             if (credentials == null)
@@ -29,7 +30,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                 credentials,
                 UserScope.ForCurrentUser,
                 PagingLimit.DefaultPagingLimit,
-                PagingOffset.StartingOffset))
+                PagingOffset.StartingOffset).WithCancellation(cancellationToken))
             {
                 if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
                     continue;
@@ -39,7 +40,7 @@ namespace Pandacap.Functions.FavoriteHandlers
 
                 var existing = await context.DeviantArtFavorites
                     .Where(item => item.Id == deviation.deviationid)
-                    .CountAsync();
+                    .CountAsync(cancellationToken);
                 if (existing > 0)
                     break;
 
@@ -77,7 +78,7 @@ namespace Pandacap.Functions.FavoriteHandlers
                 });
             }
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
     }
 }

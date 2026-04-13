@@ -1,36 +1,12 @@
 using Microsoft.Azure.Functions.Worker;
-using Pandacap.Functions.FavoriteHandlers;
+using Pandacap.Favorites.Interfaces;
 
 namespace Pandacap.Functions
 {
-    public class FavoriteIngest(
-        DeviantArtFavoriteHandler deviantArtFavoriteHandler,
-        FurAffinityFavoriteHandler furAffinityFavoriteHandler,
-        WeasylFavoriteHandler weasylFavoriteHandler)
+    public class FavoriteIngest(IFavoritesPopulator favoritesPopulator)
     {
         [Function("FavoriteIngest")]
-        public async Task Run([TimerTrigger("0 0 15 * * *")] TimerInfo myTimer)
-        {
-            List<Exception> exceptions = [];
-
-            async Task c(Task t)
-            {
-                try
-                {
-                    await t;
-                }
-                catch (Exception e)
-                {
-                    exceptions.Add(e);
-                }
-            }
-
-            await c(deviantArtFavoriteHandler.ImportFavoritesAsync());
-            await c(furAffinityFavoriteHandler.ImportFavoritesAsync());
-            await c(weasylFavoriteHandler.ImportFavoriteSubmissionsAsync());
-
-            if (exceptions.Count > 0)
-                throw new AggregateException(exceptions);
-        }
+        public async Task Run([TimerTrigger("0 0 8 * * *")] TimerInfo myTimer) =>
+            await favoritesPopulator.PopulateFavoritesAsync(CancellationToken.None);
     }
 }
