@@ -1,41 +1,12 @@
 using Microsoft.Azure.Functions.Worker;
-using Pandacap.Functions.InboxHandlers;
 using Pandacap.Inbox.Interfaces;
 
 namespace Pandacap.Functions
 {
-    public class InboxIngest(
-        FurAffinityInboxHandler furAffinityInboxHandler,
-        IInboxPopulator inboxPopulator,
-        WeasylInboxHandler weasylInboxHandler)
+    public class InboxIngest(IInboxPopulator inboxPopulator)
     {
         [Function("InboxIngest")]
-        public async Task Run([TimerTrigger("0 0 */8 * * *")] TimerInfo myTimer)
-        {
-            List<Exception> exceptions = [];
-
-            async Task c(Task t)
-            {
-                try
-                {
-                    await t;
-                }
-                catch (Exception e)
-                {
-                    exceptions.Add(e);
-                }
-            }
-
-            await c(furAffinityInboxHandler.ImportSubmissionsAsync());
-            await c(furAffinityInboxHandler.ImportJournalsAsync());
-
-            await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync(CancellationToken.None));
-            await c(weasylInboxHandler.ImportJournalsByUsersWeWatchAsync(CancellationToken.None));
-
-            await c(inboxPopulator.PopulateInboxAsync(CancellationToken.None));
-
-            if (exceptions.Count > 0)
-                throw new AggregateException(exceptions);
-        }
+        public async Task Run([TimerTrigger("0 0 */8 * * *")] TimerInfo myTimer) =>
+            await inboxPopulator.PopulateInboxAsync(CancellationToken.None);
     }
 }

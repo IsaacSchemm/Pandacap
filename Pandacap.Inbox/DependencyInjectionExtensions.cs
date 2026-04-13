@@ -2,7 +2,9 @@
 using Pandacap.Inbox.ATProto;
 using Pandacap.Inbox.DeviantArt;
 using Pandacap.Inbox.Feeds;
+using Pandacap.Inbox.FurAffinity;
 using Pandacap.Inbox.Interfaces;
+using Pandacap.Inbox.Weasyl;
 
 namespace Pandacap.Inbox
 {
@@ -14,7 +16,9 @@ namespace Pandacap.Inbox
             .AddScoped<IFeedRefresher, FeedRefresher>()
             .AddScoped<IInboxPopulator, InboxPopulator>()
             .AddScoped<IInboxSourceFactory, ATProtoInboxSourceFactory>()
+            .AddScoped<IInboxSourceFactory, DeviantArtInboxHandler>()
             .AddScoped<IInboxSourceFactory, FeedInboxSourceFactory>()
-            .AddScoped<IInboxSourceFactory, DeviantArtInboxHandler>();
+            .AddScoped<IInboxSourceFactory, FurAffinityInboxHandler>()
+            .AddScoped<IInboxSourceFactory, WeasylInboxHandler>();
     }
 }

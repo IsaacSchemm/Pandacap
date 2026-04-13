@@ -13,18 +13,18 @@ namespace Pandacap.Inbox.DeviantArt
     /// who the application's attached user follows on DeviantArt. These posts
     /// will be added to the Pandacap inbox.
     /// </summary>
-    /// <param name="context">The database context</param>
     /// <param name="deviantArtCredentialProvider">An object that allows access to the DeviantArt credentials (access token, etc.)</param>
+    /// <param name="pandacapDbContext">The database context</param>
     internal class DeviantArtInboxHandler(
-        PandacapDbContext context,
-        IDeviantArtCredentialProvider deviantArtCredentialProvider) : IInboxSource, IInboxSourceFactory
+        IDeviantArtCredentialProvider deviantArtCredentialProvider,
+        PandacapDbContext pandacapDbContext) : IInboxSource, IInboxSourceFactory
     {
         /// <summary>
         /// Imports new artwork posts from the past 3 days that have not yet
         /// been added to the Pandacap inbox.
         /// </summary>
         /// <returns></returns>
-        public async Task ImportArtworkPostsByUsersWeWatchAsync()
+        public async Task ImportArtworkPostsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
             var credentials = await deviantArtCredentialProvider.GetTokenAsync();
             if (credentials == null)
@@ -33,10 +33,10 @@ namespace Pandacap.Inbox.DeviantArt
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
             FSharpSet<Guid> mostRecentLocalItemIds = [
-                .. await context.InboxArtworkDeviations
+                .. await pandacapDbContext.InboxArtworkDeviations
                     .Where(item => item.Timestamp >= someTimeAgo)
                     .Select(item => item.Id)
-                    .ToListAsync()
+                    .ToListAsync(cancellationToken)
             ];
 
             Stack<DeviantArtFs.ResponseTypes.Deviation> newDeviations = new();
@@ -66,7 +66,7 @@ namespace Pandacap.Inbox.DeviantArt
                 if (deviation.url?.OrNull() is not string url)
                     continue;
 
-                context.InboxArtworkDeviations.Add(new()
+                pandacapDbContext.InboxArtworkDeviations.Add(new()
                 {
                     Id = deviation.deviationid,
                     Timestamp = publishedTime,
@@ -83,22 +83,22 @@ namespace Pandacap.Inbox.DeviantArt
                 });
             }
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync();
         }
 
         /// <summary>
         /// Imports new journals and status updates that have not yet been added to the Pandacap inbox.
         /// </summary>
         /// <returns></returns>
-        public async Task ImportTextPostsByUsersWeWatchAsync()
+        public async Task ImportTextPostsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
             var credentials = await deviantArtCredentialProvider.GetTokenAsync();
             if (credentials == null)
                 return;
 
-            var status = await context.DeviantArtTextPostCheckStatuses.SingleOrDefaultAsync();
+            var status = await pandacapDbContext.DeviantArtTextPostCheckStatuses.SingleOrDefaultAsync(cancellationToken);
             if (status == null)
-                context.Add(status = new DeviantArtTextPostCheckStatus());
+                pandacapDbContext.Add(status = new DeviantArtTextPostCheckStatus());
 
             DateTimeOffset cutoff = new[] {
                 status.LastCheck,
@@ -143,14 +143,14 @@ namespace Pandacap.Inbox.DeviantArt
                     if (publishedTime < cutoff)
                         break;
 
-                    int existingCount = await context.InboxTextDeviations
+                    int existingCount = await pandacapDbContext.InboxTextDeviations
                         .Where(d => d.Id == deviation.deviationid)
-                        .CountAsync();
+                        .CountAsync(cancellationToken);
 
                     if (existingCount > 0)
                         continue;
 
-                    context.InboxTextDeviations.Add(new InboxTextDeviation
+                    pandacapDbContext.InboxTextDeviations.Add(new InboxTextDeviation
                     {
                         Id = deviation.deviationid,
                         Timestamp = publishedTime,
@@ -164,7 +164,7 @@ namespace Pandacap.Inbox.DeviantArt
                 }
             }
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
 
         async IAsyncEnumerable<IInboxSource> IInboxSourceFactory.GetInboxSourcesForPlatformAsync()
@@ -174,8 +174,8 @@ namespace Pandacap.Inbox.DeviantArt
 
         async Task IInboxSource.ImportNewPostsAsync(CancellationToken cancellationToken)
         {
-            await ImportArtworkPostsByUsersWeWatchAsync();
-            await ImportTextPostsByUsersWeWatchAsync();
+            await ImportArtworkPostsByUsersWeWatchAsync(cancellationToken);
+            await ImportTextPostsByUsersWeWatchAsync(cancellationToken);
         }
     }
 }

@@ -1,42 +1,42 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
-using Pandacap.FurAffinity;
 using Pandacap.FurAffinity.Interfaces;
+using Pandacap.Inbox.Interfaces;
 using System.Text.RegularExpressions;
 
-namespace Pandacap.Functions.InboxHandlers
+namespace Pandacap.Inbox.FurAffinity
 {
     public partial class FurAffinityInboxHandler(
-        PandacapDbContext context,
-        IFurAffinityClientFactory furAffinityClientFactory)
+        IFurAffinityClientFactory furAffinityClientFactory,
+        PandacapDbContext pandacapDbContext) : IInboxSource, IInboxSourceFactory
     {
         [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
         private static partial Regex GetFurAffinityThumbnailPattern();
 
-        public async Task ImportSubmissionsAsync()
+        public async Task ImportSubmissionsAsync(CancellationToken cancellationToken)
         {
-            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync();
+            var credentials = await pandacapDbContext.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken);
 
             if (credentials == null)
                 return;
 
-            var maxIds = await context.InboxFurAffinitySubmissions
+            var maxIds = await pandacapDbContext.InboxFurAffinitySubmissions
                 .OrderByDescending(s => s.SubmissionId)
                 .Select(s => s.SubmissionId)
                 .Take(1)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             int lastSeenId = maxIds
                 .DefaultIfEmpty(0)
                 .Single();
 
-            async IAsyncEnumerable<FurAffinity.Models.Submission> enumerateAsync(bool sfw)
+            async IAsyncEnumerable<Pandacap.FurAffinity.Models.Submission> enumerateAsync(bool sfw)
             {
-                var pagination = FurAffinity.Models.SubmissionsPage.NewFromOldest(lastSeenId + 1);
+                var pagination = Pandacap.FurAffinity.Models.SubmissionsPage.NewFromOldest(lastSeenId + 1);
 
                 var client = furAffinityClientFactory.CreateClient(
                     credentials,
-                    sfw ? FurAffinity.Models.Domain.SFW : FurAffinity.Models.Domain.WWW);
+                    sfw ? Pandacap.FurAffinity.Models.Domain.SFW : Pandacap.FurAffinity.Models.Domain.WWW);
 
                 while (true)
                 {
@@ -51,21 +51,21 @@ namespace Pandacap.Functions.InboxHandlers
                     {
                         yield return submission;
 
-                        pagination = FurAffinity.Models.SubmissionsPage.NewFromOldest(submission.id + 1);
+                        pagination = Pandacap.FurAffinity.Models.SubmissionsPage.NewFromOldest(submission.id + 1);
                     }
                 }
             }
 
             var allSubmissions = await enumerateAsync(sfw: false)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             var sfwIds = await enumerateAsync(sfw: true)
                 .Select(s => s.id)
-                .ToHashSetAsync();
+                .ToHashSetAsync(cancellationToken: cancellationToken);
 
             foreach (var submission in allSubmissions)
             {
-                context.InboxFurAffinitySubmissions.Add(new()
+                pandacapDbContext.InboxFurAffinitySubmissions.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     SubmissionId = submission.id,
@@ -88,23 +88,23 @@ namespace Pandacap.Functions.InboxHandlers
                 });
             }
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task ImportJournalsAsync()
+        public async Task ImportJournalsAsync(CancellationToken cancellationToken)
         {
-            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync();
+            var credentials = await pandacapDbContext.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken);
 
             if (credentials == null)
                 return;
 
             var client = furAffinityClientFactory.CreateClient(credentials);
 
-            var maxIds = await context.InboxFurAffinityJournals
+            var maxIds = await pandacapDbContext.InboxFurAffinityJournals
                 .OrderByDescending(s => s.JournalId)
                 .Select(s => s.JournalId)
                 .Take(1)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             int lastSeenId = maxIds
                 .DefaultIfEmpty(0)
@@ -125,7 +125,7 @@ namespace Pandacap.Functions.InboxHandlers
                     journalId,
                     CancellationToken.None);
 
-                context.InboxFurAffinityJournals.Add(new()
+                pandacapDbContext.InboxFurAffinityJournals.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     JournalId = journalId,
@@ -140,7 +140,18 @@ namespace Pandacap.Functions.InboxHandlers
                 });
             }
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        async Task IInboxSource.ImportNewPostsAsync(CancellationToken cancellationToken)
+        {
+            await ImportSubmissionsAsync(cancellationToken);
+            await ImportJournalsAsync(cancellationToken);
+        }
+
+        async IAsyncEnumerable<IInboxSource> IInboxSourceFactory.GetInboxSourcesForPlatformAsync()
+        {
+            yield return this;
         }
     }
 }

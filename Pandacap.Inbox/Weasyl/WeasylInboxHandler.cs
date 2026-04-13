@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Credentials.Interfaces;
 using Pandacap.Database;
+using Pandacap.Inbox.Interfaces;
 using Pandacap.Weasyl.Interfaces;
 
-namespace Pandacap.Functions.InboxHandlers
+namespace Pandacap.Inbox.Weasyl
 {
     public class WeasylInboxHandler(
-        PandacapDbContext context,
-        IUserAwareWeasylClientFactory userAwareWeasylClientFactory)
+        PandacapDbContext pandacapDbContext,
+        IUserAwareWeasylClientFactory userAwareWeasylClientFactory) : IInboxSource, IInboxSourceFactory
     {
         /// <summary>
         /// Imports new posts from the past three days that have not yet been
@@ -21,11 +22,11 @@ namespace Pandacap.Functions.InboxHandlers
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
-            var existingPosts = await context.InboxWeasylSubmissions
+            var existingPosts = await pandacapDbContext.InboxWeasylSubmissions
                 .Where(item => item.PostedAt >= someTimeAgo)
                 .ToListAsync(cancellationToken);
 
-            Dictionary<string, Weasyl.Models.WeasylApi.AvatarResponse> avatars = [];
+            Dictionary<string, Pandacap.Weasyl.Models.WeasylApi.AvatarResponse> avatars = [];
 
             await foreach (var submission in weasylClient.GetMessagesSubmissionsAsync(CancellationToken.None))
             {
@@ -44,7 +45,7 @@ namespace Pandacap.Functions.InboxHandlers
                     avatars[submission.owner_login] = avatarResponse;
                 }
 
-                context.InboxWeasylSubmissions.Add(new()
+                pandacapDbContext.InboxWeasylSubmissions.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     Submitid = submission.submitid,
@@ -57,17 +58,16 @@ namespace Pandacap.Functions.InboxHandlers
                         Avatar = avatarResponse.avatar
                     },
                     PostedAt = submission.posted_at,
-                    Thumbnails = submission.media.thumbnail
+                    Thumbnails = [.. submission.media.thumbnail
                         .Select(t => new InboxWeasylSubmission.Image
                         {
                             Url = t.url
-                        })
-                        .ToList(),
+                        })],
                     Url = submission.link
                 });
             }
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
 
         /// <summary>
@@ -82,11 +82,11 @@ namespace Pandacap.Functions.InboxHandlers
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
-            var existingPosts = await context.InboxWeasylJournals
+            var existingPosts = await pandacapDbContext.InboxWeasylJournals
                 .Where(item => item.PostedAt >= someTimeAgo)
                 .ToListAsync(cancellationToken);
 
-            Dictionary<string, Weasyl.Models.WeasylApi.AvatarResponse> avatars = [];
+            Dictionary<string, Pandacap.Weasyl.Models.WeasylApi.AvatarResponse> avatars = [];
 
             var journals = await weasylClient.ExtractJournalsAsync(CancellationToken.None);
 
@@ -102,7 +102,7 @@ namespace Pandacap.Functions.InboxHandlers
                     journal.user.name,
                     CancellationToken.None);
 
-                context.InboxWeasylJournals.Add(new()
+                pandacapDbContext.InboxWeasylJournals.Add(new()
                 {
                     Avatar = avatar?.avatar,
                     Id = Guid.NewGuid(),
@@ -114,7 +114,18 @@ namespace Pandacap.Functions.InboxHandlers
                 });
             }
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        async Task IInboxSource.ImportNewPostsAsync(CancellationToken cancellationToken)
+        {
+            await ImportSubmissionsByUsersWeWatchAsync(cancellationToken);
+            await ImportJournalsByUsersWeWatchAsync(cancellationToken);
+        }
+
+        async IAsyncEnumerable<IInboxSource> IInboxSourceFactory.GetInboxSourcesForPlatformAsync()
+        {
+            yield return this;
         }
     }
 }

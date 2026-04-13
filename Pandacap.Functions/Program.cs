@@ -13,7 +13,6 @@ using Pandacap.Database;
 using Pandacap.FeedIngestion;
 using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
-using Pandacap.Functions.InboxHandlers;
 using Pandacap.FurAffinity;
 using Pandacap.Inbox;
 using Pandacap.KeyVault;
@@ -79,10 +78,8 @@ var host = new HostBuilder()
             .AddWeasylScraper()
             .AddScoped<DeviantArtFavoriteHandler>()
             .AddScoped<FurAffinityFavoriteHandler>()
-            .AddScoped<FurAffinityInboxHandler>()
             .AddScoped<OutboxProcessor>()
-            .AddScoped<WeasylFavoriteHandler>()
-            .AddScoped<WeasylInboxHandler>();
+            .AddScoped<WeasylFavoriteHandler>();
 
         services.AddHttpClient();
     })
