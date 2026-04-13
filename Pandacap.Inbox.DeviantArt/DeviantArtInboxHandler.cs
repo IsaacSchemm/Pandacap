@@ -4,8 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Database;
 using Pandacap.Credentials.Interfaces;
+using Pandacap.Inbox.Interfaces;
 
-namespace Pandacap.Functions.InboxHandlers
+namespace Pandacap.Inbox.DeviantArt
 {
     /// <summary>
     /// Connects to the DeviantArt API to retrieve new posts created by users
@@ -14,9 +15,9 @@ namespace Pandacap.Functions.InboxHandlers
     /// </summary>
     /// <param name="context">The database context</param>
     /// <param name="deviantArtCredentialProvider">An object that allows access to the DeviantArt credentials (access token, etc.)</param>
-    public class DeviantArtInboxHandler(
+    internal class DeviantArtInboxHandler(
         PandacapDbContext context,
-        IDeviantArtCredentialProvider deviantArtCredentialProvider)
+        IDeviantArtCredentialProvider deviantArtCredentialProvider) : IInboxSource, IInboxSourceFactory
     {
         /// <summary>
         /// Imports new artwork posts from the past 3 days that have not yet
@@ -164,6 +165,17 @@ namespace Pandacap.Functions.InboxHandlers
             }
 
             await context.SaveChangesAsync();
+        }
+
+        async IAsyncEnumerable<IInboxSource> IInboxSourceFactory.GetInboxSourcesForPlatformAsync()
+        {
+            yield return this;
+        }
+
+        async Task IInboxSource.ImportNewPostsAsync(CancellationToken cancellationToken)
+        {
+            await ImportArtworkPostsByUsersWeWatchAsync();
+            await ImportTextPostsByUsersWeWatchAsync();
         }
     }
 }

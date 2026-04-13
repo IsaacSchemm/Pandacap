@@ -5,7 +5,6 @@ using Pandacap.Inbox.Interfaces;
 namespace Pandacap.Functions
 {
     public class InboxIngest(
-        DeviantArtInboxHandler deviantArtInboxHandler,
         FurAffinityInboxHandler furAffinityInboxHandler,
         IInboxPopulator inboxPopulator,
         WeasylInboxHandler weasylInboxHandler)
@@ -26,9 +25,6 @@ namespace Pandacap.Functions
                     exceptions.Add(e);
                 }
             }
-
-            await c(deviantArtInboxHandler.ImportArtworkPostsByUsersWeWatchAsync());
-            await c(deviantArtInboxHandler.ImportTextPostsByUsersWeWatchAsync());
 
             await c(furAffinityInboxHandler.ImportSubmissionsAsync());
             await c(furAffinityInboxHandler.ImportJournalsAsync());
