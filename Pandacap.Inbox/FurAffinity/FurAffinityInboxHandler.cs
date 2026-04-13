@@ -8,7 +8,7 @@ namespace Pandacap.Inbox.FurAffinity
 {
     internal partial class FurAffinityInboxHandler(
         IFurAffinityClientFactory furAffinityClientFactory,
-        PandacapDbContext pandacapDbContext) : IInboxSource, IInboxSourceFactory
+        PandacapDbContext pandacapDbContext) : IInboxSource
     {
         [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
         private static partial Regex GetFurAffinityThumbnailPattern();
@@ -147,11 +147,6 @@ namespace Pandacap.Inbox.FurAffinity
         {
             await ImportSubmissionsAsync(cancellationToken);
             await ImportJournalsAsync(cancellationToken);
-        }
-
-        async IAsyncEnumerable<IInboxSource> IInboxSourceFactory.GetInboxSourcesForPlatformAsync()
-        {
-            yield return this;
         }
     }
 }

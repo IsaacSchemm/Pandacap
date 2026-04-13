@@ -8,7 +8,7 @@ namespace Pandacap.Inbox.Weasyl
 {
     public class WeasylInboxHandler(
         PandacapDbContext pandacapDbContext,
-        IUserAwareWeasylClientFactory userAwareWeasylClientFactory) : IInboxSource, IInboxSourceFactory
+        IUserAwareWeasylClientFactory userAwareWeasylClientFactory) : IInboxSource
     {
         /// <summary>
         /// Imports new posts from the past three days that have not yet been
@@ -121,11 +121,6 @@ namespace Pandacap.Inbox.Weasyl
         {
             await ImportSubmissionsByUsersWeWatchAsync(cancellationToken);
             await ImportJournalsByUsersWeWatchAsync(cancellationToken);
-        }
-
-        async IAsyncEnumerable<IInboxSource> IInboxSourceFactory.GetInboxSourcesForPlatformAsync()
-        {
-            yield return this;
         }
     }
 }

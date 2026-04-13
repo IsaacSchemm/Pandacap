@@ -3,18 +3,13 @@
 namespace Pandacap.Inbox
 {
     public class InboxPopulator(
-        IEnumerable<IInboxSourceFactory> inboxSourceFactories) : IInboxPopulator
+        IEnumerable<IInboxSource> inboxSources) : IInboxPopulator
     {
         public async Task PopulateInboxAsync(CancellationToken cancellationToken)
         {
             List<Exception> exceptions = [];
 
-            var sources = await inboxSourceFactories
-                .ToAsyncEnumerable()
-                .SelectMany(factory => factory.GetInboxSourcesForPlatformAsync())
-                .ToListAsync(cancellationToken);
-
-            foreach (var source in sources)
+            foreach (var source in inboxSources)
             {
                 try
                 {

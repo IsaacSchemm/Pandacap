@@ -17,7 +17,7 @@ namespace Pandacap.Inbox.DeviantArt
     /// <param name="pandacapDbContext">The database context</param>
     internal class DeviantArtInboxHandler(
         IDeviantArtCredentialProvider deviantArtCredentialProvider,
-        PandacapDbContext pandacapDbContext) : IInboxSource, IInboxSourceFactory
+        PandacapDbContext pandacapDbContext) : IInboxSource
     {
         /// <summary>
         /// Imports new artwork posts from the past 3 days that have not yet
@@ -165,11 +165,6 @@ namespace Pandacap.Inbox.DeviantArt
             }
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
-        }
-
-        async IAsyncEnumerable<IInboxSource> IInboxSourceFactory.GetInboxSourcesForPlatformAsync()
-        {
-            yield return this;
         }
 
         async Task IInboxSource.ImportNewPostsAsync(CancellationToken cancellationToken)

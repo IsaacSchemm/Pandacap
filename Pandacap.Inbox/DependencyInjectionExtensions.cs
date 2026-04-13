@@ -15,10 +15,10 @@ namespace Pandacap.Inbox
             .AddScoped<IATProtoFeedReader, ATProtoFeedReader>()
             .AddScoped<IFeedRefresher, FeedRefresher>()
             .AddScoped<IInboxPopulator, InboxPopulator>()
-            .AddScoped<IInboxSourceFactory, ATProtoInboxSourceFactory>()
-            .AddScoped<IInboxSourceFactory, DeviantArtInboxHandler>()
-            .AddScoped<IInboxSourceFactory, FeedInboxSourceFactory>()
-            .AddScoped<IInboxSourceFactory, FurAffinityInboxHandler>()
-            .AddScoped<IInboxSourceFactory, WeasylInboxHandler>();
+            .AddScoped<IInboxSource, ATProtoInboxSource>()
+            .AddScoped<IInboxSource, DeviantArtInboxHandler>()
+            .AddScoped<IInboxSource, FeedInboxSource>()
+            .AddScoped<IInboxSource, FurAffinityInboxHandler>()
+            .AddScoped<IInboxSource, WeasylInboxHandler>();
     }
 }
