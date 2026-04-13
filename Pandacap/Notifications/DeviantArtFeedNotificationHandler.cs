@@ -1,16 +1,17 @@
 ﻿using DeviantArtFs.Extensions;
-using Pandacap.HighLevel.DeviantArt;
+using Pandacap.DeviantArt.Credentials.Interfaces;
 using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
     public class DeviantArtFeedNotificationHandler(
-        DeviantArtCredentialProvider deviantArtCredentialProvider
+        IDeviantArtCredentialProvider deviantArtCredentialProvider
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
-            if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var credentials, _))
+            var credentials = await deviantArtCredentialProvider.GetTokenAsync();
+            if (credentials == null)
                 yield break;
 
             var feed = DeviantArtFs.Api.Messages.GetFeedAsync(

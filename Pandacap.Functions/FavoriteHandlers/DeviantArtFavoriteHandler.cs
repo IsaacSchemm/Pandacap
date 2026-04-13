@@ -2,14 +2,14 @@
 using DeviantArtFs.ParameterTypes;
 using DeviantArtFs.ResponseTypes;
 using Pandacap.Database;
+using Pandacap.DeviantArt.Credentials.Interfaces;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.DeviantArt;
 
 namespace Pandacap.Functions.FavoriteHandlers
 {
     public class DeviantArtFavoriteHandler(
         PandacapDbContext context,
-        DeviantArtCredentialProvider credentialProvider)
+        IDeviantArtCredentialProvider deviantArtCredentialProvider)
     {
         /// <summary>
         /// Looks for new DeviantArt favorites and adds them to the Favorites page.
@@ -17,7 +17,8 @@ namespace Pandacap.Functions.FavoriteHandlers
         /// <returns></returns>
         public async Task ImportFavoritesAsync()
         {
-            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
+            var credentials = await deviantArtCredentialProvider.GetTokenAsync();
+            if (credentials == null)
                 return;
 
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);

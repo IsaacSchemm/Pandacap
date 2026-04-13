@@ -3,8 +3,8 @@ using DeviantArtFs.ParameterTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Database;
+using Pandacap.DeviantArt.Credentials.Interfaces;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.DeviantArt;
 
 namespace Pandacap.Functions.InboxHandlers
 {
@@ -14,10 +14,10 @@ namespace Pandacap.Functions.InboxHandlers
     /// will be added to the Pandacap inbox.
     /// </summary>
     /// <param name="context">The database context</param>
-    /// <param name="credentialProvider">An object that allows access to the DeviantArt credentials (access token, etc.)</param>
+    /// <param name="deviantArtCredentialProvider">An object that allows access to the DeviantArt credentials (access token, etc.)</param>
     public class DeviantArtInboxHandler(
         PandacapDbContext context,
-        DeviantArtCredentialProvider credentialProvider)
+        IDeviantArtCredentialProvider deviantArtCredentialProvider)
     {
         /// <summary>
         /// Imports new artwork posts from the past 3 days that have not yet
@@ -26,7 +26,8 @@ namespace Pandacap.Functions.InboxHandlers
         /// <returns></returns>
         public async Task ImportArtworkPostsByUsersWeWatchAsync()
         {
-            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, _))
+            var credentials = await deviantArtCredentialProvider.GetTokenAsync();
+            if (credentials == null)
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
@@ -91,7 +92,8 @@ namespace Pandacap.Functions.InboxHandlers
         /// <returns></returns>
         public async Task ImportTextPostsByUsersWeWatchAsync()
         {
-            if (await credentialProvider.GetCredentialsAsync() is not (var credentials, var me))
+            var credentials = await deviantArtCredentialProvider.GetTokenAsync();
+            if (credentials == null)
                 return;
 
             var status = await context.DeviantArtTextPostCheckStatuses.SingleOrDefaultAsync();

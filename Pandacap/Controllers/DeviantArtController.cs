@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
-using Pandacap.HighLevel.DeviantArt;
+using Pandacap.DeviantArt.Credentials.Interfaces;
 using Pandacap.Models;
 using Pandacap.Text;
 using Pandacap.UI.Badges;
@@ -21,7 +21,7 @@ namespace Pandacap.Controllers
     public class DeviantArtController(
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
-        DeviantArtCredentialProvider deviantArtCredentialProvider) : Controller
+        IDeviantArtCredentialProvider deviantArtCredentialProvider) : Controller
     {
         private record ThumbnailWrapper(Preview Item) : IPostThumbnail
         {
@@ -48,7 +48,8 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> HomeFeed()
         {
-            if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var token, _))
+            var token = await deviantArtCredentialProvider.GetTokenAsync();
+            if (token == null)
                 return Content("No DeviantArt account is connected.");
 
             var page = await DeviantArtFs.Api.Browse.PageHomeAsync(
@@ -82,7 +83,9 @@ namespace Pandacap.Controllers
             if (post == null)
                 return NotFound();
 
-            if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var token, var user))
+            var token = await deviantArtCredentialProvider.GetTokenAsync();
+            var user = await deviantArtCredentialProvider.GetUserAsync();
+            if (token == null || user == null)
                 throw new Exception("No DeviantArt account connected");
 
             switch (post.Type)
@@ -150,7 +153,9 @@ namespace Pandacap.Controllers
             if (post.IsTextPost)
                 throw new Exception("Not an artwork post");
 
-            if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var token, var user))
+            var token = await deviantArtCredentialProvider.GetTokenAsync();
+            var user = await deviantArtCredentialProvider.GetUserAsync();
+            if (token == null || user == null)
                 throw new Exception("No DeviantArt account connected");
 
             var folders = await DeviantArtFs.Api.Gallery
@@ -186,7 +191,9 @@ namespace Pandacap.Controllers
             if (post.IsTextPost)
                 throw new Exception("Not an artwork post");
 
-            if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var token, var user))
+            var token = await deviantArtCredentialProvider.GetTokenAsync();
+            var user = await deviantArtCredentialProvider.GetUserAsync();
+            if (token == null || user == null)
                 throw new Exception("No DeviantArt account connected");
 
             if (post.Images.Count != 1)
