@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Pandacap.Frontend.ATProto.Interfaces;
+using Pandacap.Inbox.ATProto.Interfaces;
 
-namespace Pandacap.Frontend.ATProto
+namespace Pandacap.Inbox.ATProto
 {
     public static class DependencyInjectionExtensions
     {

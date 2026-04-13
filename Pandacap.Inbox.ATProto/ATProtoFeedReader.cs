@@ -3,9 +3,9 @@ using Microsoft.FSharp.Collections;
 using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
-using Pandacap.Frontend.ATProto.Interfaces;
+using Pandacap.Inbox.ATProto.Interfaces;
 
-namespace Pandacap.Frontend.ATProto
+namespace Pandacap.Inbox.ATProto
 {
     internal class ATProtoFeedReader(
         IATProtoService atProtoService,

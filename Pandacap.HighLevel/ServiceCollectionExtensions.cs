@@ -6,8 +6,8 @@ using Pandacap.ActivityPub.Services;
 using Pandacap.ATProto.Services;
 using Pandacap.Credentials;
 using Pandacap.FeedIngestion;
-using Pandacap.Frontend.ATProto;
 using Pandacap.FurAffinity;
+using Pandacap.Inbox.ATProto;
 using Pandacap.Weasyl.Scraping;
 
 namespace Pandacap.HighLevel
