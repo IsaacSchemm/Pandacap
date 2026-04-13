@@ -1,5 +1,5 @@
 ﻿using DeviantArtFs.Extensions;
-using Pandacap.DeviantArt.Credentials.Interfaces;
+using Pandacap.Credentials.Interfaces;
 using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications

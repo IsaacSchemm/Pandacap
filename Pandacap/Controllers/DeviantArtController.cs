@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
-using Pandacap.DeviantArt.Credentials.Interfaces;
+using Pandacap.Credentials.Interfaces;
 using Pandacap.Models;
 using Pandacap.Text;
 using Pandacap.UI.Badges;

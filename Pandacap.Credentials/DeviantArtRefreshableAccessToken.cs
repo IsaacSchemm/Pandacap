@@ -1,7 +1,7 @@
 ﻿using DeviantArtFs;
 using Pandacap.Database;
 
-namespace Pandacap.DeviantArt.Credentials
+namespace Pandacap.Credentials
 {
     internal class DeviantArtRefreshableAccessToken(
         PandacapDbContext context,

@@ -1,19 +1,21 @@
-﻿using Pandacap.HighLevel;
+﻿using Pandacap.Credentials.Interfaces;
 using Pandacap.UI.Badges;
 using Pandacap.Weasyl.Interfaces;
+using System.Runtime.CompilerServices;
 
 namespace Pandacap.Notifications
 {
     public class WeasylNoteNotificationHandler(
-        UserAwareClientFactory userAwareClientFactory
+        IUserAwareWeasylClientFactory userAwareWeasylClientFactory
     ) : INotificationHandler
     {
-        public async IAsyncEnumerable<Notification> GetNotificationsAsync()
+        public async IAsyncEnumerable<Notification> GetNotificationsAsync(
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            if (await userAwareClientFactory.CreateWeasylClientAsync() is not IWeasylClient client)
+            if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
                 yield break;
 
-            foreach (var note in await client.GetNotesAsync(CancellationToken.None))
+            foreach (var note in await client.GetNotesAsync(cancellationToken))
             {
                 yield return new Notification
                 {
@@ -25,5 +27,8 @@ namespace Pandacap.Notifications
                 };
             }
         }
+
+        IAsyncEnumerable<Notification> INotificationHandler.GetNotificationsAsync() =>
+            GetNotificationsAsync();
     }
 }

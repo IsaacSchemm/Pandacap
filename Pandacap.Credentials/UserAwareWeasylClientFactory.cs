@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Configuration;
+using Pandacap.Credentials.Interfaces;
 using Pandacap.Database;
 using Pandacap.Weasyl.Interfaces;
 
-namespace Pandacap.HighLevel
+namespace Pandacap.Credentials
 {
-    public class UserAwareClientFactory(
+    internal class UserAwareWeasylClientFactory(
         PandacapDbContext context,
-        IWeasylClientFactory weasylClientFactory)
+        IWeasylClientFactory weasylClientFactory) : IUserAwareWeasylClientFactory
     {
         public async Task<IWeasylClient?> CreateWeasylClientAsync(CancellationToken cancellationToken = default)
         {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.Credentials.Interfaces;
 using Pandacap.Database;
 using Pandacap.HighLevel;
 using Pandacap.Text;
@@ -11,7 +12,7 @@ namespace Pandacap.Controllers
     [Authorize]
     public class WeasylController(
         PandacapDbContext context,
-        UserAwareClientFactory userAwareClientFactory,
+        IUserAwareWeasylClientFactory userAwareWeasylClientFactory,
         IWeasylClientFactory weasylClientFactory) : Controller
     {
         public async Task<IActionResult> Setup(CancellationToken cancellationToken)
@@ -28,7 +29,7 @@ namespace Pandacap.Controllers
 
             if (account != null)
             {
-                if (await userAwareClientFactory.CreateWeasylClientAsync(cancellationToken) is IWeasylClient client)
+                if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is IWeasylClient client)
                 {
                     try
                     {
@@ -90,7 +91,7 @@ namespace Pandacap.Controllers
                 .Where(p => p.Id == id)
                 .SingleAsync(cancellationToken);
 
-            var client = await userAwareClientFactory.CreateWeasylClientAsync(cancellationToken)
+            var client = await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken)
                 ?? throw new Exception("Weasyl connection not available");
 
             if (post.WeasylSubmitId != null || post.WeasylJournalId != null)

@@ -1,30 +1,29 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.Credentials.Interfaces;
 using Pandacap.Database;
-using Pandacap.HighLevel;
 using Pandacap.Weasyl.Interfaces;
-using Pandacap.Weasyl.Models;
 
 namespace Pandacap.Functions.InboxHandlers
 {
     public class WeasylInboxHandler(
         PandacapDbContext context,
-        UserAwareClientFactory userAwareClientFactory)
+        IUserAwareWeasylClientFactory userAwareWeasylClientFactory)
     {
         /// <summary>
         /// Imports new posts from the past three days that have not yet been
         /// added to the Pandacap inbox.
         /// </summary>
         /// <returns></returns>
-        public async Task ImportSubmissionsByUsersWeWatchAsync()
+        public async Task ImportSubmissionsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            if (await userAwareClientFactory.CreateWeasylClientAsync() is not IWeasylClient weasylClient)
+            if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient weasylClient)
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
             var existingPosts = await context.InboxWeasylSubmissions
                 .Where(item => item.PostedAt >= someTimeAgo)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             Dictionary<string, Weasyl.Models.WeasylApi.AvatarResponse> avatars = [];
 
@@ -68,7 +67,7 @@ namespace Pandacap.Functions.InboxHandlers
                 });
             }
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
 
         /// <summary>
@@ -76,16 +75,16 @@ namespace Pandacap.Functions.InboxHandlers
         /// added to the Pandacap inbox.
         /// </summary>
         /// <returns></returns>
-        public async Task ImportJournalsByUsersWeWatchAsync()
+        public async Task ImportJournalsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            if (await userAwareClientFactory.CreateWeasylClientAsync() is not IWeasylClient weasylClient)
+            if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient weasylClient)
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
             var existingPosts = await context.InboxWeasylJournals
                 .Where(item => item.PostedAt >= someTimeAgo)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             Dictionary<string, Weasyl.Models.WeasylApi.AvatarResponse> avatars = [];
 
@@ -115,7 +114,7 @@ namespace Pandacap.Functions.InboxHandlers
                 });
             }
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
     }
 }

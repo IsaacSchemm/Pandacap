@@ -1,19 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.Credentials.Interfaces;
 using Pandacap.Database;
-using Pandacap.HighLevel;
 using Pandacap.Weasyl.Interfaces;
-using Pandacap.Weasyl.Models;
 using Pandacap.Weasyl.Models.WeasylApi;
 
 namespace Pandacap.Functions.FavoriteHandlers
 {
     public partial class WeasylFavoriteHandler(
         PandacapDbContext context,
-        UserAwareClientFactory userAwareClientFactory)
+        IUserAwareWeasylClientFactory userAwareWeasylClientFactory)
     {
         public async Task ImportFavoriteSubmissionsAsync(CancellationToken cancellationToken = default)
         {
-            if (await userAwareClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
+            if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
                 return;
 
             var self = await client.WhoamiAsync(cancellationToken);

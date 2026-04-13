@@ -2,9 +2,9 @@
 using DeviantArtFs.ResponseTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
-using Pandacap.DeviantArt.Credentials.Interfaces;
+using Pandacap.Credentials.Interfaces;
 
-namespace Pandacap.DeviantArt.Credentials
+namespace Pandacap.Credentials
 {
     /// <summary>
     /// Allows the application to retrieve a DeviantArt credentials object that

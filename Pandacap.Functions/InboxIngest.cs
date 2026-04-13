@@ -38,8 +38,8 @@ namespace Pandacap.Functions
             await c(furAffinityInboxHandler.ImportSubmissionsAsync());
             await c(furAffinityInboxHandler.ImportJournalsAsync());
 
-            await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync());
-            await c(weasylInboxHandler.ImportJournalsByUsersWeWatchAsync());
+            await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync(CancellationToken.None));
+            await c(weasylInboxHandler.ImportJournalsByUsersWeWatchAsync(CancellationToken.None));
 
             var feeds = await context.GeneralFeeds.Select(f => new { f.Id }).ToListAsync();
             foreach (var feed in feeds)

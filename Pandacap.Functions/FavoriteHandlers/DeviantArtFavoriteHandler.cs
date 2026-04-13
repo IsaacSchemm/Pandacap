@@ -2,7 +2,7 @@
 using DeviantArtFs.ParameterTypes;
 using DeviantArtFs.ResponseTypes;
 using Pandacap.Database;
-using Pandacap.DeviantArt.Credentials.Interfaces;
+using Pandacap.Credentials.Interfaces;
 using Pandacap.HighLevel;
 
 namespace Pandacap.Functions.FavoriteHandlers

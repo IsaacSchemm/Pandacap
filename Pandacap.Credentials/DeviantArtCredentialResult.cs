@@ -1,6 +1,6 @@
 ﻿using DeviantArtFs;
 
-namespace Pandacap.DeviantArt.Credentials
+namespace Pandacap.Credentials
 {
     internal record Result(
         IDeviantArtRefreshableAccessToken Token,
