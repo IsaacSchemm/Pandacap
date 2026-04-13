@@ -6,7 +6,7 @@ namespace Pandacap.Inbox.ATProto
 {
     public static class DependencyInjectionExtensions
     {
-        public static IServiceCollection AddATProtoFeedReader(this IServiceCollection serviceCollection) =>
+        public static IServiceCollection AddATProtoInboxHandlers(this IServiceCollection serviceCollection) =>
             serviceCollection
             .AddScoped<IATProtoFeedReader, ATProtoFeedReader>()
             .AddScoped<IInboxSourceFactory, ATProtoInboxSourceFactory>();

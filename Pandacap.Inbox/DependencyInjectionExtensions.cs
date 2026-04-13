@@ -8,11 +8,11 @@ namespace Pandacap.Inbox
 {
     public static class DependencyInjectionExtensions
     {
-        public static IServiceCollection AddInboxPopulator(this IServiceCollection serviceCollection) =>
+        public static IServiceCollection AddInboxHandlers(this IServiceCollection serviceCollection) =>
             serviceCollection
-            .AddATProtoFeedReader()
-            .AddDeviantArtInboxHandler()
-            .AddFeedRefresher()
+            .AddATProtoInboxHandlers()
+            .AddDeviantArtInboxHandlers()
+            .AddFeedInboxHandlers()
             .AddScoped<IInboxPopulator, InboxPopulator>();
     }
 }

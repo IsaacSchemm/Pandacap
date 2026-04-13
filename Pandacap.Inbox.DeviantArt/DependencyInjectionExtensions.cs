@@ -5,7 +5,7 @@ namespace Pandacap.Inbox.DeviantArt
 {
     public static class DependencyInjectionExtensions
     {
-        public static IServiceCollection AddDeviantArtInboxHandler(this IServiceCollection serviceCollection) =>
+        public static IServiceCollection AddDeviantArtInboxHandlers(this IServiceCollection serviceCollection) =>
             serviceCollection.AddScoped<IInboxSource, DeviantArtInboxHandler>();
     }
 }

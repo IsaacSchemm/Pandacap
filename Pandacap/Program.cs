@@ -134,7 +134,7 @@ builder.Services
     .AddFeedBuilder()
     .AddFeedReaders()
     .AddFurAffinityClient()
-    .AddInboxPopulator()
+    .AddInboxHandlers()
     .AddJsonLdExpansionService()
     .AddLemmyServices()
     .AddPandacapKeyVault(new()

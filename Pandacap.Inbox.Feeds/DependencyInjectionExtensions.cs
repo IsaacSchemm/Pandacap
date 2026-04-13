@@ -6,7 +6,7 @@ namespace Pandacap.Inbox.Feeds
 {
     public static class DependencyInjectionExtensions
     {
-        public static IServiceCollection AddFeedRefresher(this IServiceCollection serviceCollection) =>
+        public static IServiceCollection AddFeedInboxHandlers(this IServiceCollection serviceCollection) =>
             serviceCollection
             .AddScoped<IFeedRefresher, FeedRefresher>()
             .AddScoped<IInboxSourceFactory, FeedInboxSourceFactory>();
