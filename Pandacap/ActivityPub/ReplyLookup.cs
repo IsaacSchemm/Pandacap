@@ -22,7 +22,7 @@ namespace Pandacap
             using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
             int count = await context.RemoteActivityPubReplies
                 .Where(r => r.ObjectId == id)
-                .DocumentCountAsync(cancellationToken);
+                .CountAsync(cancellationToken);
             if (count > 0)
                 return true;
 

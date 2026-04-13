@@ -1,9 +1,9 @@
 ﻿using DeviantArtFs.Extensions;
 using DeviantArtFs.ParameterTypes;
 using DeviantArtFs.ResponseTypes;
-using Pandacap.Database;
+using Microsoft.EntityFrameworkCore;
 using Pandacap.Credentials.Interfaces;
-using Pandacap.HighLevel;
+using Pandacap.Database;
 
 namespace Pandacap.Functions.FavoriteHandlers
 {
@@ -39,7 +39,7 @@ namespace Pandacap.Functions.FavoriteHandlers
 
                 var existing = await context.DeviantArtFavorites
                     .Where(item => item.Id == deviation.deviationid)
-                    .DocumentCountAsync();
+                    .CountAsync();
                 if (existing > 0)
                     break;
 

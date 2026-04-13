@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Constants;
 using Pandacap.Database;
-using Pandacap.HighLevel;
 
 namespace Pandacap.Controllers
 {
@@ -33,15 +33,15 @@ namespace Pandacap.Controllers
         {
             var posts = await context.Posts
                 .Where(post => post.Type != Post.PostType.Scraps)
-                .DocumentCountAsync();
+                .CountAsync();
 
             var communityPosts = await context.AddressedPosts
                 .Where(ap => ap.InReplyTo == null)
-                .DocumentCountAsync();
+                .CountAsync();
 
             var replies = await context.AddressedPosts
                 .Where(ap => ap.InReplyTo != null)
-                .DocumentCountAsync();
+                .CountAsync();
 
             return Json(new
             {

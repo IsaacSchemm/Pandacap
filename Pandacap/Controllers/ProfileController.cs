@@ -125,11 +125,11 @@ namespace Pandacap.Controllers
                     RecentFavorites = favorites,
                     RecentTextPosts = textPosts,
                     RecentLinks = links,
-                    FollowerCount = await context.Followers.DocumentCountAsync(cancellationToken),
-                    FollowingCount = await context.Follows.DocumentCountAsync(cancellationToken)
-                        + await context.GeneralFeeds.DocumentCountAsync(cancellationToken)
-                        + await context.ATProtoFeeds.DocumentCountAsync(cancellationToken),
-                    FavoritesCount = await context.ActivityPubFavorites.DocumentCountAsync(cancellationToken),
+                    FollowerCount = await context.Followers.CountAsync(cancellationToken),
+                    FollowingCount = await context.Follows.CountAsync(cancellationToken)
+                        + await context.GeneralFeeds.CountAsync(cancellationToken)
+                        + await context.ATProtoFeeds.CountAsync(cancellationToken),
+                    FavoritesCount = await context.ActivityPubFavorites.CountAsync(cancellationToken),
                     VectorSearchEnabled = vectorSearchIndexClient.VectorSearchEnabled
                 };
             }

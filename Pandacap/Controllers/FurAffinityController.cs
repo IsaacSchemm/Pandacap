@@ -34,7 +34,7 @@ namespace Pandacap.Controllers
             string b,
             CancellationToken cancellationToken)
         {
-            int count = await context.FurAffinityCredentials.DocumentCountAsync(cancellationToken);
+            int count = await context.FurAffinityCredentials.CountAsync(cancellationToken);
             if (count > 0)
                 return Conflict();
 

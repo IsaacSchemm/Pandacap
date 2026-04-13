@@ -52,7 +52,7 @@ namespace Pandacap.Controllers
             string id,
             CancellationToken cancellationToken)
         {
-            if (await context.Follows.Where(f => f.ActorId == id).DocumentCountAsync() > 0)
+            if (await context.Follows.Where(f => f.ActorId == id).CountAsync() > 0)
                 return RedirectToAction("UpdateFollow", "Profile", new { id });
 
             var actor = await activityPubRemoteActorService.FetchActorAsync(id, cancellationToken);

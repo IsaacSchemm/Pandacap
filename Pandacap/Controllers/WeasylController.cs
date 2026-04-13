@@ -49,7 +49,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Connect(string apiKey, CancellationToken cancellationToken)
         {
-            int count = await context.WeasylCredentials.DocumentCountAsync(cancellationToken);
+            int count = await context.WeasylCredentials.CountAsync(cancellationToken);
             if (count > 0)
                 return Conflict();
 

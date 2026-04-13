@@ -32,7 +32,7 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> Followers()
         {
-            int followers = await context.Followers.DocumentCountAsync();
+            int followers = await context.Followers.CountAsync();
 
             return Content(
                 relationshipTranslator.BuildFollowersCollection(followers),
@@ -54,7 +54,7 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Liked()
         {
             int posts = await context.ActivityPubFavorites
-                .DocumentCountAsync();
+                .CountAsync();
 
             return Content(
                 interactionTranslator.BuildLikedCollection(
@@ -413,7 +413,7 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Outbox()
         {
-            int count = await context.Posts.DocumentCountAsync();
+            int count = await context.Posts.CountAsync();
             return Content(
                 postTranslator.BuildOutboxCollection(
                     count),

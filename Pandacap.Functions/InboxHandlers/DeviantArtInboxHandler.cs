@@ -145,7 +145,7 @@ namespace Pandacap.Functions.InboxHandlers
 
                     int existingCount = await context.InboxTextDeviations
                         .Where(d => d.Id == deviation.deviationid)
-                        .DocumentCountAsync();
+                        .CountAsync();
 
                     if (existingCount > 0)
                         continue;

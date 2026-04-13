@@ -78,7 +78,7 @@ namespace Pandacap.Controllers
         {
             var client = httpClientFactory.CreateClient();
 
-            if (await context.ATProtoFeeds.Where(a => a.DID == did).DocumentCountAsync() > 0)
+            if (await context.ATProtoFeeds.Where(a => a.DID == did).CountAsync() > 0)
                 return RedirectToAction("UpdateATProtoFeed", "Profile", new { did });
 
             var document = await didResolver.ResolveAsync(did, cancellationToken);
@@ -131,7 +131,7 @@ namespace Pandacap.Controllers
 
             var inFavoritesAsBlueskyPost = await context.BlueskyPostFavorites
                 .Where(f => f.CID == post.Ref.CID)
-                .DocumentCountAsync(cancellationToken) > 0;
+                .CountAsync(cancellationToken) > 0;
 
             if (!inFavoritesAsBlueskyPost)
             {
