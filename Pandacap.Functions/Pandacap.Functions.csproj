@@ -33,6 +33,7 @@
     <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
     <ProjectReference Include="..\Pandacap.Inbox.ATProto\Pandacap.Inbox.ATProto.csproj" />
     <ProjectReference Include="..\Pandacap.Inbox.Feeds\Pandacap.Inbox.Feeds.csproj" />
+    <ProjectReference Include="..\Pandacap.Inbox.Interfaces\Pandacap.Inbox.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
     <ProjectReference Include="..\Pandacap.UI.Posts\Pandacap.UI.Posts.csproj" />
     <ProjectReference Include="..\Pandacap.Weasyl.Scraping\Pandacap.Weasyl.Scraping.fsproj" />

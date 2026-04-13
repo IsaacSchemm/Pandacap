@@ -160,7 +160,7 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.Audio.Interfaces",
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.Audio", "Pandacap.Audio\Pandacap.Audio.fsproj", "{F89DF00F-CC3C-46B5-A31A-C6B7EAAC0D7D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Populating the Inbox", "Populating the Inbox", "{024FE5A4-C2BC-451A-9708-17D349DA0340}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inbox Handlers", "Inbox Handlers", "{024FE5A4-C2BC-451A-9708-17D349DA0340}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.Inbox.Feeds.Interfaces", "Pandacap.Inbox.Feeds.Interfaces\Pandacap.Inbox.Feeds.Interfaces.vbproj", "{B48932B9-413E-4505-86DD-4F4BF4B301F7}"
 EndProject
@@ -205,6 +205,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure Key Vault", "Azure Key Vault", "{BF7CCBCC-529E-4592-BAE7-20743C48D2BE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lemmy API", "Lemmy API", "{B8E8B120-F76D-4382-BC1D-F99FB764D9DF}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.Inbox.Interfaces", "Pandacap.Inbox.Interfaces\Pandacap.Inbox.Interfaces.vbproj", "{F82D0F74-303C-4370-B185-0ED5B7FFA9DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -520,6 +522,10 @@ Global
 		{2949AFA2-4477-4BAB-9BE2-0746811961F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2949AFA2-4477-4BAB-9BE2-0746811961F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2949AFA2-4477-4BAB-9BE2-0746811961F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F82D0F74-303C-4370-B185-0ED5B7FFA9DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F82D0F74-303C-4370-B185-0ED5B7FFA9DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F82D0F74-303C-4370-B185-0ED5B7FFA9DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F82D0F74-303C-4370-B185-0ED5B7FFA9DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -613,6 +619,7 @@ Global
 		{7D0945F2-E509-4B07-8221-45E8A8B53BEA} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{BF7CCBCC-529E-4592-BAE7-20743C48D2BE} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
 		{B8E8B120-F76D-4382-BC1D-F99FB764D9DF} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
+		{F82D0F74-303C-4370-B185-0ED5B7FFA9DD} = {024FE5A4-C2BC-451A-9708-17D349DA0340}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

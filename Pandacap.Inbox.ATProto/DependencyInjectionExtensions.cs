@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pandacap.Inbox.ATProto.Interfaces;
+using Pandacap.Inbox.Interfaces;
 
 namespace Pandacap.Inbox.ATProto
 {
@@ -7,6 +8,7 @@ namespace Pandacap.Inbox.ATProto
     {
         public static IServiceCollection AddATProtoFeedReader(this IServiceCollection serviceCollection) =>
             serviceCollection
-            .AddScoped<IATProtoFeedReader, ATProtoFeedReader>();
+            .AddScoped<IATProtoFeedReader, ATProtoFeedReader>()
+            .AddScoped<IInboxSourceFactory, ATProtoInboxSourceFactory>();
     }
 }

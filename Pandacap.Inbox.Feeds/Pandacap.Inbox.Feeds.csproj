@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.FeedIngestion.Interfaces\Pandacap.FeedIngestion.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Inbox.Feeds.Interfaces\Pandacap.Inbox.Feeds.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Inbox.Interfaces\Pandacap.Inbox.Interfaces.vbproj" />
   </ItemGroup>
 
 </Project>

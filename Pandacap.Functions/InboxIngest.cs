@@ -4,15 +4,14 @@ using Pandacap.Database;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.Inbox.ATProto.Interfaces;
 using Pandacap.Inbox.Feeds.Interfaces;
+using Pandacap.Inbox.Interfaces;
 
 namespace Pandacap.Functions
 {
     public class InboxIngest(
-        IATProtoFeedReader atProtoFeedReader,
-        PandacapDbContext context,
         DeviantArtInboxHandler deviantArtInboxHandler,
-        IFeedRefresher feedRefresher,
         FurAffinityInboxHandler furAffinityInboxHandler,
+        IEnumerable<IInboxSourceFactory> inboxSourceFactories,
         WeasylInboxHandler weasylInboxHandler)
     {
         [Function("InboxIngest")]
@@ -41,13 +40,9 @@ namespace Pandacap.Functions
             await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync(CancellationToken.None));
             await c(weasylInboxHandler.ImportJournalsByUsersWeWatchAsync(CancellationToken.None));
 
-            var feeds = await context.GeneralFeeds.Select(f => new { f.Id }).ToListAsync();
-            foreach (var feed in feeds)
-                await c(feedRefresher.RefreshFeedAsync(feed.Id, CancellationToken.None));
-
-            var atProtoFeeds = await context.ATProtoFeeds.Select(f => new { f.DID }).ToListAsync();
-            foreach (var feed in atProtoFeeds)
-                await c(atProtoFeedReader.RefreshFeedAsync(feed.DID, CancellationToken.None));
+            foreach (var factory in inboxSourceFactories)
+                await foreach (var source in factory.GetInboxSourcesForPlatformAsync())
+                    await c(source.ImportNewPostsAsync(CancellationToken.None));
 
             if (exceptions.Count > 0)
                 throw new AggregateException(exceptions);
