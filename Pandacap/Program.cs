@@ -6,8 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Pandacap;
+using Pandacap.ActivityPub.Favorites;
 using Pandacap.ActivityPub.HttpSignatures.Discovery;
 using Pandacap.ActivityPub.HttpSignatures.Validation;
+using Pandacap.ActivityPub.Inbox;
 using Pandacap.ActivityPub.JsonLd;
 using Pandacap.ActivityPub.Outbox;
 using Pandacap.ActivityPub.RemoteObjects;
@@ -123,6 +125,8 @@ DeploymentInformation.Username = builder.Configuration["ActivityPubUsername"]
     ?? throw new Exception("ActivityPubUsername is not defined");
 
 builder.Services
+    .AddActivityPubFavoritesHandler()
+    .AddActivityPubInboxHandler()
     .AddActivityPubKeyFinder()
     .AddActivityPubOutboxServices()
     .AddActivityPubRemoteObjectServices()
@@ -162,7 +166,6 @@ builder.Services
     .AddScoped<FurAffinityNoteNotificationHandler>()
     .AddScoped<FurAffinityNotificationHandler>()
     .AddScoped<PostCreator>()
-    .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>()
     .AddScoped<SvgRenderer>()
     .AddScoped<TokenUpdater>()

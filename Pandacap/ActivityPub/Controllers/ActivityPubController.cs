@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Models;
+using Pandacap.ActivityPub.Inbox.Interfaces;
 using Pandacap.ActivityPub.JsonLd.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
@@ -23,8 +24,8 @@ namespace Pandacap.Controllers
         IJsonLdExpansionService expansionService,
         IActivityPubInteractionTranslator interactionTranslator,
         IActivityPubPostTranslator postTranslator,
-        RemoteActivityPubPostHandler remoteActivityPubPostHandler,
         IActivityPubRelationshipTranslator relationshipTranslator,
+        IRemoteActivityPubInboxHandler remoteActivityPubInboxHandler,
         ReplyLookup replyLookup) : Controller
     {
         private static new readonly IEnumerable<JToken> Empty = [];
@@ -193,10 +194,11 @@ namespace Pandacap.Controllers
                 {
                     if (type == "https://www.w3.org/ns/activitystreams#Announce")
                     {
-                        await remoteActivityPubPostHandler.AddRemoteAnnouncementAsync(
+                        await remoteActivityPubInboxHandler.AddRemoteAnnouncementAsync(
                             actor,
                             expansionObj["@id"]!.Value<string>()!,
-                            interactedWithId);
+                            interactedWithId,
+                            cancellationToken);
                     }
 
                     if (Uri.TryCreate(interactedWithId, UriKind.Absolute, out Uri? uri)
@@ -289,8 +291,7 @@ namespace Pandacap.Controllers
                             follow.Url = remotePost.AttributedTo.Url;
                             follow.IconUrl = remotePost.AttributedTo.IconUrl;
 
-                            //if (nobodyAddressed)
-                                await remoteActivityPubPostHandler.AddRemotePostAsync(actor, remotePost);
+                            await remoteActivityPubInboxHandler.AddRemotePostAsync(actor, remotePost, cancellationToken);
                         }
                     }
                 }

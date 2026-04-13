@@ -1,31 +1,24 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Inbox.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
-using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Database;
+using System.Runtime.CompilerServices;
 
-namespace Pandacap
+namespace Pandacap.ActivityPub.Inbox
 {
-    /// <summary>
-    /// Adds remote ActivityPub posts to the Pandacap inbox or to its Favorites collection (equivalent to ActivityPub "likes", but fully public).
-    /// </summary>
-    /// <param name="activityPubRemoteActorService">An object that can retrieve remote ActivityPub actor information</param>
-    /// <param name="activityPubRemotePostService">An object that can retrieve remote ActivityPub post information</param>
-    /// <param name="context">The database context</param>
-    /// <param name="interactionTranslator">An object that builds the ActivityPub objects and activities associated with Pandacap objects</param>
-    public class RemoteActivityPubPostHandler(
-        IActivityPubRemoteActorService activityPubRemoteActorService,
+    internal class RemoteActivityPubInboxHandler(
         IActivityPubRemotePostService activityPubRemotePostService,
-        PandacapDbContext context,
-        IActivityPubInteractionTranslator interactionTranslator)
+        PandacapDbContext pandacapDbContext) : IRemoteActivityPubInboxHandler
     {
         private async IAsyncEnumerable<InboxActivityStreamsPost.Image> CollectAttachmentsAsync(
             RemotePost remotePost,
-            RemoteActor sendingActor)
+            RemoteActor sendingActor,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            int count = await context.Follows
+            int count = await pandacapDbContext.Follows
                 .Where(f => f.ActorId == sendingActor.Id && f.IgnoreImages == false)
-                .CountAsync();
+                .CountAsync(cancellationToken);
 
             if (count > 0)
             {
@@ -45,10 +38,12 @@ namespace Pandacap
         /// </summary>
         /// <param name="sendingActor">The actor who created the post.</param>
         /// <param name="remotePost">A representation of the remote post.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
         /// <returns></returns>
         public async Task AddRemotePostAsync(
             RemoteActor sendingActor,
-            RemotePost remotePost)
+            RemotePost remotePost,
+            CancellationToken cancellationToken)
         {
             string attributedTo = remotePost.AttributedTo.Id;
             if (attributedTo != sendingActor.Id)
@@ -56,14 +51,14 @@ namespace Pandacap
 
             string id = remotePost.Id;
 
-            int existing = await context.InboxActivityStreamsPosts
+            int existing = await pandacapDbContext.InboxActivityStreamsPosts
                 .Where(p => p.ObjectId == id)
                 .Where(p => p.PostedBy.Id == sendingActor.Id)
-                .CountAsync();
+                .CountAsync(cancellationToken);
             if (existing > 0)
                 return;
 
-            context.InboxActivityStreamsPosts.Add(new InboxActivityStreamsPost
+            pandacapDbContext.InboxActivityStreamsPosts.Add(new InboxActivityStreamsPost
             {
                 Id = Guid.NewGuid(),
                 ObjectId = id,
@@ -84,9 +79,10 @@ namespace Pandacap
                 Sensitive = remotePost.Sensitive,
                 Name = remotePost.Name,
                 Content = remotePost.SanitizedContent,
-                Attachments = await CollectAttachmentsAsync(remotePost, sendingActor).ToListAsync()
+                Attachments = await CollectAttachmentsAsync(remotePost, sendingActor, cancellationToken).ToListAsync(cancellationToken)
             });
-            await context.SaveChangesAsync();
+
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
 
         /// <summary>
@@ -95,15 +91,17 @@ namespace Pandacap
         /// <param name="announcingActor">The actor who boosted the post.</param>
         /// <param name="announceActivityId">The ActivityPub ID of the Announce activity. Allows an Undo to be processed later.</param>
         /// <param name="objectId">The ActivityPub ID of the post being boosted.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
         /// <returns></returns>
         public async Task AddRemoteAnnouncementAsync(
             RemoteActor announcingActor,
             string announceActivityId,
-            string objectId)
+            string objectId,
+            CancellationToken cancellationToken)
         {
-            var follow = await context.Follows
+            var follow = await pandacapDbContext.Follows
                 .Where(f => f.ActorId == announcingActor.Id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (follow == null)
                 return;
@@ -127,7 +125,7 @@ namespace Pandacap
 
             var originalActor = remotePost.AttributedTo;
 
-            context.InboxActivityStreamsPosts.Add(new InboxActivityStreamsPost
+            pandacapDbContext.InboxActivityStreamsPosts.Add(new InboxActivityStreamsPost
             {
                 Id = Guid.NewGuid(),
                 AnnounceId = announceActivityId,
@@ -149,83 +147,10 @@ namespace Pandacap
                 Sensitive = remotePost.Sensitive,
                 Name = remotePost.Name,
                 Content = remotePost.SanitizedContent,
-                Attachments = await CollectAttachmentsAsync(remotePost, announcingActor).ToListAsync()
+                Attachments = await CollectAttachmentsAsync(remotePost, announcingActor, cancellationToken).ToListAsync(cancellationToken)
             });
 
-            await context.SaveChangesAsync();
-        }
-
-        /// <summary>
-        /// Adds a remote ActivityPub post to the Favorites collection.
-        /// </summary>
-        /// <param name="objectId">The ActivityPub object ID (URL).</param>
-        /// <returns></returns>
-        public async Task AddRemoteFavoriteAsync(string objectId, CancellationToken cancellationToken)
-        {
-            var remotePost = await activityPubRemotePostService.FetchPostAsync(objectId, cancellationToken);
-
-            string? originalActorId = remotePost.AttributedTo.Id;
-            if (originalActorId == null)
-                return;
-
-            var originalActor = await activityPubRemoteActorService.FetchActorAsync(originalActorId, cancellationToken);
-
-            Guid likeGuid = Guid.NewGuid();
-
-            context.Add(new ActivityPubFavorite
-            {
-                Id = likeGuid,
-                ObjectId = remotePost.Id,
-                CreatedBy = originalActor.Id,
-                Username = originalActor.PreferredUsername,
-                Usericon = originalActor.IconUrl,
-                CreatedAt = remotePost.PostedAt,
-                FavoritedAt = DateTimeOffset.UtcNow,
-                Summary = remotePost.Summary,
-                Sensitive = remotePost.Sensitive,
-                Name = remotePost.Name,
-                Content = remotePost.SanitizedContent,
-                Attachments = [
-                    .. remotePost.Attachments.Select(attachment => new ActivityPubFavorite.Image
-                    {
-                        Name = attachment.Name,
-                        Url = attachment.Url
-                    })
-                ]
-            });
-            await context.SaveChangesAsync(cancellationToken);
-        }
-
-        /// <summary>
-        /// Removes remote ActivityPub posts from the Favorites collection.
-        /// </summary>
-        /// <param name="objectId">The ActivityPub object ID (URL).</param>
-        /// <returns></returns>
-        public async Task RemoveRemoteFavoritesAsync(IEnumerable<string> objectIds, CancellationToken cancellationToken)
-        {
-            await foreach (var item in context.ActivityPubFavorites
-                .Where(a => objectIds.Contains(a.ObjectId))
-                .AsAsyncEnumerable())
-            {
-                try
-                {
-                    var actor = await activityPubRemoteActorService.FetchActorAsync(item.CreatedBy, cancellationToken);
-
-                    context.ActivityPubOutboundActivities.Add(new()
-                    {
-                        Id = Guid.NewGuid(),
-                        Inbox = actor.Inbox,
-                        JsonBody = interactionTranslator.BuildLikeUndo(
-                            item.Id,
-                            item.ObjectId)
-                    });
-                }
-                catch (Exception) { }
-
-                context.Remove(item);
-
-                await context.SaveChangesAsync(cancellationToken);
-            }
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

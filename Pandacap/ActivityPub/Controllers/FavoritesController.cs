@@ -7,13 +7,14 @@ using Pandacap.Database;
 using Pandacap.Models;
 using Pandacap.Extensions;
 using System.Text;
+using Pandacap.ActivityPub.Favorites.Interfaces;
 
 namespace Pandacap.Controllers
 {
     public class FavoritesController(
         PandacapDbContext context,
         IActivityPubInteractionTranslator interactionTranslator,
-        RemoteActivityPubPostHandler remoteActivityPubPostHandler) : Controller
+        IRemoteActivityPubFavoritesHandler remoteActivityPubFavoritesHandler) : Controller
     {
         public async Task<IActionResult> Index(Guid? next, int? count)
         {
@@ -51,9 +52,7 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Add([FromForm] IEnumerable<string> id, CancellationToken cancellationToken)
         {
             foreach (string idStr in id)
-            {
-                await remoteActivityPubPostHandler.AddRemoteFavoriteAsync(idStr, cancellationToken);
-            }
+                await remoteActivityPubFavoritesHandler.AddFavoriteAsync(idStr, cancellationToken);
 
             return id.Count() == 1
                 ? RedirectToAction("Index", "RemotePosts", new { id })
@@ -65,7 +64,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove([FromForm] IEnumerable<string> id, CancellationToken cancellationToken)
         {
-            await remoteActivityPubPostHandler.RemoveRemoteFavoritesAsync(id, cancellationToken);
+            await remoteActivityPubFavoritesHandler.RemoveFavoritesAsync(id, cancellationToken);
 
             return id.Count() == 1
                 ? RedirectToAction("Index", "RemotePosts", new { id })

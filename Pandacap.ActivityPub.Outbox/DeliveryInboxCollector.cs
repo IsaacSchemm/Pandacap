@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.FSharp.Collections;
+﻿using Microsoft.FSharp.Collections;
 using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.Database;
 
@@ -11,17 +10,16 @@ namespace Pandacap.ActivityPub.Outbox
             bool isCreate = false,
             CancellationToken cancellationToken = default)
         {
-            async IAsyncEnumerable<string> enumerateInboxes()
-            {
-                await foreach (var follower in Followers)
-                    yield return follower.SharedInbox ?? follower.Inbox;
+            List<string> inboxes = [];
 
-                if (!isCreate)
-                    await foreach (var follow in Follows)
-                        yield return follow.SharedInbox ?? follow.Inbox;
-            }
+            await foreach (var follower in Followers.WithCancellation(cancellationToken))
+                inboxes.Add(follower.SharedInbox ?? follower.Inbox);
 
-            return [.. await enumerateInboxes().ToListAsync(cancellationToken)];
+            if (!isCreate)
+                await foreach (var follow in Follows.WithCancellation(cancellationToken))
+                    inboxes.Add(follow.SharedInbox ?? follow.Inbox);
+
+            return [.. inboxes];
         }
 
         internal virtual IAsyncEnumerable<Follower> Followers => pandacapDbContext.Followers.AsAsyncEnumerable();

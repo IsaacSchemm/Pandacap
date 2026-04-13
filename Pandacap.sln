@@ -214,6 +214,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Favorites", "Panda
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.Outbox.Tests", "Pandacap.ActivityPub.Outbox.Tests\Pandacap.ActivityPub.Outbox.Tests.csproj", "{297BAD5D-3FF4-4FF3-819C-C0D4E356F57F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inbox and Favorites Handlers", "Inbox and Favorites Handlers", "{F4B9A64F-EE18-43FB-9881-B48EFB6E10D5}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.ActivityPub.Inbox.Interfaces", "Pandacap.ActivityPub.Inbox.Interfaces\Pandacap.ActivityPub.Inbox.Interfaces.vbproj", "{22380FFF-B400-4145-AD8B-53851D2D2ECB}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.ActivityPub.Favorites.Interfaces", "Pandacap.ActivityPub.Favorites.Interfaces\Pandacap.ActivityPub.Favorites.Interfaces.vbproj", "{9E2D43FB-6441-4675-BA67-75DAD3325E65}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.Inbox", "Pandacap.ActivityPub.Inbox\Pandacap.ActivityPub.Inbox.csproj", "{BAB4973E-30CA-4A74-8842-CA553951B2BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.Favorites", "Pandacap.ActivityPub.Favorites\Pandacap.ActivityPub.Favorites.csproj", "{8D42F5D5-A1B6-4101-9B4C-2478A55C8F57}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -540,6 +550,22 @@ Global
 		{297BAD5D-3FF4-4FF3-819C-C0D4E356F57F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{297BAD5D-3FF4-4FF3-819C-C0D4E356F57F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{297BAD5D-3FF4-4FF3-819C-C0D4E356F57F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22380FFF-B400-4145-AD8B-53851D2D2ECB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22380FFF-B400-4145-AD8B-53851D2D2ECB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22380FFF-B400-4145-AD8B-53851D2D2ECB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22380FFF-B400-4145-AD8B-53851D2D2ECB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E2D43FB-6441-4675-BA67-75DAD3325E65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E2D43FB-6441-4675-BA67-75DAD3325E65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E2D43FB-6441-4675-BA67-75DAD3325E65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E2D43FB-6441-4675-BA67-75DAD3325E65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAB4973E-30CA-4A74-8842-CA553951B2BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAB4973E-30CA-4A74-8842-CA553951B2BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAB4973E-30CA-4A74-8842-CA553951B2BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAB4973E-30CA-4A74-8842-CA553951B2BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D42F5D5-A1B6-4101-9B4C-2478A55C8F57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D42F5D5-A1B6-4101-9B4C-2478A55C8F57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D42F5D5-A1B6-4101-9B4C-2478A55C8F57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D42F5D5-A1B6-4101-9B4C-2478A55C8F57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -637,6 +663,11 @@ Global
 		{4DC3DDF1-CE07-4738-ABFF-A040695B3D89} = {024FE5A4-C2BC-451A-9708-17D349DA0340}
 		{98488906-B4AF-40C3-B983-9315EDAC9640} = {024FE5A4-C2BC-451A-9708-17D349DA0340}
 		{297BAD5D-3FF4-4FF3-819C-C0D4E356F57F} = {DC17E8E8-1C8A-4635-879D-6D5A20B0B785}
+		{F4B9A64F-EE18-43FB-9881-B48EFB6E10D5} = {2E469DE0-E906-46AD-8023-2EAA3339E55B}
+		{22380FFF-B400-4145-AD8B-53851D2D2ECB} = {F4B9A64F-EE18-43FB-9881-B48EFB6E10D5}
+		{9E2D43FB-6441-4675-BA67-75DAD3325E65} = {F4B9A64F-EE18-43FB-9881-B48EFB6E10D5}
+		{BAB4973E-30CA-4A74-8842-CA553951B2BB} = {F4B9A64F-EE18-43FB-9881-B48EFB6E10D5}
+		{8D42F5D5-A1B6-4101-9B4C-2478A55C8F57} = {F4B9A64F-EE18-43FB-9881-B48EFB6E10D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}
