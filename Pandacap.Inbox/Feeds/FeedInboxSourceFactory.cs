@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
-using Pandacap.Inbox.Feeds.Interfaces;
 using Pandacap.Inbox.Interfaces;
 
 namespace Pandacap.Inbox.Feeds

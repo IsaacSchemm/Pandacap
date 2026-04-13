@@ -10,9 +10,11 @@ namespace Pandacap.Inbox
     {
         public static IServiceCollection AddInboxHandlers(this IServiceCollection serviceCollection) =>
             serviceCollection
-            .AddATProtoInboxHandlers()
-            .AddDeviantArtInboxHandlers()
-            .AddFeedInboxHandlers()
-            .AddScoped<IInboxPopulator, InboxPopulator>();
+            .AddScoped<IATProtoFeedReader, ATProtoFeedReader>()
+            .AddScoped<IFeedRefresher, FeedRefresher>()
+            .AddScoped<IInboxPopulator, InboxPopulator>()
+            .AddScoped<IInboxSourceFactory, ATProtoInboxSourceFactory>()
+            .AddScoped<IInboxSourceFactory, FeedInboxSourceFactory>()
+            .AddScoped<IInboxSourceFactory, DeviantArtInboxHandler>();
     }
 }

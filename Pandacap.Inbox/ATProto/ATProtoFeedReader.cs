@@ -3,7 +3,7 @@ using Microsoft.FSharp.Collections;
 using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
-using Pandacap.Inbox.ATProto.Interfaces;
+using Pandacap.Inbox.Interfaces;
 
 namespace Pandacap.Inbox.ATProto
 {

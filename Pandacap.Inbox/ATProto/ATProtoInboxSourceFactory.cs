@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
-using Pandacap.Inbox.ATProto.Interfaces;
 using Pandacap.Inbox.Interfaces;
 
 namespace Pandacap.Inbox.ATProto
