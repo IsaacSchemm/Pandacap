@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pandacap.ActivityPub.JsonLd;
+using Pandacap.ActivityPub.Outbox;
 using Pandacap.ActivityPub.RemoteObjects;
 using Pandacap.ActivityPub.Services;
 using Pandacap.ATProto.Services;
@@ -11,7 +12,6 @@ using Pandacap.Configuration;
 using Pandacap.Credentials;
 using Pandacap.Database;
 using Pandacap.FeedIngestion;
-using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.FurAffinity;
 using Pandacap.Inbox;
@@ -58,6 +58,7 @@ var host = new HostBuilder()
 
         services
             .AddActivityPubServices()
+            .AddActivityPubOutboxProcessor()
             .AddActivityPubRemoteObjectServices()
             .AddATProtoServices()
             .AddCredentialProviders()
@@ -78,7 +79,6 @@ var host = new HostBuilder()
             .AddWeasylScraper()
             .AddScoped<DeviantArtFavoriteHandler>()
             .AddScoped<FurAffinityFavoriteHandler>()
-            .AddScoped<OutboxProcessor>()
             .AddScoped<WeasylFavoriteHandler>();
 
         services.AddHttpClient();

@@ -1,18 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Database;
 using System.Net;
 
-namespace Pandacap.Functions.ActivityPub
+namespace Pandacap.ActivityPub.Outbox
 {
     /// <summary>
     /// Handles pending outbound ActivityPub messages that have been stored in the database.
     /// </summary>
     /// <param name="activityPubRequestHandler">An object that can make signed HTTP ActivityPub requests</param>
     /// <param name="context">The database context</param>
-    public class OutboxProcessor(
+    internal class OutboxProcessor(
         IActivityPubRequestHandler activityPubRequestHandler,
-        PandacapDbContext context)
+        PandacapDbContext context) : IActivityPubOutboxProcessor
     {
         /// <summary>
         /// Attempts to send any pending ActivityPub messages. Messages that are successfully sent will be removed from Pandacap's database.
@@ -20,7 +21,7 @@ namespace Pandacap.Functions.ActivityPub
         /// </summary>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task SendPendingActivitiesAsync()
+        public async Task SendPendingActivitiesAsync(CancellationToken cancellationToken)
         {
             HashSet<string> inboxesToSkip = [];
 
@@ -30,7 +31,7 @@ namespace Pandacap.Functions.ActivityPub
                     .Where(r => !inboxesToSkip.Contains(r.Inbox))
                     .OrderBy(r => r.StoredAt)
                     .Take(100)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
 
                 if (activities.Count == 0)
                     return;
@@ -68,7 +69,7 @@ namespace Pandacap.Functions.ActivityPub
 
                     try
                     {
-                        await context.SaveChangesAsync();
+                        await context.SaveChangesAsync(cancellationToken);
                     }
                     catch (Exception ex)
                     {

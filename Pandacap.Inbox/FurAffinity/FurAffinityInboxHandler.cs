@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Pandacap.Inbox.FurAffinity
 {
-    public partial class FurAffinityInboxHandler(
+    internal partial class FurAffinityInboxHandler(
         IFurAffinityClientFactory furAffinityClientFactory,
         PandacapDbContext pandacapDbContext) : IInboxSource, IInboxSourceFactory
     {

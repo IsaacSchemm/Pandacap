@@ -15,7 +15,7 @@ namespace Pandacap.Inbox.Weasyl
         /// added to the Pandacap inbox.
         /// </summary>
         /// <returns></returns>
-        public async Task ImportSubmissionsByUsersWeWatchAsync(CancellationToken cancellationToken)
+        internal async Task ImportSubmissionsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
             if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient weasylClient)
                 return;

@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ActivityPub.JsonLd\Pandacap.ActivityPub.JsonLd.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Outbox\Pandacap.ActivityPub.Outbox.csproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.RemoteObjects\Pandacap.ActivityPub.RemoteObjects.fsproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Services\Pandacap.ActivityPub.Services.fsproj" />
     <ProjectReference Include="..\Pandacap.ATProto.Services\Pandacap.ATProto.Services.fsproj" />
