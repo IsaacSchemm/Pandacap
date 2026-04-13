@@ -15,6 +15,7 @@ using Pandacap.Functions.ActivityPub;
 using Pandacap.Functions.FavoriteHandlers;
 using Pandacap.Functions.InboxHandlers;
 using Pandacap.FurAffinity;
+using Pandacap.Inbox;
 using Pandacap.Inbox.ATProto;
 using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
@@ -67,6 +68,7 @@ var host = new HostBuilder()
             .AddFeedReaders()
             .AddFeedRefresher()
             .AddFurAffinityClient()
+            .AddInboxPopulator()
             .AddJsonLdExpansionService()
             .AddMemoryCache()
             .AddPandacapKeyVault(new()

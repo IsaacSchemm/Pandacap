@@ -1,9 +1,5 @@
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.EntityFrameworkCore;
-using Pandacap.Database;
 using Pandacap.Functions.InboxHandlers;
-using Pandacap.Inbox.ATProto.Interfaces;
-using Pandacap.Inbox.Feeds.Interfaces;
 using Pandacap.Inbox.Interfaces;
 
 namespace Pandacap.Functions
@@ -11,7 +7,7 @@ namespace Pandacap.Functions
     public class InboxIngest(
         DeviantArtInboxHandler deviantArtInboxHandler,
         FurAffinityInboxHandler furAffinityInboxHandler,
-        IEnumerable<IInboxSourceFactory> inboxSourceFactories,
+        IInboxPopulator inboxPopulator,
         WeasylInboxHandler weasylInboxHandler)
     {
         [Function("InboxIngest")]
@@ -40,9 +36,7 @@ namespace Pandacap.Functions
             await c(weasylInboxHandler.ImportSubmissionsByUsersWeWatchAsync(CancellationToken.None));
             await c(weasylInboxHandler.ImportJournalsByUsersWeWatchAsync(CancellationToken.None));
 
-            foreach (var factory in inboxSourceFactories)
-                await foreach (var source in factory.GetInboxSourcesForPlatformAsync())
-                    await c(source.ImportNewPostsAsync(CancellationToken.None));
+            await c(inboxPopulator.PopulateInboxAsync(CancellationToken.None));
 
             if (exceptions.Count > 0)
                 throw new AggregateException(exceptions);

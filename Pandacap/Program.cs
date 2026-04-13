@@ -22,6 +22,7 @@ using Pandacap.Database;
 using Pandacap.FeedIngestion;
 using Pandacap.Frontend.Feeds;
 using Pandacap.FurAffinity;
+using Pandacap.Inbox;
 using Pandacap.Inbox.ATProto;
 using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
@@ -137,6 +138,7 @@ builder.Services
     .AddFeedReaders()
     .AddFeedRefresher()
     .AddFurAffinityClient()
+    .AddInboxPopulator()
     .AddJsonLdExpansionService()
     .AddLemmyServices()
     .AddPandacapKeyVault(new()
