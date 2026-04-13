@@ -12,11 +12,11 @@ using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.Frontend.ATProto.Interfaces;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Inbox.Feeds.Interfaces;
 using Pandacap.Models;
 using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.UI.Elements;
+using Pandacap.VectorSearch.Interfaces;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -36,7 +36,7 @@ namespace Pandacap.Controllers
         IActivityPubProfileTranslator profileTranslator,
         IActivityPubRelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager,
-        VectorSearchIndexClient vectorSearchIndexClient) : Controller
+        IVectorSearchIndexClient vectorSearchIndexClient) : Controller
     {
         private async Task<ActivityPubProfile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
@@ -199,7 +199,7 @@ namespace Pandacap.Controllers
             int take = count ?? 20;
 
             var posts = await vectorSearchIndexClient
-                .GetResultsAsync(q, skip, cancellationToken)
+                .GetResultsAsync(q, skip)
                 .Take(take)
                 .SelectMany(e => context.Posts
                     .Where(p => p.Id == e.Document.Id)

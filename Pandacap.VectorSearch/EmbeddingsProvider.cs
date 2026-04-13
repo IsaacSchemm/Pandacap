@@ -3,10 +3,11 @@ using Azure.AI.Inference;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.Identity;
+using Pandacap.VectorSearch.Models;
 
-namespace Pandacap.HighLevel.VectorSearch
+namespace Pandacap.VectorSearch
 {
-    public class EmbeddingsProvider
+    internal class EmbeddingsProvider
     {
         public const int DIMENSIONS = 1536;
         public const string MODEL = "text-embedding-3-small";

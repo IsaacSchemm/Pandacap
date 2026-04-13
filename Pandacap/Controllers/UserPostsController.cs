@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Database;
-using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Models;
 using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.Text;
+using Pandacap.VectorSearch.Interfaces;
 using System.Net;
 using System.Text;
 
@@ -24,7 +24,7 @@ namespace Pandacap.Controllers
         PostCreator postCreator,
         IActivityPubPostTranslator postTranslator,
         ReplyLookup replyLookup,
-        VectorSearchIndexClient vectorSearchIndexClient) : Controller
+        IVectorSearchIndexClient vectorSearchIndexClient) : Controller
     {
         [Route("{id}")]
         public async Task<IActionResult> Index(

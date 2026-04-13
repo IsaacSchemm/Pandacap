@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Database;
-using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Text;
+using Pandacap.VectorSearch.Interfaces;
 
 namespace Pandacap
 {
@@ -11,7 +11,7 @@ namespace Pandacap
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory,
         IActivityPubPostTranslator postTranslator,
-        VectorSearchIndexClient vectorSearchIndexClient)
+        IVectorSearchIndexClient vectorSearchIndexClient)
     {
         public interface IViewModel
         {

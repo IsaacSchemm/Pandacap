@@ -1,4 +1,4 @@
-﻿namespace Pandacap.HighLevel.VectorSearch
+﻿namespace Pandacap.VectorSearch.Models
 {
     public class EmbeddedPost
     {

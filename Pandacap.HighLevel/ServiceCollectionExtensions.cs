@@ -8,7 +8,6 @@ using Pandacap.DeviantArt.Credentials;
 using Pandacap.FeedIngestion;
 using Pandacap.Frontend.ATProto;
 using Pandacap.FurAffinity;
-using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Weasyl.Scraping;
 
 namespace Pandacap.HighLevel
@@ -37,9 +36,7 @@ namespace Pandacap.HighLevel
                 .AddScoped<CompositeInboxProvider>()
                 .AddScoped<CompositeFavoritesProvider>()
                 .AddScoped<DIDResolver>()
-                .AddScoped<EmbeddingsProvider>()
-                .AddScoped<UserAwareClientFactory>()
-                .AddScoped<VectorSearchIndexClient>();
+                .AddScoped<UserAwareClientFactory>();
         }
     }
 }

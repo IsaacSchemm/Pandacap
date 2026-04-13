@@ -16,13 +16,14 @@ using Pandacap.Data;
 using Pandacap.Database;
 using Pandacap.Frontend.Feeds;
 using Pandacap.HighLevel;
-using Pandacap.HighLevel.VectorSearch;
 using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
 using Pandacap.Lemmy;
 using Pandacap.Notifications;
 using Pandacap.PlatformLinks;
 using Pandacap.Resolvers;
+using Pandacap.VectorSearch;
+using Pandacap.VectorSearch.Models;
 using Pandacap.Weasyl;
 using System.Threading.RateLimiting;
 
@@ -127,6 +128,7 @@ builder.Services
     .AddPandacapServices()
     .AddPlatformLinkProviders()
     .AddResolvers()
+    .AddVectorSearch()
     .AddWeasylClient(new()
     {
         WeasylProxyHost = new("https://" + builder.Configuration["WeasylProxyHost"])

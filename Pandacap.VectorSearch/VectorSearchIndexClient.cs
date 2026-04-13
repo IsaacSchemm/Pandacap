@@ -4,14 +4,16 @@ using Azure.Search.Documents.Models;
 using Microsoft.Extensions.Caching.Memory;
 using Pandacap.Database;
 using Pandacap.Database.Extensions;
+using Pandacap.VectorSearch.Interfaces;
+using Pandacap.VectorSearch.Models;
 using System.Runtime.CompilerServices;
 
-namespace Pandacap.HighLevel.VectorSearch
+namespace Pandacap.VectorSearch
 {
-    public class VectorSearchIndexClient(
+    internal class VectorSearchIndexClient(
         EmbeddingsProvider embeddingsProvider,
         IMemoryCache memoryCache,
-        IEnumerable<VectorSearchConfig> vectorSearchConfigs)
+        IEnumerable<VectorSearchConfig> vectorSearchConfigs) : IVectorSearchIndexClient
     {
         private const string CACHE_KEY_PREFIX = "d3c7d794-32bc-41c2-af69-01ac7e33168f";
 
@@ -159,5 +161,8 @@ namespace Pandacap.HighLevel.VectorSearch
                 new IndexDocumentsOptions { ThrowOnAnyError = true },
                 cancellationToken: cancellationToken);
         }
+
+        IAsyncEnumerable<SearchResult<EmbeddedPost>> IVectorSearchIndexClient.GetResultsAsync(string query, int skip) =>
+            GetResultsAsync(query, skip);
     }
 }
