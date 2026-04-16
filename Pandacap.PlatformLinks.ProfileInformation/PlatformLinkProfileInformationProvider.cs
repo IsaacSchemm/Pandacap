@@ -14,8 +14,8 @@ namespace Pandacap.PlatformLinks.ProfileInformation
     {
         private const string KEY = "ec9f7b3b-cd12-4ff5-bc63-274f01257c9c";
 
-        private async IAsyncEnumerable<PlatformLinkATProtoAccount> GetBlueskyAccountsAsync(
-            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        private async Task<string?> TryGetBlueskyHandleAsync(
+            CancellationToken cancellationToken)
         {
             var did = await pandacapDbContext.Posts
                 .Where(post => post.BlueskyDID != null)
@@ -24,7 +24,7 @@ namespace Pandacap.PlatformLinks.ProfileInformation
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (did == null)
-                yield break;
+                return null;
 
             string? handle = null;
 
@@ -38,7 +38,7 @@ namespace Pandacap.PlatformLinks.ProfileInformation
                 Console.Error.WriteLine(ex);
             }
 
-            yield return new(did, handle);
+            return handle;
         }
 
         private async IAsyncEnumerable<string> GetDeviantArtUsernamesAsync()
@@ -63,7 +63,9 @@ namespace Pandacap.PlatformLinks.ProfileInformation
             (await memoryCache.GetOrCreateAsync(
                 KEY,
                 async _ => new PlatformLinkProfileInformation(
-                    BlueskyAccounts: [.. await GetBlueskyAccountsAsync(cancellationToken).ToListAsync(cancellationToken)],
+                    BlueskyHandles: await TryGetBlueskyHandleAsync(cancellationToken) is string handle
+                        ? [handle]
+                        : [],
                     DeviantArtUsernames: [.. await GetDeviantArtUsernamesAsync().ToListAsync(cancellationToken)],
                     FurAffinityUsernames: [.. await GetFurAffinityUsernamesAsync().ToListAsync(cancellationToken)],
                     WeasylUsernames: [.. await GetWeasylUsernamesAsync().ToListAsync(cancellationToken)]),

@@ -3,7 +3,7 @@
 namespace Pandacap.PlatformLinks.ProfileInformation.Interfaces
 {
     public record PlatformLinkProfileInformation(
-        FSharpList<PlatformLinkATProtoAccount> BlueskyAccounts,
+        FSharpList<string> BlueskyHandles,
         FSharpList<string> DeviantArtUsernames,
         FSharpList<string> FurAffinityUsernames,
         FSharpList<string> WeasylUsernames);

@@ -8,27 +8,29 @@
 }))
 {
     var primary = group.First();
+    var alternate = group.Skip(1);
 
     <div class="card d-inline-block m-2" style="vertical-align: top" role="region" aria-label="Social link">
         <div class="card-body p-2">
             <div class="d-flex">
-                <span class="flex-grow-1 mx-1">
+                <span class="flex-grow-1">
                     <a href="@primary.Url" target="_blank" style="text-decoration: none">
                         @if (primary.IconFilename != null)
                         {
                             <img alt=""
-                                 src="/images/@primary.IconFilename"
-                                 class="social-icon-inline" />
+                                    src="/images/@primary.IconFilename"
+                                    class="social-icon-inline" />
                         }
 
                         @primary.PlatformName
                     </a>
                 </span>
 
-                <span class="flex-grow-0">
-                    @foreach (var link in group)
-                    {
-                        if (link != primary && link.IconFilename != null)
+                @if (alternate.Any())
+                {
+                    <span class="flex-grow-0">
+                        &nbsp;
+                        @foreach (var link in alternate)
                         {
                             <a href="@link.Url" target="_blank" class="small" style="text-decoration: none">
                                 <img alt="@link.PlatformName"
@@ -37,11 +39,11 @@
                                 class="social-icon-inline" />
                             </a>
                         }
-                    }
-                </span>
+                    </span>
+                }
             </div>
 
-            <div class="small text-muted mx-1">
+            <div class="small text-muted">
                 <span style="user-select: all">@group.Key.Text</span>
             </div>
         </div>
