@@ -5,7 +5,7 @@
         PlatformLinkCategory Category { get; }
         string? IconFilename { get; }
         string? PlatformName { get; }
-        string? Username { get; }
+        string? Text { get; }
         string? Url { get; }
     }
 }

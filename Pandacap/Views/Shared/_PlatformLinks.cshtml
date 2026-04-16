@@ -4,7 +4,7 @@
 @foreach (var group in Model.GroupBy(link => new
 {
     link.Category,
-    link.Username
+    link.Text
 }))
 {
     var primary = group.First();
@@ -12,7 +12,7 @@
     <div class="card d-inline-block m-2" style="vertical-align: top" role="region" aria-label="Social link">
         <div class="card-body p-2">
             <div class="d-flex">
-                <span class="flex-grow-1">
+                <span class="flex-grow-1 mx-1">
                     <a href="@primary.Url" target="_blank" style="text-decoration: none">
                         @if (primary.IconFilename != null)
                         {
@@ -26,7 +26,6 @@
                 </span>
 
                 <span class="flex-grow-0">
-                    &nbsp;
                     @foreach (var link in group)
                     {
                         if (link != primary && link.IconFilename != null)
@@ -42,8 +41,8 @@
                 </span>
             </div>
 
-            <div class="small text-muted">
-                <span style="user-select: all">@group.Key.Username</span>
+            <div class="small text-muted mx-1">
+                <span style="user-select: all">@group.Key.Text</span>
             </div>
         </div>
     </div>

@@ -2,11 +2,9 @@
 {
     public interface IPlatformLinkProvider
     {
-        Task<IReadOnlyList<IPlatformLink>> GetPostLinksAsync(
-            IPlatformLinkPostSource post,
-            CancellationToken cancellationToken = default);
+        IAsyncEnumerable<IPlatformLink> GetPostLinksAsync(
+            IPlatformLinkPostSource post);
 
-        Task<IReadOnlyList<IPlatformLink>> GetProfileLinksAsync(
-            CancellationToken cancellationToken = default);
+        IAsyncEnumerable<IPlatformLink> GetProfileLinksAsync();
     }
 }

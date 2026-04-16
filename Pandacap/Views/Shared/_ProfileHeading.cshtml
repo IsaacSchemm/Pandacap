@@ -1,10 +1,5 @@
-﻿@using Pandacap.Configuration
-@using Pandacap.PlatformLinks.Interfaces
-@inject IPlatformLinkProvider platformLinkProvider
-
-@{
-    var platformLinks = await platformLinkProvider.GetProfileLinksAsync();
-}
+﻿@using Pandacap.ActivityPub.Static
+@using Pandacap.Configuration
 
 <p>
     <img width="50" height="50" src="/Blobs/Avatar" alt="" />
@@ -15,17 +10,12 @@
 
         <strong>@DeploymentInformation.Username</strong>
 
-        @if (platformLinks
-            .Where(link => link.Category == PlatformLinkCategory.ActivityPub)
-            .FirstOrDefault() is IPlatformLink ap)
-        {
-            <br />
+        <br />
 
-            <span class="visually-hidden">
-                ActivityPub / WebFinger handle:
-            </span>
+        <span class="visually-hidden">
+            ActivityPub / WebFinger handle:
+        </span>
 
-            <span class="small text-muted" style="user-select: all">@ap.Username</span>
-        }
+        <span class="small text-muted" style="user-select: all">@@@ActivityPubHostInformation.Username@@@ActivityPubHostInformation.ApplicationHostname</span>
     </span>
 </p>
