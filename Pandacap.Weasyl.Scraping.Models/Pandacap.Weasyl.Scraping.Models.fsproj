@@ -9,4 +9,8 @@
     <Compile Include="Models.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="10.1.202" />
+  </ItemGroup>
+
 </Project>

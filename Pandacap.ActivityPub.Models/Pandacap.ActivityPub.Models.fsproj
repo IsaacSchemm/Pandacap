@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Pandacap.ActivityPub.Models.Interfaces\Pandacap.ActivityPub.Models.Interfaces.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="10.1.202" />
+  </ItemGroup>
+
 </Project>

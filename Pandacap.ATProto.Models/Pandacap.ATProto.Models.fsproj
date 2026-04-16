@@ -11,4 +11,8 @@
     <Compile Include="DIDs.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="10.1.202" />
+  </ItemGroup>
+
 </Project>
