@@ -5,7 +5,7 @@ namespace Pandacap.PlatformLinks.LinkTemplates
 {
     public record FediverseLinkTemplate(
         string PlatformName,
-        string IconFilename) : ILinkTemplate
+        string? IconFilename = null) : ILinkTemplate
     {
         public PlatformLinkCategory Category => PlatformLinkCategory.ActivityPub;
 

@@ -57,7 +57,7 @@ namespace Pandacap.Controllers
                 links: [..
                     links
                     .Where(link => link.Category != PlatformLinkCategory.ActivityPub)
-                    .Where(link => link.Category != PlatformLinkCategory.ATProto)
+                    .Where(link => link.Category != PlatformLinkCategory.Bluesky)
                     .Select(link => new ActivityPubProfileLink(
                         platformName: link.PlatformName,
                         username: link.Username,

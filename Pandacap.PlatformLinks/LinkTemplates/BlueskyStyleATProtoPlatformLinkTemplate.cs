@@ -9,7 +9,7 @@ namespace Pandacap.PlatformLinks.LinkTemplates
         string DID,
         string? Handle) : ILinkTemplate
     {
-        public PlatformLinkCategory Category => PlatformLinkCategory.ATProto;
+        public PlatformLinkCategory Category => PlatformLinkCategory.Bluesky;
 
         public string Username =>
             Handle != null

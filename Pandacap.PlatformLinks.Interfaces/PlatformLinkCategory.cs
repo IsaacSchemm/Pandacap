@@ -3,7 +3,7 @@
     public enum PlatformLinkCategory
     {
         ActivityPub = 1,
-        ATProto = 2,
+        Bluesky = 2,
         Syndication = 3,
         DeviantArt = 4,
         FurAffinity = 5,

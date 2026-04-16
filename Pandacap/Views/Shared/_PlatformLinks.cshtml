@@ -8,42 +8,42 @@
 }))
 {
     var primary = group.First();
-    var alternate = group.Skip(1);
 
     <div class="card d-inline-block m-2" style="vertical-align: top" role="region" aria-label="Social link">
         <div class="card-body p-2">
             <div class="d-flex">
                 <span class="flex-grow-1">
                     <a href="@primary.Url" target="_blank" style="text-decoration: none">
-                        <img alt=""
-                             src="/images/@primary.IconFilename"
-                             class="social-icon-inline" />
+                        @if (primary.IconFilename != null)
+                        {
+                            <img alt=""
+                                 src="/images/@primary.IconFilename"
+                                 class="social-icon-inline" />
+                        }
 
                         @primary.PlatformName
                     </a>
                 </span>
 
                 <span class="flex-grow-0">
-                    @if (alternate.Any())
+                    &nbsp;
+                    @foreach (var link in group)
                     {
-                        <span class="small text-muted">
-                            &nbsp;&nbsp;/
-                        </span>
-                    }
-                    @foreach (var link in alternate)
-                    {
-                        <a href="@link.Url" target="_blank" class="small" style="text-decoration: none">
-                            <img alt="@link.PlatformName"
-                                 title="@link.PlatformName"
-                                 src="/images/@link.IconFilename"
-                                 class="social-icon-inline" />
-                        </a>
+                        if (link != primary && link.IconFilename != null)
+                        {
+                            <a href="@link.Url" target="_blank" class="small" style="text-decoration: none">
+                                <img alt="@link.PlatformName"
+                                title="@link.PlatformName"
+                                src="/images/@link.IconFilename"
+                                class="social-icon-inline" />
+                            </a>
+                        }
                     }
                 </span>
             </div>
 
             <div class="small text-muted">
-                @group.Key.Username
+                <span style="user-select: all">@group.Key.Username</span>
             </div>
         </div>
     </div>

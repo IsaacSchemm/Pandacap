@@ -14,7 +14,7 @@ namespace Pandacap.PlatformLinks
         public async Task<IReadOnlyList<IPlatformLink>> GetProfileLinksAsync(
             CancellationToken cancellationToken = default)
         =>
-            await EnumerateLinkTemplatesAsync(cancellationToken)
+            await EnumerateLinkTemplatesAsync()
             .Select(link => new ProfileLink(link))
             .ToListAsync(cancellationToken);
 
@@ -22,7 +22,7 @@ namespace Pandacap.PlatformLinks
             IPlatformLinkPostSource post,
             CancellationToken cancellationToken = default)
         =>
-            await EnumerateLinkTemplatesAsync(cancellationToken)
+            await EnumerateLinkTemplatesAsync()
             .Select(link => new PostLink(link, post))
             .Where(link => link.Url != null)
             .ToListAsync(cancellationToken);
@@ -30,20 +30,43 @@ namespace Pandacap.PlatformLinks
         public async Task<IReadOnlyList<string>> GetBlueskyStyleAppViewHostsAsync(
             CancellationToken cancellationToken)
         =>
-            await EnumerateLinkTemplatesAsync(cancellationToken)
-            .OfType<BlueskyStyleATProtoPlatformLinkTemplate>()
+            await EnumerateBlueskyLinkTemplatesAsync(cancellationToken)
             .Select(link => link.Host)
             .ToListAsync(cancellationToken);
 
-        private async IAsyncEnumerable<ILinkTemplate> EnumerateLinkTemplatesAsync(
-            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        private async IAsyncEnumerable<ILinkTemplate> EnumerateLinkTemplatesAsync()
         {
+            yield return new FediverseLinkTemplate("ActivityPub");
             yield return new FediverseLinkTemplate("Mastodon", "mastodon.png");
             yield return new FediverseLinkTemplate("Pixelfed", "pixelfed.png");
             yield return new FediverseLinkTemplate("wafrn", "wafrn.png");
 
             yield return new BrowserPubLinkTemplate("browser.pub");
 
+            await foreach (var x in EnumerateBlueskyLinkTemplatesAsync())
+            {
+                yield return x;
+            }
+
+            await foreach (var x in context.DeviantArtCredentials)
+            {
+                yield return new DeviantArtPlatformLinkTemplate(x.Username);
+            }
+
+            await foreach (var x in context.FurAffinityCredentials)
+            {
+                yield return new FurAffinityPlatformLinkTemplate(x.Username);
+            }
+
+            await foreach (var x in context.WeasylCredentials)
+            {
+                yield return new WeasylPlatformLinkTemplate(x.Login);
+            }
+        }
+
+        private async IAsyncEnumerable<BlueskyStyleATProtoPlatformLinkTemplate> EnumerateBlueskyLinkTemplatesAsync(
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
             var did = await context.Posts
                 .OrderByDescending(post => post.PublishedTime)
                 .Where(post => post.BlueskyDID != null)
@@ -67,21 +90,6 @@ namespace Pandacap.PlatformLinks
                 yield return new BlueskyStyleATProtoPlatformLinkTemplate("Bluesky", "bluesky.png", "bsky.app", did, handle);
                 yield return new BlueskyStyleATProtoPlatformLinkTemplate("Blacksky", "blacksky.png", "blacksky.community", did, handle);
                 yield return new BlueskyStyleATProtoPlatformLinkTemplate("Red Dwarf", "reddwarf.ico", "reddwarf.app", did, handle);
-            }
-
-            await foreach (var x in context.DeviantArtCredentials)
-            {
-                yield return new DeviantArtPlatformLinkTemplate(x.Username);
-            }
-
-            await foreach (var x in context.FurAffinityCredentials)
-            {
-                yield return new FurAffinityPlatformLinkTemplate(x.Username);
-            }
-
-            await foreach (var x in context.WeasylCredentials)
-            {
-                yield return new WeasylPlatformLinkTemplate(x.Login);
             }
         }
 
