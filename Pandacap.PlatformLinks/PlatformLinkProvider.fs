@@ -50,7 +50,7 @@ module internal PlatformLinkProvider =
         }
     ]
 
-    let getAllPlatforms (profile: PlatformLinkProfileInformation) = seq {
+    let getAllPlatforms (profile: ProfileInformation) = seq {
         yield! fediversePlatforms
 
         for handle in profile.BlueskyHandles do
@@ -111,7 +111,7 @@ module internal PlatformLinkProvider =
             member _.Text = null
             member this.Url = Option.toObj this.url
 
-    let getAllPostLinks (profile: PlatformLinkProfileInformation) (post: IPlatformLinkPostSource) = seq {
+    let getAllPostLinks profile post = seq {
         for platform in getAllPlatforms profile do {
             platform = platform
             url = platform.viewPost post
@@ -119,7 +119,7 @@ module internal PlatformLinkProvider =
     }
 
 type PlatformLinkProvider(
-    platformLinkProfileInformationProvider: IPlatformLinkProfileInformationProvider
+    profileInformationProvider: IProfileInformationProvider
 ) =
     let shouldDisplay (platformLink: IPlatformLink) =
         not (isNull platformLink.Url) || not (isNull platformLink.Text)
@@ -127,7 +127,7 @@ type PlatformLinkProvider(
     let asyncGetProfile = async {
         let! token = Async.CancellationToken
         return! Async.AwaitTask(
-            platformLinkProfileInformationProvider.GetProfileInformationAsync(
+            profileInformationProvider.GetProfileInformationAsync(
                 token))
     }
 

@@ -148,8 +148,8 @@ builder.Services
     {
         KeyVaultHost = new Uri("https://" + builder.Configuration["KeyVaultHostname"])
     })
-    .AddPlatformLinkProfileInformationProvider()
-    .AddPlatformLinkProviders()
+    .AddProfileInformationProvider()
+    .AddPlatformLinkProvider()
     .AddResolvers()
     .AddUIPostProviders()
     .AddVectorSearch()

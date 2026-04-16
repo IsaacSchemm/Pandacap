@@ -7,6 +7,6 @@ open Pandacap.PlatformLinks.Interfaces
 [<Extension>]
 module DependencyInjectionExtensions =
     [<Extension>]
-    let AddPlatformLinkProviders(serviceCollection: IServiceCollection) =
+    let AddPlatformLinkProvider(serviceCollection: IServiceCollection) =
         serviceCollection
             .AddScoped<IPlatformLinkProvider, PlatformLinkProvider>()

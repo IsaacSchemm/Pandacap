@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="AssemblyAttributes.fs" />
     <Compile Include="PlatformLinkProvider.fs" />
     <Compile Include="DependencyInjectionExtensions.fs" />
   </ItemGroup>

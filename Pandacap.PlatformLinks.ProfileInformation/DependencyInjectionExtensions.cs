@@ -5,7 +5,7 @@ namespace Pandacap.PlatformLinks.ProfileInformation
 {
     public static class DependencyInjectionExtensions
     {
-        public static IServiceCollection AddPlatformLinkProfileInformationProvider(this IServiceCollection serviceCollection) =>
-            serviceCollection.AddScoped<IPlatformLinkProfileInformationProvider, PlatformLinkProfileInformationProvider>();
+        public static IServiceCollection AddProfileInformationProvider(this IServiceCollection serviceCollection) =>
+            serviceCollection.AddScoped<IProfileInformationProvider, ProfileInformationProvider>();
     }
 }

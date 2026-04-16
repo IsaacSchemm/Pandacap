@@ -3,14 +3,13 @@ using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
 using Pandacap.PlatformLinks.ProfileInformation.Interfaces;
-using System.Runtime.CompilerServices;
 
 namespace Pandacap.PlatformLinks.ProfileInformation
 {
-    public class PlatformLinkProfileInformationProvider(
+    public class ProfileInformationProvider(
         IDIDResolver didResolver,
         IMemoryCache memoryCache,
-        PandacapDbContext pandacapDbContext) : IPlatformLinkProfileInformationProvider
+        PandacapDbContext pandacapDbContext) : IProfileInformationProvider
     {
         private const string KEY = "ec9f7b3b-cd12-4ff5-bc63-274f01257c9c";
 
@@ -59,10 +58,10 @@ namespace Pandacap.PlatformLinks.ProfileInformation
                 yield return credential.Login;
         }
 
-        public async Task<PlatformLinkProfileInformation> GetProfileInformationAsync(CancellationToken cancellationToken) =>
+        public async Task<Interfaces.ProfileInformation> GetProfileInformationAsync(CancellationToken cancellationToken) =>
             (await memoryCache.GetOrCreateAsync(
                 KEY,
-                async _ => new PlatformLinkProfileInformation(
+                async _ => new Interfaces.ProfileInformation(
                     BlueskyHandles: await TryGetBlueskyHandleAsync(cancellationToken) is string handle
                         ? [handle]
                         : [],
