@@ -224,6 +224,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.Inbox"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.ActivityPub.Favorites", "Pandacap.ActivityPub.Favorites\Pandacap.ActivityPub.Favorites.csproj", "{8D42F5D5-A1B6-4101-9B4C-2478A55C8F57}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.PlatformLinks.Models", "Pandacap.PlatformLinks.Models\Pandacap.PlatformLinks.Models.fsproj", "{D06A952F-6B8D-4FBF-BED4-E640379BB0FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -566,6 +568,10 @@ Global
 		{8D42F5D5-A1B6-4101-9B4C-2478A55C8F57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D42F5D5-A1B6-4101-9B4C-2478A55C8F57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D42F5D5-A1B6-4101-9B4C-2478A55C8F57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D06A952F-6B8D-4FBF-BED4-E640379BB0FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D06A952F-6B8D-4FBF-BED4-E640379BB0FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D06A952F-6B8D-4FBF-BED4-E640379BB0FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D06A952F-6B8D-4FBF-BED4-E640379BB0FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -668,6 +674,7 @@ Global
 		{9E2D43FB-6441-4675-BA67-75DAD3325E65} = {F4B9A64F-EE18-43FB-9881-B48EFB6E10D5}
 		{BAB4973E-30CA-4A74-8842-CA553951B2BB} = {F4B9A64F-EE18-43FB-9881-B48EFB6E10D5}
 		{8D42F5D5-A1B6-4101-9B4C-2478A55C8F57} = {F4B9A64F-EE18-43FB-9881-B48EFB6E10D5}
+		{D06A952F-6B8D-4FBF-BED4-E640379BB0FE} = {9C9BD9BD-6724-485B-AA13-2D7B7A37BBD0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

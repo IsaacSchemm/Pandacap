@@ -1,5 +1,6 @@
 ﻿using Pandacap.ActivityPub.Static;
 using Pandacap.PlatformLinks.Interfaces;
+using Pandacap.PlatformLinks.Models;
 
 namespace Pandacap.PlatformLinks.LinkTemplates
 {
@@ -13,10 +14,9 @@ namespace Pandacap.PlatformLinks.LinkTemplates
 
         public string Username => $"@{ActivityPubHostInformation.Username}@{ActivityPubHostInformation.ApplicationHostname}";
 
-        public string? GetViewPostUrl(IPlatformLinkPostSource post) =>
-            $"https://{Host}/{post.ActivityPubObjectId}";
-
-        public string? GetViewProfileUrl() =>
-            $"https://{Host}/{Username}";
+        public string? GetUrl(PlatformLinkContext context) =>
+            context is PlatformLinkContext.Post post ? $"https://{Host}/{post.Item.ActivityPubObjectId}"
+            : context.IsProfile ? $"https://{Host}/{Username}"
+            : null;
     }
 }

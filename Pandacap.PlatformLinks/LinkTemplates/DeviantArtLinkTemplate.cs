@@ -1,8 +1,9 @@
 ﻿using Pandacap.PlatformLinks.Interfaces;
+using Pandacap.PlatformLinks.Models;
 
 namespace Pandacap.PlatformLinks.LinkTemplates
 {
-    public record DeviantArtPlatformLinkTemplate(
+    public record DeviantArtLinkTemplate(
         string Username) : ILinkTemplate
     {
         public PlatformLinkCategory Category => PlatformLinkCategory.DeviantArt;
@@ -11,9 +12,9 @@ namespace Pandacap.PlatformLinks.LinkTemplates
 
         public string? PlatformName => "DeviantArt";
 
-        public string? GetViewPostUrl(IPlatformLinkPostSource post) => post.DeviantArtUrl;
-
-        public string? GetViewProfileUrl() =>
-            $"https://www.deviantart.com/{Uri.EscapeDataString(Username)}";
+        public string? GetUrl(PlatformLinkContext context) =>
+            context is PlatformLinkContext.Post post ? post.Item.DeviantArtUrl
+            : context.IsProfile ? $"https://www.deviantart.com/{Uri.EscapeDataString(Username)}"
+            : null;
     }
 }

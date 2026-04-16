@@ -1,4 +1,5 @@
 ﻿using Pandacap.PlatformLinks.Interfaces;
+using Pandacap.PlatformLinks.Models;
 
 namespace Pandacap.PlatformLinks.LinkTemplates
 {
@@ -10,7 +11,6 @@ namespace Pandacap.PlatformLinks.LinkTemplates
         string? PlatformName { get; }
         string? Username { get; }
 
-        string? GetViewProfileUrl();
-        string? GetViewPostUrl(IPlatformLinkPostSource post);
+        string? GetUrl(PlatformLinkContext platformLinkContext);
     }
 }

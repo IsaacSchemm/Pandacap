@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Pandacap.ATProto.Services.Interfaces\Pandacap.ATProto.Services.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
     <ProjectReference Include="..\Pandacap.PlatformLinks.Interfaces\Pandacap.PlatformLinks.Interfaces.csproj" />
+    <ProjectReference Include="..\Pandacap.PlatformLinks.Models\Pandacap.PlatformLinks.Models.fsproj" />
   </ItemGroup>
 
 </Project>
