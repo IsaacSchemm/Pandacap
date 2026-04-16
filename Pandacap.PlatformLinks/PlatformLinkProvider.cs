@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
 using Pandacap.PlatformLinks.Interfaces;
@@ -10,51 +9,31 @@ namespace Pandacap.PlatformLinks
 {
     internal class PlatformLinkProvider(
         PandacapDbContext context,
-        IDIDResolver didResolver,
-        IMemoryCache memoryCache) : IPlatformLinkProvider
+        IDIDResolver didResolver) : IPlatformLinkProvider
     {
-        private const string KEY = "9d3b19b8-b641-4ea2-8f03-0edd775618d3";
-
         public async Task<IReadOnlyList<IPlatformLink>> GetProfileLinksAsync(
             CancellationToken cancellationToken = default)
-        {
-            var list = await GetLinkTemplatesAsync(cancellationToken);
-            return list
-                .Select(link => new ProfileLink(link))
-                .ToList();
-        }
+        =>
+            await EnumerateLinkTemplatesAsync(cancellationToken)
+            .Select(link => new ProfileLink(link))
+            .ToListAsync(cancellationToken);
 
         public async Task<IReadOnlyList<IPlatformLink>> GetPostLinksAsync(
             IPlatformLinkPostSource post,
             CancellationToken cancellationToken = default)
-        {
-            var list = await GetLinkTemplatesAsync(cancellationToken);
-            return list
-                .Select(link => new PostLink(link, post))
-                .Where(link => link.Url != null)
-                .ToList();
-        }
+        =>
+            await EnumerateLinkTemplatesAsync(cancellationToken)
+            .Select(link => new PostLink(link, post))
+            .Where(link => link.Url != null)
+            .ToListAsync(cancellationToken);
 
         public async Task<IReadOnlyList<string>> GetBlueskyStyleAppViewHostsAsync(
             CancellationToken cancellationToken)
-        {
-            var list = await GetLinkTemplatesAsync(cancellationToken);
-
-            return [.. list
-                .OfType<BlueskyStyleATProtoPlatformLinkTemplate>()
-                .Select(link => link.Host)];
-        }
-
-        private async Task<IReadOnlyList<ILinkTemplate>> GetLinkTemplatesAsync(
-            CancellationToken cancellationToken = default)
         =>
-            await memoryCache.GetOrCreateAsync<IReadOnlyList<ILinkTemplate>>(
-                KEY,
-                async _ => await EnumerateLinkTemplatesAsync(cancellationToken).ToListAsync(cancellationToken),
-                new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1)
-                }) ?? [];
+            await EnumerateLinkTemplatesAsync(cancellationToken)
+            .OfType<BlueskyStyleATProtoPlatformLinkTemplate>()
+            .Select(link => link.Host)
+            .ToListAsync(cancellationToken);
 
         private async IAsyncEnumerable<ILinkTemplate> EnumerateLinkTemplatesAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)

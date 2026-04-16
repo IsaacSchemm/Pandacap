@@ -19,10 +19,4 @@
     <ProjectReference Include="..\Pandacap.PlatformLinks.Interfaces\Pandacap.PlatformLinks.Interfaces.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Pandacap.LowLevel">
-      <HintPath>..\Pandacap.LowLevel\obj\Debug\net10.0\ref\Pandacap.LowLevel.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>
