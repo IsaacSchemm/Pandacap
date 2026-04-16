@@ -8,8 +8,5 @@
 
         Task<IReadOnlyList<IPlatformLink>> GetProfileLinksAsync(
             CancellationToken cancellationToken = default);
-
-        Task<IReadOnlyList<string>> GetBlueskyStyleAppViewHostsAsync(
-            CancellationToken cancellationToken);
     }
 }

@@ -7,15 +7,11 @@ namespace Pandacap.PlatformLinks.LinkTemplates
         string PlatformName,
         string IconFilename,
         string Host,
-        string DID,
-        string? Handle) : ILinkTemplate
+        string Handle) : ILinkTemplate
     {
         public PlatformLinkCategory Category => PlatformLinkCategory.Bluesky;
 
-        public string Username =>
-            Handle != null
-            ? $"@{Handle}"
-            : DID;
+        public string Username => $"@{Handle}";
 
         public string? GetUrl(PlatformLinkContext context)
         {
@@ -28,7 +24,7 @@ namespace Pandacap.PlatformLinks.LinkTemplates
 
             if (context.IsProfile)
             {
-                return $"https://{Host}/profile/{Handle ?? DID}";
+                return $"https://{Host}/profile/{Handle}";
             }
 
             return null;

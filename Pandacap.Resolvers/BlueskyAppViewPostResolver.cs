@@ -1,13 +1,11 @@
 ﻿using Pandacap.ATProto.HandleResolution.Interfaces;
-using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.Resolvers.Models;
 using System.Text.RegularExpressions;
 
 namespace Pandacap.Resolvers
 {
     internal partial class BlueskyAppViewPostResolver(
-        IATProtoHandleLookupClient atProtoHandleLookupClient,
-        IPlatformLinkProvider platformLinkProvider
+        IATProtoHandleLookupClient atProtoHandleLookupClient
     ) : IResolver
     {
         public async Task<ResolverResult> ResolveAsync(
@@ -17,7 +15,7 @@ namespace Pandacap.Resolvers
             if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
                 return ResolverResult.None;
 
-            var hosts = await platformLinkProvider.GetBlueskyStyleAppViewHostsAsync(cancellationToken);
+            IEnumerable<string> hosts = ["bsky.app", "blacksky.community", "reddwarf.app"];
             if (!hosts.Contains(uri.Host))
                 return ResolverResult.None;
 

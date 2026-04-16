@@ -16,7 +16,6 @@
     <ProjectReference Include="..\Pandacap.ActivityPub.Services.Interfaces\Pandacap.ActivityPub.Services.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.ATProto.HandleResolution.Interfaces\Pandacap.ATProto.HandleResolution.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.ATProto.Services.Interfaces\Pandacap.ATProto.Services.Interfaces.vbproj" />
-    <ProjectReference Include="..\Pandacap.PlatformLinks.Interfaces\Pandacap.PlatformLinks.Interfaces.csproj" />
     <ProjectReference Include="..\Pandacap.Resolvers.Interfaces\Pandacap.Resolvers.Interfaces.vbproj" />
   </ItemGroup>
 
