@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Pandacap.Data;
-using Pandacap.Podcasts;
+using Pandacap.Audio.Interfaces;
 using System.Net;
 
 namespace Pandacap.Controllers
@@ -9,7 +8,7 @@ namespace Pandacap.Controllers
     [Authorize]
     public class PodcastController(
         IHttpClientFactory httpClientFactory,
-        WmaZipSplitter wmaZipSplitter) : Controller
+        IAudioSplitter audioSplitter) : Controller
     {
         public async Task<IActionResult> GetContentType(
             string url,
@@ -57,9 +56,11 @@ namespace Pandacap.Controllers
             Response.ContentType = "application/zip";
             Response.Headers.ContentDisposition = $"attachment;filename=podcast.zip";
 
-            await wmaZipSplitter.SegmentZip(
+            await audioSplitter.SplitIntoSegmentsAsync(
                 new Uri(url),
                 TimeSpan.FromMinutes(5),
+                AudioSplitterOutputAudioFormat.WMA,
+                AudioSplitterOutputArchiveFormat.ZIP,
                 Response.BodyWriter.AsStream(),
                 cancellationToken);
 

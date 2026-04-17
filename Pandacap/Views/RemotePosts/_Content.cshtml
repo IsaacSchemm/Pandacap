@@ -1,4 +1,4 @@
-﻿@using Pandacap.ActivityPub.Inbound
+﻿@using Pandacap.ActivityPub.RemoteObjects.Models
 @model RemotePost
 
 @if (Model.Name != null)
@@ -23,11 +23,11 @@
     <p align="center">
         @foreach (var attachment in Model.Attachments)
         {
-            if (attachment.mediaType?.StartsWith("image/") != false)
+            if (attachment.MediaType?.StartsWith("image/") != false)
             {
-                <a href="@attachment.url">
-                    <img src="@attachment.url"
-                         alt="@attachment.name"
+                <a href="@attachment.Url">
+                    <img src="@attachment.Url"
+                         alt="@attachment.Name"
                          class="contentImage" />
                 </a>
             }

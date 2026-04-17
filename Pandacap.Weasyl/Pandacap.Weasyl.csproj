@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.Weasyl.Interfaces\Pandacap.Weasyl.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Weasyl.Scraping.Interfaces\Pandacap.Weasyl.Scraping.Interfaces.vbproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,35 +1,40 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Clients.ATProto;
-using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
-using Pandacap.HighLevel;
-using Pandacap.HighLevel.ATProto;
+using Pandacap.ATProto.Services.Interfaces;
+using Pandacap.Database;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
-        DIDResolver didResolver,
+        IATProtoService atProtoService,
+        IBlueskyService blueskyService,
+        IDIDResolver didResolver,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory) : Controller
     {
         [AllowAnonymous]
-        public async Task<IActionResult> GetBlob(string did, string cid, bool full = false)
+        public async Task<IActionResult> GetBlob(
+            string did,
+            string cid,
+            bool full = false,
+            CancellationToken cancellationToken = default)
         {
             if (User.Identity?.IsAuthenticated == true && full)
             {
                 var client = httpClientFactory.CreateClient();
 
-                var doc = await didResolver.ResolveAsync(did);
+                var doc = await didResolver.ResolveAsync(
+                    did,
+                    cancellationToken);
 
-                var blob = await XRPC.Com.Atproto.Repo.GetBlobAsync(
-                    client,
+                var blob = await atProtoService.GetBlobAsync(
                     doc.PDS,
                     did,
-                    cid);
+                    cid,
+                    cancellationToken);
 
                 return File(
                     blob.Data,
@@ -42,43 +47,45 @@ namespace Pandacap.Controllers
         }
 
         public async Task<IActionResult> ViewBlueskyProfile(
-            string did)
+            string did,
+            CancellationToken cancellationToken)
         {
             using var client = httpClientFactory.CreateClient();
 
-            var doc = await didResolver.ResolveAsync(did);
+            var doc = await didResolver.ResolveAsync(
+                did,
+                cancellationToken);
 
-            var profiles = await RecordEnumeration.BlueskyProfile.ListRecordsAsync(
-                client,
+            var profile = await blueskyService.GetProfileAsync(
                 doc.PDS,
                 did,
-                1,
-                null,
-                ATProtoListDirection.Forward);
+                cancellationToken);
 
             return View(
                 new BlueskyProfileViewModel(
                     DID: did,
                     Handle: doc.Handle,
-                    AvatarCID: profiles.Items.Select(r => r.Value.AvatarCID).FirstOrDefault()));
+                    AvatarCID: profile?.Value?.AvatarCID));
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddATProtoFeed(string did)
+        public async Task<IActionResult> AddATProtoFeed(
+            string did,
+            CancellationToken cancellationToken)
         {
             var client = httpClientFactory.CreateClient();
 
-            if (await context.ATProtoFeeds.Where(a => a.DID == did).DocumentCountAsync() > 0)
+            if (await context.ATProtoFeeds.Where(a => a.DID == did).CountAsync() > 0)
                 return RedirectToAction("UpdateATProtoFeed", "Profile", new { did });
 
-            var document = await didResolver.ResolveAsync(did);
+            var document = await didResolver.ResolveAsync(did, cancellationToken);
 
-            var repo = await XRPC.Com.Atproto.Repo.DescribeRepoAsync(
-                client,
+            var collections = await atProtoService.GetCollectionsInRepoAsync(
                 document.PDS,
-                did);
+                did,
+                cancellationToken);
 
             context.ATProtoFeeds.Add(new ATProtoFeed
             {
@@ -86,10 +93,10 @@ namespace Pandacap.Controllers
                 Handle = document.Handle,
                 CurrentPDS = document.PDS,
                 NSIDs = [
-                    .. repo.collections.Intersect([
-                        NSIDs.App.Bsky.Actor.Profile,
-                        NSIDs.App.Bsky.Feed.Post,
-                        NSIDs.App.Bsky.Feed.Repost
+                    .. collections.Intersect([
+                        "app.bsky.actor.profile",
+                        "app.bsky.feed.post",
+                        "app.bsky.feed.repost"
                     ])
                 ]
             });
@@ -106,25 +113,24 @@ namespace Pandacap.Controllers
         {
             using var client = httpClientFactory.CreateClient();
 
-            var doc = await didResolver.ResolveAsync(did);
+            var doc = await didResolver.ResolveAsync(
+                did,
+                cancellationToken);
 
-            var post = await RecordEnumeration.BlueskyPost.GetRecordAsync(
-                client,
+            var post = await blueskyService.GetPostAsync(
                 doc.PDS,
                 did,
-                rkey);
+                rkey,
+                cancellationToken);
 
-            var profiles = await RecordEnumeration.BlueskyProfile.ListRecordsAsync(
-                client,
+            var profile = await blueskyService.GetProfileAsync(
                 doc.PDS,
                 did,
-                1,
-                null,
-                ATProtoListDirection.Forward);
+                cancellationToken);
 
             var inFavoritesAsBlueskyPost = await context.BlueskyPostFavorites
                 .Where(f => f.CID == post.Ref.CID)
-                .DocumentCountAsync(cancellationToken) > 0;
+                .CountAsync(cancellationToken) > 0;
 
             if (!inFavoritesAsBlueskyPost)
             {
@@ -158,13 +164,12 @@ namespace Pandacap.Controllers
                 new BlueskyPostViewModel(
                     DID: did,
                     Handle: doc.Handle,
-                    AvatarCID: profiles.Items.Select(r => r.Value.AvatarCID).FirstOrDefault(),
+                    AvatarCID: profile?.Value?.AvatarCID,
                     Record: post,
                     IsInFavorites: inFavoritesAsBlueskyPost));
         }
 
         public async Task<IActionResult> RedirectTo(
-            string pds,
             string did,
             string collection,
             string rkey) => collection switch
@@ -177,25 +182,22 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddToFavorites(string did, string rkey, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddToFavorites(
+            string did,
+            string rkey,
+            CancellationToken cancellationToken)
         {
             var client = httpClientFactory.CreateClient();
 
-            var doc = await didResolver.ResolveAsync(did);
+            var doc = await didResolver.ResolveAsync(
+                did,
+                cancellationToken);
 
-            var post = await RecordEnumeration.BlueskyPost.GetRecordAsync(
-                client,
+            var post = await blueskyService.GetPostAsync(
                 doc.PDS,
                 did,
-                rkey);
-
-            var profiles = await RecordEnumeration.BlueskyProfile.ListRecordsAsync(
-                client,
-                doc.PDS,
-                did,
-                1,
-                null,
-                ATProtoListDirection.Forward);
+                rkey,
+                cancellationToken);
 
             context.BlueskyPostFavorites.Add(new()
             {
@@ -209,7 +211,7 @@ namespace Pandacap.Controllers
                 },
                 FavoritedAt = DateTimeOffset.UtcNow,
                 Id = Guid.NewGuid(),
-                Images = [.. post.Value.Images.Select(image => new BlueskyPostFavoriteImage
+                Images = [.. post.Value.Images.Select(image => new BlueskyPostFavorite.Image
                 {
                     Alt = image.Alt,
                     CID = image.CID

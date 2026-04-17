@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
-using Pandacap.FurAffinity;
-using Pandacap.HighLevel;
+using Pandacap.Database;
+using Pandacap.FurAffinity.Interfaces;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
@@ -13,7 +12,8 @@ namespace Pandacap.Controllers
     [Authorize]
     public class FurAffinityController(
         BlobServiceClient blobServiceClient,
-        PandacapDbContext context) : Controller
+        PandacapDbContext context,
+        IFurAffinityClientFactory furAffinityClientFactory) : Controller
     {
         public async Task<IActionResult> Setup()
         {
@@ -33,7 +33,7 @@ namespace Pandacap.Controllers
             string b,
             CancellationToken cancellationToken)
         {
-            int count = await context.FurAffinityCredentials.DocumentCountAsync(cancellationToken);
+            int count = await context.FurAffinityCredentials.CountAsync(cancellationToken);
             if (count > 0)
                 return Conflict();
 
@@ -45,7 +45,9 @@ namespace Pandacap.Controllers
                     B = b
                 };
 
-                credentials.Username = await FA.WhoamiAsync(credentials, cancellationToken);
+                credentials.Username = await furAffinityClientFactory
+                    .CreateClient(credentials)
+                    .WhoamiAsync(cancellationToken);
 
                 context.FurAffinityCredentials.Add(credentials);
 
@@ -86,12 +88,13 @@ namespace Pandacap.Controllers
             if (post.FurAffinitySubmissionId != null || post.FurAffinityJournalId != null)
                 throw new Exception("Already posted to Fur Affinity");
 
-            var journalUri = await FA.PostJournalAsync(
-                credentials,
-                post.Title,
-                FA.Rating.General,
-                post.Body,
-                cancellationToken);
+            var journalUri = await furAffinityClientFactory
+                .CreateClient(credentials)
+                .PostJournalAsync(
+                    post.Title,
+                    post.Body,
+                    FurAffinity.Models.Rating.General,
+                    cancellationToken);
 
             post.FurAffinityJournalId = int.Parse(journalUri.Segments[2].TrimEnd('/'));
 
@@ -115,8 +118,10 @@ namespace Pandacap.Controllers
             if (post.IsTextPost)
                 throw new Exception("Not an artwork post");
 
-            var folders = await FA.ListGalleryFoldersAsync(credentials, cancellationToken);
-            var options = await FA.ListPostOptionsAsync(credentials, cancellationToken);
+            var client = furAffinityClientFactory.CreateClient(credentials);
+
+            var folders = await client.ListGalleryFoldersAsync(cancellationToken);
+            var options = await client.ListPostOptionsAsync(cancellationToken);
 
             return View(new FurAffinityCrosspostArtworkViewModel
             {
@@ -126,7 +131,7 @@ namespace Pandacap.Controllers
                 AvailableGenders = options.Genders.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
                 AvailableSpecies = options.Species.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
                 AvailableTypes = options.Types.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
-                Scraps = post.Type == PostType.Scraps
+                Scraps = post.Type == Post.PostType.Scraps
             });
         }
 
@@ -159,22 +164,23 @@ namespace Pandacap.Controllers
 
             byte[] data = blob.Value.Content.ToArray();
 
-            Uri uri = await FA.PostArtworkAsync(
-                credentials,
-                data,
-                new FA.ArtworkMetadata(
-                    post.Title,
-                    post.Body,
-                    [.. post.Tags],
-                    model.Category,
-                    model.Scraps,
-                    model.Type,
-                    model.Species,
-                    model.Gender,
-                    FA.Rating.General,
-                    false,
-                    [.. model.Folders]),
-                cancellationToken);
+            Uri uri = await furAffinityClientFactory
+                .CreateClient(credentials)
+                .PostArtworkAsync(
+                    data,
+                    new FurAffinity.Models.ArtworkMetadata(
+                        post.Title,
+                        post.Body,
+                        [.. post.Tags],
+                        model.Category,
+                        model.Scraps,
+                        model.Type,
+                        model.Species,
+                        model.Gender,
+                        FurAffinity.Models.Rating.General,
+                        false,
+                        [.. model.Folders]),
+                    cancellationToken);
 
             post.FurAffinitySubmissionId = int.Parse(uri.Segments[2].TrimEnd('/'));
 

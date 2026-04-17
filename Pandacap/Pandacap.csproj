@@ -16,31 +16,55 @@
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.DeviantArt" Version="10.0.0" />
-    <PackageReference Include="AspNetCore.SassCompiler" Version="1.97.1" />
+    <PackageReference Include="AspNetCore.SassCompiler" Version="1.99.0" />
     <PackageReference Include="Azure.AI.Inference" Version="1.0.0-beta.5" />
-    <PackageReference Include="Azure.Identity" Version="1.17.1" />
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.13.1" />
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.9.3">
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="6.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
-    <PackageReference Include="NAudio" Version="2.2.1" />
-    <PackageReference Include="Svg.Skia" Version="3.4.1" />
+    <PackageReference Include="NuGet.Packaging" Version="7.3.1" />
+    <PackageReference Include="NuGet.Protocol" Version="7.3.1" />
+    <PackageReference Include="Svg.Skia" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.HighLevel\Pandacap.HighLevel.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Favorites\Pandacap.ActivityPub.Favorites.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Discovery\Pandacap.ActivityPub.HttpSignatures.Discovery.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Validation\Pandacap.ActivityPub.HttpSignatures.Validation.fsproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Inbox\Pandacap.ActivityPub.Inbox.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.JsonLd\Pandacap.ActivityPub.JsonLd.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Outbox\Pandacap.ActivityPub.Outbox.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.RemoteObjects\Pandacap.ActivityPub.RemoteObjects.fsproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Services\Pandacap.ActivityPub.Services.fsproj" />
+    <ProjectReference Include="..\Pandacap.ATProto.HandleResolution\Pandacap.ATProto.HandleResolution.csproj" />
+    <ProjectReference Include="..\Pandacap.ATProto.Services\Pandacap.ATProto.Services.fsproj" />
+    <ProjectReference Include="..\Pandacap.Audio\Pandacap.Audio.fsproj" />
+    <ProjectReference Include="..\Pandacap.Credentials\Pandacap.Credentials.csproj" />
+    <ProjectReference Include="..\Pandacap.FeedIngestion\Pandacap.FeedIngestion.csproj" />
+    <ProjectReference Include="..\Pandacap.Frontend.Feeds\Pandacap.Frontend.Feeds.csproj" />
+    <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
+    <ProjectReference Include="..\Pandacap.Inbox\Pandacap.Inbox.csproj" />
+    <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
+    <ProjectReference Include="..\Pandacap.Lemmy\Pandacap.Lemmy.fsproj" />
+    <ProjectReference Include="..\Pandacap.PlatformLinks\Pandacap.PlatformLinks.csproj" />
+    <ProjectReference Include="..\Pandacap.Resolvers\Pandacap.Resolvers.csproj" />
+    <ProjectReference Include="..\Pandacap.UI.Posts\Pandacap.UI.Posts.csproj" />
+    <ProjectReference Include="..\Pandacap.VectorSearch\Pandacap.VectorSearch.csproj" />
+    <ProjectReference Include="..\Pandacap.Weasyl.Scraping\Pandacap.Weasyl.Scraping.fsproj" />
+    <ProjectReference Include="..\Pandacap.Weasyl\Pandacap.Weasyl.csproj" />
   </ItemGroup>
 
   <ItemGroup>

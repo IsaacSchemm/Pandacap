@@ -1,46 +1,21 @@
-﻿@using Pandacap.ConfigurationObjects
-@using Pandacap.HighLevel.PlatformLinks
-@inject ApplicationInformation appInfo
-@inject PlatformIconProvider platformIconProvider
-@inject PlatformLinkProvider platformLinkProvider
-
-@{
-    var platformLinks = await platformLinkProvider.GetPlatformLinksAsync();
-}
+﻿@using Pandacap.ActivityPub.Static
+@using Pandacap.Configuration
 
 <p>
     <img width="50" height="50" src="/Blobs/Avatar" alt="" />
     <span style="display: inline-block; vertical-align: top">
-        <strong>@appInfo.Username</strong>
+        <span class="visually-hidden">
+            Handle:
+        </span>
 
-        @if (platformLinks.Where(link => link.Category == PlatformLinkCategory.ActivityPub).FirstOrDefault() is IPlatformLink ap)
-        {
-            <br />
+        <strong>@DeploymentInformation.Username</strong>
 
-            <span class="small text-muted" style="user-select: all">@ap.Username</span>
+        <br />
 
-            var icon = await platformIconProvider.ResolveIconAsync(ap.Host);
+        <span class="visually-hidden">
+            ActivityPub / WebFinger handle:
+        </span>
 
-            <img alt="@ap.PlatformName icon"
-                 title="@ap.PlatformName"
-                 src="@icon"
-                 width="16"
-                 height="16" />
-        }
-
-        @if (platformLinks.Where(link => link.Category == PlatformLinkCategory.ATProto).FirstOrDefault() is IPlatformLink at)
-        {
-            <br />
-
-            <span class="small text-muted" style="user-select: all">@at.Username</span>
-
-            var icon = await platformIconProvider.ResolveIconAsync(at.Host);
-
-            <img alt="@at.PlatformName icon"
-                 title="@at.PlatformName"
-                 src="@icon"
-                 width="16"
-                 height="16" />
-        }
+        <span class="small text-muted" style="user-select: all">@@@ActivityPubHostInformation.Username@@@ActivityPubHostInformation.ApplicationHostname</span>
     </span>
 </p>

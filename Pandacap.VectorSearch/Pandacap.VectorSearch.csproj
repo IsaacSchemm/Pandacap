@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.AI.Inference" Version="1.0.0-beta.5" />
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.Database.Extensions\Pandacap.Database.Extensions.fsproj" />
+    <ProjectReference Include="..\Pandacap.VectorSearch.Interfaces\Pandacap.VectorSearch.Interfaces.vbproj" />
+  </ItemGroup>
+
+</Project>

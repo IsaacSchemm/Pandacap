@@ -1,4 +1,4 @@
-﻿using Pandacap.Data;
+﻿using Pandacap.Database;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -16,7 +16,7 @@ namespace Pandacap.Models
         [DisplayName("Tags (space-separated, e.g. tag1 tag2 tag3)")]
         public string? Tags { get; set; }
 
-        PostType PostCreator.IViewModel.PostType => PostType.JournalEntry;
+        Post.PostType PostCreator.IViewModel.PostType => Post.PostType.JournalEntry;
 
         Guid? PostCreator.IViewModel.UploadId => null;
 

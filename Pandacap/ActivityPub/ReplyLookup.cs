@@ -1,30 +1,27 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
-using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
-using Pandacap.HighLevel;
+using Pandacap.ActivityPub.Models.Interfaces;
+using Pandacap.ActivityPub.Static;
+using Pandacap.Database;
 using Pandacap.Models;
 using System.Runtime.CompilerServices;
 
 namespace Pandacap
 {
     public class ReplyLookup(
-        ApplicationInformation appInfo,
-        IDbContextFactory<PandacapDbContext> contextFactory,
-        ActivityPubHostInformation hostInformation)
+        IDbContextFactory<PandacapDbContext> contextFactory)
     {
         public async Task<bool> IsOriginalPostStoredAsync(
             string id,
             CancellationToken cancellationToken)
         {
             if (Uri.TryCreate(id, UriKind.Absolute, out Uri? uri))
-                if (uri.Host == appInfo.ApplicationHostname)
+                if (uri.Host == ActivityPubHostInformation.ApplicationHostname)
                     return true;
 
             using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
             int count = await context.RemoteActivityPubReplies
                 .Where(r => r.ObjectId == id)
-                .DocumentCountAsync(cancellationToken);
+                .CountAsync(cancellationToken);
             if (count > 0)
                 return true;
 
@@ -65,12 +62,12 @@ namespace Pandacap
             {
                 IActivityPubPost activityPubPost = addressedPost;
 
-                string objectId = activityPubPost.GetObjectId(hostInformation);
+                string objectId = activityPubPost.ObjectId;
 
                 yield return new ReplyModel
                 {
                     CreatedAt = addressedPost.PublishedTime,
-                    CreatedBy = hostInformation.ActorId,
+                    CreatedBy = ActivityPubHostInformation.ActorId,
                     HtmlContent = addressedPost.HtmlContent,
                     Name = null,
                     ObjectId = objectId,
@@ -81,7 +78,7 @@ namespace Pandacap
                     Sensitive = false,
                     Summary = null,
                     Usericon = "/Blobs/Avatar",
-                    Username = appInfo.Username
+                    Username = ActivityPubHostInformation.Username
                 };
             }
         }

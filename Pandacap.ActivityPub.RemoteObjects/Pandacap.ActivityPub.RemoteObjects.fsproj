@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="AssemblyAttributes.fs" />
+    <Compile Include="Shared.fs" />
+    <Compile Include="ActivityPubRemoteActorService.fs" />
+    <Compile Include="ActivityPubRemotePostService.fs" />
+    <Compile Include="WebFingerService.fs" />
+    <Compile Include="DependencyInjectionExtensions.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlSanitizer" Version="9.0.892" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.JsonLd\Pandacap.ActivityPub.JsonLd.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.RemoteObjects.Interfaces\Pandacap.ActivityPub.RemoteObjects.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Services.Interfaces\Pandacap.ActivityPub.Services.Interfaces.vbproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="10.1.202" />
+  </ItemGroup>
+
+</Project>

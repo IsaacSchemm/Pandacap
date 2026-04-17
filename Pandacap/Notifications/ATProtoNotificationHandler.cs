@@ -1,14 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Clients.ATProto;
-using Pandacap.Data;
-using Pandacap.HighLevel;
-using Pandacap.PlatformBadges;
+using Pandacap.ATProto.Models;
+using Pandacap.ATProto.Services.Interfaces;
+using Pandacap.Database;
+using Pandacap.UI.Badges;
+using System.Runtime.CompilerServices;
 
 namespace Pandacap.Notifications
 {
     public class ATProtoNotificationHandler(
-        ConstellationClient constellationClient,
-        DIDResolver didResolver,
+        IATProtoService atProtoService,
+        IConstellationService constellationService,
+        IDIDResolver didResolver,
         IHttpClientFactory httpClientFactory,
         PandacapDbContext context
     ) : INotificationHandler
@@ -26,11 +28,13 @@ namespace Pandacap.Notifications
             }
         }
 
-        private async Task<string?> GetDisplayNameAsync(string did)
+        private async Task<string?> GetDisplayNameAsync(
+            string did,
+            CancellationToken cancellationToken)
         {
             try
             {
-                var doc = await didResolver.ResolveAsync(did);
+                var doc = await didResolver.ResolveAsync(did, cancellationToken);
                 return doc.Handle;
             }
             catch (Exception)
@@ -42,31 +46,32 @@ namespace Pandacap.Notifications
         private async IAsyncEnumerable<Notification> GetNotificationsAsync(
             string target,
             string collection,
-            string path)
+            string path,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             DateTimeOffset seenAt = DateTimeOffset.UtcNow;
 
-            await foreach (var link in constellationClient.ListLinksAsync(
+            await foreach (var link in constellationService.GetLinksAsync(
                 target,
                 collection,
-                path,
-                CancellationToken.None))
+                path))
             {
                 try
                 {
                     using var httpClient = httpClientFactory.CreateClient();
 
-                    var doc = await didResolver.ResolveAsync(link.Components.DID);
+                    var doc = await didResolver.ResolveAsync(
+                        link.Components.DID,
+                        cancellationToken);
 
-                    var record = await XRPC.Com.Atproto.Repo.GetRecordAsync(
-                        httpClient,
+                    var recordCreatedAt = await atProtoService.GetRecordCreationTimeAsync(
                         doc.PDS,
                         link.Components.DID,
                         collection,
                         link.Components.RecordKey,
-                        new { createdAt = (DateTimeOffset?)null });
+                        cancellationToken);
 
-                    if (record.value.createdAt is DateTimeOffset createdAt)
+                    if (recordCreatedAt is DateTimeOffset createdAt)
                         seenAt = createdAt;
                 }
                 catch (Exception)
@@ -79,13 +84,12 @@ namespace Pandacap.Notifications
                     case ("app.bsky.feed.post", ".facets[app.bsky.richtext.facet].features[app.bsky.richtext.facet#mention].did"):
                         yield return new Notification
                         {
-                            Platform = new NotificationPlatform(
-                                "ATProto",
-                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                viewAllUrl: null),
+                            Badge = Badges.ATProto,
                             ActivityName = "Mention",
                             Url = $"https://bsky.app/profile/{link.Components.DID}/post/{link.Components.RecordKey}",
-                            UserName = await GetDisplayNameAsync(link.Components.DID),
+                            UserName = await GetDisplayNameAsync(
+                                link.Components.DID,
+                                cancellationToken),
                             UserUrl = $"https://bsky.app/profile/{link.Components.DID}",
                             PostUrl = $"https://bsky.app/profile/{target}",
                             Timestamp = seenAt
@@ -96,12 +100,11 @@ namespace Pandacap.Notifications
                     case ("app.bsky.graph.follow", ".subject"):
                         yield return new Notification
                         {
-                            Platform = new NotificationPlatform(
-                                "ATProto",
-                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                viewAllUrl: null),
+                            Badge = Badges.ATProto,
                             ActivityName = "Follow",
-                            UserName = await GetDisplayNameAsync(link.Components.DID),
+                            UserName = await GetDisplayNameAsync(
+                                link.Components.DID,
+                                cancellationToken),
                             UserUrl = $"https://bsky.app/profile/{link.Components.DID}",
                             PostUrl = $"https://bsky.app/profile/{target}",
                             Timestamp = seenAt
@@ -112,13 +115,12 @@ namespace Pandacap.Notifications
                     case ("app.bsky.feed.post", ".reply.parent.uri"):
                         yield return new Notification
                         {
-                            Platform = new NotificationPlatform(
-                                "ATProto",
-                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                viewAllUrl: null),
+                            Badge = Badges.ATProto,
                             ActivityName = "Reply",
                             Url = $"https://bsky.app/profile/{link.Components.DID}/post/{link.Components.RecordKey}",
-                            UserName = await GetDisplayNameAsync(link.Components.DID),
+                            UserName = await GetDisplayNameAsync(
+                                link.Components.DID,
+                                cancellationToken),
                             UserUrl = $"https://bsky.app/profile/{link.Components.DID}",
                             PostUrl = GetBlueskyAppLink(target),
                             Timestamp = seenAt
@@ -129,12 +131,11 @@ namespace Pandacap.Notifications
                     case ("app.bsky.feed.like", ".subject.uri"):
                         yield return new Notification
                         {
-                            Platform = new NotificationPlatform(
-                                "ATProto",
-                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                viewAllUrl: null),
+                            Badge = Badges.ATProto,
                             ActivityName = "Like",
-                            UserName = await GetDisplayNameAsync(link.Components.DID),
+                            UserName = await GetDisplayNameAsync(
+                                link.Components.DID,
+                                cancellationToken),
                             UserUrl = $"https://bsky.app/profile/{link.Components.DID}",
                             PostUrl = GetBlueskyAppLink(target),
                             Timestamp = seenAt
@@ -145,12 +146,11 @@ namespace Pandacap.Notifications
                     case ("app.bsky.feed.repost", ".subject.uri"):
                         yield return new Notification
                         {
-                            Platform = new NotificationPlatform(
-                                "ATProto",
-                                PostPlatformModule.GetBadge(PostPlatform.ATProto),
-                                viewAllUrl: null),
+                            Badge = Badges.ATProto,
                             ActivityName = "Repost",
-                            UserName = await GetDisplayNameAsync(link.Components.DID),
+                            UserName = await GetDisplayNameAsync(
+                                link.Components.DID,
+                                cancellationToken),
                             UserUrl = $"https://bsky.app/profile/{link.Components.DID}",
                             PostUrl = GetBlueskyAppLink(target),
                             Timestamp = seenAt

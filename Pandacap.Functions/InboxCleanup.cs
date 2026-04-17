@@ -1,7 +1,6 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
-using Pandacap.HighLevel;
+using Pandacap.Database;
 
 namespace Pandacap.Functions
 {

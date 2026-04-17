@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="AssemblyAttributes.fs" />
+    <Compile Include="ActivityPubSerializer.fs" />
+    <Compile Include="ActivityPubProfileTranslator.fs" />
+    <Compile Include="ActivityPubPostTranslator.fs" />
+    <Compile Include="ActivityPubRelationshipTranslator.fs" />
+    <Compile Include="ActivityPubInteractionTranslator.fs" />
+    <Compile Include="ActivityPubRequestHandler.fs" />
+    <Compile Include="DependencyInjectionExtensions.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Data" Version="8.1.8" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.Models\Pandacap.ActivityPub.Models.fsproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Services.Interfaces\Pandacap.ActivityPub.Services.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="10.1.202" />
+  </ItemGroup>
+
+</Project>

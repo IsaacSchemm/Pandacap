@@ -1,6 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
+using Pandacap.Database;
 
 namespace Pandacap
 {
@@ -46,7 +46,7 @@ namespace Pandacap
             {
                 Id = blobId,
                 ContentType = contentType,
-                AltText = altText,
+                AltText = altText ?? "",
                 UploadedAt = DateTimeOffset.UtcNow
             };
 

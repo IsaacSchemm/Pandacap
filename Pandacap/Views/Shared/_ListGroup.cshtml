@@ -1,7 +1,7 @@
-﻿@using Pandacap.Data
-@using Pandacap.HighLevel
-@using Pandacap.HighLevel.VectorSearch
+﻿@using Pandacap.Database
 @using Pandacap.Models
+@using Pandacap.UI.Badges
+@using Pandacap.UI.Elements
 @model IEnumerable<IPost>
 
 @foreach (var group in Model.GroupBy(p => new
@@ -23,7 +23,7 @@
         </h1>
     }
 
-    foreach (var badge in group.SelectMany(p => p.GetBadges()).Distinct())
+    foreach (var badge in group.Select(p => p.Badge).Except([Badges.Pandacap]).Distinct())
     {
         <span class="badge mb-3" style="background-color: @badge.Background; color: @badge.Color">
             @badge.Text
@@ -37,7 +37,7 @@
         <div class="row">
             @foreach (var item in withThumbnails)
             {
-                string url = User.Identity?.IsAuthenticated == true
+                string? url = User.Identity?.IsAuthenticated == true
                     ? item.InternalUrl
                     : item.ExternalUrl;
 
@@ -55,7 +55,7 @@
                         </div>
                     }
 
-                    @if (item is Post post && post.Type == PostType.StatusUpdate)
+                    @if (item is Post post && post.Type == Post.PostType.StatusUpdate)
                     {
                         <div class="post-body">
                             @Html.Raw(post.Html)
@@ -78,7 +78,7 @@
 
     foreach (var item in withoutThumbnails)
     {
-        string url = User.Identity?.IsAuthenticated == true
+        string? url = User.Identity?.IsAuthenticated == true
             ? item.InternalUrl
             : item.ExternalUrl;
 
@@ -86,11 +86,11 @@
             @if (item is Post myPost)
             {
                 <div class="small text-muted">
-                    @(myPost.Type == PostType.JournalEntry ? "✏️ journal entry"
-                            : myPost.Type == PostType.StatusUpdate ? "💬 status update"
-                            : myPost.Type == PostType.Artwork ? "🖌 artwork"
-                            : myPost.Type == PostType.Scraps ? "✎ scraps"
-                            : myPost.Type == PostType.Link ? "🔗 link"
+                    @(myPost.Type == Post.PostType.JournalEntry ? "✏️ journal entry"
+                            : myPost.Type == Post.PostType.StatusUpdate ? "💬 status update"
+                            : myPost.Type == Post.PostType.Artwork ? "🖌 artwork"
+                            : myPost.Type == Post.PostType.Scraps ? "✎ scraps"
+                            : myPost.Type == Post.PostType.Link ? "🔗 link"
                             : "")
     </div>
         }
@@ -110,7 +110,7 @@
                 }
             }
 
-            @if (item is Post post && post.Type == PostType.StatusUpdate)
+            @if (item is Post post && post.Type == Post.PostType.StatusUpdate)
             {
                 <div class="post-body">
                     @Html.Raw(post.Html)

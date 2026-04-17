@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="AssemblyAttributes.fs" />
+    <Compile Include="ActivityPubSignatureValidator.fs" />
+    <Compile Include="DependencyInjectionExtensions.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.3.9" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces\Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Services.Interfaces\Pandacap.ActivityPub.Services.Interfaces.vbproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="10.1.202" />
+  </ItemGroup>
+
+</Project>

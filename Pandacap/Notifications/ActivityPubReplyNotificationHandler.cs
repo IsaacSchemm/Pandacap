@@ -1,18 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
-using Pandacap.Data;
-using Pandacap.PlatformBadges;
+using Pandacap.ActivityPub.Static;
+using Pandacap.Database;
+using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
     public class ActivityPubReplyNotificationHandler(
-        IDbContextFactory<PandacapDbContext> contextFactory,
-        ActivityPubHostInformation hostInformation
+        IDbContextFactory<PandacapDbContext> contextFactory
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
-            Uri myActor = new(hostInformation.ActorId);
+            Uri myActor = new(ActivityPubHostInformation.ActorId);
             string baseUrl = myActor.GetLeftPart(UriPartial.Authority);
 
             var activityContext = await contextFactory.CreateDbContextAsync();
@@ -27,10 +26,7 @@ namespace Pandacap.Notifications
             {
                 yield return new()
                 {
-                    Platform = new NotificationPlatform(
-                        "ActivityPub",
-                        PostPlatformModule.GetBadge(PostPlatform.ActivityPub),
-                        viewAllUrl: null),
+                    Badge = Badges.ActivityPub,
                     ActivityName = "Reply",
                     Url = $"/RemoteReplies/ViewReply?objectId={Uri.EscapeDataString(reply.ObjectId)}",
                     UserName = reply.Username,

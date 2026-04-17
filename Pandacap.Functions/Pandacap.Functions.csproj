@@ -11,19 +11,31 @@
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Azure.Identity" Version="1.17.1" />
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.51.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.50.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="10.0.6" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.13.1" />
-    <PackageReference Include="Reddit" Version="1.5.2" />
-    <PackageReference Include="RestSharp" Version="113.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.HighLevel\Pandacap.HighLevel.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.JsonLd\Pandacap.ActivityPub.JsonLd.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Outbox\Pandacap.ActivityPub.Outbox.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.RemoteObjects\Pandacap.ActivityPub.RemoteObjects.fsproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Services\Pandacap.ActivityPub.Services.fsproj" />
+    <ProjectReference Include="..\Pandacap.ATProto.Services\Pandacap.ATProto.Services.fsproj" />
+    <ProjectReference Include="..\Pandacap.Credentials\Pandacap.Credentials.csproj" />
+    <ProjectReference Include="..\Pandacap.Favorites\Pandacap.Favorites.csproj" />
+    <ProjectReference Include="..\Pandacap.FeedIngestion\Pandacap.FeedIngestion.csproj" />
+    <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
+    <ProjectReference Include="..\Pandacap.Inbox.Interfaces\Pandacap.Inbox.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Inbox\Pandacap.Inbox.csproj" />
+    <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
+    <ProjectReference Include="..\Pandacap.UI.Posts\Pandacap.UI.Posts.csproj" />
+    <ProjectReference Include="..\Pandacap.Weasyl.Scraping\Pandacap.Weasyl.Scraping.fsproj" />
+    <ProjectReference Include="..\Pandacap.Weasyl\Pandacap.Weasyl.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

@@ -1,4 +1,6 @@
-﻿.navbar-dark {
+﻿@import "site.css";
+
+.navbar-dark {
     background-color: #3f4873;
     color: #e5e5e5;
     border-color: #232840 !important;
@@ -51,25 +53,6 @@ img.feed-image {
     img.feed-image {
         width: 100%;
         object-fit: contain;
-    }
-}
-
-.social-block {
-    color: var(--bs-secondary-color);
-    font-size: 0.875em;
-    line-height: calc(var(--bs-body-line-height)/0.875);
-    margin: 0 1em 1em 0;
-    vertical-align: top;
-    width: 150px;
-}
-
-    .social-block a {
-        text-decoration: none;
-    }
-
-@media (min-width: 992px) {
-    .social-block {
-        display: inline-block;
     }
 }
 

@@ -5,18 +5,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Pandacap.ActivityPub;
-using Pandacap.ActivityPub.Communication;
-using Pandacap.ActivityPub.Inbound;
-using Pandacap.Clients.ATProto;
-using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
-using Pandacap.HighLevel;
-using Pandacap.HighLevel.ATProto;
-using Pandacap.HighLevel.FeedReaders;
-using Pandacap.HighLevel.PlatformLinks;
-using Pandacap.HighLevel.VectorSearch;
+using Pandacap.ActivityPub.Models;
+using Pandacap.ActivityPub.Outbox.Interfaces;
+using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.ActivityPub.Static;
+using Pandacap.Constants;
+using Pandacap.Database;
+using Pandacap.Extensions;
+using Pandacap.Inbox.Interfaces;
 using Pandacap.Models;
+using Pandacap.PlatformLinks.Interfaces;
+using Pandacap.UI.Elements;
+using Pandacap.UI.Posts.Interfaces;
+using Pandacap.VectorSearch.Interfaces;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -24,32 +25,24 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ProfileController(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
-        ApplicationInformation appInfo,
-        ATProtoFeedReader atProtoFeedReader,
-        ATProtoHandleLookupClient atProtoHandleLookupClient,
+        IATProtoFeedReader atProtoFeedReader,
         BlobServiceClient blobServiceClient,
-        CompositeFavoritesProvider compositeFavoritesProvider,
-        DIDResolver didResolver,
+        ICompositeFavoritesProvider compositeFavoritesProvider,
         PandacapDbContext context,
-        DeliveryInboxCollector deliveryInboxCollector,
-        FeedRefresher feedRefresher,
-        IHttpClientFactory httpClientFactory,
+        IDeliveryInboxCollector deliveryInboxCollector,
+        IFeedRefresher feedRefresher,
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
-        PlatformLinkProvider platformLinkProvider,
-        ActivityPubProfileTranslator profileTranslator,
-        ActivityPubRelationshipTranslator relationshipTranslator,
+        IPlatformLinkProvider platformLinkProvider,
+        IActivityPubProfileTranslator profileTranslator,
+        IActivityPubRelationshipTranslator relationshipTranslator,
         UserManager<IdentityUser> userManager,
-        VectorSearchIndexClient vectorSearchIndexClient,
-        WebFingerService webFingerService) : Controller
+        IVectorSearchIndexClient vectorSearchIndexClient) : Controller
     {
-        //private static readonly SemaphoreSlim _searchVectorGenerationFlag = new(100, 100);
-
         private async Task<ActivityPubProfile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
         {
-            string key = await keyProvider.GetPublicKeyAsync();
+            string key = await keyProvider.GetPublicKeyAsync(cancellationToken);
 
             var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
 
@@ -58,10 +51,11 @@ namespace Pandacap.Controllers
                     ? []
                     : [new(
                         avatar.ContentType,
-                        $"https://{appInfo.ApplicationHostname}/Blobs/Avatar/{avatar.Id}")],
-                links: [.. await platformLinkProvider.GetActivityPubProfileLinksAsync(cancellationToken)],
+                        $"https://{ActivityPubHostInformation.ApplicationHostname}/Blobs/Avatar/{avatar.Id}")],
+                links: [],
                 publicKeyPem: key,
-                username: appInfo.Username);
+                username: ActivityPubHostInformation.Username,
+                summaryHtml: $"<p>Hosted by <a href='{UserAgentInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(UserAgentInformation.ApplicationName)}</a>.</p>");
         }
 
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
@@ -71,9 +65,8 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        profileTranslator.BuildProfile(
-                            await GetActivityPubProfileAsync(cancellationToken))),
+                    profileTranslator.BuildProfile(
+                        await GetActivityPubProfileAsync(cancellationToken)),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -85,7 +78,7 @@ namespace Pandacap.Controllers
                 var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
                 var artwork = await context.Posts
-                    .Where(post => post.Type == PostType.Artwork)
+                    .Where(post => post.Type == Post.PostType.Artwork)
                     .Where(post => post.PublishedTime >= threeMonthsAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
@@ -101,14 +94,14 @@ namespace Pandacap.Controllers
                     .ToListAsync(cancellationToken);
 
                 var textPosts = await context.Posts
-                    .Where(post => post.Type == PostType.StatusUpdate || post.Type == PostType.JournalEntry)
+                    .Where(post => post.Type == Post.PostType.StatusUpdate || post.Type == Post.PostType.JournalEntry)
                     .Where(post => post.PublishedTime >= oneMonthAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(5)
                     .ToListAsync(cancellationToken);
 
                 var links = await context.Posts
-                    .Where(post => post.Type == PostType.Link)
+                    .Where(post => post.Type == Post.PostType.Link)
                     .Where(post => post.PublishedTime >= oneMonthAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(5)
@@ -116,16 +109,16 @@ namespace Pandacap.Controllers
 
                 return new ProfileViewModel
                 {
-                    PlatformLinks = await platformLinkProvider.GetPlatformLinksAsync(cancellationToken),
+                    PlatformLinks = await platformLinkProvider.GetProfileLinksAsync().ToListAsync(cancellationToken),
                     RecentArtwork = artwork,
                     RecentFavorites = favorites,
                     RecentTextPosts = textPosts,
                     RecentLinks = links,
-                    FollowerCount = await context.Followers.DocumentCountAsync(cancellationToken),
-                    FollowingCount = await context.Follows.DocumentCountAsync(cancellationToken)
-                        + await context.GeneralFeeds.DocumentCountAsync(cancellationToken)
-                        + await context.ATProtoFeeds.DocumentCountAsync(cancellationToken),
-                    FavoritesCount = await context.ActivityPubFavorites.DocumentCountAsync(cancellationToken),
+                    FollowerCount = await context.Followers.CountAsync(cancellationToken),
+                    FollowingCount = await context.Follows.CountAsync(cancellationToken)
+                        + await context.GeneralFeeds.CountAsync(cancellationToken)
+                        + await context.ATProtoFeeds.CountAsync(cancellationToken),
+                    FavoritesCount = await context.ActivityPubFavorites.CountAsync(cancellationToken),
                     VectorSearchEnabled = vectorSearchIndexClient.VectorSearchEnabled
                 };
             }
@@ -197,7 +190,7 @@ namespace Pandacap.Controllers
             int take = count ?? 20;
 
             var posts = await vectorSearchIndexClient
-                .GetResultsAsync(q, skip, cancellationToken)
+                .GetResultsAsync(q, skip)
                 .Take(take)
                 .SelectMany(e => context.Posts
                     .Where(p => p.Id == e.Document.Id)
@@ -288,10 +281,9 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = follow.Inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        relationshipTranslator.BuildFollowUndo(
-                            follow.FollowGuid,
-                            follow.ActorId)),
+                    JsonBody = relationshipTranslator.BuildFollowUndo(
+                        follow.FollowGuid,
+                        follow.ActorId),
                     StoredAt = DateTimeOffset.UtcNow
                 });
 
@@ -322,9 +314,9 @@ namespace Pandacap.Controllers
                 IncludeReplies = feed.IncludeReplies,
                 IncludeQuotePosts = feed.IncludeQuotePosts,
                 IgnoreImages = feed.IgnoreImages,
-                IncludeBlueskyLikes = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Like),
-                IncludeBlueskyPosts = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Post),
-                IncludeBlueskyReposts = feed.NSIDs.Contains(NSIDs.App.Bsky.Feed.Repost)
+                IncludeBlueskyLikes = feed.NSIDs.Contains("app.bsky.feed.like"),
+                IncludeBlueskyPosts = feed.NSIDs.Contains("app.bsky.feed.post"),
+                IncludeBlueskyReposts = feed.NSIDs.Contains("app.bsky.feed.repost")
             });
         }
 
@@ -332,13 +324,14 @@ namespace Pandacap.Controllers
         [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RefreshATProtoFeed(
-            string did)
+            string did,
+            CancellationToken cancellationToken)
         {
             var feed = await context.ATProtoFeeds
                 .Where(f => f.DID == did)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
-            await atProtoFeedReader.RefreshFeedAsync(did);
+            await atProtoFeedReader.RefreshFeedAsync(did, cancellationToken);
 
             return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
         }
@@ -358,19 +351,19 @@ namespace Pandacap.Controllers
                 follow.IncludeQuotePosts = model.IncludeQuotePosts;
 
                 if (model.IncludeBlueskyLikes)
-                    follow.NSIDs.Add(NSIDs.App.Bsky.Feed.Like);
+                    follow.NSIDs.Add("app.bsky.feed.like");
                 else
-                    follow.NSIDs.Remove(NSIDs.App.Bsky.Feed.Like);
+                    follow.NSIDs.Remove("app.bsky.feed.like");
 
                 if (model.IncludeBlueskyPosts)
-                    follow.NSIDs.Add(NSIDs.App.Bsky.Feed.Post);
+                    follow.NSIDs.Add("app.bsky.feed.post");
                 else
-                    follow.NSIDs.Remove(NSIDs.App.Bsky.Feed.Post);
+                    follow.NSIDs.Remove("app.bsky.feed.post");
 
                 if (model.IncludeBlueskyReposts)
-                    follow.NSIDs.Add(NSIDs.App.Bsky.Feed.Repost);
+                    follow.NSIDs.Add("app.bsky.feed.repost");
                 else
-                    follow.NSIDs.Remove(NSIDs.App.Bsky.Feed.Repost);
+                    follow.NSIDs.Remove("app.bsky.feed.repost");
 
                 follow.LastCommitCID = null;
             }
@@ -396,9 +389,9 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddFeed(string url)
+        public async Task<IActionResult> AddFeed(string url, CancellationToken cancellationToken)
         {
-            await feedRefresher.AddFeedAsync(url);
+            await feedRefresher.AddFeedAsync(url, cancellationToken);
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
@@ -406,9 +399,9 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RefreshFeed(Guid id)
+        public async Task<IActionResult> RefreshFeed(Guid id, CancellationToken cancellationToken)
         {
-            await feedRefresher.RefreshFeedAsync(id);
+            await feedRefresher.RefreshFeedAsync(id, cancellationToken);
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
@@ -483,9 +476,8 @@ namespace Pandacap.Controllers
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        profileTranslator.BuildProfileUpdate(
-                            await GetActivityPubProfileAsync(cancellationToken))),
+                    JsonBody = profileTranslator.BuildProfileUpdate(
+                        await GetActivityPubProfileAsync(cancellationToken)),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });
@@ -515,9 +507,8 @@ namespace Pandacap.Controllers
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        profileTranslator.BuildProfileUpdate(
-                            await GetActivityPubProfileAsync(cancellationToken))),
+                    JsonBody = profileTranslator.BuildProfileUpdate(
+                        await GetActivityPubProfileAsync(cancellationToken)),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });

@@ -1,5 +1,5 @@
 ﻿@using Pandacap.Data
-@using Pandacap.HighLevel
+@using Pandacap.Database
 @using Pandacap.Models
 @model ListViewModel
 
@@ -40,7 +40,7 @@ else
         <div class="row">
             @foreach (var item in Model.Items)
             {
-                string url = User.Identity?.IsAuthenticated == true
+                string? url = User.Identity?.IsAuthenticated == true
                     ? item.InternalUrl
                     : item.ExternalUrl;
 
@@ -50,12 +50,9 @@ else
 
                         <strong>@item.Username</strong>
 
-                        @foreach (var badge in item.GetBadges())
-                        {
-                            <span class="badge" style="background-color: @badge.Background; color: @badge.Color; vertical-align: middle">
-                                @badge.Text
-                            </span>
-                        }
+                        <span class="badge" style="background-color: @item.Badge.Background; color: @item.Badge.Color; vertical-align: middle">
+                            @item.Badge.Text
+                        </span>
                     </div>
 
                     <div class="card">

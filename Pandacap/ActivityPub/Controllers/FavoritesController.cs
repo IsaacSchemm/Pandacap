@@ -2,19 +2,19 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
-using Pandacap.Data;
-using Pandacap.HighLevel;
+using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.Database;
 using Pandacap.Models;
+using Pandacap.Extensions;
 using System.Text;
+using Pandacap.ActivityPub.Favorites.Interfaces;
 
 namespace Pandacap.Controllers
 {
     public class FavoritesController(
         PandacapDbContext context,
-        ActivityPubHostInformation hostInformation,
-        ActivityPubInteractionTranslator interactionTranslator,
-        RemoteActivityPubPostHandler remoteActivityPubPostHandler) : Controller
+        IActivityPubInteractionTranslator interactionTranslator,
+        IRemoteActivityPubFavoritesHandler remoteActivityPubFavoritesHandler) : Controller
     {
         public async Task<IActionResult> Index(Guid? next, int? count)
         {
@@ -28,13 +28,12 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        interactionTranslator.BuildLikedCollectionPage(
-                            Request.GetEncodedUrl(),
-                            listPage.Current,
-                            listPage.Next == null
-                                ? null
-                                : $"https://{hostInformation.ApplicationHostname}/Favorites?next={listPage.Next}&count={listPage.Current.Length}")),
+                    interactionTranslator.BuildLikedCollectionPage(
+                        Request.GetEncodedUrl(),
+                        listPage.Current,
+                        listPage.Next == null
+                            ? null
+                            : $"https://{ActivityPub.Static.ActivityPubHostInformation.ApplicationHostname}/Favorites?next={listPage.Next}&count={listPage.Current.Length}"),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -50,12 +49,10 @@ namespace Pandacap.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add([FromForm] IEnumerable<string> id)
+        public async Task<IActionResult> Add([FromForm] IEnumerable<string> id, CancellationToken cancellationToken)
         {
             foreach (string idStr in id)
-            {
-                await remoteActivityPubPostHandler.AddRemoteFavoriteAsync(idStr);
-            }
+                await remoteActivityPubFavoritesHandler.AddFavoriteAsync(idStr, cancellationToken);
 
             return id.Count() == 1
                 ? RedirectToAction("Index", "RemotePosts", new { id })
@@ -65,9 +62,9 @@ namespace Pandacap.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Remove([FromForm] IEnumerable<string> id)
+        public async Task<IActionResult> Remove([FromForm] IEnumerable<string> id, CancellationToken cancellationToken)
         {
-            await remoteActivityPubPostHandler.RemoveRemoteFavoritesAsync(id);
+            await remoteActivityPubFavoritesHandler.RemoveFavoritesAsync(id, cancellationToken);
 
             return id.Count() == 1
                 ? RedirectToAction("Index", "RemotePosts", new { id })

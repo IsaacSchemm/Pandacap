@@ -1,10 +1,9 @@
-﻿using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
-using Pandacap.HighLevel;
+using Pandacap.Database;
 using Pandacap.Models;
+using Pandacap.Extensions;
 
 namespace Pandacap.Controllers
 {

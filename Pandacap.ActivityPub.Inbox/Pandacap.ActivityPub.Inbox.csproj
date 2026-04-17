@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.Inbox.Interfaces\Pandacap.ActivityPub.Inbox.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.RemoteObjects.Interfaces\Pandacap.ActivityPub.RemoteObjects.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Services.Interfaces\Pandacap.ActivityPub.Services.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
+  </ItemGroup>
+
+</Project>

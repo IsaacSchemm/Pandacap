@@ -1,11 +1,11 @@
 using Microsoft.Azure.Functions.Worker;
-using Pandacap.Data;
-using Pandacap.HighLevel;
+using Pandacap.Database;
+using Pandacap.UI.Posts.Interfaces;
 
 namespace Pandacap.Functions
 {
     public class LongTermInboxCleanup(
-        CompositeInboxProvider compositeInboxProvider,
+        ICompositeInboxProvider compositeInboxProvider,
         PandacapDbContext context)
     {
         [Function("LongTermInboxCleanup")]

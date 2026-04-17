@@ -2,12 +2,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
-using Pandacap.Data;
-using Pandacap.HighLevel.PlatformLinks;
-using Pandacap.HighLevel.VectorSearch;
-using Pandacap.Html;
+using Pandacap.ActivityPub.Models.Interfaces;
+using Pandacap.ActivityPub.Outbox.Interfaces;
+using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.Database;
+using Pandacap.Extensions;
 using Pandacap.Models;
+using Pandacap.PlatformLinks.Interfaces;
+using Pandacap.Text;
+using Pandacap.VectorSearch.Interfaces;
 using System.Net;
 using System.Text;
 
@@ -17,14 +20,13 @@ namespace Pandacap.Controllers
     public class UserPostsController(
         BlobServiceClient blobServiceClient,
         PandacapDbContext context,
-        DeliveryInboxCollector deliveryInboxCollector,
-        ActivityPubHostInformation hostInformation,
+        IDeliveryInboxCollector deliveryInboxCollector,
         IHttpClientFactory httpClientFactory,
-        PlatformLinkProvider platformLinkProvider,
+        IPlatformLinkProvider platformLinkProvider,
         PostCreator postCreator,
-        ActivityPubPostTranslator postTranslator,
+        IActivityPubPostTranslator postTranslator,
         ReplyLookup replyLookup,
-        VectorSearchIndexClient vectorSearchIndexClient) : Controller
+        IVectorSearchIndexClient vectorSearchIndexClient) : Controller
     {
         [Route("{id}")]
         public async Task<IActionResult> Index(
@@ -40,11 +42,11 @@ namespace Pandacap.Controllers
 
             if (Request.IsActivityPub())
             {
-                if (post.Type == PostType.Scraps)
+                if (post.Type == Post.PostType.Scraps)
                     return StatusCode((int)HttpStatusCode.NotAcceptable);
 
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(postTranslator.BuildObject(post)),
+                    postTranslator.BuildObject(post),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -53,12 +55,12 @@ namespace Pandacap.Controllers
 
             return View(new UserPostViewModel
             {
-                PlatformLinks = await platformLinkProvider.GetPlatformLinksAsync(cancellationToken),
+                PlatformLinks = await platformLinkProvider.GetPostLinksAsync(post).ToListAsync(cancellationToken),
                 Post = post,
                 Replies = User.Identity?.IsAuthenticated == true
                     ? await replyLookup
                         .CollectRepliesAsync(
-                            activityPubPost.GetObjectId(hostInformation),
+                            activityPubPost.ObjectId,
                             cancellationToken)
                         .ToListAsync(cancellationToken)
                     : []
@@ -224,7 +226,7 @@ namespace Pandacap.Controllers
             return View(new CreateLinkFromUrlViewModel
             {
                 LinkUrl = url,
-                Title = Scraper.GetTitleFromHtml(html)
+                Title = HtmlScraper.GetTitle(html)
             });
         }
 
@@ -264,9 +266,7 @@ namespace Pandacap.Controllers
                 context.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        postTranslator.BuildObjectDelete(
-                            post)),
+                    JsonBody = postTranslator.BuildObjectDelete(post),
                     Inbox = inbox,
                     StoredAt = DateTimeOffset.UtcNow
                 });

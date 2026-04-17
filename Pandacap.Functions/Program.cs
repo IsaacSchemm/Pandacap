@@ -1,18 +1,24 @@
 using Azure.Identity;
 using DeviantArtFs;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Pandacap.Clients.ATProto;
-using Pandacap.Data;
-using Pandacap.Functions;
-using Pandacap.Functions.ActivityPub;
-using Pandacap.Functions.FavoriteHandlers;
-using Pandacap.Functions.InboxHandlers;
-using Pandacap.HighLevel;
-using Pandacap.HighLevel.VectorSearch;
+using Pandacap.ActivityPub.JsonLd;
+using Pandacap.ActivityPub.Outbox;
+using Pandacap.ActivityPub.RemoteObjects;
+using Pandacap.ActivityPub.Services;
+using Pandacap.ATProto.Services;
+using Pandacap.Configuration;
+using Pandacap.Credentials;
+using Pandacap.Database;
+using Pandacap.Favorites;
+using Pandacap.FeedIngestion;
+using Pandacap.FurAffinity;
+using Pandacap.Inbox;
+using Pandacap.KeyVault;
+using Pandacap.UI.Posts;
+using Pandacap.Weasyl;
+using Pandacap.Weasyl.Scraping;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -36,18 +42,6 @@ var host = new HostBuilder()
             }
         }
 
-        if (Environment.GetEnvironmentVariable("StorageAccountHostname") is string storageAccountHostname)
-        {
-            services.AddAzureClients(clientBuilder =>
-            {
-                clientBuilder.AddBlobServiceClient(new Uri($"https://{storageAccountHostname}"));
-                clientBuilder.UseCredential(new DefaultAzureCredential());
-            });
-        }
-
-        if (Environment.GetEnvironmentVariable("ConstellationHost") is string constellationHost)
-            services.AddSingleton(new ConstellationHost(constellationHost));
-
         if (Environment.GetEnvironmentVariable("DeviantArtClientId") is string deviantArtClientId
             && Environment.GetEnvironmentVariable("DeviantArtClientSecret") is string deviantArtClientSecret)
         {
@@ -56,28 +50,34 @@ var host = new HostBuilder()
                 deviantArtClientSecret));
         }
 
-        if (Environment.GetEnvironmentVariable("RedditAppId") is string redditAppId
-            && Environment.GetEnvironmentVariable("RedditAppSecret") is string redditAppSecret)
-        {
-            services.AddSingleton(new RedditAppInformation(
-                redditAppId,
-                redditAppSecret));
-        }
+        DeploymentInformation.ApplicationHostname = Environment.GetEnvironmentVariable("ApplicationHostname")
+            ?? throw new Exception("ApplicationHostname is not defined");
+
+        DeploymentInformation.Username = Environment.GetEnvironmentVariable("ActivityPubUsername")
+            ?? throw new Exception("ActivityPubUsername is not defined");
 
         services
+            .AddActivityPubServices()
+            .AddActivityPubOutboxServices()
+            .AddActivityPubRemoteObjectServices()
+            .AddATProtoServices()
+            .AddCredentialProviders()
+            .AddFavoritesHandlers()
+            .AddFeedReaders()
+            .AddFurAffinityClient()
+            .AddInboxHandlers()
+            .AddJsonLdExpansionService()
             .AddMemoryCache()
-            .AddPandacapServices(new(
-                applicationHostname: Environment.GetEnvironmentVariable("ApplicationHostname"),
-                username: Environment.GetEnvironmentVariable("ActivityPubUsername"),
-                keyVaultHostname: Environment.GetEnvironmentVariable("KeyVaultHostname"),
-                weasylProxyHost: Environment.GetEnvironmentVariable("WeasylProxyHost")))
-            .AddScoped<DeviantArtFavoriteHandler>()
-            .AddScoped<DeviantArtInboxHandler>()
-            .AddScoped<FurAffinityFavoriteHandler>()
-            .AddScoped<FurAffinityInboxHandler>()
-            .AddScoped<OutboxProcessor>()
-            .AddScoped<WeasylFavoriteHandler>()
-            .AddScoped<WeasylInboxHandler>();
+            .AddPandacapKeyVault(new()
+            {
+                KeyVaultHost = new Uri("https://" + Environment.GetEnvironmentVariable("KeyVaultHostname"))
+            })
+            .AddUIPostProviders()
+            .AddWeasylClient(new()
+            {
+                WeasylProxyHost = new("https://" + Environment.GetEnvironmentVariable("WeasylProxyHost"))
+            })
+            .AddWeasylScraper();
 
         services.AddHttpClient();
     })

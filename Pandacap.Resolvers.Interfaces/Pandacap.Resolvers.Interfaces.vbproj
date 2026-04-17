@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Pandacap.Resolvers.Interfaces</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.Resolvers.Models\Pandacap.Resolvers.Models.fsproj" />
+  </ItemGroup>
+
+</Project>

@@ -2,20 +2,16 @@
 
 Demo: https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/
 
-A single-user art gallery and feed reader with ActivityPub support.
-
-Note: This project is just a hobby of mine. It doesn't have a stable feature set, functionality may get added or removed without notice, and I'm not able to provide any support for it.
+A single-user hobby project that combines a public art gallery (+ blog) and a private feed reader, with crossposting and ActivityPub S2S support.
 
 ## Design Philosophy
 
-A quick summary of the design philosophy:
-
-1. Pandacap should present itself to visitors as a personal website, not a social media platform.
-2. Pandacap should not show any content to logged-out users that was not either created or bookmarked by the admin.
-3. Pandacap should keep shares separate from original content, and keep image content separate from text.
-4. No page on Pandacap should have infinite content; pages should have a maximum length and present a "next page" button when appropriate.
-5. Pandacap should use an inbox paradigm for incoming content: posts should be added to the inbox when they arrive, and manually removed by the admin after they've read them.
-6. Pandacap should be deployable to Microsoft Azure in such a way as to minimize idle costs (at the expense of performance and scalability, if necessary).
+1. Pandacap is a gallery/blog application, not a social media platform, so a Pandacap instance should be branded with the admin's username, not the name of the application.
+2. Pandacap should not show any content to logged-out users that was not either created or put there by the admin.
+3. Pandacap's feed reader should keep shares separate from original content, and keep image content separate from text.
+4. Pandacap should use an inbox paradigm for incoming content: posts should be added to the inbox when they arrive, and manually removed by the admin after they've read them.
+5. No page on Pandacap should have infinite scroll by default; pages should have a maximum length and present a "next page" button when appropriate.
+6. Pandacap should be deployable to Microsoft Azure in such a way as to minimize idle costs (at the expense of both performance and scalability, if necessary).
 
 ## Screenshots
 
@@ -43,14 +39,14 @@ The home page shows:
 
 ## Features
 
-* Create **image posts**, **text posts**, and **links**, which are available on the site, via RSS/Atom, and via ActivityPub
+* Create **image posts**, **status updates**, **journal entries**, and **links**, which are available on the site, via RSS/Atom, and via ActivityPub
 * Crosspost your image posts and text posts to attached DeviantArt, Fur Affinity, or Weasyl accounts
 * Follow other users and feeds via RSS/Atom, ActivityPub, or atproto
 * View posts from users or feeds you follow in the **inbox**
     * The inbox is split into **image posts**, **text posts**, **shares**, and **podcasts**
     * Up to 100 posts are shown on one page, and posts within the same page are grouped by author
     * Checkboxes are used to remove posts you've read from the inbox
-    * Non-ActivityPub posts are periodically imported (~3 times per day)
+    * Non-ActivityPub posts are periodically imported in the background
 * View **notifications** from activity on your posts or from your attached accounts
 * Add posts to your **favorites**
     * ActivityPub and Bluesky posts can be added manually
@@ -63,11 +59,9 @@ It is designed to run on Microsoft Azure, using high-level resources like Azure 
 This version is not designed to run on a VPS or a local machine.
 
 To log in for the first time, the instance owner must use a Microsoft account that they have explicitly allowed in the associated Entra ID app registration.
+This means authorization is the reponsibility of your Entra ID registration, so only one user account should be allowed access.
 
-**Any authenticated user can access the same data**.
-This means authorization is the sole reponsibility of your Entra ID registration, so only one user account should be allowed access.
-
-Supported protocols and platforms:
+A DeviantArt account can also be used to log in if its username matches the value of the app setting `DeviantArtUsername`.
 
 ### ActivityPub
 
@@ -102,7 +96,7 @@ Adding an ActivityPub post to your Favorites will send a `Like` activity.
 
 Pandacap allows you to follow atproto accounts as feeds. Individual DIDs or handles can be provided to Pandacap, which will store the DID and then treat the account as a feed. Each time it refreshes the feed, it will resolve the DID to a PDS and then query that PDS directly to detect changes, and (if necessary) for profile updates and any new posts (up to 20 per feed per run).
 
-For each user, you can choose whether to follow Bluesky posts, reposts, and/or likes.
+For each user, you can choose whether to follow Bluesky posts, reposts, and/or likes. Other lexicons, like standard.site, are not supported yet.
 
 Pandacap will also look for Bluesky profile data (name and icon) when it refreshes the feed (every 8 hours, just like for RSS feeds).
 
@@ -147,17 +141,7 @@ Posts with `audio/mpeg` attachments are sent to the Podcasts section, where you 
 
 Pandacap also makes your own posts available over RSS and Atom; the Gallery and Text Posts pages have links to these feeds.
 
-## Software Architecture
-
-Deployable applications:
-
-* **Pandacap**: The main ASP.NET Core project. Hosts public content (artwork, status updates, journals) and private content (e.g. inbox and notification pages).
-* **Pandacap.Functions**: Runs periodic tasks.
-
-Libraries:
-
-* **Pandacap.LowLevel**: Contains shared F# Pandcap code.
-* **Pandacap.HighLevel**: Contains shared C# Pandacap code.
+RSS and Atom posts cannot be added to Favorites. This is primarily because individual posts (podcast episodes, for example) may not have public web page URLs, which Pandacap needs so it has a link to send visitors to.
 
 ## Deployment
 
@@ -175,20 +159,13 @@ The web app and function app must have the appropriate IAM permissions to access
 
 Function app responsibilities include:
 
-* `BridgedPostDiscovery`
-    * adds the "View on Bluesky" link to posts of yours that have been bridged
-* `FavoriteIngest`
-    * check accounts for new favorites / likes / upvotes
-* `InboxCleanup`
-    * delete any dismissed inbox entries more than 7 days old
-* `LongTermInboxCleanup`
-    * automatically dismiss active inbox entries (the 200 most recent posts, and any other posts newer than 30 days, will be kept)
-* `InboxIngest`
-    * check feeds for new posts
-* `OutboxCleanup`
-    * remove unsent outbound ActivityPub messages that have been pending for more than 7 days
-* `SendOutbound`
-    * attempt to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
+* adding the Bluesky DID and record keys (for the "View on Bluesky" link) to posts of yours that have been bridged
+* checking accounts for new favorites / likes / upvotes
+* deleting any dismissed inbox entries more than 7 days old
+* automatically dismissing active inbox entries (the 200 most recent posts, and any other posts newer than 30 days, will be kept)
+* checking feeds and connected platforms for new posts
+* removing unsent outbound ActivityPub messages that have been pending for more than 7 days
+* attempting to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
 
 ### Authorization
 
@@ -216,7 +193,6 @@ Application settings (for both the function app and the web app):
 | ----------------------- | -----------------------------------------------------
 | ActivityPubUsername     | Username to use for ActivityPub and on the home page
 | ApplicationHostname     | Public hostname of the app
-| ConstellationHost       | URL of a Constellation server for adding ATProto activity to the notifications page
 | CosmosDBAccountEndpoint | URL of the database
 | CosmosDBAccountKey      | Database key
 | DeviantArtClientId      | OAuth client ID from DeviantArt
@@ -239,29 +215,6 @@ Application settings (for the web app only):
 [Vector search](https://learn.microsoft.com/en-us/azure/search/vector-search-how-to-create-index)
 uses embeddings generated from the title, alt text, description, links, and tags in your posts.
 Vector search is not enabled in the Pandacap demo instance.
-
-Web app user secrets example:
-
-    {
-      "ApplicationHostname": "example.azurewebsites.net",
-      "Authentication": {
-        "Microsoft": {
-          "ClientId": "...",
-          "ClientSecret": "...",
-          "TenantId": "..."
-        }
-      },
-      "ConstellationHost": "constellation.microcosm.blue",
-      "CosmosDBAccountEndpoint": "https://example.documents.azure.com:443/",
-      "CosmosDBAccountKey": "...",
-      "DeviantArtClientId": "...",
-      "DeviantArtClientSecret": "...",
-      "DeviantArtUsername":  "...",
-      "ActivityPubUsername": "userhere",
-      "StorageAccountHostname": "example.blob.core.windows.net",
-      "KeyVaultHostname": "example.vault.azure.net",
-      "WeasylProxyHost": "www.example.com"
-    }
 
 The key vault is for a single encryption key called `activitypub` that is used to sign ActivityPub requests.
 
@@ -294,7 +247,6 @@ The key vault is for a single encryption key called `activitypub` that is used t
     1. Assign the following environment variables to both the web app and the function app:
         * `ActivityPubUsername`: the username part of the ActivityPub handle (before the `@www.example.com` portion).
         * `ApplicationHostname`: the web app's hostname (e.g. `www.example.com`).
-        * `ConstellationHost`: the hostname of a [Constellation](https://constellation.microcosm.blue) instance. Used for looking up interactions with your posts that are bridged to Bluesky via Bridgy Fed.
         * `CosmosDBAccountEndpoint`: the URL of the Cosmos DB server created above (e.g. https://www.example.net:443/).
         * `CosmosDBAccountKey` (optional): if you are using key-based authentication, the key goes here.
         * `KeyVaultHostname`: The hostname to the key vault created above.

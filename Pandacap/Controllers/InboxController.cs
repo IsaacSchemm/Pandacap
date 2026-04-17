@@ -2,15 +2,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
-using Pandacap.Data;
-using Pandacap.HighLevel;
+using Pandacap.Database;
 using Pandacap.Models;
+using Pandacap.UI.Elements;
+using Pandacap.UI.Posts.Interfaces;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class InboxController(
-        CompositeInboxProvider compositeInboxProvider,
+        ICompositeInboxProvider compositeInboxProvider,
         PandacapDbContext context) : Controller
     {
         private IAsyncEnumerable<IInboxPost> GetAllAsync() =>

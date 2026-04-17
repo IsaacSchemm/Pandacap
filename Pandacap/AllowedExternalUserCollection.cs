@@ -3,6 +3,5 @@
 namespace Pandacap
 {
     public record AllowedExternalUserCollection(
-        FSharpSet<string> DeviantArtUsers,
-        FSharpSet<string> RedditUsers);
+        FSharpSet<string> DeviantArtUsers);
 }

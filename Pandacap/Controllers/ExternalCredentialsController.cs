@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Data;
+using Pandacap.Database;
 using Pandacap.Models;
+using Pandacap.UI.Elements;
 
 namespace Pandacap.Controllers
 {
@@ -29,13 +30,13 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove(
             string username,
-            string platform,
+            string platformName,
             CancellationToken cancellationToken)
         {
             var credentials = await GetExternalCredentialsAsync(cancellationToken);
 
             foreach (var credential in credentials)
-                if (credential.Username == username && $"{credential.Platform}" == platform)
+                if (credential.Username == username && credential.PlatformName == platformName)
                     context.Remove(credential);
 
             await context.SaveChangesAsync(cancellationToken);

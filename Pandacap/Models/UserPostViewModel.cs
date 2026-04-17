@@ -1,5 +1,5 @@
-﻿using Pandacap.Data;
-using Pandacap.HighLevel.PlatformLinks;
+﻿using Pandacap.Database;
+using Pandacap.PlatformLinks.Interfaces;
 
 namespace Pandacap.Models
 {

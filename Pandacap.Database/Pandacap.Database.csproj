@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommonMark.NET" Version="0.15.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="10.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.Models.Interfaces\Pandacap.ActivityPub.Models.Interfaces.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.csproj" />
+    <ProjectReference Include="..\Pandacap.Configuration\Pandacap.Configuration.csproj" />
+    <ProjectReference Include="..\Pandacap.Constants\Pandacap.Constants.fsproj" />
+    <ProjectReference Include="..\Pandacap.FurAffinity.Interfaces\Pandacap.FurAffinity.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.PlatformLinks.Interfaces\Pandacap.PlatformLinks.Interfaces.csproj" />
+    <ProjectReference Include="..\Pandacap.Text\Pandacap.Text.fsproj" />
+    <ProjectReference Include="..\Pandacap.UI.Elements\Pandacap.UI.Elements.csproj" />
+  </ItemGroup>
+
+</Project>

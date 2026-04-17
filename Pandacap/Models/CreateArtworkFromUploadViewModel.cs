@@ -1,4 +1,4 @@
-﻿using Pandacap.Data;
+﻿using Pandacap.Database;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -28,9 +28,9 @@ namespace Pandacap.Models
         [DisplayName("Post to scraps")]
         public bool Scraps { get; set; }
 
-        PostType PostCreator.IViewModel.PostType => Scraps
-            ? PostType.Scraps
-            : PostType.Artwork;
+        Post.PostType PostCreator.IViewModel.PostType => Scraps
+            ? Post.PostType.Scraps
+            : Post.PostType.Artwork;
 
         Guid? PostCreator.IViewModel.UploadId => UploadId;
 

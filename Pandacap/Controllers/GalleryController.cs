@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
-using Pandacap.Data;
-using Pandacap.HighLevel;
-using Pandacap.HighLevel.RssOutbound;
+using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.ActivityPub.Static;
+using Pandacap.Database;
+using Pandacap.Frontend.Feeds.Interfaces;
 using Pandacap.Models;
+using Pandacap.Extensions;
 using System.Net;
 using System.Text;
 
@@ -13,9 +14,8 @@ namespace Pandacap.Controllers
 {
     public class GalleryController(
         PandacapDbContext context,
-        FeedBuilder feedBuilder,
-        ActivityPubHostInformation hostInformation,
-        ActivityPubPostTranslator postTranslator) : Controller
+        IFeedBuilder feedBuilder,
+        IActivityPubPostTranslator postTranslator) : Controller
     {
         private async Task<DateTimeOffset?> GetPublishedTimeAsync(Guid? id)
         {
@@ -35,8 +35,8 @@ namespace Pandacap.Controllers
             {
                 return Content(
                     feedBuilder.ToRssFeed(
-                        await posts.Take(take).ToListAsync(),
-                        Request.GetEncodedUrl()),
+                        Request.GetEncodedUrl(),
+                        await posts.Take(take).ToListAsync()),
                     "application/rss+xml",
                     Encoding.UTF8);
             }
@@ -45,8 +45,8 @@ namespace Pandacap.Controllers
             {
                 return Content(
                     feedBuilder.ToAtomFeed(
-                        await posts.Take(take).ToListAsync(),
-                        Request.GetEncodedUrl()),
+                        Request.GetEncodedUrl(),
+                        await posts.Take(take).ToListAsync()),
                     "application/atom+xml",
                     Encoding.UTF8);
             }
@@ -56,13 +56,12 @@ namespace Pandacap.Controllers
             if (Request.IsActivityPub())
             {
                 return Content(
-                    ActivityPubSerializer.SerializeWithContext(
-                        postTranslator.BuildOutboxCollectionPage(
-                            Request.GetEncodedUrl(),
-                            listPage.Current,
-                            listPage.Next == null
-                                ? null
-                                : $"https://{hostInformation.ApplicationHostname}/Gallery/Composite?next={listPage.Next}&count={listPage.Current.Length}")),
+                    postTranslator.BuildOutboxCollectionPage(
+                        Request.GetEncodedUrl(),
+                        listPage.Current,
+                        listPage.Next == null
+                            ? null
+                            : $"https://{ActivityPubHostInformation.ApplicationHostname}/Gallery/Composite?next={listPage.Next}&count={listPage.Current.Length}"),
                     "application/activity+json",
                     Encoding.UTF8);
             }
@@ -85,7 +84,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.Artwork)
+                .Where(d => d.Type == Post.PostType.Artwork)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -102,7 +101,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.Artwork || d.Type == PostType.Scraps)
+                .Where(d => d.Type == Post.PostType.Artwork || d.Type == Post.PostType.Scraps)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -116,7 +115,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.StatusUpdate || d.Type == PostType.JournalEntry)
+                .Where(d => d.Type == Post.PostType.StatusUpdate || d.Type == Post.PostType.JournalEntry)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -130,7 +129,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.JournalEntry)
+                .Where(d => d.Type == Post.PostType.JournalEntry)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -144,7 +143,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.StatusUpdate)
+                .Where(d => d.Type == Post.PostType.StatusUpdate)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
@@ -158,7 +157,7 @@ namespace Pandacap.Controllers
 
             var posts = context.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == PostType.Link)
+                .Where(d => d.Type == Post.PostType.Link)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);

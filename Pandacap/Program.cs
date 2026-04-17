@@ -6,15 +6,36 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Pandacap;
-using Pandacap.ActivityPub.Inbound;
-using Pandacap.Clients.ATProto;
-using Pandacap.ConfigurationObjects;
+using Pandacap.ActivityPub.Favorites;
+using Pandacap.ActivityPub.HttpSignatures.Discovery;
+using Pandacap.ActivityPub.HttpSignatures.Validation;
+using Pandacap.ActivityPub.Inbox;
+using Pandacap.ActivityPub.JsonLd;
+using Pandacap.ActivityPub.Outbox;
+using Pandacap.ActivityPub.RemoteObjects;
+using Pandacap.ActivityPub.Services;
+using Pandacap.ATProto.HandleResolution;
+using Pandacap.ATProto.Services;
+using Pandacap.Audio;
+using Pandacap.Configuration;
+using Pandacap.Constants;
+using Pandacap.Credentials;
 using Pandacap.Data;
-using Pandacap.HighLevel;
-using Pandacap.HighLevel.VectorSearch;
+using Pandacap.Database;
+using Pandacap.FeedIngestion;
+using Pandacap.Frontend.Feeds;
+using Pandacap.FurAffinity;
+using Pandacap.Inbox;
+using Pandacap.KeyVault;
+using Pandacap.Lemmy;
 using Pandacap.Notifications;
-using Pandacap.Podcasts;
-using Pandacap.Signatures;
+using Pandacap.PlatformLinks;
+using Pandacap.Resolvers;
+using Pandacap.UI.Posts;
+using Pandacap.VectorSearch;
+using Pandacap.VectorSearch.Models;
+using Pandacap.Weasyl;
+using Pandacap.Weasyl.Scraping;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -93,42 +114,63 @@ if (builder.Configuration["VectorSearchEmbeddingsEndpoint"] is string embeddings
         IndexName: indexName));
 }
 
-builder.Services.AddSingleton(new ConstellationHost(
-    builder.Configuration["ConstellationHost"]));
-
 builder.Services.AddSingleton(new AllowedExternalUserCollection(
-    DeviantArtUsers: builder.Configuration["DeviantArtUsername"] is string du ? [du] : [],
-    RedditUsers: builder.Configuration["RedditUsername"] is string ru ? [ru] : []));
+    DeviantArtUsers: builder.Configuration["DeviantArtUsername"] is string du ? [du] : []));
+
+DeploymentInformation.ApplicationHostname = builder.Configuration["ApplicationHostname"]
+    ?? throw new Exception("ApplicationHostname is not defined");
+
+DeploymentInformation.Username = builder.Configuration["ActivityPubUsername"]
+    ?? throw new Exception("ActivityPubUsername is not defined");
 
 builder.Services
-    .AddPandacapServices(new(
-        applicationHostname: builder.Configuration["ApplicationHostname"],
-        username: builder.Configuration["ActivityPubUsername"],
-        keyVaultHostname: builder.Configuration["KeyVaultHostname"],
-        weasylProxyHost: builder.Configuration["WeasylProxyHost"]))
+    .AddActivityPubFavoritesHandler()
+    .AddActivityPubInboxHandler()
+    .AddActivityPubKeyFinder()
+    .AddActivityPubOutboxServices()
+    .AddActivityPubRemoteObjectServices()
+    .AddActivityPubServices()
+    .AddActivityPubSignatureValidator()
+    .AddATProtoHandleResolution()
+    .AddATProtoServices()
+    .AddAudioServices()
+    .AddCredentialProviders()
+    .AddDnsClient()
+    .AddFeedBuilder()
+    .AddFeedReaders()
+    .AddFurAffinityClient()
+    .AddInboxHandlers()
+    .AddJsonLdExpansionService()
+    .AddLemmyServices()
+    .AddPandacapKeyVault(new()
+    {
+        KeyVaultHost = new Uri("https://" + builder.Configuration["KeyVaultHostname"])
+    })
+    .AddPlatformLinkProvider()
+    .AddResolvers()
+    .AddUIPostProviders()
+    .AddVectorSearch()
+    .AddWeasylClient(new()
+    {
+        WeasylProxyHost = new("https://" + builder.Configuration["WeasylProxyHost"])
+    })
+    .AddWeasylScraper()
     .AddScoped<ActivityPubAddressedPostNotificationHandler>()
     .AddScoped<ActivityPubNotificationHandler>()
-    .AddScoped<ActivityPubRemoteActorService>()
-    .AddScoped<ActivityPubRemotePostService>()
     .AddScoped<ActivityPubReplyNotificationHandler>()
-    .AddScoped<CompositeFavoritesProvider>()
     .AddScoped<CompositeNotificationHandler>()
     .AddScoped<ATProtoNotificationHandler>()
-    .AddScoped<DeliveryInboxCollector>()
     .AddScoped<DeviantArtFeedNotificationHandler>()
     .AddScoped<DeviantArtNoteNotificationHandler>()
     .AddScoped<FurAffinityNoteNotificationHandler>()
     .AddScoped<FurAffinityNotificationHandler>()
-    .AddScoped<MastodonVerifier>()
     .AddScoped<PostCreator>()
-    .AddScoped<RemoteActivityPubPostHandler>()
     .AddScoped<ReplyLookup>()
     .AddScoped<SvgRenderer>()
     .AddScoped<TokenUpdater>()
     .AddScoped<Uploader>()
     .AddScoped<WeasylNoteNotificationHandler>()
-    .AddScoped<WeasylNotificationHandler>()
-    .AddScoped<WmaZipSplitter>();
+    .AddScoped<WeasylNotificationHandler>();
 
 builder.Services.AddHttpClient(string.Empty, client =>
     client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent));

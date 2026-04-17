@@ -1,8 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using Pandacap.ConfigurationObjects
+@using Pandacap.Configuration
+@using Pandacap.Constants
 @using Pandacap.Data
+@using Pandacap.Database
 @inject SignInManager<IdentityUser> SignInManager
-@inject ApplicationInformation appInfo
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,11 +15,10 @@
         <meta name="robots" content="noindex" />
     }
     <meta http-equiv="X-UA-Compatible" content="IE=8" />
-    <title>@ViewData["Title"] - @appInfo.Username</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] - @DeploymentInformation.Username</title>
     <!--[if !IE]><!-->
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/pandacap.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pandacap.css" asp-append-version="true" title="Standard" />
+    <link rel="stylesheet alternate" href="~/css/ie8.css" asp-append-version="true" title="Alternate" />
     <!--<![endif]-->
     <!--[if IE]>
     <link rel="stylesheet" href="/css/ie8.css" />
@@ -28,11 +28,11 @@
         <meta property="og:title" content="@up.Title" />
         <meta property="og:description" content="@up.Body" />
         <meta property="og:site_name" content="@UserAgentInformation.ApplicationName" />
-        <meta property="og:url" content="https://@appInfo.ApplicationHostname/UserPosts/@up.Id" />
-        if (up.Images.DefaultIfEmpty(null).First() is PostImage image)
+        <meta property="og:url" content="@up.Url" />
+        if (up.Images.DefaultIfEmpty(null).First() is Post.Image image)
         {
-            <meta property="og:image" content="https://@appInfo.ApplicationHostname/Blobs/UserPosts/@up.Id/@image.Raster.Id" />
-            <meta property="twitter:image" content="https://@appInfo.ApplicationHostname/Blobs/UserPosts/@up.Id/@image.Raster.Id" />
+            <meta property="og:image" content="@up.GetImageUrl(image)" />
+            <meta property="twitter:image" content="@up.GetImageUrl(image)" />
             <meta property="twitter:card" content="summary_large_image" />
         }
     }
@@ -41,7 +41,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Profile" asp-action="Index">@appInfo.Username</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Profile" asp-action="Index">@DeploymentInformation.Username</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>

@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
-using Pandacap.ActivityPub.Communication;
-using Pandacap.ActivityPub.Inbound;
-using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
-using Pandacap.HighLevel;
+using Pandacap.ActivityPub.RemoteObjects.Interfaces;
+using Pandacap.ActivityPub.RemoteObjects.Models;
+using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.ActivityPub.Static;
+using Pandacap.Database;
 using Pandacap.Models;
 using System.Net;
 using System.Security.Authentication;
@@ -14,14 +13,12 @@ using System.Security.Authentication;
 namespace Pandacap.Controllers
 {
     public class RemotePostsController(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
-        ActivityPubRemotePostService activityPubRemotePostService,
-        ActivityPubRequestHandler activityPubRequestHandler,
-        ApplicationInformation appInfo,
+        IActivityPubRemoteActorService activityPubRemoteActorService,
+        IActivityPubRemotePostService activityPubRemotePostService,
+        IActivityPubRequestHandler activityPubRequestHandler,
         PandacapDbContext context,
-        ActivityPubHostInformation hostInformation,
-        ActivityPubPostTranslator postTranslator,
-        ActivityPubRelationshipTranslator relationshipTranslator) : Controller
+        IActivityPubPostTranslator postTranslator,
+        IActivityPubRelationshipTranslator relationshipTranslator) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Actor(string id, CancellationToken cancellationToken)
@@ -29,7 +26,7 @@ namespace Pandacap.Controllers
             if (!Uri.TryCreate(id, UriKind.Absolute, out Uri? uri) || uri == null)
                 return NotFound();
 
-            if (uri.Host == appInfo.ApplicationHostname)
+            if (uri.Host == ActivityPubHostInformation.ApplicationHostname)
                 return Redirect(uri.AbsoluteUri);
 
             if (User.Identity?.IsAuthenticated != true)
@@ -50,12 +47,14 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Follow(string id)
+        public async Task<IActionResult> Follow(
+            string id,
+            CancellationToken cancellationToken)
         {
-            if (await context.Follows.Where(f => f.ActorId == id).DocumentCountAsync() > 0)
+            if (await context.Follows.Where(f => f.ActorId == id).CountAsync() > 0)
                 return RedirectToAction("UpdateFollow", "Profile", new { id });
 
-            var actor = await activityPubRemoteActorService.FetchActorAsync(id);
+            var actor = await activityPubRemoteActorService.FetchActorAsync(id, cancellationToken);
 
             Guid followGuid = Guid.NewGuid();
 
@@ -63,10 +62,9 @@ namespace Pandacap.Controllers
             {
                 Id = followGuid,
                 Inbox = actor.Inbox,
-                JsonBody = ActivityPubSerializer.SerializeWithContext(
-                    relationshipTranslator.BuildFollow(
-                        followGuid,
-                        actor.Id)),
+                JsonBody = relationshipTranslator.BuildFollow(
+                    followGuid,
+                    actor.Id),
                 StoredAt = DateTimeOffset.UtcNow
             });
 
@@ -93,7 +91,7 @@ namespace Pandacap.Controllers
             if (!Uri.TryCreate(id, UriKind.Absolute, out Uri? uri) || uri == null)
                 return NotFound();
 
-            if (uri.Host == appInfo.ApplicationHostname)
+            if (uri.Host == ActivityPubHostInformation.ApplicationHostname)
                 return Redirect(uri.AbsoluteUri);
 
             if (User.Identity?.IsAuthenticated != true)
@@ -127,7 +125,7 @@ namespace Pandacap.Controllers
 
             List<RemoteActor> actors = [post.AttributedTo];
             foreach (var recipient in post.Recipients)
-                if (recipient is RemoteAddressee.Actor actor && actor.Id != hostInformation.ActorId)
+                if (recipient is RemoteAddressee.Actor actor && actor.Id != ActivityPubHostInformation.ActorId)
                     actors.Add(actor.Item);
 
             var communities = actors.Where(a => a.Type == "https://www.w3.org/ns/activitystreams#Group");
@@ -153,9 +151,9 @@ namespace Pandacap.Controllers
                 inboxes
                 .Select(inbox => activityPubRequestHandler.PostAsync(
                     new Uri(inbox),
-                    ActivityPubSerializer.SerializeWithContext(
-                        postTranslator.BuildObjectCreate(
-                            addressedPost)))));
+                    postTranslator.BuildObjectCreate(
+                        addressedPost), 
+                    cancellationToken)));
 
             return RedirectToAction("Index", "AddressedPosts", new { id = addressedPost.Id });
         }

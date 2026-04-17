@@ -1,38 +1,41 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
-using Pandacap.ActivityPub;
-using Pandacap.ActivityPub.Communication;
-using Pandacap.ActivityPub.Inbound;
-using Pandacap.Data;
-using Pandacap.HighLevel;
-using Pandacap.Signatures;
+using Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces;
+using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
+using Pandacap.ActivityPub.HttpSignatures.Validation.Models;
+using Pandacap.ActivityPub.Inbox.Interfaces;
+using Pandacap.ActivityPub.JsonLd.Interfaces;
+using Pandacap.ActivityPub.RemoteObjects.Interfaces;
+using Pandacap.ActivityPub.RemoteObjects.Models;
+using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.ActivityPub.Static;
+using Pandacap.Database;
 using System.Text;
 
 namespace Pandacap.Controllers
 {
     public class ActivityPubController(
-        ActivityPubRemoteActorService activityPubRemoteActorService,
-        ActivityPubRemotePostService activityPubRemotePostService,
+        IActivityPubKeyFinder activityPubKeyFinder,
+        IActivityPubRemoteActorService activityPubRemoteActorService,
+        IActivityPubRemotePostService activityPubRemotePostService,
+        IActivityPubSignatureValidator activityPubSignatureValidator,
         PandacapDbContext context,
-        JsonLdExpansionService expansionService,
-        ActivityPubHostInformation hostInformation,
-        ActivityPubInteractionTranslator interactionTranslator,
-        MastodonVerifier mastodonVerifier,
-        ActivityPubPostTranslator postTranslator,
-        RemoteActivityPubPostHandler remoteActivityPubPostHandler,
-        ActivityPubRelationshipTranslator relationshipTranslator,
+        IJsonLdExpansionService expansionService,
+        IActivityPubInteractionTranslator interactionTranslator,
+        IActivityPubPostTranslator postTranslator,
+        IActivityPubRelationshipTranslator relationshipTranslator,
+        IRemoteActivityPubInboxHandler remoteActivityPubInboxHandler,
         ReplyLookup replyLookup) : Controller
     {
         private static new readonly IEnumerable<JToken> Empty = [];
 
         public async Task<IActionResult> Followers()
         {
-            int followers = await context.Followers.DocumentCountAsync();
+            int followers = await context.Followers.CountAsync();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    relationshipTranslator.BuildFollowersCollection(followers)),
+                relationshipTranslator.BuildFollowersCollection(followers),
                 "application/activity+json",
                 Encoding.UTF8);
         }
@@ -42,8 +45,7 @@ namespace Pandacap.Controllers
             var follows = await context.Follows.ToListAsync();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    relationshipTranslator.BuildFollowingCollection(follows)),
+                relationshipTranslator.BuildFollowingCollection(follows),
                 "application/activity+json",
                 Encoding.UTF8);
         }
@@ -52,18 +54,17 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Liked()
         {
             int posts = await context.ActivityPubFavorites
-                .DocumentCountAsync();
+                .CountAsync();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    interactionTranslator.BuildLikedCollection(
-                        posts)),
+                interactionTranslator.BuildLikedCollection(
+                    posts),
                 "application/activity+json",
                 Encoding.UTF8);
         }
 
         [HttpPost]
-        public async Task Inbox(CancellationToken cancellationToken)
+        public async Task<IActionResult> Inbox(CancellationToken cancellationToken)
         {
             using var sr = new StreamReader(Request.Body);
             string json = await sr.ReadToEndAsync(cancellationToken);
@@ -71,21 +72,34 @@ namespace Pandacap.Controllers
             // Expand JSON-LD
             // This is important to do, because objects can be replaced with IDs, pretty much anything can be an array, etc.
             JObject document = JObject.Parse(json);
-            var expansionObj = expansionService.Expand(document);
+            var expansionObj = expansionService.ExpandFirst(document);
             if (expansionObj == null)
-                return;
+                return BadRequest("Could not turn incoming JSON into fully expanded JSON-LD. (Is the context correct?)");
 
-            // Find out which ActivityPub actor they say they are, and grab that actor's information and public key
+            // Find out which ActivityPub actor they say they are
             string actorId = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
+
+            // Verify signature
+            try
+            {
+                var validKey = await activityPubKeyFinder
+                    .AcquireKeysAsync(Request, cancellationToken)
+                    .Where(key => key.Owner == actorId)
+                    .Where(key => activityPubSignatureValidator.VerifyRequestSignature(Request, key) == VerificationResult.SuccessfullyVerified)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (validKey == null)
+                    return Unauthorized("Could not verify signature.");
+            }
+            catch (Exception)
+            {
+                return Unauthorized("Could not attempt to verify signature.");
+            }
+
+            // Grab that actor's information and public key
             var actor = await activityPubRemoteActorService.FetchActorAsync(actorId, cancellationToken);
 
             string type = expansionObj["@type"]![0]!.Value<string>()!;
-
-            // Verify HTTP signature against the public key
-            var signatureVerificationResult = mastodonVerifier.VerifyRequestSignature(Request, actor);
-
-            if (signatureVerificationResult != NSign.VerificationResult.SuccessfullyVerified)
-                return;
 
             if (type == "https://www.w3.org/ns/activitystreams#Follow")
             {
@@ -94,7 +108,7 @@ namespace Pandacap.Controllers
                 string fActor = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
                 string fObject = expansionObj["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
 
-                if (fActor == actor.Id && fObject == hostInformation.ActorId)
+                if (fActor == actor.Id && fObject == ActivityPubHostInformation.ActorId)
                     await AddFollowAsync(activityId, actor);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Undo")
@@ -105,7 +119,7 @@ namespace Pandacap.Controllers
                     {
                         string fActor = objectToUndo["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
                         string fObject = objectToUndo["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
-                        if (fActor == actor.Id && fObject == hostInformation.ActorId)
+                        if (fActor == actor.Id && fObject == ActivityPubHostInformation.ActorId)
                         {
                             await foreach (var follower in context.Followers
                                 .Where(f => f.ActorId == fActor)
@@ -180,15 +194,16 @@ namespace Pandacap.Controllers
                 {
                     if (type == "https://www.w3.org/ns/activitystreams#Announce")
                     {
-                        await remoteActivityPubPostHandler.AddRemoteAnnouncementAsync(
+                        await remoteActivityPubInboxHandler.AddRemoteAnnouncementAsync(
                             actor,
                             expansionObj["@id"]!.Value<string>()!,
-                            interactedWithId);
+                            interactedWithId,
+                            cancellationToken);
                     }
 
                     if (Uri.TryCreate(interactedWithId, UriKind.Absolute, out Uri? uri)
                         && uri != null
-                        && Uri.TryCreate(hostInformation.ActorId, UriKind.Absolute, out Uri? me)
+                        && Uri.TryCreate(ActivityPubHostInformation.ActorId, UriKind.Absolute, out Uri? me)
                         && me != null
                         && uri.Host == me.Host)
                     {
@@ -219,7 +234,7 @@ namespace Pandacap.Controllers
                         .FirstOrDefaultAsync(cancellationToken);
 
                     bool isMention = remotePost.Recipients
-                        .Any(addressee => addressee.Id == hostInformation.ActorId);
+                        .Any(addressee => addressee.Id == ActivityPubHostInformation.ActorId);
 
                     if (inReplyTo != null)
                     {
@@ -276,8 +291,7 @@ namespace Pandacap.Controllers
                             follow.Url = remotePost.AttributedTo.Url;
                             follow.IconUrl = remotePost.AttributedTo.IconUrl;
 
-                            //if (nobodyAddressed)
-                                await remoteActivityPubPostHandler.AddRemotePostAsync(actor, remotePost);
+                            await remoteActivityPubInboxHandler.AddRemotePostAsync(actor, remotePost, cancellationToken);
                         }
                     }
                 }
@@ -361,6 +375,8 @@ namespace Pandacap.Controllers
                     await context.SaveChangesAsync(cancellationToken);
                 }
             }
+
+            return Accepted();
         }
 
         private async Task AddFollowAsync(string objectId, RemoteActor actor)
@@ -386,8 +402,7 @@ namespace Pandacap.Controllers
                 {
                     Id = Guid.NewGuid(),
                     Inbox = actor.Inbox,
-                    JsonBody = ActivityPubSerializer.SerializeWithContext(
-                        relationshipTranslator.BuildFollowAccept(objectId)),
+                    JsonBody = relationshipTranslator.BuildFollowAccept(objectId),
                     StoredAt = DateTimeOffset.UtcNow
                 });
             }
@@ -398,11 +413,10 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Outbox()
         {
-            int count = await context.Posts.DocumentCountAsync();
+            int count = await context.Posts.CountAsync();
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    postTranslator.BuildOutboxCollection(
-                        count)),
+                postTranslator.BuildOutboxCollection(
+                    count),
                 "application/activity+json",
                 Encoding.UTF8);
         }
@@ -418,10 +432,9 @@ namespace Pandacap.Controllers
                 return NotFound();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    relationshipTranslator.BuildFollow(
-                        follow.FollowGuid,
-                        follow.ActorId)),
+                relationshipTranslator.BuildFollow(
+                    follow.FollowGuid,
+                    follow.ActorId),
                 "application/activity+json",
                 Encoding.UTF8);
         }
@@ -437,10 +450,9 @@ namespace Pandacap.Controllers
                 return NotFound();
 
             return Content(
-                ActivityPubSerializer.SerializeWithContext(
-                    interactionTranslator.BuildLike(
-                        id,
-                        post.ObjectId)),
+                interactionTranslator.BuildLike(
+                    id,
+                    post.ObjectId),
                 "application/activity+json",
                 Encoding.UTF8);
         }

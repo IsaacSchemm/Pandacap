@@ -1,12 +1,11 @@
-﻿@using Pandacap.ConfigurationObjects
+﻿@using Pandacap.Constants
 @using Pandacap.Data
-@using Pandacap.HighLevel.PlatformLinks
+@using Pandacap.Database
+@using Pandacap.PlatformLinks.Interfaces
 @model UserPostViewModel
-@inject ApplicationInformation appInfo
-@inject PlatformIconProvider platformIconProvider
 
 @{
-    ViewBag.Title = Model.Post.Type == PostType.StatusUpdate
+    ViewBag.Title = Model.Post.Type == Post.PostType.StatusUpdate
         ? "Status Update"
         : Model.Post.Title;
     ViewBag.UserPost = Model.Post;
@@ -30,33 +29,9 @@
     @Model.Post.PublishedTime.UtcDateTime.ToShortTimeString()
 </p>
 
-<details class="mb-4">
-    <summary class="small text-muted">View on:</summary>
-
-    @foreach (var linkGroup in Model.PlatformLinks
-        .GroupBy(link => new
-        {
-            HeaderName = link.Category == PlatformLinkCategory.External
-        ? link.Host
-        : $"{link.Category}"
-        }))
-    {
-        <div class="social-block">
-            @foreach (var link in linkGroup)
-            {
-                <div>
-                    <a href="@link.GetViewPostUrl(Model.Post)" target="_blank">
-                        <img alt=""
-                             src="@await platformIconProvider.ResolveIconAsync(link.Host)"
-                             class="social-icon-inline" />
-
-                        @link.PlatformName
-                    </a>
-                </div>
-            }
-        </div>
-    }
-</details>
+<div class="mb-3">
+    <partial name="_PlatformLinks" model="@Model.PlatformLinks" />
+</div>
 
 @foreach (var image in Model.Post.Images)
 {
@@ -196,7 +171,7 @@
             See the About page for more information about how crossposts work.
         </p>
 
-        <form asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this post from Pandacap? (This will not delete it from any site it has been crossposted to.)')">
+        <form asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this post from @(UserAgentInformation.ApplicationName)? (This will not delete it from any site it has been crossposted to.)')">
             <input type="hidden" name="id" value="@Model.Post.Id" />
             <button type="submit" class="btn btn-danger">
                 Delete from @UserAgentInformation.ApplicationName

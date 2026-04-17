@@ -1,22 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
-using Pandacap.HighLevel;
-using Pandacap.HighLevel.Weasyl;
-using Pandacap.Html;
-using static Pandacap.HighLevel.WeasylClient;
+using Pandacap.Credentials.Interfaces;
+using Pandacap.Database;
+using Pandacap.Text;
+using Pandacap.Weasyl.Interfaces;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class WeasylController(
-        ApplicationInformation appInfo,
         PandacapDbContext context,
-        WeasylClientFactory weasylClientFactory) : Controller
+        IUserAwareWeasylClientFactory userAwareWeasylClientFactory,
+        IWeasylClientFactory weasylClientFactory) : Controller
     {
-        public async Task<IActionResult> Setup()
+        public async Task<IActionResult> Setup(CancellationToken cancellationToken)
         {
             var account = await context.WeasylCredentials
                 .AsNoTracking()
@@ -24,17 +22,20 @@ namespace Pandacap.Controllers
                 {
                     account.Login
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             ViewBag.Username = account?.Login;
 
             if (account != null)
             {
-                if (await weasylClientFactory.CreateWeasylClientAsync() is WeasylClient client)
+                if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is IWeasylClient client)
                 {
                     try
                     {
-                        var avatarResponse = await client.GetAvatarAsync(account.Login);
+                        var avatarResponse = await client.GetAvatarAsync(
+                            account.Login,
+                            cancellationToken);
+
                         ViewBag.Avatar = avatarResponse.avatar;
                     } catch (Exception) { }
                 }
@@ -45,24 +46,25 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Connect(string apiKey)
+        public async Task<IActionResult> Connect(string apiKey, CancellationToken cancellationToken)
         {
-            int count = await context.WeasylCredentials.DocumentCountAsync();
+            int count = await context.WeasylCredentials.CountAsync(cancellationToken);
             if (count > 0)
                 return Conflict();
 
             if (apiKey != null)
             {
-                var weasylClient = weasylClientFactory.CreateWeasylClient(apiKey);
+                var weasylClient = weasylClientFactory.CreateWeasylClient(
+                    apiKey);
 
-                var user = await weasylClient.WhoamiAsync();
+                var user = await weasylClient.WhoamiAsync(cancellationToken);
 
                 context.WeasylCredentials.Add(new WeasylCredentials
                 {
                     Login = user.login,
                     ApiKey = apiKey
                 });
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(cancellationToken);
             }
 
             return RedirectToAction(nameof(Setup));
@@ -82,13 +84,13 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crosspost(Guid id)
+        public async Task<IActionResult> Crosspost(Guid id, CancellationToken cancellationToken)
         {
             var post = await context.Posts
                 .Where(p => p.Id == id)
-                .SingleAsync();
+                .SingleAsync(cancellationToken);
 
-            var client = await weasylClientFactory.CreateWeasylClientAsync()
+            var client = await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken)
                 ?? throw new Exception("Weasyl connection not available");
 
             if (post.WeasylSubmitId != null || post.WeasylJournalId != null)
@@ -100,24 +102,26 @@ namespace Pandacap.Controllers
                     throw new NotImplementedException("Crossposted Weasyl submissions must have exactly one image");
 
                 post.WeasylSubmitId = await client.UploadVisualAsync(
-                    $"https://{appInfo.ApplicationHostname}/Blobs/UserPosts/{post.Id}/{post.Images[0].Raster.Id}",
+                    post.GetImageUrl(post.Images[0]),
                     post.Title,
-                    SubmissionType.Other,
+                    Weasyl.Models.WeasylUpload.SubmissionType.Other,
                     null,
-                    Rating.General,
+                    Weasyl.Models.WeasylUpload.Rating.General,
                     post.Body,
-                    post.Tags);
+                    post.Tags,
+                    cancellationToken);
             }
             else
             {
                 post.WeasylJournalId = await client.UploadJournalAsync(
                     post.Title ?? ExcerptGenerator.FromText(40, post.Body),
-                    Rating.General,
+                    Weasyl.Models.WeasylUpload.Rating.General,
                     post.Body,
-                    post.Tags);
+                    post.Tags,
+                    cancellationToken);
             }
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction("Index", "UserPosts", new { id });
         }

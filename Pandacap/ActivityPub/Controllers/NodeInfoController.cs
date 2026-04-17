@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Pandacap.ConfigurationObjects;
-using Pandacap.Data;
-using Pandacap.HighLevel;
+using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Static;
+using Pandacap.Constants;
+using Pandacap.Database;
 
 namespace Pandacap.Controllers
 {
     [Route("")]
     public class NodeInfoController(
-        ApplicationInformation appInfo,
         PandacapDbContext context) : Controller
     {
         [HttpGet]
@@ -21,7 +21,7 @@ namespace Pandacap.Controllers
                     new
                     {
                         rel = "http://nodeinfo.diaspora.software/ns/schema/2.1",
-                        href = $"https://{appInfo.ApplicationHostname}/.well-known/nodeinfo/2.1"
+                        href = $"https://{ActivityPubHostInformation.ApplicationHostname}/.well-known/nodeinfo/2.1"
                     }
                 }
             });
@@ -32,16 +32,16 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> NodeInfo2_1()
         {
             var posts = await context.Posts
-                .Where(post => post.Type != PostType.Scraps)
-                .DocumentCountAsync();
+                .Where(post => post.Type != Post.PostType.Scraps)
+                .CountAsync();
 
             var communityPosts = await context.AddressedPosts
                 .Where(ap => ap.InReplyTo == null)
-                .DocumentCountAsync();
+                .CountAsync();
 
             var replies = await context.AddressedPosts
                 .Where(ap => ap.InReplyTo != null)
-                .DocumentCountAsync();
+                .CountAsync();
 
             return Json(new
             {

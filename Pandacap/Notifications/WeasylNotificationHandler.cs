@@ -1,31 +1,28 @@
-﻿using Pandacap.HighLevel.Weasyl;
-using Pandacap.PlatformBadges;
-using Pandacap.HighLevel;
+﻿using Pandacap.Credentials.Interfaces;
+using Pandacap.UI.Badges;
+using Pandacap.Weasyl.Interfaces;
+using System.Runtime.CompilerServices;
 
 namespace Pandacap.Notifications
 {
     public class WeasylNotificationHandler(
-        WeasylClientFactory weasylClientFactory
+        IUserAwareWeasylClientFactory userAwareWeasylClientFactory
     ) : INotificationHandler
     {
-        public async IAsyncEnumerable<Notification> GetNotificationsAsync()
+        public async IAsyncEnumerable<Notification> GetNotificationsAsync(
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            if (await weasylClientFactory.CreateWeasylClientAsync() is not WeasylClient client)
+            if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
                 yield break;
 
-            var platform = new NotificationPlatform(
-                "Weasyl",
-                PostPlatformModule.GetBadge(PostPlatform.Weasyl),
-                viewAllUrl: "https://www.weasyl.com/messages/notifications");
-
-            var notifications = await client.ExtractNotificationsAsync();
+            var notifications = await client.ExtractNotificationsAsync(cancellationToken);
 
             foreach (var notification in notifications.OrderByDescending(x => x.Time))
             {
                 yield return new Notification
                 {
                     ActivityName = notification.Id.TrimEnd('s'),
-                    Platform = platform,
+                    Badge = Badges.Weasyl,
                     PostUrl = notification.PostUrl,
                     Timestamp = notification.Time,
                     UserName = notification.UserName,
@@ -33,5 +30,8 @@ namespace Pandacap.Notifications
                 };
             }
         }
+
+        IAsyncEnumerable<Notification> INotificationHandler.GetNotificationsAsync() =>
+            GetNotificationsAsync();
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
-using Pandacap.Clients.ATProto;
-using Pandacap.Data;
+using Pandacap.ActivityPub.Models.Interfaces;
+using Pandacap.ATProto.Models;
+using Pandacap.Database;
 using System.Net;
 using System.Text.RegularExpressions;
 
@@ -10,7 +10,6 @@ namespace Pandacap.Functions
 {
     public partial class BridgedPostDiscovery(
         PandacapDbContext context,
-        ActivityPubHostInformation hostInformation,
         IHttpClientFactory httpClientFactory)
     {
         [Function("BridgedPostDiscovery")]
@@ -22,7 +21,7 @@ namespace Pandacap.Functions
                 .. await context.Posts
                     .Where(p => p.PublishedTime > cutoff)
                     .Where(p => p.BlueskyDID == null)
-                    .Where(p => p.Type != PostType.Scraps)
+                    .Where(p => p.Type != Post.PostType.Scraps)
                     .ToListAsync(),
                 .. await context.AddressedPosts
                     .Where(p => p.PublishedTime > cutoff)
@@ -66,7 +65,7 @@ namespace Pandacap.Functions
             string targetProtocol)
         {
             using var resp = await httpClient.GetAsync(
-                $"https://ap.brid.gy/convert/{targetProtocol}/{post.GetObjectId(hostInformation)}");
+                $"https://ap.brid.gy/convert/{targetProtocol}/{post.ObjectId}");
 
             if (resp.StatusCode == HttpStatusCode.NotFound)
                 return null;

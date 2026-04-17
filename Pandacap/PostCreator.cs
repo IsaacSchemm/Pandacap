@@ -1,21 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub;
-using Pandacap.Data;
-using Pandacap.HighLevel.VectorSearch;
-using Pandacap.Html;
+using Pandacap.ActivityPub.Outbox.Interfaces;
+using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.Database;
+using Pandacap.Text;
+using Pandacap.VectorSearch.Interfaces;
 
 namespace Pandacap
 {
     public class PostCreator(
-        DeliveryInboxCollector deliveryInboxCollector,
+        IDeliveryInboxCollector deliveryInboxCollector,
         PandacapDbContext context,
         IHttpClientFactory httpClientFactory,
-        ActivityPubPostTranslator postTranslator,
-        VectorSearchIndexClient vectorSearchIndexClient)
+        IActivityPubPostTranslator postTranslator,
+        IVectorSearchIndexClient vectorSearchIndexClient)
     {
         public interface IViewModel
         {
-            PostType PostType { get; }
+            Post.PostType PostType { get; }
 
             string? Title { get; }
 
@@ -63,7 +64,7 @@ namespace Pandacap
 
                 context.Remove(upload);
 
-                List<PostBlobRef> renditions = [new()
+                List<Post.Image.BlobRef> renditions = [new()
                 {
                     Id = upload.Id,
                     ContentType = upload.ContentType
@@ -104,7 +105,7 @@ namespace Pandacap
                     using var resp = await client.GetAsync(linkUrl, cancellationToken);
                     var html = await resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken);
 
-                    var metadata = Scraper.GetOpenGraphMetadata(html);
+                    var metadata = HtmlScraper.GetOpenGraphMetadata(html);
 
                     post.Links = [new()
                     {
@@ -114,7 +115,7 @@ namespace Pandacap
                             : resp.RequestMessage?.RequestUri?.Host,
                         Title = metadata.TryGetValue("og:title", out string? title)
                             ? title
-                            : Scraper.GetTitleFromHtml(html),
+                            : HtmlScraper.GetTitle(html),
                         Image = metadata.TryGetValue("og:image", out string? image)
                             ? image
                             : null,
@@ -136,7 +137,7 @@ namespace Pandacap
 
             context.Posts.Add(post);
 
-            if (post.Type != PostType.Scraps)
+            if (post.Type != Post.PostType.Scraps)
             {
                 foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
                     isCreate: true,
@@ -145,9 +146,7 @@ namespace Pandacap
                     context.ActivityPubOutboundActivities.Add(new()
                     {
                         Id = Guid.NewGuid(),
-                        JsonBody = ActivityPubSerializer.SerializeWithContext(
-                            postTranslator.BuildObjectCreate(
-                                post)),
+                        JsonBody = postTranslator.BuildObjectCreate(post),
                         Inbox = inbox,
                         StoredAt = DateTimeOffset.UtcNow
                     });

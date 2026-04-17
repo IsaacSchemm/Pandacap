@@ -1,16 +1,16 @@
-﻿using Pandacap.HighLevel.DeviantArt;
-using Pandacap.Clients;
-using Pandacap.PlatformBadges;
+﻿using Pandacap.Credentials.Interfaces;
+using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
     public class DeviantArtNoteNotificationHandler(
-        DeviantArtCredentialProvider deviantArtCredentialProvider
+        IDeviantArtCredentialProvider deviantArtCredentialProvider
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<Notification> GetNotificationsAsync()
         {
-            if (await deviantArtCredentialProvider.GetCredentialsAsync() is not (var credentials, _))
+            var credentials = await deviantArtCredentialProvider.GetTokenAsync();
+            if (credentials == null)
                 yield break;
 
             var feed = DeviantArtFs.Api.Notes.GetNotesAsync(
@@ -22,10 +22,7 @@ namespace Pandacap.Notifications
             await foreach (var note in feed)
                 yield return new()
                 {
-                    Platform = new NotificationPlatform(
-                        "DeviantArt",
-                        PostPlatformModule.GetBadge(PostPlatform.DeviantArt),
-                        viewAllUrl: "https://www.deviantart.com/notifications"),
+                    Badge = Badges.DeviantArt,
                     ActivityName = "note",
                     UserName = note.user.username,
                     UserUrl = $"https://www.deviantart.com/{Uri.EscapeDataString(note.user.username ?? "")}",
