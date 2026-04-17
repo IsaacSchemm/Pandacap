@@ -2,18 +2,16 @@
 
 Demo: https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/
 
-A single-user art gallery and feed reader with ActivityPub support.
-
-Note: This project is just a hobby of mine. It doesn't have a stable feature set, functionality may get added or removed without notice, and I'm not able to provide any support for it.
+A single-user hobby project that combines a public art gallery (+ blog) and a private feed reader, with crossposting and ActivityPub S2S support.
 
 ## Design Philosophy
 
-1. Pandacap should present itself to visitors as a personal website, not a social media platform.
-2. Pandacap should not show any content to logged-out users that was not either created or bookmarked by the admin.
-3. Pandacap should keep shares separate from original content, and keep image content separate from text.
-4. No page on Pandacap should have infinite content; pages should have a maximum length and present a "next page" button when appropriate.
-5. Pandacap should use an inbox paradigm for incoming content: posts should be added to the inbox when they arrive, and manually removed by the admin after they've read them.
-6. Pandacap should be deployable to Microsoft Azure in such a way as to minimize idle costs (at the expense of performance and scalability, if necessary).
+1. Pandacap is a gallery/blog application, not a social media platform, so a Pandacap instance should be branded with the admin's username, not the name of the application.
+2. Pandacap should not show any content to logged-out users that was not either created or put there by the admin.
+3. Pandacap's feed reader should keep shares separate from original content, and keep image content separate from text.
+4. Pandacap should use an inbox paradigm for incoming content: posts should be added to the inbox when they arrive, and manually removed by the admin after they've read them.
+5. No page on Pandacap should have infinite scroll by default; pages should have a maximum length and present a "next page" button when appropriate.
+6. Pandacap should be deployable to Microsoft Azure in such a way as to minimize idle costs (at the expense of both performance and scalability, if necessary).
 
 ## Screenshots
 
@@ -41,14 +39,14 @@ The home page shows:
 
 ## Features
 
-* Create **image posts**, **text posts**, and **links**, which are available on the site, via RSS/Atom, and via ActivityPub
+* Create **image posts**, **status updates**, **journal entries**, and **links**, which are available on the site, via RSS/Atom, and via ActivityPub
 * Crosspost your image posts and text posts to attached DeviantArt, Fur Affinity, or Weasyl accounts
 * Follow other users and feeds via RSS/Atom, ActivityPub, or atproto
 * View posts from users or feeds you follow in the **inbox**
     * The inbox is split into **image posts**, **text posts**, **shares**, and **podcasts**
     * Up to 100 posts are shown on one page, and posts within the same page are grouped by author
     * Checkboxes are used to remove posts you've read from the inbox
-    * Non-ActivityPub posts are periodically imported (~3 times per day)
+    * Non-ActivityPub posts are periodically imported in the background
 * View **notifications** from activity on your posts or from your attached accounts
 * Add posts to your **favorites**
     * ActivityPub and Bluesky posts can be added manually
@@ -61,11 +59,9 @@ It is designed to run on Microsoft Azure, using high-level resources like Azure 
 This version is not designed to run on a VPS or a local machine.
 
 To log in for the first time, the instance owner must use a Microsoft account that they have explicitly allowed in the associated Entra ID app registration.
+This means authorization is the reponsibility of your Entra ID registration, so only one user account should be allowed access.
 
-**Any authenticated user can access the same data**.
-This means authorization is the sole reponsibility of your Entra ID registration, so only one user account should be allowed access.
-
-Supported protocols and platforms:
+A DeviantArt account can also be used to log in if its username matches the value of the app setting `DeviantArtUsername`.
 
 ### ActivityPub
 
@@ -100,7 +96,7 @@ Adding an ActivityPub post to your Favorites will send a `Like` activity.
 
 Pandacap allows you to follow atproto accounts as feeds. Individual DIDs or handles can be provided to Pandacap, which will store the DID and then treat the account as a feed. Each time it refreshes the feed, it will resolve the DID to a PDS and then query that PDS directly to detect changes, and (if necessary) for profile updates and any new posts (up to 20 per feed per run).
 
-For each user, you can choose whether to follow Bluesky posts, reposts, and/or likes.
+For each user, you can choose whether to follow Bluesky posts, reposts, and/or likes. Other lexicons, like standard.site, are not supported yet.
 
 Pandacap will also look for Bluesky profile data (name and icon) when it refreshes the feed (every 8 hours, just like for RSS feeds).
 
@@ -145,17 +141,68 @@ Posts with `audio/mpeg` attachments are sent to the Podcasts section, where you 
 
 Pandacap also makes your own posts available over RSS and Atom; the Gallery and Text Posts pages have links to these feeds.
 
+RSS and Atom posts cannot be added to Favorites. This is primarily because individual posts (podcast episodes, for example) may not have public web page URLs, which Pandacap needs so it has a link to send visitors to.
+
 ## Software Architecture
 
-Deployable applications:
-
+* Audio
+    * **Pandacap.Audio**: Allows Pandacap to split podcasts into small chunks (for burning to an audio CD as separate tracks).
+* Feed Parsing
+    * **Pandacap.FeedIngestion**: Reads Atom and RSS feeds. (JSON Feed and twtxt are also supported).
+* Frontend
+    * Feeds
+        * **Pandacap.Frontend.Feeds**: Creates Atom and RSS feeds for Pandacap.
+    * Platform Links
+        * **Pandacap.PlatformLinks**: Puts together the extenal links (ActivityPub, Bluesky, etc.) shown on the home page and on individual posts.
+    * Resolvers
+        * **Pandacap.Resolvers**: Parses URLs or handles that the admin enters into a form on the home page, so Pandacap can show them the corresponding AP or AT object.
+    * UI
+        * **Pandacap.UI.Badges**: Puts together the badges shown below posts or users that indicate their server's host and/or protocol.
+        * **Pandacap.UI.Elements**: Interfaces for various objects that will be rendered as list items in Pandacap's UI.
+        * **Pandacap.UI.Posts**: Retrieves inbox items or favorites as a single combined list.
+    * Vector Search
+        * **Pandacap.VectorSearch**: Implements vector search using Azure AI Search and an Azure-hosted text embedding model. (Not used if the corresponding settings are unconfigured in Pandacap.)
+* Inbox and Favorites Handlers
+    * **Pandacap.Favorites**: Imports favorites from DeviantArt, Fur Affinity, and Weasyl.
+    * **Pandacap.Inbox**: Imports inbox items from DeviantArt, Fur Affinity, and Weasyl, and from ATProto accounts and RSS/Atom feeds.
+* Platforms and Protocols
+    * ActivityPub
+        * Azure Key Vault
+            * **Pandacap.KeyVault**: Fetches the HTTP signature signing key from Azure Key Vault.
+        * HTTP Signatures
+            * **Pandacap.ActivityPub.HttpSignatures.Discovery**: Implements discovery and caching of remote actors' signing keys.
+            * **Pandacap.ActivityPub.HttpSignatures.Validation**: Implements validation of HTTP signatures (draft-cavage).
+        * Inbox and Favorites Handlers
+            * **Pandacap.ActivityPub.Favorites**: Adds or removes remote ActivityPub posts to/from the Favorites collection (and sends Like and Undo activities as appropriate).
+            * **Pandacap.ActivityPub.Inbox**: Adds incoming ActivityPub posts to the Pandacap inbox.
+        * JSON-LD
+            * **Pandacap.ActivityPub.JsonLd**: Normalizes JSON-LD, caches contexts, and attempts to account for incorrect contexts.
+        * Lemmy
+            * **Pandacap.Lemmy**: Uses the Lemmy API to retrieve communities and threads (without authentication). Posts can be created with Pandacap's normal ActivityPub support.
+        * Parsing Remote Objects
+            * **Pandacap.ActivityPub.RemoteObjects**: Fetches and translates remote ActivityPub actors and posts, and resolves WebFinger handles.
+        * Sending Queued Outbox Messages
+            * **Pandacap.ActivityPub.Outbox**: Sends ActivityPub outbox messages (primarily for new Pandacap posts) that are waiting in Pandacap's queue.
+        * **Pandacap.ActivityPub.Services**: Builds outgoing ActivityPub objects and handles ActivityPub HTTP requests.
+        * **Pandacap.ActivityPub.Static**: Stores the Pandacap instance's hostname, handle, and actor ID for ActivityPub (set during application startup).
+    * ATProto
+        * **Pandacap.ATProto.HandleResolution**: Finds the DID that corresponds to an ATProto handle.
+        * **Pandacap.ATProto.Services**: Lets Pandacap get posts, likes, etc. from an ATProto PDS, or use Constellation to do reverse lookups. (All ATProto calls are unauthenticated.)
+    * FurAffinity
+        * **Pandacap.FurAffinity**: Uses user-provided cookie values to read data from Fur Affinity and post artwork and journals.
+    * Weasyl
+        * **Pandacap.Weasyl**: Uses a user-provided API key to read data from Weasyl and post artwork and journals.
+        * **Pandacap.Weasyl.Scraping**: Parses HTML responses from Weasyl and extracts relevant data.
+    * Shared
+        * **Pandacap.Configuration**: Stores the Pandacap instance's hostname and handle (set during application startup).
+        * **Pandacap.Constants**: Stores user agent information and other constant values.
+        * **Pandacap.Credentials**: Wrapper objects for DeviantArt and Weasyl credentials.
+        * **Pandacap.Database**: Contains EF Core entity objects and the DbContext.
+        * **Pandacap.Database.Extensions**: Contains extension methods for the `Post` database object to extract an HTML or plain-text representation of its content.
+        * **Pandacap.Extensions**: Contains extension methods for `IEnumerable<IAsyncEnumerable<T>>` and `HttpRequest`.
+        * **Pandacap.Text**: Contains text and HTML utility methods.
 * **Pandacap**: The main ASP.NET Core project. Hosts public content (artwork, status updates, journals) and private content (e.g. inbox and notification pages).
 * **Pandacap.Functions**: Runs periodic tasks.
-
-Libraries:
-
-* **Pandacap.LowLevel**: Contains shared F# Pandcap code.
-* **Pandacap.HighLevel**: Contains shared C# Pandacap code.
 
 ## Deployment
 
