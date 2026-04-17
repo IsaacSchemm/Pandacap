@@ -21,7 +21,6 @@ using Pandacap.VectorSearch.Interfaces;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
-using static Pandacap.Database.Post;
 
 namespace Pandacap.Controllers
 {

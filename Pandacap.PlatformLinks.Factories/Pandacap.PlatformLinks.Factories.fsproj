@@ -19,8 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="PlatformLinkProvider.fs" />
-    <Compile Include="DependencyInjectionExtensions.fs" />
+    <Compile Include="PlatformLinkFactory.fs" />
   </ItemGroup>
 
 </Project>

@@ -30,7 +30,6 @@ using Pandacap.KeyVault;
 using Pandacap.Lemmy;
 using Pandacap.Notifications;
 using Pandacap.PlatformLinks;
-using Pandacap.PlatformLinks.ProfileInformation;
 using Pandacap.Resolvers;
 using Pandacap.UI.Posts;
 using Pandacap.VectorSearch;
@@ -148,7 +147,6 @@ builder.Services
     {
         KeyVaultHost = new Uri("https://" + builder.Configuration["KeyVaultHostname"])
     })
-    .AddProfileInformationProvider()
     .AddPlatformLinkProvider()
     .AddResolvers()
     .AddUIPostProviders()

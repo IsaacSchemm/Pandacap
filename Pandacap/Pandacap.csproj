@@ -58,8 +58,7 @@
     <ProjectReference Include="..\Pandacap.Inbox\Pandacap.Inbox.csproj" />
     <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
     <ProjectReference Include="..\Pandacap.Lemmy\Pandacap.Lemmy.fsproj" />
-    <ProjectReference Include="..\Pandacap.PlatformLinks.ProfileInformation\Pandacap.PlatformLinks.ProfileInformation.csproj" />
-    <ProjectReference Include="..\Pandacap.PlatformLinks\Pandacap.PlatformLinks.fsproj" />
+    <ProjectReference Include="..\Pandacap.PlatformLinks\Pandacap.PlatformLinks.csproj" />
     <ProjectReference Include="..\Pandacap.Resolvers\Pandacap.Resolvers.csproj" />
     <ProjectReference Include="..\Pandacap.UI.Posts\Pandacap.UI.Posts.csproj" />
     <ProjectReference Include="..\Pandacap.VectorSearch\Pandacap.VectorSearch.csproj" />

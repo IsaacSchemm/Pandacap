@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.PlatformLinks.ProfileInformation.Interfaces\Pandacap.PlatformLinks.ProfileInformation.Interfaces.csproj" />
+    <PackageReference Include="FSharp.Core" Version="10.1.202" />
   </ItemGroup>
 
 </Project>

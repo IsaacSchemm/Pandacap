@@ -7,9 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.csproj" />
     <ProjectReference Include="..\Pandacap.ATProto.Services.Interfaces\Pandacap.ATProto.Services.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
-    <ProjectReference Include="..\Pandacap.PlatformLinks.ProfileInformation.Interfaces\Pandacap.PlatformLinks.ProfileInformation.Interfaces.csproj" />
+    <ProjectReference Include="..\Pandacap.PlatformLinks.Factories\Pandacap.PlatformLinks.Factories.fsproj" />
+    <ProjectReference Include="..\Pandacap.PlatformLinks.Interfaces\Pandacap.PlatformLinks.Interfaces.csproj" />
   </ItemGroup>
 
 </Project>

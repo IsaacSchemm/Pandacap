@@ -1,15 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.FSharp.Collections;
+using Pandacap.ActivityPub.Static;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
-using Pandacap.PlatformLinks.ProfileInformation.Interfaces;
+using Pandacap.PlatformLinks.Interfaces;
 
-namespace Pandacap.PlatformLinks.ProfileInformation
+namespace Pandacap.PlatformLinks
 {
-    public class ProfileInformationProvider(
+    public class PlatformLinkProfileProvider(
         IDIDResolver didResolver,
         IMemoryCache memoryCache,
-        PandacapDbContext pandacapDbContext) : IProfileInformationProvider
+        PandacapDbContext pandacapDbContext) : IPlatformLinkProfileProvider
     {
         private const string KEY = "ec9f7b3b-cd12-4ff5-bc63-274f01257c9c";
 
@@ -58,10 +60,10 @@ namespace Pandacap.PlatformLinks.ProfileInformation
                 yield return credential.Login;
         }
 
-        public async Task<Interfaces.ProfileInformation> GetProfileInformationAsync(CancellationToken cancellationToken) =>
+        public async Task<IPlatformLinkProfile> GetProfileInformationAsync(CancellationToken cancellationToken) =>
             (await memoryCache.GetOrCreateAsync(
                 KEY,
-                async _ => new Interfaces.ProfileInformation(
+                async _ => new ProfileInformation(
                     BlueskyHandles: await TryGetBlueskyHandleAsync(cancellationToken) is string handle
                         ? [handle]
                         : [],
@@ -72,5 +74,15 @@ namespace Pandacap.PlatformLinks.ProfileInformation
                 {
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
                 }))!;
+
+        public record ProfileInformation(
+            FSharpList<string> BlueskyHandles,
+            FSharpList<string> DeviantArtUsernames,
+            FSharpList<string> FurAffinityUsernames,
+            FSharpList<string> WeasylUsernames) : IPlatformLinkProfile
+        {
+            FSharpList<string> IPlatformLinkProfile.ActivityPubWebFingerHandles =>
+                [$"@{ActivityPubHostInformation.Username}@{ActivityPubHostInformation.ApplicationHostname}"];
+        }
     }
 }

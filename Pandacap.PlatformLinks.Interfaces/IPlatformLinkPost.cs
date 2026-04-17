@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.PlatformLinks.Interfaces
 {
-    public interface IPlatformLinkPostSource
+    public interface IPlatformLinkPost
     {
         string? ActivityPubObjectId { get; }
 

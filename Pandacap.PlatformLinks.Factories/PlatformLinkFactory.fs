@@ -1,20 +1,17 @@
-﻿namespace Pandacap.PlatformLinks
+﻿namespace Pandacap.PlatformLinks.Factories
 
 open System
-open FSharp.Control
-open Pandacap.ActivityPub.Static
 open Pandacap.Constants
 open Pandacap.PlatformLinks.Interfaces
-open Pandacap.PlatformLinks.ProfileInformation.Interfaces
 
-module internal PlatformLinkProvider =
+module PlatformLinkFactory =
     type Platform = {
         category: string
         name: string
         icon: string
         username: string option
         url: string option
-        viewPost: IPlatformLinkPostSource -> string option
+        viewPost: IPlatformLinkPost -> string option
     } with
         interface IPlatformLink with
             member this.Category = this.category
@@ -23,39 +20,37 @@ module internal PlatformLinkProvider =
             member this.Text = Option.toObj this.username
             member this.Url = Option.toObj this.url
 
-    module ActivityPub =
-        let handle = $"@{ActivityPubHostInformation.Username}@{ActivityPubHostInformation.ApplicationHostname}"
+    let GetAllPlatforms(profile: IPlatformLinkProfile) = seq {
+        for handle in profile.ActivityPubWebFingerHandles do
+            let construct name icon = {
+                category = "ActivityPub"
+                name = name
+                icon = icon
+                username = Some handle
+                url = None
+                viewPost = fun _ -> None
+            }
 
-        let construct name icon = {
-            category = "ActivityPub"
-            name = name
-            icon = icon
-            username = Some handle
-            url = None
-            viewPost = fun _ -> None
-        }
+            construct "ActivityPub" "activitypub.svg"
+            construct "Mastodon" "mastodon.png"
+            construct "Pixelfed" "pixelfed.png"
+            construct "wafrn" "wafrn.png"
 
-    let getAllPlatforms (profile: ProfileInformation) = seq {
-        ActivityPub.construct "ActivityPub" "activitypub.svg"
-        ActivityPub.construct "Mastodon" "mastodon.png"
-        ActivityPub.construct "Pixelfed" "pixelfed.png"
-        ActivityPub.construct "wafrn" "wafrn.png"
-
-        {
-            category = "ActivityPub"
-            name = "BrowserPub"
-            icon = "browserpub.svg"
-            username = Some ActivityPub.handle
-            url = Some $"https://browser.pub/{ActivityPub.handle}"
-            viewPost = fun post -> Some $"https://{post.ActivityPubObjectId}"
-        }
+            {
+                category = "ActivityPub"
+                name = "BrowserPub"
+                icon = "browserpub.svg"
+                username = Some handle
+                url = Some $"https://browser.pub/{handle}"
+                viewPost = fun post -> Some $"https://browser.pub/{post.ActivityPubObjectId}"
+            }
 
         for handle in profile.BlueskyHandles do
             for appView in BlueskyAppViews.All do {
                 category = "Bluesky"
                 name = appView.name
                 icon = appView.icon
-                username = Some handle
+                username = Some $"@{handle}"
                 url = Some $"https://{appView.host}/profile/{handle}"
                 viewPost = fun post ->
                     if isNull post.BlueskyDID || isNull post.BlueskyRecordKey
@@ -108,37 +103,9 @@ module internal PlatformLinkProvider =
             member _.Text = null
             member this.Url = Option.toObj this.url
 
-    let getAllPostLinks profile post = seq {
-        for platform in getAllPlatforms profile do {
+    let GetAllPostLinks(profile, post) = seq {
+        for platform in GetAllPlatforms profile do {
             platform = platform
             url = platform.viewPost post
         }
     }
-
-type PlatformLinkProvider(
-    profileInformationProvider: IProfileInformationProvider
-) =
-    let shouldDisplay (platformLink: IPlatformLink) =
-        not (isNull platformLink.Url) || not (isNull platformLink.Text)
-
-    let asyncGetProfile = async {
-        let! token = Async.CancellationToken
-        return! Async.AwaitTask(
-            profileInformationProvider.GetProfileInformationAsync(
-                token))
-    }
-
-    interface IPlatformLinkProvider with
-        member _.GetPostLinksAsync(post) = asyncSeq {
-            let! profile = asyncGetProfile
-            for link in PlatformLinkProvider.getAllPostLinks profile post do
-                if shouldDisplay link then
-                    yield link :> IPlatformLink
-        }
-
-        member _.GetProfileLinksAsync() = asyncSeq {
-            let! profile = asyncGetProfile
-            for link in PlatformLinkProvider.getAllPlatforms profile do
-                if shouldDisplay link then
-                    yield link :> IPlatformLink
-        }

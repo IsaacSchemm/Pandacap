@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Pandacap.Database
 {
-    public class Post : IPost, IActivityPubPost, IActivityPubAddressing, IPlatformLinkPostSource
+    public class Post : IPost, IActivityPubPost, IActivityPubAddressing, IPlatformLinkPost
     {
         public Guid Id { get; set; }
 
@@ -194,6 +194,6 @@ namespace Pandacap.Database
 
         string? IActivityPubAddressing.Audience => null;
 
-        string? IPlatformLinkPostSource.ActivityPubObjectId => Url;
+        string? IPlatformLinkPost.ActivityPubObjectId => Url;
     }
 }

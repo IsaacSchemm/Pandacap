@@ -3,7 +3,7 @@
     public interface IPlatformLinkProvider
     {
         IAsyncEnumerable<IPlatformLink> GetPostLinksAsync(
-            IPlatformLinkPostSource post);
+            IPlatformLinkPost post);
 
         IAsyncEnumerable<IPlatformLink> GetProfileLinksAsync();
     }
