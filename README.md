@@ -143,67 +143,6 @@ Pandacap also makes your own posts available over RSS and Atom; the Gallery and 
 
 RSS and Atom posts cannot be added to Favorites. This is primarily because individual posts (podcast episodes, for example) may not have public web page URLs, which Pandacap needs so it has a link to send visitors to.
 
-## Software Architecture
-
-* Audio
-    * **Pandacap.Audio**: Allows Pandacap to split podcasts into small chunks (for burning to an audio CD as separate tracks).
-* Feed Parsing
-    * **Pandacap.FeedIngestion**: Reads Atom and RSS feeds. (JSON Feed and twtxt are also supported).
-* Frontend
-    * Feeds
-        * **Pandacap.Frontend.Feeds**: Creates Atom and RSS feeds for Pandacap.
-    * Platform Links
-        * **Pandacap.PlatformLinks**: Puts together the extenal links (ActivityPub, Bluesky, etc.) shown on the home page and on individual posts.
-    * Resolvers
-        * **Pandacap.Resolvers**: Parses URLs or handles that the admin enters into a form on the home page, so Pandacap can show them the corresponding AP or AT object.
-    * UI
-        * **Pandacap.UI.Badges**: Puts together the badges shown below posts or users that indicate their server's host and/or protocol.
-        * **Pandacap.UI.Elements**: Interfaces for various objects that will be rendered as list items in Pandacap's UI.
-        * **Pandacap.UI.Posts**: Retrieves inbox items or favorites as a single combined list.
-    * Vector Search
-        * **Pandacap.VectorSearch**: Implements vector search using Azure AI Search and an Azure-hosted text embedding model. (Not used if the corresponding settings are unconfigured in Pandacap.)
-* Inbox and Favorites Handlers
-    * **Pandacap.Favorites**: Imports favorites from DeviantArt, Fur Affinity, and Weasyl.
-    * **Pandacap.Inbox**: Imports inbox items from DeviantArt, Fur Affinity, and Weasyl, and from ATProto accounts and RSS/Atom feeds.
-* Platforms and Protocols
-    * ActivityPub
-        * Azure Key Vault
-            * **Pandacap.KeyVault**: Fetches the HTTP signature signing key from Azure Key Vault.
-        * HTTP Signatures
-            * **Pandacap.ActivityPub.HttpSignatures.Discovery**: Implements discovery and caching of remote actors' signing keys.
-            * **Pandacap.ActivityPub.HttpSignatures.Validation**: Implements validation of HTTP signatures (draft-cavage).
-        * Inbox and Favorites Handlers
-            * **Pandacap.ActivityPub.Favorites**: Adds or removes remote ActivityPub posts to/from the Favorites collection (and sends Like and Undo activities as appropriate).
-            * **Pandacap.ActivityPub.Inbox**: Adds incoming ActivityPub posts to the Pandacap inbox.
-        * JSON-LD
-            * **Pandacap.ActivityPub.JsonLd**: Normalizes JSON-LD, caches contexts, and attempts to account for incorrect contexts.
-        * Lemmy
-            * **Pandacap.Lemmy**: Uses the Lemmy API to retrieve communities and threads (without authentication). Posts can be created with Pandacap's normal ActivityPub support.
-        * Parsing Remote Objects
-            * **Pandacap.ActivityPub.RemoteObjects**: Fetches and translates remote ActivityPub actors and posts, and resolves WebFinger handles.
-        * Sending Queued Outbox Messages
-            * **Pandacap.ActivityPub.Outbox**: Sends ActivityPub outbox messages (primarily for new Pandacap posts) that are waiting in Pandacap's queue.
-        * **Pandacap.ActivityPub.Services**: Builds outgoing ActivityPub objects and handles ActivityPub HTTP requests.
-        * **Pandacap.ActivityPub.Static**: Stores the Pandacap instance's hostname, handle, and actor ID for ActivityPub (set during application startup).
-    * ATProto
-        * **Pandacap.ATProto.HandleResolution**: Finds the DID that corresponds to an ATProto handle.
-        * **Pandacap.ATProto.Services**: Lets Pandacap get posts, likes, etc. from an ATProto PDS, or use Constellation to do reverse lookups. (All ATProto calls are unauthenticated.)
-    * FurAffinity
-        * **Pandacap.FurAffinity**: Uses user-provided cookie values to read data from Fur Affinity and post artwork and journals.
-    * Weasyl
-        * **Pandacap.Weasyl**: Uses a user-provided API key to read data from Weasyl and post artwork and journals.
-        * **Pandacap.Weasyl.Scraping**: Parses HTML responses from Weasyl and extracts relevant data.
-    * Shared
-        * **Pandacap.Configuration**: Stores the Pandacap instance's hostname and handle (set during application startup).
-        * **Pandacap.Constants**: Stores user agent information and other constant values.
-        * **Pandacap.Credentials**: Wrapper objects for DeviantArt and Weasyl credentials.
-        * **Pandacap.Database**: Contains EF Core entity objects and the DbContext.
-        * **Pandacap.Database.Extensions**: Contains extension methods for the `Post` database object to extract an HTML or plain-text representation of its content.
-        * **Pandacap.Extensions**: Contains extension methods for `IEnumerable<IAsyncEnumerable<T>>` and `HttpRequest`.
-        * **Pandacap.Text**: Contains text and HTML utility methods.
-* **Pandacap**: The main ASP.NET Core project. Hosts public content (artwork, status updates, journals) and private content (e.g. inbox and notification pages).
-* **Pandacap.Functions**: Runs periodic tasks.
-
 ## Deployment
 
 This application runs on:
@@ -220,20 +159,13 @@ The web app and function app must have the appropriate IAM permissions to access
 
 Function app responsibilities include:
 
-* `BridgedPostDiscovery`
-    * adds the "View on Bluesky" link to posts of yours that have been bridged
-* `FavoriteIngest`
-    * check accounts for new favorites / likes / upvotes
-* `InboxCleanup`
-    * delete any dismissed inbox entries more than 7 days old
-* `LongTermInboxCleanup`
-    * automatically dismiss active inbox entries (the 200 most recent posts, and any other posts newer than 30 days, will be kept)
-* `InboxIngest`
-    * check feeds for new posts
-* `OutboxCleanup`
-    * remove unsent outbound ActivityPub messages that have been pending for more than 7 days
-* `SendOutbound`
-    * attempt to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
+* adding the Bluesky DID and record keys (for the "View on Bluesky" link) to posts of yours that have been bridged
+* checking accounts for new favorites / likes / upvotes
+* deleting any dismissed inbox entries more than 7 days old
+* automatically dismissing active inbox entries (the 200 most recent posts, and any other posts newer than 30 days, will be kept)
+* checking feeds and connected platforms for new posts
+* removing unsent outbound ActivityPub messages that have been pending for more than 7 days
+* attempting to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
 
 ### Authorization
 
@@ -283,28 +215,6 @@ Application settings (for the web app only):
 [Vector search](https://learn.microsoft.com/en-us/azure/search/vector-search-how-to-create-index)
 uses embeddings generated from the title, alt text, description, links, and tags in your posts.
 Vector search is not enabled in the Pandacap demo instance.
-
-Web app user secrets example:
-
-    {
-      "ApplicationHostname": "example.azurewebsites.net",
-      "Authentication": {
-        "Microsoft": {
-          "ClientId": "...",
-          "ClientSecret": "...",
-          "TenantId": "..."
-        }
-      },
-      "CosmosDBAccountEndpoint": "https://example.documents.azure.com:443/",
-      "CosmosDBAccountKey": "...",
-      "DeviantArtClientId": "...",
-      "DeviantArtClientSecret": "...",
-      "DeviantArtUsername":  "...",
-      "ActivityPubUsername": "userhere",
-      "StorageAccountHostname": "example.blob.core.windows.net",
-      "KeyVaultHostname": "example.vault.azure.net",
-      "WeasylProxyHost": "www.example.com"
-    }
 
 The key vault is for a single encryption key called `activitypub` that is used to sign ActivityPub requests.
 
