@@ -94,18 +94,22 @@ module PlatformLinkFactory =
 
     type PlatformPost = {
         platform: Platform
-        url: string option
+        url: string
     } with
         interface IPlatformLink with
             member this.Category = this.platform.category
             member this.IconFilename = this.platform.icon
             member this.PlatformName = this.platform.name
             member _.Text = null
-            member this.Url = Option.toObj this.url
+            member this.Url = this.url
 
     let GetAllPostLinks(profile, post) = seq {
-        for platform in GetAllPlatforms profile do {
-            platform = platform
-            url = platform.viewPost post
-        }
+        for platform in GetAllPlatforms profile do
+            match platform.viewPost post with
+            | None -> ()
+            | Some url ->
+                yield {
+                    platform = platform
+                    url = url
+                }
     }
