@@ -7,5 +7,4 @@ type Platform =
 | Feeds
 | FurAffinity
 | Pandacap
-| Reddit
 | Weasyl

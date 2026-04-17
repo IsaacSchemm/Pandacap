@@ -14,5 +14,4 @@ module Badges =
     let Feeds = createBadge Feeds "Feeds" "#e8e8e8" "black"
     let FurAffinity = createBadge FurAffinity "Fur Affinity" "#2E3B41" "#cfcfcf"
     let Pandacap = createBadge Pandacap "Pandacap" "purple" "white"
-    let Reddit = createBadge Reddit "Reddit" "#ff4500" "white"
     let Weasyl = createBadge Weasyl "Weasyl" "#990000" "white"

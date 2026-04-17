@@ -5,7 +5,7 @@ open System.Security.Cryptography
 open System.Text
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Http.Extensions
-open Pandacap.ActivityPub.HttpSignatures
+open Pandacap.ActivityPub.HttpSignatures.Discovery.Models
 open Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces
 open Pandacap.ActivityPub.HttpSignatures.Validation.Models
 

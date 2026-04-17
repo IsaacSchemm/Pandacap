@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures\Pandacap.ActivityPub.HttpSignatures.csproj" />
-  </ItemGroup>
-
 </Project>

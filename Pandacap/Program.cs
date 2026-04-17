@@ -115,8 +115,7 @@ if (builder.Configuration["VectorSearchEmbeddingsEndpoint"] is string embeddings
 }
 
 builder.Services.AddSingleton(new AllowedExternalUserCollection(
-    DeviantArtUsers: builder.Configuration["DeviantArtUsername"] is string du ? [du] : [],
-    RedditUsers: builder.Configuration["RedditUsername"] is string ru ? [ru] : []));
+    DeviantArtUsers: builder.Configuration["DeviantArtUsername"] is string du ? [du] : []));
 
 DeploymentInformation.ApplicationHostname = builder.Configuration["ApplicationHostname"]
     ?? throw new Exception("ApplicationHostname is not defined");

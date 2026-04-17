@@ -1,4 +1,4 @@
-﻿namespace Pandacap.ActivityPub.HttpSignatures
+﻿namespace Pandacap.ActivityPub.HttpSignatures.Discovery.Models
 {
     public interface IKey
     {

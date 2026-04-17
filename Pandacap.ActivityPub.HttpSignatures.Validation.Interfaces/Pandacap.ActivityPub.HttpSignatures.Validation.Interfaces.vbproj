@@ -10,8 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Discovery.Models\Pandacap.ActivityPub.HttpSignatures.Discovery.Models.csproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Validation.Models\Pandacap.ActivityPub.HttpSignatures.Validation.Models.fsproj" />
-    <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures\Pandacap.ActivityPub.HttpSignatures.csproj" />
   </ItemGroup>
 
 </Project>
