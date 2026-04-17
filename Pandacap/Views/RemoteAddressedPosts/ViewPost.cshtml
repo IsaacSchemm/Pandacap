@@ -5,7 +5,7 @@
 <hr />
 
 <p>
-    <form method="post" asp-action="Reply">
+    <form method="post" asp-controller="RemotePosts" asp-action="Reply">
         <input type="hidden" name="id" value="@Model.ObjectId" />
 
         <div class="form-group">
