@@ -9,7 +9,7 @@ open Pandacap.PlatformLinks.ProfileInformation.Interfaces
 
 module internal PlatformLinkProvider =
     type Platform = {
-        category: PlatformLinkCategory
+        category: string
         name: string
         icon: string
         username: string option
@@ -23,11 +23,11 @@ module internal PlatformLinkProvider =
             member this.Text = Option.toObj this.username
             member this.Url = Option.toObj this.url
 
-    let fediversePlatforms = [
+    module ActivityPub =
         let handle = $"@{ActivityPubHostInformation.Username}@{ActivityPubHostInformation.ApplicationHostname}"
 
         let construct name icon = {
-            category = PlatformLinkCategory.ActivityPub
+            category = "ActivityPub"
             name = name
             icon = icon
             username = Some handle
@@ -35,27 +35,24 @@ module internal PlatformLinkProvider =
             viewPost = fun _ -> None
         }
 
-        construct "ActivityPub" "activitypub.svg"
-        construct "Mastodon" "mastodon.png"
-        construct "Pixelfed" "pixelfed.png"
-        construct "wafrn" "wafrn.png"
+    let getAllPlatforms (profile: ProfileInformation) = seq {
+        ActivityPub.construct "ActivityPub" "activitypub.svg"
+        ActivityPub.construct "Mastodon" "mastodon.png"
+        ActivityPub.construct "Pixelfed" "pixelfed.png"
+        ActivityPub.construct "wafrn" "wafrn.png"
 
         {
-            category = PlatformLinkCategory.ActivityPub
+            category = "ActivityPub"
             name = "BrowserPub"
             icon = "browserpub.svg"
-            username = Some handle
-            url = Some $"https://browser.pub/{handle}"
+            username = Some ActivityPub.handle
+            url = Some $"https://browser.pub/{ActivityPub.handle}"
             viewPost = fun post -> Some $"https://{post.ActivityPubObjectId}"
         }
-    ]
-
-    let getAllPlatforms (profile: ProfileInformation) = seq {
-        yield! fediversePlatforms
 
         for handle in profile.BlueskyHandles do
             for appView in BlueskyAppViews.All do {
-                category = PlatformLinkCategory.Bluesky
+                category = "Bluesky"
                 name = appView.name
                 icon = appView.icon
                 username = Some handle
@@ -67,7 +64,7 @@ module internal PlatformLinkProvider =
             }
 
         for username in profile.DeviantArtUsernames do {
-            category = PlatformLinkCategory.DeviantArt
+            category = "DeviantArt"
             name = "DeviantArt"
             icon = "deviantart.png"
             username = Some username
@@ -76,7 +73,7 @@ module internal PlatformLinkProvider =
         }
 
         for username in profile.FurAffinityUsernames do {
-            category = PlatformLinkCategory.FurAffinity
+            category = "Fur Affinity"
             name = "Fur Affinity"
             icon = "furaffinity.ico"
             username = Some username
@@ -88,7 +85,7 @@ module internal PlatformLinkProvider =
         }
 
         for username in profile.WeasylUsernames do {
-            category = PlatformLinkCategory.Weasyl
+            category = "Weasyl"
             name = "Weasyl"
             icon = "weasyl.svg"
             username = Some username

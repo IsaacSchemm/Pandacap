@@ -2,7 +2,7 @@
 {
     public interface IPlatformLink
     {
-        PlatformLinkCategory Category { get; }
+        string Category { get; }
         string IconFilename { get; }
         string PlatformName { get; }
         string? Text { get; }

@@ -21,6 +21,7 @@ using Pandacap.VectorSearch.Interfaces;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
+using static Pandacap.Database.Post;
 
 namespace Pandacap.Controllers
 {
@@ -46,23 +47,13 @@ namespace Pandacap.Controllers
 
             var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
 
-            var links = await platformLinkProvider.GetProfileLinksAsync().ToListAsync(cancellationToken);
-
             return new ActivityPubProfile(
                 avatars: avatar == null
                     ? []
                     : [new(
                         avatar.ContentType,
                         $"https://{ActivityPubHostInformation.ApplicationHostname}/Blobs/Avatar/{avatar.Id}")],
-                links: [..
-                    links
-                    .Where(link => link.Category != PlatformLinkCategory.ActivityPub)
-                    .Where(link => link.Category != PlatformLinkCategory.Bluesky)
-                    .Select(link => new ActivityPubProfileLink(
-                        platformName: link.PlatformName,
-                        username: link.Text,
-                        viewProfileUrl: link.Url))
-                ],
+                links: [],
                 publicKeyPem: key,
                 username: ActivityPubHostInformation.Username,
                 summaryHtml: $"<p>Hosted by <a href='{UserAgentInformation.WebsiteUrl}'>{WebUtility.HtmlEncode(UserAgentInformation.ApplicationName)}</a>.</p>");
