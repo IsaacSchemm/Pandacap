@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
+using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Database;
@@ -18,7 +19,8 @@ namespace Pandacap.Controllers
         IActivityPubRequestHandler activityPubRequestHandler,
         PandacapDbContext context,
         IActivityPubPostTranslator postTranslator,
-        IActivityPubRelationshipTranslator relationshipTranslator) : Controller
+        IActivityPubRelationshipTranslator relationshipTranslator,
+        IReplyCollationService replyCollationService) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Actor(string id, CancellationToken cancellationToken)
@@ -105,9 +107,12 @@ namespace Pandacap.Controllers
                     .Where(r => r.ObjectId == post.Id)
                     .SingleOrDefaultAsync(cancellationToken);
 
+                var replies = await replyCollationService.CollectRepliesAsync(id).ToListAsync(cancellationToken);
+
                 return View(new RemotePostViewModel
                 {
                     RemotePost = post,
+                    Replies = replies,
                     IsInFavorites = favorite != null
                 });
             }

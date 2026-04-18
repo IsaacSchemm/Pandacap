@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.Database;
-using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class RemoteAddressedPostsController(
         PandacapDbContext context,
-        ReplyLookup replyLookup) : Controller
+        IReplyCollationService replyCollationService) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> ViewPost(string objectId, CancellationToken cancellationToken)
@@ -20,22 +20,11 @@ namespace Pandacap.Controllers
             if (remotePost == null)
                 return RedirectToAction("RemotePosts", "Index", new { id = objectId });
 
-            return View(new ReplyModel
-            {
-                CreatedAt = remotePost.CreatedAt,
-                CreatedBy = remotePost.CreatedBy,
-                HtmlContent = remotePost.HtmlContent,
-                Name = remotePost.Name,
-                ObjectId = remotePost.ObjectId,
-                Remote = true,
-                Replies = await replyLookup.CollectRepliesAsync(remotePost.ObjectId, cancellationToken)
-                    .OrderBy(p => p.CreatedAt)
-                    .ToListAsync(cancellationToken),
-                Sensitive = remotePost.Sensitive,
-                Summary = remotePost.Summary,
-                Usericon = remotePost.Usericon,
-                Username = remotePost.Username
-            });
+            var asReply = await replyCollationService.AddRepliesAsync(
+                remotePost,
+                cancellationToken);
+
+            return View(asReply);
         }
 
         [HttpPost]

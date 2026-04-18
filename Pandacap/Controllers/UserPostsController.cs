@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.Outbox.Interfaces;
+using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Database;
 using Pandacap.Extensions;
@@ -25,7 +26,7 @@ namespace Pandacap.Controllers
         IPlatformLinkProvider platformLinkProvider,
         PostCreator postCreator,
         IActivityPubPostTranslator postTranslator,
-        ReplyLookup replyLookup,
+        IReplyCollationService replyCollationService,
         IVectorSearchIndexClient vectorSearchIndexClient) : Controller
     {
         [Route("{id}")]
@@ -58,10 +59,8 @@ namespace Pandacap.Controllers
                 PlatformLinks = await platformLinkProvider.GetPostLinksAsync(post).ToListAsync(cancellationToken),
                 Post = post,
                 Replies = User.Identity?.IsAuthenticated == true
-                    ? await replyLookup
-                        .CollectRepliesAsync(
-                            activityPubPost.ObjectId,
-                            cancellationToken)
+                    ? await replyCollationService
+                        .CollectRepliesAsync(activityPubPost.ObjectId)
                         .ToListAsync(cancellationToken)
                     : []
             });

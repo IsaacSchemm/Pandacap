@@ -1,4 +1,5 @@
-﻿using Pandacap.Database;
+﻿using Pandacap.ActivityPub.Replies.Interfaces;
+using Pandacap.Database;
 using Pandacap.PlatformLinks.Interfaces;
 
 namespace Pandacap.Models
@@ -9,6 +10,6 @@ namespace Pandacap.Models
 
         public required Post Post { get; set; }
 
-        public required IReadOnlyList<ReplyModel> Replies { get; set; }
+        public required IReadOnlyList<IReply> Replies { get; set; }
     }
 }

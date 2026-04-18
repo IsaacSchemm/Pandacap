@@ -111,3 +111,8 @@ else
         </div>
     </form>
 </p>
+
+@foreach (var reply in Model.Replies)
+{
+    <partial name="_Reply" model="@reply" />
+}

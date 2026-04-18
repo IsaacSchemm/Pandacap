@@ -1,4 +1,5 @@
 ﻿using Pandacap.ActivityPub.RemoteObjects.Models;
+using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.Database;
 
 namespace Pandacap.Models
@@ -11,6 +12,6 @@ namespace Pandacap.Models
 
         public required IEnumerable<RemoteAddressee> Communities { get; set; }
 
-        public required IEnumerable<ReplyModel> Replies { get; set; }
+        public required IEnumerable<IReply> Replies { get; set; }
     }
 }

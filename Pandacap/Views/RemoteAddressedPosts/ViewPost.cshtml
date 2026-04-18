@@ -1,4 +1,5 @@
-﻿@model ReplyModel
+﻿@using Pandacap.ActivityPub.Replies.Interfaces
+@model IReply
 
 <partial name="_Reply" model="@Model" />
 
@@ -6,7 +7,7 @@
 
 <p>
     <form method="post" asp-controller="RemotePosts" asp-action="Reply">
-        <input type="hidden" name="id" value="@Model.ObjectId" />
+        <input type="hidden" name="id" value="@Model.Root.ObjectId" />
 
         <div class="form-group">
             <label for="replyContent" class="form-label">Write reply (plain text)</label>

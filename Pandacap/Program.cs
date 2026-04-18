@@ -13,6 +13,7 @@ using Pandacap.ActivityPub.Inbox;
 using Pandacap.ActivityPub.JsonLd;
 using Pandacap.ActivityPub.Outbox;
 using Pandacap.ActivityPub.RemoteObjects;
+using Pandacap.ActivityPub.Replies;
 using Pandacap.ActivityPub.Services;
 using Pandacap.ATProto.HandleResolution;
 using Pandacap.ATProto.Services;
@@ -147,6 +148,7 @@ builder.Services
         KeyVaultHost = new Uri("https://" + builder.Configuration["KeyVaultHostname"])
     })
     .AddPlatformLinkProvider()
+    .AddReplyCollationService()
     .AddResolvers()
     .AddUIPostProviders()
     .AddVectorSearch()
@@ -165,7 +167,6 @@ builder.Services
     .AddScoped<FurAffinityNoteNotificationHandler>()
     .AddScoped<FurAffinityNotificationHandler>()
     .AddScoped<PostCreator>()
-    .AddScoped<ReplyLookup>()
     .AddScoped<SvgRenderer>()
     .AddScoped<TokenUpdater>()
     .AddScoped<Uploader>()

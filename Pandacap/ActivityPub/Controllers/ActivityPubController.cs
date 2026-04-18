@@ -8,6 +8,7 @@ using Pandacap.ActivityPub.Inbox.Interfaces;
 using Pandacap.ActivityPub.JsonLd.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
+using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Database;
@@ -26,7 +27,7 @@ namespace Pandacap.Controllers
         IActivityPubPostTranslator postTranslator,
         IActivityPubRelationshipTranslator relationshipTranslator,
         IRemoteActivityPubInboxHandler remoteActivityPubInboxHandler,
-        ReplyLookup replyLookup) : Controller
+        IReplyCollationService replyCollationService) : Controller
     {
         private static new readonly IEnumerable<JToken> Empty = [];
 
@@ -230,7 +231,7 @@ namespace Pandacap.Controllers
 
                     string? inReplyTo = await remotePost.InReplyTo
                         .ToAsyncEnumerable()
-                        .Where(async (id, token) => await replyLookup.IsOriginalPostStoredAsync(id, token))
+                        .Where(async (id, token) => await replyCollationService.IsOriginalPostStoredAsync(id, token))
                         .FirstOrDefaultAsync(cancellationToken);
 
                     bool isMention = remotePost.Recipients

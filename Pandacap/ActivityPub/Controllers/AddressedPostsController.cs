@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
+using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Database;
 using Pandacap.Extensions;
@@ -16,7 +17,7 @@ namespace Pandacap.Controllers
         IActivityPubRemoteActorService activityPubRemoteActorService,
         PandacapDbContext context,
         IActivityPubPostTranslator postTranslator,
-        ReplyLookup replyLookup) : Controller
+        IReplyCollationService replyCollationService) : Controller
     {
         [Route("{id}")]
         public async Task<IActionResult> Index(Guid id, CancellationToken cancellationToken)
@@ -50,10 +51,8 @@ namespace Pandacap.Controllers
                         cancellationToken)
                     : [],
                 Replies = User.Identity?.IsAuthenticated == true
-                    ? await replyLookup
-                        .CollectRepliesAsync(
-                            activityPubPost.ObjectId,
-                            cancellationToken)
+                    ? await replyCollationService
+                        .CollectRepliesAsync(activityPubPost.ObjectId)
                         .ToListAsync(cancellationToken)
                     : []
             });

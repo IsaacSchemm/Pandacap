@@ -1,9 +1,11 @@
-﻿namespace Pandacap.Database
+﻿using Pandacap.ActivityPub.Replies.Interfaces;
+
+namespace Pandacap.Database
 {
     /// <summary>
     /// A remote ActivityPub post that is a reply to one of this app's posts (a UserPost or AddressedPost).
     /// </summary>
-    public class RemoteActivityPubReply
+    public class RemoteActivityPubReply : IReplyRoot
     {
         public Guid Id { get; set; }
 
@@ -26,5 +28,7 @@
         public string? Name { get; set; }
 
         public string? HtmlContent { get; set; }
+
+        bool IReplyRoot.Remote => true;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.FSharp.Collections;
 using Pandacap.ActivityPub.Models.Interfaces;
+using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Text;
 using Pandacap.UI.Badges;
@@ -8,7 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Pandacap.Database
 {
-    public class AddressedPost : IPost, IActivityPubPost, IActivityPubAddressing
+    public class AddressedPost : IPost, IActivityPubPost, IActivityPubAddressing, IReplyRoot
     {
         public Guid Id { get; set; }
 
@@ -32,6 +33,9 @@ namespace Pandacap.Database
 
         [NotMapped]
         public bool IsReply => InReplyTo != null;
+
+        [NotMapped]
+        public string ObjectId => $"https://{ActivityPubHostInformation.ApplicationHostname}/AddressedPosts/{Id}";
 
         private IEnumerable<string> EnumerateRecipients()
         {
@@ -82,8 +86,6 @@ namespace Pandacap.Database
 
         string? IPost.Usericon => null;
 
-        string IActivityPubPost.ObjectId => $"https://{ActivityPubHostInformation.ApplicationHostname}/AddressedPosts/{Id}";
-
         IActivityPubAddressing IActivityPubPost.Addressing => this;
 
         bool IActivityPubPost.IsArticle => false;
@@ -101,5 +103,21 @@ namespace Pandacap.Database
         IEnumerable<string> IActivityPubAddressing.Cc => Addressing.Cc;
 
         string? IActivityPubAddressing.Audience => Community;
+
+        DateTimeOffset IReplyRoot.CreatedAt => PublishedTime;
+
+        string IReplyRoot.CreatedBy => ActivityPubHostInformation.ActorId;
+
+        string? IReplyRoot.Name => Title;
+
+        bool IReplyRoot.Remote => false;
+
+        bool IReplyRoot.Sensitive => false;
+
+        string? IReplyRoot.Summary => null;
+
+        string? IReplyRoot.Usericon => "/Blobs/Avatar";
+
+        string? IReplyRoot.Username => ActivityPubHostInformation.Username;
     }
 }
