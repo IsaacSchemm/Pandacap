@@ -11,9 +11,8 @@ using Pandacap.Database;
 using Pandacap.Credentials.Interfaces;
 using Pandacap.Models;
 using Pandacap.Text;
-using Pandacap.UI.Badges;
-using Pandacap.UI.Elements;
 using Stash = DeviantArtFs.Api.Stash;
+using Pandacap.DeviantArt.Interfaces;
 
 namespace Pandacap.Controllers
 {
@@ -21,48 +20,25 @@ namespace Pandacap.Controllers
     public class DeviantArtController(
         BlobServiceClient blobServiceClient,
         IDeviantArtCredentialProvider deviantArtCredentialProvider,
+        IDeviantArtFeedProvider deviantArtFeedProvider,
         PandacapDbContext pandacapDbContext) : Controller
     {
-        private record ThumbnailWrapper(Preview Item) : IPostThumbnail
-        {
-            string IPostThumbnail.Url => Item.src;
-            string IPostThumbnail.AltText => "";
-        }
-
-        private record PostWrapper(Deviation Item) : IPost
-        {
-            Badge IPost.Badge => Badges.DeviantArt;
-            string IPost.DisplayTitle => Item.title.OrNull() ?? $"{Item.deviationid}";
-            string IPost.Id => $"{Item.deviationid}";
-            string IPost.InternalUrl => Item.url.OrNull();
-            string IPost.ExternalUrl => Item.url.OrNull();
-            DateTimeOffset IPost.PostedAt => Item.published_time.OrNull() ?? DateTimeOffset.MinValue;
-            string? IPost.ProfileUrl => null;
-            IEnumerable<IPostThumbnail> IPost.Thumbnails => Item.thumbs.OrEmpty()
-                .OrderByDescending(t => t.width * t.height)
-                .Take(1)
-                .Select(t => new ThumbnailWrapper(t));
-            string? IPost.Username => null;
-            string? IPost.Usericon => null;
-        }
-
-        public async Task<IActionResult> HomeFeed()
+        public async Task<IActionResult> HomeFeed(CancellationToken cancellationToken)
         {
             var token = await deviantArtCredentialProvider.GetTokenAsync();
             if (token == null)
                 return Content("No DeviantArt account is connected.");
 
-            var page = await DeviantArtFs.Api.Browse.PageHomeAsync(
-                token,
-                PagingLimit.NewPagingLimit(100),
-                PagingOffset.StartingOffset);
+            var items = await deviantArtFeedProvider.GetHomeFeedAsync(token)
+                .Take(100)
+                .ToListAsync(cancellationToken);
 
             return View(
                 "List",
                 new ListViewModel
                 {
                     Title = "DeviantArt Home Feed",
-                    Items = [.. page.results.OrEmpty().Select(d => new PostWrapper(d))]
+                    Items = [.. items]
                 });
         }
 

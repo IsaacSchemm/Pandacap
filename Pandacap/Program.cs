@@ -23,6 +23,7 @@ using Pandacap.Constants;
 using Pandacap.Credentials;
 using Pandacap.Data;
 using Pandacap.Database;
+using Pandacap.DeviantArt;
 using Pandacap.FeedIngestion;
 using Pandacap.Frontend.Feeds;
 using Pandacap.FurAffinity;
@@ -151,6 +152,7 @@ builder.Services
     .AddATProtoServices()
     .AddAudioServices()
     .AddCredentialProviders()
+    .AddDeviantArtServices()
     .AddDnsClient()
     .AddFeedBuilder()
     .AddFeedReaders()
