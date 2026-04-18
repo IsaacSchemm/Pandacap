@@ -65,7 +65,7 @@
 @if (User.Identity?.IsAuthenticated == true)
 {
     <h2 class="my-4">
-        ActivityPub / atproto
+        Remote lookup
     </h2>
 
     <form method="post" asp-controller="Resolver" asp-action="Index">
@@ -75,7 +75,7 @@
                    type="text"
                    class="form-control">
             <button class="btn btn-secondary" type="submit">
-                View user or post
+                View
             </button>
         </div>
     </form>
