@@ -13,18 +13,20 @@ using Pandacap.UI.Lists;
 namespace Pandacap.Controllers
 {
     public class FavoritesController(
-        PandacapDbContext context,
         IActivityPubInteractionTranslator interactionTranslator,
-        IRemoteActivityPubFavoritesHandler remoteActivityPubFavoritesHandler) : Controller
+        IRemoteActivityPubFavoritesHandler remoteActivityPubFavoritesHandler,
+        PandacapDbContext pandacapDbContext) : Controller
     {
-        public async Task<IActionResult> Index(Guid? next, int? count)
+        public async Task<IActionResult> Index(Guid? next, int? count, CancellationToken cancellationToken)
         {
-            var activityPubFavorites = context.ActivityPubFavorites
+            var activityPubFavorites = pandacapDbContext.ActivityPubFavorites
                 .OrderByDescending(post => post.FavoritedAt)
                 .AsAsyncEnumerable()
                 .SkipUntil(post => post.Id == next || next == null);
 
-            var listPage = await activityPubFavorites.AsListPage(count ?? 20);
+            var listPage = await activityPubFavorites.AsListPage(
+                count ?? 20,
+                cancellationToken);
 
             if (Request.IsActivityPub())
             {

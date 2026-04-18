@@ -11,12 +11,15 @@ namespace Pandacap.UI.Lists
         /// <param name="asyncSeq">The source asynchronous sequence</param>
         /// <param name="count">The number of items per page</param>
         /// <returns></returns>
-        public static async Task<ListPage<T>> AsListPage<T>(this IAsyncEnumerable<T> asyncSeq, int count) where T : IPost
+        public static async Task<ListPage<T>> AsListPage<T>(
+            this IAsyncEnumerable<T> asyncSeq,
+            int count,
+            CancellationToken cancellationToken) where T : IPost
         {
             List<T> accumulator = [];
             string? next = null;
 
-            await foreach (var item in asyncSeq)
+            await foreach (var item in asyncSeq.WithCancellation(cancellationToken))
             {
                 if (accumulator.Count < count)
                     accumulator.Add(item);

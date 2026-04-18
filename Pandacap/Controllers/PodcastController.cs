@@ -7,8 +7,8 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class PodcastController(
-        IHttpClientFactory httpClientFactory,
-        IAudioSplitter audioSplitter) : Controller
+        IAudioSplitter audioSplitter,
+        IHttpClientFactory httpClientFactory) : Controller
     {
         public async Task<IActionResult> GetContentType(
             string url,

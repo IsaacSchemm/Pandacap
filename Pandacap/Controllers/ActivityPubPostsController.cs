@@ -11,22 +11,22 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class ActivityPubPostsController(
-        PandacapDbContext context) : Controller
+        PandacapDbContext pandacapDbContext) : Controller
     {
-        public async Task<IActionResult> Index(string? next, int? count)
+        public async Task<IActionResult> Index(string? next, int? count, CancellationToken cancellationToken)
         {
-            var posts1 = context.Posts
+            var posts1 = pandacapDbContext.Posts
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable();
 
-            var posts2 = context.AddressedPosts
+            var posts2 = pandacapDbContext.AddressedPosts
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable();
 
             var posts = await new IAsyncEnumerable<IPost>[] { posts1, posts2 }
                 .MergeNewest(p => p.PostedAt)
                 .SkipUntil(f => f.Id == next || next == null)
-                .AsListPage(count ?? 20);
+                .AsListPage(count ?? 20, cancellationToken);
 
             return View("List", new ListViewModel
             {

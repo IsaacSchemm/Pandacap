@@ -7,9 +7,9 @@ namespace Pandacap.Controllers
 {
     public class BlobsController(
         BlobServiceClient blobServiceClient,
-        PandacapDbContext context) : Controller
+        PandacapDbContext pandacapDbContext) : Controller
     {
-        private async Task<IActionResult> ProxyAsync(Post post, Guid blobId)
+        private async Task<IActionResult> ProxyAsync(Post post, Guid blobId, CancellationToken cancellationToken)
         {
             foreach (var br in post.Blobs)
             {
@@ -18,7 +18,7 @@ namespace Pandacap.Controllers
                     var blob = await blobServiceClient
                         .GetBlobContainerClient("blobs")
                         .GetBlobClient($"{br.Id}")
-                        .DownloadStreamingAsync();
+                        .DownloadStreamingAsync(cancellationToken: cancellationToken);
 
                     return File(
                         blob.Value.Content,
@@ -31,28 +31,29 @@ namespace Pandacap.Controllers
 
         [Route("Blobs/UserPosts/{postId}/{blobId}")]
         [ResponseCache(Duration = 604800, Location = ResponseCacheLocation.Any)]
-        public async Task<IActionResult> Images(Guid postId, Guid blobId)
+        public async Task<IActionResult> Images(Guid postId, Guid blobId, CancellationToken cancellationToken)
         {
-            var post = await context.Posts.Where(p => p.Id == postId).SingleOrDefaultAsync();
+            var post = await pandacapDbContext.Posts.Where(p => p.Id == postId)
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (post == null)
                 return NotFound();
 
-            var image = post.Blobs.Where(b => b.Id == blobId).FirstOrDefault();
+            var image = post.Blobs.FirstOrDefault(b => b.Id == blobId);
 
             if (image == null)
                 return NotFound();
 
-            return await ProxyAsync(post, image.Id);
+            return await ProxyAsync(post, image.Id, cancellationToken);
         }
 
         [Route("Blobs/Uploads/{id}")]
         [ResponseCache(Duration = 604800, Location = ResponseCacheLocation.Any)]
-        public async Task<IActionResult> Uploads(Guid id)
+        public async Task<IActionResult> Uploads(Guid id, CancellationToken cancellationToken)
         {
-            var upload = await context.Uploads
+            var upload = await pandacapDbContext.Uploads
                 .Where(p => p.Id == id)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (upload == null)
                 return NotFound();
@@ -60,7 +61,7 @@ namespace Pandacap.Controllers
             var blob = await blobServiceClient
                 .GetBlobContainerClient("blobs")
                 .GetBlobClient($"{upload.Id}")
-                .DownloadStreamingAsync();
+                .DownloadStreamingAsync(cancellationToken: cancellationToken);
 
             return File(
                 blob.Value.Content,
@@ -69,11 +70,11 @@ namespace Pandacap.Controllers
 
         [Route("Blobs/Uploads/{id}/Raster")]
         [ResponseCache(Duration = 604800, Location = ResponseCacheLocation.Any)]
-        public async Task<IActionResult> UploadsRaster(Guid id)
+        public async Task<IActionResult> UploadsRaster(Guid id, CancellationToken cancellationToken)
         {
-            var upload = await context.Uploads
+            var upload = await pandacapDbContext.Uploads
                 .Where(p => p.Id == id)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (upload == null)
                 return NotFound();
@@ -84,10 +85,10 @@ namespace Pandacap.Controllers
         [Route("Blobs/Avatar")]
         [Route("Blobs/Avatar/{id}")]
         [ResponseCache(Duration = 604800, Location = ResponseCacheLocation.Any)]
-        public async Task<IActionResult> Avatar(Guid? id)
+        public async Task<IActionResult> Avatar(Guid? id, CancellationToken cancellationToken)
         {
-            var avatars = await context.Avatars
-                .ToListAsync();
+            var avatars = await pandacapDbContext.Avatars
+                .ToListAsync(cancellationToken);
 
             var avatar = avatars.FirstOrDefault(a => a.Id == id)
                 ?? avatars.FirstOrDefault();
@@ -98,7 +99,7 @@ namespace Pandacap.Controllers
             var blob = await blobServiceClient
                 .GetBlobContainerClient("blobs")
                 .GetBlobClient(avatar.BlobName)
-                .DownloadStreamingAsync();
+                .DownloadStreamingAsync(cancellationToken: cancellationToken);
 
             return File(
                 blob.Value.Content,

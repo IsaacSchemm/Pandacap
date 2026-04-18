@@ -26,10 +26,9 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ProfileController(
-        IATProtoFeedReader atProtoFeedReader,
         BlobServiceClient blobServiceClient,
+        IATProtoFeedReader atProtoFeedReader,
         ICompositeFavoritesProvider compositeFavoritesProvider,
-        PandacapDbContext context,
         IDeliveryInboxCollector deliveryInboxCollector,
         IFeedRefresher feedRefresher,
         IActivityPubCommunicationPrerequisites keyProvider,
@@ -37,15 +36,16 @@ namespace Pandacap.Controllers
         IPlatformLinkProvider platformLinkProvider,
         IActivityPubProfileTranslator profileTranslator,
         IActivityPubRelationshipTranslator relationshipTranslator,
-        UserManager<IdentityUser> userManager,
-        IVectorSearchIndexClient vectorSearchIndexClient) : Controller
+        IVectorSearchIndexClient vectorSearchIndexClient,
+        PandacapDbContext pandacapDbContext,
+        UserManager<IdentityUser> userManager) : Controller
     {
         private async Task<ActivityPubProfile> GetActivityPubProfileAsync(
             CancellationToken cancellationToken)
         {
             string key = await keyProvider.GetPublicKeyAsync(cancellationToken);
 
-            var avatar = await context.Avatars.FirstOrDefaultAsync(cancellationToken);
+            var avatar = await pandacapDbContext.Avatars.FirstOrDefaultAsync(cancellationToken);
 
             return new ActivityPubProfile(
                 avatars: avatar == null
@@ -78,7 +78,7 @@ namespace Pandacap.Controllers
                 var oneMonthAgo = DateTime.UtcNow.AddMonths(-1);
                 var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
 
-                var artwork = await context.Posts
+                var artwork = await pandacapDbContext.Posts
                     .Where(post => post.Type == Post.PostType.Artwork)
                     .Where(post => post.PublishedTime >= threeMonthsAgo)
                     .OrderByDescending(post => post.PublishedTime)
@@ -94,14 +94,14 @@ namespace Pandacap.Controllers
                     .Take(12)
                     .ToListAsync(cancellationToken);
 
-                var textPosts = await context.Posts
+                var textPosts = await pandacapDbContext.Posts
                     .Where(post => post.Type == Post.PostType.StatusUpdate || post.Type == Post.PostType.JournalEntry)
                     .Where(post => post.PublishedTime >= oneMonthAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(5)
                     .ToListAsync(cancellationToken);
 
-                var links = await context.Posts
+                var links = await pandacapDbContext.Posts
                     .Where(post => post.Type == Post.PostType.Link)
                     .Where(post => post.PublishedTime >= oneMonthAgo)
                     .OrderByDescending(post => post.PublishedTime)
@@ -115,11 +115,11 @@ namespace Pandacap.Controllers
                     RecentFavorites = favorites,
                     RecentTextPosts = textPosts,
                     RecentLinks = links,
-                    FollowerCount = await context.Followers.CountAsync(cancellationToken),
-                    FollowingCount = await context.Follows.CountAsync(cancellationToken)
-                        + await context.GeneralFeeds.CountAsync(cancellationToken)
-                        + await context.ATProtoFeeds.CountAsync(cancellationToken),
-                    FavoritesCount = await context.ActivityPubFavorites.CountAsync(cancellationToken),
+                    FollowerCount = await pandacapDbContext.Followers.CountAsync(cancellationToken),
+                    FollowingCount = await pandacapDbContext.Follows.CountAsync(cancellationToken)
+                        + await pandacapDbContext.GeneralFeeds.CountAsync(cancellationToken)
+                        + await pandacapDbContext.ATProtoFeeds.CountAsync(cancellationToken),
+                    FavoritesCount = await pandacapDbContext.ActivityPubFavorites.CountAsync(cancellationToken),
                     VectorSearchEnabled = vectorSearchIndexClient.VectorSearchEnabled
                 };
             }
@@ -134,17 +134,18 @@ namespace Pandacap.Controllers
                 if (memoryCache.TryGetValue(key, out var found) && found is ProfileViewModel vm)
                     return vm;
 
-                return memoryCache.Set(key, await buildModel(), DateTimeOffset.UtcNow.AddMinutes(10));
+                var model = await buildModel();
+                return memoryCache.Set(key, model, DateTimeOffset.UtcNow.AddMinutes(10));
             }
 
             return View(await getModel());
         }
 
-        public async Task<IActionResult> Search(string? q, Guid? next, int? count)
+        public async Task<IActionResult> Search(string? q, Guid? next, int? count, CancellationToken cancellationToken)
         {
             var query = q?.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 
-            var posts = await context.Posts 
+            var posts = await pandacapDbContext.Posts 
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(d => d.Id == next || next == null)
@@ -170,7 +171,7 @@ namespace Pandacap.Controllers
 
                     return query.All(q => getKeywords().Contains(q, StringComparer.InvariantCultureIgnoreCase));
                 })
-                .AsListPage(count ?? 20);
+                .AsListPage(count ?? 20, cancellationToken);
 
             return View("List", new ListViewModel
             {
@@ -193,7 +194,7 @@ namespace Pandacap.Controllers
             var posts = await vectorSearchIndexClient
                 .GetResultsAsync(q, skip)
                 .Take(take)
-                .SelectMany(e => context.Posts
+                .SelectMany(e => pandacapDbContext.Posts
                     .Where(p => p.Id == e.Document.Id)
                     .AsAsyncEnumerable()
                     .Select(p => new VectorSearchResultViewModel(
@@ -213,18 +214,18 @@ namespace Pandacap.Controllers
         public async Task IndexAll(CancellationToken cancellationToken)
         {
             await vectorSearchIndexClient.IndexAllAsync(
-                context.Posts
+                pandacapDbContext.Posts
                     .OrderByDescending(p => p.PublishedTime)
                     .AsAsyncEnumerable(),
                 cancellationToken);
         }
 
         [Authorize]
-        public async Task<IActionResult> Followers()
+        public async Task<IActionResult> Followers(CancellationToken cancellationToken)
         {
-            var followers = await context.Followers
+            var followers = await pandacapDbContext.Followers
                 .OrderByDescending(f => f.AddedAt)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             return View(new FollowerViewModel
             {
@@ -239,11 +240,12 @@ namespace Pandacap.Controllers
 
         [Authorize]
         public async Task<IActionResult> UpdateFollow(
-            string id)
+            string id,
+            CancellationToken cancellationToken)
         {
-            var follow = await context.Follows
+            var follow = await pandacapDbContext.Follows
                 .Where(f => f.ActorId == id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             return View(follow);
         }
@@ -255,9 +257,10 @@ namespace Pandacap.Controllers
             string id,
             bool ignoreImages,
             bool includeImageShares,
-            bool includeTextShares)
+            bool includeTextShares,
+            CancellationToken cancellationToken)
         {
-            await foreach (var follow in context.Follows
+            await foreach (var follow in pandacapDbContext.Follows
                 .Where(f => f.ActorId == id)
                 .AsAsyncEnumerable())
             {
@@ -266,7 +269,7 @@ namespace Pandacap.Controllers
                 follow.IncludeTextShares = includeTextShares;
             }
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
@@ -274,11 +277,14 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Unfollow(string id)
+        public async Task<IActionResult> Unfollow(string id, CancellationToken cancellationToken)
         {
-            await foreach (var follow in context.Follows.Where(f => f.ActorId == id).AsAsyncEnumerable())
+            await foreach (var follow in pandacapDbContext.Follows
+                .Where(f => f.ActorId == id)
+                .AsAsyncEnumerable()
+                .WithCancellation(cancellationToken))
             {
-                context.ActivityPubOutboundActivities.Add(new()
+                pandacapDbContext.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     Inbox = follow.Inbox,
@@ -288,21 +294,22 @@ namespace Pandacap.Controllers
                     StoredAt = DateTimeOffset.UtcNow
                 });
 
-                context.Follows.Remove(follow);
+                pandacapDbContext.Follows.Remove(follow);
             }
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
 
         [Authorize]
         public async Task<IActionResult> UpdateATProtoFeed(
-            string did)
+            string did,
+            CancellationToken cancellationToken)
         {
-            var feed = await context.ATProtoFeeds
+            var feed = await pandacapDbContext.ATProtoFeeds
                 .Where(f => f.DID == did)
-                .FirstAsync();
+                .FirstAsync(cancellationToken);
 
             IFollow follow = feed;
 
@@ -328,7 +335,7 @@ namespace Pandacap.Controllers
             string did,
             CancellationToken cancellationToken)
         {
-            var feed = await context.ATProtoFeeds
+            var feed = await pandacapDbContext.ATProtoFeeds
                 .Where(f => f.DID == did)
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -340,11 +347,12 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateATProtoFeed(ATProtoFeedModel model)
+        public async Task<IActionResult> UpdateATProtoFeed(ATProtoFeedModel model, CancellationToken cancellationToken)
         {
-            await foreach (var follow in context.ATProtoFeeds
+            await foreach (var follow in pandacapDbContext.ATProtoFeeds
                 .Where(f => f.DID == model.DID)
-                .AsAsyncEnumerable())
+                .AsAsyncEnumerable()
+                .WithCancellation(cancellationToken))
             {
                 follow.IgnoreImages = model.IgnoreImages;
                 follow.IncludePostsWithoutImages = model.IncludePostsWithoutImages;
@@ -369,7 +377,7 @@ namespace Pandacap.Controllers
                 follow.LastCommitCID = null;
             }
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(UpdateATProtoFeed), new { model.DID });
         }
@@ -377,12 +385,12 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveATProtoFeed(string did)
+        public async Task<IActionResult> RemoveATProtoFeed(string did, CancellationToken cancellationToken)
         {
-            await foreach (var feed in context.ATProtoFeeds.Where(f => f.DID == did).AsAsyncEnumerable())
-                context.ATProtoFeeds.Remove(feed);
+            await foreach (var feed in pandacapDbContext.ATProtoFeeds.Where(f => f.DID == did).AsAsyncEnumerable())
+                pandacapDbContext.ATProtoFeeds.Remove(feed);
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
@@ -410,12 +418,12 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveFeed(Guid id)
+        public async Task<IActionResult> RemoveFeed(Guid id, CancellationToken cancellationToken)
         {
-            await foreach (var feed in context.GeneralFeeds.Where(f => f.Id == id).AsAsyncEnumerable())
-                context.GeneralFeeds.Remove(feed);
+            await foreach (var feed in pandacapDbContext.GeneralFeeds.Where(f => f.Id == id).AsAsyncEnumerable())
+                pandacapDbContext.GeneralFeeds.Remove(feed);
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
@@ -429,9 +437,9 @@ namespace Pandacap.Controllers
         {
             async IAsyncEnumerable<IFollow> getFollows()
             {
-                await foreach (var x in context.ATProtoFeeds) yield return x;
-                await foreach (var x in context.Follows) yield return x;
-                await foreach (var x in context.GeneralFeeds) yield return x;
+                await foreach (var x in pandacapDbContext.ATProtoFeeds) yield return x;
+                await foreach (var x in pandacapDbContext.Follows) yield return x;
+                await foreach (var x in pandacapDbContext.GeneralFeeds) yield return x;
             }
 
             var all = await getFollows()
@@ -454,7 +462,7 @@ namespace Pandacap.Controllers
             IFormFile file,
             CancellationToken cancellationToken)
         {
-            var oldAvatars = await context.Avatars.ToListAsync(cancellationToken);
+            var oldAvatars = await pandacapDbContext.Avatars.ToListAsync(cancellationToken);
 
             var newAvatar = new Avatar
             {
@@ -468,13 +476,13 @@ namespace Pandacap.Controllers
                 .GetBlobContainerClient("blobs")
                 .UploadBlobAsync(newAvatar.BlobName, stream, cancellationToken);
 
-            context.Avatars.RemoveRange(oldAvatars);
-            context.Avatars.Add(newAvatar);
+            pandacapDbContext.Avatars.RemoveRange(oldAvatars);
+            pandacapDbContext.Avatars.Add(newAvatar);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
                 cancellationToken: cancellationToken))
             {
-                context.ActivityPubOutboundActivities.Add(new()
+                pandacapDbContext.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     JsonBody = profileTranslator.BuildProfileUpdate(
@@ -484,7 +492,7 @@ namespace Pandacap.Controllers
                 });
             }
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             foreach (var avatar in oldAvatars)
             {
@@ -505,7 +513,7 @@ namespace Pandacap.Controllers
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
                 cancellationToken: cancellationToken))
             {
-                context.ActivityPubOutboundActivities.Add(new()
+                pandacapDbContext.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     JsonBody = profileTranslator.BuildProfileUpdate(
@@ -515,7 +523,7 @@ namespace Pandacap.Controllers
                 });
             }
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(Index));
         }

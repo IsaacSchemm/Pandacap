@@ -10,9 +10,9 @@ using Pandacap.Models;
 namespace Pandacap.Controllers
 {
     public class CommunitiesController(
-        PandacapDbContext context,
         ILemmyClient lemmyClient,
-        IActivityPubRemoteActorService remoteActorService
+        IActivityPubRemoteActorService remoteActorService,
+        PandacapDbContext pandacapDbContext
     ) : Controller
     {
         public async Task<IActionResult> ViewCommunity(
@@ -23,7 +23,7 @@ namespace Pandacap.Controllers
             if (User.Identity?.IsAuthenticated != true)
                 return Redirect(actorId);
 
-            var bookmark = await context.CommunityBookmarks
+            var bookmark = await pandacapDbContext.CommunityBookmarks
                 .Where(b => b.ActorId == actorId)
                 .SingleOrDefaultAsync(cancellationToken);
 
@@ -70,9 +70,10 @@ namespace Pandacap.Controllers
             return View(new LemmyPostViewModel(community, post, branches));
         }
 
-        public async Task<IActionResult> Bookmarks()
+        [HttpGet]
+        public async Task<IActionResult> Bookmarks(CancellationToken cancellationToken)
         {
-            var communityBookmarks = await context.CommunityBookmarks.ToListAsync();
+            var communityBookmarks = await pandacapDbContext.CommunityBookmarks.ToListAsync(cancellationToken);
 
             return View(communityBookmarks
                 .OrderBy(c => c.PreferredUsername)
@@ -88,12 +89,12 @@ namespace Pandacap.Controllers
             if (actor.Id != id)
                 throw new Exception("ID retrieved does not match ID entered");
 
-            var existing = await context.CommunityBookmarks
+            var existing = await pandacapDbContext.CommunityBookmarks
                 .Where(c => c.ActorId == id)
                 .ToListAsync(cancellationToken);
-            context.CommunityBookmarks.RemoveRange(existing);
+            pandacapDbContext.CommunityBookmarks.RemoveRange(existing);
 
-            context.CommunityBookmarks.Add(new()
+            pandacapDbContext.CommunityBookmarks.Add(new()
             {
                 ActorId = actor.Id,
                 AddedAt = DateTimeOffset.UtcNow,
@@ -103,7 +104,7 @@ namespace Pandacap.Controllers
                 IconUrl = actor.IconUrl
             });
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(Bookmarks));
         }
@@ -117,12 +118,13 @@ namespace Pandacap.Controllers
             if (actor.Id != id)
                 throw new Exception("ID retrieved does not match ID entered");
 
-            var existing = await context.CommunityBookmarks
+            var existing = await pandacapDbContext.CommunityBookmarks
                 .Where(c => c.ActorId == id)
                 .ToListAsync(cancellationToken);
-            context.CommunityBookmarks.RemoveRange(existing);
 
-            await context.SaveChangesAsync(cancellationToken);
+            pandacapDbContext.CommunityBookmarks.RemoveRange(existing);
+
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(Bookmarks));
         }

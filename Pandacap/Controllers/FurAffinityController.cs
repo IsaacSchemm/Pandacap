@@ -12,16 +12,17 @@ namespace Pandacap.Controllers
     [Authorize]
     public class FurAffinityController(
         BlobServiceClient blobServiceClient,
-        PandacapDbContext context,
-        IFurAffinityClientFactory furAffinityClientFactory) : Controller
+        IFurAffinityClientFactory furAffinityClientFactory,
+        PandacapDbContext pandacapDbContext) : Controller
     {
-        public async Task<IActionResult> Setup()
+        public async Task<IActionResult> Setup(CancellationToken cancellationToken)
         {
-            var credentials = await context.FurAffinityCredentials
+            var credentials = await pandacapDbContext.FurAffinityCredentials
                 .AsNoTracking()
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
-            ViewBag.Username = credentials?.Username;
+            if (credentials != null)
+                return RedirectToAction("Index", "ExternalCredentials");
 
             return View();
         }
@@ -33,7 +34,7 @@ namespace Pandacap.Controllers
             string b,
             CancellationToken cancellationToken)
         {
-            int count = await context.FurAffinityCredentials.CountAsync(cancellationToken);
+            int count = await pandacapDbContext.FurAffinityCredentials.CountAsync(cancellationToken);
             if (count > 0)
                 return Conflict();
 
@@ -49,9 +50,9 @@ namespace Pandacap.Controllers
                     .CreateClient(credentials)
                     .WhoamiAsync(cancellationToken);
 
-                context.FurAffinityCredentials.Add(credentials);
+                pandacapDbContext.FurAffinityCredentials.Add(credentials);
 
-                await context.SaveChangesAsync(cancellationToken);
+                await pandacapDbContext.SaveChangesAsync(cancellationToken);
             }
 
             return RedirectToAction(nameof(Setup));
@@ -59,12 +60,12 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reset()
+        public async Task<IActionResult> Reset(CancellationToken cancellationToken)
         {
-            var accounts = await context.FurAffinityCredentials.ToListAsync();
-            context.RemoveRange(accounts);
+            var accounts = await pandacapDbContext.FurAffinityCredentials.ToListAsync(cancellationToken);
+            pandacapDbContext.RemoveRange(accounts);
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(Setup));
         }
@@ -75,14 +76,14 @@ namespace Pandacap.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            var post = await context.Posts
+            var post = await pandacapDbContext.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync(cancellationToken);
 
             if (!post.IsTextPost)
                 return RedirectToAction(nameof(CrosspostArtwork), new { id });
 
-            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
+            var credentials = await pandacapDbContext.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
                 ?? throw new Exception("Fur Affinity connection not available");
 
             if (post.FurAffinitySubmissionId != null || post.FurAffinityJournalId != null)
@@ -98,7 +99,7 @@ namespace Pandacap.Controllers
 
             post.FurAffinityJournalId = int.Parse(journalUri.Segments[2].TrimEnd('/'));
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction("Index", "UserPosts", new { id });
         }
@@ -108,11 +109,11 @@ namespace Pandacap.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            var post = await context.Posts.FindAsync([id], cancellationToken);
+            var post = await pandacapDbContext.Posts.FindAsync([id], cancellationToken);
             if (post == null)
                 return NotFound();
 
-            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
+            var credentials = await pandacapDbContext.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
                 ?? throw new Exception("Fur Affinity connection not available");
 
             if (post.IsTextPost)
@@ -126,11 +127,11 @@ namespace Pandacap.Controllers
             return View(new FurAffinityCrosspostArtworkViewModel
             {
                 Id = id,
-                AvailableFolders = folders.Select(f => new SelectListItem(f.Name, $"{f.FolderId}")).ToList(),
-                AvailableCategories = options.Categories.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
-                AvailableGenders = options.Genders.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
-                AvailableSpecies = options.Species.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
-                AvailableTypes = options.Types.Select(x => new SelectListItem(x.Name, x.Value)).ToList(),
+                AvailableFolders = [.. folders.Select(f => new SelectListItem(f.Name, $"{f.FolderId}"))],
+                AvailableCategories = [.. options.Categories.Select(x => new SelectListItem(x.Name, x.Value))],
+                AvailableGenders = [.. options.Genders.Select(x => new SelectListItem(x.Name, x.Value))],
+                AvailableSpecies = [.. options.Species.Select(x => new SelectListItem(x.Name, x.Value))],
+                AvailableTypes = [.. options.Types.Select(x => new SelectListItem(x.Name, x.Value))],
                 Scraps = post.Type == Post.PostType.Scraps
             });
         }
@@ -142,11 +143,11 @@ namespace Pandacap.Controllers
             FurAffinityCrosspostArtworkViewModel model,
             CancellationToken cancellationToken)
         {
-            var post = await context.Posts
+            var post = await pandacapDbContext.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync(cancellationToken);
 
-            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
+            var credentials = await pandacapDbContext.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken)
                 ?? throw new Exception("Fur Affinity connection not available");
 
             if (post.FurAffinitySubmissionId != null || post.FurAffinityJournalId != null)
@@ -184,23 +185,25 @@ namespace Pandacap.Controllers
 
             post.FurAffinitySubmissionId = int.Parse(uri.Segments[2].TrimEnd('/'));
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction("Index", "UserPosts", new { id });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Detach(Guid id)
+        public async Task<IActionResult> Detach(
+            Guid id,
+            CancellationToken cancellationToken)
         {
-            var post = await context.Posts
+            var post = await pandacapDbContext.Posts
                 .Where(p => p.Id == id)
-                .SingleAsync();
+                .SingleAsync(cancellationToken);
 
             post.FurAffinityJournalId = null;
             post.FurAffinitySubmissionId = null;
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction("Index", "UserPosts", new { id });
         }

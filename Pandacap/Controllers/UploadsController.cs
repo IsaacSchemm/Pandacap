@@ -12,16 +12,16 @@ namespace Pandacap.Controllers
     [Authorize]
     [Route("Uploads")]
     public class UploadsController(
-        PandacapDbContext context,
-        IUploader uploader) : Controller
+        IUploader uploader,
+        PandacapDbContext pandacapDbContext) : Controller
     {
-        public async Task<IActionResult> Index(int? count, Guid? next)
+        public async Task<IActionResult> Index(int? count, Guid? next, CancellationToken cancellationToken)
         {
-            var uploads = await context.Uploads
+            var uploads = await pandacapDbContext.Uploads
                 .OrderByDescending(post => post.UploadedAt)
                 .AsAsyncEnumerable()
                 .SkipUntil(post => post.Id == next || next == null)
-                .AsListPage(count ?? 20);
+                .AsListPage(count ?? 20, cancellationToken);
 
             return View("List", new ListViewModel
             {
@@ -36,7 +36,7 @@ namespace Pandacap.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            var upload = await context.Uploads
+            var upload = await pandacapDbContext.Uploads
                 .Where(i => i.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
 

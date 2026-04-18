@@ -7,14 +7,14 @@ using Pandacap.UI.Elements;
 namespace Pandacap.Controllers
 {
     public class ExternalCredentialsController(
-        PandacapDbContext context) : Controller
+        PandacapDbContext pandacapDbContext) : Controller
     {
         private async Task<IReadOnlyList<IExternalCredentials>> GetExternalCredentialsAsync(
             CancellationToken cancellationToken
         ) => [
-            .. await context.DeviantArtCredentials.ToListAsync(cancellationToken),
-            .. await context.FurAffinityCredentials.ToListAsync(cancellationToken),
-            .. await context.WeasylCredentials.ToListAsync(cancellationToken),
+            .. await pandacapDbContext.DeviantArtCredentials.ToListAsync(cancellationToken),
+            .. await pandacapDbContext.FurAffinityCredentials.ToListAsync(cancellationToken),
+            .. await pandacapDbContext.WeasylCredentials.ToListAsync(cancellationToken),
         ];
 
         public async Task<IActionResult> Index(
@@ -37,9 +37,9 @@ namespace Pandacap.Controllers
 
             foreach (var credential in credentials)
                 if (credential.Username == username && credential.PlatformName == platformName)
-                    context.Remove(credential);
+                    pandacapDbContext.Remove(credential);
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(Index));
         }

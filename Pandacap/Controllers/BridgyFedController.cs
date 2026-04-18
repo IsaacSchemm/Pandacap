@@ -9,10 +9,10 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class BridgyFedController(
+        IActivityPubPostTranslator postTranslator,
         IActivityPubRemoteActorService activityPubRemoteActorService,
         IActivityPubRequestHandler activityPubRequestHandler,
-        PandacapDbContext context,
-        IActivityPubPostTranslator postTranslator) : Controller
+        PandacapDbContext pandacapDbContext) : Controller
     {
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -54,9 +54,9 @@ namespace Pandacap.Controllers
                 IsDirectMessage = true
             };
 
-            context.AddressedPosts.Add(addressedPost);
+            pandacapDbContext.AddressedPosts.Add(addressedPost);
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             await activityPubRequestHandler.PostAsync(
                 new Uri(actor.Inbox),

@@ -10,13 +10,13 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class WeasylController(
-        PandacapDbContext context,
+        PandacapDbContext pandacapDbContext,
         IUserAwareWeasylClientFactory userAwareWeasylClientFactory,
         IWeasylClientFactory weasylClientFactory) : Controller
     {
         public async Task<IActionResult> Setup(CancellationToken cancellationToken)
         {
-            var account = await context.WeasylCredentials
+            var account = await pandacapDbContext.WeasylCredentials
                 .AsNoTracking()
                 .Select(account => new
                 {
@@ -24,22 +24,8 @@ namespace Pandacap.Controllers
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            ViewBag.Username = account?.Login;
-
             if (account != null)
-            {
-                if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is IWeasylClient client)
-                {
-                    try
-                    {
-                        var avatarResponse = await client.GetAvatarAsync(
-                            account.Login,
-                            cancellationToken);
-
-                        ViewBag.Avatar = avatarResponse.avatar;
-                    } catch (Exception) { }
-                }
-            }
+                return RedirectToAction("Index", "ExternalCredentials");
 
             return View();
         }
@@ -48,7 +34,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Connect(string apiKey, CancellationToken cancellationToken)
         {
-            int count = await context.WeasylCredentials.CountAsync(cancellationToken);
+            int count = await pandacapDbContext.WeasylCredentials.CountAsync(cancellationToken);
             if (count > 0)
                 return Conflict();
 
@@ -59,12 +45,12 @@ namespace Pandacap.Controllers
 
                 var user = await weasylClient.WhoamiAsync(cancellationToken);
 
-                context.WeasylCredentials.Add(new WeasylCredentials
+                pandacapDbContext.WeasylCredentials.Add(new WeasylCredentials
                 {
                     Login = user.login,
                     ApiKey = apiKey
                 });
-                await context.SaveChangesAsync(cancellationToken);
+                await pandacapDbContext.SaveChangesAsync(cancellationToken);
             }
 
             return RedirectToAction(nameof(Setup));
@@ -72,12 +58,12 @@ namespace Pandacap.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reset()
+        public async Task<IActionResult> Reset(CancellationToken cancellationToken)
         {
-            var accounts = await context.WeasylCredentials.ToListAsync();
-            context.RemoveRange(accounts);
+            var accounts = await pandacapDbContext.WeasylCredentials.ToListAsync(cancellationToken);
+            pandacapDbContext.RemoveRange(accounts);
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(Setup));
         }
@@ -86,7 +72,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crosspost(Guid id, CancellationToken cancellationToken)
         {
-            var post = await context.Posts
+            var post = await pandacapDbContext.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync(cancellationToken);
 
@@ -121,23 +107,23 @@ namespace Pandacap.Controllers
                     cancellationToken);
             }
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction("Index", "UserPosts", new { id });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Detach(Guid id)
+        public async Task<IActionResult> Detach(Guid id, CancellationToken cancellationToken)
         {
-            var post = await context.Posts
+            var post = await pandacapDbContext.Posts
                 .Where(p => p.Id == id)
-                .SingleAsync();
+                .SingleAsync(cancellationToken);
 
             post.WeasylJournalId = null;
             post.WeasylSubmitId = null;
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction("Index", "UserPosts", new { id });
         }

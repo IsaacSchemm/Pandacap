@@ -8,7 +8,7 @@ namespace Pandacap.Controllers
 {
     [Route("")]
     public class NodeInfoController(
-        PandacapDbContext context) : Controller
+        PandacapDbContext pandacapDbContext) : Controller
     {
         [HttpGet]
         [Route(".well-known/nodeinfo")]
@@ -29,19 +29,20 @@ namespace Pandacap.Controllers
 
         [HttpGet]
         [Route(".well-known/nodeinfo/2.1")]
-        public async Task<IActionResult> NodeInfo2_1()
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1861:Avoid constant arrays as arguments", Justification = "Readability issues")]
+        public async Task<IActionResult> NodeInfo2_1(CancellationToken cancellationToken)
         {
-            var posts = await context.Posts
+            var posts = await pandacapDbContext.Posts
                 .Where(post => post.Type != Post.PostType.Scraps)
-                .CountAsync();
+                .CountAsync(cancellationToken);
 
-            var communityPosts = await context.AddressedPosts
+            var communityPosts = await pandacapDbContext.AddressedPosts
                 .Where(ap => ap.InReplyTo == null)
-                .CountAsync();
+                .CountAsync(cancellationToken);
 
-            var replies = await context.AddressedPosts
+            var replies = await pandacapDbContext.AddressedPosts
                 .Where(ap => ap.InReplyTo != null)
-                .CountAsync();
+                .CountAsync(cancellationToken);
 
             return Json(new
             {

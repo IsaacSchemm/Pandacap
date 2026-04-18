@@ -10,16 +10,16 @@ namespace Pandacap.Controllers
     {
         private static readonly DateTimeOffset Cutoff = DateTimeOffset.UtcNow.AddDays(-90);
 
-        private async Task<IReadOnlyList<Notification>> CollectNotificationsAsync() =>
+        private async Task<IReadOnlyList<Notification>> CollectNotificationsAsync(CancellationToken cancellationToken) =>
             await notificationHandler
             .GetNotificationsAsync()
             .TakeWhile(post => post.Timestamp > Cutoff)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
-        public async Task<IActionResult> ByDate() =>
-            View(await CollectNotificationsAsync());
+        public async Task<IActionResult> ByDate(CancellationToken cancellationToken) =>
+            View(await CollectNotificationsAsync(cancellationToken));
 
-        public async Task<IActionResult> ByPlatform() =>
-            View(await CollectNotificationsAsync());
+        public async Task<IActionResult> ByPlatform(CancellationToken cancellationToken) =>
+            View(await CollectNotificationsAsync(cancellationToken));
     }
 }

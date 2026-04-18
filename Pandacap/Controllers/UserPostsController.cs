@@ -21,21 +21,21 @@ namespace Pandacap.Controllers
     [Route("UserPosts")]
     public class UserPostsController(
         BlobServiceClient blobServiceClient,
-        PandacapDbContext context,
+        IActivityPubPostTranslator postTranslator,
         IDeliveryInboxCollector deliveryInboxCollector,
         IHttpClientFactory httpClientFactory,
         IPlatformLinkProvider platformLinkProvider,
         IPostCreator postCreator,
-        IActivityPubPostTranslator postTranslator,
         IReplyCollationService replyCollationService,
-        IVectorSearchIndexClient vectorSearchIndexClient) : Controller
+        IVectorSearchIndexClient vectorSearchIndexClient,
+        PandacapDbContext pandacapDbContext) : Controller
     {
         [Route("{id}")]
         public async Task<IActionResult> Index(
             Guid id,
             CancellationToken cancellationToken)
         {
-            var post = await context.Posts
+            var post = await pandacapDbContext.Posts
                 .Where(p => p.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
 
@@ -70,11 +70,13 @@ namespace Pandacap.Controllers
         [HttpGet]
         [Authorize]
         [Route("CreateArtworkFromUpload")]
-        public async Task<IActionResult> CreateArtworkFromUpload(Guid id)
+        public async Task<IActionResult> CreateArtworkFromUpload(
+            Guid id,
+            CancellationToken cancellationToken)
         {
-            var upload = await context.Uploads
+            var upload = await pandacapDbContext.Uploads
                 .Where(i => i.Id == id)
-                .SingleAsync();
+                .SingleAsync(cancellationToken);
 
             return View(new CreateArtworkFromUploadViewModel
             {
@@ -156,11 +158,13 @@ namespace Pandacap.Controllers
         [HttpGet]
         [Authorize]
         [Route("CreateStatusUpdateFromUpload")]
-        public async Task<IActionResult> CreateStatusUpdateFromUpload(Guid id)
+        public async Task<IActionResult> CreateStatusUpdateFromUpload(
+            Guid id,
+            CancellationToken cancellationToken)
         {
-            var upload = await context.Uploads
+            var upload = await pandacapDbContext.Uploads
                 .Where(i => i.Id == id)
-                .SingleAsync();
+                .SingleAsync(cancellationToken);
 
             return View(new CreateStatusUpdateFromUploadViewModel
             {
@@ -184,7 +188,7 @@ namespace Pandacap.Controllers
 
             var id = await postCreator.CreatePostAsync(model, cancellationToken);
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(Index), new { id });
         }
@@ -256,14 +260,14 @@ namespace Pandacap.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            var post = await context.Posts
+            var post = await pandacapDbContext.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync(cancellationToken);
 
             foreach (string inbox in await deliveryInboxCollector.GetDeliveryInboxesAsync(
                 cancellationToken: cancellationToken))
             {
-                context.ActivityPubOutboundActivities.Add(new()
+                pandacapDbContext.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     JsonBody = postTranslator.BuildObjectDelete(post),
@@ -272,9 +276,9 @@ namespace Pandacap.Controllers
                 });
             }
 
-            context.Posts.Remove(post);
+            pandacapDbContext.Posts.Remove(post);
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             foreach (var blob in post.Blobs)
             {

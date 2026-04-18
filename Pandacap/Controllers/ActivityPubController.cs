@@ -17,23 +17,24 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ActivityPubController(
+        IActivityPubInteractionTranslator interactionTranslator,
         IActivityPubKeyFinder activityPubKeyFinder,
+        IActivityPubPostTranslator postTranslator,
+        IActivityPubRelationshipTranslator relationshipTranslator,
         IActivityPubRemoteActorService activityPubRemoteActorService,
         IActivityPubRemotePostService activityPubRemotePostService,
         IActivityPubSignatureValidator activityPubSignatureValidator,
-        PandacapDbContext context,
         IJsonLdExpansionService expansionService,
-        IActivityPubInteractionTranslator interactionTranslator,
-        IActivityPubPostTranslator postTranslator,
-        IActivityPubRelationshipTranslator relationshipTranslator,
         IRemoteActivityPubInboxHandler remoteActivityPubInboxHandler,
-        IReplyCollationService replyCollationService) : Controller
+        IReplyCollationService replyCollationService,
+        PandacapDbContext pandacapDbContext) : Controller
     {
         private static new readonly IEnumerable<JToken> Empty = [];
 
-        public async Task<IActionResult> Followers()
+        public async Task<IActionResult> Followers(CancellationToken cancellationToken)
         {
-            int followers = await context.Followers.CountAsync();
+            int followers = await pandacapDbContext.Followers
+                .CountAsync(cancellationToken);
 
             return Content(
                 relationshipTranslator.BuildFollowersCollection(followers),
@@ -41,9 +42,10 @@ namespace Pandacap.Controllers
                 Encoding.UTF8);
         }
 
-        public async Task<IActionResult> Following()
+        public async Task<IActionResult> Following(CancellationToken cancellationToken)
         {
-            var follows = await context.Follows.ToListAsync();
+            var follows = await pandacapDbContext.Follows
+                .ToListAsync(cancellationToken);
 
             return Content(
                 relationshipTranslator.BuildFollowingCollection(follows),
@@ -52,10 +54,10 @@ namespace Pandacap.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Liked()
+        public async Task<IActionResult> Liked(CancellationToken cancellationToken)
         {
-            int posts = await context.ActivityPubFavorites
-                .CountAsync();
+            int posts = await pandacapDbContext.ActivityPubFavorites
+                .CountAsync(cancellationToken);
 
             return Content(
                 interactionTranslator.BuildLikedCollection(
@@ -110,7 +112,7 @@ namespace Pandacap.Controllers
                 string fObject = expansionObj["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
 
                 if (fActor == actor.Id && fObject == ActivityPubHostInformation.ActorId)
-                    await AddFollowAsync(activityId, actor);
+                    await AddFollowAsync(activityId, actor, cancellationToken);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Undo")
             {
@@ -122,37 +124,38 @@ namespace Pandacap.Controllers
                         string fObject = objectToUndo["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
                         if (fActor == actor.Id && fObject == ActivityPubHostInformation.ActorId)
                         {
-                            await foreach (var follower in context.Followers
+                            await foreach (var follower in pandacapDbContext.Followers
                                 .Where(f => f.ActorId == fActor)
-                                .AsAsyncEnumerable())
+                                .AsAsyncEnumerable()
+                                .WithCancellation(cancellationToken))
                             {
-                                context.Remove(follower);
+                                pandacapDbContext.Remove(follower);
                             }
                         }
                     }
 
                     string id = objectToUndo["@id"]!.Value<string>()!;
 
-                    var postActivities = await context.PostActivities
+                    var postActivities = await pandacapDbContext.PostActivities
                         .Where(a => a.Id == id)
                         .ToListAsync(cancellationToken);
 
-                    context.RemoveRange(postActivities);
+                    pandacapDbContext.RemoveRange(postActivities);
 
-                    var announcements = await context.InboxActivityStreamsPosts
+                    var announcements = await pandacapDbContext.InboxActivityStreamsPosts
                         .Where(a => a.AnnounceId == id)
                         .ToListAsync(cancellationToken);
 
-                    context.RemoveRange(announcements);
+                    pandacapDbContext.RemoveRange(announcements);
 
-                    await context.SaveChangesAsync(cancellationToken);
+                    await pandacapDbContext.SaveChangesAsync(cancellationToken);
                 }
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Accept")
             {
                 foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
                 {
-                    var follows = await context.Follows
+                    var follows = await pandacapDbContext.Follows
                         .Where(f => f.ActorId == actor.Id)
                         .ToListAsync(cancellationToken);
 
@@ -163,13 +166,13 @@ namespace Pandacap.Controllers
                             follow.Accepted = true;
                 }
 
-                await context.SaveChangesAsync(cancellationToken);
+                await pandacapDbContext.SaveChangesAsync(cancellationToken);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Reject")
             {
                 foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
                 {
-                    var follows = await context.Follows
+                    var follows = await pandacapDbContext.Follows
                         .Where(f => f.ActorId == actor.Id)
                         .ToListAsync(cancellationToken);
 
@@ -180,7 +183,7 @@ namespace Pandacap.Controllers
                             follow.Accepted = false;
                 }
 
-                await context.SaveChangesAsync(cancellationToken);
+                await pandacapDbContext.SaveChangesAsync(cancellationToken);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Like"
                 || type == "https://www.w3.org/ns/activitystreams#Dislike"
@@ -208,7 +211,7 @@ namespace Pandacap.Controllers
                         && me != null
                         && uri.Host == me.Host)
                     {
-                        context.PostActivities.Add(new()
+                        pandacapDbContext.PostActivities.Add(new()
                         {
                             Id = expansionObj["@id"]!.Value<string>()!,
                             InReplyTo = interactedWithId,
@@ -219,7 +222,7 @@ namespace Pandacap.Controllers
                     }
                 }
 
-                await context.SaveChangesAsync(cancellationToken);
+                await pandacapDbContext.SaveChangesAsync(cancellationToken);
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Create")
             {
@@ -239,7 +242,7 @@ namespace Pandacap.Controllers
 
                     if (inReplyTo != null)
                     {
-                        context.RemoteActivityPubReplies.Add(new()
+                        pandacapDbContext.RemoteActivityPubReplies.Add(new()
                         {
                             Id = Guid.NewGuid(),
                             ObjectId = postId,
@@ -254,11 +257,11 @@ namespace Pandacap.Controllers
                             HtmlContent = remotePost.SanitizedContent
                         });
 
-                        await context.SaveChangesAsync(cancellationToken);
+                        await pandacapDbContext.SaveChangesAsync(cancellationToken);
                     }
                     else if (isMention)
                     {
-                        context.RemoteActivityPubAddressedPosts.Add(new()
+                        pandacapDbContext.RemoteActivityPubAddressedPosts.Add(new()
                         {
                             Id = Guid.NewGuid(),
                             ObjectId = postId,
@@ -272,17 +275,16 @@ namespace Pandacap.Controllers
                             HtmlContent = remotePost.SanitizedContent
                         });
 
-                        await context.SaveChangesAsync(cancellationToken);
+                        await pandacapDbContext.SaveChangesAsync(cancellationToken);
                     }
                     else
                     {
                         var anybodyAddressed = remotePost.Recipients
-                            .Where(r => r.IsActor)
-                            .Any();
+                            .Any(r => r.IsActor);
 
                         bool nobodyAddressed = !anybodyAddressed;
 
-                        var follow = await context.Follows
+                        var follow = await pandacapDbContext.Follows
                             .Where(f => f.ActorId == actor.Id)
                             .FirstOrDefaultAsync(cancellationToken);
 
@@ -306,7 +308,7 @@ namespace Pandacap.Controllers
 
                     if (postType == "Person" && postId == actor.Id)
                     {
-                        await foreach (var follower in context.Followers
+                        await foreach (var follower in pandacapDbContext.Followers
                             .Where(f => f.ActorId == postId)
                             .AsAsyncEnumerable())
                         {
@@ -317,7 +319,7 @@ namespace Pandacap.Controllers
                             follower.IconUrl = actor.IconUrl;
                         }
 
-                        await foreach (var follow in context.Follows
+                        await foreach (var follow in pandacapDbContext.Follows
                             .Where(f => f.ActorId == postId)
                             .AsAsyncEnumerable())
                         {
@@ -328,10 +330,10 @@ namespace Pandacap.Controllers
                             follow.IconUrl = actor.IconUrl;
                         }
 
-                        await context.SaveChangesAsync(cancellationToken);
+                        await pandacapDbContext.SaveChangesAsync(cancellationToken);
                     }
 
-                    var replies = await context.RemoteActivityPubReplies
+                    var replies = await pandacapDbContext.RemoteActivityPubReplies
                         .Where(reply => reply.ObjectId == postId)
                         .ToListAsync(cancellationToken);
 
@@ -351,7 +353,7 @@ namespace Pandacap.Controllers
                             reply.HtmlContent = remotePost.SanitizedContent;
                         }
 
-                        await context.SaveChangesAsync(cancellationToken);
+                        await pandacapDbContext.SaveChangesAsync(cancellationToken);
                     }
                 }
             }
@@ -361,34 +363,34 @@ namespace Pandacap.Controllers
                 {
                     string deletedObjectId = deletedObject["@id"]!.Value<string>()!;
 
-                    var inboxPosts = await context.InboxActivityStreamsPosts.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
-                    context.RemoveRange(inboxPosts);
+                    var inboxPosts = await pandacapDbContext.InboxActivityStreamsPosts.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
+                    pandacapDbContext.RemoveRange(inboxPosts);
 
-                    var favorites = await context.ActivityPubFavorites.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
-                    context.RemoveRange(favorites);
+                    var favorites = await pandacapDbContext.ActivityPubFavorites.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
+                    pandacapDbContext.RemoveRange(favorites);
 
-                    var replies = await context.RemoteActivityPubReplies.Where(reply => reply.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
-                    context.RemoveRange(replies);
+                    var replies = await pandacapDbContext.RemoteActivityPubReplies.Where(reply => reply.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
+                    pandacapDbContext.RemoveRange(replies);
 
-                    var addressedPosts = await context.RemoteActivityPubAddressedPosts.Where(reply => reply.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
-                    context.RemoveRange(addressedPosts);
+                    var addressedPosts = await pandacapDbContext.RemoteActivityPubAddressedPosts.Where(reply => reply.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
+                    pandacapDbContext.RemoveRange(addressedPosts);
 
-                    await context.SaveChangesAsync(cancellationToken);
+                    await pandacapDbContext.SaveChangesAsync(cancellationToken);
                 }
             }
 
             return Accepted();
         }
 
-        private async Task AddFollowAsync(string objectId, RemoteActor actor)
+        private async Task AddFollowAsync(string objectId, RemoteActor actor, CancellationToken cancellationToken)
         {
-            var existing = await context.Followers
+            var existing = await pandacapDbContext.Followers
                 .Where(f => f.ActorId == actor.Id)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (existing == null)
             {
-                context.Followers.Add(new Follower
+                pandacapDbContext.Followers.Add(new Follower
                 {
                     ActorId = actor.Id,
                     AddedAt = DateTimeOffset.UtcNow,
@@ -399,7 +401,7 @@ namespace Pandacap.Controllers
                     IconUrl = actor.IconUrl
                 });
 
-                context.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
+                pandacapDbContext.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
                 {
                     Id = Guid.NewGuid(),
                     Inbox = actor.Inbox,
@@ -408,13 +410,13 @@ namespace Pandacap.Controllers
                 });
             }
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Outbox()
+        public async Task<IActionResult> Outbox(CancellationToken cancellationToken)
         {
-            int count = await context.Posts.CountAsync();
+            int count = await pandacapDbContext.Posts.CountAsync(cancellationToken);
             return Content(
                 postTranslator.BuildOutboxCollection(
                     count),
@@ -423,11 +425,11 @@ namespace Pandacap.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Follow(Guid id)
+        public async Task<IActionResult> Follow(Guid id, CancellationToken cancellationToken)
         {
-            var follow = await context.Follows
+            var follow = await pandacapDbContext.Follows
                 .Where(f => f.FollowGuid == id)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (follow == null)
                 return NotFound();
@@ -441,11 +443,11 @@ namespace Pandacap.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Like(Guid id)
+        public async Task<IActionResult> Like(Guid id, CancellationToken cancellationToken)
         {
-            var post = await context.ActivityPubFavorites
+            var post = await pandacapDbContext.ActivityPubFavorites
                 .Where(a => a.Id == id)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (post == null)
                 return NotFound();

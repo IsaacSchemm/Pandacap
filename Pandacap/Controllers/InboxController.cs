@@ -13,7 +13,7 @@ namespace Pandacap.Controllers
     [Authorize]
     public class InboxController(
         ICompositeInboxProvider compositeInboxProvider,
-        PandacapDbContext context) : Controller
+        PandacapDbContext pandacapDbContext) : Controller
     {
         private IAsyncEnumerable<IInboxPost> GetAllAsync() =>
             compositeInboxProvider.GetAllInboxPostsAsync();
@@ -28,12 +28,13 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> ImagePosts(
             string? next,
-            int? count)
+            int? count,
+            CancellationToken cancellationToken)
         {
             DateTimeOffset startTime = next is string s
                 ? await GetInboxPostsByIds([s])
                     .Select(f => f.PostedAt)
-                    .SingleAsync()
+                    .SingleAsync(cancellationToken)
                 : DateTimeOffset.MaxValue;
 
             var posts = await GetAllAsync()
@@ -41,7 +42,7 @@ namespace Pandacap.Controllers
                 .Where(x => !x.IsPodcast)
                 .Where(x => !x.IsShare)
                 .Where(x => x.Thumbnails.Any())
-                .AsListPage(count ?? 100);
+                .AsListPage(count ?? 100, cancellationToken);
 
             return ListView(new ListViewModel
             {
@@ -53,12 +54,13 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> TextPosts(
             string? next,
-            int? count)
+            int? count,
+            CancellationToken cancellationToken)
         {
             DateTimeOffset startTime = next is string s
                 ? await GetInboxPostsByIds([s])
                     .Select(f => f.PostedAt)
-                    .SingleAsync()
+                    .SingleAsync(cancellationToken)
                 : DateTimeOffset.MaxValue;
 
             var posts = await GetAllAsync()
@@ -66,7 +68,7 @@ namespace Pandacap.Controllers
                 .Where(x => !x.IsPodcast)
                 .Where(x => !x.IsShare)
                 .Where(x => !x.Thumbnails.Any())
-                .AsListPage(count ?? 100);
+                .AsListPage(count ?? 100, cancellationToken);
 
             return ListView(new ListViewModel
             {
@@ -78,19 +80,20 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> Shares(
             string? next,
-            int? count)
+            int? count,
+            CancellationToken cancellationToken)
         {
             DateTimeOffset startTime = next is string s
                 ? await GetInboxPostsByIds([s])
                     .Select(f => f.PostedAt)
-                    .SingleAsync()
+                    .SingleAsync(cancellationToken)
                 : DateTimeOffset.MaxValue;
 
             var posts = await GetAllAsync()
                 .SkipWhile(x => next != null && x.Id != next)
                 .Where(x => !x.IsPodcast)
                 .Where(x => x.IsShare)
-                .AsListPage(count ?? 100);
+                .AsListPage(count ?? 100, cancellationToken);
 
             return ListView(new ListViewModel
             {
@@ -102,18 +105,19 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> Podcasts(
             string? next,
-            int? count)
+            int? count,
+            CancellationToken cancellationToken)
         {
             DateTimeOffset startTime = next is string s
                 ? await GetInboxPostsByIds([s])
                     .Select(f => f.PostedAt)
-                    .SingleAsync()
+                    .SingleAsync(cancellationToken)
                 : DateTimeOffset.MaxValue;
 
             var posts = await GetAllAsync()
                 .SkipWhile(x => next != null && x.Id != next)
                 .Where(x => x.IsPodcast)
-                .AsListPage(count ?? 100);
+                .AsListPage(count ?? 100, cancellationToken);
 
             return ListView(new ListViewModel
             {
@@ -134,7 +138,7 @@ namespace Pandacap.Controllers
 
             FSharpSet<Guid> guids = [.. getGuids()];
 
-            await foreach (var item in context
+            await foreach (var item in pandacapDbContext
                 .InboxArtworkDeviations
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
@@ -142,7 +146,7 @@ namespace Pandacap.Controllers
                 yield return item;
             }
 
-            await foreach (var item in context
+            await foreach (var item in pandacapDbContext
                 .InboxTextDeviations
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
@@ -150,7 +154,7 @@ namespace Pandacap.Controllers
                 yield return item;
             }
 
-            await foreach (var item in context
+            await foreach (var item in pandacapDbContext
                 .InboxActivityStreamsPosts
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
@@ -158,7 +162,7 @@ namespace Pandacap.Controllers
                 yield return item;
             }
 
-            await foreach (var item in context
+            await foreach (var item in pandacapDbContext
                 .BlueskyPostFeedItems
                 .Where(item => ids.Contains(item.CID))
                 .AsAsyncEnumerable())
@@ -166,7 +170,7 @@ namespace Pandacap.Controllers
                 yield return item;
             }
 
-            await foreach (var item in context
+            await foreach (var item in pandacapDbContext
                 .BlueskyRepostFeedItems
                 .Where(item => ids.Contains(item.CID))
                 .AsAsyncEnumerable())
@@ -174,7 +178,7 @@ namespace Pandacap.Controllers
                 yield return item;
             }
 
-            await foreach (var item in context
+            await foreach (var item in pandacapDbContext
                 .BlueskyLikeFeedItems
                 .Where(item => ids.Contains(item.CID))
                 .AsAsyncEnumerable())
@@ -182,7 +186,7 @@ namespace Pandacap.Controllers
                 yield return item;
             }
 
-            await foreach (var item in context
+            await foreach (var item in pandacapDbContext
                 .InboxFurAffinitySubmissions
                 .Where(x => guids.Contains(x.Id))
                 .AsAsyncEnumerable())
@@ -190,7 +194,7 @@ namespace Pandacap.Controllers
                 yield return item;
             }
 
-            await foreach (var item in context
+            await foreach (var item in pandacapDbContext
                 .InboxFurAffinityJournals
                 .Where(x => guids.Contains(x.Id))
                 .AsAsyncEnumerable())
@@ -198,7 +202,7 @@ namespace Pandacap.Controllers
                 yield return item;
             }
 
-            await foreach (var item in context
+            await foreach (var item in pandacapDbContext
                 .GeneralInboxItems
                 .Where(item => guids.Contains(item.Id))
                 .AsAsyncEnumerable())
@@ -206,7 +210,7 @@ namespace Pandacap.Controllers
                 yield return item;
             }
 
-            await foreach (var item in context
+            await foreach (var item in pandacapDbContext
                 .InboxWeasylSubmissions
                 .Where(x => guids.Contains(x.Id))
                 .AsAsyncEnumerable())
@@ -214,7 +218,7 @@ namespace Pandacap.Controllers
                 yield return item;
             }
 
-            await foreach (var item in context
+            await foreach (var item in pandacapDbContext
                 .InboxWeasylJournals
                 .Where(x => guids.Contains(x.Id))
                 .AsAsyncEnumerable())
@@ -224,12 +228,14 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Dismiss([FromForm] IEnumerable<string> id)
+        public async Task<IActionResult> Dismiss(
+            [FromForm] IEnumerable<string> id,
+            CancellationToken cancellationToken)
         {
-            await foreach (var item in GetInboxPostsByIds(id))
+            await foreach (var item in GetInboxPostsByIds(id).WithCancellation(cancellationToken))
                 item.DismissedAt ??= DateTimeOffset.UtcNow;
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/Inbox");
         }

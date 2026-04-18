@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
@@ -14,15 +13,15 @@ namespace Pandacap.Controllers
 {
     [Route("AddressedPosts")]
     public class AddressedPostsController(
-        IActivityPubRemoteActorService activityPubRemoteActorService,
-        PandacapDbContext context,
         IActivityPubPostTranslator postTranslator,
-        IReplyCollationService replyCollationService) : Controller
+        IActivityPubRemoteActorService activityPubRemoteActorService,
+        IReplyCollationService replyCollationService,
+        PandacapDbContext pandacapDbContext) : Controller
     {
         [Route("{id}")]
         public async Task<IActionResult> Index(Guid id, CancellationToken cancellationToken)
         {
-            var post = await context.AddressedPosts
+            var post = await pandacapDbContext.AddressedPosts
                 .Where(p => p.Id == id)
                 .SingleOrDefaultAsync(cancellationToken);
 
@@ -37,8 +36,6 @@ namespace Pandacap.Controllers
 
             bool loggedIn = User.Identity?.IsAuthenticated == true;
 
-            IActivityPubPost activityPubPost = post;
-
             return View(new AddressedPostViewModel
             {
                 Post = post,
@@ -52,7 +49,7 @@ namespace Pandacap.Controllers
                     : [],
                 Replies = User.Identity?.IsAuthenticated == true
                     ? await replyCollationService
-                        .CollectRepliesAsync(activityPubPost.ObjectId)
+                        .CollectRepliesAsync(post.ObjectId)
                         .ToListAsync(cancellationToken)
                     : []
             });
@@ -86,9 +83,9 @@ namespace Pandacap.Controllers
                 HtmlContent = CommonMark.CommonMarkConverter.Convert(content)
             };
 
-            context.AddressedPosts.Add(addressedPost);
+            pandacapDbContext.AddressedPosts.Add(addressedPost);
 
-            context.ActivityPubOutboundActivities.Add(new()
+            pandacapDbContext.ActivityPubOutboundActivities.Add(new()
             {
                 Id = Guid.NewGuid(),
                 Inbox = remoteActor.SharedInbox ?? remoteActor.Inbox,
@@ -96,7 +93,7 @@ namespace Pandacap.Controllers
                     addressedPost)
             });
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction("Index", new { id = addressedPost.Id });
         }
@@ -106,18 +103,16 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            var post = await context.AddressedPosts
+            var post = await pandacapDbContext.AddressedPosts
                 .Where(p => p.Id == id)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (post == null)
                 return NotFound();
 
-            IActivityPubPost activityPubPost = post;
-
-            var activities = await context.PostActivities
-                .Where(a => a.InReplyTo == activityPubPost.ObjectId)
-                .ToListAsync();
+            var activities = await pandacapDbContext.PostActivities
+                .Where(a => a.InReplyTo == post.ObjectId)
+                .ToListAsync(cancellationToken);
 
             HashSet<string> actorIds = [];
             foreach (string x in post.Users)
@@ -143,7 +138,7 @@ namespace Pandacap.Controllers
 
             foreach (string inbox in inboxes)
             {
-                context.ActivityPubOutboundActivities.Add(new()
+                pandacapDbContext.ActivityPubOutboundActivities.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     Inbox = inbox,
@@ -152,10 +147,10 @@ namespace Pandacap.Controllers
                 });
             }
 
-            context.PostActivities.RemoveRange(activities);
-            context.AddressedPosts.Remove(post);
+            pandacapDbContext.PostActivities.RemoveRange(activities);
+            pandacapDbContext.AddressedPosts.Remove(post);
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction("Index", "Profile");
         }

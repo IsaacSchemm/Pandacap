@@ -14,16 +14,18 @@ using System.Security.Authentication;
 namespace Pandacap.Controllers
 {
     public class RemotePostsController(
+        IActivityPubPostTranslator postTranslator,
+        IActivityPubRelationshipTranslator relationshipTranslator,
         IActivityPubRemoteActorService activityPubRemoteActorService,
         IActivityPubRemotePostService activityPubRemotePostService,
         IActivityPubRequestHandler activityPubRequestHandler,
-        PandacapDbContext context,
-        IActivityPubPostTranslator postTranslator,
-        IActivityPubRelationshipTranslator relationshipTranslator,
-        IReplyCollationService replyCollationService) : Controller
+        IReplyCollationService replyCollationService,
+        PandacapDbContext pandacapDbContext) : Controller
     {
         [HttpGet]
-        public async Task<IActionResult> Actor(string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Actor(
+            string id,
+            CancellationToken cancellationToken)
         {
             if (!Uri.TryCreate(id, UriKind.Absolute, out Uri? uri) || uri == null)
                 return NotFound();
@@ -53,14 +55,14 @@ namespace Pandacap.Controllers
             string id,
             CancellationToken cancellationToken)
         {
-            if (await context.Follows.Where(f => f.ActorId == id).CountAsync() > 0)
+            if (await pandacapDbContext.Follows.Where(f => f.ActorId == id).CountAsync(cancellationToken) > 0)
                 return RedirectToAction("UpdateFollow", "Profile", new { id });
 
             var actor = await activityPubRemoteActorService.FetchActorAsync(id, cancellationToken);
 
             Guid followGuid = Guid.NewGuid();
 
-            context.ActivityPubOutboundActivities.Add(new()
+            pandacapDbContext.ActivityPubOutboundActivities.Add(new()
             {
                 Id = followGuid,
                 Inbox = actor.Inbox,
@@ -70,7 +72,7 @@ namespace Pandacap.Controllers
                 StoredAt = DateTimeOffset.UtcNow
             });
 
-            context.Follows.Add(new()
+            pandacapDbContext.Follows.Add(new()
             {
                 ActorId = actor.Id,
                 AddedAt = DateTimeOffset.UtcNow,
@@ -82,7 +84,7 @@ namespace Pandacap.Controllers
                 IconUrl = actor.IconUrl
             });
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction("UpdateFollow", "Profile", new { id });
         }
@@ -103,7 +105,7 @@ namespace Pandacap.Controllers
             {
                 var post = await activityPubRemotePostService.FetchPostAsync(id, cancellationToken);
 
-                var favorite = await context.ActivityPubFavorites
+                var favorite = await pandacapDbContext.ActivityPubFavorites
                     .Where(r => r.ObjectId == post.Id)
                     .SingleOrDefaultAsync(cancellationToken);
 
@@ -140,17 +142,17 @@ namespace Pandacap.Controllers
             {
                 Id = Guid.NewGuid(),
                 InReplyTo = post.Id,
-                Users = users.Select(a => a.Id).ToList(),
+                Users = [.. users.Select(a => a.Id)],
                 Community = communities.Select(a => a.Id).SingleOrDefault(),
                 PublishedTime = DateTimeOffset.UtcNow,
                 HtmlContent = $"<p>{WebUtility.HtmlEncode(content)}</p>"
             };
 
-            context.AddressedPosts.Add(addressedPost);
+            pandacapDbContext.AddressedPosts.Add(addressedPost);
 
             var inboxes = actors.Select(a => a.SharedInbox ?? a.Inbox).Distinct();
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             await Task.WhenAll(
                 inboxes

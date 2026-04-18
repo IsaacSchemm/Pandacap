@@ -20,8 +20,8 @@ namespace Pandacap.Controllers
     [Authorize]
     public class DeviantArtController(
         BlobServiceClient blobServiceClient,
-        PandacapDbContext context,
-        IDeviantArtCredentialProvider deviantArtCredentialProvider) : Controller
+        IDeviantArtCredentialProvider deviantArtCredentialProvider,
+        PandacapDbContext pandacapDbContext) : Controller
     {
         private record ThumbnailWrapper(Preview Item) : IPostThumbnail
         {
@@ -79,7 +79,7 @@ namespace Pandacap.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            var post = await context.Posts.FindAsync([id], cancellationToken);
+            var post = await pandacapDbContext.Posts.FindAsync([id], cancellationToken);
             if (post == null)
                 return NotFound();
 
@@ -108,7 +108,7 @@ namespace Pandacap.Controllers
 
                     post.DeviantArtId = dev.deviationid;
                     post.DeviantArtUrl = dev.url.Value;
-                    await context.SaveChangesAsync(cancellationToken);
+                    await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
                     return RedirectToAction("Index", "UserPosts", new { id });
                 case Post.PostType.JournalEntry:
@@ -130,7 +130,7 @@ namespace Pandacap.Controllers
 
                     post.DeviantArtId = journal.deviationid;
                     post.DeviantArtUrl = journal.url.Value;
-                    await context.SaveChangesAsync(cancellationToken);
+                    await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
                     return RedirectToAction("Index", "UserPosts", new { id });
                 case Post.PostType.Artwork:
@@ -146,7 +146,7 @@ namespace Pandacap.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            var post = await context.Posts.FindAsync([id], cancellationToken);
+            var post = await pandacapDbContext.Posts.FindAsync([id], cancellationToken);
             if (post == null)
                 return NotFound();
 
@@ -184,7 +184,7 @@ namespace Pandacap.Controllers
             DeviantArtCrosspostArtworkViewModel model,
             CancellationToken cancellationToken)
         {
-            var post = await context.Posts.FindAsync([id], cancellationToken);
+            var post = await pandacapDbContext.Posts.FindAsync([id], cancellationToken);
             if (post == null)
                 return NotFound();
 
@@ -246,7 +246,7 @@ namespace Pandacap.Controllers
 
                 post.DeviantArtId = response.deviationid;
                 post.DeviantArtUrl = response.url;
-                await context.SaveChangesAsync(cancellationToken);
+                await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
                 return RedirectToAction("Index", "UserPosts", new { id });
             }
@@ -260,14 +260,14 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Detach(Guid id)
         {
-            var post = await context.Posts
+            var post = await pandacapDbContext.Posts
                 .Where(p => p.Id == id)
                 .SingleAsync();
 
             post.DeviantArtId = null;
             post.DeviantArtUrl = null;
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync();
 
             return RedirectToAction("Index", "UserPosts", new { id });
         }

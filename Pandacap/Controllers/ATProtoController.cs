@@ -12,8 +12,8 @@ namespace Pandacap.Controllers
         IATProtoService atProtoService,
         IBlueskyService blueskyService,
         IDIDResolver didResolver,
-        PandacapDbContext context,
-        IHttpClientFactory httpClientFactory) : Controller
+        IHttpClientFactory httpClientFactory,
+        PandacapDbContext pandacapDbContext) : Controller
     {
         [AllowAnonymous]
         public async Task<IActionResult> GetBlob(
@@ -24,8 +24,6 @@ namespace Pandacap.Controllers
         {
             if (User.Identity?.IsAuthenticated == true && full)
             {
-                var client = httpClientFactory.CreateClient();
-
                 var doc = await didResolver.ResolveAsync(
                     did,
                     cancellationToken);
@@ -69,7 +67,6 @@ namespace Pandacap.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddATProtoFeed(
             string did,
@@ -77,7 +74,7 @@ namespace Pandacap.Controllers
         {
             var client = httpClientFactory.CreateClient();
 
-            if (await context.ATProtoFeeds.Where(a => a.DID == did).CountAsync() > 0)
+            if (await pandacapDbContext.ATProtoFeeds.Where(a => a.DID == did).CountAsync(cancellationToken) > 0)
                 return RedirectToAction("UpdateATProtoFeed", "Profile", new { did });
 
             var document = await didResolver.ResolveAsync(did, cancellationToken);
@@ -87,7 +84,7 @@ namespace Pandacap.Controllers
                 did,
                 cancellationToken);
 
-            context.ATProtoFeeds.Add(new ATProtoFeed
+            pandacapDbContext.ATProtoFeeds.Add(new ATProtoFeed
             {
                 DID = did,
                 Handle = document.Handle,
@@ -101,11 +98,12 @@ namespace Pandacap.Controllers
                 ]
             });
 
-            await context.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction("UpdateATProtoFeed", "Profile", new { did });
         }
 
+        [HttpGet]
         public async Task<IActionResult> ViewBlueskyPost(
             string did,
             string rkey,
@@ -128,7 +126,7 @@ namespace Pandacap.Controllers
                 did,
                 cancellationToken);
 
-            var inFavoritesAsBlueskyPost = await context.BlueskyPostFavorites
+            var inFavoritesAsBlueskyPost = await pandacapDbContext.BlueskyPostFavorites
                 .Where(f => f.CID == post.Ref.CID)
                 .CountAsync(cancellationToken) > 0;
 
@@ -169,17 +167,6 @@ namespace Pandacap.Controllers
                     IsInFavorites: inFavoritesAsBlueskyPost));
         }
 
-        public async Task<IActionResult> RedirectTo(
-            string did,
-            string collection,
-            string rkey) => collection switch
-            {
-                "app.bsky.feed.post" when rkey != null =>
-                    Redirect($"https://bsky.app/profile/{did}/post/{rkey}"),
-                _ =>
-                    NotFound(),
-            };
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToFavorites(
@@ -199,7 +186,7 @@ namespace Pandacap.Controllers
                 rkey,
                 cancellationToken);
 
-            context.BlueskyPostFavorites.Add(new()
+            pandacapDbContext.BlueskyPostFavorites.Add(new()
             {
                 CID = post.Ref.CID,
                 CreatedAt = post.Value.CreatedAt,
@@ -220,7 +207,7 @@ namespace Pandacap.Controllers
                 Text = post.Value.Text
             });
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
         }
@@ -229,13 +216,13 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFromFavorites(string cid, CancellationToken cancellationToken)
         {
-            var existing = await context.BlueskyPostFavorites
+            var existing = await pandacapDbContext.BlueskyPostFavorites
                 .Where(f => f.CID == cid)
                 .SingleOrDefaultAsync(cancellationToken);
             if (existing != null)
-                context.BlueskyPostFavorites.Remove(existing);
+                pandacapDbContext.BlueskyPostFavorites.Remove(existing);
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
         }

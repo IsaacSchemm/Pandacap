@@ -10,9 +10,9 @@ namespace Pandacap.Controllers
 {
     public class CompositeFavoritesController(
         ICompositeFavoritesProvider compositeFavoritesProvider,
-        PandacapDbContext context) : Controller
+        PandacapDbContext pandacapDbContext) : Controller
     {
-        public async Task<IActionResult> Artwork(Guid? next, int? count)
+        public async Task<IActionResult> Artwork(Guid? next, int? count, CancellationToken cancellationToken)
         {
             var composite =
                 compositeFavoritesProvider.GetAllAsync()
@@ -27,7 +27,9 @@ namespace Pandacap.Controllers
                 return StatusCode(501);
             }
 
-            var listPage = await composite.AsListPage(count ?? 20);
+            var listPage = await composite.AsListPage(
+                count ?? 20,
+                cancellationToken);
 
             ViewBag.NoIndex = true;
 
@@ -39,7 +41,7 @@ namespace Pandacap.Controllers
             });
         }
 
-        public async Task<IActionResult> TextPosts(Guid? next, int? count)
+        public async Task<IActionResult> TextPosts(Guid? next, int? count, CancellationToken cancellationToken)
         {
             var composite =
                 compositeFavoritesProvider.GetAllAsync()
@@ -48,7 +50,9 @@ namespace Pandacap.Controllers
                 .ThenByDescending(post => post.PostedAt)
                 .SkipUntil(post => post.Id == $"{next}" || next == null);
 
-            var listPage = await composite.AsListPage(count ?? 20);
+            var listPage = await composite.AsListPage(
+                count ?? 20,
+                cancellationToken);
 
             ViewBag.NoIndex = true;
 
@@ -68,7 +72,7 @@ namespace Pandacap.Controllers
             await foreach (var item in compositeFavoritesProvider.GetAllAsync([id]))
                 item.HiddenAt = DateTimeOffset.UtcNow;
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return Redirect(Request.Headers.Referer.FirstOrDefault() ?? "/CompositeFavorites");
         }

@@ -8,13 +8,13 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class RemoteRepliesController(
-        PandacapDbContext context,
-        IReplyCollationService replyCollationService) : Controller
+        IReplyCollationService replyCollationService,
+        PandacapDbContext pandacapDbContext) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> ViewReply(string objectId, CancellationToken cancellationToken)
         {
-            var remotePost = await context.RemoteActivityPubReplies
+            var remotePost = await pandacapDbContext.RemoteActivityPubReplies
                 .Where(r => r.ObjectId == objectId)
                 .SingleOrDefaultAsync(cancellationToken);
             if (remotePost == null)
@@ -31,14 +31,14 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Forget(string objectId, CancellationToken cancellationToken)
         {
-            var reply = await context.RemoteActivityPubReplies
+            var reply = await pandacapDbContext.RemoteActivityPubReplies
                 .Where(r => r.ObjectId == objectId)
                 .SingleOrDefaultAsync(cancellationToken);
             if (reply == null)
                 return BadRequest();
 
-            context.Remove(reply);
-            await context.SaveChangesAsync(cancellationToken);
+            pandacapDbContext.Remove(reply);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return Redirect(reply.InReplyTo);
         }
