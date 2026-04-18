@@ -61,6 +61,7 @@
     <ProjectReference Include="..\Pandacap.Inbox\Pandacap.Inbox.csproj" />
     <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
     <ProjectReference Include="..\Pandacap.Lemmy\Pandacap.Lemmy.fsproj" />
+    <ProjectReference Include="..\Pandacap.Notifications\Pandacap.Notifications.csproj" />
     <ProjectReference Include="..\Pandacap.PlatformLinks\Pandacap.PlatformLinks.csproj" />
     <ProjectReference Include="..\Pandacap.PostCreation\Pandacap.PostCreation.csproj" />
     <ProjectReference Include="..\Pandacap.Resolvers\Pandacap.Resolvers.csproj" />

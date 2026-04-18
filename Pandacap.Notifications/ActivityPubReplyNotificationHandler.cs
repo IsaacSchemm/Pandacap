@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Database;
+using Pandacap.Notifications.Interfaces;
 using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
@@ -9,7 +10,7 @@ namespace Pandacap.Notifications
         IDbContextFactory<PandacapDbContext> contextFactory
     ) : INotificationHandler
     {
-        public async IAsyncEnumerable<Notification> GetNotificationsAsync()
+        public async IAsyncEnumerable<INotification> GetNotificationsAsync()
         {
             Uri myActor = new(ActivityPubHostInformation.ActorId);
             string baseUrl = myActor.GetLeftPart(UriPartial.Authority);
@@ -24,7 +25,7 @@ namespace Pandacap.Notifications
 
             await foreach (var reply in replies)
             {
-                yield return new()
+                yield return new Notification
                 {
                     Badge = Badges.ActivityPub,
                     ActivityName = "Reply",

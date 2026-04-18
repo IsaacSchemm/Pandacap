@@ -1,4 +1,5 @@
 ﻿using Pandacap.Credentials.Interfaces;
+using Pandacap.Notifications.Interfaces;
 using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
@@ -7,7 +8,7 @@ namespace Pandacap.Notifications
         IDeviantArtCredentialProvider deviantArtCredentialProvider
     ) : INotificationHandler
     {
-        public async IAsyncEnumerable<Notification> GetNotificationsAsync()
+        public async IAsyncEnumerable<INotification> GetNotificationsAsync()
         {
             var credentials = await deviantArtCredentialProvider.GetTokenAsync();
             if (credentials == null)
@@ -20,7 +21,7 @@ namespace Pandacap.Notifications
                 DeviantArtFs.ParameterTypes.PagingOffset.StartingOffset);
 
             await foreach (var note in feed)
-                yield return new()
+                yield return new Notification
                 {
                     Badge = Badges.DeviantArt,
                     ActivityName = "note",

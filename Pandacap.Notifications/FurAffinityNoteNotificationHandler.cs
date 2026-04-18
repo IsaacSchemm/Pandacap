@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.FurAffinity.Interfaces;
+using Pandacap.Notifications.Interfaces;
 using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
@@ -10,7 +11,7 @@ namespace Pandacap.Notifications
         IFurAffinityClientFactory furAffinityClientFactory
     ) : INotificationHandler
     {
-        public async IAsyncEnumerable<Notification> GetNotificationsAsync()
+        public async IAsyncEnumerable<INotification> GetNotificationsAsync()
         {
             var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync();
             if (credentials == null)

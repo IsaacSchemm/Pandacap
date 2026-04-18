@@ -2,6 +2,7 @@
 using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
+using Pandacap.Notifications.Interfaces;
 using Pandacap.UI.Badges;
 using System.Runtime.CompilerServices;
 
@@ -11,7 +12,6 @@ namespace Pandacap.Notifications
         IATProtoService atProtoService,
         IConstellationService constellationService,
         IDIDResolver didResolver,
-        IHttpClientFactory httpClientFactory,
         PandacapDbContext context
     ) : INotificationHandler
     {
@@ -43,7 +43,7 @@ namespace Pandacap.Notifications
             }
         }
 
-        private async IAsyncEnumerable<Notification> GetNotificationsAsync(
+        private async IAsyncEnumerable<INotification> GetNotificationsAsync(
             string target,
             string collection,
             string path,
@@ -58,8 +58,6 @@ namespace Pandacap.Notifications
             {
                 try
                 {
-                    using var httpClient = httpClientFactory.CreateClient();
-
                     var doc = await didResolver.ResolveAsync(
                         link.Components.DID,
                         cancellationToken);
@@ -164,9 +162,9 @@ namespace Pandacap.Notifications
             }
         }
 
-        public async IAsyncEnumerable<Notification> GetNotificationsAsync()
+        public async IAsyncEnumerable<INotification> GetNotificationsAsync()
         {
-            List<Notification> notifications = [];
+            List<INotification> notifications = [];
 
             var did = await context.Posts
                 .OrderByDescending(post => post.PublishedTime)
@@ -238,7 +236,7 @@ namespace Pandacap.Notifications
                     "app.bsky.feed.repost",
                     ".subject.uri").ToListAsync();
 
-                IEnumerable<Notification> all = [.. replies, .. likes, .. reposts];
+                IEnumerable<INotification> all = [.. replies, .. likes, .. reposts];
 
                 notifications.AddRange(all);
             }

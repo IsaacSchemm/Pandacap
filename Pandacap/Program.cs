@@ -159,6 +159,7 @@ builder.Services
     .AddInboxHandlers()
     .AddJsonLdExpansionService()
     .AddLemmyServices()
+    .AddNotificationHandlers()
     .AddPandacapKeyVault(new()
     {
         KeyVaultHost = new Uri("https://" + builder.Configuration["KeyVaultHostname"])
@@ -174,18 +175,8 @@ builder.Services
         WeasylProxyHost = new("https://" + builder.Configuration["WeasylProxyHost"])
     })
     .AddWeasylScraper()
-    .AddScoped<ActivityPubAddressedPostNotificationHandler>()
-    .AddScoped<ActivityPubNotificationHandler>()
-    .AddScoped<ActivityPubReplyNotificationHandler>()
     .AddScoped<CompositeNotificationHandler>()
-    .AddScoped<ATProtoNotificationHandler>()
-    .AddScoped<DeviantArtFeedNotificationHandler>()
-    .AddScoped<DeviantArtNoteNotificationHandler>()
-    .AddScoped<FurAffinityNoteNotificationHandler>()
-    .AddScoped<FurAffinityNotificationHandler>()
-    .AddScoped<TokenUpdater>()
-    .AddScoped<WeasylNoteNotificationHandler>()
-    .AddScoped<WeasylNotificationHandler>();
+    .AddScoped<TokenUpdater>();
 
 builder.Services.AddHttpClient(string.Empty, client =>
     client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent));

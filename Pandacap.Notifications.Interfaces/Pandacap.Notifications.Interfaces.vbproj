@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Pandacap.Notifications.Interfaces</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.UI.Badges\Pandacap.UI.Badges.fsproj" />
+  </ItemGroup>
+
+</Project>

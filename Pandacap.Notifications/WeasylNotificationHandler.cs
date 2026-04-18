@@ -1,4 +1,5 @@
 ﻿using Pandacap.Credentials.Interfaces;
+using Pandacap.Notifications.Interfaces;
 using Pandacap.UI.Badges;
 using Pandacap.Weasyl.Interfaces;
 using System.Runtime.CompilerServices;
@@ -9,7 +10,7 @@ namespace Pandacap.Notifications
         IUserAwareWeasylClientFactory userAwareWeasylClientFactory
     ) : INotificationHandler
     {
-        public async IAsyncEnumerable<Notification> GetNotificationsAsync(
+        public async IAsyncEnumerable<INotification> GetNotificationsAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
@@ -31,7 +32,7 @@ namespace Pandacap.Notifications
             }
         }
 
-        IAsyncEnumerable<Notification> INotificationHandler.GetNotificationsAsync() =>
+        IAsyncEnumerable<INotification> INotificationHandler.GetNotificationsAsync() =>
             GetNotificationsAsync();
     }
 }

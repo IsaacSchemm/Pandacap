@@ -1,8 +1,9 @@
-﻿using Pandacap.UI.Badges;
+﻿using Pandacap.Notifications.Interfaces;
+using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
-    public record Notification
+    internal record Notification : INotification
     {
         public required string ActivityName { get; init; }
         public required Badge Badge { get; init; }

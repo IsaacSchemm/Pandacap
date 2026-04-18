@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Notifications;
+using Pandacap.Notifications.Interfaces;
 
 namespace Pandacap.Controllers
 {
@@ -10,7 +10,7 @@ namespace Pandacap.Controllers
     {
         private static readonly DateTimeOffset Cutoff = DateTimeOffset.UtcNow.AddDays(-90);
 
-        private async Task<IReadOnlyList<Notification>> CollectNotificationsAsync(CancellationToken cancellationToken) =>
+        private async Task<IReadOnlyList<INotification>> CollectNotificationsAsync(CancellationToken cancellationToken) =>
             await notificationHandler
             .GetNotificationsAsync()
             .TakeWhile(post => post.Timestamp > Cutoff)
