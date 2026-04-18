@@ -5,6 +5,7 @@ using Pandacap.Database;
 using Pandacap.Models;
 using Pandacap.Extensions;
 using Pandacap.UI.Lists;
+using Pandacap.PostCreation.Interfaces;
 
 namespace Pandacap.Controllers
 {
@@ -12,7 +13,7 @@ namespace Pandacap.Controllers
     [Route("Uploads")]
     public class UploadsController(
         PandacapDbContext context,
-        Uploader uploader) : Controller
+        IUploader uploader) : Controller
     {
         public async Task<IActionResult> Index(int? count, Guid? next)
         {
