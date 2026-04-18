@@ -91,18 +91,34 @@ if (builder.Configuration["DeviantArtClientId"] is string deviantArtClientId
         deviantArtClientId,
         deviantArtClientSecret));
 
-    authenticationBuilder.AddDeviantArt(d =>
+    if (builder.Configuration["DeviantArtUsername"] is string deviantArtUsername)
     {
-        d.Scope.Add("browse");
-        d.Scope.Add("message");
-        d.Scope.Add("note");
-        d.Scope.Add("publish");
-        d.Scope.Add("stash");
-        d.Scope.Add("user.manage");
-        d.ClientId = builder.Configuration["DeviantArtClientId"]!;
-        d.ClientSecret = builder.Configuration["DeviantArtClientSecret"]!;
-        d.SaveTokens = true;
-    });
+        authenticationBuilder.AddDeviantArt(d =>
+        {
+            d.Scope.Add("browse");
+            d.Scope.Add("message");
+            d.Scope.Add("note");
+            d.Scope.Add("publish");
+            d.Scope.Add("stash");
+            d.Scope.Add("user.manage");
+
+            d.ClientId = builder.Configuration["DeviantArtClientId"]!;
+            d.ClientSecret = builder.Configuration["DeviantArtClientSecret"]!;
+
+            d.SaveTokens = true;
+
+            d.Events.OnTicketReceived = async context =>
+            {
+                if (context.Principal?.Identity?.Name != deviantArtUsername)
+                {
+                    context.Response.StatusCode = 200;
+                    context.Response.ContentType = "text/plain";
+                    await context.Response.WriteAsync("Only the server admin can use a DeviantArt account to log in.");
+                    context.SkipHandler();
+                }
+            };
+        });
+    }
 }
 
 if (builder.Configuration["VectorSearchEmbeddingsEndpoint"] is string embeddingsEndpoint
@@ -114,9 +130,6 @@ if (builder.Configuration["VectorSearchEmbeddingsEndpoint"] is string embeddings
         SearchEndpoint: searchEndpoint,
         IndexName: indexName));
 }
-
-builder.Services.AddSingleton(new AllowedExternalUserCollection(
-    DeviantArtUsers: builder.Configuration["DeviantArtUsername"] is string du ? [du] : []));
 
 DeploymentInformation.ApplicationHostname = builder.Configuration["ApplicationHostname"]
     ?? throw new Exception("ApplicationHostname is not defined");

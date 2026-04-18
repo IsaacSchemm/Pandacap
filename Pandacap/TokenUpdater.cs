@@ -5,7 +5,6 @@ using Pandacap.Database;
 namespace Pandacap
 {
     public class TokenUpdater(
-        AllowedExternalUserCollection allowedExternalUserCollection,
         PandacapDbContext context)
     {
         public async Task UpdateTokensAsync(ExternalLoginInfo info)
@@ -13,14 +12,9 @@ namespace Pandacap
             var authenticationTokens = info.AuthenticationTokens
                 ?? throw new Exception("No AuthenticationTokens found.");
 
-            if (info.LoginProvider == "DeviantArt")
+            if (info.LoginProvider == "DeviantArt"
+                && info.Principal.Identity?.Name is string name)
             {
-                if (info.Principal.Identity?.Name is not string name
-                    || !allowedExternalUserCollection.DeviantArtUsers.Contains(name))
-                {
-                    throw new Exception($"This user is not allowed to log in via {info.LoginProvider}.");
-                }
-
                 var credentials = await context.DeviantArtCredentials
                     .Where(c => c.Username == info.Principal.Identity.Name)
                     .SingleOrDefaultAsync();

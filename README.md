@@ -58,10 +58,10 @@ Pandacap is written on ASP.NET Core with a mix of C# and F#.
 It is designed to run on Microsoft Azure, using high-level resources like Azure App Service and Cosmos DB.
 This version is not designed to run on a VPS or a local machine.
 
-To log in for the first time, the instance owner must use a Microsoft account that they have explicitly allowed in the associated Entra ID app registration.
-This means authorization is the reponsibility of your Entra ID registration, so only one user account should be allowed access.
-
-A DeviantArt account can also be used to log in if its username matches the value of the app setting `DeviantArtUsername`.
+To log in, the instance owner must use one of the following:
+* A Microsoft account that they have explicitly allowed in the associated Entra ID app registration.
+  This means authorization is the reponsibility of your Entra ID registration, so only one user account should be allowed access.
+* A DeviantArt account whose username matches the app setting `DeviantArtUsername`.
 
 ### ActivityPub
 
