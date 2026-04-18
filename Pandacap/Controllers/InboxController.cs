@@ -5,6 +5,7 @@ using Microsoft.FSharp.Collections;
 using Pandacap.Database;
 using Pandacap.Models;
 using Pandacap.UI.Elements;
+using Pandacap.UI.Lists;
 using Pandacap.UI.Posts.Interfaces;
 
 namespace Pandacap.Controllers

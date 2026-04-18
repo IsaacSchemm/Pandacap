@@ -1,10 +1,7 @@
 ﻿using Pandacap.UI.Elements;
 
-namespace Pandacap
+namespace Pandacap.UI.Lists
 {
-    /// <summary>
-    /// Extension methods for the ListPage type.
-    /// </summary>
     public static class ListPageExtensions
     {
         /// <summary>

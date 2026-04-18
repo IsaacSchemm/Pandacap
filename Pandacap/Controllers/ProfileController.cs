@@ -16,6 +16,7 @@ using Pandacap.Inbox.Interfaces;
 using Pandacap.Models;
 using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.UI.Elements;
+using Pandacap.UI.Lists;
 using Pandacap.UI.Posts.Interfaces;
 using Pandacap.VectorSearch.Interfaces;
 using System.Diagnostics;
