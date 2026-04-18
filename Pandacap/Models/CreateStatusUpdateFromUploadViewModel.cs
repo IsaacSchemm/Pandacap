@@ -1,9 +1,10 @@
 ﻿using Pandacap.Database;
+using Pandacap.PostCreation.Interfaces;
 using System.ComponentModel;
 
 namespace Pandacap.Models
 {
-    public class CreateStatusUpdateFromUploadViewModel : PostCreator.IViewModel
+    public class CreateStatusUpdateFromUploadViewModel : INewPost
     {
         [DisplayName("Body (Markdown)")]
         public string MarkdownBody { get; set; } = "";
@@ -16,14 +17,14 @@ namespace Pandacap.Models
         [DisplayName("Image description (alt text)")]
         public string? AltText { get; set; }
 
-        Post.PostType PostCreator.IViewModel.PostType => Post.PostType.StatusUpdate;
+        Post.PostType INewPost.PostType => Post.PostType.StatusUpdate;
 
-        string? PostCreator.IViewModel.Title => null;
+        string? INewPost.Title => null;
 
-        Guid? PostCreator.IViewModel.UploadId => UploadId;
+        Guid? INewPost.UploadId => UploadId;
 
-        string? PostCreator.IViewModel.LinkUrl => null;
+        string? INewPost.LinkUrl => null;
 
-        bool PostCreator.IViewModel.FocusTop => false;
+        bool INewPost.FocusTop => false;
     }
 }

@@ -1,10 +1,11 @@
 ﻿using Pandacap.Database;
+using Pandacap.PostCreation.Interfaces;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateArtworkFromUploadViewModel : PostCreator.IViewModel
+    public class CreateArtworkFromUploadViewModel : INewPost
     {
         [Required]
         public string Title { get; set; } = "";
@@ -28,12 +29,12 @@ namespace Pandacap.Models
         [DisplayName("Post to scraps")]
         public bool Scraps { get; set; }
 
-        Post.PostType PostCreator.IViewModel.PostType => Scraps
+        Post.PostType INewPost.PostType => Scraps
             ? Post.PostType.Scraps
             : Post.PostType.Artwork;
 
-        Guid? PostCreator.IViewModel.UploadId => UploadId;
+        Guid? INewPost.UploadId => UploadId;
 
-        string? PostCreator.IViewModel.LinkUrl => null;
+        string? INewPost.LinkUrl => null;
     }
 }

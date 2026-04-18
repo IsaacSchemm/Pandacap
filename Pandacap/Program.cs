@@ -26,11 +26,13 @@ using Pandacap.Database;
 using Pandacap.FeedIngestion;
 using Pandacap.Frontend.Feeds;
 using Pandacap.FurAffinity;
+using Pandacap.ImageConversion;
 using Pandacap.Inbox;
 using Pandacap.KeyVault;
 using Pandacap.Lemmy;
 using Pandacap.Notifications;
 using Pandacap.PlatformLinks;
+using Pandacap.PostCreation;
 using Pandacap.Resolvers;
 using Pandacap.UI.Posts;
 using Pandacap.VectorSearch;
@@ -153,6 +155,7 @@ builder.Services
     .AddFeedBuilder()
     .AddFeedReaders()
     .AddFurAffinityClient()
+    .AddImageConversion()
     .AddInboxHandlers()
     .AddJsonLdExpansionService()
     .AddLemmyServices()
@@ -161,6 +164,7 @@ builder.Services
         KeyVaultHost = new Uri("https://" + builder.Configuration["KeyVaultHostname"])
     })
     .AddPlatformLinkProvider()
+    .AddPostCreation()
     .AddReplyCollationService()
     .AddResolvers()
     .AddUIPostProviders()
@@ -179,10 +183,7 @@ builder.Services
     .AddScoped<DeviantArtNoteNotificationHandler>()
     .AddScoped<FurAffinityNoteNotificationHandler>()
     .AddScoped<FurAffinityNotificationHandler>()
-    .AddScoped<PostCreator>()
-    .AddScoped<SvgRenderer>()
     .AddScoped<TokenUpdater>()
-    .AddScoped<Uploader>()
     .AddScoped<WeasylNoteNotificationHandler>()
     .AddScoped<WeasylNotificationHandler>();
 

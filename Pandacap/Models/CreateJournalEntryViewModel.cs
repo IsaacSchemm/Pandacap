@@ -1,10 +1,11 @@
 ﻿using Pandacap.Database;
+using Pandacap.PostCreation.Interfaces;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateJournalEntryViewModel : PostCreator.IViewModel
+    public class CreateJournalEntryViewModel : INewPost
     {
         [Required]
         public string Title { get; set; } = "";
@@ -16,14 +17,14 @@ namespace Pandacap.Models
         [DisplayName("Tags (space-separated, e.g. tag1 tag2 tag3)")]
         public string? Tags { get; set; }
 
-        Post.PostType PostCreator.IViewModel.PostType => Post.PostType.JournalEntry;
+        Post.PostType INewPost.PostType => Post.PostType.JournalEntry;
 
-        Guid? PostCreator.IViewModel.UploadId => null;
+        Guid? INewPost.UploadId => null;
 
-        string? PostCreator.IViewModel.LinkUrl => null;
+        string? INewPost.LinkUrl => null;
 
-        string? PostCreator.IViewModel.AltText => null;
+        string? INewPost.AltText => null;
 
-        bool PostCreator.IViewModel.FocusTop => false;
+        bool INewPost.FocusTop => false;
     }
 }

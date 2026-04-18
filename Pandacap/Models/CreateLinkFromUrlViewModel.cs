@@ -1,10 +1,11 @@
 ﻿using Pandacap.Database;
+using Pandacap.PostCreation.Interfaces;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateLinkFromUrlViewModel : PostCreator.IViewModel
+    public class CreateLinkFromUrlViewModel : INewPost
     {
         [Required]
         [DisplayName("URL")]
@@ -21,12 +22,12 @@ namespace Pandacap.Models
         [DisplayName("Tags (space-separated, e.g. tag1 tag2 tag3)")]
         public string? Tags { get; set; }
 
-        Post.PostType PostCreator.IViewModel.PostType => Post.PostType.Link;
+        Post.PostType INewPost.PostType => Post.PostType.Link;
 
-        Guid? PostCreator.IViewModel.UploadId => null;
+        Guid? INewPost.UploadId => null;
 
-        string? PostCreator.IViewModel.AltText => null;
+        string? INewPost.AltText => null;
 
-        bool PostCreator.IViewModel.FocusTop => false;
+        bool INewPost.FocusTop => false;
     }
 }

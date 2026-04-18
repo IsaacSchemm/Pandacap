@@ -2,40 +2,22 @@
 using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Database;
+using Pandacap.PostCreation.Interfaces;
 using Pandacap.Text;
 using Pandacap.VectorSearch.Interfaces;
 
-namespace Pandacap
+namespace Pandacap.PostCreation
 {
-    public class PostCreator(
+    internal class PostCreator(
         IDeliveryInboxCollector deliveryInboxCollector,
-        PandacapDbContext context,
         IHttpClientFactory httpClientFactory,
+        PandacapDbContext pandacapDbContext,
         IActivityPubPostTranslator postTranslator,
-        IVectorSearchIndexClient vectorSearchIndexClient)
+        IVectorSearchIndexClient vectorSearchIndexClient) : IPostCreator
     {
-        public interface IViewModel
-        {
-            Post.PostType PostType { get; }
-
-            string? Title { get; }
-
-            string? MarkdownBody { get; }
-
-            string? Tags { get; }
-
-            Guid? UploadId { get; }
-
-            string? LinkUrl { get; }
-
-            string? AltText { get; }
-
-            bool FocusTop { get; }
-        }
-
         public async Task<Guid> CreatePostAsync(
-            IViewModel model,
-            CancellationToken cancellationToken = default)
+            INewPost model,
+            CancellationToken cancellationToken)
         {
             Guid id = Guid.NewGuid();
 
@@ -58,11 +40,11 @@ namespace Pandacap
 
             if (model.UploadId is Guid uid)
             {
-                var upload = await context.Uploads
+                var upload = await pandacapDbContext.Uploads
                     .Where(i => i.Id == uid)
                     .SingleAsync(cancellationToken);
 
-                context.Remove(upload);
+                pandacapDbContext.Remove(upload);
 
                 List<Post.Image.BlobRef> renditions = [new()
                 {
@@ -72,7 +54,7 @@ namespace Pandacap
 
                 if (upload.Raster is Guid r)
                 {
-                    var raster = await context.Uploads
+                    var raster = await pandacapDbContext.Uploads
                         .Where(i => i.Id == r)
                         .SingleAsync(cancellationToken);
 
@@ -82,7 +64,7 @@ namespace Pandacap
                         ContentType = raster.ContentType
                     });
 
-                    context.Remove(raster);
+                    pandacapDbContext.Remove(raster);
                 }
 
                 post.Images = [new()
@@ -124,7 +106,7 @@ namespace Pandacap
                             : null
                     }];
 
-                    await context.SaveChangesAsync(cancellationToken);
+                    await pandacapDbContext.SaveChangesAsync(cancellationToken);
                 }
                 catch (Exception)
                 {
@@ -135,7 +117,7 @@ namespace Pandacap
                 }
             }
 
-            context.Posts.Add(post);
+            pandacapDbContext.Posts.Add(post);
 
             if (post.Type != Post.PostType.Scraps)
             {
@@ -143,7 +125,7 @@ namespace Pandacap
                     isCreate: true,
                     cancellationToken: cancellationToken))
                 {
-                    context.ActivityPubOutboundActivities.Add(new()
+                    pandacapDbContext.ActivityPubOutboundActivities.Add(new()
                     {
                         Id = Guid.NewGuid(),
                         JsonBody = postTranslator.BuildObjectCreate(post),
@@ -153,7 +135,7 @@ namespace Pandacap
                 }
             }
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             await vectorSearchIndexClient.IndexAllAsync(
                 AsyncEnumerable.Repeat(post, 1),

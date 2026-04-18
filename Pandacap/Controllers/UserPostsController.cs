@@ -10,6 +10,7 @@ using Pandacap.Database;
 using Pandacap.Extensions;
 using Pandacap.Models;
 using Pandacap.PlatformLinks.Interfaces;
+using Pandacap.PostCreation.Interfaces;
 using Pandacap.Text;
 using Pandacap.VectorSearch.Interfaces;
 using System.Net;
@@ -24,7 +25,7 @@ namespace Pandacap.Controllers
         IDeliveryInboxCollector deliveryInboxCollector,
         IHttpClientFactory httpClientFactory,
         IPlatformLinkProvider platformLinkProvider,
-        PostCreator postCreator,
+        IPostCreator postCreator,
         IActivityPubPostTranslator postTranslator,
         IReplyCollationService replyCollationService,
         IVectorSearchIndexClient vectorSearchIndexClient) : Controller

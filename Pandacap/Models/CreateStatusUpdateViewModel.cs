@@ -1,10 +1,11 @@
 ﻿using Pandacap.Database;
+using Pandacap.PostCreation.Interfaces;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Models
 {
-    public class CreateStatusUpdateViewModel : PostCreator.IViewModel
+    public class CreateStatusUpdateViewModel : INewPost
     {
         [Required]
         [DisplayName("Body (Markdown)")]
@@ -13,16 +14,16 @@ namespace Pandacap.Models
         [DisplayName("Tags (space-separated, e.g. tag1 tag2 tag3)")]
         public string? Tags { get; set; }
 
-        Post.PostType PostCreator.IViewModel.PostType => Post.PostType.StatusUpdate;
+        Post.PostType INewPost.PostType => Post.PostType.StatusUpdate;
 
-        string? PostCreator.IViewModel.Title => null;
+        string? INewPost.Title => null;
 
-        Guid? PostCreator.IViewModel.UploadId => null;
+        Guid? INewPost.UploadId => null;
 
-        string? PostCreator.IViewModel.AltText => null;
+        string? INewPost.AltText => null;
 
-        string? PostCreator.IViewModel.LinkUrl => null;
+        string? INewPost.LinkUrl => null;
 
-        bool PostCreator.IViewModel.FocusTop => false;
+        bool INewPost.FocusTop => false;
     }
 }

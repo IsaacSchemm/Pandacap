@@ -57,10 +57,12 @@
     <ProjectReference Include="..\Pandacap.FeedIngestion\Pandacap.FeedIngestion.csproj" />
     <ProjectReference Include="..\Pandacap.Frontend.Feeds\Pandacap.Frontend.Feeds.csproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
+    <ProjectReference Include="..\Pandacap.ImageConversion\Pandacap.ImageConversion.csproj" />
     <ProjectReference Include="..\Pandacap.Inbox\Pandacap.Inbox.csproj" />
     <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
     <ProjectReference Include="..\Pandacap.Lemmy\Pandacap.Lemmy.fsproj" />
     <ProjectReference Include="..\Pandacap.PlatformLinks\Pandacap.PlatformLinks.csproj" />
+    <ProjectReference Include="..\Pandacap.PostCreation\Pandacap.PostCreation.csproj" />
     <ProjectReference Include="..\Pandacap.Resolvers\Pandacap.Resolvers.csproj" />
     <ProjectReference Include="..\Pandacap.UI.Lists\Pandacap.UI.Lists.csproj" />
     <ProjectReference Include="..\Pandacap.UI.Posts\Pandacap.UI.Posts.csproj" />
