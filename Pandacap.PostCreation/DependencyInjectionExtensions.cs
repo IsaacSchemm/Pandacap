@@ -6,6 +6,8 @@ namespace Pandacap.PostCreation
     public static class DependencyInjectionExtensions
     {
         public static IServiceCollection AddPostCreation(this IServiceCollection serviceCollection) =>
-            serviceCollection.AddScoped<IPostCreator, PostCreator>();
+            serviceCollection
+            .AddScoped<IPostCreator, PostCreator>()
+            .AddScoped<IUploader, Uploader>();
     }
 }

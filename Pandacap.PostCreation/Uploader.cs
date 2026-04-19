@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.ImageConversion.Interfaces;
+using Pandacap.PostCreation.Interfaces;
 
 namespace Pandacap.PostCreation
 {
-    public class Uploader(
+    internal class Uploader(
         BlobServiceClient blobServiceClient,
         PandacapDbContext pandacapDbContext,
-        ISvgRenderer svgRenderer)
+        ISvgRenderer svgRenderer) : IUploader
     {
         private static async Task<byte[]> ReadFileAsync(
             IFormFile file,
