@@ -68,15 +68,11 @@ var host = new HostBuilder()
             .AddInboxHandlers()
             .AddJsonLdExpansionService()
             .AddMemoryCache()
-            .AddPandacapKeyVault(new()
-            {
-                KeyVaultHost = new Uri("https://" + Environment.GetEnvironmentVariable("KeyVaultHostname"))
-            })
+            .AddPandacapKeyVault(
+                keyVaultHost: new Uri("https://" + Environment.GetEnvironmentVariable("KeyVaultHostname")))
             .AddUIPostProviders()
-            .AddWeasylClient(new()
-            {
-                WeasylProxyHost = new("https://" + Environment.GetEnvironmentVariable("WeasylProxyHost"))
-            })
+            .AddWeasylClient(
+                weasylProxyHost: new("https://" + Environment.GetEnvironmentVariable("WeasylProxyHost")))
             .AddWeasylScraper();
 
         services.AddHttpClient();

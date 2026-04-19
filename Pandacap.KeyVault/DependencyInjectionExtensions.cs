@@ -7,10 +7,10 @@ namespace Pandacap.KeyVault
     {
         public static IServiceCollection AddPandacapKeyVault(
             this IServiceCollection serviceCollection,
-            KeyVaultConfiguration keyVaultConfiguration
+            Uri keyVaultHost
         ) =>
             serviceCollection
-            .AddSingleton(keyVaultConfiguration)
+            .AddSingleton(new KeyVaultConfiguration { KeyVaultHost = keyVaultHost })
             .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>();
     }
 }

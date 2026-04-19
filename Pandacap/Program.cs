@@ -162,20 +162,16 @@ builder.Services
     .AddJsonLdExpansionService()
     .AddLemmyServices()
     .AddNotificationHandlers()
-    .AddPandacapKeyVault(new()
-    {
-        KeyVaultHost = new Uri("https://" + builder.Configuration["KeyVaultHostname"])
-    })
+    .AddPandacapKeyVault(
+        keyVaultHost: new Uri("https://" + builder.Configuration["KeyVaultHostname"]))
     .AddPlatformLinkProvider()
     .AddPostCreation()
     .AddReplyCollationService()
     .AddResolvers()
     .AddUIPostProviders()
     .AddVectorSearch()
-    .AddWeasylClient(new()
-    {
-        WeasylProxyHost = new("https://" + builder.Configuration["WeasylProxyHost"])
-    })
+    .AddWeasylClient(
+        weasylProxyHost: new("https://" + builder.Configuration["WeasylProxyHost"]))
     .AddWeasylScraper()
     .AddScoped<CompositeNotificationHandler>()
     .AddScoped<TokenUpdater>();

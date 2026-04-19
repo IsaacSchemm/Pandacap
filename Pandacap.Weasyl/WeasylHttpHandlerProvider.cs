@@ -2,7 +2,7 @@
 
 namespace Pandacap.Weasyl
 {
-    internal class WeasylHttpHandlerProvider : IWeasylHttpHandlerProvider
+    internal class WeasylHttpHandlerProvider
     {
         private readonly Lazy<SocketsHttpHandler> Handler = new(() => new()
         {

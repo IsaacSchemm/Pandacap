@@ -10,7 +10,7 @@ namespace Pandacap.KeyVault
     /// Provides access to an encryption key in Azure Key Vault. This key is
     /// used as the signing key for the ActivityPub actor.
     /// </summary>
-    public class ActivityPubCommunicationPrerequisites(KeyVaultConfiguration keyVaultConfiguration) : IActivityPubCommunicationPrerequisites
+    internal class ActivityPubCommunicationPrerequisites(KeyVaultConfiguration keyVaultConfiguration) : IActivityPubCommunicationPrerequisites
     {
         private readonly Lazy<KeyClient> _keyClient = new(() => new(
             keyVaultConfiguration.KeyVaultHost,
