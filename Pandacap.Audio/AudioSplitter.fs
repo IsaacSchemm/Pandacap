@@ -6,6 +6,7 @@ open System.IO.Compression
 open System.Net.Http
 open NAudio.MediaFoundation
 open NAudio.Wave
+open Pandacap.Audio.Models
 open Pandacap.Audio.Interfaces
 
 type AudioSplitter(httpClientFactory: IHttpClientFactory) =
@@ -40,37 +41,31 @@ type AudioSplitter(httpClientFactory: IHttpClientFactory) =
         use output = new MemoryStream()
 
         match format with
-        | AudioSplitterOutputAudioFormat.WMA ->
-            MediaFoundationEncoder.EncodeToWma(waveProvider, output)
-        | AudioSplitterOutputAudioFormat.AAC ->
-            MediaFoundationEncoder.EncodeToAac(waveProvider, output)
-        | AudioSplitterOutputAudioFormat.MP3 ->
-            MediaFoundationEncoder.EncodeToMp3(waveProvider, output)
-        | _ ->
-            invalidArg (nameof format) "Unrecognized output file format"
+        | WMA -> MediaFoundationEncoder.EncodeToWma(waveProvider, output)
+        | AAC -> MediaFoundationEncoder.EncodeToAac(waveProvider, output)
+        | MP3 -> MediaFoundationEncoder.EncodeToMp3(waveProvider, output)
 
         output.ToArray()
 
     let createArchive (format: AudioSplitterOutputArchiveFormat) (outputStream: Stream) (encodedSegments: byte array seq) =
-        if format <> AudioSplitterOutputArchiveFormat.ZIP then
-            invalidArg (nameof format) "Unrecognized output archive format"
+        match format with
+        | ZIP ->
+            let mutable track = 1
 
-        let mutable track = 1
+            use archive = new ZipArchive(
+                outputStream,
+                ZipArchiveMode.Create,
+                leaveOpen = false)
 
-        use archive = new ZipArchive(
-            outputStream,
-            ZipArchiveMode.Create,
-            leaveOpen = false)
+            for encodedSegment in encodedSegments do
+                let entry = archive.CreateEntry(
+                    sprintf "%02d.wma" track,
+                    CompressionLevel.NoCompression)
 
-        for encodedSegment in encodedSegments do
-            let entry = archive.CreateEntry(
-                sprintf "%02d.wma" track,
-                CompressionLevel.NoCompression)
+                use zipStream = entry.Open()
+                zipStream.Write(encodedSegment)
 
-            use zipStream = entry.Open()
-            zipStream.Write(encodedSegment)
-
-            track <- track + 1
+                track <- track + 1
 
     interface IAudioSplitter with
         member _.SplitIntoSegmentsAsync(uri, segmentLength, fileFormat, archiveFormat, outputStream, cancellationToken) = task {

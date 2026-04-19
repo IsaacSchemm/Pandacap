@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pandacap.Audio.Interfaces;
+using Pandacap.Audio.Models;
 using System.Net;
 
 namespace Pandacap.Controllers

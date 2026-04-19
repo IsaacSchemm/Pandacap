@@ -1,5 +1,6 @@
 Imports System.IO
 Imports System.Threading
+Imports Pandacap.Audio.Models
 
 Public Interface IAudioSplitter
     Function SplitIntoSegmentsAsync(uri As Uri,
