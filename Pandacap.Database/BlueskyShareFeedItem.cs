@@ -20,6 +20,8 @@ namespace Pandacap.Database
         [NotMapped]
         public abstract DateTimeOffset SharedAt { get; }
 
+        public override bool IsShare => true;
+
         public override string OriginalDID => Original.DID;
 
         public override string OriginalPDS => Original.PDS;

@@ -57,7 +57,7 @@ namespace Pandacap.Database
         public abstract DateTimeOffset DateTo { get; }
 
         [NotMapped]
-        public bool IsShare { get; }
+        public abstract bool IsShare { get; }
 
         bool IInboxPost.IsPodcast => false;
 
