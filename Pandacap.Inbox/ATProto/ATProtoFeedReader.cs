@@ -96,7 +96,7 @@ namespace Pandacap.Inbox.ATProto
             var subject = subjectData.Subject;
             var pds = subjectData.PDS;
 
-            pandacapDbContext.BlueskyRepostFeedItems.Add(new()
+            pandacapDbContext.BlueskyLikeFeedItems.Add(new()
             {
                 CID = like.Ref.CID,
                 CreatedAt = subject.Value.CreatedAt,
@@ -115,8 +115,8 @@ namespace Pandacap.Inbox.ATProto
                     PDS = pds,
                     RecordKey = subject.Ref.Uri.Components.RecordKey
                 },
-                RepostedAt = like.Value.CreatedAt,
-                RepostedBy = new()
+                LikedAt = like.Value.CreatedAt,
+                LikedBy = new()
                 {
                     AvatarCID = feed.AvatarCID,
                     DID = feed.DID,

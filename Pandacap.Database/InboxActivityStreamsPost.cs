@@ -58,7 +58,19 @@ namespace Pandacap.Database
 
         Badge IPost.Badge => Badges.ActivityPub.WithHostFromUriString(ObjectId);
 
-        string IPost.DisplayTitle => Summary ?? Name ?? ExcerptGenerator.FromText(60, TextContent);
+        string IPost.DisplayTitle
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(Name))
+                    return Name;
+
+                if (!string.IsNullOrWhiteSpace(Summary))
+                    return Summary;
+
+                return ExcerptGenerator.FromText(60, TextContent);
+            }
+        }
 
         string IPost.Id => $"{Id}";
 
