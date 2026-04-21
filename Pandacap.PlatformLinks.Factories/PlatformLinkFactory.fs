@@ -45,7 +45,7 @@ module PlatformLinkFactory =
             }
 
         for handle in profile.BlueskyHandles do
-            for appView in BlueskyAppViews.All do {
+            for appView in BlueskyAppViews.All |> Seq.truncate 2 do {
                 category = "Bluesky"
                 name = appView.name
                 icon = appView.icon
@@ -55,6 +55,18 @@ module PlatformLinkFactory =
                     if isNull post.BlueskyDID || isNull post.BlueskyRecordKey
                     then None
                     else Some $"https://{appView.host}/profile/{post.BlueskyDID}/post/{post.BlueskyRecordKey}"
+            }
+
+            {
+                category = "Bluesky"
+                name = "Skyview"
+                icon = "skyview.svg"
+                username = Some $"@{handle}"
+                url = None
+                viewPost = fun post ->
+                    if isNull post.BlueskyDID || isNull post.BlueskyRecordKey
+                    then None
+                    else Some $"""https://skyview.social?url={Uri.EscapeDataString($"https://bsky.app/profile/{post.BlueskyDID}/post/{post.BlueskyRecordKey}")}"""
             }
 
         for username in profile.DeviantArtUsernames do {
