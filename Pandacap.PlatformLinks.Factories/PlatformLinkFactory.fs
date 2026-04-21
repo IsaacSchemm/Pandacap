@@ -34,7 +34,6 @@ module PlatformLinkFactory =
             construct "ActivityPub" "activitypub.svg"
             construct "Mastodon" "mastodon.png"
             construct "Pixelfed" "pixelfed.png"
-            construct "wafrn" "wafrn.png"
 
             {
                 category = "ActivityPub"
