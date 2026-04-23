@@ -17,20 +17,59 @@ type internal DeviantArtClient(
         | None -> return failwith "No DeviantArt account connected"
     }
 
+    let wrapUser (author: DeviantArtFs.ResponseTypes.User) = {
+        new IAuthor with
+            member _.UserId = author.userid
+            member _.UserIcon = author.usericon
+            member _.Username = author.username
+    }
+
     let wrap (item: DeviantArtFs.ResponseTypes.Deviation) = {
         new IDeviation with
             member _.Title = Option.toObj item.title
             member _.DeviationId = item.deviationid
             member _.Url = Option.toObj item.url
             member _.PublishedTime = Option.toNullable item.published_time
-            member _.Thumbnails = [
-                match item.thumbs with
-                | None -> ()
-                | Some list -> for thumbnail in list do thumbnail.src
-            ]
+            member _.Thumbnails =
+                item.thumbs
+                |> Option.defaultValue []
+                |> Seq.sortByDescending (fun t -> t.width * t.height)
+                |> Seq.map (fun t -> t.src)
+            member _.Author =
+                item.author
+                |> Option.map wrapUser
+                |> Option.toObj
+            member _.Excerpt = Option.toObj item.excerpt
+            member _.IsMature = item.is_mature = Some true
     }
 
     interface IDeviantArtClient with
+        member _.GetByUsersYouWatchAsync() = asyncSeq {
+            let! token = asyncGetToken ()
+
+            for deviation in DeviantArtFs.Api.Browse.GetByDeviantsYouWatchAsync token DefaultPagingLimit StartingOffset do
+                wrap deviation
+        }
+
+        member _.GetFavoritesAsync() = asyncSeq {
+            let! token = asyncGetToken ()
+
+            for deviation in DeviantArtFs.Api.Collections.GetAllAsync token UserScope.ForCurrentUser DefaultPagingLimit StartingOffset do
+                wrap deviation
+        }
+
+        member _.GetFriendsAsync() = asyncSeq {
+            let! token = asyncGetToken ()
+
+            for user in DeviantArtFs.Api.User.GetFriendsAsync token ForCurrentUser DefaultPagingLimit StartingOffset do {
+                new IRelationship with
+                    member _.AreYouWatching = user.is_watching
+                    member _.IsWatchingYou = user.watches_you
+                    member _.LastVisit = Option.toNullable user.lastvisit
+                    member _.Username = user.user.username
+            }
+        }
+
         member _.GetGalleryFoldersAsync() = asyncSeq {
             let! token = asyncGetToken ()
 
@@ -58,6 +97,42 @@ type internal DeviantArtClient(
 
             for item in page.results |> Option.defaultValue [] do
                 yield wrap item
+        }
+
+        member _.GetMessagesInInboxAsync() = asyncSeq {
+            let! token = asyncGetToken ()
+
+            for message in Messages.getInboxFeedAsync token do {
+                new IMessage with
+                    member _.Deviation =
+                        message.subject
+                        |> Option.bind (fun s -> s.deviation)
+                        |> Option.map wrap
+                        |> Option.toObj
+                    member _.From =
+                        message.originator
+                        |> Option.map wrapUser
+                        |> Option.toObj
+                    member _.Timestamp = Option.toNullable message.ts
+                    member _.Type = message.``type``
+            }
+        }
+
+        member _.GetNotesInInboxAsync() = asyncSeq {
+            let! token = asyncGetToken ()
+
+            for note in Notes.getInboxAsync token do {
+                new INote with
+                    member _.From = wrapUser note.user
+                    member _.Timestamp = note.ts
+            }
+        }
+
+        member _.GetProfilePostsAsync(username) = asyncSeq {
+            let! token = asyncGetToken ()
+
+            for deviation in DeviantArtFs.Api.User.GetProfilePostsAsync token username DeviantArtFs.Api.User.FromBeginning do
+                wrap deviation
         }
 
         member _.PostArtworkAsync(file, title, artistComments, tags, galleryFolders, isAI, disallowThirdPartyAITraining, _) = task {

@@ -1,16 +1,14 @@
 ﻿using DeviantArtFs.Extensions;
-using DeviantArtFs.ParameterTypes;
-using DeviantArtFs.ResponseTypes;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.Credentials.Interfaces;
 using Pandacap.Database;
+using Pandacap.DeviantArt.Interfaces;
 using Pandacap.Favorites.Interfaces;
 
 namespace Pandacap.Favorites.DeviantArt
 {
     public class DeviantArtFavoriteHandler(
-        PandacapDbContext context,
-        IDeviantArtCredentialProvider deviantArtCredentialProvider) : IFavoritesSource
+        IDeviantArtClient deviantArtClient,
+        PandacapDbContext pandacapDbContext) : IFavoritesSource
     {
         /// <summary>
         /// Looks for new DeviantArt favorites and adds them to the Favorites page.
@@ -18,35 +16,27 @@ namespace Pandacap.Favorites.DeviantArt
         /// <returns></returns>
         public async Task ImportFavoritesAsync(CancellationToken cancellationToken)
         {
-            var credentials = await deviantArtCredentialProvider
-                .GetTokensAsync()
-                .FirstOrDefaultAsync(cancellationToken);
-            if (credentials == null)
-                return;
-
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
-            Stack<Deviation> items = [];
+            Stack<IDeviation> items = [];
 
-            await foreach (var deviation in DeviantArtFs.Api.Collections.GetAllAsync(
-                credentials,
-                UserScope.ForCurrentUser,
-                PagingLimit.DefaultPagingLimit,
-                PagingOffset.StartingOffset).WithCancellation(cancellationToken))
+            await foreach (var deviation in deviantArtClient
+                .GetFavoritesAsync()
+                .WithCancellation(cancellationToken))
             {
-                if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
+                if (deviation.PublishedTime is not DateTimeOffset publishedTime)
                     continue;
 
                 if (publishedTime > tooNew)
                     continue;
 
-                var existing = await context.DeviantArtFavorites
-                    .Where(item => item.Id == deviation.deviationid)
+                var existing = await pandacapDbContext.DeviantArtFavorites
+                    .Where(item => item.Id == deviation.DeviationId)
                     .CountAsync(cancellationToken);
                 if (existing > 0)
                     break;
 
-                if (deviation.is_mature.OrNull() != false)
+                if (deviation.IsMature)
                     continue;
 
                 items.Push(deviation);
@@ -57,30 +47,27 @@ namespace Pandacap.Favorites.DeviantArt
 
             while (items.TryPop(out var deviation))
             {
-                if (deviation.author.OrNull() is not User author)
+                if (deviation.Author == null)
                     continue;
 
-                context.DeviantArtFavorites.Add(new()
+                pandacapDbContext.DeviantArtFavorites.Add(new()
                 {
-                    Id = deviation.deviationid,
-                    Timestamp = deviation.published_time.OrNull() ?? DateTimeOffset.MinValue,
-                    CreatedBy = author.userid,
-                    Usericon = author.usericon,
-                    Username = author.username,
-                    Title = deviation.title?.OrNull(),
-                    Content = deviation.excerpt.OrNull(),
-                    LinkUrl = deviation.url?.OrNull(),
+                    Id = deviation.DeviationId,
+                    Timestamp = deviation.PublishedTime ?? DateTimeOffset.MinValue,
+                    CreatedBy = deviation.Author.UserId,
+                    Usericon = deviation.Author.UserIcon,
+                    Username = deviation.Author.Username,
+                    Title = deviation.Title,
+                    Content = deviation.Excerpt,
+                    LinkUrl = deviation.Url,
                     ThumbnailUrls = [
-                        .. deviation.thumbs.OrEmpty()
-                            .OrderByDescending(t => t.height)
-                            .Select(t => t.src)
-                            .Take(1)
+                        .. deviation.Thumbnails.Take(1)
                     ],
                     FavoritedAt = DateTime.UtcNow.Date
                 });
             }
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

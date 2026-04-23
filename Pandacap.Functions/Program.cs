@@ -11,6 +11,7 @@ using Pandacap.ATProto.Services;
 using Pandacap.Configuration;
 using Pandacap.Credentials;
 using Pandacap.Database;
+using Pandacap.DeviantArt;
 using Pandacap.Favorites;
 using Pandacap.FeedIngestion;
 using Pandacap.FurAffinity;
@@ -62,6 +63,7 @@ var host = new HostBuilder()
             .AddActivityPubRemoteObjectServices()
             .AddATProtoServices()
             .AddCredentialProviders()
+            .AddDeviantArtClient()
             .AddFavoritesHandlers()
             .AddFeedReaders()
             .AddFurAffinityClient()

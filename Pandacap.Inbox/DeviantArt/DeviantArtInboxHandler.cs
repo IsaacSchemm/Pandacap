@@ -1,22 +1,13 @@
-﻿using DeviantArtFs.Extensions;
-using DeviantArtFs.ParameterTypes;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.FSharp.Collections;
 using Pandacap.Database;
-using Pandacap.Credentials.Interfaces;
+using Pandacap.DeviantArt.Interfaces;
 using Pandacap.Inbox.Interfaces;
 
 namespace Pandacap.Inbox.DeviantArt
 {
-    /// <summary>
-    /// Connects to the DeviantArt API to retrieve new posts created by users
-    /// who the application's attached user follows on DeviantArt. These posts
-    /// will be added to the Pandacap inbox.
-    /// </summary>
-    /// <param name="deviantArtCredentialProvider">An object that allows access to the DeviantArt credentials (access token, etc.)</param>
-    /// <param name="pandacapDbContext">The database context</param>
     internal class DeviantArtInboxHandler(
-        IDeviantArtCredentialProvider deviantArtCredentialProvider,
+        IDeviantArtClient deviantArtClient,
         PandacapDbContext pandacapDbContext) : IInboxSource
     {
         /// <summary>
@@ -26,12 +17,6 @@ namespace Pandacap.Inbox.DeviantArt
         /// <returns></returns>
         public async Task ImportArtworkPostsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            var credentials = await deviantArtCredentialProvider
-                .GetTokensAsync()
-                .FirstOrDefaultAsync(cancellationToken);
-            if (credentials == null)
-                return;
-
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
             FSharpSet<Guid> mostRecentLocalItemIds = [
@@ -41,17 +26,16 @@ namespace Pandacap.Inbox.DeviantArt
                     .ToListAsync(cancellationToken)
             ];
 
-            Stack<DeviantArtFs.ResponseTypes.Deviation> newDeviations = new();
+            Stack<IDeviation> newDeviations = new();
 
-            await foreach (var d in DeviantArtFs.Api.Browse.GetByDeviantsYouWatchAsync(
-                credentials,
-                PagingLimit.MaximumPagingLimit,
-                PagingOffset.StartingOffset))
+            await foreach (var d in deviantArtClient
+                .GetByUsersYouWatchAsync()
+                .WithCancellation(cancellationToken))
             {
-                if (mostRecentLocalItemIds.Contains(d.deviationid))
+                if (mostRecentLocalItemIds.Contains(d.DeviationId))
                     break;
 
-                if (d.published_time.OrNull() is DateTimeOffset publishedTime && publishedTime < someTimeAgo)
+                if (d.PublishedTime is DateTimeOffset publishedTime && publishedTime < someTimeAgo)
                     break;
 
                 newDeviations.Push(d);
@@ -59,28 +43,25 @@ namespace Pandacap.Inbox.DeviantArt
 
             while (newDeviations.TryPop(out var deviation))
             {
-                if (deviation.author.OrNull() is not DeviantArtFs.ResponseTypes.User author)
+                if (deviation.Author == null)
                     continue;
 
-                if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
+                if (deviation.PublishedTime is not DateTimeOffset publishedTime)
                     continue;
 
-                if (deviation.url?.OrNull() is not string url)
+                if (deviation.Url is not string url)
                     continue;
 
                 pandacapDbContext.InboxArtworkDeviations.Add(new()
                 {
-                    Id = deviation.deviationid,
+                    Id = deviation.DeviationId,
                     Timestamp = publishedTime,
-                    CreatedBy = author.userid,
-                    Usericon = author.usericon,
-                    Username = author.username,
-                    MatureContent = deviation.is_mature.OrNull() ?? false,
-                    Title = deviation.title?.OrNull(),
-                    ThumbnailUrl = deviation.thumbs.OrEmpty()
-                        .OrderByDescending(t => t.height)
-                        .Select(t => t.src)
-                        .FirstOrDefault(),
+                    CreatedBy = deviation.Author.UserId,
+                    Usericon = deviation.Author.UserIcon,
+                    Username = deviation.Author.Username,
+                    MatureContent = deviation.IsMature,
+                    Title = deviation.Title,
+                    ThumbnailUrl = deviation.Thumbnails.FirstOrDefault(),
                     LinkUrl = url
                 });
             }
@@ -94,12 +75,6 @@ namespace Pandacap.Inbox.DeviantArt
         /// <returns></returns>
         public async Task ImportTextPostsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            var credentials = await deviantArtCredentialProvider
-                .GetTokensAsync()
-                .FirstOrDefaultAsync(cancellationToken);
-            if (credentials == null)
-                return;
-
             var status = await pandacapDbContext.DeviantArtTextPostCheckStatuses.SingleOrDefaultAsync(cancellationToken);
             if (status == null)
                 pandacapDbContext.Add(status = new DeviantArtTextPostCheckStatus());
@@ -111,44 +86,37 @@ namespace Pandacap.Inbox.DeviantArt
 
             status.LastCheck = DateTimeOffset.UtcNow;
 
-            var friends = DeviantArtFs.Api.User.GetFriendsAsync(
-                credentials,
-                UserScope.ForCurrentUser,
-                PagingLimit.DefaultPagingLimit,
-                PagingOffset.StartingOffset);
-
-            await foreach (var friend in friends)
+            await foreach (var friend in deviantArtClient
+                .GetFriendsAsync()
+                .WithCancellation(cancellationToken))
             {
-                if (!friend.is_watching)
+                if (!friend.AreYouWatching)
                     continue;
 
-                if (friend.lastvisit.OrNull() is not DateTimeOffset lastvisit)
+                if (friend.LastVisit is not DateTimeOffset lastvisit)
                     continue;
 
                 if (lastvisit < cutoff)
                     continue;
 
-                var posts = DeviantArtFs.Api.User.GetProfilePostsAsync(
-                    credentials,
-                    friend.user.username,
-                    DeviantArtFs.Api.User.ProfilePostsCursor.FromBeginning);
-
-                await foreach (var deviation in posts)
+                await foreach (var deviation in deviantArtClient
+                    .GetProfilePostsAsync(friend.Username)
+                    .WithCancellation(cancellationToken))
                 {
-                    if (deviation.author.OrNull() is not DeviantArtFs.ResponseTypes.User author)
+                    if (deviation.Author == null)
                         continue;
 
-                    if (deviation.published_time.OrNull() is not DateTimeOffset publishedTime)
+                    if (deviation.PublishedTime is not DateTimeOffset publishedTime)
                         continue;
 
-                    if (deviation.url?.OrNull() is not string url)
+                    if (deviation.Url is not string url)
                         continue;
 
                     if (publishedTime < cutoff)
                         break;
 
                     int existingCount = await pandacapDbContext.InboxTextDeviations
-                        .Where(d => d.Id == deviation.deviationid)
+                        .Where(d => d.Id == deviation.DeviationId)
                         .CountAsync(cancellationToken);
 
                     if (existingCount > 0)
@@ -156,13 +124,13 @@ namespace Pandacap.Inbox.DeviantArt
 
                     pandacapDbContext.InboxTextDeviations.Add(new InboxTextDeviation
                     {
-                        Id = deviation.deviationid,
+                        Id = deviation.DeviationId,
                         Timestamp = publishedTime,
-                        CreatedBy = author.userid,
-                        Usericon = author.usericon,
-                        Username = author.username,
-                        MatureContent = deviation.is_mature.OrNull() ?? false,
-                        Title = deviation.title?.OrNull(),
+                        CreatedBy = deviation.Author.UserId,
+                        Usericon = deviation.Author.UserIcon,
+                        Username = deviation.Author.Username,
+                        MatureContent = deviation.IsMature,
+                        Title = deviation.Title,
                         LinkUrl = url
                     });
                 }

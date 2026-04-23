@@ -13,6 +13,8 @@
   <ItemGroup>
     <Compile Include="Artwork.fs" />
     <Compile Include="Journal.fs" />
+    <Compile Include="Notes.fs" />
+    <Compile Include="Messages.fs" />
     <Compile Include="Status.fs" />
     <Compile Include="DeviantArtClient.fs" />
     <Compile Include="DependencyInjectionExtensions.fs" />

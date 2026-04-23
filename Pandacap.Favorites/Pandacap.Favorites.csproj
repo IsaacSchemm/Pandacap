@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.Credentials\Pandacap.Credentials.csproj" />
     <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
+    <ProjectReference Include="..\Pandacap.DeviantArt.Interfaces\Pandacap.DeviantArt.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Favorites.Interfaces\Pandacap.Favorites.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity.Interfaces\Pandacap.FurAffinity.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Weasyl.Interfaces\Pandacap.Weasyl.Interfaces.vbproj" />

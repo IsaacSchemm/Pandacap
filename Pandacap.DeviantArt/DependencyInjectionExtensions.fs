@@ -7,5 +7,5 @@ open Pandacap.DeviantArt.Interfaces
 [<Extension>]
 module DependencyInjectionExtensions =
     [<Extension>]
-    let AddDeviantArtServices(serviceCollection: IServiceCollection) =
+    let AddDeviantArtClient(serviceCollection: IServiceCollection) =
         serviceCollection.AddScoped<IDeviantArtClient, DeviantArtClient>()

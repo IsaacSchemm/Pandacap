@@ -14,6 +14,7 @@
     <ProjectReference Include="..\Pandacap.ATProto.Services.Interfaces\Pandacap.ATProto.Services.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Credentials.Interfaces\Pandacap.Credentials.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
+    <ProjectReference Include="..\Pandacap.DeviantArt.Interfaces\Pandacap.DeviantArt.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Notifications.Interfaces\Pandacap.Notifications.Interfaces.vbproj" />
   </ItemGroup>
 
