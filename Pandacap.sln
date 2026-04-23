@@ -222,7 +222,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.PlatformLinks.Inte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.PlatformLinks", "Pandacap.PlatformLinks\Pandacap.PlatformLinks.csproj", "{19E51E17-C07F-4E1E-8FE7-2F971CDBD471}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Feeds", "Feeds", "{FE2200AA-5B1D-407A-8228-B87A53C844ED}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Building Feeds", "Building Feeds", "{FE2200AA-5B1D-407A-8228-B87A53C844ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Compiling Stored Replies", "Compiling Stored Replies", "{E0DF5AFB-1C3A-47EE-A29B-98622C3E0693}"
 EndProject
@@ -255,6 +255,12 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.DeviantArt", "Pandacap.DeviantArt\Pandacap.DeviantArt.fsproj", "{5C20EB97-03FB-483F-9E74-7CC9ED1441C3}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.Audio.Models", "Pandacap.Audio.Models\Pandacap.Audio.Models.fsproj", "{2C39506B-E1C5-4BC6-97CD-ADC375613662}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Viewing Remote Feeds", "Viewing Remote Feeds", "{EE9F548B-3AD6-4A36-8379-F946EC68FB89}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.DeviantArt.Feeds.Interfaces", "Pandacap.DeviantArt.Feeds.Interfaces\Pandacap.DeviantArt.Feeds.Interfaces.vbproj", "{EC7AA7DA-1C9C-4DBE-9AA4-37C47F7C3BD3}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.DeviantArt.Feeds", "Pandacap.DeviantArt.Feeds\Pandacap.DeviantArt.Feeds.fsproj", "{2986D915-0689-420B-84B9-AD2234CA67BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -642,6 +648,14 @@ Global
 		{2C39506B-E1C5-4BC6-97CD-ADC375613662}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C39506B-E1C5-4BC6-97CD-ADC375613662}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C39506B-E1C5-4BC6-97CD-ADC375613662}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC7AA7DA-1C9C-4DBE-9AA4-37C47F7C3BD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC7AA7DA-1C9C-4DBE-9AA4-37C47F7C3BD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC7AA7DA-1C9C-4DBE-9AA4-37C47F7C3BD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC7AA7DA-1C9C-4DBE-9AA4-37C47F7C3BD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2986D915-0689-420B-84B9-AD2234CA67BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2986D915-0689-420B-84B9-AD2234CA67BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2986D915-0689-420B-84B9-AD2234CA67BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2986D915-0689-420B-84B9-AD2234CA67BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -760,6 +774,9 @@ Global
 		{49414B4A-24F9-4573-9C1F-2F656413C2D1} = {577C9AA2-699D-4B4E-B566-8AA55A8DEEBC}
 		{5C20EB97-03FB-483F-9E74-7CC9ED1441C3} = {577C9AA2-699D-4B4E-B566-8AA55A8DEEBC}
 		{2C39506B-E1C5-4BC6-97CD-ADC375613662} = {C388CF98-A2F7-4DB1-8D49-BCC49C9866A6}
+		{EE9F548B-3AD6-4A36-8379-F946EC68FB89} = {577C9AA2-699D-4B4E-B566-8AA55A8DEEBC}
+		{EC7AA7DA-1C9C-4DBE-9AA4-37C47F7C3BD3} = {EE9F548B-3AD6-4A36-8379-F946EC68FB89}
+		{2986D915-0689-420B-84B9-AD2234CA67BC} = {EE9F548B-3AD6-4A36-8379-F946EC68FB89}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

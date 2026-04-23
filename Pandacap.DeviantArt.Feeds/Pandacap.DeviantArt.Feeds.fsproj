@@ -11,16 +11,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Artwork.fs" />
-    <Compile Include="Journal.fs" />
-    <Compile Include="Status.fs" />
-    <Compile Include="DeviantArtClient.fs" />
+    <Compile Include="DeviantArtFeedProvider.fs" />
     <Compile Include="DependencyInjectionExtensions.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.Credentials.Interfaces\Pandacap.Credentials.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.DeviantArt.Feeds.Interfaces\Pandacap.DeviantArt.Feeds.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.DeviantArt.Interfaces\Pandacap.DeviantArt.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.UI.Elements\Pandacap.UI.Elements.csproj" />
   </ItemGroup>
 
 </Project>

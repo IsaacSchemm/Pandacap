@@ -8,4 +8,4 @@ open Pandacap.DeviantArt.Interfaces
 module DependencyInjectionExtensions =
     [<Extension>]
     let AddDeviantArtServices(serviceCollection: IServiceCollection) =
-        serviceCollection.AddScoped<IDeviantArtFeedProvider, DeviantArtFeedProvider>()
+        serviceCollection.AddScoped<IDeviantArtClient, DeviantArtClient>()
