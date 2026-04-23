@@ -25,7 +25,9 @@ namespace Pandacap.Controllers
     {
         public async Task<IActionResult> HomeFeed(CancellationToken cancellationToken)
         {
-            var token = await deviantArtCredentialProvider.GetTokenAsync();
+            var token = await deviantArtCredentialProvider
+                .GetTokensAsync()
+                .FirstOrDefaultAsync(cancellationToken);
             if (token == null)
                 return Content("No DeviantArt account is connected.");
 
@@ -59,10 +61,9 @@ namespace Pandacap.Controllers
             if (post == null)
                 return NotFound();
 
-            var token = await deviantArtCredentialProvider.GetTokenAsync();
-            var user = await deviantArtCredentialProvider.GetUserAsync();
-            if (token == null || user == null)
-                throw new Exception("No DeviantArt account connected");
+            var token = await deviantArtCredentialProvider
+                .GetTokensAsync()
+                .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("No DeviantArt account connected");
 
             switch (post.Type)
             {
@@ -129,10 +130,9 @@ namespace Pandacap.Controllers
             if (post.IsTextPost)
                 throw new Exception("Not an artwork post");
 
-            var token = await deviantArtCredentialProvider.GetTokenAsync();
-            var user = await deviantArtCredentialProvider.GetUserAsync();
-            if (token == null || user == null)
-                throw new Exception("No DeviantArt account connected");
+            var token = await deviantArtCredentialProvider
+                .GetTokensAsync()
+                .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("No DeviantArt account connected");
 
             var folders = await DeviantArtFs.Api.Gallery
                 .GetFoldersAsync(
@@ -167,10 +167,9 @@ namespace Pandacap.Controllers
             if (post.IsTextPost)
                 throw new Exception("Not an artwork post");
 
-            var token = await deviantArtCredentialProvider.GetTokenAsync();
-            var user = await deviantArtCredentialProvider.GetUserAsync();
-            if (token == null || user == null)
-                throw new Exception("No DeviantArt account connected");
+            var token = await deviantArtCredentialProvider
+                .GetTokensAsync()
+                .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("No DeviantArt account connected");
 
             if (post.Images.Count != 1)
                 throw new NotImplementedException($"Cannot crosspost artwork posts wih more or less than 1 image to DeviantArt");

@@ -1,5 +1,4 @@
 ﻿using DeviantArtFs;
-using DeviantArtFs.ResponseTypes;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.Credentials.Interfaces;
@@ -17,33 +16,27 @@ namespace Pandacap.Credentials
         PandacapDbContext context,
         IEnumerable<DeviantArtApp> deviantArtApps) : IDeviantArtCredentialProvider
     {
-        private readonly Lazy<Task<Result?>> Credentials = new(async () =>
+        private readonly Lazy<Task<IDeviantArtRefreshableAccessToken?>> _credentials = new(async () =>
         {
             var deviantArtApp = deviantArtApps.FirstOrDefault();
             if (deviantArtApp == null)
                 return null;
 
-            var allCredentials = await context.DeviantArtCredentials
-                .ToListAsync();
+            var credentials = await context.DeviantArtCredentials.FirstOrDefaultAsync();
+            if (credentials == null)
+                return null;
 
-            foreach (var credentials in allCredentials)
-            {
-                var tokenWrapper = new DeviantArtRefreshableAccessToken(
-                    context,
-                    credentials,
-                    deviantArtApp);
-
-                var whoami = await DeviantArtFs.Api.User.WhoamiAsync(tokenWrapper);
-                return new Result(tokenWrapper, whoami);
-            }
-
-            return null;
+            return new DeviantArtRefreshableAccessToken(
+                context,
+                credentials,
+                deviantArtApp);
         });
 
-        public async Task<IDeviantArtRefreshableAccessToken?> GetTokenAsync() =>
-            (await Credentials.Value)?.Token;
-
-        public async Task<User?> GetUserAsync() =>
-            (await Credentials.Value)?.User;
+        public async IAsyncEnumerable<IDeviantArtRefreshableAccessToken> GetTokensAsync()
+        {
+            var token = await _credentials.Value;
+            if (token != null)
+                yield return token;
+        }
     }
 }

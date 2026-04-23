@@ -11,7 +11,9 @@ namespace Pandacap.Notifications
     {
         public async IAsyncEnumerable<INotification> GetNotificationsAsync()
         {
-            var credentials = await deviantArtCredentialProvider.GetTokenAsync();
+            var credentials = await deviantArtCredentialProvider
+                .GetTokensAsync()
+                .FirstOrDefaultAsync();
             if (credentials == null)
                 yield break;
 

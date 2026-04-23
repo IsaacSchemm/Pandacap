@@ -18,7 +18,9 @@ namespace Pandacap.Favorites.DeviantArt
         /// <returns></returns>
         public async Task ImportFavoritesAsync(CancellationToken cancellationToken)
         {
-            var credentials = await deviantArtCredentialProvider.GetTokenAsync();
+            var credentials = await deviantArtCredentialProvider
+                .GetTokensAsync()
+                .FirstOrDefaultAsync(cancellationToken);
             if (credentials == null)
                 return;
 

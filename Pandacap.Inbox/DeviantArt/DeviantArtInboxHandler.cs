@@ -26,7 +26,9 @@ namespace Pandacap.Inbox.DeviantArt
         /// <returns></returns>
         public async Task ImportArtworkPostsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            var credentials = await deviantArtCredentialProvider.GetTokenAsync();
+            var credentials = await deviantArtCredentialProvider
+                .GetTokensAsync()
+                .FirstOrDefaultAsync(cancellationToken);
             if (credentials == null)
                 return;
 
@@ -83,7 +85,7 @@ namespace Pandacap.Inbox.DeviantArt
                 });
             }
 
-            await pandacapDbContext.SaveChangesAsync();
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
 
         /// <summary>
@@ -92,7 +94,9 @@ namespace Pandacap.Inbox.DeviantArt
         /// <returns></returns>
         public async Task ImportTextPostsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            var credentials = await deviantArtCredentialProvider.GetTokenAsync();
+            var credentials = await deviantArtCredentialProvider
+                .GetTokensAsync()
+                .FirstOrDefaultAsync(cancellationToken);
             if (credentials == null)
                 return;
 
