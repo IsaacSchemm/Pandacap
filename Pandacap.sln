@@ -268,6 +268,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Notifications.Comp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Composite", "Composite", "{8F063B08-5A1B-4B3B-AC0B-5B7CDA214EA6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Notifications.Composite.Tests", "Pandacap.Notifications.Composite.Tests\Pandacap.Notifications.Composite.Tests.csproj", "{5E7A7402-6B14-41EB-9412-D11628F1EF87}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -670,6 +672,10 @@ Global
 		{BEB49A70-EC16-4334-BA4B-351BE6F458A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEB49A70-EC16-4334-BA4B-351BE6F458A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEB49A70-EC16-4334-BA4B-351BE6F458A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E7A7402-6B14-41EB-9412-D11628F1EF87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E7A7402-6B14-41EB-9412-D11628F1EF87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E7A7402-6B14-41EB-9412-D11628F1EF87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E7A7402-6B14-41EB-9412-D11628F1EF87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -794,6 +800,7 @@ Global
 		{D31A8076-C4D3-4AF4-8CC5-54B6F0672BED} = {8F063B08-5A1B-4B3B-AC0B-5B7CDA214EA6}
 		{BEB49A70-EC16-4334-BA4B-351BE6F458A9} = {8F063B08-5A1B-4B3B-AC0B-5B7CDA214EA6}
 		{8F063B08-5A1B-4B3B-AC0B-5B7CDA214EA6} = {7179040F-BD9B-4A6B-9183-EABD4D8E0E29}
+		{5E7A7402-6B14-41EB-9412-D11628F1EF87} = {8F063B08-5A1B-4B3B-AC0B-5B7CDA214EA6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}
