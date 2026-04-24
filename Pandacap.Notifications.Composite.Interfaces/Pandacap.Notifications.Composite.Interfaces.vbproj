@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Pandacap.Notifications.Composite.Interfaces</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.Notifications.Interfaces\Pandacap.Notifications.Interfaces.vbproj" />
+  </ItemGroup>
+
+</Project>

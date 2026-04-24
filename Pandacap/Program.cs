@@ -33,6 +33,7 @@ using Pandacap.Inbox;
 using Pandacap.KeyVault;
 using Pandacap.Lemmy;
 using Pandacap.Notifications;
+using Pandacap.Notifications.Composite;
 using Pandacap.PlatformLinks;
 using Pandacap.PostCreation;
 using Pandacap.Resolvers;
@@ -152,6 +153,7 @@ builder.Services
     .AddATProtoHandleResolution()
     .AddATProtoServices()
     .AddAudioServices()
+    .AddCompositeNotificationHandler()
     .AddCredentialProviders()
     .AddDeviantArtClient()
     .AddDeviantArtFeeds()
@@ -175,7 +177,6 @@ builder.Services
     .AddWeasylClient(
         weasylProxyHost: new("https://" + builder.Configuration["WeasylProxyHost"]))
     .AddWeasylScraper()
-    .AddScoped<CompositeNotificationHandler>()
     .AddScoped<TokenUpdater>();
 
 builder.Services.AddHttpClient(string.Empty, client =>

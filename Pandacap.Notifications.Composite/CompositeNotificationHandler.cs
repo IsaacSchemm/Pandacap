@@ -1,12 +1,13 @@
 ﻿using Pandacap.Extensions;
+using Pandacap.Notifications.Composite.Interfaces;
 using Pandacap.Notifications.Interfaces;
 using Pandacap.UI.Badges;
 
-namespace Pandacap
+namespace Pandacap.Notifications.Composite
 {
-    public class CompositeNotificationHandler(
+    internal class CompositeNotificationHandler(
         IEnumerable<INotificationHandler> notificationHandlers
-    )
+    ) : ICompositeNotificationHandler
     {
         public IAsyncEnumerable<INotification> GetNotificationsAsync() =>
             notificationHandlers
