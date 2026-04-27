@@ -7,7 +7,7 @@ A single-user hobby project that combines a public art gallery (+ blog) and a pr
 ## Design Philosophy
 
 1. Pandacap is a gallery/blog application, not a social media platform, so a Pandacap instance should be branded with the admin's username, not the name of the application.
-2. Pandacap should not show any content to logged-out users that was not either created or put there by the admin.
+2. Pandacap should not show any content to logged-out users unless it was either created or put there by the admin.
 3. Pandacap's feed reader should keep shares separate from original content, and keep image content separate from text.
 4. Pandacap should use an inbox paradigm for incoming content: posts should be added to the inbox when they arrive, and manually removed by the admin after they've read them.
 5. No page on Pandacap should have infinite scroll by default; pages should have a maximum length and present a "next page" button when appropriate.
@@ -111,7 +111,7 @@ Pandacap's only use of Bluesky infrastructure is its CDN, for showing thumbnails
 Pandacap allows you to enable and disable Bridgy Fed from the profile page while logged in.
 
 Periodically, if you've posted a new post (and have Bridgy Fed enabled), Pandacap will find the bridged version of your post and add a "View on Bluesky" link to the post's page.
-(This is then also used to populate your atproto handle and links on the home page.)
+(This is also used to populate your atproto handle and links on the home page.)
 
 #### Notifications
 
@@ -119,7 +119,7 @@ When you view the Notifications page, Pandacap will use Constellation to populat
 
 * Mentions
 * Follows
-* For posts you've made within the past 30 days that have a "View on Bluesky" link:
+* For posts you've made within the past 30 days that have been bridged to Bluesky:
     * Likes
     * Reposts
     * Replies
