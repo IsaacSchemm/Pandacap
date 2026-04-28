@@ -264,11 +264,11 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.DeviantArt.Feeds",
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.Notifications.Composite.Interfaces", "Pandacap.Notifications.Composite.Interfaces\Pandacap.Notifications.Composite.Interfaces.vbproj", "{D31A8076-C4D3-4AF4-8CC5-54B6F0672BED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Notifications.Composite", "Pandacap.Notifications.Composite\Pandacap.Notifications.Composite.csproj", "{BEB49A70-EC16-4334-BA4B-351BE6F458A9}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Composite", "Composite", "{8F063B08-5A1B-4B3B-AC0B-5B7CDA214EA6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Notifications.Composite.Tests", "Pandacap.Notifications.Composite.Tests\Pandacap.Notifications.Composite.Tests.csproj", "{5E7A7402-6B14-41EB-9412-D11628F1EF87}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pandacap.Notifications.Composite", "Pandacap.Notifications.Composite\Pandacap.Notifications.Composite.fsproj", "{9F74A3F6-93AA-47E6-B2AB-00011BD7EFAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -668,14 +668,14 @@ Global
 		{D31A8076-C4D3-4AF4-8CC5-54B6F0672BED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D31A8076-C4D3-4AF4-8CC5-54B6F0672BED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D31A8076-C4D3-4AF4-8CC5-54B6F0672BED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BEB49A70-EC16-4334-BA4B-351BE6F458A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BEB49A70-EC16-4334-BA4B-351BE6F458A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BEB49A70-EC16-4334-BA4B-351BE6F458A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BEB49A70-EC16-4334-BA4B-351BE6F458A9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5E7A7402-6B14-41EB-9412-D11628F1EF87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5E7A7402-6B14-41EB-9412-D11628F1EF87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E7A7402-6B14-41EB-9412-D11628F1EF87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E7A7402-6B14-41EB-9412-D11628F1EF87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F74A3F6-93AA-47E6-B2AB-00011BD7EFAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F74A3F6-93AA-47E6-B2AB-00011BD7EFAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F74A3F6-93AA-47E6-B2AB-00011BD7EFAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F74A3F6-93AA-47E6-B2AB-00011BD7EFAB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -798,9 +798,9 @@ Global
 		{EC7AA7DA-1C9C-4DBE-9AA4-37C47F7C3BD3} = {EE9F548B-3AD6-4A36-8379-F946EC68FB89}
 		{2986D915-0689-420B-84B9-AD2234CA67BC} = {EE9F548B-3AD6-4A36-8379-F946EC68FB89}
 		{D31A8076-C4D3-4AF4-8CC5-54B6F0672BED} = {8F063B08-5A1B-4B3B-AC0B-5B7CDA214EA6}
-		{BEB49A70-EC16-4334-BA4B-351BE6F458A9} = {8F063B08-5A1B-4B3B-AC0B-5B7CDA214EA6}
 		{8F063B08-5A1B-4B3B-AC0B-5B7CDA214EA6} = {7179040F-BD9B-4A6B-9183-EABD4D8E0E29}
 		{5E7A7402-6B14-41EB-9412-D11628F1EF87} = {8F063B08-5A1B-4B3B-AC0B-5B7CDA214EA6}
+		{9F74A3F6-93AA-47E6-B2AB-00011BD7EFAB} = {8F063B08-5A1B-4B3B-AC0B-5B7CDA214EA6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

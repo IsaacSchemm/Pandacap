@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.Notifications.Composite\Pandacap.Notifications.Composite.csproj" />
+    <ProjectReference Include="..\Pandacap.Notifications.Composite\Pandacap.Notifications.Composite.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
