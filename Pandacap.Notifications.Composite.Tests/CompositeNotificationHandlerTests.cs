@@ -1,4 +1,5 @@
 ﻿using Microsoft.FSharp.Collections;
+using Pandacap.Notifications.Composite.Interfaces;
 using Pandacap.Notifications.Interfaces;
 using Pandacap.UI.Badges;
 
@@ -31,7 +32,7 @@ namespace Pandacap.Notifications.Composite.Tests
             };
 
             FSharpList<INotification> actual = [
-                .. await new CompositeNotificationHandler([
+                .. await GetCompositeNotificationHandler([
                     new Success(red),
                     new Success(green),
                     new Success(blue)
@@ -63,7 +64,7 @@ namespace Pandacap.Notifications.Composite.Tests
             };
 
             FSharpList<INotification> actual = [
-                .. await new CompositeNotificationHandler([
+                .. await GetCompositeNotificationHandler([
                     new FailureAtEnd([]),
                     new Success(red),
                     new FailureAtEnd([])
@@ -94,7 +95,7 @@ namespace Pandacap.Notifications.Composite.Tests
             };
 
             FSharpList<INotification> actual = [
-                .. await new CompositeNotificationHandler([
+                .. await GetCompositeNotificationHandler([
                     new Success(red),
                     new FailureAtEnd(blue)
                 ]).GetNotificationsAsync().ToListAsync(CancellationToken.None)
@@ -106,6 +107,10 @@ namespace Pandacap.Notifications.Composite.Tests
                 actual.Any(item => item.UserName.Contains(FailureAtEnd.FailureMessage)));
             Assert.HasCount(5, actual);
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "Testing explicit interface implementation")]
+        private ICompositeNotificationHandler GetCompositeNotificationHandler(IEnumerable<INotificationHandler> handlers) =>
+            new CompositeNotificationHandler(handlers);
 
         private record Notification(string TimestampString) : INotification
         {
