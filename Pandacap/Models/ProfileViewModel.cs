@@ -1,6 +1,5 @@
 ﻿using Pandacap.Database;
 using Pandacap.PlatformLinks.Interfaces;
-using Pandacap.UI.Elements;
 
 namespace Pandacap.Models
 {
@@ -9,10 +8,7 @@ namespace Pandacap.Models
         public IReadOnlyList<IPlatformLink> PlatformLinks { get; set; } = [];
 
         public IReadOnlyList<Post> RecentArtwork { get; set; } = [];
-        public IReadOnlyList<IPost> RecentFavorites { get; set; } = [];
-
         public IReadOnlyList<Post> RecentTextPosts { get; set; } = [];
-        public IReadOnlyList<Post> RecentLinks { get; set; } = [];
 
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }

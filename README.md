@@ -32,10 +32,8 @@ The home page shows:
 * Your atproto handle, if any
 * Links to your attached accounts
 * Links to users and feeds you follow
-* Up to 8 of your **image posts** (from the past three months)
-* Up to 12 image posts from your **favorites** (from the past week)
-* Up to 5 of your **text posts** (from the past month)
-* Up to 5 of your **links** (from the past month)
+* Up to 8 of your **image posts**
+* Up to 5 of your **text posts**
 
 ## Features
 

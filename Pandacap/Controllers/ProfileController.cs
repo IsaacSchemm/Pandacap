@@ -28,7 +28,6 @@ namespace Pandacap.Controllers
     public class ProfileController(
         BlobServiceClient blobServiceClient,
         IATProtoFeedReader atProtoFeedReader,
-        ICompositeFavoritesProvider compositeFavoritesProvider,
         IDeliveryInboxCollector deliveryInboxCollector,
         IFeedRefresher feedRefresher,
         IActivityPubCommunicationPrerequisites keyProvider,
@@ -74,36 +73,16 @@ namespace Pandacap.Controllers
 
             async Task<ProfileViewModel> buildModel()
             {
-                var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
-                var oneMonthAgo = DateTime.UtcNow.AddMonths(-1);
-                var threeMonthsAgo = DateTime.UtcNow.AddMonths(-3);
-
                 var artwork = await pandacapDbContext.Posts
                     .Where(post => post.Type == Post.PostType.Artwork)
-                    .Where(post => post.PublishedTime >= threeMonthsAgo)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(8)
                     .ToListAsync(cancellationToken);
 
-                var favorites = await compositeFavoritesProvider
-                    .GetAllAsync()
-                    .Where(post => post.Thumbnails.Any())
-                    .TakeWhile(post => post.FavoritedAt >= oneWeekAgo)
-                    .OrderByDescending(favorite => favorite.FavoritedAt.Date)
-                    .ThenByDescending(favorite => favorite.PostedAt)
-                    .Take(12)
-                    .ToListAsync(cancellationToken);
-
                 var textPosts = await pandacapDbContext.Posts
-                    .Where(post => post.Type == Post.PostType.StatusUpdate || post.Type == Post.PostType.JournalEntry)
-                    .Where(post => post.PublishedTime >= oneMonthAgo)
-                    .OrderByDescending(post => post.PublishedTime)
-                    .Take(5)
-                    .ToListAsync(cancellationToken);
-
-                var links = await pandacapDbContext.Posts
-                    .Where(post => post.Type == Post.PostType.Link)
-                    .Where(post => post.PublishedTime >= oneMonthAgo)
+                    .Where(post => post.Type == Post.PostType.StatusUpdate
+                        || post.Type == Post.PostType.JournalEntry
+                        || post.Type == Post.PostType.Link)
                     .OrderByDescending(post => post.PublishedTime)
                     .Take(5)
                     .ToListAsync(cancellationToken);
@@ -112,9 +91,7 @@ namespace Pandacap.Controllers
                 {
                     PlatformLinks = await platformLinkProvider.GetProfileLinksAsync().ToListAsync(cancellationToken),
                     RecentArtwork = artwork,
-                    RecentFavorites = favorites,
                     RecentTextPosts = textPosts,
-                    RecentLinks = links,
                     FollowerCount = await pandacapDbContext.Followers.CountAsync(cancellationToken),
                     FollowingCount = await pandacapDbContext.Follows.CountAsync(cancellationToken)
                         + await pandacapDbContext.GeneralFeeds.CountAsync(cancellationToken)

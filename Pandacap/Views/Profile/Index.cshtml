@@ -93,46 +93,16 @@
     </a>
 </p>
 
-@if (Model.RecentFavorites.Any())
-{
-    <h2 class="my-4">
-        Favorites
-    </h2>
-
-    <partial name="_List" model="@Model.RecentFavorites" />
-
-    <p align="right">
-        <a asp-controller="CompositeFavorites" asp-action="Artwork" class="btn btn-outline-primary">
-            View more &raquo;
-        </a>
-    </p>
-}
-
 @if (Model.RecentTextPosts.Any())
 {
     <h2 class="my-4">
-        Recent text posts
+        Newest text posts
     </h2>
 
     <partial name="_ListGroup" model="@Model.RecentTextPosts" />
 
     <p align="right">
         <a asp-controller="Gallery" asp-action="TextPosts" class="btn btn-outline-primary">
-            View more &raquo;
-        </a>
-    </p>
-}
-
-@if (Model.RecentLinks.Any())
-{
-    <h2 class="my-4">
-        Recent links
-    </h2>
-
-    <partial name="_ListGroup" model="@Model.RecentLinks" />
-
-    <p align="right">
-        <a asp-controller="Gallery" asp-action="Links" class="btn btn-outline-primary">
             View more &raquo;
         </a>
     </p>

@@ -116,7 +116,9 @@ namespace Pandacap.Controllers
 
             var posts = pandacapDbContext.Posts
                 .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == Post.PostType.StatusUpdate || d.Type == Post.PostType.JournalEntry)
+                .Where(d => d.Type == Post.PostType.StatusUpdate
+                    || d.Type == Post.PostType.JournalEntry
+                    || d.Type == Post.PostType.Link)
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null);
