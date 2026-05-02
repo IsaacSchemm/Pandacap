@@ -15,7 +15,6 @@ A single-user hobby project that combines a public art gallery (+ blog) and a pr
 
 ## Screenshots
 
-* [Main Page](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/e3a78ccc-02b4-4bfe-9c88-f0cbde2be5b2)
 * [Inbox (Image Posts)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/0e21e890-cb4f-4353-aa19-bed8b59fd9e7)
 * [Inbox (Text Posts)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/2b3ee683-505f-40a8-b738-d82629c405ea)
 * [Inbox (Shares)](https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/UserPosts/1bf13e41-4f30-4f5d-9c6f-36688c180505)
