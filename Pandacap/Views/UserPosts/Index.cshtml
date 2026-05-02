@@ -29,9 +29,12 @@
     @Model.Post.PublishedTime.UtcDateTime.ToShortTimeString()
 </p>
 
-<div class="mb-3">
-    <partial name="_PlatformLinks" model="@Model.PlatformLinks" />
-</div>
+@if (Model.Post.Type != Post.PostType.Scraps)
+{
+    <div class="mb-3">
+        <partial name="_PlatformLinks" model="@Model.PlatformLinks" />
+    </div>
+}
 
 @foreach (var image in Model.Post.Images)
 {
