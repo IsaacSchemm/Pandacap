@@ -116,23 +116,27 @@ namespace Pandacap.VectorSearch
                     if (foundIds.Contains(post.Id))
                         continue;
 
-                    var longText = await embeddingsProvider.EmbedAsync(post.GenerateLongPlainText(), cancellationToken);
-                    if (longText == null)
-                        continue;
+                    try
+                    {
+                        var longText = await embeddingsProvider.EmbedAsync(post.GenerateLongPlainText(), cancellationToken);
+                        if (longText == null)
+                            continue;
 
-                    var shortText = await embeddingsProvider.EmbedAsync(post.GenerateShortPlainText(), cancellationToken);
-                    if (shortText == null)
-                        continue;
+                        var shortText = await embeddingsProvider.EmbedAsync(post.GenerateShortPlainText(), cancellationToken);
+                        if (shortText == null)
+                            continue;
 
-                    batch.Actions.Add(new IndexDocumentsAction<EmbeddedPost>(
-                        IndexActionType.Upload,
-                        new()
-                        {
-                            Id = post.Id,
-                            ShortText = shortText,
-                            LongText = longText,
-                            PublishedTime = post.PublishedTime
-                        }));
+                        batch.Actions.Add(new IndexDocumentsAction<EmbeddedPost>(
+                            IndexActionType.Upload,
+                            new()
+                            {
+                                Id = post.Id,
+                                ShortText = shortText,
+                                LongText = longText,
+                                PublishedTime = post.PublishedTime
+                            }));
+                    }
+                    catch (Exception) { }
                 }
 
                 if (batch.Actions.Count > 0)
