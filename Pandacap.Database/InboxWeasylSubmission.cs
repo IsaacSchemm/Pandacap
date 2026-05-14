@@ -53,7 +53,8 @@ namespace Pandacap.Database
 
         string IPost.ExternalUrl => Url;
 
-        IEnumerable<IPostThumbnail> IPost.Thumbnails => Thumbnails;
+        IEnumerable<IPostThumbnail> IPost.Thumbnails =>
+            Rating == "general" ? Thumbnails : [];
 
         string? IPost.Username => PostedBy.DisplayName;
 
