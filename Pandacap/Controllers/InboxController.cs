@@ -42,7 +42,7 @@ namespace Pandacap.Controllers
                 .Where(x => !x.IsPodcast)
                 .Where(x => !x.IsShare)
                 .Where(x => x.Thumbnails.Any())
-                .AsListPage(count ?? 100, cancellationToken);
+                .AsListPage(count ?? 50, cancellationToken);
 
             return ListView(new ListViewModel
             {
@@ -68,7 +68,7 @@ namespace Pandacap.Controllers
                 .Where(x => !x.IsPodcast)
                 .Where(x => !x.IsShare)
                 .Where(x => !x.Thumbnails.Any())
-                .AsListPage(count ?? 100, cancellationToken);
+                .AsListPage(count ?? 50, cancellationToken);
 
             return ListView(new ListViewModel
             {
@@ -93,7 +93,7 @@ namespace Pandacap.Controllers
                 .SkipWhile(x => next != null && x.Id != next)
                 .Where(x => !x.IsPodcast)
                 .Where(x => x.IsShare)
-                .AsListPage(count ?? 100, cancellationToken);
+                .AsListPage(count ?? 50, cancellationToken);
 
             return ListView(new ListViewModel
             {
@@ -117,7 +117,7 @@ namespace Pandacap.Controllers
             var posts = await GetAllAsync()
                 .SkipWhile(x => next != null && x.Id != next)
                 .Where(x => x.IsPodcast)
-                .AsListPage(count ?? 100, cancellationToken);
+                .AsListPage(count ?? 50, cancellationToken);
 
             return ListView(new ListViewModel
             {
