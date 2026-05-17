@@ -1,8 +1,8 @@
 ﻿Imports System.Threading
-Imports Microsoft.AspNetCore.Http
 
 Public Interface IUploader
-    Function UploadAndRenderAsync(file As IFormFile,
+    Function UploadAndRenderAsync(data As Byte(),
+                                  contentType As String,
                                   altText As String,
                                   cancellationToken As CancellationToken) As Task(Of Guid)
 

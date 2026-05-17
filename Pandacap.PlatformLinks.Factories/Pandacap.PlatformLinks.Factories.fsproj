@@ -6,10 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Control.AsyncSeq" Version="4.14.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.6" />
+    <PackageReference Include="FSharp.Control.AsyncSeq" Version="4.15.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +20,10 @@
 
   <ItemGroup>
     <Compile Include="PlatformLinkFactory.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="10.1.300" />
   </ItemGroup>
 
 </Project>

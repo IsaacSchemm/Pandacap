@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="HtmlSanitizer" Version="9.0.892" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="10.1.202" />
+    <PackageReference Update="FSharp.Core" Version="10.1.300" />
   </ItemGroup>
 
 </Project>

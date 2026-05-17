@@ -83,8 +83,12 @@ namespace Pandacap.Controllers
             if (model.File == null)
                 return BadRequest();
 
+            using var ms = new MemoryStream();
+            await model.File.CopyToAsync(ms, cancellationToken);
+
             var id = await uploader.UploadAndRenderAsync(
-                model.File,
+                ms.ToArray(),
+                model.File.ContentType,
                 model.AltText,
                 cancellationToken);
 

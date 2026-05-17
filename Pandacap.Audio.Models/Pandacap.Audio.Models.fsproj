@@ -10,4 +10,8 @@
     <Compile Include="AudioSplitterOutputAudioFormat.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="10.1.300" />
+  </ItemGroup>
+
 </Project>

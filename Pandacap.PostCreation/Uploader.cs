@@ -1,5 +1,4 @@
 ﻿using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.ImageConversion.Interfaces;
@@ -12,16 +11,6 @@ namespace Pandacap.PostCreation
         PandacapDbContext pandacapDbContext,
         ISvgRenderer svgRenderer) : IUploader
     {
-        private static async Task<byte[]> ReadFileAsync(
-            IFormFile file,
-            CancellationToken cancellationToken)
-        {
-            using var stream = file.OpenReadStream();
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms, cancellationToken);
-            return ms.ToArray();
-        }
-
         private async Task<Guid> PerformUploadAsync(
             byte[] buffer,
             CancellationToken cancellationToken)
@@ -59,21 +48,18 @@ namespace Pandacap.PostCreation
         }
 
         public async Task<Guid> UploadAndRenderAsync(
-            IFormFile file,
+            byte[] buffer,
+            string contentType,
             string? altText,
             CancellationToken cancellationToken)
         {
-            byte[] buffer = await ReadFileAsync(
-                file,
-                cancellationToken);
-
             var upload = await TrackUploadAsync(
                 buffer,
-                file.ContentType,
+                contentType,
                 altText,
                 cancellationToken);
 
-            if (file.ContentType == "image/svg+xml")
+            if (contentType == "image/svg+xml")
             {
                 using var svgStream = new MemoryStream(buffer, writable: false);
 
