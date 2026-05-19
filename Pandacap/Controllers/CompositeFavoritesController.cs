@@ -15,11 +15,20 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> Artwork(Guid? next, int? count, CancellationToken cancellationToken)
         {
             var composite =
-                compositeFavoritesProvider.GetAllAsync()
+                compositeFavoritesProvider
+                .GetAllAsync()
                 .Where(post => post.Thumbnails.Any())
                 .OrderByDescending(post => post.FavoritedAt.Date)
                 .ThenByDescending(post => post.PostedAt)
                 .SkipUntil(post => post.Id == $"{next}" || next == null);
+
+            if (User.Identity?.IsAuthenticated != true)
+            {
+                var cutoff = DateTimeOffset.UtcNow.AddMonths(-3);
+
+                composite = composite
+                    .TakeWhile(post => post.FavoritedAt > cutoff);
+            }
 
             if (Request.Query["format"] == "rss"
                 || Request.Query["format"] == "atom")
