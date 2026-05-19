@@ -298,7 +298,7 @@ type internal FurAffinityClient(
         member _.GetNotificationsAsync(cancellationToken) = task {
             use! resp = client.GetAsync("/msg/others/", cancellationToken = cancellationToken)
 
-            let! html = resp.Content.ReadAsStringAsync(cancellationToken)
+            let! html = resp.EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken)
 
             let document = HtmlDocument.Parse(html)
 
