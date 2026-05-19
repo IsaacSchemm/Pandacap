@@ -25,8 +25,6 @@ namespace Pandacap.Database
 
         public User PostedBy { get; set; } = new();
 
-        public DateTimeOffset PostedAt { get; set; }
-
         public DateTimeOffset FavoritedAt { get; set; }
 
         public DateTimeOffset? HiddenAt { get; set; }
@@ -40,6 +38,8 @@ namespace Pandacap.Database
         string IPost.InternalUrl => Link;
 
         string IPost.ExternalUrl => Link;
+
+        DateTimeOffset IPost.PostedAt => FavoritedAt;
 
         string? IPost.ProfileUrl => PostedBy.Url;
 
