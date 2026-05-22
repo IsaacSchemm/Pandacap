@@ -11,12 +11,17 @@ namespace Pandacap.Credentials
         public string RefreshToken => credentials.RefreshToken;
         public string AccessToken => credentials.AccessToken;
 
-        public async Task RefreshAccessTokenAsync()
+        public async Task RefreshAccessTokenAsync(CancellationToken cancellationToken)
         {
-            var resp = await DeviantArtAuth.RefreshAsync(deviantArtApp, credentials.RefreshToken);
+            var resp = await DeviantArtAuth.RefreshAsync(
+                deviantArtApp,
+                credentials.RefreshToken,
+                cancellationToken);
+
             credentials.RefreshToken = resp.refresh_token;
             credentials.AccessToken = resp.access_token;
-            await context.SaveChangesAsync();
+
+            await context.SaveChangesAsync(cancellationToken);
         }
     }
 }

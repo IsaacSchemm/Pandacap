@@ -56,7 +56,7 @@ type internal DeviantArtClient(
             match token with
             | None -> ()
             | Some token ->
-                for deviation in DeviantArtFs.Api.Collections.GetAllAsync token UserScope.ForCurrentUser DefaultPagingLimit StartingOffset do
+                for deviation in DeviantArtFs.Api.Collections.AsyncGetAll token UserScope.ForCurrentUser DefaultPagingLimit StartingOffset do
                     yield wrap deviation
         }
 
@@ -104,7 +104,7 @@ type internal DeviantArtClient(
             match token with
             | None -> ()
             | Some token ->
-                let! page = Async.AwaitTask (DeviantArtFs.Api.Browse.PageHomeAsync token MaximumPagingLimit StartingOffset)
+                let! page = DeviantArtFs.Api.Browse.AsyncPageHome token MaximumPagingLimit StartingOffset
 
                 for item in page.results |> Option.defaultValue [] do
                     yield wrap item
@@ -132,19 +132,6 @@ type internal DeviantArtClient(
                 }
         }
 
-        member _.GetNotesInInboxAsync() = asyncSeq {
-            let! token = asyncGetToken ()
-
-            match token with
-            | None -> ()
-            | Some token ->
-                for note in Notes.getInboxAsync token do yield {
-                    new INote with
-                        member _.From = wrapUser note.user
-                        member _.Timestamp = note.ts
-                }
-        }
-
         member _.GetProfilePostsAsync(username) = asyncSeq {
             let! token = asyncGetToken ()
 
@@ -163,7 +150,7 @@ type internal DeviantArtClient(
                 return failwith "No DeviantArt account connected"
             | Some token ->
                 let! response =
-                    Artwork.postArtworkAsync
+                    Artwork.asyncPostArtwork
                         token
                         file.Data
                         file.ContentType
@@ -177,7 +164,7 @@ type internal DeviantArtClient(
                 if response.status <> "success" then
                     raise (NotImplementedException $"DeviantArt response: {response.status}")
 
-                let! deviation = DeviantArtFs.Api.Deviation.GetAsync token response.deviationid
+                let! deviation = DeviantArtFs.Api.Deviation.AsyncGet token response.deviationid
                 return wrap deviation
         }
 
@@ -188,8 +175,8 @@ type internal DeviantArtClient(
             | None ->
                 return failwith "No DeviantArt account connected"
             | Some token ->
-                let! response = Journal.postAsync token title body tags
-                let! deviation = DeviantArtFs.Api.Deviation.GetAsync token response.deviationid
+                let! response = Journal.asyncPost token title body tags
+                let! deviation = DeviantArtFs.Api.Deviation.AsyncGet token response.deviationid
                 return wrap deviation
         }
 
@@ -200,7 +187,7 @@ type internal DeviantArtClient(
             | None ->
                 return failwith "No DeviantArt account connected"
             | Some token ->
-                let! response = Status.postAsync token message
-                let! deviation = DeviantArtFs.Api.Deviation.GetAsync token response.statusid
+                let! response = Status.asyncPost token message
+                let! deviation = DeviantArtFs.Api.Deviation.AsyncGet token response.statusid
                 return wrap deviation
         }

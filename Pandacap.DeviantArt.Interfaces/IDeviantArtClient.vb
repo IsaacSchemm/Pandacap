@@ -13,8 +13,6 @@ Public Interface IDeviantArtClient
 
     Function GetMessagesInInboxAsync() As IAsyncEnumerable(Of IMessage)
 
-    Function GetNotesInInboxAsync() As IAsyncEnumerable(Of INote)
-
     Function GetProfilePostsAsync(username As String) As IAsyncEnumerable(Of IDeviation)
 
     Function PostArtworkAsync(file As IArtworkFile,

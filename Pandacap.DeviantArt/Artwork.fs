@@ -1,12 +1,11 @@
 namespace Pandacap.DeviantArt
 
-open FSharp.Control
 open DeviantArtFs.ParameterTypes
 
 open DeviantArtFs.Api.Stash
 
 module internal Artwork =
-    let postArtworkAsync token data contentType title artistComments tags galleryFolders isAIGenerated noThirdPartyAI = task {
+    let asyncPostArtwork token data contentType title artistComments tags galleryFolders isAIGenerated noThirdPartyAI = async {
         let submissionParameters = {
             title = SubmissionTitle title
             artist_comments = ArtistComments artistComments
@@ -27,7 +26,7 @@ module internal Artwork =
                     $"file.{extension}"
         }
 
-        let! stashResult = SubmitAsync token (SubmitToStack RootStack) submissionParameters formFile
+        let! stashResult = AsyncSubmit token (SubmitToStack RootStack) submissionParameters formFile
 
         let publishParameters = [
             for folder in galleryFolders do
@@ -41,5 +40,5 @@ module internal Artwork =
             if noThirdPartyAI then NoThirdPartyAi else ThirdPartyAiOk
         ]
 
-        return! PublishAsync token publishParameters (Item stashResult.itemid)
+        return! AsyncPublish token publishParameters (Item stashResult.itemid)
     }

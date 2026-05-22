@@ -1,5 +1,5 @@
-﻿using DeviantArtFs.Extensions;
-using DeviantArtFs.ResponseTypes;
+﻿using DeviantArtFs.ResponseTypes;
+using Microsoft.FSharp.Core;
 
 namespace Pandacap.Models
 {
@@ -7,7 +7,10 @@ namespace Pandacap.Models
         Deviation Deviation,
         string? AltText)
     {
-        public string? ThumbnailUrl => Deviation.thumbs.OrEmpty()
+        public string? ThumbnailUrl =>
+            OptionModule.DefaultValue(
+                [],
+                Deviation.thumbs)
             .OrderBy(x => x.height >= 200 ? 1 : 2)
             .ThenBy(x => x.height)
             .Select(x => x.src)

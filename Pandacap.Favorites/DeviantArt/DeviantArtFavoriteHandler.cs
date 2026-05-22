@@ -1,5 +1,4 @@
-﻿using DeviantArtFs.Extensions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.DeviantArt.Interfaces;
 using Pandacap.Favorites.Interfaces;
