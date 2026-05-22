@@ -6,6 +6,8 @@ namespace Pandacap.ActivityPub.Inbox
     public static class DependencyInjectionExtensions
     {
         public static IServiceCollection AddActivityPubInboxHandler(this IServiceCollection serviceCollection) =>
-            serviceCollection.AddScoped<IRemoteActivityPubInboxHandler, RemoteActivityPubInboxHandler>();
+            serviceCollection
+            .AddScoped<IActivityPubInboxAddressingFilter, ActivityPubInboxAddressingFilter>()
+            .AddScoped<IRemoteActivityPubInboxHandler, RemoteActivityPubInboxHandler>();
     }
 }

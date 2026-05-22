@@ -12,13 +12,13 @@ using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Database;
-using Pandacap.Lemmy.Models;
 using System.Text;
 
 namespace Pandacap.Controllers
 {
     public class ActivityPubController(
-        IActivityPubInteractionTranslator interactionTranslator,
+        IActivityPubInboxAddressingFilter activityPubInboxAddressingFilter,
+        IActivityPubInteractionTranslator activityPubInteractionTranslator,
         IActivityPubKeyFinder activityPubKeyFinder,
         IActivityPubPostTranslator postTranslator,
         IActivityPubRelationshipTranslator relationshipTranslator,
@@ -61,7 +61,7 @@ namespace Pandacap.Controllers
                 .CountAsync(cancellationToken);
 
             return Content(
-                interactionTranslator.BuildLikedCollection(
+                activityPubInteractionTranslator.BuildLikedCollection(
                     posts),
                 "application/activity+json",
                 Encoding.UTF8);
@@ -280,16 +280,12 @@ namespace Pandacap.Controllers
                     }
                     else
                     {
-                        var anybodyAddressed = remotePost.Recipients
-                            .Any(r => r.IsActor);
-
-                        bool nobodyAddressed = !anybodyAddressed;
-
                         var follow = await pandacapDbContext.Follows
                             .Where(f => f.ActorId == actor.Id)
                             .FirstOrDefaultAsync(cancellationToken);
 
-                        if (follow != null)
+                        if (follow != null
+                            && activityPubInboxAddressingFilter.IsIncludedInInbox(remotePost, follow))
                         {
                             follow.PreferredUsername = remotePost.AttributedTo.PreferredUsername;
                             follow.Url = remotePost.AttributedTo.Url;
@@ -473,7 +469,7 @@ namespace Pandacap.Controllers
                 return NotFound();
 
             return Content(
-                interactionTranslator.BuildLike(
+                activityPubInteractionTranslator.BuildLike(
                     id,
                     post.ObjectId),
                 "application/activity+json",
