@@ -12,6 +12,7 @@ using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Database;
+using Pandacap.Lemmy.Models;
 using System.Text;
 
 namespace Pandacap.Controllers
@@ -343,6 +344,9 @@ namespace Pandacap.Controllers
 
                         foreach (var reply in replies)
                         {
+                            if (reply.CreatedBy != actor.Id)
+                                continue;
+
                             reply.CreatedBy = remotePost.AttributedTo.Id;
                             reply.Username = remotePost.AttributedTo.PreferredUsername;
                             reply.Usericon = remotePost.AttributedTo.IconUrl;
@@ -363,16 +367,32 @@ namespace Pandacap.Controllers
                 {
                     string deletedObjectId = deletedObject["@id"]!.Value<string>()!;
 
-                    var inboxPosts = await pandacapDbContext.InboxActivityStreamsPosts.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
+                    var inboxPosts = await pandacapDbContext.InboxActivityStreamsPosts
+                        .Where(post => post.ObjectId == deletedObjectId)
+                        .Where(post => post.Author.Id == actor.Id)
+                        .ToListAsync(cancellationToken);
+
                     pandacapDbContext.RemoveRange(inboxPosts);
 
-                    var favorites = await pandacapDbContext.ActivityPubFavorites.Where(p => p.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
+                    var favorites = await pandacapDbContext.ActivityPubFavorites
+                        .Where(post => post.ObjectId == deletedObjectId)
+                        .Where(post => post.CreatedBy == actor.Id)
+                        .ToListAsync(cancellationToken);
+
                     pandacapDbContext.RemoveRange(favorites);
 
-                    var replies = await pandacapDbContext.RemoteActivityPubReplies.Where(reply => reply.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
+                    var replies = await pandacapDbContext.RemoteActivityPubReplies
+                        .Where(reply => reply.ObjectId == deletedObjectId)
+                        .Where(reply => reply.CreatedBy == actor.Id)
+                        .ToListAsync(cancellationToken);
+
                     pandacapDbContext.RemoveRange(replies);
 
-                    var addressedPosts = await pandacapDbContext.RemoteActivityPubAddressedPosts.Where(reply => reply.ObjectId == deletedObjectId).ToListAsync(cancellationToken);
+                    var addressedPosts = await pandacapDbContext.RemoteActivityPubAddressedPosts
+                        .Where(post => post.ObjectId == deletedObjectId)
+                        .Where(post => post.CreatedBy == actor.Id)
+                        .ToListAsync(cancellationToken);
+
                     pandacapDbContext.RemoveRange(addressedPosts);
 
                     await pandacapDbContext.SaveChangesAsync(cancellationToken);
