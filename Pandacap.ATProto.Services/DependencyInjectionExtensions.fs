@@ -13,4 +13,5 @@ module DependencyInjectionExtensions =
             .AddScoped<IDIDResolver, DIDResolver>()
             .AddScoped<IATProtoService, ATProtoService>()
             .AddScoped<IBlueskyService, BlueskyService>()
+            .AddScoped<IStandardSiteService, StandardSiteService>()
             .AddScoped<IConstellationService, ConstellationService>()

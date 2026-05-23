@@ -17,8 +17,11 @@
     <Compile Include="DIDResolver.fs" />
     <Compile Include="XRPC.fs" />
     <Compile Include="ATProtoService.fs" />
+    <Compile Include="Utility.fs" />
     <Compile Include="BlueskyRecords.fs" />
     <Compile Include="BlueskyService.fs" />
+    <Compile Include="StandardSiteRecords.fs" />
+    <Compile Include="StandardSiteService.fs" />
     <Compile Include="ConstellationService.fs" />
     <Compile Include="DependencyInjectionExtensions.fs" />
   </ItemGroup>

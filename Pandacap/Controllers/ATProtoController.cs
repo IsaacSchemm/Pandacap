@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
 using Pandacap.Models;
@@ -13,6 +14,7 @@ namespace Pandacap.Controllers
         IBlueskyService blueskyService,
         IDIDResolver didResolver,
         IHttpClientFactory httpClientFactory,
+        IStandardSiteService standardSiteService,
         PandacapDbContext pandacapDbContext) : Controller
     {
         [AllowAnonymous]
@@ -165,6 +167,39 @@ namespace Pandacap.Controllers
                     AvatarCID: profile?.Value?.AvatarCID,
                     Record: post,
                     IsInFavorites: inFavoritesAsBlueskyPost));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewStandardSiteDocument(
+            string did,
+            string rkey,
+            CancellationToken cancellationToken)
+        {
+            using var client = httpClientFactory.CreateClient();
+
+            var doc = await didResolver.ResolveAsync(
+                did,
+                cancellationToken);
+
+            var document = await standardSiteService.GetDocumentAsync(
+                doc.PDS,
+                did,
+                rkey,
+                cancellationToken);
+
+            var publication = document.Value.Site is StandardSiteSite.Publication pub
+                ? await standardSiteService.GetPublicationAsync(
+                    doc.PDS,
+                    pub.Item.Components.DID,
+                    pub.Item.Components.RecordKey,
+                    cancellationToken)
+                : null;
+
+            return Json(new
+            {
+                document.Value.TextBodies,
+                publication
+            });
         }
 
         [HttpPost]

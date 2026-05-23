@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="ATProto.fs" />
     <Compile Include="Bluesky.fs" />
+    <Compile Include="StandardSite.fs" />
     <Compile Include="DIDs.fs" />
   </ItemGroup>
 
