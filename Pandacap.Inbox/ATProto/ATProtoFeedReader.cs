@@ -11,7 +11,8 @@ namespace Pandacap.Inbox.ATProto
         IATProtoService atProtoService,
         IBlueskyService blueskyService,
         IDIDResolver didResolver,
-        PandacapDbContext pandacapDbContext) : IATProtoFeedReader
+        PandacapDbContext pandacapDbContext,
+        IStandardSiteService standardSiteService) : IATProtoFeedReader
     {
         private static bool PostMatchesFilters(
             ATProtoFeed feed,
@@ -168,6 +169,28 @@ namespace Pandacap.Inbox.ATProto
             });
         }
 
+        private void AddToContext(
+            ATProtoFeed feed,
+            ATProtoRecord<StandardSiteDocument> document)
+        {
+            pandacapDbContext.StandardSiteDocumentFeedItems.Add(new()
+            {
+                AddedAt = DateTimeOffset.UtcNow,
+                Author = new()
+                {
+                    AvatarCID = feed.AvatarCID,
+                    DID = feed.DID,
+                    DisplayName = feed.DisplayName,
+                    Handle = feed.Handle,
+                    PDS = feed.CurrentPDS
+                },
+                CID = document.Ref.CID,
+                PublishedAt = document.Value.PublishedAt,
+                RecordKey = document.Ref.Uri.Components.RecordKey,
+                Title = document.Value.Title
+            });
+        }
+
         public async Task RefreshFeedAsync(
             string did,
             CancellationToken cancellationToken)
@@ -287,6 +310,29 @@ namespace Pandacap.Inbox.ATProto
                         continue;
 
                     AddRepostToContext(feed, repost, info);
+                }
+            }
+
+            if (feed.NSIDs.Contains("site.standard.document"))
+            {
+                var documents = standardSiteService.GetNewestDocumentsAsync(
+                    pds,
+                    did).Take(20).WithCancellation(cancellationToken);
+
+                await foreach (var document in documents)
+                {
+                    seenThisTime.Add(document.Ref.CID);
+
+                    if (seenLastTime.Contains(document.Ref.CID))
+                        continue;
+
+                    var existing = await pandacapDbContext.StandardSiteDocumentFeedItems.FindAsync(
+                        [document.Ref.CID],
+                        cancellationToken);
+                    if (existing != null)
+                        pandacapDbContext.StandardSiteDocumentFeedItems.Remove(existing);
+
+                    AddToContext(feed, document);
                 }
             }
 

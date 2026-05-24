@@ -68,6 +68,15 @@
     <div class="mb-3 form-check">
         <input type="checkbox"
                class="form-check-input"
+               asp-for="IncludeStandardSiteDocuments">
+        <label class="form-check-label" asp-for="IncludeStandardSiteDocuments">
+            Include standard.site documents (from any publication associated with this DID)
+        </label>
+    </div>
+    <hr />
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
                asp-for="IgnoreImages">
         <label class="form-check-label" asp-for="IgnoreImages">
             Ignore images (treat all posts as text posts)

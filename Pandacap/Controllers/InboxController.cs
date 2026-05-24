@@ -187,6 +187,14 @@ namespace Pandacap.Controllers
             }
 
             await foreach (var item in pandacapDbContext
+                .StandardSiteDocumentFeedItems
+                .Where(item => ids.Contains(item.CID))
+                .AsAsyncEnumerable())
+            {
+                yield return item;
+            }
+
+            await foreach (var item in pandacapDbContext
                 .InboxFurAffinitySubmissions
                 .Where(x => guids.Contains(x.Id))
                 .AsAsyncEnumerable())

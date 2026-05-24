@@ -84,7 +84,6 @@ namespace Pandacap.Database
         bool IFollow.Filtered =>
             !IncludePostsWithoutImages
             || !IncludeQuotePosts
-            || !NSIDs.Contains("app.bsky.feed.post")
-            || !NSIDs.Contains("app.bsky.feed.repost");
+            || (NSIDs.Contains("app.bsky.feed.post") != NSIDs.Contains("app.bsky.feed.repost"));
     }
 }

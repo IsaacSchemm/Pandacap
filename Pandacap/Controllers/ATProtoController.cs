@@ -95,7 +95,8 @@ namespace Pandacap.Controllers
                     .. collections.Intersect([
                         "app.bsky.actor.profile",
                         "app.bsky.feed.post",
-                        "app.bsky.feed.repost"
+                        "app.bsky.feed.repost",
+                        "site.standard.document"
                     ])
                 ]
             });
@@ -195,10 +196,11 @@ namespace Pandacap.Controllers
                     cancellationToken)
                 : null;
 
-            return Json(new
+            return View(new StandardSiteDocumentModel
             {
-                document.Value.TextBodies,
-                publication
+                DID = did,
+                Document = document.Value,
+                Publication = publication?.Value
             });
         }
 

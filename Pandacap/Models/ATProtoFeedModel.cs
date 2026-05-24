@@ -16,5 +16,7 @@
         public bool IncludeBlueskyLikes { get; init; }
         public bool IncludeBlueskyPosts { get; init; }
         public bool IncludeBlueskyReposts { get; init; }
+
+        public bool IncludeStandardSiteDocuments { get; init; }
     }
 }

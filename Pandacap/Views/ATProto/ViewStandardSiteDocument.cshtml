@@ -1,0 +1,47 @@
+﻿@model StandardSiteDocumentModel
+@using Pandacap.ATProto.Models
+
+@{
+    ViewBag.Title = "View Standard.site Document";
+}
+
+@if (Model.Publication != null)
+{
+    <h1>
+        @if (Microsoft.FSharp.Core.OptionModule.ToObj(Model.Publication.Icon) is Icon icon)
+        {
+            <img height="50" src="/ATProto/GetBlob?did=@Model.DID&cid=@icon.CID" alt="" />
+        }
+        @Model.Publication.Name
+    </h1>
+
+    foreach (var body in Model.Publication.TextBodies)
+    {
+        <p style="white-space: pre-wrap">@body</p>
+    }
+}
+
+<h1>
+    @Model.Document.Title
+</h1>
+
+@foreach (var body in Model.Document.TextBodies)
+{
+    <p style="white-space: pre-wrap">@body</p>
+}
+
+<p>
+    published at:
+    @Model.Document.PublishedAt.UtcDateTime.ToLongDateString()
+    @Model.Document.PublishedAt.UtcDateTime.ToShortTimeString()
+
+    @if (Microsoft.FSharp.Core.OptionModule.ToNullable(Model.Document.UpdatedAt) is DateTimeOffset updatedat)
+    {
+        <span>
+            <br />
+            updated at:
+            @updatedat.UtcDateTime.ToLongDateString()
+            @updatedat.UtcDateTime.ToShortTimeString()
+        </span>
+    }
+</p>

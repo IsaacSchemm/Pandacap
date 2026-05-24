@@ -31,6 +31,11 @@ namespace Pandacap.UI.Posts
                 .AsAsyncEnumerable()
                 .OfType<IInboxPost>();
 
+            var standardSite = context.StandardSiteDocumentFeedItems
+                .OrderByDescending(d => d.PublishedAt)
+                .AsAsyncEnumerable()
+                .OfType<IInboxPost>();
+
             var deviantArtImages = context.InboxArtworkDeviations
                 .OrderByDescending(d => d.Timestamp)
                 .AsAsyncEnumerable()
@@ -73,6 +78,7 @@ namespace Pandacap.UI.Posts
                     bluesky1,
                     bluesky2,
                     bluesky3,
+                    standardSite,
                     deviantArtImages,
                     deviantArtText,
                     furAffinitySubmissions,

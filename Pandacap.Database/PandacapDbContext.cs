@@ -29,6 +29,7 @@ namespace Pandacap.Database
         public DbSet<BlueskyLikeFeedItem> BlueskyLikeFeedItems { get; set; }
         public DbSet<BlueskyPostFeedItem> BlueskyPostFeedItems { get; set; }
         public DbSet<BlueskyRepostFeedItem> BlueskyRepostFeedItems { get; set; }
+        public DbSet<StandardSiteDocumentFeedItem> StandardSiteDocumentFeedItems { get; set; }
         public DbSet<RemoteActivityPubAddressedPost> RemoteActivityPubAddressedPosts { get; set; }
         public DbSet<RemoteActivityPubReply> RemoteActivityPubReplies { get; set; }
         public DbSet<ActivityPubOutboundActivity> ActivityPubOutboundActivities { get; set; }

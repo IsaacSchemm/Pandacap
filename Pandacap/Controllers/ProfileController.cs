@@ -301,7 +301,8 @@ namespace Pandacap.Controllers
                 IgnoreImages = feed.IgnoreImages,
                 IncludeBlueskyLikes = feed.NSIDs.Contains("app.bsky.feed.like"),
                 IncludeBlueskyPosts = feed.NSIDs.Contains("app.bsky.feed.post"),
-                IncludeBlueskyReposts = feed.NSIDs.Contains("app.bsky.feed.repost")
+                IncludeBlueskyReposts = feed.NSIDs.Contains("app.bsky.feed.repost"),
+                IncludeStandardSiteDocuments = feed.NSIDs.Contains("site.standard.document")
             });
         }
 
@@ -350,6 +351,11 @@ namespace Pandacap.Controllers
                     follow.NSIDs.Add("app.bsky.feed.repost");
                 else
                     follow.NSIDs.Remove("app.bsky.feed.repost");
+
+                if (model.IncludeStandardSiteDocuments)
+                    follow.NSIDs.Add("site.standard.document");
+                else
+                    follow.NSIDs.Remove("site.standard.document");
 
                 follow.LastCommitCID = null;
             }
