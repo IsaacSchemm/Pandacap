@@ -3,6 +3,7 @@ using Pandacap.UI.Badges;
 using Pandacap.UI.Elements;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Cryptography;
 
 namespace Pandacap.Database
 {
@@ -75,7 +76,14 @@ namespace Pandacap.Database
 
         string? IPost.ProfileUrl => $"https://bsky.app/profile/{AttributeTo.DID}";
 
-        IEnumerable<IPostThumbnail> IPost.Thumbnails => Images.Select(image => new PostThumbnailAdapter(OriginalDID, image));
+        IEnumerable<IPostThumbnail> IPost.Thumbnails => Images.Select(image =>
+            !AdultContent
+            ? new PostThumbnail(
+                $"/ATProto/GetBlob?did={OriginalDID}&cid={image.CID}",
+                image.Alt)
+            : new PostThumbnail(
+                "/images/trgray.svg",
+                ""));
 
         string? IPost.Username => AttributeTo.Handle ?? AttributeTo.DID;
 
@@ -83,11 +91,18 @@ namespace Pandacap.Database
             ? $"/ATProto/GetBlob?did={AttributeTo.DID}&cid={cid}"
             : null;
 
-        private class PostThumbnailAdapter(string did, Image image) : IPostThumbnail
+        private class PostThumbnail(string url, string alt) : IPostThumbnail
         {
-            string IPostThumbnail.Url => $"/ATProto/GetBlob?did={did}&cid={image.CID}";
+            string IPostThumbnail.Url => url;
 
-            string IPostThumbnail.AltText => image.Alt;
+            string IPostThumbnail.AltText => alt;
+        }
+
+        private class HiddenPostThumbnail : IPostThumbnail
+        {
+            string IPostThumbnail.Url => "/images/trgray.svg";
+
+            string IPostThumbnail.AltText => "";
         }
     }
 }
