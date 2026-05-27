@@ -97,12 +97,5 @@ namespace Pandacap.Database
 
             string IPostThumbnail.AltText => alt;
         }
-
-        private class HiddenPostThumbnail : IPostThumbnail
-        {
-            string IPostThumbnail.Url => "/images/trgray.svg";
-
-            string IPostThumbnail.AltText => "";
-        }
     }
 }

@@ -1,0 +1,63 @@
+﻿@using Pandacap.Database
+@using Pandacap.UI.Lists
+@model ListPage<Post>
+
+<h1>Tag Reapplication</h1>
+
+<p>
+    For each image, enter a list of shortcodes (separated by spaces).
+</p>
+
+<ul>
+    <li>
+        <code>xyz</code>: attach appearance of canonical character tag that has shortcode <code>xyz</code>
+        <code>xyz.abc</code>: attach appearance of canonical character tag that has shortcode <code>xyz</code>, but with species that has shortcode <code>abc</code>
+        <code>/mmm</code>: attach canonical artistic medium tag that has shortcode <code>mmm</code>
+    </li>
+</ul>
+
+<p>
+    If a shortcode is not found, it will be skipped; other tags will be applied, and you will be shown an error message instead of proceeding to the next page.
+</p>
+
+<form asp-action="Apply">
+    @foreach (var post in Model.Current)
+    {
+        <h2>@post.Title</h2>
+
+        if (post.Images.FirstOrDefault() is Post.Image image)
+        {
+            <div style="display: flex; flex-direction: row">
+                <div style="flex: 0 0 auto">
+                    <a href="/UserPosts/@post.Id" target="_blank">
+                        <img src="/UserPosts/@post.Id/@image.Primary.Id"
+                             width="200"
+                             height="150"
+                             style="object-fit: contain" />
+                    </a>
+                </div>
+
+                <div style="flex: 1 1 auto">
+                    <div class="mb-2">
+                        @post.PublishedTime.Date.ToLongDateString()
+                    </div>
+
+                    <input name="tagsToApply" type="text" style="width: 100%" />
+                </div>
+            </div>
+        }
+    }
+
+    <hr />
+
+    <h2>Additional details</h2>
+
+    <label>
+        Next post
+        <input type="text" name="nextPostId" value="@Model.Next" readonly />
+    </label>
+
+    <br />
+
+    <button type="submit">Save tags</button>
+</form>
