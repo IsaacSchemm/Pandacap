@@ -1,0 +1,20 @@
+﻿@model EditJsonViewModel
+
+<h1>
+    Edit JSON
+</h1>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+
+    <textarea asp-for="@Model.Json" class="form-control mb-3" style="height: 400px; font-family: monospace" spellcheck="false"></textarea>
+
+    <div class="mb-3 form-check px-0">
+        <input type="checkbox" asp-for="Delete">
+        <label class="form-check-label" asp-for="Delete">Delete this item</label>
+    </div>
+
+    <p align="right">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </p>
+</form>

@@ -12,6 +12,11 @@
 
         public bool Fan { get; set; }
 
-        public List<Guid> PartOf { get; set; } = [];
+        public class ParentSpecies
+        {
+            public Guid OtherSpeciesId { get; set; }
+        }
+
+        public List<ParentSpecies> PartOf { get; set; } = [];
     }
 }

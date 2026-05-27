@@ -14,25 +14,25 @@
 
         public string? Pronouns { get; set; }
 
-        public class CanonicalCharacterNationality
-        {
-            public string IsoCode { get; set; } = "";
-        }
-
-        public List<CanonicalCharacterNationality> Nationalities { get; set; } = [];
+        public List<string> NationalityIsoCodes { get; set; } = [];
 
         public string? Description { get; set; }
 
-        public class CanonicalCharacterRelationship
+        public class Relationship
         {
             public Guid OtherCharacterId { get; set; }
 
             public string RelationshipTypeName { get; set; } = "";
         }
 
-        public List<CanonicalCharacterRelationship> Relationships { get; set; } = [];
+        public List<Relationship> Relationships { get; set; } = [];
 
-        public List<Guid> AlternateVersions { get; set; } = [];
+        public class AlternateVersion
+        {
+            public Guid OtherCharacterId { get; set; }
+        }
+
+        public List<AlternateVersion> AlternateVersions { get; set; } = [];
 
         public string? ShortCode { get; set; }
     }
