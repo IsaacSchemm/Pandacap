@@ -1,55 +1,66 @@
 ﻿@using Pandacap.CanonicalTags.Interfaces
 @model CanonicalTagsViewModel
 
+@{
+    ViewBag.Title = "Edit Canonical Tags";
+}
+
 <h1>Edit Canonical Tags</h1>
 
-<h2>Mediums</h2>
-
 @{
-    await RenderListAsync(Model.ArtMedia, "AddEditMedium");
+    await RenderListAsync(Model.All);
 }
 
-<h2>Characters</h2>
+<p>
+    <a asp-action="AddEditMedium">
+        Add new medium
+    </a>
 
-@{
-    await RenderListAsync(Model.Characters, "AddEditCharacter");
-}
+    <br />
 
-<h2>Settings</h2>
+    <a asp-action="AddEditSetting">
+        Add new setting
+    </a>
 
-@{
-    await RenderListAsync(Model.Settings, "AddEditSetting");
-}
+    <br />
 
-<h2>Species</h2>
+    <a asp-action="AddEditCharacter">
+        Add new character
+    </a>
 
-@{
-    await RenderListAsync(Model.Species, "AddEditSpecies");
-}
+    <br />
+
+    <a asp-action="AddEditSpecies">
+        Add new species
+    </a>
+</p>
 
 @functions {
-    async Task RenderListAsync(IEnumerable<ICanonicalTagTreeDisplayNode> nodes, string action)
+    async Task RenderListAsync(IEnumerable<ICanonicalTagTreeDisplayNode> nodes)
     {
         <ul>
             @foreach (var item in nodes)
             {
+                var action = $"AddEdit{item.Type}";
+
                 <li>
-                    <a asp-action="@action" asp-route-id="@item.Id">
-                        @item.Name
-                    </a>
+                    @if (item.Id is Guid id)
+                    {
+                        <a asp-action="@action" asp-route-id="@id">
+                            @item.Name
+                        </a>
+                    }
+                    else
+                    {
+                        @:@item.Name
+                    }
 
                     @if (item.Children.Any())
                     {
-                        await RenderListAsync(item.Children, action);
+                        await RenderListAsync(item.Children);
                     }
                 </li>
             }
         </ul>
-
-        <p>
-            <a asp-action="@action">
-                Add new
-            </a>
-        </p>
     }
 }

@@ -1,7 +1,8 @@
 namespace Pandacap.CanonicalTags
 
-open FSharp.Control
+open System
 open Microsoft.EntityFrameworkCore
+open FSharp.Control
 open Pandacap.Database
 open Pandacap.CanonicalTags.Interfaces
 
@@ -9,70 +10,85 @@ type CanonicalTagTreeService(
     pandacapDbContext: PandacapDbContext
 ) =
     interface ICanonicalTagTreeService with
-        member _.GetAllMediumsAsync() = asyncSeq {
+        member _.GetAllTagsAsync() = asyncSeq {
             let! token = Async.CancellationToken
 
-            let! items = pandacapDbContext.CanonicalMediums.ToListAsync(token) |> Async.AwaitTask
+            let! mediums = pandacapDbContext.CanonicalMediums.ToListAsync(token) |> Async.AwaitTask
 
-            for x in items do {
+            {
                 new ICanonicalTagTreeDisplayNode with
-                    member _.Id = x.Id
-                    member _.Name = String.concat " " [
-                        x.Name
-                        if not (isNull x.ShortCode) then $"({x.ShortCode})"
+                    member _.Id = Nullable()
+                    member _.Name = "Mediums"
+                    member _.Type = CanonicalTagType.Category
+                    member _.Children = [
+                        for medium in mediums |> Seq.sortBy (fun x -> x.Name) do {
+                            new ICanonicalTagTreeDisplayNode with
+                                member _.Id = Nullable(medium.Id)
+                                member _.Name = medium.Name
+                                member _.Type = CanonicalTagType.Medium
+                                member _.Children = Seq.empty
+                        }
                     ]
-                    member _.Children = Seq.empty
             }
-        }
 
-        member _.GetAllCharactersAsync() = asyncSeq {
-            let! token = Async.CancellationToken
+            let! characters = pandacapDbContext.CanonicalCharacters.ToListAsync(token) |> Async.AwaitTask
+            let! settings = pandacapDbContext.CanonicalSettings.ToListAsync(token) |> Async.AwaitTask
 
-            let! items = pandacapDbContext.CanonicalCharacters.ToListAsync(token) |> Async.AwaitTask
-
-            for x in items do {
+            let characterToTreeNode (this: CanonicalCharacter) = {
                 new ICanonicalTagTreeDisplayNode with
-                    member _.Id = x.Id
-                    member _.Name = String.concat " " [
-                        x.Name
-                        if not (isNull x.ShortCode) then $"({x.ShortCode})"
+                    member _.Id = Nullable(this.Id)
+                    member _.Name = this.Name
+                    member _.Type = CanonicalTagType.Character
+                    member _.Children = []
+            }
+
+            {
+                new ICanonicalTagTreeDisplayNode with
+                    member _.Id = Nullable()
+                    member _.Name = "Settings & Characters"
+                    member _.Type = CanonicalTagType.Category
+                    member _.Children = [
+                        for setting in settings |> Seq.sortBy (fun x -> x.Name) do {
+                            new ICanonicalTagTreeDisplayNode with
+                                member _.Id = Nullable(setting.Id)
+                                member _.Name = setting.Name
+                                member _.Type = CanonicalTagType.Setting
+                                member _.Children = [
+                                    for character in characters |> Seq.sortBy (fun x -> x.Name) do
+                                        if character.SettingId = Nullable(setting.Id) then
+                                            characterToTreeNode character
+                                ]
+                        }
+
+                        for character in characters |> Seq.sortBy (fun x -> x.Name) do
+                            if character.SettingId = Nullable() then
+                                characterToTreeNode character
                     ]
-                    member _.Children = Seq.empty
             }
-        }
 
-        member _.GetAllSettingsAsync() = asyncSeq {
-            let! token = Async.CancellationToken
+            let! allSpecies = pandacapDbContext.CanonicalSpecies.ToListAsync(token) |> Async.AwaitTask
 
-            let! items = pandacapDbContext.CanonicalSettings.ToListAsync(token) |> Async.AwaitTask
-
-            for x in items do {
+            let rec speciesToTreeNode (this: CanonicalSpecies) = {
                 new ICanonicalTagTreeDisplayNode with
-                    member _.Id = x.Id
-                    member _.Name = x.Name
-                    member _.Children = Seq.empty
-            }
-        }
-
-        member _.GetAllSpeciesAsync() = asyncSeq {
-            let! token = Async.CancellationToken
-
-            let! items = pandacapDbContext.CanonicalSpecies.ToListAsync(token) |> Async.AwaitTask
-
-            let rec toTreeNode (x: CanonicalSpecies) = {
-                new ICanonicalTagTreeDisplayNode with
-                    member _.Id = x.Id
-                    member _.Name = String.concat " " [
-                        x.Name
-                        if not (isNull x.ShortCode) then $"({x.ShortCode})"
-                    ]
+                    member _.Id = Nullable(this.Id)
+                    member _.Name = this.Name
+                    member _.Type = CanonicalTagType.Species
                     member _.Children =  [
-                        for y in items do
-                            let partOfIds = [for p in y.PartOf do p.OtherSpeciesId]
-                            if partOfIds |> List.contains x.Id then
-                                toTreeNode y
+                        for potentialChild in allSpecies |> Seq.sortBy (fun x -> x.Name) do
+                            if potentialChild.PartOf |> Seq.map (fun p -> p.OtherSpeciesId) |> Seq.contains this.Id then
+                                speciesToTreeNode potentialChild
                     ]
             }
 
-            for x in items do if x.PartOf.Count = 0 then toTreeNode x
+            {
+                new ICanonicalTagTreeDisplayNode with
+                    member _.Id = Nullable()
+                    member _.Name = "Species"
+                    member _.Type = CanonicalTagType.Category
+                    member _.Children = [
+                        for x in allSpecies |> Seq.sortBy (fun x -> x.Name) do
+                            if x.PartOf.Count = 0 then
+                                speciesToTreeNode x
+                    ]
+            }
         }

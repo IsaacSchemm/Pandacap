@@ -22,10 +22,7 @@ namespace Pandacap.Controllers
         {
             var model = new CanonicalTagsViewModel
             {
-                ArtMedia = await canonicalTagTreeService.GetAllMediumsAsync().ToListAsync(cancellationToken),
-                Characters = await canonicalTagTreeService.GetAllCharactersAsync().ToListAsync(cancellationToken),
-                Settings = await canonicalTagTreeService.GetAllSettingsAsync().ToListAsync(cancellationToken),
-                Species = await canonicalTagTreeService.GetAllSpeciesAsync().ToListAsync(cancellationToken)
+                All = await canonicalTagTreeService.GetAllTagsAsync().ToListAsync(cancellationToken)
             };
 
             return View(model);
