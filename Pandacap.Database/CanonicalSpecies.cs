@@ -18,5 +18,7 @@
         }
 
         public List<ParentSpecies> PartOf { get; set; } = [];
+
+        public string? ShortCode { get; set; }
     }
 }

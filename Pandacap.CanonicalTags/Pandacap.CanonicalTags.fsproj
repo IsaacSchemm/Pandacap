@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="CanonicalTagTreeService.fs" />
+    <Compile Include="DependencyInjectionExtensions.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Control.AsyncSeq" Version="4.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.CanonicalTags.Interfaces\Pandacap.CanonicalTags.Interfaces.vbproj" />
+  </ItemGroup>
+
+</Project>

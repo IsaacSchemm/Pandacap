@@ -1,6 +1,6 @@
 ﻿namespace Pandacap.Database
 {
-    public class CanonicalArtMedium
+    public class CanonicalMedium
     {
         public Guid Id { get; set; }
 

@@ -38,11 +38,11 @@ namespace Pandacap.Database
         public DbSet<DeviantArtFavorite> DeviantArtFavorites { get; set; }
         public DbSet<FurAffinityFavorite> FurAffinityFavorites { get; set; }
         public DbSet<WeasylFavoriteSubmission> WeasylFavoriteSubmissions { get; set; }
-        public DbSet<CanonicalArtMedium> CanonicalArtMedia { get; set; }
+        public DbSet<CanonicalMedium> CanonicalMediums { get; set; }
         public DbSet<CanonicalSetting> CanonicalSettings { get; set; }
         public DbSet<CanonicalCharacter> CanonicalCharacters { get; set; }
         public DbSet<CanonicalSpecies> CanonicalSpecies { get; set; }
-        public DbSet<CanonicalArtMediumApplication> CanonicalArtMediumApplications { get; set; }
+        public DbSet<CanonicalMediumApplication> CanonicalMediumApplications { get; set; }
         public DbSet<CanonicalCharacterAppearance> CanonicalCharacterAppearances { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

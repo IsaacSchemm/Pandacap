@@ -18,6 +18,7 @@ using Pandacap.ActivityPub.Services;
 using Pandacap.ATProto.HandleResolution;
 using Pandacap.ATProto.Services;
 using Pandacap.Audio;
+using Pandacap.CanonicalTags;
 using Pandacap.Configuration;
 using Pandacap.Constants;
 using Pandacap.Credentials;
@@ -153,6 +154,7 @@ builder.Services
     .AddATProtoHandleResolution()
     .AddATProtoServices()
     .AddAudioServices()
+    .AddCanonicalTagServices()
     .AddCompositeNotificationHandler()
     .AddCredentialProviders()
     .AddDeviantArtClient()

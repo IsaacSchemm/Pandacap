@@ -10,6 +10,8 @@
 
         public Guid? SpeciesId { get; set; }
 
+        public Guid? SettingId { get; set; }
+
         public string? Gender { get; set; }
 
         public string? Pronouns { get; set; }
