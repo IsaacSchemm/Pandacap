@@ -53,6 +53,7 @@
     <ProjectReference Include="..\Pandacap.ATProto.HandleResolution\Pandacap.ATProto.HandleResolution.csproj" />
     <ProjectReference Include="..\Pandacap.ATProto.Services\Pandacap.ATProto.Services.fsproj" />
     <ProjectReference Include="..\Pandacap.Audio\Pandacap.Audio.fsproj" />
+    <ProjectReference Include="..\Pandacap.CanonicalTags.ShortCodes\Pandacap.CanonicalTags.ShortCodes.csproj" />
     <ProjectReference Include="..\Pandacap.CanonicalTags\Pandacap.CanonicalTags.fsproj" />
     <ProjectReference Include="..\Pandacap.Credentials\Pandacap.Credentials.csproj" />
     <ProjectReference Include="..\Pandacap.DeviantArt.Feeds\Pandacap.DeviantArt.Feeds.fsproj" />

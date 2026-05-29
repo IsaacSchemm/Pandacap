@@ -1,3 +1,5 @@
-﻿Public Interface ICanonicalTagTreeService
-    Function GetAllTagsAsync() As IAsyncEnumerable(Of ICanonicalTagTreeDisplayNode)
+﻿Imports Pandacap.CanonicalTags.Models
+
+Public Interface ICanonicalTagTreeService
+    Function GetAllTagsAsync() As IAsyncEnumerable(Of CanonicalTagTreeDisplayNode)
 End Interface

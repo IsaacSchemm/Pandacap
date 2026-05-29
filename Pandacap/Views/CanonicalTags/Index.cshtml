@@ -1,4 +1,4 @@
-﻿@using Pandacap.CanonicalTags.Interfaces
+﻿@using Pandacap.CanonicalTags.Models
 @model CanonicalTagsViewModel
 
 @{
@@ -36,7 +36,7 @@
 </p>
 
 @functions {
-    async Task RenderListAsync(IEnumerable<ICanonicalTagTreeDisplayNode> nodes)
+    async Task RenderListAsync(IEnumerable<CanonicalTagTreeDisplayNode> nodes)
     {
         <ul>
             @foreach (var item in nodes)

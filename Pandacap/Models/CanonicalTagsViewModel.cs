@@ -1,9 +1,9 @@
-﻿using Pandacap.CanonicalTags.Interfaces;
+﻿using Pandacap.CanonicalTags.Models;
 
 namespace Pandacap.Models
 {
     public class CanonicalTagsViewModel
     {
-        public IReadOnlyList<ICanonicalTagTreeDisplayNode> All { get; set; } = [];
+        public IReadOnlyList<CanonicalTagTreeDisplayNode> All { get; set; } = [];
     }
 }

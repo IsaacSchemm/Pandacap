@@ -1,6 +1,6 @@
 ﻿@using Pandacap.Database
 @using Pandacap.UI.Lists
-@model ListPage<Post>
+@model TagReapplicationViewModel
 
 <h1>Tag Reapplication</h1>
 
@@ -11,17 +11,18 @@
 <ul>
     <li>
         <code>xyz</code>: attach appearance of canonical character tag that has shortcode <code>xyz</code>
+        <code>bg.xyz</code>: attach background appearance of canonical character tag that has shortcode <code>xyz</code>
         <code>xyz.abc</code>: attach appearance of canonical character tag that has shortcode <code>xyz</code>, but with species that has shortcode <code>abc</code>
-        <code>/mmm</code>: attach canonical artistic medium tag that has shortcode <code>mmm</code>
+        <code>mmm</code>: attach application of canonical medium tag that has shortcode <code>mmm</code>
     </li>
 </ul>
 
 <p>
-    If a shortcode is not found, it will be skipped; other tags will be applied, and you will be shown an error message instead of proceeding to the next page.
+    If a shortcode is not found, it will be silently ignored.
 </p>
 
 <form asp-action="Apply">
-    @foreach (var post in Model.Current)
+    @foreach (var post in Model.Posts)
     {
         <h2>@post.Title</h2>
 
@@ -30,7 +31,7 @@
             <div style="display: flex; flex-direction: row">
                 <div style="flex: 0 0 auto">
                     <a href="/UserPosts/@post.Id" target="_blank">
-                        <img src="/UserPosts/@post.Id/@image.Primary.Id"
+                        <img src="/Blobs/UserPosts/@post.Id/@image.Primary.Id"
                              width="200"
                              height="150"
                              style="object-fit: contain" />
@@ -42,7 +43,7 @@
                         @post.PublishedTime.Date.ToLongDateString()
                     </div>
 
-                    <input name="tagsToApply" type="text" style="width: 100%" />
+                    <input name="tagsToApply_@(post.Id)" type="text" value="@Model.ShortCodeLists[post.Id]" style="width: 100%" />
                 </div>
             </div>
         }
