@@ -20,6 +20,10 @@
 
         public string? Description { get; set; }
 
+        public bool Original { get; set; }
+
+        public bool Fan { get; set; }
+
         public class Relationship
         {
             public Guid OtherCharacterId { get; set; }

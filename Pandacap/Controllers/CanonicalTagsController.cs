@@ -146,6 +146,8 @@ namespace Pandacap.Controllers
             existingItem.Gender = newItem.Gender;
             existingItem.Pronouns = newItem.Pronouns;
             existingItem.NationalityIsoCodes = newItem.NationalityIsoCodes;
+            existingItem.Original = newItem.Original;
+            existingItem.Fan = newItem.Fan;
             existingItem.Description = newItem.Description;
             existingItem.Relationships = newItem.Relationships;
             existingItem.AlternateVersions = newItem.AlternateVersions;
@@ -207,6 +209,9 @@ namespace Pandacap.Controllers
             }
 
             existingItem.Name = newItem.Name;
+            existingItem.Original = newItem.Original;
+            existingItem.Fan = newItem.Fan;
+            existingItem.Description = newItem.Description;
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
 

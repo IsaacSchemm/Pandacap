@@ -37,7 +37,12 @@ type CanonicalTagTreeService(
             let characterToTreeNode (this: CanonicalCharacter) = {
                 new ICanonicalTagTreeDisplayNode with
                     member _.Id = Nullable(this.Id)
-                    member _.Name = this.Name
+                    member _.Name = String.concat " " [
+                        this.Name
+                        if this.Original then "(OC)"
+                        if this.Fan then "(Fanart)"
+                        if not (isNull this.ShortCode) then "*"
+                    ]
                     member _.Type = CanonicalTagType.Character
                     member _.Children = []
             }
@@ -48,14 +53,18 @@ type CanonicalTagTreeService(
                     member _.Name = "Settings & Characters"
                     member _.Type = CanonicalTagType.Category
                     member _.Children = [
-                        for setting in settings |> Seq.sortBy (fun x -> x.Name) do {
+                        for this in settings |> Seq.sortBy (fun x -> x.Name) do {
                             new ICanonicalTagTreeDisplayNode with
-                                member _.Id = Nullable(setting.Id)
-                                member _.Name = setting.Name
+                                member _.Id = Nullable(this.Id)
+                                member _.Name = String.concat " " [
+                                    this.Name
+                                    if this.Original then "(OC)"
+                                    if this.Fan then "(Fanart)"
+                                ]
                                 member _.Type = CanonicalTagType.Setting
                                 member _.Children = [
                                     for character in characters |> Seq.sortBy (fun x -> x.Name) do
-                                        if character.SettingId = Nullable(setting.Id) then
+                                        if character.SettingId = Nullable(this.Id) then
                                             characterToTreeNode character
                                 ]
                         }
@@ -71,7 +80,12 @@ type CanonicalTagTreeService(
             let rec speciesToTreeNode (this: CanonicalSpecies) = {
                 new ICanonicalTagTreeDisplayNode with
                     member _.Id = Nullable(this.Id)
-                    member _.Name = this.Name
+                    member _.Name = String.concat " " [
+                        this.Name
+                        if this.Original then "(OC)"
+                        if this.Fan then "(Fanart)"
+                        if not (isNull this.ShortCode) then "*"
+                    ]
                     member _.Type = CanonicalTagType.Species
                     member _.Children =  [
                         for potentialChild in allSpecies |> Seq.sortBy (fun x -> x.Name) do
