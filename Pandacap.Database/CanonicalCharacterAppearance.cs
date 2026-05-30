@@ -1,5 +1,6 @@
 ﻿namespace Pandacap.Database
 {
+    [Obsolete]
     public class CanonicalCharacterAppearance
     {
         public Guid Id { get; set; }

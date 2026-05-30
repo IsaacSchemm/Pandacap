@@ -53,18 +53,10 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
-            var mediumApplications = await pandacapDbContext.CanonicalMediumApplications
-                .Where(a => a.PostId == post.Id)
-                .ToListAsync(cancellationToken);
-
-            var characterAppearances = await pandacapDbContext.CanonicalCharacterAppearances
-                .Where(a => a.PostId == post.Id)
-                .ToListAsync(cancellationToken);
-
             HashSet<Guid> ids = [
-                .. mediumApplications.Select(a => a.MediumId),
-                .. characterAppearances.Select(a => a.CharacterId),
-                .. characterAppearances.SelectMany(a => a.SpeciesId is Guid g
+                .. post.MediumApplications.Select(a => a.MediumId),
+                .. post.CharacterAppearances.Select(a => a.CharacterId),
+                .. post.CharacterAppearances.SelectMany(a => a.SpeciesId is Guid g
                     ? new[] { g }
                     : [])
             ];
@@ -120,7 +112,7 @@ namespace Pandacap.Controllers
                         .ToListAsync(cancellationToken)
                     : [],
                 MediumApplications = [
-                    .. mediumApplications.Select(a => new CanonicalMediumApplicationModel{
+                    .. post.MediumApplications.Select(a => new CanonicalMediumApplicationModel{
                         MediumId = a.MediumId,
                         MediumName = mediums.TryGetValue(a.MediumId, out var medium)
                             ? medium.Name
@@ -128,7 +120,7 @@ namespace Pandacap.Controllers
                     }).Distinct()
                 ],
                 CharacterAppearances = [
-                    .. characterAppearances.Select(a => new CanonicalCharacterAppearanceModel
+                    .. post.CharacterAppearances.Select(a => new CanonicalCharacterAppearanceModel
                     {
                         Character = characters.TryGetValue(a.CharacterId, out var character)
                             ? character

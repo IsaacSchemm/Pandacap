@@ -43,7 +43,7 @@ namespace Pandacap.Controllers
                 shortCodesByPost.Add(
                     post.Id,
                     string.Join(" ", await canonicalTagShortCodeService
-                        .GetShortCodesForAttachedCanonicalTagsAsync(post.Id)
+                        .GetShortCodesForAttachedCanonicalTagsAsync(post)
                         .Distinct()
                         .ToListAsync(cancellationToken)));
             }
@@ -69,14 +69,6 @@ namespace Pandacap.Controllers
 
                 if (!Guid.TryParse(key.AsSpan("tagsToApply_".Length), out Guid postId))
                     continue;
-
-                var applications = await pandacapDbContext.CanonicalMediumApplications
-                    .Where(a => a.PostId == postId)
-                    .ToListAsync(cancellationToken);
-
-                var appearances = await pandacapDbContext.CanonicalCharacterAppearances
-                    .Where(a => a.PostId == postId)
-                    .ToListAsync(cancellationToken);
 
                 var shortCodes = frm[key].SelectMany(str => str!.Split(' '));
 

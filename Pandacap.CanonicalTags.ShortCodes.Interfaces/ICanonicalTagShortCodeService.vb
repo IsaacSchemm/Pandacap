@@ -1,7 +1,8 @@
 Imports System.Threading
+Imports Pandacap.Database
 
 Public Interface ICanonicalTagShortCodeService
-    Function GetShortCodesForAttachedCanonicalTagsAsync(postId As Guid) As IAsyncEnumerable(Of String)
+    Function GetShortCodesForAttachedCanonicalTagsAsync(post As Post) As IAsyncEnumerable(Of String)
 
     Function ApplyCanonicalTagsUsingShortCodesAsync(postId As Guid,
                                                     shortCodes As IEnumerable(Of String),

@@ -1,5 +1,6 @@
 ﻿namespace Pandacap.Database
 {
+    [Obsolete]
     public class CanonicalMediumApplication
     {
         public Guid Id { get; set; }
