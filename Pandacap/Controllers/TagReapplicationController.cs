@@ -34,7 +34,7 @@ namespace Pandacap.Controllers
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
-                .AsListPage(count ?? 25, cancellationToken);
+                .AsListPage(count ?? 5, cancellationToken);
 
             var shortCodesByPost = new Dictionary<Guid, string>();
 
@@ -44,6 +44,7 @@ namespace Pandacap.Controllers
                     post.Id,
                     string.Join(" ", await canonicalTagShortCodeService
                         .GetShortCodesForAttachedCanonicalTagsAsync(post.Id)
+                        .Distinct()
                         .ToListAsync(cancellationToken)));
             }
 

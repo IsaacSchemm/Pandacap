@@ -22,20 +22,33 @@ namespace Pandacap.CanonicalTags.ShortCodes
             IEnumerable<string> shortCodes,
             CancellationToken cancellationToken)
         {
-            foreach (var shortCode in shortCodes)
+            var applied = await GetShortCodesForAttachedCanonicalTagsAsync(postId).ToListAsync(cancellationToken);
+
+            foreach (var shortCode in shortCodes.Except(applied))
             {
-                var parts = shortCode.TrimStart('/').Split('.');
+                var parts = shortCode.TrimStart('/').Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                if (parts.Length == 0)
+                    continue;
+
                 var primary = parts[0];
                 var additional = parts.Skip(1);
 
+                var found = 0;
+
                 foreach (var medium in await _mediums.Value)
+                {
                     if ((medium.ShortCode ?? $"{medium.Id}") == primary)
+                    {
                         pandacapDbContext.CanonicalMediumApplications.Add(new()
                         {
                             Id = Guid.NewGuid(),
                             PostId = postId,
                             MediumId = medium.Id
                         });
+
+                        found++;
+                    }
+                }
 
                 foreach (var character in await _characters.Value)
                 {
@@ -55,8 +68,13 @@ namespace Pandacap.CanonicalTags.ShortCodes
                             SpeciesId = speciesId,
                             Background = shortCode.StartsWith('/')
                         });
+
+                        found++;
                     }
                 }
+
+                if (found == 0)
+                    throw new Exception($"No match found for short code {shortCode}");
 
                 await pandacapDbContext.SaveChangesAsync(cancellationToken);
             }
@@ -92,6 +110,8 @@ namespace Pandacap.CanonicalTags.ShortCodes
                         foreach (var species in await _species.Value)
                             if (species.Id == appearance.SpeciesId)
                                 sb.Append($".{species.ShortCode ?? $"{species.Id}"}");
+
+                        yield return sb.ToString();
                     }
                 }
             }

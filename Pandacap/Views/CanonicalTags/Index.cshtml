@@ -46,9 +46,9 @@
                 <li>
                     @if (item.Id is Guid id)
                     {
-                        <a asp-action="@action" asp-route-id="@id">
-                            @item.Name
-                        </a>
+                        <a asp-action="@action" asp-route-id="@id">@item.Name</a>
+
+                        <code style="user-select: all; font-size: 50%">@id</code>
                     }
                     else
                     {

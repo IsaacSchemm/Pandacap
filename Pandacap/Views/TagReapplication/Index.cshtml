@@ -1,5 +1,4 @@
 ﻿@using Pandacap.Database
-@using Pandacap.UI.Lists
 @model TagReapplicationViewModel
 
 <h1>Tag Reapplication</h1>
@@ -10,16 +9,13 @@
 
 <ul>
     <li>
-        <code>xyz</code>: attach appearance of canonical character tag that has shortcode <code>xyz</code>
-        <code>bg.xyz</code>: attach background appearance of canonical character tag that has shortcode <code>xyz</code>
+        <code>xyz</code>: attach appearance of canonical character or medium tag that has shortcode <code>xyz</code>
+        <br />
+        <code>/xyz</code>: attach background appearance of canonical character tag that has shortcode <code>xyz</code>
+        <br />
         <code>xyz.abc</code>: attach appearance of canonical character tag that has shortcode <code>xyz</code>, but with species that has shortcode <code>abc</code>
-        <code>mmm</code>: attach application of canonical medium tag that has shortcode <code>mmm</code>
     </li>
 </ul>
-
-<p>
-    If a shortcode is not found, it will be silently ignored.
-</p>
 
 <form asp-action="Apply">
     @foreach (var post in Model.Posts)
