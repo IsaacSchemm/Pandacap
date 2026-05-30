@@ -53,6 +53,61 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
+            var mediumApplications = await pandacapDbContext.CanonicalMediumApplications
+                .Where(a => a.PostId == post.Id)
+                .ToListAsync(cancellationToken);
+
+            var characterAppearances = await pandacapDbContext.CanonicalCharacterAppearances
+                .Where(a => a.PostId == post.Id)
+                .ToListAsync(cancellationToken);
+
+            HashSet<Guid> ids = [
+                .. mediumApplications.Select(a => a.MediumId),
+                .. characterAppearances.Select(a => a.CharacterId),
+                .. characterAppearances.SelectMany(a => a.SpeciesId is Guid g
+                    ? new[] { g }
+                    : [])
+            ];
+
+            var mediums = await pandacapDbContext.CanonicalMediums
+                .Where(x => ids.Contains(x.Id))
+                .Select(x => new
+                {
+                    x.Id,
+                    x.Name
+                })
+                .ToDictionaryAsync(
+                    x => x.Id,
+                    cancellationToken);
+
+            var characters = await pandacapDbContext.CanonicalCharacters
+                .Where(x => ids.Contains(x.Id))
+                .AsAsyncEnumerable()
+                .Select(x => new CanonicalCharacterOrSpeciesModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Original = x.Original,
+                    Fan = x.Fan,
+                    NationalityIsoCodes = [.. x.NationalityIsoCodes]
+                })
+                .ToDictionaryAsync(
+                    x => x.Id,
+                    cancellationToken: cancellationToken);
+
+            var species = await pandacapDbContext.CanonicalSpecies
+                .Where(x => ids.Contains(x.Id))
+                .Select(x => new CanonicalCharacterOrSpeciesModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Original = x.Original,
+                    Fan = x.Fan
+                })
+                .ToDictionaryAsync(
+                    x => x.Id,
+                    cancellationToken);
+
             IActivityPubPost activityPubPost = post;
 
             return View(new UserPostViewModel
@@ -63,7 +118,27 @@ namespace Pandacap.Controllers
                     ? await replyCollationService
                         .CollectRepliesAsync(activityPubPost.ObjectId)
                         .ToListAsync(cancellationToken)
-                    : []
+                    : [],
+                MediumApplications = [
+                    .. mediumApplications.Select(a => new CanonicalMediumApplicationModel{
+                        MediumId = a.MediumId,
+                        MediumName = mediums.TryGetValue(a.MediumId, out var medium)
+                            ? medium.Name
+                            : a.MediumId.ToString()
+                    }).Distinct()
+                ],
+                CharacterAppearances = [
+                    .. characterAppearances.Select(a => new CanonicalCharacterAppearanceModel
+                    {
+                        Character = characters.TryGetValue(a.CharacterId, out var character)
+                            ? character
+                            : null,
+                        Species = a.SpeciesId is Guid speciesId && species.TryGetValue(speciesId, out var specie)
+                            ? specie
+                            : null,
+                        Background = a.Background
+                    }).Distinct()
+                ]
             });
         }
 
