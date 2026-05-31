@@ -24,7 +24,7 @@ namespace Pandacap.Controllers
             return post?.PublishedTime;
         }
 
-        public async Task<IActionResult> Index(Guid? next, int? count, CancellationToken cancellationToken)
+        public async Task<IActionResult> Index(Guid? next, CancellationToken cancellationToken)
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next, cancellationToken) ?? DateTimeOffset.MaxValue;
 
@@ -34,7 +34,7 @@ namespace Pandacap.Controllers
                 .OrderByDescending(d => d.PublishedTime)
                 .AsAsyncEnumerable()
                 .SkipUntil(f => f.Id == next || next == null)
-                .AsListPage(count ?? 5, cancellationToken);
+                .AsListPage(25, cancellationToken);
 
             var shortCodesByPost = new Dictionary<Guid, string>();
 

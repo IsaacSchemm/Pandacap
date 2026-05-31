@@ -9,7 +9,7 @@ using System.Text.Json;
 namespace Pandacap.Controllers
 {
     [Authorize]
-    public class CanonicalTagsController(
+    public class EditCanonicalTagsController(
         ICanonicalTagTreeService canonicalTagTreeService,
         PandacapDbContext pandacapDbContext) : Controller
     {

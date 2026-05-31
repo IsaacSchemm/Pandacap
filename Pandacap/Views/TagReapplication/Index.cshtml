@@ -54,7 +54,9 @@
         <input type="text" name="nextPostId" value="@Model.Next" readonly />
     </label>
 
-    <br />
+    <hr />
 
-    <button type="submit">Save tags</button>
+    <button type="submit" class="btn btn-primary">Save tags</button>
+
+    <a asp-action="Index" asp-route-next="@Model.Next" class="btn btn-outline-secondary">Next page</a>
 </form>
