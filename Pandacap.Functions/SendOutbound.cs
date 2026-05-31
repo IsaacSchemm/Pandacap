@@ -6,7 +6,7 @@ namespace Pandacap.Functions
     public class SendOutbound(IActivityPubOutboxProcessor activityPubOutboxProcessor)
     {
         [Function("SendOutbound")]
-        public async Task Run([TimerTrigger("0 */10 * * * *")] TimerInfo myTimer) =>
+        public async Task Run([TimerTrigger("0 */30 * * * *")] TimerInfo myTimer) =>
             await activityPubOutboxProcessor.SendPendingActivitiesAsync(CancellationToken.None);
     }
 }

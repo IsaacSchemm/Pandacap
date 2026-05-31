@@ -45,12 +45,12 @@ namespace Pandacap.Inbox.Feeds
                 feed.FeedIconUrl = newFeedItems[0].FeedIconUrl;
 
                 pandacapDbContext.GeneralInboxItems.AddRange(newFeedItems);
-
-                feed.LastCheckedAt = newFeedItems
-                    .Max(f => f.Timestamp);
-
-                await pandacapDbContext.SaveChangesAsync(cancellationToken);
             }
+
+            feed.LastCheckedAt = newFeedItems
+                .Max(f => f.Timestamp);
+
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
 
         public async Task AddFeedAsync(

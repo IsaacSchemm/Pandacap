@@ -13,7 +13,7 @@ namespace Pandacap.Functions
         IHttpClientFactory httpClientFactory)
     {
         [Function("BridgedPostDiscovery")]
-        public async Task Run([TimerTrigger("50 */10 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("50 0 * * * *")] TimerInfo myTimer)
         {
             var cutoff = DateTimeOffset.UtcNow.AddDays(-1);
 
@@ -59,7 +59,7 @@ namespace Pandacap.Functions
             await context.SaveChangesAsync();
         }
 
-        private async Task<ATProtoRefUri?> GetBridgedPostRefUriAsync(
+        private static async Task<ATProtoRefUri?> GetBridgedPostRefUriAsync(
             HttpClient httpClient,
             IActivityPubPost post,
             string targetProtocol)
