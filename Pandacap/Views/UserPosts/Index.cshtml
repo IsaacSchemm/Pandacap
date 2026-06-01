@@ -22,7 +22,7 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-6 col-xl-5 offset-xl-1">
+        <div class="col-12 col-md-6 col-xl-5 offset-xl-1">
             @if (Model.CharacterAppearances.Any())
             {
                 <div class="card mb-4">
@@ -84,7 +84,7 @@
                 </div>
             }
         </div>
-        <div class="col-md-6 col-xl-5">
+        <div class="col-12 col-md-6 col-xl-5">
             @if (Model.MediumApplications.Any())
             {
                 <div class="card mb-4">
@@ -101,6 +101,20 @@
                     </div>
                 </div>
             }
+        </div>
+        <div class="col-12">
+            <form asp-action="ReplaceTags">
+                <input type="hidden" name="postId" value="@Model.Post.Id" />
+                <div class="input-group my-3">
+                    <span class="input-group-text">Replace canonical tags</span>
+                    <input name="canonicalTags"
+                           type="text"
+                           class="form-control">
+                    <button class="btn btn-primary" type="submit">
+                        Replace
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

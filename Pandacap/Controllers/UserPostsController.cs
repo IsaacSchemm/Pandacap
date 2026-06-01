@@ -6,6 +6,7 @@ using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.CanonicalTags.ShortCodes.Interfaces;
 using Pandacap.Database;
 using Pandacap.Extensions;
 using Pandacap.Models;
@@ -22,6 +23,7 @@ namespace Pandacap.Controllers
     public class UserPostsController(
         BlobServiceClient blobServiceClient,
         IActivityPubPostTranslator postTranslator,
+        ICanonicalTagShortCodeService canonicalTagShortCodeService,
         IDeliveryInboxCollector deliveryInboxCollector,
         IHttpClientFactory httpClientFactory,
         IPlatformLinkProvider platformLinkProvider,
@@ -317,6 +319,32 @@ namespace Pandacap.Controllers
             var id = await postCreator.CreatePostAsync(model, cancellationToken);
 
             return RedirectToAction(nameof(Index), new { id });
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReplaceTags(Guid postId, IEnumerable<string> canonicalTags, CancellationToken cancellationToken)
+        {
+            var post = await pandacapDbContext.Posts
+                .Where(p => p.Id == postId)
+                .SingleAsync(cancellationToken);
+
+            post.MediumApplications.Clear();
+            post.CharacterAppearances.Clear();
+
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
+
+            var mediums = await pandacapDbContext.CanonicalMediums.ToListAsync(cancellationToken);
+            var characters = await pandacapDbContext.CanonicalCharacters.ToListAsync(cancellationToken);
+            var species = await pandacapDbContext.CanonicalSpecies.ToListAsync(cancellationToken);
+
+            await canonicalTagShortCodeService.ApplyCanonicalTagsUsingShortCodesAsync(
+                postId,
+                canonicalTags.SelectMany(str => str.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)),
+                cancellationToken);
+
+            return RedirectToAction(nameof(Index), new { id = postId });
         }
 
         [HttpPost]
