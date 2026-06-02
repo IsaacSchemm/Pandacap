@@ -13,31 +13,6 @@ namespace Pandacap.CanonicalTags
         private readonly Lazy<Task<IReadOnlyList<CanonicalSpecies>>> AllSpecies = new(async () =>
             await pandacapDbContext.CanonicalSpecies.ToListAsync());
 
-        //public async IAsyncEnumerable<Guid> GetPossibleImplicitTagsAsync(Guid tagId)
-        //{
-        //    yield return tagId;
-
-        //    foreach (var character in await AllCharacters.Value)
-        //    {
-        //        if (character.SettingId is Guid settingId)
-        //            yield return chara;
-
-        //        if (character.SpeciesId is Guid speciesId)
-        //            await foreach (var impliedSpeciesId in GetGeneralSpeciesAsync(speciesId))
-        //                yield return impliedSpeciesId;
-        //    }
-
-        //    await foreach (var impliedSpeciesId in GetGeneralSpeciesAsync(tagId))
-        //        yield return impliedSpeciesId;
-        //}
-
-        //public IQueryable<Post> FilterByTag(IQueryable<Post> posts, IEnumerable<Guid> tagIds) =>
-        //    posts.Where(p =>
-        //        p.MediumApplications.Any(a => tagIds.Contains(a.MediumId))
-        //        || p.CharacterAppearances.Any(c =>
-        //            tagIds.Contains(c.CharacterId)
-        //            || (c.SpeciesId != null && tagIds.Contains(c.SpeciesId.Value))));
-
         public async IAsyncEnumerable<Guid> GetImplicitTagsAsync(Post post)
         {
             foreach (var a in post.MediumApplications)

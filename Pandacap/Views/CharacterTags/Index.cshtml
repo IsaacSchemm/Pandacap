@@ -11,7 +11,7 @@
         <div class="col-md-3 col-lg-2 mb-3">
             <strong>Name</strong>
             <br />
-            <a asp-controller="Gallery" asp-action="ByCharacter" asp-route-characterId="@Model.CanonicalCharacter.Id">@Model.CanonicalCharacter.Name</a>
+            <a asp-controller="Gallery" asp-action="ByCanonicalTag" asp-route-tagId="@Model.CanonicalCharacter.Id">@Model.CanonicalCharacter.Name</a>
 
             @foreach (var code in Model.CanonicalCharacter.NationalityIsoCodes)
             {
@@ -47,7 +47,7 @@
             <div class="col-md-3 col-lg-2 mb-3">
                 <strong>Species</strong>
                 <br />
-                <a asp-controller="Gallery" asp-action="BySpecies" asp-route-speciesId="@speciesId">
+                <a asp-controller="Gallery" asp-action="ByCanonicalTag" asp-route-tagId="@speciesId">
                     @(Model.SpeciesName ?? $"{speciesId}")
                 </a>
             </div>
@@ -138,4 +138,4 @@
     </div>
 </div>
 
-<partial name="_List" model="@Model.Posts" />
+<partial name="_ListGroup" model="@Model.Posts" />

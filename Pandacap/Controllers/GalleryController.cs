@@ -170,8 +170,8 @@ namespace Pandacap.Controllers
             return await RenderAsync("Links", posts, count, cancellationToken);
         }
 
-        [HttpGet("ByCharacter/{characterId}")]
-        public async Task<IActionResult> ByCharacter(Guid characterId, Guid? next, int? count, CancellationToken cancellationToken)
+        [HttpGet("ByCanonicalTag/{tagId}")]
+        public async Task<IActionResult> ByCanonicalTag(Guid tagId, Guid? next, int? count, CancellationToken cancellationToken)
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next, cancellationToken) ?? DateTimeOffset.MaxValue;
 
@@ -183,25 +183,7 @@ namespace Pandacap.Controllers
                 .Where(async (p, _, ct) =>
                     await canonicalTagImplicationService
                     .GetImplicitTagsAsync(p)
-                    .ContainsAsync(characterId, cancellationToken: ct));
-
-            return await RenderAsync("Search by Tag", posts, count, cancellationToken);
-        }
-
-        [HttpGet("BySpecies/{speciesId}")]
-        public async Task<IActionResult> BySpecies(Guid speciesId, Guid? next, int? count, CancellationToken cancellationToken)
-        {
-            DateTimeOffset startTime = await GetPublishedTimeAsync(next, cancellationToken) ?? DateTimeOffset.MaxValue;
-
-            var posts = pandacapDbContext.Posts
-                .Where(p => p.PublishedTime <= startTime)
-                .OrderByDescending(p => p.PublishedTime)
-                .AsAsyncEnumerable()
-                .SkipUntil(p => p.Id == next || next == null)
-                .Where(async (p, _, ct) =>
-                    await canonicalTagImplicationService
-                    .GetImplicitTagsAsync(p)
-                    .ContainsAsync(speciesId, cancellationToken: ct));
+                    .ContainsAsync(tagId, cancellationToken: ct));
 
             return await RenderAsync("Search by Tag", posts, count, cancellationToken);
         }
