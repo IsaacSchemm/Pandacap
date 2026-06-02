@@ -6,9 +6,9 @@
 
 <p style="white-space: pre-wrap">@Model.CanonicalCharacter.Description</p>
 
-<div class="container-fluid mb-3">
+<div class="container-fluid">
     <div class="row">
-        <div class="col-md-3 col-lg-2">
+        <div class="col-md-3 col-lg-2 mb-3">
             <strong>Name</strong>
             <br />
             <a asp-controller="Gallery" asp-action="ByCharacter" asp-route-characterId="@Model.CanonicalCharacter.Id">@Model.CanonicalCharacter.Name</a>
@@ -35,7 +35,7 @@
 
         @if (Model.CanonicalCharacter.FullName is string fullName)
         {
-            <div class="col-md-3 col-lg-2">
+            <div class="col-md-3 col-lg-2 mb-3">
                 <strong>Full name</strong>
                 <br />
                 @Model.CanonicalCharacter.FullName
@@ -44,7 +44,7 @@
 
         @if (Model.CanonicalCharacter.SpeciesId is Guid speciesId)
         {
-            <div class="col-md-3 col-lg-2">
+            <div class="col-md-3 col-lg-2 mb-3">
                 <strong>Species</strong>
                 <br />
                 <a asp-controller="Gallery" asp-action="BySpecies" asp-route-speciesId="@speciesId">
@@ -55,7 +55,7 @@
 
         @if (Model.CanonicalCharacter.SettingId is Guid settingId)
         {
-            <div class="col-md-3 col-lg-2">
+            <div class="col-md-3 col-lg-2 mb-3">
                 <strong>Setting</strong>
                 <br />
                 @(Model.SettingName ?? $"{settingId}")
@@ -64,7 +64,7 @@
 
         @if (Model.CanonicalCharacter.Gender is string gender)
         {
-            <div class="col-md-3 col-lg-2">
+            <div class="col-md-3 col-lg-2 mb-3">
                 <strong>Gender</strong>
                 <br />
                 @gender
@@ -73,12 +73,68 @@
 
         @if (Model.CanonicalCharacter.Pronouns is string pronouns)
         {
-            <div class="col-md-3 col-lg-2">
+            <div class="col-md-3 col-lg-2 mb-3">
                 <strong>Pronouns</strong>
                 <br />
                 @pronouns
             </div>
         }
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            @if (Model.Relationships.Count > 0)
+            {
+                <strong>
+                    Relationships
+                </strong>
+
+                <br />
+
+                @foreach (var relationship in Model.Relationships)
+                {
+                    var name = relationship.CharacterName ?? $"{relationship.CharacterId}";
+
+                    <div class="mb-2">
+                        <a asp-action="Index" asp-route-id="@relationship.CharacterId">@name</a>
+
+                        @if (relationship.RelationshipTypeName is string relationshipTypeName)
+                        {
+                            <div class="small text-muted">
+                                @relationshipTypeName
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="col-md-6 mb-3">
+            @if (Model.AlternateVersions.Count > 0)
+            {
+                <strong>
+                    Alternate versions
+                </strong>
+
+                <br />
+
+                @foreach (var alternateVersion in Model.AlternateVersions)
+                {
+                    var name = alternateVersion.CharacterName ?? $"{alternateVersion.CharacterId}";
+
+                    <div class="mb-2">
+                        <a asp-action="Index" asp-route-id="@alternateVersion.CharacterId">@name</a>
+
+                        @if (alternateVersion.SettingName is string settingName)
+                        {
+                            <div class="small text-muted">
+                                @settingName
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
     </div>
 </div>
 
