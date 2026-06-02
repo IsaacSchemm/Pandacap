@@ -15,7 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.CanonicalTags.Interfaces\Pandacap.CanonicalTags.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.CanonicalTags.Tree.Interfaces\Pandacap.CanonicalTags.Tree.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
   </ItemGroup>
 
 </Project>

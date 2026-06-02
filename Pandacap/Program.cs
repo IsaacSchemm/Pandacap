@@ -19,7 +19,7 @@ using Pandacap.ATProto.HandleResolution;
 using Pandacap.ATProto.Services;
 using Pandacap.Audio;
 using Pandacap.CanonicalTags;
-using Pandacap.CanonicalTags.ShortCodes;
+using Pandacap.CanonicalTags.Tree;
 using Pandacap.Configuration;
 using Pandacap.Constants;
 using Pandacap.Credentials;
@@ -156,7 +156,7 @@ builder.Services
     .AddATProtoServices()
     .AddAudioServices()
     .AddCanonicalTagServices()
-    .AddCanonicalTagShortCodeService()
+    .AddCanonicalTagTreeService()
     .AddCompositeNotificationHandler()
     .AddCredentialProviders()
     .AddDeviantArtClient()

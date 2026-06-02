@@ -6,7 +6,7 @@ using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.CanonicalTags.ShortCodes.Interfaces;
+using Pandacap.CanonicalTags.Interfaces;
 using Pandacap.Database;
 using Pandacap.Extensions;
 using Pandacap.Models;

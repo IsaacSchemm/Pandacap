@@ -1,4 +1,4 @@
-﻿using Pandacap.CanonicalTags.Models;
+﻿using Pandacap.CanonicalTags.Tree.Models;
 
 namespace Pandacap.Models
 {

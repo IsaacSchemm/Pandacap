@@ -1,11 +1,11 @@
-namespace Pandacap.CanonicalTags
+namespace Pandacap.CanonicalTags.Tree
 
 open System
 open Microsoft.EntityFrameworkCore
 open FSharp.Control
 open Pandacap.Database
-open Pandacap.CanonicalTags.Models
-open Pandacap.CanonicalTags.Interfaces
+open Pandacap.CanonicalTags.Tree.Models
+open Pandacap.CanonicalTags.Tree.Interfaces
 
 type internal CanonicalTagTreeService(
     pandacapDbContext: PandacapDbContext

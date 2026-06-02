@@ -1,4 +1,4 @@
-﻿namespace Pandacap.CanonicalTags.Models
+﻿namespace Pandacap.CanonicalTags.Tree.Models
 
 open System
 

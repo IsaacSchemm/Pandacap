@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.CanonicalTags.ShortCodes.Interfaces;
+using Pandacap.CanonicalTags.Interfaces;
 using Pandacap.Database;
 using Pandacap.Extensions;
 using Pandacap.Models;

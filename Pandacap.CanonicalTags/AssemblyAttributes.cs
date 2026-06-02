@@ -1,4 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Pandacap.CanonicalTags.ShortCodes.Tests")]
+[assembly: InternalsVisibleTo("Pandacap.CanonicalTags.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.CanonicalTags.ShortCodes.Interfaces;
+using Pandacap.CanonicalTags.Interfaces;
 using Pandacap.Database;
 using System.Text;
 
-namespace Pandacap.CanonicalTags.ShortCodes
+namespace Pandacap.CanonicalTags
 {
     internal class CanonicalTagShortCodeService(
         PandacapDbContext pandacapDbContext) : ICanonicalTagShortCodeService

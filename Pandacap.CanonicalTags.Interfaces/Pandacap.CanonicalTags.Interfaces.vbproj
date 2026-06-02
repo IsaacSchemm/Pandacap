@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.CanonicalTags.Models\Pandacap.CanonicalTags.Models.fsproj" />
     <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
   </ItemGroup>
 
