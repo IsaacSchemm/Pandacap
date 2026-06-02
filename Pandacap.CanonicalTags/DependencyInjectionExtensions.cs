@@ -7,6 +7,7 @@ namespace Pandacap.CanonicalTags
     {
         public static IServiceCollection AddCanonicalTagServices(this IServiceCollection serviceCollection) =>
             serviceCollection
+            .AddScoped<ICanonicalTagImplicationService, CanonicalTagImplicationService>()
             .AddScoped<ICanonicalTagShortCodeService, CanonicalTagShortCodeService>();
     }
 }
