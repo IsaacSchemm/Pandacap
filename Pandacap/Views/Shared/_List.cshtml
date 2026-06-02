@@ -31,18 +31,24 @@
                     <a href="@url">@item.DisplayTitle</a>
                 </label>
 
-                <div class="mb-2">
-                    <img height="25" src="@item.Usericon" alt="" />
-                    <a href="@item.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
-                        <strong>
-                            @item.Username
-                        </strong>
-                    </a>
-                </div>
+                @if (item.Username != null)
+                {
+                    <div class="mb-2">
+                        <img height="25" src="@item.Usericon" alt="" />
+                        <a href="@item.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
+                            <strong>
+                                @item.Username
+                            </strong>
+                        </a>
+                    </div>
+                }
 
-                <span class="badge mb-3" style="background-color: @item.Badge.Background; color: @item.Badge.Color; max-width: 100%; overflow-x: hidden; text-overflow: ellipsis;">
-                    @item.Badge.Text
-                </span>
+                @if (!item.Badge.Platform.IsPandacap)
+                {
+                    <span class="badge mb-3" style="background-color: @item.Badge.Background; color: @item.Badge.Color; max-width: 100%; overflow-x: hidden; text-overflow: ellipsis;">
+                        @item.Badge.Text
+                    </span>
+                }
             </div>
         }
     </div>

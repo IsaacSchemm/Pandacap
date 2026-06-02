@@ -30,55 +30,23 @@
                         Characters
                     </div>
                     <div class="card-body">
-                        @foreach (var appearanceModel in Model.ForegroundCharacterAppearances)
+                        @foreach (var appearanceModel in Model.CharacterAppearances
+                            .OrderBy(a => a.Background))
                         {
                             if (appearanceModel.Character == null)
                             {
                                 continue;
                             }
 
-                            <div style="line-height: 2">
-                                <a href="#">@appearanceModel.Character.Name</a>
+                            <div style="line-height: 2" class="@(appearanceModel.Background ? "small" : "")">
+                                <a asp-controller="CharacterTags" asp-action="Index" asp-route-id="@appearanceModel.Character.Id">@appearanceModel.Character.Name</a>
 
                                 @if (appearanceModel.Species != null)
                                 {
-                                    @:as a <a href="#">@appearanceModel.Species.Name</a>
-                                }
-
-                                @if (appearanceModel.Character.Fan || appearanceModel.Species?.Fan == true)
-                                {
-                                    @:(Fanart)
-                                }
-
-                                @foreach (var flag in appearanceModel.Character.NationalityFlagEmoji)
-                                {
-                                    @:@flag
+                                    @:as a
+                                    <a asp-controller="Gallery" asp-action="BySpecies" asp-route-speciesId="@appearanceModel.Species.Id">@appearanceModel.Species.Name</a>
                                 }
                             </div>
-                        }
-
-                        @if (Model.BackgroundCharacterAppearances.Any())
-                        {
-                            <hr />
-
-                            foreach (var appearanceModel in Model.BackgroundCharacterAppearances)
-                            {
-                                if (appearanceModel.Character == null)
-                                {
-                                    continue;
-                                }
-
-                                <div style="line-height: 2" class="small">
-                                    <span class="visually-hidden">(Background)</span>
-
-                                    <a href="#">@appearanceModel.Character.Name</a>
-
-                                    @if (appearanceModel.Species != null)
-                                    {
-                                        @:as a <a href="#">@appearanceModel.Species.Name</a>
-                                    }
-                                </div>
-                            }
                         }
                     </div>
                 </div>
@@ -102,20 +70,24 @@
                 </div>
             }
         </div>
-        <div class="col-12">
-            <form asp-action="ReplaceTags">
-                <input type="hidden" name="postId" value="@Model.Post.Id" />
-                <div class="input-group my-3">
-                    <span class="input-group-text">Replace canonical tags</span>
-                    <input name="canonicalTags"
-                           type="text"
-                           class="form-control">
-                    <button class="btn btn-primary" type="submit">
-                        Replace
-                    </button>
-                </div>
-            </form>
-        </div>
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <div class="col-12">
+                <form asp-action="ReplaceTags">
+                    <input type="hidden" name="postId" value="@Model.Post.Id" />
+                    <div class="input-group my-3">
+                        <span class="input-group-text">Replace canonical tags</span>
+                        <input name="canonicalTags"
+                        type="text"
+                        class="form-control">
+                        <button class="btn btn-primary" type="submit">
+                            Replace
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
     </div>
 </div>
 

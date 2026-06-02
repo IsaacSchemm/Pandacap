@@ -1,0 +1,85 @@
+﻿@model CharacterTagModel
+
+<h1>
+    @Model.CanonicalCharacter.Name
+</h1>
+
+<p style="white-space: pre-wrap">@Model.CanonicalCharacter.Description</p>
+
+<div class="container-fluid mb-3">
+    <div class="row">
+        <div class="col-md-3 col-lg-2">
+            <strong>Name</strong>
+            <br />
+            <a asp-controller="Gallery" asp-action="ByCharacter" asp-route-characterId="@Model.CanonicalCharacter.Id">@Model.CanonicalCharacter.Name</a>
+
+            @foreach (var code in Model.CanonicalCharacter.NationalityIsoCodes)
+            {
+                @:@string.Concat(code.Select(ch => char.ConvertFromUtf32(ch + 0x1F1A5)))
+            }
+
+            @if (Model.CanonicalCharacter.Fan)
+            {
+                <span class="badge" style="background-color: #3f4873">
+                    Fanart
+                </span>
+            }
+
+            @if (Model.CanonicalCharacter.Original)
+            {
+                <span class="badge" style="background-color: #3f4873">
+                    OC
+                </span>
+            }
+        </div>
+
+        @if (Model.CanonicalCharacter.FullName is string fullName)
+        {
+            <div class="col-md-3 col-lg-2">
+                <strong>Full name</strong>
+                <br />
+                @Model.CanonicalCharacter.FullName
+            </div>
+        }
+
+        @if (Model.CanonicalCharacter.SpeciesId is Guid speciesId)
+        {
+            <div class="col-md-3 col-lg-2">
+                <strong>Species</strong>
+                <br />
+                <a asp-controller="Gallery" asp-action="BySpecies" asp-route-speciesId="@speciesId">
+                    @(Model.SpeciesName ?? $"{speciesId}")
+                </a>
+            </div>
+        }
+
+        @if (Model.CanonicalCharacter.SettingId is Guid settingId)
+        {
+            <div class="col-md-3 col-lg-2">
+                <strong>Setting</strong>
+                <br />
+                @(Model.SettingName ?? $"{settingId}")
+            </div>
+        }
+
+        @if (Model.CanonicalCharacter.Gender is string gender)
+        {
+            <div class="col-md-3 col-lg-2">
+                <strong>Gender</strong>
+                <br />
+                @gender
+            </div>
+        }
+
+        @if (Model.CanonicalCharacter.Pronouns is string pronouns)
+        {
+            <div class="col-md-3 col-lg-2">
+                <strong>Pronouns</strong>
+                <br />
+                @pronouns
+            </div>
+        }
+    </div>
+</div>
+
+<partial name="_List" model="@Model.Posts" />

@@ -29,11 +29,12 @@ namespace Pandacap.Controllers
             DateTimeOffset startTime = await GetPublishedTimeAsync(next, cancellationToken) ?? DateTimeOffset.MaxValue;
 
             var listPage = await pandacapDbContext.Posts
-                .Where(d => d.PublishedTime <= startTime)
-                .Where(d => d.Type == Post.PostType.Artwork || d.Type == Post.PostType.Scraps)
-                .OrderByDescending(d => d.PublishedTime)
+                .Where(x => x.PublishedTime <= startTime)
+                .Where(x => x.Type == Post.PostType.Artwork || x.Type == Post.PostType.Scraps)
+                .OrderByDescending(x => x.PublishedTime)
                 .AsAsyncEnumerable()
-                .SkipUntil(f => f.Id == next || next == null)
+                .SkipUntil(x => x.Id == next || next == null)
+                .Where(x => x.CharacterAppearances.Count == 0 && x.MediumApplications.Count == 0)
                 .AsListPage(25, cancellationToken);
 
             var shortCodesByPost = new Dictionary<Guid, string>();

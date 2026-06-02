@@ -168,6 +168,68 @@ namespace Pandacap.Controllers
             return await RenderAsync("Links", posts, count, cancellationToken);
         }
 
+        [HttpGet("ByCharacter/{characterId}")]
+        public async Task<IActionResult> ByCharacter(Guid characterId, Guid? next, int? count, CancellationToken cancellationToken)
+        {
+            DateTimeOffset startTime = await GetPublishedTimeAsync(next, cancellationToken) ?? DateTimeOffset.MaxValue;
+
+            var posts = pandacapDbContext.Posts
+                .Where(d => d.PublishedTime <= startTime)
+                .Where(d => d.CharacterAppearances.Any(
+                    a => a.CharacterId == characterId))
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == next || next == null);
+
+            return await RenderAsync("Search by Character", posts, count, cancellationToken);
+        }
+
+        [HttpGet("BySpecies/{speciesId}")]
+        public async Task<IActionResult> BySpecies(Guid speciesId, Guid? next, int? count, CancellationToken cancellationToken)
+        {
+            var input = new Queue<Guid>();
+            var explored = new HashSet<Guid>();
+
+            input.Enqueue(speciesId);
+
+            while (input.TryDequeue(out Guid thisSpeciesId))
+            {
+                var childSpecies = await pandacapDbContext.CanonicalSpecies
+                    .Where(s => s.PartOf.Any(
+                        p => p.OtherSpeciesId == thisSpeciesId))
+                    .Select(s => s.Id)
+                    .ToListAsync(cancellationToken);
+
+                foreach (var childSpeciesId in childSpecies)
+                {
+                    if (!input.Contains(childSpeciesId) && !explored.Contains(childSpeciesId))
+                    {
+                        input.Enqueue(childSpeciesId);
+                    }
+                }
+
+                explored.Add(thisSpeciesId);
+            }
+
+            var characterIds = await pandacapDbContext.CanonicalCharacters
+                .Where(c => c.SpeciesId != null && explored.Contains(c.SpeciesId.Value))
+                .Select(c => c.Id)
+                .ToListAsync(cancellationToken);
+
+            DateTimeOffset startTime = await GetPublishedTimeAsync(next, cancellationToken) ?? DateTimeOffset.MaxValue;
+
+            var posts = pandacapDbContext.Posts
+                .Where(d => d.PublishedTime <= startTime)
+                .Where(d => d.CharacterAppearances.Any(a =>
+                    (a.SpeciesId != null && explored.Contains(a.SpeciesId.Value))
+                    || (a.SpeciesId == null && characterIds.Contains(a.CharacterId))))
+                .OrderByDescending(d => d.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(f => f.Id == next || next == null);
+
+            return await RenderAsync("Search by Species", posts, count, cancellationToken);
+        }
+
         public async Task<IActionResult> Composite(Guid? next, int? count, CancellationToken cancellationToken)
         {
             DateTimeOffset startTime = await GetPublishedTimeAsync(next, cancellationToken) ?? DateTimeOffset.MaxValue;
