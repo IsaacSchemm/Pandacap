@@ -153,9 +153,21 @@ namespace Pandacap.Controllers
             await foreach (var post in pinnedPosts)
                 yield return post;
 
+            var typicalSpeciesPosts = pandacapDbContext.Posts
+                .Where(p => p.CharacterAppearances.Any(c =>
+                    c.CharacterId == canonicalCharacter.Id
+                    && (c.SpeciesId == canonicalCharacter.SpeciesId || c.SpeciesId == null)
+                    && !c.Background))
+                .OrderByDescending(p => p.PublishedTime)
+                .AsAsyncEnumerable();
+
+            await foreach (var post in typicalSpeciesPosts)
+                yield return post;
+
             var otherPosts = pandacapDbContext.Posts
-                .Where(p => !pinnedPostIds.Contains(p.Id))
-                .Where(p => p.CharacterAppearances.Any(c => c.CharacterId == canonicalCharacter.Id && !c.Background))
+                .Where(p => p.CharacterAppearances.Any(c =>
+                    c.CharacterId == canonicalCharacter.Id
+                    && !c.Background))
                 .OrderByDescending(p => p.PublishedTime)
                 .AsAsyncEnumerable();
 
@@ -173,6 +185,7 @@ namespace Pandacap.Controllers
                 .SingleAsync(cancellationToken);
 
             var posts = await GetPostsForCharacterAsync(character)
+                .DistinctBy(p => p.Id)
                 .Take(4)
                 .OrderByDescending(p => p.PublishedTime)
                 .ToListAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using Azure.Core;
 using Azure.Identity;
 using DeviantArtFs;
 using Microsoft.AspNetCore.Identity;
@@ -48,6 +49,10 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+TokenCredential credential = builder.Configuration["VisualStudioTenantId"] is string tenantId
+    ? new VisualStudioCredential(new() { TenantId = tenantId })
+    : new DefaultAzureCredential();
+
 if (builder.Configuration["CosmosDBAccountEndpoint"] is string cosmosDBAccountEndpoint)
 {
     if (builder.Configuration["CosmosDBAccountKey"] is string cosmosDBAccountKey)
@@ -61,7 +66,7 @@ if (builder.Configuration["CosmosDBAccountEndpoint"] is string cosmosDBAccountEn
     {
         builder.Services.AddDbContextFactory<PandacapDbContext>(options => options.UseCosmos(
             cosmosDBAccountEndpoint,
-            new DefaultAzureCredential(),
+            credential,
             databaseName: "Pandacap"));
     }
 }
@@ -71,7 +76,7 @@ builder.Services.AddDbContextFactory<PandacapIdentityDbContext>(options => optio
 builder.Services.AddAzureClients(clientBuilder =>
 {
     clientBuilder.AddBlobServiceClient(new Uri($"https://{builder.Configuration["StorageAccountHostname"]}"));
-    clientBuilder.UseCredential(new DefaultAzureCredential());
+    clientBuilder.UseCredential(credential);
 });
 
 var authenticationBuilder = builder.Services.AddAuthentication();
