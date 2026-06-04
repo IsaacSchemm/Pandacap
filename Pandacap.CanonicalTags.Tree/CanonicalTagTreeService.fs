@@ -39,7 +39,7 @@ type internal CanonicalTagTreeService(
                     this.Name
                     if this.Original then "(OC)"
                     if this.Fan then "(Fanart)"
-                    if not (isNull this.ShortCode) then "*"
+                    if this.PinnedPostIds.Count > 0 then "*"
                 ]
                 Type = CanonicalTagType.Character
                 Children = []
@@ -79,7 +79,6 @@ type internal CanonicalTagTreeService(
                     this.Name
                     if this.Original then "(OC)"
                     if this.Fan then "(Fanart)"
-                    if not (isNull this.ShortCode) then "*"
                 ]
                 Type = CanonicalTagType.Species
                 Children =  [

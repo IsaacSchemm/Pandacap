@@ -44,7 +44,7 @@
                                 @if (appearanceModel.Species != null)
                                 {
                                     @:as a
-                                    <a asp-controller="Gallery" asp-action="BySpecies" asp-route-speciesId="@appearanceModel.Species.Id">@appearanceModel.Species.Name</a>
+                                    <a asp-controller="Gallery" asp-action="ByCanonicalTag" asp-route-tagId="@appearanceModel.Species.Id">@appearanceModel.Species.Name</a>
                                 }
                             </div>
                         }

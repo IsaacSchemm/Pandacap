@@ -96,7 +96,7 @@
                     var name = relationship.CharacterName ?? $"{relationship.CharacterId}";
 
                     <div class="mb-2">
-                        <a asp-action="Index" asp-route-id="@relationship.CharacterId">@name</a>
+                        <a asp-action="Character" asp-route-id="@relationship.CharacterId">@name</a>
 
                         @if (relationship.RelationshipTypeName is string relationshipTypeName)
                         {
@@ -123,7 +123,7 @@
                     var name = alternateVersion.CharacterName ?? $"{alternateVersion.CharacterId}";
 
                     <div class="mb-2">
-                        <a asp-action="Index" asp-route-id="@alternateVersion.CharacterId">@name</a>
+                        <a asp-action="Character" asp-route-id="@alternateVersion.CharacterId">@name</a>
 
                         @if (alternateVersion.SettingName is string settingName)
                         {

@@ -20,7 +20,7 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            var model = new CanonicalTagsViewModel
+            var model = new EditCanonicalTagsViewModel
             {
                 All = await canonicalTagTreeService.GetAllTagsAsync().ToListAsync(cancellationToken)
             };
@@ -143,6 +143,7 @@ namespace Pandacap.Controllers
             existingItem.FullName = newItem.FullName;
             existingItem.SpeciesId = newItem.SpeciesId;
             existingItem.SettingId = newItem.SettingId;
+            existingItem.PinnedPostIds = newItem.PinnedPostIds;
             existingItem.Gender = newItem.Gender;
             existingItem.Pronouns = newItem.Pronouns;
             existingItem.NationalityIsoCodes = newItem.NationalityIsoCodes;

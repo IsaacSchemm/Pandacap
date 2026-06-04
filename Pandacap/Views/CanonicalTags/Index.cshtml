@@ -1,0 +1,8 @@
+﻿@model CanonicalTagsViewModel
+
+@foreach (var setting in Model.Settings)
+{
+    <h1>@setting.Name</h1>
+
+    <partial name="_ListGroup" model="@setting.Characters" />
+}

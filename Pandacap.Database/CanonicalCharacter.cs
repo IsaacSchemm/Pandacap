@@ -12,6 +12,8 @@
 
         public Guid? SettingId { get; set; }
 
+        public List<string> PinnedPostIds { get; set; } = [];
+
         public string? Gender { get; set; }
 
         public string? Pronouns { get; set; }
