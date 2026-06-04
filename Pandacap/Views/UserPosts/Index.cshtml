@@ -39,7 +39,7 @@
                             }
 
                             <div style="line-height: 2" class="@(appearanceModel.Background ? "small" : "")">
-                                <a asp-controller="CharacterTags" asp-action="Index" asp-route-id="@appearanceModel.Character.Id">@appearanceModel.Character.Name</a>
+                                <a asp-controller="CanonicalTags" asp-action="Character" asp-route-id="@appearanceModel.Character.Id">@appearanceModel.Character.Name</a>
 
                                 @if (appearanceModel.Species != null)
                                 {

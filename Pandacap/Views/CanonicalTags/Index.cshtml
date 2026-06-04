@@ -1,8 +1,58 @@
 ﻿@model CanonicalTagsViewModel
 
+<h1>Characters</h1>
+
 @foreach (var setting in Model.Settings)
 {
-    <h1>@setting.Name</h1>
+    <h2>@setting.Name</h2>
 
-    <partial name="_ListGroup" model="@setting.Characters" />
+    <div class="container-fluid">
+        <div class="row">
+            @foreach (var item in setting.Characters.Where(c => c.Thumbnail != null))
+            {
+                <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
+                    <div class="card">
+                        <a asp-action="Character" asp-route-id="@item.Id" style="text-decoration: none">
+                            <img src="@item.Thumbnail!.Url"
+                                    alt="@item.Thumbnail!.AltText"
+                                    referrerpolicy="no-referrer"
+                                    class="feed-image" />
+                        </a>
+                    </div>
+
+                    @{
+                        await RenderLabelAsync(item);
+                    }
+                </div>
+            }
+
+            @foreach (var item in setting.Characters.Where(c => c.Thumbnail == null))
+            {
+                <div class="col-12 mb-3 text-left">
+                    @{
+                        await RenderLabelAsync(item);
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@functions {
+    async Task RenderLabelAsync(CanonicalTagsViewModel.Character item)
+    {
+        <div style="max-width: 100%; overflow: hidden">
+            <a asp-action="Character" asp-route-id="@item.Id">@item.Name</a>
+
+            @if (item.Fan)
+            {
+                <span class="badge text-bg-secondary">Fanart</span>
+            }
+        </div>
+
+        @if (item.SpeciesName != null)
+        {
+            <div class="small text-muted">@item.SpeciesName</div>
+        }
+    }
 }

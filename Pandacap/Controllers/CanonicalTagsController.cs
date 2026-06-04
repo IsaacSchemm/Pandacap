@@ -17,6 +17,12 @@ namespace Pandacap.Controllers
                     yield return guid;
         }
 
+        private IEnumerable<Guid> GetSpeciesIds(CanonicalCharacter canonicalCharacter)
+        {
+            if (canonicalCharacter.SpeciesId is Guid guid)
+                yield return guid;
+        }
+
         private async IAsyncEnumerable<CanonicalTagsViewModel.Character> GetCharactersAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -29,6 +35,14 @@ namespace Pandacap.Controllers
             var allPinnedPosts = await pandacapDbContext.Posts
                 .Where(p => allPinnedPostIds.Contains(p.Id))
                 .ToListAsync(cancellationToken);
+
+            var allSpeciesIds = canonicalCharacters
+                .SelectMany(GetSpeciesIds)
+                .ToHashSet();
+
+            var speciesNames = await pandacapDbContext.CanonicalSpecies
+                .Where(s => allSpeciesIds.Contains(s.Id))
+                .ToDictionaryAsync(s => s.Id, s => s.Name, cancellationToken);
 
             foreach (var cc in canonicalCharacters)
             {
@@ -48,6 +62,11 @@ namespace Pandacap.Controllers
                 {
                     Id = cc.Id,
                     Name = cc.Name,
+                    SpeciesName = cc.SpeciesId is Guid speciesId && speciesNames.TryGetValue(speciesId, out string? speciesName)
+                        ? speciesName
+                        : null,
+                    Original = cc.Original,
+                    Fan = cc.Fan,
                     SettingId = cc.SettingId,
                     Thumbnail = pinnedPostThumbnail,
                     Timestamp = DateTimeOffset.MinValue
