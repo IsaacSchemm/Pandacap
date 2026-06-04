@@ -101,7 +101,7 @@ namespace Pandacap.Controllers
             return View(new CanonicalTagsViewModel
             {
                 Settings = [
-                    .. settings,
+                    .. settings.OrderByDescending(s => s.Characters.Length),
                     new()
                     {
                         Id = null,
@@ -173,7 +173,7 @@ namespace Pandacap.Controllers
                 .SingleAsync(cancellationToken);
 
             var posts = await GetPostsForCharacterAsync(character)
-                .Take(8)
+                .Take(4)
                 .OrderByDescending(p => p.PublishedTime)
                 .ToListAsync(cancellationToken);
 
