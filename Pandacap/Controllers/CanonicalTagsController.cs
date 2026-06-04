@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Pandacap.Database;
 using Pandacap.Models;
 using Pandacap.UI.Elements;
@@ -26,7 +27,9 @@ namespace Pandacap.Controllers
         private async IAsyncEnumerable<CanonicalTagsViewModel.Character> GetCharactersAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var canonicalCharacters = await pandacapDbContext.CanonicalCharacters.ToListAsync(cancellationToken);
+            var canonicalCharacters = await pandacapDbContext.CanonicalCharacters
+                .OrderBy(c => c.Name)
+                .ToListAsync(cancellationToken);
 
             var allPinnedPostIds = canonicalCharacters
                 .SelectMany(GetPinnedPostIds)
@@ -51,12 +54,11 @@ namespace Pandacap.Controllers
                         c.CharacterId == cc.Id && !c.Background))
                     .OrderByDescending(p => p.PublishedTime);
 
-                var pinnedPostThumbnail = await GetPinnedPostIds(cc)
-                    .ToAsyncEnumerable()
-                    .SelectMany(id => pandacapDbContext.Posts.Where(p => p.Id == id).AsAsyncEnumerable())
+                var pinnedPostThumbnail = GetPinnedPostIds(cc)
+                    .SelectMany(id => allPinnedPosts.Where(p => p.Id == id))
                     .OfType<IPost>()
                     .SelectMany(p => p.Thumbnails)
-                    .FirstOrDefaultAsync(cancellationToken);
+                    .FirstOrDefault();
 
                 yield return new()
                 {
@@ -68,13 +70,15 @@ namespace Pandacap.Controllers
                     Original = cc.Original,
                     Fan = cc.Fan,
                     SettingId = cc.SettingId,
-                    Thumbnail = pinnedPostThumbnail,
-                    Timestamp = DateTimeOffset.MinValue
+                    Thumbnail = pinnedPostThumbnail
                 };
             }
         }
 
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
+        //=> (await memoryCache.GetOrCreateAsync(
+        //$"{nameof(CanonicalTagsController)}/Index",
+        //async _ =>
         {
             var characters = await GetCharactersAsync(cancellationToken).ToListAsync(cancellationToken);
 
@@ -82,11 +86,16 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .Select(setting => new CanonicalTagsViewModel.Setting
                 {
+                    Id = setting.Id,
                     Name = setting.Name,
                     Characters = [
                         .. characters.Where(c => c.SettingId == setting.Id)
                     ]
                 })
+                .ToListAsync(cancellationToken);
+
+            var species = await pandacapDbContext.CanonicalSpecies
+                .OrderBy(s => s.Name)
                 .ToListAsync(cancellationToken);
 
             return View(new CanonicalTagsViewModel
@@ -95,12 +104,42 @@ namespace Pandacap.Controllers
                     .. settings,
                     new()
                     {
+                        Id = null,
                         Name = "Other",
-                        Characters = [.. characters.Where(c => c.SettingId == null)]
+                        Characters = [
+                            .. characters.Where(c => c.SettingId == null)
+                        ]
                     }
+                ],
+                DisplayedSpecies = [
+                    .. await pandacapDbContext.CanonicalSpecies
+                        .OrderBy(s => s.Name)
+                        .Select(s => new CanonicalTagsViewModel.Species
+                        {
+                            Id = s.Id,
+                            Name = s.Name,
+                            Original = s.Original,
+                            Fan = s.Fan
+                        })
+                        .ToListAsync(cancellationToken)
+                ],
+                Mediums = [
+                    .. await pandacapDbContext.CanonicalMediums
+                        .OrderBy(s => s.Name)
+                        .Select(s => new CanonicalTagsViewModel.Medium
+                        {
+                            Id = s.Id,
+                            Name = s.Name
+                        })
+                        .ToListAsync(cancellationToken)
                 ]
             });
         }
+        //,
+        //new MemoryCacheEntryOptions
+        //{
+        //    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+        //}))!;
 
         private async IAsyncEnumerable<Post> GetPostsForCharacterAsync(
             CanonicalCharacter canonicalCharacter)
@@ -125,6 +164,9 @@ namespace Pandacap.Controllers
         }
 
         public async Task<IActionResult> Character(Guid id, CancellationToken cancellationToken)
+        //=> (await memoryCache.GetOrCreateAsync(
+        //    $"{nameof(CanonicalTagsController)}/Character/{id}",
+        //    async _ =>
         {
             var character = await pandacapDbContext.CanonicalCharacters
                 .Where(c => c.Id == id)
@@ -172,8 +214,8 @@ namespace Pandacap.Controllers
                     {
                         CharacterId = r.OtherCharacterId,
                         CharacterName = (from o in otherCharacters
-                                         where o.Id == r.OtherCharacterId
-                                         select o.Name).FirstOrDefault(),
+                                            where o.Id == r.OtherCharacterId
+                                            select o.Name).FirstOrDefault(),
                         RelationshipTypeName = r.RelationshipTypeName
                     })
                 ],
@@ -182,16 +224,21 @@ namespace Pandacap.Controllers
                     {
                         CharacterId = a.OtherCharacterId,
                         CharacterName = (from o in otherCharacters
-                                         where o.Id == a.OtherCharacterId
-                                         select o.Name).FirstOrDefault(),
+                                            where o.Id == a.OtherCharacterId
+                                            select o.Name).FirstOrDefault(),
                         SettingName = (from o in otherCharacters
-                                       join s in otherSettings on o.SettingId equals s.Id
-                                       where o.Id == a.OtherCharacterId
-                                       select s.Name).FirstOrDefault()
+                                        join s in otherSettings on o.SettingId equals s.Id
+                                        where o.Id == a.OtherCharacterId
+                                        select s.Name).FirstOrDefault()
                     })
                 ],
                 Posts = posts
             });
         }
+        //,
+        //new MemoryCacheEntryOptions
+        //{
+        //    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+        //}))!;
     }
 }
