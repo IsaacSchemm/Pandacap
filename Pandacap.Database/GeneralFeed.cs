@@ -34,6 +34,11 @@ namespace Pandacap.Database
         public string? FeedIconUrl { get; set; }
 
         /// <summary>
+        /// A decription of the error that occurred on the last refresh attempt, if any.
+        /// </summary>
+        public string? LastError { get; set; }
+
+        /// <summary>
         /// When Pandacap last checked the feed for new posts.
         /// </summary>
         public DateTimeOffset LastCheckedAt { get; set; } = DateTimeOffset.MinValue;

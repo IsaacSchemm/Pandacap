@@ -21,34 +21,43 @@ namespace Pandacap.Inbox.Feeds
             if (feed == null)
                 return;
 
-            using var httpClient = httpClientFactory.CreateClient();
-            using var headRequest = new HttpRequestMessage(HttpMethod.Head, feed.FeedUrl);
-            using var headResponse = await httpClient.SendAsync(headRequest, cancellationToken);
-
-            var newFeedItems = await feedReaders
-                .Select(reader =>
-                    reader
-                        .ReadFeedAsync(
-                            feed.FeedUrl,
-                            headResponse.Content.Headers.ContentType?.MediaType)
-                        .Take(20))
-                .ToAsyncEnumerable()
-                .SelectMany(item => item)
-                .OrderByDescending(item => item.Timestamp)
-                .TakeWhile(item => item.Timestamp > feed.LastCheckedAt)
-                .ToListAsync(cancellationToken);
-
-            if (newFeedItems.Count > 0)
+            try
             {
-                feed.FeedTitle = newFeedItems[0].FeedTitle;
-                feed.FeedWebsiteUrl = newFeedItems[0].FeedWebsiteUrl;
-                feed.FeedIconUrl = newFeedItems[0].FeedIconUrl;
+                using var httpClient = httpClientFactory.CreateClient();
+                using var headRequest = new HttpRequestMessage(HttpMethod.Head, feed.FeedUrl);
+                using var headResponse = await httpClient.SendAsync(headRequest, cancellationToken);
 
-                pandacapDbContext.GeneralInboxItems.AddRange(newFeedItems);
+                var newFeedItems = await feedReaders
+                    .Select(reader =>
+                        reader
+                            .ReadFeedAsync(
+                                feed.FeedUrl,
+                                headResponse.Content.Headers.ContentType?.MediaType)
+                            .Take(20))
+                    .ToAsyncEnumerable()
+                    .SelectMany(item => item)
+                    .OrderByDescending(item => item.Timestamp)
+                    .TakeWhile(item => item.Timestamp > feed.LastCheckedAt)
+                    .ToListAsync(cancellationToken);
+
+                if (newFeedItems.Count > 0)
+                {
+                    feed.FeedTitle = newFeedItems[0].FeedTitle;
+                    feed.FeedWebsiteUrl = newFeedItems[0].FeedWebsiteUrl;
+                    feed.FeedIconUrl = newFeedItems[0].FeedIconUrl;
+
+                    pandacapDbContext.GeneralInboxItems.AddRange(newFeedItems);
+                }
+
+                feed.LastCheckedAt = newFeedItems
+                    .Max(f => f.Timestamp);
+
+                feed.LastError = null;
             }
-
-            feed.LastCheckedAt = newFeedItems
-                .Max(f => f.Timestamp);
+            catch (Exception ex)
+            {
+                feed.LastError = $"{ex}";
+            }
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
