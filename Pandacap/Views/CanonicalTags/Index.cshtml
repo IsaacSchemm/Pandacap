@@ -1,0 +1,111 @@
+﻿@model CanonicalTagsViewModel
+
+@{
+    ViewBag.Title = "Canonical Tags";
+}
+
+<h1>Characters</h1>
+
+@foreach (var setting in Model.Settings)
+{
+    @if (setting.Id is Guid settingId)
+    {
+        <h2>
+            <a asp-controller="Gallery" asp-action="ByCanonicalTag" asp-route-tagId="@settingId">@setting.Name</a>
+        </h2>
+    }
+    else
+    {
+        <h2>@setting.Name</h2>
+    }
+
+    <div class="container-fluid">
+        <div class="row">
+            @foreach (var item in setting.Characters.Where(c => c.Thumbnail != null))
+            {
+                <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
+                    <div class="card">
+                        <a asp-action="Character" asp-route-id="@item.Id" style="text-decoration: none">
+                            <img src="@item.Thumbnail!.Url"
+                                    alt="@item.Thumbnail!.AltText"
+                                    referrerpolicy="no-referrer"
+                                    class="feed-image" />
+                        </a>
+                    </div>
+
+                    @{
+                        await RenderCharacterLabelAsync(item);
+                    }
+                </div>
+            }
+
+            @foreach (var item in setting.Characters.Where(c => c.Thumbnail == null))
+            {
+                <div class="col-12 mb-3">
+                    @{
+                        await RenderCharacterLabelAsync(item);
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<h1>Species</h1>
+
+<div class="container-fluid">
+    <div class="row">
+        @foreach (var species in Model.DisplayedSpecies)
+        {
+            <div class="col-12 mb-3">
+                <div style="max-width: 100%; overflow: hidden">
+                    <a asp-controller="Gallery" asp-action="ByCanonicalTag" asp-route-tagId="@species.Id">@species.Name</a>
+
+                    @if (species.Original)
+                    {
+                        <span class="badge text-bg-primary">Original</span>
+                    }
+
+                    @if (species.Fan)
+                    {
+                        <span class="badge text-bg-secondary">Fanart</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<h1>Mediums</h1>
+
+<div class="container-fluid">
+    <div class="row">
+        @foreach (var medium in Model.Mediums)
+        {
+            <div class="col-12 mb-3">
+                <div style="max-width: 100%; overflow: hidden">
+                    <a asp-controller="Gallery" asp-action="ByCanonicalTag" asp-route-tagId="@medium.Id">@medium.Name</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    async Task RenderCharacterLabelAsync(CanonicalTagsViewModel.Character item)
+    {
+        <div style="max-width: 100%; overflow: hidden">
+            <a asp-action="Character" asp-route-id="@item.Id">@item.Name</a>
+
+            @if (item.Fan)
+            {
+                <span class="badge text-bg-secondary">Fanart</span>
+            }
+        </div>
+
+        @if (item.SpeciesName != null)
+        {
+            <div class="small text-muted">@item.SpeciesName</div>
+        }
+    }
+}

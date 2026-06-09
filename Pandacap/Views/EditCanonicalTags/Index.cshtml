@@ -1,0 +1,66 @@
+﻿@using Pandacap.CanonicalTags.Tree.Models
+@model EditCanonicalTagsViewModel
+
+@{
+    ViewBag.Title = "Edit Canonical Tags";
+}
+
+<h1>Edit Canonical Tags</h1>
+
+@{
+    await RenderListAsync(Model.All);
+}
+
+<p>
+    <a asp-action="AddEditMedium">
+        Add new medium
+    </a>
+
+    <br />
+
+    <a asp-action="AddEditSetting">
+        Add new setting
+    </a>
+
+    <br />
+
+    <a asp-action="AddEditCharacter">
+        Add new character
+    </a>
+
+    <br />
+
+    <a asp-action="AddEditSpecies">
+        Add new species
+    </a>
+</p>
+
+@functions {
+    async Task RenderListAsync(IEnumerable<CanonicalTagTreeDisplayNode> nodes)
+    {
+        <ul>
+            @foreach (var item in nodes)
+            {
+                var action = $"AddEdit{item.Type}";
+
+                <li>
+                    @if (item.Id is Guid id)
+                    {
+                        <a asp-action="@action" asp-route-id="@id">@item.Name</a>
+
+                        <code style="user-select: all; font-size: 50%">@id</code>
+                    }
+                    else
+                    {
+                        @:@item.Name
+                    }
+
+                    @if (item.Children.Any())
+                    {
+                        await RenderListAsync(item.Children);
+                    }
+                </li>
+            }
+        </ul>
+    }
+}

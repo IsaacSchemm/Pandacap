@@ -1,5 +1,4 @@
-﻿@using Pandacap.Models
-@using Pandacap.UI.Elements
+﻿@using Pandacap.UI.Elements
 @model IEnumerable<IPost>
 
 <div class="container-fluid">
@@ -15,6 +14,22 @@
                 .FirstOrDefault();
 
             <div class="col-12 mb-3 col-sm-4 col-md-3 text-center">
+                @if (item.Username != null)
+                {
+                    <div class="mb-2">
+                        <img height="25" src="@item.Usericon" alt="" />
+                        <a href="@item.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
+                            <strong>
+                                @item.Username
+                            </strong>
+                        </a>
+                    </div>
+                }
+
+                <span class="badge" style="background-color: @item.Badge.Background; color: @item.Badge.Color; max-width: 100%; overflow-x: hidden; text-overflow: ellipsis;">
+                    @item.Badge.Text
+                </span>
+
                 @if (thumbnail != null)
                 {
                     <div class="card">
@@ -27,22 +42,9 @@
                     </div>
                 }
 
-                <label style="max-width: 100%; height: 3rem; overflow: hidden">
+                <label style="max-width: 100%; height: 3rem; overflow: hidden" class="mb-2">
                     <a href="@url">@item.DisplayTitle</a>
                 </label>
-
-                <div class="mb-2">
-                    <img height="25" src="@item.Usericon" alt="" />
-                    <a href="@item.ProfileUrl" target="_blank" style="display: inline-block; vertical-align: top">
-                        <strong>
-                            @item.Username
-                        </strong>
-                    </a>
-                </div>
-
-                <span class="badge mb-3" style="background-color: @item.Badge.Background; color: @item.Badge.Color; max-width: 100%; overflow-x: hidden; text-overflow: ellipsis;">
-                    @item.Badge.Text
-                </span>
             </div>
         }
     </div>

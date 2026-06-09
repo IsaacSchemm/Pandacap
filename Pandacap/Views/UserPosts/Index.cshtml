@@ -1,7 +1,5 @@
 ﻿@using Pandacap.Constants
-@using Pandacap.Data
 @using Pandacap.Database
-@using Pandacap.PlatformLinks.Interfaces
 @model UserPostViewModel
 
 @{
@@ -21,6 +19,77 @@
 }
 
 <partial name="_ProfileHeading" />
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-md-6 col-xl-5 offset-xl-1">
+            @if (Model.CharacterAppearances.Any())
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Characters
+                    </div>
+                    <div class="card-body">
+                        @foreach (var appearanceModel in Model.CharacterAppearances
+                            .OrderBy(a => a.Background))
+                        {
+                            if (appearanceModel.Character == null)
+                            {
+                                continue;
+                            }
+
+                            <div style="line-height: 2" class="@(appearanceModel.Background ? "small" : "")">
+                                <a asp-controller="CanonicalTags" asp-action="Character" asp-route-id="@appearanceModel.Character.Id">@appearanceModel.Character.Name</a>
+
+                                @if (appearanceModel.Species != null)
+                                {
+                                    @:as a
+                                    <a asp-controller="Gallery" asp-action="ByCanonicalTag" asp-route-tagId="@appearanceModel.Species.Id">@appearanceModel.Species.Name</a>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="col-12 col-md-6 col-xl-5">
+            @if (Model.MediumApplications.Any())
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Mediums
+                    </div>
+                    <div class="card-body">
+                        @foreach (var applicationModel in Model.MediumApplications)
+                        {
+                            <div style="line-height: 2">
+                                <a href="#">@(applicationModel.MediumName ?? $"{applicationModel.MediumId}")</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <div class="col-12">
+                <form asp-action="ReplaceTags">
+                    <input type="hidden" name="postId" value="@Model.Post.Id" />
+                    <div class="input-group my-3">
+                        <span class="input-group-text">Replace canonical tags</span>
+                        <input name="canonicalTags"
+                        type="text"
+                        class="form-control">
+                        <button class="btn btn-primary" type="submit">
+                            Replace
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
+    </div>
+</div>
 
 <h1>@Model.Post.Title</h1>
 
@@ -124,7 +193,7 @@
         }
         else
         {
-            <form asp-action="Detach" asp-controller="DeviantArt" class="mb-3" onsubmit="This will remove the 'View on DeviantArt' button; it will not delete the post from DeviantArt.">
+            <form asp-action="Detach" asp-controller="DeviantArt" class="mb-3" onsubmit="return confirm('This will remove the View on DeviantArt button; it will not delete the post from DeviantArt.')'">
                 <input type="hidden" name="id" value="@Model.Post.Id" />
                 <button type="submit" class="btn btn-warning">
                     Detach DeviantArt post
@@ -143,7 +212,7 @@
         }
         else
         {
-            <form asp-action="Detach" asp-controller="FurAffinity" class="mb-3" onsubmit="This will remove the 'View on Fur Affinity' button; it will not delete the post from Fur Affinity.">
+            <form asp-action="Detach" asp-controller="FurAffinity" class="mb-3" onsubmit="return confirm('This will remove the View on Fur Affinity button; it will not delete the post from Fur Affinity.')'">
                 <input type="hidden" name="id" value="@Model.Post.Id" />
                 <button type="submit" class="btn btn-warning">
                     Detach Fur Affinity post
@@ -162,7 +231,7 @@
         }
         else
         {
-            <form asp-action="Detach" asp-controller="Weasyl" class="mb-3" onsubmit="This will remove the 'View on Weasyl' button; it will not delete the post from Weasyl.">
+            <form asp-action="Detach" asp-controller="Weasyl" class="mb-3" onsubmit="return confirm('This will remove the View on Weasyl button; it will not delete the post from Weasyl.')'">
                 <input type="hidden" name="id" value="@Model.Post.Id" />
                 <button type="submit" class="btn btn-warning">
                     Detach Weasyl post

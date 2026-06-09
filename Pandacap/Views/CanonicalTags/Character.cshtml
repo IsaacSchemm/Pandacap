@@ -1,0 +1,145 @@
+﻿@model CharacterTagModel
+
+@{
+    ViewBag.Title = Model.CanonicalCharacter.Name;
+}
+
+<h1>
+    @Model.CanonicalCharacter.Name
+</h1>
+
+<p style="white-space: pre-wrap">@Model.CanonicalCharacter.Description</p>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-lg-2 mb-3">
+            <strong>Name</strong>
+            <br />
+            <a asp-controller="Gallery" asp-action="ByCanonicalTag" asp-route-tagId="@Model.CanonicalCharacter.Id">@Model.CanonicalCharacter.Name</a>
+
+            @foreach (var code in Model.CanonicalCharacter.NationalityIsoCodes)
+            {
+                @:@string.Concat(code.Select(ch => char.ConvertFromUtf32(ch + 0x1F1A5)))
+            }
+
+            @if (Model.CanonicalCharacter.Fan)
+            {
+                <span class="badge" style="background-color: #3f4873">
+                    Fanart
+                </span>
+            }
+
+            @if (Model.CanonicalCharacter.Original)
+            {
+                <span class="badge" style="background-color: #3f4873">
+                    OC
+                </span>
+            }
+        </div>
+
+        @if (Model.CanonicalCharacter.FullName is string fullName)
+        {
+            <div class="col-md-3 col-lg-2 mb-3">
+                <strong>Full name</strong>
+                <br />
+                @Model.CanonicalCharacter.FullName
+            </div>
+        }
+
+        @if (Model.CanonicalCharacter.SpeciesId is Guid speciesId)
+        {
+            <div class="col-md-3 col-lg-2 mb-3">
+                <strong>Species</strong>
+                <br />
+                <a asp-controller="Gallery" asp-action="ByCanonicalTag" asp-route-tagId="@speciesId">
+                    @(Model.SpeciesName ?? $"{speciesId}")
+                </a>
+            </div>
+        }
+
+        @if (Model.CanonicalCharacter.SettingId is Guid settingId)
+        {
+            <div class="col-md-3 col-lg-2 mb-3">
+                <strong>Setting</strong>
+                <br />
+                @(Model.SettingName ?? $"{settingId}")
+            </div>
+        }
+
+        @if (Model.CanonicalCharacter.Gender is string gender)
+        {
+            <div class="col-md-3 col-lg-2 mb-3">
+                <strong>Gender</strong>
+                <br />
+                @gender
+            </div>
+        }
+
+        @if (Model.CanonicalCharacter.Pronouns is string pronouns)
+        {
+            <div class="col-md-3 col-lg-2 mb-3">
+                <strong>Pronouns</strong>
+                <br />
+                @pronouns
+            </div>
+        }
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            @if (Model.Relationships.Count > 0)
+            {
+                <strong>
+                    Relationships
+                </strong>
+
+                <br />
+
+                @foreach (var relationship in Model.Relationships)
+                {
+                    var name = relationship.CharacterName ?? $"{relationship.CharacterId}";
+
+                    <div class="mb-2">
+                        <a asp-action="Character" asp-route-id="@relationship.CharacterId">@name</a>
+
+                        @if (relationship.RelationshipTypeName is string relationshipTypeName)
+                        {
+                            <div class="small text-muted">
+                                @relationshipTypeName
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="col-md-6 mb-3">
+            @if (Model.AlternateVersions.Count > 0)
+            {
+                <strong>
+                    Alternate versions
+                </strong>
+
+                <br />
+
+                @foreach (var alternateVersion in Model.AlternateVersions)
+                {
+                    var name = alternateVersion.CharacterName ?? $"{alternateVersion.CharacterId}";
+
+                    <div class="mb-2">
+                        <a asp-action="Character" asp-route-id="@alternateVersion.CharacterId">@name</a>
+
+                        @if (alternateVersion.SettingName is string settingName)
+                        {
+                            <div class="small text-muted">
+                                @settingName
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<partial name="_ListGroup" model="@Model.Posts" />

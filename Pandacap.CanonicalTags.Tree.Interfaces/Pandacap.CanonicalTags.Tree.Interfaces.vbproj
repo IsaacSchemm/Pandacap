@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Pandacap.CanonicalTags.Tree.Interfaces</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.CanonicalTags.Tree.Models\Pandacap.CanonicalTags.Tree.Models.fsproj" />
+  </ItemGroup>
+
+</Project>

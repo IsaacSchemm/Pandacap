@@ -6,6 +6,7 @@ using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
+using Pandacap.CanonicalTags.Interfaces;
 using Pandacap.Database;
 using Pandacap.Extensions;
 using Pandacap.Models;
@@ -22,6 +23,7 @@ namespace Pandacap.Controllers
     public class UserPostsController(
         BlobServiceClient blobServiceClient,
         IActivityPubPostTranslator postTranslator,
+        ICanonicalTagShortCodeService canonicalTagShortCodeService,
         IDeliveryInboxCollector deliveryInboxCollector,
         IHttpClientFactory httpClientFactory,
         IPlatformLinkProvider platformLinkProvider,
@@ -53,6 +55,53 @@ namespace Pandacap.Controllers
                     Encoding.UTF8);
             }
 
+            HashSet<Guid> ids = [
+                .. post.MediumApplications.Select(a => a.MediumId),
+                .. post.CharacterAppearances.Select(a => a.CharacterId),
+                .. post.CharacterAppearances.SelectMany(a => a.SpeciesId is Guid g
+                    ? new[] { g }
+                    : [])
+            ];
+
+            var mediums = await pandacapDbContext.CanonicalMediums
+                .Where(x => ids.Contains(x.Id))
+                .Select(x => new
+                {
+                    x.Id,
+                    x.Name
+                })
+                .ToDictionaryAsync(
+                    x => x.Id,
+                    cancellationToken);
+
+            var characters = await pandacapDbContext.CanonicalCharacters
+                .Where(x => ids.Contains(x.Id))
+                .AsAsyncEnumerable()
+                .Select(x => new CanonicalCharacterOrSpeciesModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Original = x.Original,
+                    Fan = x.Fan,
+                    NationalityIsoCodes = [.. x.NationalityIsoCodes]
+                })
+                .ToDictionaryAsync(
+                    x => x.Id,
+                    cancellationToken: cancellationToken);
+
+            var species = await pandacapDbContext.CanonicalSpecies
+                .Where(x => ids.Contains(x.Id))
+                .Select(x => new CanonicalCharacterOrSpeciesModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Original = x.Original,
+                    Fan = x.Fan
+                })
+                .ToDictionaryAsync(
+                    x => x.Id,
+                    cancellationToken);
+
             IActivityPubPost activityPubPost = post;
 
             return View(new UserPostViewModel
@@ -63,7 +112,27 @@ namespace Pandacap.Controllers
                     ? await replyCollationService
                         .CollectRepliesAsync(activityPubPost.ObjectId)
                         .ToListAsync(cancellationToken)
-                    : []
+                    : [],
+                MediumApplications = [
+                    .. post.MediumApplications.Select(a => new CanonicalMediumApplicationModel{
+                        MediumId = a.MediumId,
+                        MediumName = mediums.TryGetValue(a.MediumId, out var medium)
+                            ? medium.Name
+                            : a.MediumId.ToString()
+                    }).Distinct()
+                ],
+                CharacterAppearances = [
+                    .. post.CharacterAppearances.Select(a => new CanonicalCharacterAppearanceModel
+                    {
+                        Character = characters.TryGetValue(a.CharacterId, out var character)
+                            ? character
+                            : null,
+                        Species = a.SpeciesId is Guid speciesId && species.TryGetValue(speciesId, out var specie)
+                            ? specie
+                            : null,
+                        Background = a.Background
+                    }).Distinct()
+                ]
             });
         }
 
@@ -250,6 +319,32 @@ namespace Pandacap.Controllers
             var id = await postCreator.CreatePostAsync(model, cancellationToken);
 
             return RedirectToAction(nameof(Index), new { id });
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReplaceTags(Guid postId, IEnumerable<string> canonicalTags, CancellationToken cancellationToken)
+        {
+            var post = await pandacapDbContext.Posts
+                .Where(p => p.Id == postId)
+                .SingleAsync(cancellationToken);
+
+            post.MediumApplications.Clear();
+            post.CharacterAppearances.Clear();
+
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
+
+            var mediums = await pandacapDbContext.CanonicalMediums.ToListAsync(cancellationToken);
+            var characters = await pandacapDbContext.CanonicalCharacters.ToListAsync(cancellationToken);
+            var species = await pandacapDbContext.CanonicalSpecies.ToListAsync(cancellationToken);
+
+            await canonicalTagShortCodeService.ApplyCanonicalTagsUsingShortCodesAsync(
+                postId,
+                canonicalTags.SelectMany(str => str.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)),
+                cancellationToken);
+
+            return RedirectToAction(nameof(Index), new { id = postId });
         }
 
         [HttpPost]

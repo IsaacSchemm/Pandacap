@@ -111,6 +111,28 @@ namespace Pandacap.Database
 
         public int? WeasylJournalId { get; set; }
 
+        public class CharacterAppearance
+        {
+            public Guid PostId { get; set; }
+
+            public Guid CharacterId { get; set; }
+
+            public Guid? SpeciesId { get; set; }
+
+            public bool Background { get; set; }
+        }
+
+        public List<CharacterAppearance> CharacterAppearances { get; set; } = [];
+
+        public class MediumApplication
+        {
+            public Guid PostId { get; set; }
+
+            public Guid MediumId { get; set; }
+        }
+
+        public List<MediumApplication> MediumApplications { get; set; } = [];
+
         [NotMapped]
         public bool IsTextPost =>
             Type switch

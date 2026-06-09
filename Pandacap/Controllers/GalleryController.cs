@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
+using Pandacap.CanonicalTags.Interfaces;
 using Pandacap.Database;
 using Pandacap.Extensions;
 using Pandacap.Frontend.Feeds.Interfaces;
@@ -14,6 +15,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class GalleryController(
+        ICanonicalTagImplicationService canonicalTagImplicationService,
         IFeedBuilder feedBuilder,
         IActivityPubPostTranslator postTranslator,
         PandacapDbContext pandacapDbContext) : Controller
@@ -166,6 +168,24 @@ namespace Pandacap.Controllers
                 .SkipUntil(f => f.Id == next || next == null);
 
             return await RenderAsync("Links", posts, count, cancellationToken);
+        }
+
+        [HttpGet("ByCanonicalTag/{tagId}")]
+        public async Task<IActionResult> ByCanonicalTag(Guid tagId, Guid? next, int? count, CancellationToken cancellationToken)
+        {
+            DateTimeOffset startTime = await GetPublishedTimeAsync(next, cancellationToken) ?? DateTimeOffset.MaxValue;
+
+            var posts = pandacapDbContext.Posts
+                .Where(p => p.PublishedTime <= startTime)
+                .OrderByDescending(p => p.PublishedTime)
+                .AsAsyncEnumerable()
+                .SkipUntil(p => p.Id == next || next == null)
+                .Where(async (p, _, ct) =>
+                    await canonicalTagImplicationService
+                    .GetImplicitTagsAsync(p)
+                    .ContainsAsync(tagId, cancellationToken: ct));
+
+            return await RenderAsync("Search by Tag", posts, count, cancellationToken);
         }
 
         public async Task<IActionResult> Composite(Guid? next, int? count, CancellationToken cancellationToken)
