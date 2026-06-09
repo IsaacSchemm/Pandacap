@@ -50,7 +50,9 @@ namespace Pandacap.Inbox.Feeds
                 }
 
                 feed.LastCheckedAt = newFeedItems
-                    .Max(f => f.Timestamp);
+                    .Select(f => f.Timestamp)
+                    .Concat([feed.LastCheckedAt])
+                    .Max();
 
                 feed.LastError = null;
             }
