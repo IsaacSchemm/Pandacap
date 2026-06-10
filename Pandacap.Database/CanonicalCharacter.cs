@@ -18,6 +18,8 @@
 
         public string? Pronouns { get; set; }
 
+        public string? Hometown { get; set; }
+
         public List<string> NationalityIsoCodes { get; set; } = [];
 
         public string? Description { get; set; }

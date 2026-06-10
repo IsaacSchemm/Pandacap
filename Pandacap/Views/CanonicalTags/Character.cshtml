@@ -15,7 +15,7 @@
         <div class="col-md-3 col-lg-2 mb-3">
             <strong>Name</strong>
             <br />
-            <a asp-controller="Gallery" asp-action="ByCanonicalTag" asp-route-tagId="@Model.CanonicalCharacter.Id">@Model.CanonicalCharacter.Name</a>
+            @(Model.CanonicalCharacter.FullName ?? Model.CanonicalCharacter.Name)
 
             @foreach (var code in Model.CanonicalCharacter.NationalityIsoCodes)
             {
@@ -36,15 +36,6 @@
                 </span>
             }
         </div>
-
-        @if (Model.CanonicalCharacter.FullName is string fullName)
-        {
-            <div class="col-md-3 col-lg-2 mb-3">
-                <strong>Full name</strong>
-                <br />
-                @Model.CanonicalCharacter.FullName
-            </div>
-        }
 
         @if (Model.CanonicalCharacter.SpeciesId is Guid speciesId)
         {
@@ -81,6 +72,15 @@
                 <strong>Pronouns</strong>
                 <br />
                 @pronouns
+            </div>
+        }
+
+        @if (Model.CanonicalCharacter.Hometown is string hometown)
+        {
+            <div class="col-md-3 col-lg-2 mb-3">
+                <strong>Place of Origin</strong>
+                <br />
+                @hometown
             </div>
         }
     </div>
@@ -143,3 +143,9 @@
 </div>
 
 <partial name="_ListGroup" model="@Model.Posts" />
+
+<p align="right">
+    <a asp-controller="Gallery" asp-action="ByCanonicalTag" asp-route-tagId="@Model.CanonicalCharacter.Id" class="btn btn-outline-primary">
+        View more &raquo;
+    </a>
+</p>

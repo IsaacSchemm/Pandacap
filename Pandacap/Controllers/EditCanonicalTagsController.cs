@@ -146,6 +146,7 @@ namespace Pandacap.Controllers
             existingItem.PinnedPostIds = newItem.PinnedPostIds;
             existingItem.Gender = newItem.Gender;
             existingItem.Pronouns = newItem.Pronouns;
+            existingItem.Hometown = newItem.Hometown;
             existingItem.NationalityIsoCodes = newItem.NationalityIsoCodes;
             existingItem.Original = newItem.Original;
             existingItem.Fan = newItem.Fan;
