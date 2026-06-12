@@ -4,9 +4,8 @@ using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Models;
-using Pandacap.ActivityPub.Inbox.Interfaces;
+using Pandacap.ActivityPub.InboxRequests.Interfaces;
 using Pandacap.ActivityPub.JsonLd.Interfaces;
-using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.ActivityPub.Static;
 using Pandacap.Database;
@@ -15,19 +14,15 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ActivityPubController(
+        IActivityPubInboxRequestHandler activityPubInboxRequestHandler,
         IActivityPubInteractionTranslator activityPubInteractionTranslator,
         IActivityPubKeyFinder activityPubKeyFinder,
         IActivityPubPostTranslator postTranslator,
         IActivityPubRelationshipTranslator relationshipTranslator,
-        IActivityPubRemoteActorService activityPubRemoteActorService,
-        IActivityPubRemotePostService activityPubRemotePostService,
         IActivityPubSignatureValidator activityPubSignatureValidator,
         IJsonLdExpansionService expansionService,
-        IRemoteActivityPubInboxHandler remoteActivityPubInboxHandler,
         PandacapDbContext pandacapDbContext) : Controller
     {
-        private static new readonly IEnumerable<JToken> Empty = [];
-
         public async Task<IActionResult> Followers(CancellationToken cancellationToken)
         {
             int followers = await pandacapDbContext.Followers
@@ -96,128 +91,10 @@ namespace Pandacap.Controllers
                 return Unauthorized("Could not attempt to verify signature.");
             }
 
-            // Grab that actor's information and public key
-            var actor = await activityPubRemoteActorService.FetchActorAsync(actorId, cancellationToken);
-
-            string type = expansionObj["@type"]![0]!.Value<string>()!;
-
-            if (type == "https://www.w3.org/ns/activitystreams#Follow")
-            {
-                string activityId = expansionObj["@id"]!.Value<string>()!;
-
-                string fActor = expansionObj["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
-                string fObject = expansionObj["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
-
-                if (fActor == actor.Id && fObject == ActivityPubHostInformation.ActorId)
-                    await remoteActivityPubInboxHandler.RecordFollowAsync(activityId, actor, cancellationToken);
-            }
-            else if (type == "https://www.w3.org/ns/activitystreams#Undo")
-            {
-                foreach (var objectToUndo in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
-                {
-                    if ((objectToUndo["@type"] ?? Empty).Any(token => token.Value<string>() == "https://www.w3.org/ns/activitystreams#Follow"))
-                    {
-                        string fActor = objectToUndo["https://www.w3.org/ns/activitystreams#actor"]![0]!["@id"]!.Value<string>()!;
-                        string fObject = objectToUndo["https://www.w3.org/ns/activitystreams#object"]![0]!["@id"]!.Value<string>()!;
-                        if (fActor == actor.Id && fObject == ActivityPubHostInformation.ActorId)
-                        {
-                            await remoteActivityPubInboxHandler.EraseFollowAsync(fActor, cancellationToken);
-                        }
-                    }
-
-                    string id = objectToUndo["@id"]!.Value<string>()!;
-
-                    await remoteActivityPubInboxHandler.EraseInteractionAsync(id, cancellationToken);
-                    await remoteActivityPubInboxHandler.EraseAnnouncementAsync(id, cancellationToken);
-                }
-            }
-            else if (type == "https://www.w3.org/ns/activitystreams#Accept")
-            {
-                foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
-                {
-                    string followId = obj["@id"]!.Value<string>()!;
-                    await remoteActivityPubInboxHandler.MarkFollowerAsync(actor.Id, followId, accepted: true, cancellationToken);
-                }
-            }
-            else if (type == "https://www.w3.org/ns/activitystreams#Reject")
-            {
-                foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
-                {
-                    string followId = obj["@id"]!.Value<string>()!;
-                    await remoteActivityPubInboxHandler.MarkFollowerAsync(actor.Id, followId, accepted: false, cancellationToken);
-                }
-            }
-            else if (type == "https://www.w3.org/ns/activitystreams#Like"
-                || type == "https://www.w3.org/ns/activitystreams#Dislike"
-                || type == "https://www.w3.org/ns/activitystreams#Flag"
-                || type == "https://www.w3.org/ns/activitystreams#Listen"
-                || type == "https://www.w3.org/ns/activitystreams#Read"
-                || type == "https://www.w3.org/ns/activitystreams#View"
-                || type == "https://www.w3.org/ns/activitystreams#Announce"
-                || type == "https://ns.mia.jetzt/as#Bite")
-            {
-                foreach (string interactedWithId in activityPubRemotePostService.GetAnnouncementSubjectIds(expansionObj))
-                {
-                    if (type == "https://www.w3.org/ns/activitystreams#Announce")
-                    {
-                        await remoteActivityPubInboxHandler.RecordAnnouncementAsync(
-                            actor,
-                            expansionObj["@id"]!.Value<string>()!,
-                            interactedWithId,
-                            cancellationToken);
-                    }
-
-                    if (Uri.TryCreate(interactedWithId, UriKind.Absolute, out Uri? uri)
-                        && uri != null
-                        && Uri.TryCreate(ActivityPubHostInformation.ActorId, UriKind.Absolute, out Uri? me)
-                        && me != null
-                        && uri.Host == me.Host)
-                    {
-                        await remoteActivityPubInboxHandler.RecordInteractionAsync(
-                            expansionObj["@id"]!.Value<string>()!,
-                            interactedWithId,
-                            actor.Id,
-                            type,
-                            cancellationToken);
-                    }
-                }
-            }
-            else if (type == "https://www.w3.org/ns/activitystreams#Create")
-            {
-                foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
-                {
-                    var remotePost = await activityPubRemotePostService.ParseExpandedObjectAsync(obj, cancellationToken);
-                    await remoteActivityPubInboxHandler.RecordPostAsync(actor, remotePost, cancellationToken);
-                }
-            }
-            else if (type == "https://www.w3.org/ns/activitystreams#Update")
-            {
-                foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
-                {
-                    string postId = obj["@id"]!.Value<string>()!;
-                    string postType = obj["@type"]!.Value<string>()!;
-
-                    if (postType == "Person" && postId == actor.Id)
-                    {
-                        await remoteActivityPubInboxHandler.UpdateRemoteActorAsync(actor, cancellationToken);
-                    }
-
-                    if (await remoteActivityPubInboxHandler.IsPostKnownAsync(postId, cancellationToken))
-                    {
-                        var remotePost = await activityPubRemotePostService.ParseExpandedObjectAsync(obj, cancellationToken);
-                        await remoteActivityPubInboxHandler.UpdatePostAsync(actor, remotePost, cancellationToken);
-                    }
-                }
-            }
-            else if (type == "https://www.w3.org/ns/activitystreams#Delete")
-            {
-                foreach (var deletedObject in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
-                {
-                    string deletedObjectId = deletedObject["@id"]!.Value<string>()!;
-
-                    await remoteActivityPubInboxHandler.ErasePostAsync(actor.Id, deletedObjectId, cancellationToken);
-                }
-            }
+            await activityPubInboxRequestHandler.ProcessVerifiedInboxMessageAsync(
+                expansionObj,
+                ActivityPubHostInformation.ActorId,
+                cancellationToken);
 
             return Accepted();
         }

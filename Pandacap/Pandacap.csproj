@@ -44,6 +44,7 @@
     <ProjectReference Include="..\Pandacap.ActivityPub.Favorites\Pandacap.ActivityPub.Favorites.csproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Discovery\Pandacap.ActivityPub.HttpSignatures.Discovery.csproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.HttpSignatures.Validation\Pandacap.ActivityPub.HttpSignatures.Validation.fsproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.InboxRequests\Pandacap.ActivityPub.InboxRequests.csproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Inbox\Pandacap.ActivityPub.Inbox.csproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.JsonLd\Pandacap.ActivityPub.JsonLd.csproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Outbox\Pandacap.ActivityPub.Outbox.csproj" />

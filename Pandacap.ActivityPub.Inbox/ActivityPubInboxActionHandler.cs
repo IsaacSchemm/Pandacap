@@ -10,11 +10,11 @@ using System.Runtime.CompilerServices;
 
 namespace Pandacap.ActivityPub.Inbox
 {
-    internal class RemoteActivityPubInboxHandler(
+    internal class ActivityPubInboxActionHandler(
         IActivityPubRelationshipTranslator activityPubRelationshipTranslator,
         IActivityPubRemotePostService activityPubRemotePostService,
         IReplyCollationService replyCollationService,
-        PandacapDbContext pandacapDbContext) : IRemoteActivityPubInboxHandler
+        PandacapDbContext pandacapDbContext) : IActivityPubInboxActionHandler
     {
         private async IAsyncEnumerable<InboxActivityStreamsPost.Image> CollectAttachmentsAsync(
             RemotePost remotePost,

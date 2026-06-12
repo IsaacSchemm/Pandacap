@@ -1,7 +1,7 @@
 Imports System.Threading
 Imports Pandacap.ActivityPub.RemoteObjects.Models
 
-Public Interface IRemoteActivityPubInboxHandler
+Public Interface IActivityPubInboxActionHandler
     Function UpdateRemoteActorAsync(actor As RemoteActor,
                                     cancellationToken As CancellationToken) As Task
 
