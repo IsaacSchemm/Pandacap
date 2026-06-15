@@ -11,7 +11,6 @@ using Pandacap.ActivityPub.Favorites;
 using Pandacap.ActivityPub.HttpSignatures.Discovery;
 using Pandacap.ActivityPub.HttpSignatures.Validation;
 using Pandacap.ActivityPub.Inbox;
-using Pandacap.ActivityPub.InboxRequests;
 using Pandacap.ActivityPub.JsonLd;
 using Pandacap.ActivityPub.Outbox;
 using Pandacap.ActivityPub.RemoteObjects;
@@ -153,7 +152,6 @@ DeploymentInformation.Username = builder.Configuration["ActivityPubUsername"]
 builder.Services
     .AddActivityPubFavoritesHandler()
     .AddActivityPubInboxHandler()
-    .AddActivityPubInboxRequestHandler()
     .AddActivityPubKeyFinder()
     .AddActivityPubOutboxServices()
     .AddActivityPubRemoteObjectServices()

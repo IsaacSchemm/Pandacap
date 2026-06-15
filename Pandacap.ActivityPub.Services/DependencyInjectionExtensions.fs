@@ -9,6 +9,7 @@ module DependencyInjectionExtensions =
     [<Extension>]
     let AddActivityPubServices(serviceCollection: IServiceCollection) =
         serviceCollection
+            .AddScoped<IActivityPubInboxRequestHandler, ActivityPubInboxRequestHandler>()
             .AddScoped<IActivityPubProfileTranslator, ActivityPubProfileTranslator>()
             .AddScoped<IActivityPubPostTranslator, ActivityPubPostTranslator>()
             .AddScoped<IActivityPubRelationshipTranslator, ActivityPubRelationshipTranslator>()

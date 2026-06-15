@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.Inbox.Interfaces;
-using Pandacap.ActivityPub.InboxRequests.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
+using Pandacap.ActivityPub.Services.Interfaces;
 
-namespace Pandacap.ActivityPub.InboxRequests
+namespace Pandacap.ActivityPub.Services
 {
     public class ActivityPubInboxRequestHandler(
         IActivityPubRemoteActorService activityPubRemoteActorService,
