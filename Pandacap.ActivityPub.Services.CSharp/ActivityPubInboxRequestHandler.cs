@@ -22,6 +22,8 @@ namespace Pandacap.ActivityPub.Services
 
             // Grab that actor's information
             var actor = await activityPubRemoteActorService.FetchActorAsync(actorId, cancellationToken);
+            if (actor.Id != actorId)
+                return;
 
             string type = expansionObj["@type"]![0]!.Value<string>()!;
 
@@ -51,8 +53,8 @@ namespace Pandacap.ActivityPub.Services
 
                     string id = objectToUndo["@id"]!.Value<string>()!;
 
-                    await activityPubInboxActionHandler.EraseInteractionAsync(id, cancellationToken);
-                    await activityPubInboxActionHandler.EraseAnnouncementAsync(id, cancellationToken);
+                    await activityPubInboxActionHandler.EraseInteractionAsync(id, actor.Id, cancellationToken);
+                    await activityPubInboxActionHandler.EraseAnnouncementAsync(id, actor.Id, cancellationToken);
                 }
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Accept")
@@ -60,7 +62,7 @@ namespace Pandacap.ActivityPub.Services
                 foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
                 {
                     string followId = obj["@id"]!.Value<string>()!;
-                    await activityPubInboxActionHandler.MarkFollowerAsync(actor.Id, followId, accepted: true, cancellationToken);
+                    await activityPubInboxActionHandler.MarkFollowerAsync(followId, actor.Id, accepted: true, cancellationToken);
                 }
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Reject")
@@ -68,7 +70,7 @@ namespace Pandacap.ActivityPub.Services
                 foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
                 {
                     string followId = obj["@id"]!.Value<string>()!;
-                    await activityPubInboxActionHandler.MarkFollowerAsync(actor.Id, followId, accepted: false, cancellationToken);
+                    await activityPubInboxActionHandler.MarkFollowerAsync(followId, actor.Id, accepted: false, cancellationToken);
                 }
             }
             else if (type == "https://www.w3.org/ns/activitystreams#Like"
@@ -119,9 +121,10 @@ namespace Pandacap.ActivityPub.Services
                 foreach (var obj in expansionObj["https://www.w3.org/ns/activitystreams#object"] ?? Empty)
                 {
                     string postId = obj["@id"]!.Value<string>()!;
-                    string postType = obj["@type"]!.Value<string>()!;
 
-                    if (postType == "Person" && postId == actor.Id)
+                    var isPerson = (obj["@type"] ?? Empty).Any(token => token.Value<string>() == "https://www.w3.org/ns/activitystreams#Person");
+
+                    if (isPerson && postId == actor.Id)
                     {
                         await activityPubInboxActionHandler.UpdateRemoteActorAsync(actor, cancellationToken);
                     }
@@ -139,7 +142,8 @@ namespace Pandacap.ActivityPub.Services
                 {
                     string deletedObjectId = deletedObject["@id"]!.Value<string>()!;
 
-                    await activityPubInboxActionHandler.ErasePostAsync(actor.Id, deletedObjectId, cancellationToken);
+                    if (await activityPubInboxActionHandler.IsPostKnownAsync(deletedObjectId, cancellationToken))
+                        await activityPubInboxActionHandler.ErasePostAsync(actor.Id, deletedObjectId, cancellationToken);
                 }
             }
         }

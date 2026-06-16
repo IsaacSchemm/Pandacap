@@ -24,6 +24,7 @@ Public Interface IActivityPubInboxActionHandler
                                     cancellationToken As CancellationToken) As Task
 
     Function EraseInteractionAsync(activityId As String,
+                                   actorId As String,
                                    cancellationToken As CancellationToken) As Task
 
     Function RecordAnnouncementAsync(announcingActor As RemoteActor,
@@ -32,6 +33,7 @@ Public Interface IActivityPubInboxActionHandler
                                      cancellationToken As CancellationToken) As Task
 
     Function EraseAnnouncementAsync(announceActivityId As String,
+                                    actorId As String,
                                     cancellationToken As CancellationToken) As Task
 
     Function RecordPostAsync(sendingActor As RemoteActor,

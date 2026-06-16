@@ -136,10 +136,11 @@ namespace Pandacap.ActivityPub.Inbox
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task EraseInteractionAsync(string activityId, CancellationToken cancellationToken)
+        public async Task EraseInteractionAsync(string activityId, string actorId, CancellationToken cancellationToken)
         {
             var postActivities = await pandacapDbContext.PostActivities
                 .Where(a => a.Id == activityId)
+                .Where(a => a.ActorId == actorId)
                 .ToListAsync(cancellationToken);
 
             pandacapDbContext.RemoveRange(postActivities);
@@ -202,10 +203,11 @@ namespace Pandacap.ActivityPub.Inbox
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task EraseAnnouncementAsync(string announceId, CancellationToken cancellationToken)
+        public async Task EraseAnnouncementAsync(string announceId, string actorId, CancellationToken cancellationToken)
         {
             var announcements = await pandacapDbContext.InboxActivityStreamsPosts
                 .Where(a => a.AnnounceId == announceId)
+                .Where(a => a.PostedBy.Id == actorId)
                 .ToListAsync(cancellationToken);
 
             pandacapDbContext.RemoveRange(announcements);
@@ -325,6 +327,9 @@ namespace Pandacap.ActivityPub.Inbox
                 .Where(post => post.ObjectId == postId)
                 .AnyAsync(cancellationToken)
             || await pandacapDbContext.InboxActivityStreamsPosts
+                .Where(post => post.ObjectId == postId)
+                .AnyAsync(cancellationToken)
+            || await pandacapDbContext.ActivityPubFavorites
                 .Where(post => post.ObjectId == postId)
                 .AnyAsync(cancellationToken);
 
