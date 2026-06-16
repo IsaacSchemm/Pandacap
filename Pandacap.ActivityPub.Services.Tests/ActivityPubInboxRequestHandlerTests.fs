@@ -8,8 +8,9 @@ open Newtonsoft.Json.Linq
 open JsonLD.Core
 open Moq
 open Pandacap.ActivityPub.Inbox.Interfaces
-open Pandacap.ActivityPub.RemoteObjects.Interfaces
 open Pandacap.ActivityPub.RemoteObjects.Models
+open Pandacap.ActivityPub.RemoteObjects.Interfaces
+open Pandacap.ActivityPub.Services.Interfaces
 open Pandacap.ActivityPub.Services
 
 module ActivityPubInboxRequestHandlerTests =
@@ -367,7 +368,7 @@ module ActivityPubInboxRequestHandlerTests =
                 let handler = new ActivityPubInboxRequestHandler(
                     activityPubRemoteActorServiceMock.Object,
                     activityPubRemotePostServiceMock.Object,
-                    activityPubInboxActionHandlerMock.Object)
+                    activityPubInboxActionHandlerMock.Object) :> IActivityPubInboxRequestHandler
 
                 do! handler.ProcessVerifiedInboxMessageAsync(
                     expansionObj.Value,

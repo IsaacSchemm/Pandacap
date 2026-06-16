@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ActivityPub.Services.CSharp\Pandacap.ActivityPub.Services.CSharp.csproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Services\Pandacap.ActivityPub.Services.fsproj" />
   </ItemGroup>
 
