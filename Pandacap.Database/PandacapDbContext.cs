@@ -43,12 +43,6 @@ namespace Pandacap.Database
         public DbSet<CanonicalCharacter> CanonicalCharacters { get; set; }
         public DbSet<CanonicalSpecies> CanonicalSpecies { get; set; }
 
-        [Obsolete]
-        public DbSet<CanonicalMediumApplication> CanonicalMediumApplications { get; set; }
-
-        [Obsolete]
-        public DbSet<CanonicalCharacterAppearance> CanonicalCharacterAppearances { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

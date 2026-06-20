@@ -26,7 +26,7 @@ namespace Pandacap.CanonicalTags
                 .Where(p => p.Id == postId)
                 .FirstAsync(cancellationToken);
 
-            var applied = await GetNewShortCodesAsync(post).ToListAsync(cancellationToken);
+            var applied = await GetShortCodesForAttachedCanonicalTagsAsync(post).ToListAsync(cancellationToken);
 
             foreach (var shortCode in shortCodes.Except(applied))
             {
@@ -79,60 +79,10 @@ namespace Pandacap.CanonicalTags
                     throw new Exception($"No match found for short code {shortCode}");
             }
 
-            await foreach (var application in pandacapDbContext.CanonicalMediumApplications
-                .Where(a => a.PostId == post.Id)
-                .AsAsyncEnumerable())
-            {
-                pandacapDbContext.Remove(application);
-            }
-
-            await foreach (var appearance in pandacapDbContext.CanonicalCharacterAppearances
-                .Where(a => a.PostId == post.Id)
-                .AsAsyncEnumerable())
-            {
-                pandacapDbContext.Remove(appearance);
-            }
-
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
 
-        private async IAsyncEnumerable<string> GetOldShortCodesAsync(Post post)
-        {
-            await foreach (var application in pandacapDbContext.CanonicalMediumApplications
-                .Where(a => a.PostId == post.Id)
-                .AsAsyncEnumerable())
-            {
-                foreach (var medium in await _mediums.Value)
-                    if (medium.Id == application.MediumId)
-                        yield return medium.ShortCode ?? $"{medium.Id}";
-            }
-
-            await foreach (var appearance in pandacapDbContext.CanonicalCharacterAppearances
-                .Where(a => a.PostId == post.Id)
-                .AsAsyncEnumerable())
-            {
-                foreach (var character in await _characters.Value)
-                {
-                    if (character.Id == appearance.CharacterId)
-                    {
-                        var sb = new StringBuilder();
-
-                        if (appearance.Background)
-                            sb.Append('/');
-
-                        sb.Append(character.ShortCode ?? $"{character.Id}");
-
-                        foreach (var species in await _species.Value)
-                            if (species.Id == appearance.SpeciesId)
-                                sb.Append($".{species.ShortCode ?? $"{species.Id}"}");
-
-                        yield return sb.ToString();
-                    }
-                }
-            }
-        }
-
-        private async IAsyncEnumerable<string> GetNewShortCodesAsync(Post post)
+        public async IAsyncEnumerable<string> GetShortCodesForAttachedCanonicalTagsAsync(Post post)
         {
             foreach (var application in post.MediumApplications)
             {
@@ -163,9 +113,5 @@ namespace Pandacap.CanonicalTags
                 }
             }
         }
-
-        public IAsyncEnumerable<string> GetShortCodesForAttachedCanonicalTagsAsync(Post post) =>
-            GetNewShortCodesAsync(post)
-            .Concat(GetOldShortCodesAsync(post));
     }
 }
