@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>6bdb3526-5e9c-4f57-9319-122252750c11</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.ATProto.HandleResolution\Pandacap.ATProto.HandleResolution.csproj" />
+    <ProjectReference Include="..\Pandacap.ATProto.Services\Pandacap.ATProto.Services.fsproj" />
+    <ProjectReference Include="..\Pandacap.Credentials\Pandacap.Credentials.csproj" />
+    <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
+    <ProjectReference Include="..\Pandacap.DeviantArt\Pandacap.DeviantArt.fsproj" />
+    <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
+    <ProjectReference Include="..\Pandacap.Inbox\Pandacap.Inbox.csproj" />
+    <ProjectReference Include="..\Pandacap.PeriodicTasks\Pandacap.PeriodicTasks.csproj" />
+    <ProjectReference Include="..\Pandacap.UI.Posts\Pandacap.UI.Posts.csproj" />
+    <ProjectReference Include="..\Pandacap.Weasyl.Scraping\Pandacap.Weasyl.Scraping.fsproj" />
+    <ProjectReference Include="..\Pandacap.Weasyl\Pandacap.Weasyl.csproj" />
+  </ItemGroup>
+
+</Project>

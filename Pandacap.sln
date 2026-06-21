@@ -282,6 +282,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.CanonicalTags", "P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.CanonicalTags.Tree", "Pandacap.CanonicalTags.Tree\Pandacap.CanonicalTags.Tree.csproj", "{D34D72A9-3F3F-42C4-BF6B-A0A115D97F32}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Local", "Pandacap.Local\Pandacap.Local.csproj", "{4362876A-8AC8-4186-9D68-250E4582D692}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Periodic Tasks", "Periodic Tasks", "{34F0238D-0579-49A2-8DDC-68362D36FC1D}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.PeriodicTasks.Interfaces", "Pandacap.PeriodicTasks.Interfaces\Pandacap.PeriodicTasks.Interfaces.vbproj", "{E2A67F5C-AE91-4A55-B60D-60DCEBC8BDD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.PeriodicTasks", "Pandacap.PeriodicTasks\Pandacap.PeriodicTasks.csproj", "{74FC6049-7FCF-46D3-B3E7-E5F396DF1D00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -708,6 +716,18 @@ Global
 		{D34D72A9-3F3F-42C4-BF6B-A0A115D97F32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D34D72A9-3F3F-42C4-BF6B-A0A115D97F32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D34D72A9-3F3F-42C4-BF6B-A0A115D97F32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4362876A-8AC8-4186-9D68-250E4582D692}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4362876A-8AC8-4186-9D68-250E4582D692}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4362876A-8AC8-4186-9D68-250E4582D692}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4362876A-8AC8-4186-9D68-250E4582D692}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2A67F5C-AE91-4A55-B60D-60DCEBC8BDD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2A67F5C-AE91-4A55-B60D-60DCEBC8BDD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2A67F5C-AE91-4A55-B60D-60DCEBC8BDD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2A67F5C-AE91-4A55-B60D-60DCEBC8BDD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74FC6049-7FCF-46D3-B3E7-E5F396DF1D00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74FC6049-7FCF-46D3-B3E7-E5F396DF1D00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74FC6049-7FCF-46D3-B3E7-E5F396DF1D00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74FC6049-7FCF-46D3-B3E7-E5F396DF1D00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -838,6 +858,8 @@ Global
 		{9091E156-D63A-4CAD-8882-F3842F858038} = {63FB1747-24D2-48DB-A661-23863783D8F6}
 		{AA920D86-548A-4BD8-879F-EAA48E35BD33} = {63FB1747-24D2-48DB-A661-23863783D8F6}
 		{D34D72A9-3F3F-42C4-BF6B-A0A115D97F32} = {63FB1747-24D2-48DB-A661-23863783D8F6}
+		{E2A67F5C-AE91-4A55-B60D-60DCEBC8BDD4} = {34F0238D-0579-49A2-8DDC-68362D36FC1D}
+		{74FC6049-7FCF-46D3-B3E7-E5F396DF1D00} = {34F0238D-0579-49A2-8DDC-68362D36FC1D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

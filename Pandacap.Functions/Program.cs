@@ -17,6 +17,7 @@ using Pandacap.FeedIngestion;
 using Pandacap.FurAffinity;
 using Pandacap.Inbox;
 using Pandacap.KeyVault;
+using Pandacap.PeriodicTasks;
 using Pandacap.UI.Posts;
 using Pandacap.Weasyl;
 using Pandacap.Weasyl.Scraping;
@@ -72,6 +73,7 @@ var host = new HostBuilder()
             .AddMemoryCache()
             .AddPandacapKeyVault(
                 keyVaultHost: new Uri("https://" + Environment.GetEnvironmentVariable("KeyVaultHostname")))
+            .AddPeriodicTaskServices()
             .AddUIPostProviders()
             .AddWeasylClient(
                 weasylProxyHost: new("https://" + Environment.GetEnvironmentVariable("WeasylProxyHost")))
