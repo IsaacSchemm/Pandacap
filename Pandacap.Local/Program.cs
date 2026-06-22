@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ATProto.HandleResolution;
 using Pandacap.ATProto.Services;
+using Pandacap.Bridging;
 using Pandacap.Credentials;
 using Pandacap.Database;
 using Pandacap.DeviantArt;
+using Pandacap.Favorites;
 using Pandacap.FurAffinity;
 using Pandacap.Inbox;
 using Pandacap.Local;
@@ -26,9 +28,11 @@ builder.Services
 builder.Services
     .AddATProtoHandleResolution()
     .AddATProtoServices()
+    .AddBridgingServices()
     .AddCredentialProviders()
     .AddDeviantArtClient()
     .AddDnsClient()
+    .AddFavoritesHandlers()
     .AddFurAffinityClient()
     .AddInboxHandlers()
     .AddPeriodicTaskServices()

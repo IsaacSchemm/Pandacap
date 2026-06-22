@@ -8,6 +8,7 @@ using Pandacap.ActivityPub.Outbox;
 using Pandacap.ActivityPub.RemoteObjects;
 using Pandacap.ActivityPub.Services;
 using Pandacap.ATProto.Services;
+using Pandacap.Bridging;
 using Pandacap.Configuration;
 using Pandacap.Credentials;
 using Pandacap.Database;
@@ -63,6 +64,7 @@ var host = new HostBuilder()
             .AddActivityPubOutboxServices()
             .AddActivityPubRemoteObjectServices()
             .AddATProtoServices()
+            .AddBridgingServices()
             .AddCredentialProviders()
             .AddDeviantArtClient()
             .AddFavoritesHandlers()

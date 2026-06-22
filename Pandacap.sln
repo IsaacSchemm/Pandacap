@@ -290,6 +290,10 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.PeriodicTasks.Inte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.PeriodicTasks", "Pandacap.PeriodicTasks\Pandacap.PeriodicTasks.csproj", "{74FC6049-7FCF-46D3-B3E7-E5F396DF1D00}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.Bridging.Interfaces", "Pandacap.Bridging.Interfaces\Pandacap.Bridging.Interfaces.vbproj", "{0B0E168D-9FDA-445A-A73B-687B9F69C54D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Bridging", "Pandacap.Bridging\Pandacap.Bridging.csproj", "{9038CBE5-5200-4EF2-84DE-1F17E28F305F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -728,6 +732,14 @@ Global
 		{74FC6049-7FCF-46D3-B3E7-E5F396DF1D00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74FC6049-7FCF-46D3-B3E7-E5F396DF1D00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74FC6049-7FCF-46D3-B3E7-E5F396DF1D00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B0E168D-9FDA-445A-A73B-687B9F69C54D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B0E168D-9FDA-445A-A73B-687B9F69C54D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B0E168D-9FDA-445A-A73B-687B9F69C54D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B0E168D-9FDA-445A-A73B-687B9F69C54D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9038CBE5-5200-4EF2-84DE-1F17E28F305F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9038CBE5-5200-4EF2-84DE-1F17E28F305F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9038CBE5-5200-4EF2-84DE-1F17E28F305F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9038CBE5-5200-4EF2-84DE-1F17E28F305F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -860,6 +872,8 @@ Global
 		{D34D72A9-3F3F-42C4-BF6B-A0A115D97F32} = {63FB1747-24D2-48DB-A661-23863783D8F6}
 		{E2A67F5C-AE91-4A55-B60D-60DCEBC8BDD4} = {34F0238D-0579-49A2-8DDC-68362D36FC1D}
 		{74FC6049-7FCF-46D3-B3E7-E5F396DF1D00} = {34F0238D-0579-49A2-8DDC-68362D36FC1D}
+		{0B0E168D-9FDA-445A-A73B-687B9F69C54D} = {5368EC24-92ED-4EC2-B2A2-70DA9BFF8347}
+		{9038CBE5-5200-4EF2-84DE-1F17E28F305F} = {5368EC24-92ED-4EC2-B2A2-70DA9BFF8347}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

@@ -1,5 +1,5 @@
 ﻿Imports System.Threading
 
 Public Interface IInboxPopulator
-    Function PopulateInboxAsync(cancellationToken As CancellationToken) As Task
+    Function PopulateInboxAsync(Optional cancellationToken As CancellationToken = Nothing) As Task
 End Interface

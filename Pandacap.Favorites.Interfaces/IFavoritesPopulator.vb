@@ -1,5 +1,5 @@
 ﻿Imports System.Threading
 
 Public Interface IFavoritesPopulator
-    Function PopulateFavoritesAsync(cancellationToken As CancellationToken) As Task
+    Function PopulateFavoritesAsync(Optional cancellationToken As CancellationToken = Nothing) As Task
 End Interface
