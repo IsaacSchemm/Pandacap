@@ -58,7 +58,7 @@ var host = new HostBuilder()
             ?? throw new Exception("ActivityPubUsername is not defined");
 
         services
-            .AddActivityPubServices()
+            .AddActivityPubOutboundServices()
             .AddActivityPubOutboxServices()
             .AddActivityPubRemoteObjectServices()
             .AddATProtoServices()
