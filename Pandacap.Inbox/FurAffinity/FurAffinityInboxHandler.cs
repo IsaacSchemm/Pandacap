@@ -30,13 +30,21 @@ namespace Pandacap.Inbox.FurAffinity
                 .DefaultIfEmpty(0)
                 .Single();
 
+            var clients = new
+            {
+                sfw = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.SFW),
+                www = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.WWW)
+            };
+
+            var status = await clients.sfw.GetStatsAsync(cancellationToken);
+            if (status.Registered >= 15_000)
+                return;
+
             async IAsyncEnumerable<Pandacap.FurAffinity.Models.Submission> enumerateAsync(bool sfw)
             {
                 var pagination = Pandacap.FurAffinity.Models.SubmissionsPage.NewFromOldest(lastSeenId + 1);
 
-                var client = furAffinityClientFactory.CreateClient(
-                    credentials,
-                    sfw ? Pandacap.FurAffinity.Models.Domain.SFW : Pandacap.FurAffinity.Models.Domain.WWW);
+                var client = sfw ? clients.sfw : clients.www;
 
                 while (true)
                 {

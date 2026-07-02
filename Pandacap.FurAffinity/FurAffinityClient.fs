@@ -39,6 +39,16 @@ type internal FurAffinityClient(
             })
         }
 
+        member _.GetStatsAsync(cancellationToken) = task {
+            use! resp = client.GetAsync("/help/", cancellationToken = cancellationToken)
+            ignore (resp.EnsureSuccessStatusCode())
+
+            let! html = resp.Content.ReadAsStringAsync(cancellationToken)
+            let document = HtmlDocument.Parse html
+
+            return Scraper.getOnlineStats document
+        }
+
         member _.ListPostOptionsAsync(cancellationToken) = task {
             use! resp = client.GetAsync("/browse/", cancellationToken = cancellationToken)
             ignore (resp.EnsureSuccessStatusCode())

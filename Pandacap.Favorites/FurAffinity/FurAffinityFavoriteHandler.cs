@@ -19,13 +19,15 @@ namespace Pandacap.Favorites.FurAffinity
 
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
+            var client = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.SFW);
+
+            var status = await client.GetStatsAsync(cancellationToken);
+            if (status.Registered >= 15_000)
+                return;
+
             async IAsyncEnumerable<Pandacap.FurAffinity.Models.Submission> enumerateAsync()
             {
                 var pagination = Pandacap.FurAffinity.Models.FavoritesPage.First;
-
-                var client = furAffinityClientFactory.CreateClient(
-                    credentials,
-                    Pandacap.FurAffinity.Models.Domain.SFW);
 
                 while (true)
                 {
