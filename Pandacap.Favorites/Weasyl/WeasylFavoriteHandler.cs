@@ -16,6 +16,21 @@ namespace Pandacap.Favorites.Weasyl
             if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
                 return;
 
+            var oldFolders = await context.KnownWeasylFolders.ToListAsync(cancellationToken);
+            var newFolders = await client.GetFoldersAsync(cancellationToken).ToListAsync(cancellationToken);
+
+            foreach (var oldFolder in oldFolders)
+                if (!newFolders.Any(f => f.FolderId == oldFolder.FolderId))
+                    context.KnownWeasylFolders.Remove(oldFolder);
+
+            foreach (var newFolder in newFolders)
+                if (!oldFolders.Any(f => f.FolderId == newFolder.FolderId))
+                    context.KnownWeasylFolders.Add(new()
+                    {
+                        FolderId = newFolder.FolderId,
+                        Name = newFolder.Name
+                    });
+
             var self = await client.WhoamiAsync(cancellationToken);
 
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);

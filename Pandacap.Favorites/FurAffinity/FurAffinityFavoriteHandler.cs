@@ -25,6 +25,21 @@ namespace Pandacap.Favorites.FurAffinity
             if (status.Registered >= 15_000)
                 return;
 
+            var oldFolders = await context.KnownFurAffinityFolders.ToListAsync(cancellationToken);
+            var newFolders = await client.ListGalleryFoldersAsync(cancellationToken);
+
+            foreach (var oldFolder in oldFolders)
+                if (!newFolders.Any(f => f.FolderId == oldFolder.FolderId))
+                    context.KnownFurAffinityFolders.Remove(oldFolder);
+
+            foreach (var newFolder in newFolders)
+                if (!oldFolders.Any(f => f.FolderId == newFolder.FolderId))
+                    context.KnownFurAffinityFolders.Add(new()
+                    {
+                        FolderId = newFolder.FolderId,
+                        Name = newFolder.Name
+                    });
+
             async IAsyncEnumerable<Pandacap.FurAffinity.Models.Submission> enumerateAsync()
             {
                 var pagination = Pandacap.FurAffinity.Models.FavoritesPage.First;
