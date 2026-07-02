@@ -42,6 +42,10 @@ namespace Pandacap.Database
         public DbSet<CanonicalSetting> CanonicalSettings { get; set; }
         public DbSet<CanonicalCharacter> CanonicalCharacters { get; set; }
         public DbSet<CanonicalSpecies> CanonicalSpecies { get; set; }
+        public DbSet<KnownFurAffinityFolder> KnownFurAffinityFolders { get; set; }
+        public DbSet<KnownWeasylFolder> KnownWeasylFolders { get; set; }
+        public DbSet<QueuedFurAffinityPost> QueuedFurAffinityPosts { get; set; }
+        public DbSet<QueuedWeasylPost> QueuedWeasylPosts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
