@@ -5,8 +5,6 @@ Imports Pandacap.FurAffinity.Models
 Public Interface IFurAffinityClient
     Function WhoamiAsync(cancellationToken As CancellationToken) As Task(Of String)
 
-    Function GetStatsAsync(cancellationToken As CancellationToken) As Task(Of OnlineStats)
-
     Function ListPostOptionsAsync(cancellationToken As CancellationToken) As Task(Of PostOptionsCollection)
 
     Function ListGalleryFoldersAsync(cancellationToken As CancellationToken) As Task(Of FSharpList(Of GalleryFolder))

@@ -2,39 +2,38 @@
 using Pandacap.Database;
 using Pandacap.Favorites.Interfaces;
 using Pandacap.FurAffinity.Interfaces;
-using System.Text.RegularExpressions;
 
 namespace Pandacap.Favorites.FurAffinity
 {
     public partial class FurAffinityFavoriteHandler(
-        PandacapDbContext context,
-        IFurAffinityClientFactory furAffinityClientFactory) : IFavoritesSource
+        IFurAffinityClientFactory furAffinityClientFactory,
+        IFurAffinityOnlineStatsProvider furAffinityOnlineStatsProvider,
+        PandacapDbContext pandacapDbContext) : IFavoritesSource
     {
         public async Task ImportFavoritesAsync(CancellationToken cancellationToken)
         {
-            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken);
+            var credentials = await pandacapDbContext.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken);
 
             if (credentials == null)
+                return;
+
+            if (!await furAffinityOnlineStatsProvider.IsBotUsageOkAsync(cancellationToken))
                 return;
 
             var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
 
             var client = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.SFW);
 
-            var status = await client.GetStatsAsync(cancellationToken);
-            if (status.Registered >= 15_000)
-                return;
-
-            var oldFolders = await context.KnownFurAffinityFolders.ToListAsync(cancellationToken);
+            var oldFolders = await pandacapDbContext.KnownFurAffinityFolders.ToListAsync(cancellationToken);
             var newFolders = await client.ListGalleryFoldersAsync(cancellationToken);
 
             foreach (var oldFolder in oldFolders)
                 if (!newFolders.Any(f => f.FolderId == oldFolder.FolderId))
-                    context.KnownFurAffinityFolders.Remove(oldFolder);
+                    pandacapDbContext.KnownFurAffinityFolders.Remove(oldFolder);
 
             foreach (var newFolder in newFolders)
                 if (!oldFolders.Any(f => f.FolderId == newFolder.FolderId))
-                    context.KnownFurAffinityFolders.Add(new()
+                    pandacapDbContext.KnownFurAffinityFolders.Add(new()
                     {
                         FolderId = newFolder.FolderId,
                         Name = newFolder.Name
@@ -65,7 +64,7 @@ namespace Pandacap.Favorites.FurAffinity
 
             await foreach (var submission in enumerateAsync().WithCancellation(cancellationToken))
             {
-                var existing = await context.FurAffinityFavorites
+                var existing = await pandacapDbContext.FurAffinityFavorites
                     .Where(item => item.SubmissionId == submission.id)
                     .CountAsync(cancellationToken);
                 if (existing > 0)
@@ -79,7 +78,7 @@ namespace Pandacap.Favorites.FurAffinity
 
             while (items.TryPop(out var submission))
             {
-                context.FurAffinityFavorites.Add(new()
+                pandacapDbContext.FurAffinityFavorites.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     SubmissionId = submission.id,
@@ -97,10 +96,7 @@ namespace Pandacap.Favorites.FurAffinity
                 });
             }
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
-
-        [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
-        private static partial Regex GetFurAffinityThumbnailPattern();
     }
 }

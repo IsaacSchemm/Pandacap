@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.FurAffinity.Interfaces;
+using Pandacap.FurAffinity.Models;
 using Pandacap.Inbox.Interfaces;
 using System.Text.RegularExpressions;
 
@@ -8,6 +9,7 @@ namespace Pandacap.Inbox.FurAffinity
 {
     internal partial class FurAffinityInboxHandler(
         IFurAffinityClientFactory furAffinityClientFactory,
+        IFurAffinityOnlineStatsProvider furAffinityOnlineStatsProvider,
         PandacapDbContext pandacapDbContext) : IInboxSource
     {
         [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
@@ -20,6 +22,9 @@ namespace Pandacap.Inbox.FurAffinity
             if (credentials == null)
                 return;
 
+            if (!await furAffinityOnlineStatsProvider.IsBotUsageOkAsync(cancellationToken))
+                return;
+
             var maxIds = await pandacapDbContext.InboxFurAffinitySubmissions
                 .OrderByDescending(s => s.SubmissionId)
                 .Select(s => s.SubmissionId)
@@ -30,21 +35,13 @@ namespace Pandacap.Inbox.FurAffinity
                 .DefaultIfEmpty(0)
                 .Single();
 
-            var clients = new
+            async IAsyncEnumerable<Submission> enumerateAsync(bool sfw)
             {
-                sfw = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.SFW),
-                www = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.WWW)
-            };
+                var pagination = SubmissionsPage.NewFromOldest(lastSeenId + 1);
 
-            var status = await clients.sfw.GetStatsAsync(cancellationToken);
-            if (status.Registered >= 15_000)
-                return;
-
-            async IAsyncEnumerable<Pandacap.FurAffinity.Models.Submission> enumerateAsync(bool sfw)
-            {
-                var pagination = Pandacap.FurAffinity.Models.SubmissionsPage.NewFromOldest(lastSeenId + 1);
-
-                var client = sfw ? clients.sfw : clients.www;
+                var client = furAffinityClientFactory.CreateClient(
+                    credentials,
+                    sfw ? Domain.SFW : Domain.WWW);
 
                 while (true)
                 {
@@ -59,7 +56,7 @@ namespace Pandacap.Inbox.FurAffinity
                     {
                         yield return submission;
 
-                        pagination = Pandacap.FurAffinity.Models.SubmissionsPage.NewFromOldest(submission.id + 1);
+                        pagination = SubmissionsPage.NewFromOldest(submission.id + 1);
                     }
                 }
             }
