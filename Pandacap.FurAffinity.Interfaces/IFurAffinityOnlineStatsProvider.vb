@@ -1,5 +1,5 @@
 ﻿Imports System.Threading
 
 Public Interface IFurAffinityOnlineStatsProvider
-    Function IsBotUsageOkAsync(cancellationToken As CancellationToken) As Task(Of Boolean)
+    Function IsBotUsageOkAsync(Optional cancellationToken As CancellationToken = Nothing) As Task(Of Boolean)
 End Interface

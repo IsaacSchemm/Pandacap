@@ -8,7 +8,8 @@ open Pandacap.FurAffinity.Models
 open Pandacap.FurAffinity.Interfaces
 
 type internal FurAffinityOnlineStatsProvider(
-    httpMessageHandler: HttpMessageHandler
+    httpMessageHandler: HttpMessageHandler,
+    timeProvider: TimeProvider
 ) =
     let flag = new SemaphoreSlim(1, 1)
 
@@ -20,10 +21,10 @@ type internal FurAffinityOnlineStatsProvider(
             do! flag.WaitAsync(cancellationToken)
 
             try
-                if exp < DateTimeOffset.UtcNow then
+                if exp < timeProvider.GetUtcNow() then
                     use client = new HttpClient(httpMessageHandler, disposeHandler = false)
 
-                    use! resp = client.GetAsync("/help/", cancellationToken = cancellationToken)
+                    use! resp = client.GetAsync("https://www.furaffinity.net/help/", cancellationToken = cancellationToken)
                     ignore (resp.EnsureSuccessStatusCode())
 
                     let! html = resp.Content.ReadAsStringAsync(cancellationToken)
@@ -34,8 +35,8 @@ type internal FurAffinityOnlineStatsProvider(
                     ok <- stats.Registered < 15000
                     exp <-
                         if ok
-                        then DateTimeOffset.UtcNow.AddMinutes(5)
-                        else DateTimeOffset.UtcNow.AddMinutes(55)
+                        then timeProvider.GetUtcNow().AddMinutes(5)
+                        else timeProvider.GetUtcNow().AddMinutes(55)
             finally
                 flag.Release() |> ignore
 
