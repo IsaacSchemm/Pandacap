@@ -1,5 +1,8 @@
 ﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.EntityFrameworkCore;
 using Pandacap.Bridging.Interfaces;
+using Pandacap.Configuration;
+using Pandacap.Database;
 using Pandacap.Favorites.Interfaces;
 using Pandacap.Inbox.Interfaces;
 
@@ -7,42 +10,76 @@ namespace Pandacap.Functions
 {
     public class RedundancyJobDaily(
         IBridgedPostLinker bridgedPostLinker,
+        IDbContextFactory<PandacapDbContext> dbContextFactory,
         IEnumerable<IInboxSource> inboxSources,
+        IHttpClientFactory httpClientFactory,
         IEnumerable<IFavoritesSource> favoritesSources)
     {
         [Function("InboxIngest")]
-        public async Task Run([TimerTrigger("0 0 12 * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo _)
         {
-            List<Exception> exceptions = [];
+            await Task.WhenAll(
+                ImportNewPostsAsync(),
+                ImportFavoritesAsync(),
+                SendOutboundActivitiesAsync(),
+                bridgedPostLinker.LinkAllBridgedPostsAsync());
+        }
 
+        private async Task ImportNewPostsAsync()
+        {
             foreach (var source in inboxSources)
             {
                 try
                 {
                     await source.ImportNewPostsAsync();
                 }
-                catch (Exception e)
-                {
-                    exceptions.Add(e);
-                }
+                catch (Exception) { }
             }
+        }
 
+        private async Task ImportFavoritesAsync()
+        {
             foreach (var source in favoritesSources)
             {
                 try
                 {
                     await source.ImportFavoritesAsync();
                 }
-                catch (Exception e)
-                {
-                    exceptions.Add(e);
-                }
+                catch (Exception) { }
             }
+        }
 
-            if (exceptions.Count > 0)
-                throw new AggregateException(exceptions);
+        private async Task SendOutboundActivitiesAsync()
+        {
+            using var client = httpClientFactory.CreateClient();
+            using var context = dbContextFactory.CreateDbContext();
 
-            await bridgedPostLinker.LinkAllBridgedPostsAsync();
+            var query = context.ActivityPubOutboundActivities
+                .AsNoTracking()
+                .OrderBy(r => r.StoredAt)
+                .Select(r => new
+                {
+                    r.Id,
+                    r.StoredAt
+                })
+                .AsAsyncEnumerable();
+
+            await foreach (var activity in query)
+            {
+                try
+                {
+                    var age = DateTimeOffset.UtcNow - activity.StoredAt;
+                    if (age < TimeSpan.FromHours(1))
+                        continue;
+
+                    using var resp = await client.PostAsync(
+                        $"https://{DeploymentInformation.ApplicationHostname}/ActivityPub/SendActivity",
+                        content: null);
+
+                    resp.EnsureSuccessStatusCode();
+                }
+                catch (Exception) { }
+            }
         }
     }
 }

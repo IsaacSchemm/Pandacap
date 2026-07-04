@@ -6,6 +6,7 @@ using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Models;
 using Pandacap.ActivityPub.Inbox.Interfaces;
 using Pandacap.ActivityPub.JsonLd.Interfaces;
+using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
 using Pandacap.ActivityPub.Replies.Interfaces;
@@ -20,6 +21,7 @@ namespace Pandacap.Controllers
         IActivityPubInboxAddressingFilter activityPubInboxAddressingFilter,
         IActivityPubInteractionTranslator activityPubInteractionTranslator,
         IActivityPubKeyFinder activityPubKeyFinder,
+        IActivityPubOutboxProcessor activityPubOutboxProcessor,
         IActivityPubPostTranslator postTranslator,
         IActivityPubRelationshipTranslator relationshipTranslator,
         IActivityPubRemoteActorService activityPubRemoteActorService,
@@ -475,5 +477,11 @@ namespace Pandacap.Controllers
                 "application/activity+json",
                 Encoding.UTF8);
         }
+
+        [HttpPost]
+        public async Task SendActivity(Guid id, CancellationToken cancellationToken) =>
+            await activityPubOutboxProcessor.AttemptToSendPendingActivityAsync(
+                id,
+                cancellationToken);
     }
 }

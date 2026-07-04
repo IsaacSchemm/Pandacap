@@ -6,7 +6,7 @@ namespace Pandacap.Functions
     public class RedundancyJobMonthly(ICleanupService cleanupService)
     {
         [Function("InboxIngest")]
-        public async Task Run([TimerTrigger("0 0 12 1 * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 0 12 1 * *")] TimerInfo _)
         {
             await cleanupService.RemoveDismissedPostsAsync();
             await cleanupService.DismissOldPostsAsync();

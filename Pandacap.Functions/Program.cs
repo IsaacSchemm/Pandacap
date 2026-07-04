@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pandacap.ActivityPub.JsonLd;
-using Pandacap.ActivityPub.Outbox;
 using Pandacap.ActivityPub.RemoteObjects;
 using Pandacap.ActivityPub.Services;
 using Pandacap.ATProto.Services;
@@ -61,7 +60,6 @@ var host = new HostBuilder()
 
         services
             .AddActivityPubServices()
-            .AddActivityPubOutboxServices()
             .AddActivityPubRemoteObjectServices()
             .AddATProtoServices()
             .AddBridgingServices()
