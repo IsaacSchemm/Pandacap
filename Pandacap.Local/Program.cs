@@ -28,7 +28,8 @@ builder.Services.AddDbContextFactory<PandacapDbContext>(options => options.UseCo
 
 builder.Services
     .AddHttpClient()
-    .AddMemoryCache();
+    .AddMemoryCache()
+    .AddSingleton(TimeProvider.System);
 
 builder.Services
     .AddATProtoHandleResolution()

@@ -79,7 +79,9 @@ var host = new HostBuilder()
                 weasylProxyHost: new("https://" + Environment.GetEnvironmentVariable("WeasylProxyHost")))
             .AddWeasylScraper();
 
-        services.AddHttpClient();
+        services
+            .AddHttpClient()
+            .AddSingleton(TimeProvider.System);
     })
     .Build();
 

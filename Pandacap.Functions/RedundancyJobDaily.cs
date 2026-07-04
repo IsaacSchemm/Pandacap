@@ -15,7 +15,7 @@ namespace Pandacap.Functions
         IHttpClientFactory httpClientFactory,
         IEnumerable<IFavoritesSource> favoritesSources)
     {
-        [Function("InboxIngest")]
+        [Function("RedundancyJobDaily")]
         public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo _)
         {
             await Task.WhenAll(

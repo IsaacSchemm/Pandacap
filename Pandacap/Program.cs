@@ -193,6 +193,8 @@ builder.Services.AddHttpClient(string.Empty, client =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+builder.Services.AddSingleton(TimeProvider.System);
+
 builder.Services
     .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<PandacapIdentityDbContext>();
