@@ -42,7 +42,11 @@ namespace Pandacap.Local
 
                     using var resp = await client.PostAsync(
                         $"https://{DeploymentInformation.ApplicationHostname}/ActivityPub/SendActivity",
-                        content: null,
+                        new FormUrlEncodedContent(
+                            new Dictionary<string, string>
+                            {
+                                ["id"] = $"{activity.Id}"
+                            }),
                         cancellationToken);
 
                     resp.EnsureSuccessStatusCode();
