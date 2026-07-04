@@ -1,5 +1,5 @@
 ﻿Imports System.Threading
 
 Public Interface IInboxSource
-    Function ImportNewPostsAsync(cancellationToken As CancellationToken) As Task
+    Function ImportNewPostsAsync(Optional cancellationToken As CancellationToken = Nothing) As Task
 End Interface

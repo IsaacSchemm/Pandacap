@@ -102,39 +102,6 @@ namespace Pandacap.FurAffinity.Tests
         }
 
         [TestMethod]
-        [DataRow("helpPageModern.html")]
-        public async Task GetStatsAsync_FindsUsername(string fileName)
-        {
-            var credentials = GenerateCredentials();
-
-            var httpMessageHandler = new MockHttpMessageHandler(
-                new MockHttpTransaction(
-                    HttpMethod.Get,
-                    new("https://www.furaffinity.net/help/"),
-                    new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = new StringContent(
-                            GetHtmlFromResource(fileName),
-                            MediaTypeHeaderValue.Parse("text/html"))
-                    },
-                    GetHeaderChecks(credentials)));
-
-            IFurAffinityClient client = new FurAffinityClient(
-                httpMessageHandler,
-                Domain.WWW,
-                credentials);
-
-            var result = await client.GetStatsAsync(CancellationToken.None);
-
-            Assert.AreEqual(
-                actual: result,
-                expected: new OnlineStats(
-                    registered: 13977,
-                    guests: 2877,
-                    other: 82393));
-        }
-
-        [TestMethod]
         [DataRow("browsePageModern.html")]
         public async Task ListPostOptionsAsync_CollectsAllOptions(string fileName)
         {

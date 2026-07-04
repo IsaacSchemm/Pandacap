@@ -14,7 +14,6 @@ namespace Pandacap.Inbox
             serviceCollection
             .AddScoped<IATProtoFeedReader, ATProtoFeedReader>()
             .AddScoped<IFeedRefresher, FeedRefresher>()
-            .AddScoped<IInboxPopulator, InboxPopulator>()
             .AddScoped<IInboxSource, ATProtoInboxSource>()
             .AddScoped<IInboxSource, DeviantArtInboxHandler>()
             .AddScoped<IInboxSource, FeedInboxSource>()

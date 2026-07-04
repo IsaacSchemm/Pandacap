@@ -1,4 +1,5 @@
 ﻿using Pandacap.Favorites.Interfaces;
+using Pandacap.Inbox.Interfaces;
 
 namespace Pandacap.Local
 {
@@ -11,8 +12,25 @@ namespace Pandacap.Local
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateScope();
-            var favoritesPopulator = scope.ServiceProvider.GetRequiredService<IFavoritesPopulator>();
-            await favoritesPopulator.PopulateFavoritesAsync(cancellationToken);
+
+            var favoritesSources = scope.ServiceProvider.GetServices<IFavoritesSource>();
+
+            List<Exception> exceptions = [];
+
+            foreach (var source in favoritesSources)
+            {
+                try
+                {
+                    await source.ImportFavoritesAsync(cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                }
+            }
+
+            if (exceptions.Count > 0)
+                throw new AggregateException(exceptions);
         }
     }
 }
