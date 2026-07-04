@@ -1,9 +1,11 @@
 ﻿using Pandacap.FurAffinity.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Pandacap.Database
 {
     public class QueuedFurAffinityPost
     {
+        [Key]
         public Guid PostId { get; set; }
 
         public int Cat { get; set; }

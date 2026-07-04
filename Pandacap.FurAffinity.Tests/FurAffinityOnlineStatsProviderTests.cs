@@ -12,9 +12,11 @@ namespace Pandacap.FurAffinity.Tests
             HttpMethod method,
             Uri uri,
             string htmlResponse
-        ) : HttpMessageHandler
+        ) : HttpMessageHandler, IFurAffinityHttpHandlerProvider
         {
             public int Calls { get; private set; }
+
+            public HttpMessageHandler GetOrCreateHandler() => this;
 
             protected override Task<HttpResponseMessage> SendAsync(
                 HttpRequestMessage request,

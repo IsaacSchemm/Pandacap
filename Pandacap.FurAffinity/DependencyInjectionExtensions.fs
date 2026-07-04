@@ -9,5 +9,6 @@ module DependencyInjectionExtensions =
     [<Extension>]
     let AddFurAffinityClient(serviceCollection: IServiceCollection) =
         serviceCollection
-            .AddSingleton<FurAffinityHttpHandlerProvider>()
+            .AddSingleton<IFurAffinityHttpHandlerProvider, FurAffinityHttpHandlerProvider>()
+            .AddScoped<IFurAffinityOnlineStatsProvider, FurAffinityOnlineStatsProvider>()
             .AddScoped<IFurAffinityClientFactory, FurAffinityClientFactory>()

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ATProto.HandleResolution;
 using Pandacap.ATProto.Services;
 using Pandacap.Bridging;
+using Pandacap.Configuration;
 using Pandacap.Credentials;
 using Pandacap.Database;
 using Pandacap.DeviantArt;
@@ -16,6 +17,9 @@ using Pandacap.Weasyl;
 using Pandacap.Weasyl.Scraping;
 
 var builder = WebApplication.CreateBuilder(args);
+
+DeploymentInformation.ApplicationHostname = builder.Configuration["ApplicationHostname"]
+    ?? throw new Exception("ApplicationHostname is not defined");
 
 builder.Services.AddDbContextFactory<PandacapDbContext>(options => options.UseCosmos(
     builder.Configuration["CosmosDBAccountEndpoint"]!,
