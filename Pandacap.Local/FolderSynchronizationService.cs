@@ -1,18 +1,18 @@
-﻿using Pandacap.Favorites.Interfaces;
+﻿using Pandacap.Outbox.Interfaces;
 
 namespace Pandacap.Local
 {
-    public class FavoritesIngestionService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
+    public class FolderSynchronizationService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
     {
         protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(1);
 
-        protected override TimeSpan Period => TimeSpan.FromHours(4);
+        protected override TimeSpan Period => TimeSpan.FromDays(7);
 
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateScope();
 
-            var favoritesSources = scope.ServiceProvider.GetServices<IFavoritesSource>();
+            var favoritesSources = scope.ServiceProvider.GetServices<IOutboxDestination>();
 
             List<Exception> exceptions = [];
 
@@ -20,7 +20,7 @@ namespace Pandacap.Local
             {
                 try
                 {
-                    await source.ImportFavoritesAsync(cancellationToken);
+                    await source.SynchronizeFoldersAsync(cancellationToken);
                 }
                 catch (Exception e)
                 {

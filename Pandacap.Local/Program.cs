@@ -9,6 +9,7 @@ using Pandacap.Favorites;
 using Pandacap.FurAffinity;
 using Pandacap.Inbox;
 using Pandacap.Local;
+using Pandacap.Outbox;
 using Pandacap.PeriodicTasks;
 using Pandacap.UI.Posts;
 using Pandacap.Weasyl;
@@ -35,6 +36,7 @@ builder.Services
     .AddFavoritesHandlers()
     .AddFurAffinityClient()
     .AddInboxHandlers()
+    .AddOutboxHandlers()
     .AddPeriodicTaskServices()
     .AddUIPostProviders()
     .AddWeasylClient(

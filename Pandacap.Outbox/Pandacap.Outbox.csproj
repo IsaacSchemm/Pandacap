@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pandacap.Credentials.Interfaces\Pandacap.Credentials.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
+    <ProjectReference Include="..\Pandacap.Outbox.Interfaces\Pandacap.Outbox.Interfaces.vbproj" />
+  </ItemGroup>
+
+</Project>

@@ -20,27 +20,10 @@ namespace Pandacap.Favorites.FurAffinity
             if (!await furAffinityOnlineStatsProvider.IsBotUsageOkAsync(cancellationToken))
                 return;
 
-            var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
-
-            var client = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.SFW);
-
-            var oldFolders = await pandacapDbContext.KnownFurAffinityFolders.ToListAsync(cancellationToken);
-            var newFolders = await client.ListGalleryFoldersAsync(cancellationToken);
-
-            foreach (var oldFolder in oldFolders)
-                if (!newFolders.Any(f => f.FolderId == oldFolder.FolderId))
-                    pandacapDbContext.KnownFurAffinityFolders.Remove(oldFolder);
-
-            foreach (var newFolder in newFolders)
-                if (!oldFolders.Any(f => f.FolderId == newFolder.FolderId))
-                    pandacapDbContext.KnownFurAffinityFolders.Add(new()
-                    {
-                        FolderId = newFolder.FolderId,
-                        Name = newFolder.Name
-                    });
-
             async IAsyncEnumerable<Pandacap.FurAffinity.Models.Submission> enumerateAsync()
             {
+                var client = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.SFW);
+
                 var pagination = Pandacap.FurAffinity.Models.FavoritesPage.First;
 
                 while (true)
