@@ -7,7 +7,6 @@ namespace Pandacap.Bridging
     {
         public static IServiceCollection AddBridgingServices(this IServiceCollection serviceCollection) =>
             serviceCollection
-            .AddScoped<IATProtoBridge, BridgyFed>()
             .AddScoped<IBridgedPostLinker, BridgedPostLinker>();
     }
 }
