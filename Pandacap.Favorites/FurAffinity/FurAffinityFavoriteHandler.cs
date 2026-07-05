@@ -7,12 +7,13 @@ namespace Pandacap.Favorites.FurAffinity
 {
     public partial class FurAffinityFavoriteHandler(
         IFurAffinityClientFactory furAffinityClientFactory,
+        IEnumerable<IFurAffinityCredentials> furAffinityCredentials,
         IFurAffinityOnlineStatsProvider furAffinityOnlineStatsProvider,
         PandacapDbContext pandacapDbContext) : IFavoritesSource
     {
         public async Task ImportFavoritesAsync(CancellationToken cancellationToken)
         {
-            var credentials = await pandacapDbContext.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken);
+            var credentials = furAffinityCredentials.FirstOrDefault();
 
             if (credentials == null)
                 return;
@@ -24,14 +25,16 @@ namespace Pandacap.Favorites.FurAffinity
             {
                 var client = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.SFW);
 
+                var username = await client.WhoamiAsync(cancellationToken);
+
                 var pagination = Pandacap.FurAffinity.Models.FavoritesPage.First;
 
                 while (true)
                 {
                     var page = await client.GetFavoritesAsync(
-                        credentials.Username,
+                        username,
                         pagination,
-                        CancellationToken.None);
+                        cancellationToken);
 
                     foreach (var submission in page)
                         yield return submission;

@@ -5,6 +5,7 @@ using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.Text;
 using Pandacap.UI.Badges;
 using Pandacap.UI.Elements;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Pandacap.Database
@@ -102,6 +103,29 @@ namespace Pandacap.Database
         public Guid? DeviantArtId { get; set; }
 
         public string? DeviantArtUrl { get; set; }
+
+        public class FurAffinityQueueInformation
+        {
+            public int Cat { get; set; }
+
+            public int Atype { get; set; }
+
+            public int Species { get; set; }
+
+            public int Gender { get; set; }
+
+            public FurAffinity.Models.Rating Rating { get; set; }
+
+            public bool Scrap { get; set; }
+
+            public bool LockComments { get; set; }
+
+            public List<long> FolderIds { get; set; } = [];
+        }
+
+        public FurAffinityQueueInformation? QueuedFurAffinityPost { get; set; }
+
+        public string? FurAffinityUsername { get; set; }
 
         public int? FurAffinitySubmissionId { get; set; }
 

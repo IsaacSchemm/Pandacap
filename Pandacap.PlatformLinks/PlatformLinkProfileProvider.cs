@@ -48,11 +48,12 @@ namespace Pandacap.PlatformLinks
                 yield return credential.Username;
         }
 
-        private async IAsyncEnumerable<string> GetFurAffinityUsernamesAsync()
-        {
-            await foreach (var credential in pandacapDbContext.FurAffinityCredentials)
-                yield return credential.Username;
-        }
+        private IAsyncEnumerable<string> GetFurAffinityUsernamesAsync() =>
+            pandacapDbContext.Posts
+            .Where(post => post.FurAffinityUsername != null)
+            .OrderByDescending(post => post.PublishedTime)
+            .Select(post => post.FurAffinityUsername)
+            .AsAsyncEnumerable()!;
 
         private async IAsyncEnumerable<string> GetWeasylUsernamesAsync()
         {

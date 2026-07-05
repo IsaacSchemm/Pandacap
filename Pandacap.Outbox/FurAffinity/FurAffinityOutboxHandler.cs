@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Database;
+﻿using Pandacap.Database;
 using Pandacap.FurAffinity.Interfaces;
 using Pandacap.Outbox.Interfaces;
 
@@ -7,6 +6,7 @@ namespace Pandacap.Outbox.FurAffinity
 {
     internal class FurAffinityOutboxHandler(
         IFurAffinityClientFactory furAffinityClientFactory,
+        IEnumerable<IFurAffinityCredentials> furAffinityCredentials,
         PandacapDbContext pandacapDbContext) : IOutboxDestination
     {
         public async Task<bool> PublishNextQueuedPostAsync(CancellationToken cancellationToken)
@@ -16,7 +16,7 @@ namespace Pandacap.Outbox.FurAffinity
 
         public async Task SynchronizeOfflinePlatformCacheAsync(CancellationToken cancellationToken)
         {
-            var credentials = await pandacapDbContext.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken);
+            var credentials = furAffinityCredentials.FirstOrDefault();
 
             if (credentials == null)
                 return;

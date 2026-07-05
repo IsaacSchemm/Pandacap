@@ -18,7 +18,6 @@ namespace Pandacap.Database
     public class PandacapDbContext(DbContextOptions<PandacapDbContext> options) : DbContext(options), IOfflinePlatformDataCache
     {
         public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
-        public DbSet<FurAffinityCredentials> FurAffinityCredentials { get; set; }
         public DbSet<WeasylCredentials> WeasylCredentials { get; set; }
         public DbSet<Avatar> Avatars { get; set; }
         public DbSet<Post> Posts { get; set; }
@@ -56,7 +55,6 @@ namespace Pandacap.Database
         public DbSet<CanonicalCharacter> CanonicalCharacters { get; set; }
         public DbSet<CanonicalSpecies> CanonicalSpecies { get; set; }
         public DbSet<OfflinePlatformDataCacheItem> CachedPlatformData { get; set; }
-        public DbSet<QueuedFurAffinityPost> QueuedFurAffinityPosts { get; set; }
         public DbSet<QueuedWeasylPost> QueuedWeasylPosts { get; set; }
 
         public IOfflinePlatformDataCache OfflinePlatformDataCache => this;

@@ -9,6 +9,7 @@ namespace Pandacap.Inbox.FurAffinity
 {
     internal partial class FurAffinityInboxHandler(
         IFurAffinityClientFactory furAffinityClientFactory,
+        IEnumerable<IFurAffinityCredentials> furAffinityCredentials,
         IFurAffinityOnlineStatsProvider furAffinityOnlineStatsProvider,
         PandacapDbContext pandacapDbContext) : IInboxSource
     {
@@ -17,7 +18,7 @@ namespace Pandacap.Inbox.FurAffinity
 
         public async Task ImportSubmissionsAsync(CancellationToken cancellationToken)
         {
-            var credentials = await pandacapDbContext.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken);
+            var credentials = furAffinityCredentials.FirstOrDefault();
 
             if (credentials == null)
                 return;
@@ -98,7 +99,7 @@ namespace Pandacap.Inbox.FurAffinity
 
         public async Task ImportJournalsAsync(CancellationToken cancellationToken)
         {
-            var credentials = await pandacapDbContext.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken);
+            var credentials = furAffinityCredentials.FirstOrDefault();
 
             if (credentials == null)
                 return;

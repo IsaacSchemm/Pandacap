@@ -203,12 +203,15 @@
 
         @if (Model.Post.FurAffinitySubmissionId == null && Model.Post.FurAffinityJournalId == null)
         {
-            <form asp-action="Crosspost" asp-controller="FurAffinity" class="mb-3">
-                <input type="hidden" name="id" value="@Model.Post.Id" />
-                <button type="submit" class="btn btn-success">
-                    Post to Fur Affinity
-                </button>
-            </form>
+            if (Model.Post.Images.Count > 0 && Model.Post.QueuedFurAffinityPost == null)
+            {
+                <form asp-action="Crosspost" asp-controller="FurAffinity" class="mb-3">
+                    <input type="hidden" name="id" value="@Model.Post.Id" />
+                    <button type="submit" class="btn btn-success">
+                        Post to Fur Affinity
+                    </button>
+                </form>
+            }
         }
         else
         {
