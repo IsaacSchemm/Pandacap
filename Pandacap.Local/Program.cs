@@ -8,6 +8,7 @@ using Pandacap.Database;
 using Pandacap.DeviantArt;
 using Pandacap.Favorites;
 using Pandacap.FurAffinity;
+using Pandacap.FurAffinity.Interfaces;
 using Pandacap.Inbox;
 using Pandacap.Local;
 using Pandacap.Outbox;
@@ -40,6 +41,9 @@ builder.Services
     .AddDnsClient()
     .AddFavoritesHandlers()
     .AddFurAffinityClient()
+    .AddSingleton<IFurAffinityCredentials>(new FurAffinityCredentials(
+        builder.Configuration["FurAffinityA"]!,
+        builder.Configuration["FurAffinityB"]!))
     .AddInboxHandlers()
     .AddOutboxDestinations()
     .AddPeriodicTaskServices()
@@ -64,3 +68,8 @@ var app = builder.Build();
 app.MapGet("/", () => "Pandacap Local Sidecar");
 
 app.Run($"http://+:5002");
+
+record FurAffinityCredentials(string A, string B) : IFurAffinityCredentials
+{
+    string IFurAffinityCredentials.UserAgent => Pandacap.Constants.UserAgentInformation.UserAgent;
+}
