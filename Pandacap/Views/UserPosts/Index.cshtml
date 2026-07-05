@@ -203,7 +203,7 @@
 
         @if (Model.Post.FurAffinitySubmissionId == null && Model.Post.FurAffinityJournalId == null)
         {
-            if (Model.Post.Images.Count > 0 && Model.Post.QueuedFurAffinityPost == null)
+            if (Model.Post.Images.Count == 1 && Model.Post.QueuedFurAffinityPost == null)
             {
                 <form asp-action="Crosspost" asp-controller="FurAffinity" class="mb-3">
                     <input type="hidden" name="id" value="@Model.Post.Id" />
@@ -225,12 +225,15 @@
 
         @if (Model.Post.WeasylSubmitId == null && Model.Post.WeasylJournalId == null)
         {
-            <form asp-action="Crosspost" asp-controller="Weasyl" class="mb-3">
-                <input type="hidden" name="id" value="@Model.Post.Id" />
-                <button type="submit" class="btn btn-success">
-                    Post to Weasyl
-                </button>
-            </form>
+            if (Model.Post.Images.Count == 1 && Model.Post.QueuedWeasylPost == null)
+            {
+                <form asp-action="Crosspost" asp-controller="Weasyl" class="mb-3">
+                    <input type="hidden" name="id" value="@Model.Post.Id" />
+                    <button type="submit" class="btn btn-success">
+                        Post to Weasyl
+                    </button>
+                </form>
+            }
         }
         else
         {

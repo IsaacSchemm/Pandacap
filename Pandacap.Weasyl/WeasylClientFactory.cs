@@ -8,10 +8,10 @@ namespace Pandacap.Weasyl
         IWeasylScraper weasylScraper,
         WeasylConfiguration weasylConfiguration) : IWeasylClientFactory
     {
-        public IWeasylClient CreateWeasylClient(string apiKey) =>
+        public IWeasylClient CreateWeasylClient() =>
             new WeasylClient(
                 weasylHttpHandlerProvider.GetOrCreateHandler(),
-                apiKey,
+                weasylConfiguration.WeasylApiKey,
                 weasylConfiguration.WeasylProxyHost.Host,
                 weasylScraper);
     }

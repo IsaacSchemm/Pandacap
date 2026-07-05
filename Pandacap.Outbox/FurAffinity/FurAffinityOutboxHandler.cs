@@ -2,6 +2,7 @@
 using Pandacap.Database;
 using Pandacap.FurAffinity.Interfaces;
 using Pandacap.Outbox.Interfaces;
+using Pandacap.Text;
 
 namespace Pandacap.Outbox.FurAffinity
 {
@@ -35,7 +36,7 @@ namespace Pandacap.Outbox.FurAffinity
 
             var post = await pandacapDbContext.Posts
                 .Where(x => x.QueuedFurAffinityPost != null)
-                .OrderByDescending(x => x.PublishedTime)
+                .OrderBy(x => x.PublishedTime)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (post == null)
@@ -72,7 +73,7 @@ namespace Pandacap.Outbox.FurAffinity
             else
             {
                 Uri posted = await client.PostJournalAsync(
-                    post.Title,
+                    post.Title ?? ExcerptGenerator.FromText(40, post.Body),
                     post.Body,
                     queued.Rating,
                     cancellationToken);

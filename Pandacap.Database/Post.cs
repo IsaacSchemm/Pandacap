@@ -5,7 +5,6 @@ using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.Text;
 using Pandacap.UI.Badges;
 using Pandacap.UI.Elements;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Pandacap.Database
@@ -130,6 +129,19 @@ namespace Pandacap.Database
         public int? FurAffinitySubmissionId { get; set; }
 
         public int? FurAffinityJournalId { get; set; }
+
+        public class WeasylQueueInformation
+        {
+            public Weasyl.Models.WeasylUpload.SubmissionType Subtype { get; set; }
+
+            public int? FolderId { get; set; }
+
+            public Weasyl.Models.WeasylUpload.Rating Rating { get; set; }
+        }
+
+        public WeasylQueueInformation? QueuedWeasylPost { get; set; }
+
+        public string? WeasylUsername { get; set; }
 
         public int? WeasylSubmitId { get; set; }
 

@@ -45,6 +45,7 @@ builder.Services
     .AddPeriodicTaskServices()
     .AddUIPostProviders()
     .AddWeasylClient(
+        weasylApiKey: new(builder.Configuration["WeasylApiKey"]),
         weasylProxyHost: new("https://" + builder.Configuration["WeasylProxyHost"]))
     .AddWeasylScraper();
 

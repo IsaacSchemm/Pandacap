@@ -7,7 +7,6 @@ namespace Pandacap.Credentials
     {
         public static IServiceCollection AddCredentialProviders(this IServiceCollection serviceCollection) =>
             serviceCollection
-            .AddScoped<IDeviantArtCredentialProvider, DeviantArtCredentialProvider>()
-            .AddScoped<IUserAwareWeasylClientFactory, UserAwareWeasylClientFactory>();
+            .AddScoped<IDeviantArtCredentialProvider, DeviantArtCredentialProvider>();
     }
 }

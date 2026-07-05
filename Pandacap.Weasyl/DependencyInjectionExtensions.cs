@@ -7,10 +7,11 @@ namespace Pandacap.Weasyl
     {
         public static IServiceCollection AddWeasylClient(
             this IServiceCollection serviceCollection,
+            string weasylApiKey,
             Uri weasylProxyHost
         ) =>
             serviceCollection
-            .AddSingleton(new WeasylConfiguration { WeasylProxyHost = weasylProxyHost })
+            .AddSingleton(new WeasylConfiguration { WeasylApiKey = weasylApiKey, WeasylProxyHost = weasylProxyHost })
             .AddSingleton<WeasylHttpHandlerProvider>()
             .AddScoped<IWeasylClientFactory, WeasylClientFactory>();
     }

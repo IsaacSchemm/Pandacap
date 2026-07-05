@@ -12,8 +12,7 @@ namespace Pandacap.Controllers
         private async Task<IReadOnlyList<IExternalCredentials>> GetExternalCredentialsAsync(
             CancellationToken cancellationToken
         ) => [
-            .. await pandacapDbContext.DeviantArtCredentials.ToListAsync(cancellationToken),
-            .. await pandacapDbContext.WeasylCredentials.ToListAsync(cancellationToken),
+            .. await pandacapDbContext.DeviantArtCredentials.ToListAsync(cancellationToken)
         ];
 
         public async Task<IActionResult> Index(

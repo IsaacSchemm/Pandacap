@@ -55,11 +55,12 @@ namespace Pandacap.PlatformLinks
             .Select(post => post.FurAffinityUsername)
             .AsAsyncEnumerable()!;
 
-        private async IAsyncEnumerable<string> GetWeasylUsernamesAsync()
-        {
-            await foreach (var credential in pandacapDbContext.WeasylCredentials)
-                yield return credential.Login;
-        }
+        private IAsyncEnumerable<string> GetWeasylUsernamesAsync() =>
+            pandacapDbContext.Posts
+            .Where(post => post.WeasylUsername != null)
+            .OrderByDescending(post => post.PublishedTime)
+            .Select(post => post.WeasylUsername)
+            .AsAsyncEnumerable()!;
 
         public async Task<IPlatformLinkProfile> GetProfileInformationAsync(CancellationToken cancellationToken) =>
             (await memoryCache.GetOrCreateAsync(

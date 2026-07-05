@@ -184,8 +184,6 @@ builder.Services
     .AddResolvers()
     .AddUIPostProviders()
     .AddVectorSearch()
-    .AddWeasylClient(
-        weasylProxyHost: new("https://" + builder.Configuration["WeasylProxyHost"]))
     .AddWeasylScraper()
     .AddScoped<TokenUpdater>();
 

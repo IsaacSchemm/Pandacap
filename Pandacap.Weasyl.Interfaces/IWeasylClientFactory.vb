@@ -1,3 +1,3 @@
 ﻿Public Interface IWeasylClientFactory
-    Function CreateWeasylClient(apiKey As String) As IWeasylClient
+    Function CreateWeasylClient() As IWeasylClient
 End Interface

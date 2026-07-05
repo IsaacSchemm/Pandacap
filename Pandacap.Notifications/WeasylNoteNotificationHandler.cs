@@ -6,27 +6,27 @@ using System.Runtime.CompilerServices;
 
 namespace Pandacap.Notifications
 {
-    public class WeasylNoteNotificationHandler(
-        IUserAwareWeasylClientFactory userAwareWeasylClientFactory
-    ) : INotificationHandler
+    public class WeasylNoteNotificationHandler() : INotificationHandler
     {
         public async IAsyncEnumerable<INotification> GetNotificationsAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
-                yield break;
+            yield break;
 
-            foreach (var note in await client.GetNotesAsync(cancellationToken))
-            {
-                yield return new Notification
-                {
-                    ActivityName = "note",
-                    Badge = Badges.Weasyl,
-                    Timestamp = note.time,
-                    UserName = note.sender,
-                    UserUrl = note.sender_url
-                };
-            }
+            //if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
+            //    yield break;
+
+            //foreach (var note in await client.GetNotesAsync(cancellationToken))
+            //{
+            //    yield return new Notification
+            //    {
+            //        ActivityName = "note",
+            //        Badge = Badges.Weasyl,
+            //        Timestamp = note.time,
+            //        UserName = note.sender,
+            //        UserUrl = note.sender_url
+            //    };
+            //}
         }
 
         IAsyncEnumerable<INotification> INotificationHandler.GetNotificationsAsync() =>

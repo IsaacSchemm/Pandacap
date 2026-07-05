@@ -8,7 +8,7 @@ namespace Pandacap.Inbox.Weasyl
 {
     public class WeasylInboxHandler(
         PandacapDbContext pandacapDbContext,
-        IUserAwareWeasylClientFactory userAwareWeasylClientFactory) : IInboxSource
+        IEnumerable<IWeasylClientFactory> weasylClientFactories) : IInboxSource
     {
         /// <summary>
         /// Imports new posts from the past three days that have not yet been
@@ -17,7 +17,10 @@ namespace Pandacap.Inbox.Weasyl
         /// <returns></returns>
         internal async Task ImportSubmissionsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient weasylClient)
+            if (weasylClientFactories.FirstOrDefault() is not IWeasylClientFactory weasylClientFactory)
+                return;
+
+            if (weasylClientFactory.CreateWeasylClient() is not IWeasylClient weasylClient)
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
@@ -77,7 +80,10 @@ namespace Pandacap.Inbox.Weasyl
         /// <returns></returns>
         public async Task ImportJournalsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient weasylClient)
+            if (weasylClientFactories.FirstOrDefault() is not IWeasylClientFactory weasylClientFactory)
+                return;
+
+            if (weasylClientFactory.CreateWeasylClient() is not IWeasylClient weasylClient)
                 return;
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
