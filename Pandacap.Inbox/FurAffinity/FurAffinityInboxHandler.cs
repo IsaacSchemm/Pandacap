@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace Pandacap.Inbox.FurAffinity
 {
     internal partial class FurAffinityInboxHandler(
-        IFurAffinityClientFactory furAffinityClientFactory,
+        IEnumerable<IFurAffinityClientFactory> furAffinityClientFactories,
         IEnumerable<IFurAffinityCredentials> furAffinityCredentials,
         IFurAffinityOnlineStatsProvider furAffinityOnlineStatsProvider,
         PandacapDbContext pandacapDbContext) : IInboxSource
@@ -18,6 +18,9 @@ namespace Pandacap.Inbox.FurAffinity
 
         public async Task ImportSubmissionsAsync(CancellationToken cancellationToken)
         {
+            if (furAffinityClientFactories.FirstOrDefault() is not IFurAffinityClientFactory furAffinityClientFactory)
+                return;
+
             var credentials = furAffinityCredentials.FirstOrDefault();
 
             if (credentials == null)
@@ -99,6 +102,9 @@ namespace Pandacap.Inbox.FurAffinity
 
         public async Task ImportJournalsAsync(CancellationToken cancellationToken)
         {
+            if (furAffinityClientFactories.FirstOrDefault() is not IFurAffinityClientFactory furAffinityClientFactory)
+                return;
+
             var credentials = furAffinityCredentials.FirstOrDefault();
 
             if (credentials == null)

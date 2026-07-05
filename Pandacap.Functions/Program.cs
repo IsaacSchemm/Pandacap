@@ -67,17 +67,13 @@ var host = new HostBuilder()
             .AddDeviantArtClient()
             .AddFavoritesHandlers()
             .AddFeedReaders()
-            .AddFurAffinityClient()
             .AddInboxHandlers()
             .AddJsonLdExpansionService()
             .AddMemoryCache()
             .AddPandacapKeyVault(
                 keyVaultHost: new Uri("https://" + Environment.GetEnvironmentVariable("KeyVaultHostname")))
             .AddPeriodicTaskServices()
-            .AddUIPostProviders()
-            .AddWeasylClient(
-                weasylProxyHost: new("https://" + Environment.GetEnvironmentVariable("WeasylProxyHost")))
-            .AddWeasylScraper();
+            .AddUIPostProviders();
 
         services
             .AddHttpClient()

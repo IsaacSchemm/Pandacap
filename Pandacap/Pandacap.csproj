@@ -60,9 +60,7 @@
     <ProjectReference Include="..\Pandacap.DeviantArt\Pandacap.DeviantArt.fsproj" />
     <ProjectReference Include="..\Pandacap.FeedIngestion\Pandacap.FeedIngestion.csproj" />
     <ProjectReference Include="..\Pandacap.Frontend.Feeds\Pandacap.Frontend.Feeds.csproj" />
-    <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
     <ProjectReference Include="..\Pandacap.ImageConversion\Pandacap.ImageConversion.csproj" />
-    <ProjectReference Include="..\Pandacap.Inbox\Pandacap.Inbox.csproj" />
     <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
     <ProjectReference Include="..\Pandacap.Lemmy\Pandacap.Lemmy.fsproj" />
     <ProjectReference Include="..\Pandacap.Notifications.Composite\Pandacap.Notifications.Composite.fsproj" />
@@ -74,7 +72,6 @@
     <ProjectReference Include="..\Pandacap.UI.Posts\Pandacap.UI.Posts.csproj" />
     <ProjectReference Include="..\Pandacap.VectorSearch\Pandacap.VectorSearch.csproj" />
     <ProjectReference Include="..\Pandacap.Weasyl.Scraping\Pandacap.Weasyl.Scraping.fsproj" />
-    <ProjectReference Include="..\Pandacap.Weasyl\Pandacap.Weasyl.csproj" />
   </ItemGroup>
 
   <ItemGroup>

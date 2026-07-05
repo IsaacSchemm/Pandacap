@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Credentials.Interfaces;
 using Pandacap.Database;
 using Pandacap.Inbox.Interfaces;
 using Pandacap.Weasyl.Interfaces;

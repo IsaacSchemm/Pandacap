@@ -30,9 +30,7 @@ using Pandacap.DeviantArt;
 using Pandacap.DeviantArt.Feeds;
 using Pandacap.FeedIngestion;
 using Pandacap.Frontend.Feeds;
-using Pandacap.FurAffinity;
 using Pandacap.ImageConversion;
-using Pandacap.Inbox;
 using Pandacap.KeyVault;
 using Pandacap.Lemmy;
 using Pandacap.Notifications;
@@ -43,8 +41,6 @@ using Pandacap.Resolvers;
 using Pandacap.UI.Posts;
 using Pandacap.VectorSearch;
 using Pandacap.VectorSearch.Models;
-using Pandacap.Weasyl;
-using Pandacap.Weasyl.Scraping;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -170,9 +166,7 @@ builder.Services
     .AddDnsClient()
     .AddFeedBuilder()
     .AddFeedReaders()
-    .AddFurAffinityClient()
     .AddImageConversion()
-    .AddInboxHandlers()
     .AddJsonLdExpansionService()
     .AddLemmyServices()
     .AddNotificationHandlers()
@@ -184,7 +178,6 @@ builder.Services
     .AddResolvers()
     .AddUIPostProviders()
     .AddVectorSearch()
-    .AddWeasylScraper()
     .AddScoped<TokenUpdater>();
 
 builder.Services.AddHttpClient(string.Empty, client =>

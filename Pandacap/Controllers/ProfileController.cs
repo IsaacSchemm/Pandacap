@@ -12,12 +12,10 @@ using Pandacap.ActivityPub.Static;
 using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.Extensions;
-using Pandacap.Inbox.Interfaces;
 using Pandacap.Models;
 using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.UI.Elements;
 using Pandacap.UI.Lists;
-using Pandacap.UI.Posts.Interfaces;
 using Pandacap.VectorSearch.Interfaces;
 using System.Diagnostics;
 using System.Net;
@@ -27,9 +25,7 @@ namespace Pandacap.Controllers
 {
     public class ProfileController(
         BlobServiceClient blobServiceClient,
-        IATProtoFeedReader atProtoFeedReader,
         IDeliveryInboxCollector deliveryInboxCollector,
-        IFeedRefresher feedRefresher,
         IActivityPubCommunicationPrerequisites keyProvider,
         IMemoryCache memoryCache,
         IPlatformLinkProvider platformLinkProvider,
@@ -317,9 +313,10 @@ namespace Pandacap.Controllers
                 .Where(f => f.DID == did)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            await atProtoFeedReader.RefreshFeedAsync(did, cancellationToken);
+            //await atProtoFeedReader.RefreshFeedAsync(did, cancellationToken);
+            //return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
 
-            return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
+            throw new NotImplementedException();
         }
 
         [HttpPost]
@@ -383,7 +380,23 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddFeed(string url, CancellationToken cancellationToken)
         {
-            await feedRefresher.AddFeedAsync(url, cancellationToken);
+            var existing = await pandacapDbContext.GeneralFeeds
+                .Where(f => f.FeedUrl == url)
+                .ToListAsync(cancellationToken);
+
+            pandacapDbContext.RemoveRange(existing);
+
+            Guid id = Guid.NewGuid();
+
+            pandacapDbContext.GeneralFeeds.Add(new()
+            {
+                Id = id,
+                FeedUrl = url,
+                FeedTitle = url,
+                LastCheckedAt = DateTimeOffset.MinValue
+            });
+
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
 
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
@@ -393,9 +406,9 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RefreshFeed(Guid id, CancellationToken cancellationToken)
         {
-            await feedRefresher.RefreshFeedAsync(id, cancellationToken);
-
-            return RedirectToAction(nameof(FollowingAndFeeds));
+            //await feedRefresher.RefreshFeedAsync(id, cancellationToken);
+            //return RedirectToAction(nameof(FollowingAndFeeds));
+            throw new NotImplementedException();
         }
 
         [HttpPost]
