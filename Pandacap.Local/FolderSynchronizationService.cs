@@ -4,7 +4,7 @@ namespace Pandacap.Local
 {
     public class FolderSynchronizationService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(1);
+        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(3);
 
         protected override TimeSpan Period => TimeSpan.FromDays(7);
 

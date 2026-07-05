@@ -49,8 +49,13 @@ builder.Services
     .AddWeasylScraper();
 
 builder.Services
+    .AddHostedService<BridgedPostDiscoveryService>()
     .AddHostedService<DismissedInboxPostCleanupService>()
+    .AddHostedService<FavoritesIngestionService>()
+    .AddHostedService<FolderSynchronizationService>()
     .AddHostedService<InboxIngestionService>()
+    .AddHostedService<OutboundActivityCleanupService>()
+    .AddHostedService<OutboundActivityTriggerService>()
     .AddHostedService<UnreadInboxPostCleanupService>();
 
 var app = builder.Build();
