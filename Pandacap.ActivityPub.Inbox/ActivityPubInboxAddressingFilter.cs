@@ -1,12 +1,11 @@
-﻿using Pandacap.ActivityPub.Inbox.Interfaces;
-using Pandacap.ActivityPub.Models.Interfaces;
+﻿using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
 
 namespace Pandacap.ActivityPub.Inbox
 {
-    internal class ActivityPubInboxAddressingFilter : IActivityPubInboxAddressingFilter
+    internal class ActivityPubInboxAddressingFilter
     {
-        public bool IsIncludedInInbox(
+        internal static bool IsIncludedInInbox(
             RemotePost post,
             IActivityPubFollow relationship)
         {

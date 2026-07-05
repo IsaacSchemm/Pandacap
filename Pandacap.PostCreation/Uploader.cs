@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using ExifLibrary;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.ImageConversion.Interfaces;
@@ -53,6 +54,8 @@ namespace Pandacap.PostCreation
             string? altText,
             CancellationToken cancellationToken)
         {
+            buffer = TryRemoveGPS(buffer);
+
             var upload = await TrackUploadAsync(
                 buffer,
                 contentType,
@@ -97,6 +100,53 @@ namespace Pandacap.PostCreation
             pandacapDbContext.Remove(upload);
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        private static byte[] TryRemoveGPS(byte[] buffer)
+        {
+            ImageFile imageFile;
+
+            try
+            {
+                imageFile = ImageFile.FromBuffer(buffer);
+            }
+            catch (Exception)
+            {
+                return buffer;
+            }
+
+            var lat = imageFile.Properties.Get<GPSLatitudeLongitude>(ExifTag.GPSLatitude);
+            var lng = imageFile.Properties.Get<GPSLatitudeLongitude>(ExifTag.GPSLongitude);
+            var alt = imageFile.Properties.Get<ExifURational>(ExifTag.GPSAltitude);
+
+            if (lat == null && lng == null && alt == null)
+                return buffer;
+
+            if (lat != null)
+            {
+                lat.Degrees = new(0, 1);
+                lat.Minutes = new(0, 1);
+                lat.Seconds = new(0, 1);
+                imageFile.Properties.Set(lat);
+            }
+
+            if (lng != null)
+            {
+                lng.Degrees = new(0, 1);
+                lng.Minutes = new(0, 1);
+                lng.Seconds = new(0, 1);
+                imageFile.Properties.Set(lng);
+            }
+
+            if (alt != null)
+            {
+                alt.Value = new(0, 1);
+                imageFile.Properties.Set(alt);
+            }
+
+            using var ms = new MemoryStream();
+            imageFile.Save(ms);
+            return ms.ToArray();
         }
     }
 }

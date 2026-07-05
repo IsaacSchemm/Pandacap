@@ -151,11 +151,12 @@ DeploymentInformation.Username = builder.Configuration["ActivityPubUsername"]
 
 builder.Services
     .AddActivityPubFavoritesHandler()
+    .AddActivityPubInboundServices()
     .AddActivityPubInboxHandler()
     .AddActivityPubKeyFinder()
+    .AddActivityPubOutboundServices()
     .AddActivityPubOutboxServices()
     .AddActivityPubRemoteObjectServices()
-    .AddActivityPubServices()
     .AddActivityPubSignatureValidator()
     .AddATProtoHandleResolution()
     .AddATProtoServices()
