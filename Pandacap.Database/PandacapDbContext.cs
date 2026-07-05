@@ -1,8 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Pandacap.Database
 {
-    public class PandacapDbContext(DbContextOptions<PandacapDbContext> options) : DbContext(options)
+    public interface IOfflinePlatformDataCache
+    {
+        Task<T?> TryGetAsync<T>(
+            OfflinePlatformDataCacheItem.CachedPlatformDataType type,
+            CancellationToken cancellationToken = default) where T : class;
+
+        Task UpdateAsync<T>(
+            OfflinePlatformDataCacheItem.CachedPlatformDataType type,
+            T value,
+            CancellationToken cancellationToken = default) where T : class;
+    }
+
+    public class PandacapDbContext(DbContextOptions<PandacapDbContext> options) : DbContext(options), IOfflinePlatformDataCache
     {
         public DbSet<DeviantArtCredentials> DeviantArtCredentials { get; set; }
         public DbSet<FurAffinityCredentials> FurAffinityCredentials { get; set; }
@@ -42,10 +55,52 @@ namespace Pandacap.Database
         public DbSet<CanonicalSetting> CanonicalSettings { get; set; }
         public DbSet<CanonicalCharacter> CanonicalCharacters { get; set; }
         public DbSet<CanonicalSpecies> CanonicalSpecies { get; set; }
-        public DbSet<KnownFurAffinityFolder> KnownFurAffinityFolders { get; set; }
-        public DbSet<KnownWeasylFolder> KnownWeasylFolders { get; set; }
+        public DbSet<OfflinePlatformDataCacheItem> CachedPlatformData { get; set; }
         public DbSet<QueuedFurAffinityPost> QueuedFurAffinityPosts { get; set; }
         public DbSet<QueuedWeasylPost> QueuedWeasylPosts { get; set; }
+
+        public IOfflinePlatformDataCache OfflinePlatformDataCache => this;
+
+        async Task<T?> IOfflinePlatformDataCache.TryGetAsync<T>(
+            OfflinePlatformDataCacheItem.CachedPlatformDataType type,
+            CancellationToken cancellationToken) where T : class
+        {
+            var platformData = await CachedPlatformData
+                .Where(d => d.Type == type)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (platformData == null)
+                return null;
+
+            try
+            {
+                return JsonSerializer.Deserialize<T?>(platformData.Json);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        async Task IOfflinePlatformDataCache.UpdateAsync<T>(
+            OfflinePlatformDataCacheItem.CachedPlatformDataType type,
+            T value,
+            CancellationToken cancellationToken) where T : class
+        {
+            var platformData = await CachedPlatformData
+                .Where(d => d.Type == type)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (platformData == null)
+            {
+                platformData = new() { Type = type };
+                CachedPlatformData.Add(platformData);
+            }
+
+            platformData.Json = JsonSerializer.Serialize(value);
+
+            await SaveChangesAsync(cancellationToken);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

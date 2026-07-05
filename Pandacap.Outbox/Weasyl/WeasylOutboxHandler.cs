@@ -15,27 +15,17 @@ namespace Pandacap.Outbox.Weasyl
             throw new NotImplementedException();
         }
 
-        public async Task SynchronizeFoldersAsync(CancellationToken cancellationToken)
+        public async Task SynchronizeOfflinePlatformCacheAsync(CancellationToken cancellationToken)
         {
             if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
                 return;
 
-            var oldFolders = await pandacapDbContext.KnownWeasylFolders.ToListAsync(cancellationToken);
-            var newFolders = await client.GetFoldersAsync(cancellationToken).ToListAsync(cancellationToken);
+            var folders = await client.GetFoldersAsync(cancellationToken).ToListAsync(cancellationToken);
 
-            foreach (var oldFolder in oldFolders)
-                if (!newFolders.Any(f => f.FolderId == oldFolder.FolderId))
-                    pandacapDbContext.KnownWeasylFolders.Remove(oldFolder);
-
-            foreach (var newFolder in newFolders)
-                if (!oldFolders.Any(f => f.FolderId == newFolder.FolderId))
-                    pandacapDbContext.KnownWeasylFolders.Add(new()
-                    {
-                        FolderId = newFolder.FolderId,
-                        Name = newFolder.Name
-                    });
-
-            await pandacapDbContext.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.OfflinePlatformDataCache.UpdateAsync(
+                OfflinePlatformDataCacheItem.CachedPlatformDataType.WeasylGalleryFolders,
+                folders,
+                cancellationToken);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Pandacap.Outbox.FurAffinity
             throw new NotImplementedException();
         }
 
-        public async Task SynchronizeFoldersAsync(CancellationToken cancellationToken)
+        public async Task SynchronizeOfflinePlatformCacheAsync(CancellationToken cancellationToken)
         {
             var credentials = await pandacapDbContext.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken);
 
@@ -23,22 +23,19 @@ namespace Pandacap.Outbox.FurAffinity
 
             var client = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.SFW);
 
-            var oldFolders = await pandacapDbContext.KnownFurAffinityFolders.ToListAsync(cancellationToken);
-            var newFolders = await client.ListGalleryFoldersAsync(cancellationToken);
+            var folders = await client.ListGalleryFoldersAsync(cancellationToken);
 
-            foreach (var oldFolder in oldFolders)
-                if (!newFolders.Any(f => f.FolderId == oldFolder.FolderId))
-                    pandacapDbContext.KnownFurAffinityFolders.Remove(oldFolder);
+            await pandacapDbContext.OfflinePlatformDataCache.UpdateAsync(
+                OfflinePlatformDataCacheItem.CachedPlatformDataType.FurAffinityGalleryFolders,
+                folders,
+                cancellationToken);
 
-            foreach (var newFolder in newFolders)
-                if (!oldFolders.Any(f => f.FolderId == newFolder.FolderId))
-                    pandacapDbContext.KnownFurAffinityFolders.Add(new()
-                    {
-                        FolderId = newFolder.FolderId,
-                        Name = newFolder.Name
-                    });
+            var postOptions = await client.ListPostOptionsAsync(cancellationToken);
 
-            await pandacapDbContext.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.OfflinePlatformDataCache.UpdateAsync(
+                OfflinePlatformDataCacheItem.CachedPlatformDataType.FurAffinityPostOptions,
+                postOptions,
+                cancellationToken);
         }
     }
 }

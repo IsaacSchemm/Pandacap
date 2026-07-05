@@ -2,9 +2,9 @@
 
 namespace Pandacap.Local
 {
-    public class FolderSynchronizationService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
+    public class OfflinePlatformCacheSynchronizationService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(3);
+        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(0);
 
         protected override TimeSpan Period => TimeSpan.FromDays(7);
 
@@ -12,15 +12,15 @@ namespace Pandacap.Local
         {
             using var scope = serviceScopeFactory.CreateScope();
 
-            var favoritesSources = scope.ServiceProvider.GetServices<IOutboxDestination>();
+            var outboxDestinations = scope.ServiceProvider.GetServices<IOutboxDestination>();
 
             List<Exception> exceptions = [];
 
-            foreach (var source in favoritesSources)
+            foreach (var outboxDestination in outboxDestinations)
             {
                 try
                 {
-                    await source.SynchronizeFoldersAsync(cancellationToken);
+                    await outboxDestination.SynchronizeOfflinePlatformCacheAsync(cancellationToken);
                 }
                 catch (Exception e)
                 {

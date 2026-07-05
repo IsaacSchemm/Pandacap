@@ -41,7 +41,7 @@ builder.Services
     .AddFavoritesHandlers()
     .AddFurAffinityClient()
     .AddInboxHandlers()
-    .AddOutboxHandlers()
+    .AddOutboxDestinations()
     .AddPeriodicTaskServices()
     .AddUIPostProviders()
     .AddWeasylClient(
@@ -52,8 +52,8 @@ builder.Services
     .AddHostedService<BridgedPostDiscoveryService>()
     .AddHostedService<DismissedInboxPostCleanupService>()
     .AddHostedService<FavoritesIngestionService>()
-    .AddHostedService<FolderSynchronizationService>()
     .AddHostedService<InboxIngestionService>()
+    .AddHostedService<OfflinePlatformCacheSynchronizationService>()
     .AddHostedService<OutboundActivityCleanupService>()
     .AddHostedService<OutboundActivityTriggerService>()
     .AddHostedService<UnreadInboxPostCleanupService>();
