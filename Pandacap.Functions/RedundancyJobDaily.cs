@@ -10,19 +10,18 @@ namespace Pandacap.Functions
 {
     public class RedundancyJobDaily(
         IBridgedPostLinker bridgedPostLinker,
-        IDbContextFactory<PandacapDbContext> dbContextFactory,
         IEnumerable<IInboxSource> inboxSources,
         IHttpClientFactory httpClientFactory,
-        IEnumerable<IFavoritesSource> favoritesSources)
+        IEnumerable<IFavoritesSource> favoritesSources,
+        PandacapDbContext pandacapDbContext)
     {
         [Function("RedundancyJobDaily")]
         public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo _)
         {
-            await Task.WhenAll(
-                ImportNewPostsAsync(),
-                ImportFavoritesAsync(),
-                SendOutboundActivitiesAsync(),
-                bridgedPostLinker.LinkAllBridgedPostsAsync());
+            await ImportNewPostsAsync();
+            await ImportFavoritesAsync();
+            await SendOutboundActivitiesAsync();
+            await bridgedPostLinker.LinkAllBridgedPostsAsync();
         }
 
         private async Task ImportNewPostsAsync()
@@ -52,9 +51,8 @@ namespace Pandacap.Functions
         private async Task SendOutboundActivitiesAsync()
         {
             using var client = httpClientFactory.CreateClient();
-            using var context = dbContextFactory.CreateDbContext();
 
-            var query = context.ActivityPubOutboundActivities
+            var query = pandacapDbContext.ActivityPubOutboundActivities
                 .AsNoTracking()
                 .OrderBy(r => r.StoredAt)
                 .Select(r => new
