@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.Inbox.Interfaces;
+using Pandacap.ManualInboxIngestion.ATProto.Interfaces;
 
 namespace Pandacap.Inbox.ATProto
 {
     internal class ATProtoInboxSource(
         PandacapDbContext pandacapDbContext,
-        IATProtoFeedReader atProtoFeedReader) : IInboxSource
+        IATProtoFeedRefresher atProtoFeedRefresher) : IInboxSource
     {
         public async Task ImportNewPostsAsync(CancellationToken cancellationToken)
         {
@@ -20,7 +21,7 @@ namespace Pandacap.Inbox.ATProto
             {
                 try
                 {
-                    await atProtoFeedReader.RefreshFeedAsync(feed.DID, cancellationToken);
+                    await atProtoFeedRefresher.RefreshFeedAsync(feed.DID, cancellationToken);
                 }
                 catch (Exception ex)
                 {

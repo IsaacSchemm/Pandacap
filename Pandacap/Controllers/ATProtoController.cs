@@ -4,12 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
+using Pandacap.ManualInboxIngestion.ATProto.Interfaces;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers
 {
     [Authorize]
     public class ATProtoController(
+        IATProtoFeedRefresher atProtoFeedRefresher,
         IATProtoService atProtoService,
         IBlueskyService blueskyService,
         IDIDResolver didResolver,
@@ -74,35 +76,7 @@ namespace Pandacap.Controllers
             string did,
             CancellationToken cancellationToken)
         {
-            var client = httpClientFactory.CreateClient();
-
-            if (await pandacapDbContext.ATProtoFeeds.Where(a => a.DID == did).CountAsync(cancellationToken) > 0)
-                return RedirectToAction("UpdateATProtoFeed", "Profile", new { did });
-
-            var document = await didResolver.ResolveAsync(did, cancellationToken);
-
-            var collections = await atProtoService.GetCollectionsInRepoAsync(
-                document.PDS,
-                did,
-                cancellationToken);
-
-            pandacapDbContext.ATProtoFeeds.Add(new ATProtoFeed
-            {
-                DID = did,
-                Handle = document.Handle,
-                CurrentPDS = document.PDS,
-                NSIDs = [
-                    .. collections.Intersect([
-                        "app.bsky.actor.profile",
-                        "app.bsky.feed.post",
-                        "app.bsky.feed.repost",
-                        "site.standard.document"
-                    ])
-                ]
-            });
-
-            await pandacapDbContext.SaveChangesAsync(cancellationToken);
-
+            await atProtoFeedRefresher.AddFeedAsync(did, cancellationToken);
             return RedirectToAction("UpdateATProtoFeed", "Profile", new { did });
         }
 

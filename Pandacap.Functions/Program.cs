@@ -17,6 +17,8 @@ using Pandacap.FeedIngestion;
 using Pandacap.Inbox.ATProto;
 using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
+using Pandacap.ManualInboxIngestion.ATProto;
+using Pandacap.ManualInboxIngestion.Feeds;
 using Pandacap.PeriodicTasks;
 using Pandacap.UI.Posts;
 
@@ -59,6 +61,7 @@ var host = new HostBuilder()
         services
             .AddActivityPubOutboundServices()
             .AddActivityPubRemoteObjectServices()
+            .AddATProtoFeedRefresher()
             .AddATProtoInboxSources()
             .AddATProtoServices()
             .AddBridgingServices()
@@ -67,6 +70,7 @@ var host = new HostBuilder()
             .AddFavoritesHandlers()
             .AddFeedInboxSources()
             .AddFeedReaders()
+            .AddFeedRefresher()
             .AddJsonLdExpansionService()
             .AddMemoryCache()
             .AddPandacapKeyVault(

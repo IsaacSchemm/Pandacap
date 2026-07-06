@@ -12,7 +12,8 @@ using Pandacap.ActivityPub.Static;
 using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.Extensions;
-using Pandacap.Inbox.Interfaces;
+using Pandacap.ManualInboxIngestion.ATProto.Interfaces;
+using Pandacap.ManualInboxIngestion.Feeds.Interfaces;
 using Pandacap.Models;
 using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.UI.Elements;
@@ -25,7 +26,7 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ProfileController(
-        IATProtoFeedReader atProtoFeedReader,
+        IATProtoFeedRefresher atProtoFeedRefresher,
         BlobServiceClient blobServiceClient,
         IDeliveryInboxCollector deliveryInboxCollector,
         IFeedRefresher feedRefresher,
@@ -316,7 +317,7 @@ namespace Pandacap.Controllers
                 .Where(f => f.DID == did)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            await atProtoFeedReader.RefreshFeedAsync(did, cancellationToken);
+            await atProtoFeedRefresher.RefreshFeedAsync(did, cancellationToken);
             return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
         }
 

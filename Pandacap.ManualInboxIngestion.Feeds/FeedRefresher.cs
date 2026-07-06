@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.FeedIngestion.Interfaces;
-using Pandacap.Inbox.Interfaces;
+using Pandacap.ManualInboxIngestion.Feeds.Interfaces;
 
-namespace Pandacap.Inbox.Feeds
+namespace Pandacap.ManualInboxIngestion.Feeds
 {
     internal class FeedRefresher(
         IEnumerable<IFeedReader> feedReaders,

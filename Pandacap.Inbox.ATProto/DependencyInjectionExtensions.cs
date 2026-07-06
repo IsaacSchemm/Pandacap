@@ -7,7 +7,6 @@ namespace Pandacap.Inbox.ATProto
     {
         public static IServiceCollection AddATProtoInboxSources(this IServiceCollection serviceCollection) =>
             serviceCollection
-            .AddScoped<IATProtoFeedReader, ATProtoFeedReader>()
             .AddScoped<IInboxSource, ATProtoInboxSource>();
     }
 }

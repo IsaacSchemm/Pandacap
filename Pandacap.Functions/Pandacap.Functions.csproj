@@ -33,6 +33,8 @@
     <ProjectReference Include="..\Pandacap.Inbox.ATProto\Pandacap.Inbox.ATProto.csproj" />
     <ProjectReference Include="..\Pandacap.Inbox.Feeds\Pandacap.Inbox.Feeds.csproj" />
     <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
+    <ProjectReference Include="..\Pandacap.ManualInboxIngestion.ATProto\Pandacap.ManualInboxIngestion.ATProto.csproj" />
+    <ProjectReference Include="..\Pandacap.ManualInboxIngestion.Feeds\Pandacap.ManualInboxIngestion.Feeds.csproj" />
     <ProjectReference Include="..\Pandacap.PeriodicTasks\Pandacap.PeriodicTasks.csproj" />
     <ProjectReference Include="..\Pandacap.UI.Posts\Pandacap.UI.Posts.csproj" />
     <ProjectReference Include="..\Pandacap.Weasyl.Scraping\Pandacap.Weasyl.Scraping.fsproj" />

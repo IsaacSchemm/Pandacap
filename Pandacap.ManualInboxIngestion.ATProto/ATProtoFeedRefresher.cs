@@ -3,16 +3,16 @@ using Microsoft.FSharp.Collections;
 using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
-using Pandacap.Inbox.Interfaces;
+using Pandacap.ManualInboxIngestion.ATProto.Interfaces;
 
-namespace Pandacap.Inbox.ATProto
+namespace Pandacap.ManualInboxIngestion.ATProto
 {
-    internal class ATProtoFeedReader(
+    internal class ATProtoFeedRefresher(
         IATProtoService atProtoService,
         IBlueskyService blueskyService,
         IDIDResolver didResolver,
         PandacapDbContext pandacapDbContext,
-        IStandardSiteService standardSiteService) : IATProtoFeedReader
+        IStandardSiteService standardSiteService) : IATProtoFeedRefresher
     {
         private static bool PostMatchesFilters(
             ATProtoFeed feed,
@@ -189,6 +189,40 @@ namespace Pandacap.Inbox.ATProto
                 RecordKey = document.Ref.Uri.Components.RecordKey,
                 Title = document.Value.Title
             });
+        }
+
+        public async Task AddFeedAsync(string did, CancellationToken cancellationToken)
+        {
+            var existing = await pandacapDbContext.ATProtoFeeds
+                .Where(a => a.DID == did)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (existing != null)
+                return;
+
+            var document = await didResolver.ResolveAsync(did, cancellationToken);
+
+            var collections = await atProtoService.GetCollectionsInRepoAsync(
+                document.PDS,
+                did,
+                cancellationToken);
+
+            pandacapDbContext.ATProtoFeeds.Add(new ATProtoFeed
+            {
+                DID = did,
+                Handle = document.Handle,
+                CurrentPDS = document.PDS,
+                NSIDs = [
+                    .. collections.Intersect([
+                        "app.bsky.actor.profile",
+                        "app.bsky.feed.post",
+                        "app.bsky.feed.repost",
+                        "site.standard.document"
+                    ])
+                ]
+            });
+
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
 
         public async Task RefreshFeedAsync(

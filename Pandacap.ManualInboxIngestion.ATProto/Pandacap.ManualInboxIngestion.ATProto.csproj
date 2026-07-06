@@ -9,7 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ATProto.Services.Interfaces\Pandacap.ATProto.Services.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
-    <ProjectReference Include="..\Pandacap.Inbox.Interfaces\Pandacap.Inbox.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.ManualInboxIngestion.ATProto.Interfaces\Pandacap.ManualInboxIngestion.ATProto.Interfaces.vbproj" />
   </ItemGroup>
 

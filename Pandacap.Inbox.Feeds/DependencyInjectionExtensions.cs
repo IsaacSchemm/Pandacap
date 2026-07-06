@@ -7,7 +7,6 @@ namespace Pandacap.Inbox.Feeds
     {
         public static IServiceCollection AddFeedInboxSources(this IServiceCollection serviceCollection) =>
             serviceCollection
-            .AddScoped<IFeedRefresher, FeedRefresher>()
             .AddScoped<IInboxSource, FeedInboxSource>();
     }
 }
