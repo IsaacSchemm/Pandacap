@@ -74,7 +74,7 @@ namespace Pandacap.Weasyl
                 : $"nexttime={nexttime}";
 
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"{WeasylProxy}?path={Uri.EscapeDataString($"api/messages/submissions?{qs}")}", cancellationToken);
+            using var resp = await client.GetAsync($"https://www.weasyl.com/api/messages/submissions?{qs}", cancellationToken);
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<SubmissionsResponse>(cancellationToken)
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");

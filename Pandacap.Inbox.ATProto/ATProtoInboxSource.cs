@@ -11,7 +11,7 @@ namespace Pandacap.Inbox.ATProto
         public async Task ImportNewPostsAsync(CancellationToken cancellationToken)
         {
             var feeds = await pandacapDbContext.ATProtoFeeds
-                .Select(f => new { f.DID })
+                .Select(f => new { f.DID, f.DisplayName })
                 .ToListAsync(cancellationToken);
 
             List<Exception> exceptions = [];

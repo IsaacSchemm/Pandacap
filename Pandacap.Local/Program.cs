@@ -13,6 +13,7 @@ using Pandacap.FurAffinity.Interfaces;
 using Pandacap.Inbox;
 using Pandacap.Inbox.ATProto;
 using Pandacap.Inbox.Feeds;
+using Pandacap.Inbox.Other;
 using Pandacap.Local;
 using Pandacap.Outbox;
 using Pandacap.PeriodicTasks;
@@ -33,23 +34,24 @@ builder.Services.AddDbContextFactory<PandacapDbContext>(options => options.UseCo
 builder.Services
     .AddHttpClient()
     .AddMemoryCache()
-    .AddSingleton(TimeProvider.System);
+    .AddSingleton(TimeProvider.System)
+    .AddSingleton<IFurAffinityCredentials>(new FurAffinityCredentials(
+        builder.Configuration["FurAffinityA"]!,
+        builder.Configuration["FurAffinityB"]!));
 
 builder.Services
     .AddATProtoHandleResolution()
-    .AddATProtoInboxSources()
+    //.AddATProtoInboxSources()
     .AddATProtoServices()
     .AddBridgingServices()
     .AddCredentialProviders()
     .AddDeviantArtClient()
     .AddDnsClient()
     .AddFavoritesHandlers()
-    .AddFeedInboxSources()
+    //.AddFeedInboxSources()
     .AddFeedReaders()
     .AddFurAffinityClient()
-    .AddSingleton<IFurAffinityCredentials>(new FurAffinityCredentials(
-        builder.Configuration["FurAffinityA"]!,
-        builder.Configuration["FurAffinityB"]!))
+    .AddOtherInboxSources()
     .AddOutboxDestinations()
     .AddPeriodicTaskServices()
     .AddUIPostProviders()
@@ -62,10 +64,11 @@ builder.Services
     .AddHostedService<BridgedPostDiscoveryService>()
     .AddHostedService<DismissedInboxPostCleanupService>()
     .AddHostedService<FavoritesIngestionService>()
-    .AddHostedService<InboxIngestionService>()
+    .AddHostedService<InboxService>()
     .AddHostedService<OfflinePlatformCacheSynchronizationService>()
     .AddHostedService<OutboundActivityCleanupService>()
     .AddHostedService<OutboundActivityTriggerService>()
+    .AddHostedService<OutboxService>()
     .AddHostedService<UnreadInboxPostCleanupService>();
 
 var app = builder.Build();

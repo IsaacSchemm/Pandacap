@@ -1,25 +1,26 @@
 ﻿using Pandacap.Inbox.Interfaces;
+using Pandacap.Outbox.Interfaces;
 
 namespace Pandacap.Local
 {
-    public class InboxService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
+    public class OutboxService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(0);
+        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(5);
 
-        protected override TimeSpan Period => TimeSpan.FromHours(4);
+        protected override TimeSpan Period => TimeSpan.FromMinutes(10);
 
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateScope();
-            var inboxSources = scope.ServiceProvider.GetServices<IInboxSource>();
+            var outboxDestinations = scope.ServiceProvider.GetServices<IOutboxDestination>();
 
             List<Exception> exceptions = [];
 
-            foreach (var source in inboxSources)
+            foreach (var destination in outboxDestinations)
             {
                 try
                 {
-                    await source.ImportNewPostsAsync(cancellationToken);
+                    await destination.PublishNextQueuedPostAsync(cancellationToken);
                 }
                 catch (Exception e)
                 {

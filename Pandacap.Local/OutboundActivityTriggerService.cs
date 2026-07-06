@@ -6,7 +6,7 @@ namespace Pandacap.Local
 {
     public class OutboundActivityTriggerService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(0.25);
+        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(1);
 
         protected override TimeSpan Period => TimeSpan.FromMinutes(1);
 
