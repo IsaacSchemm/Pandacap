@@ -5,7 +5,7 @@ namespace Pandacap.Local
 {
     public class OutboxService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(5);
+        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(0);
 
         protected override TimeSpan Period => TimeSpan.FromMinutes(10);
 

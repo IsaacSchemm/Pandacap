@@ -12,7 +12,6 @@ namespace Pandacap.Weasyl
             new WeasylClient(
                 weasylHttpHandlerProvider.GetOrCreateHandler(),
                 weasylConfiguration.WeasylApiKey,
-                weasylConfiguration.WeasylProxyHost.Host,
                 weasylScraper);
     }
 }

@@ -53,6 +53,7 @@ namespace Pandacap.PlatformLinks
             .Where(post => post.FurAffinityUsername != null)
             .OrderByDescending(post => post.PublishedTime)
             .Select(post => post.FurAffinityUsername)
+            .Take(1)
             .AsAsyncEnumerable()!;
 
         private IAsyncEnumerable<string> GetWeasylUsernamesAsync() =>
@@ -60,6 +61,7 @@ namespace Pandacap.PlatformLinks
             .Where(post => post.WeasylUsername != null)
             .OrderByDescending(post => post.PublishedTime)
             .Select(post => post.WeasylUsername)
+            .Take(1)
             .AsAsyncEnumerable()!;
 
         public async Task<IPlatformLinkProfile> GetProfileInformationAsync(CancellationToken cancellationToken) =>
