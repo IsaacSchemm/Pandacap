@@ -25,7 +25,7 @@
 
         private async Task Delay(TimeSpan timeSpan, CancellationToken cancellationToken)
         {
-            Console.WriteLine($"{GetType().Name}: Next run in {timeSpan}");
+            Console.WriteLine($"{GetType().Name}: Next run will be delayed for {timeSpan}");
             await Task.Delay(timeSpan, cancellationToken);
         }
     }

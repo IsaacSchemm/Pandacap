@@ -19,14 +19,17 @@ namespace Pandacap.Outbox.Weasyl
             var self = await client.WhoamiAsync(cancellationToken);
 
             var post = await pandacapDbContext.Posts
-                .Where(x => x.QueuedWeasylPost != null)
-                .OrderBy(x => x.PublishedTime)
+                .Where(x => x.WeasylPostQueuedAt != null)
+                .OrderBy(x => x.WeasylPostQueuedAt)
+                .AsAsyncEnumerable()
+                .Where(x => x.WeasylPostQueuedAt < DateTimeOffset.UtcNow)
+                .Where(x => x.WeasylQueuedPostInformation != null)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (post == null)
                 return false;
 
-            var queued = post.QueuedWeasylPost!;
+            var queued = post.WeasylQueuedPostInformation!;
 
             post.WeasylUsername = self.login;
             post.WeasylSubmitId = null;
@@ -54,7 +57,8 @@ namespace Pandacap.Outbox.Weasyl
                     cancellationToken);
             }
 
-            post.QueuedWeasylPost = null;
+            post.WeasylPostQueuedAt = null;
+            post.WeasylQueuedPostInformation = null;
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
 

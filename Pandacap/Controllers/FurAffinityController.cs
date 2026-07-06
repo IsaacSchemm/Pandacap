@@ -64,7 +64,8 @@ namespace Pandacap.Controllers
             if (post.FurAffinitySubmissionId != null || post.FurAffinityJournalId != null)
                 throw new Exception("Already posted to Fur Affinity");
 
-            post.QueuedFurAffinityPost = new()
+            post.FurAffinityPostQueuedAt = DateTimeOffset.UtcNow;
+            post.FurAffinityQueuedPostInformation = new()
             {
                 Cat = model.Category,
                 Atype = model.Type,

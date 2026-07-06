@@ -35,14 +35,17 @@ namespace Pandacap.Outbox.FurAffinity
                 return false;
 
             var post = await pandacapDbContext.Posts
-                .Where(x => x.QueuedFurAffinityPost != null)
-                .OrderBy(x => x.PublishedTime)
+                .Where(x => x.FurAffinityPostQueuedAt != null)
+                .OrderBy(x => x.FurAffinityPostQueuedAt)
+                .AsAsyncEnumerable()
+                .Where(x => x.FurAffinityPostQueuedAt < DateTimeOffset.UtcNow)
+                .Where(x => x.FurAffinityQueuedPostInformation != null)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (post == null)
                 return false;
 
-            var queued = post.QueuedFurAffinityPost!;
+            var queued = post.FurAffinityQueuedPostInformation!;
 
             var client = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.WWW);
 
@@ -81,7 +84,8 @@ namespace Pandacap.Outbox.FurAffinity
                 post.FurAffinityJournalId = int.Parse(posted.Segments[2].TrimEnd('/'));
             }
 
-            post.QueuedFurAffinityPost = null;
+            post.FurAffinityPostQueuedAt = null;
+            post.FurAffinityQueuedPostInformation = null;
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
 

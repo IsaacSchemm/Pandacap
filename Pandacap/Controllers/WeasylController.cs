@@ -20,7 +20,8 @@ namespace Pandacap.Controllers
             if (post.WeasylSubmitId != null || post.WeasylJournalId != null)
                 throw new Exception("Already posted to Weasyl");
 
-            post.QueuedWeasylPost = new()
+            post.WeasylPostQueuedAt = DateTime.UtcNow;
+            post.WeasylQueuedPostInformation = new()
             {
                 Subtype = Weasyl.Models.WeasylUpload.SubmissionType.Other,
                 FolderId = null,

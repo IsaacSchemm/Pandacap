@@ -8,8 +8,7 @@ using Pandacap.UI.Badges;
 namespace Pandacap.Notifications
 {
     public class FurAffinityNoteNotificationHandler(
-        PandacapDbContext context,
-        IFurAffinityClientFactory furAffinityClientFactory
+        PandacapDbContext context
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<INotification> GetNotificationsAsync()

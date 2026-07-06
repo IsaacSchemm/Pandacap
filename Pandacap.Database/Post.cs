@@ -103,7 +103,7 @@ namespace Pandacap.Database
 
         public string? DeviantArtUrl { get; set; }
 
-        public class FurAffinityQueueInformation
+        public class FurAffinityInformation
         {
             public int Cat { get; set; }
 
@@ -122,7 +122,9 @@ namespace Pandacap.Database
             public List<long> FolderIds { get; set; } = [];
         }
 
-        public FurAffinityQueueInformation? QueuedFurAffinityPost { get; set; }
+        public DateTimeOffset? FurAffinityPostQueuedAt { get; set; }
+
+        public FurAffinityInformation? FurAffinityQueuedPostInformation { get; set; }
 
         public string? FurAffinityUsername { get; set; }
 
@@ -130,7 +132,7 @@ namespace Pandacap.Database
 
         public int? FurAffinityJournalId { get; set; }
 
-        public class WeasylQueueInformation
+        public class WeasylInformation
         {
             public Weasyl.Models.WeasylUpload.SubmissionType Subtype { get; set; }
 
@@ -139,7 +141,9 @@ namespace Pandacap.Database
             public Weasyl.Models.WeasylUpload.Rating Rating { get; set; }
         }
 
-        public WeasylQueueInformation? QueuedWeasylPost { get; set; }
+        public DateTimeOffset? WeasylPostQueuedAt { get; set; }
+
+        public WeasylInformation? WeasylQueuedPostInformation { get; set; }
 
         public string? WeasylUsername { get; set; }
 
