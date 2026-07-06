@@ -1,5 +1,6 @@
 ﻿using Moq;
-using Pandacap.FeedIngestion.Interfaces;
+using Pandacap.Rss;
+using Pandacap.Rss.Interfaces;
 using System.Net;
 using System.Text;
 

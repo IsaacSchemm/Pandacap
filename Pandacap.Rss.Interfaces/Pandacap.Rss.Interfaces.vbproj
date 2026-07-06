@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>Pandacap.FeedIngestion.Interfaces</RootNamespace>
+    <RootNamespace>Pandacap.Rss.Interfaces</RootNamespace>
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 

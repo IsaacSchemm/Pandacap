@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
-using Pandacap.FeedIngestion.Interfaces;
 using Pandacap.ManualInboxIngestion.Feeds.Interfaces;
+using Pandacap.Rss.Interfaces;
 
 namespace Pandacap.ManualInboxIngestion.Feeds
 {

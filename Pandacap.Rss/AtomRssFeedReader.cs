@@ -1,11 +1,11 @@
 ﻿using CodeHollow.FeedReader;
 using CodeHollow.FeedReader.Feeds;
 using Pandacap.Database;
-using Pandacap.FeedIngestion.Interfaces;
+using Pandacap.Rss.Interfaces;
 using Pandacap.Text;
 using System.Runtime.CompilerServices;
 
-namespace Pandacap.FeedIngestion
+namespace Pandacap.Rss
 {
     internal class AtomRssFeedReader(
         IFeedRequestHandler feedRequestHandler) : IFeedReader

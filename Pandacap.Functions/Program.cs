@@ -13,13 +13,13 @@ using Pandacap.Credentials;
 using Pandacap.Database;
 using Pandacap.DeviantArt;
 using Pandacap.Favorites;
-using Pandacap.FeedIngestion;
 using Pandacap.Inbox.ATProto;
 using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
 using Pandacap.ManualInboxIngestion.ATProto;
 using Pandacap.ManualInboxIngestion.Feeds;
 using Pandacap.PeriodicTasks;
+using Pandacap.Rss;
 using Pandacap.UI.Posts;
 
 var host = new HostBuilder()

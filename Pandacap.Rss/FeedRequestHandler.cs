@@ -1,7 +1,7 @@
 ﻿using Pandacap.Constants;
-using Pandacap.FeedIngestion.Interfaces;
+using Pandacap.Rss.Interfaces;
 
-namespace Pandacap.FeedIngestion
+namespace Pandacap.Rss
 {
     internal class FeedRequestHandler(
         IHttpClientFactory httpClientFactory) : IFeedRequestHandler

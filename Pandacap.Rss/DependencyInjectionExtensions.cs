@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Pandacap.FeedIngestion.Interfaces;
+using Pandacap.Rss.Interfaces;
 
-namespace Pandacap.FeedIngestion
+namespace Pandacap.Rss
 {
     public static class DependencyInjectionExtensions
     {

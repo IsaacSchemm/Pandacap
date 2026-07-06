@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.FeedIngestion.Interfaces\Pandacap.FeedIngestion.Interfaces.vbproj" />
-    <ProjectReference Include="..\Pandacap.FeedIngestion.Modules\Pandacap.FeedIngestion.Modules.fsproj" />
+    <ProjectReference Include="..\Pandacap.Rss.Interfaces\Pandacap.Rss.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Rss.Modules\Pandacap.Rss.Modules.fsproj" />
   </ItemGroup>
 
 </Project>

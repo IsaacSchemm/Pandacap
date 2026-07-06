@@ -1,9 +1,9 @@
 ﻿using Pandacap.Database;
-using Pandacap.FeedIngestion.Interfaces;
-using Pandacap.FeedIngestion.Modules;
+using Pandacap.Rss.Interfaces;
+using Pandacap.Rss.Modules;
 using System.Runtime.CompilerServices;
 
-namespace Pandacap.FeedIngestion
+namespace Pandacap.Rss
 {
     internal class TwtxtFeedReader(
         IFeedRequestHandler feedRequestHandler

@@ -1,4 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Pandacap.FeedIngestion.Tests")]
+[assembly: InternalsVisibleTo("Pandacap.Rss.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

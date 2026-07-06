@@ -6,12 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Twtxt.fs" />
     <Compile Include="JsonFeed.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="10.1.300" />
+    <Compile Include="Twtxt.fs" />
   </ItemGroup>
 
 </Project>
