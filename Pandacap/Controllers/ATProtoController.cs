@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
-using Pandacap.ManualInboxIngestion.ATProto.Interfaces;
+using Pandacap.Ingestion.Interfaces;
 using Pandacap.Models;
 
 namespace Pandacap.Controllers

@@ -13,7 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
     <ProjectReference Include="..\Pandacap.Inbox.Interfaces\Pandacap.Inbox.Interfaces.vbproj" />
-    <ProjectReference Include="..\Pandacap.ManualInboxIngestion.Feeds.Interfaces\Pandacap.ManualInboxIngestion.Feeds.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Ingestion.Interfaces\Pandacap.Ingestion.Interfaces.vbproj" />
   </ItemGroup>
 
 </Project>

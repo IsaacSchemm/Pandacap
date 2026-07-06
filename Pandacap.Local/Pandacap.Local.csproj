@@ -19,8 +19,7 @@
     <ProjectReference Include="..\Pandacap.Inbox.ATProto\Pandacap.Inbox.ATProto.csproj" />
     <ProjectReference Include="..\Pandacap.Inbox.Feeds\Pandacap.Inbox.Feeds.csproj" />
     <ProjectReference Include="..\Pandacap.Inbox.Other\Pandacap.Inbox.Other.csproj" />
-    <ProjectReference Include="..\Pandacap.ManualInboxIngestion.ATProto\Pandacap.ManualInboxIngestion.ATProto.csproj" />
-    <ProjectReference Include="..\Pandacap.ManualInboxIngestion.Feeds\Pandacap.ManualInboxIngestion.Feeds.csproj" />
+    <ProjectReference Include="..\Pandacap.Ingestion\Pandacap.Ingestion.csproj" />
     <ProjectReference Include="..\Pandacap.Outbox\Pandacap.Outbox.csproj" />
     <ProjectReference Include="..\Pandacap.PeriodicTasks\Pandacap.PeriodicTasks.csproj" />
     <ProjectReference Include="..\Pandacap.Rss\Pandacap.Rss.csproj" />

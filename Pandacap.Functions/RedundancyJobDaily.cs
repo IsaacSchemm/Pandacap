@@ -3,53 +3,32 @@ using Microsoft.EntityFrameworkCore;
 using Pandacap.Bridging.Interfaces;
 using Pandacap.Configuration;
 using Pandacap.Database;
-using Pandacap.Favorites.Interfaces;
-using Pandacap.Inbox.Interfaces;
+using Pandacap.Ingestion.Interfaces;
 
 namespace Pandacap.Functions
 {
     public class RedundancyJobDaily(
+        IATProtoFeedRefresher atProtoFeedRefresher,
         IBridgedPostLinker bridgedPostLinker,
-        IEnumerable<IInboxSource> inboxSources,
+        IFeedRefresher feedRefresher,
         IHttpClientFactory httpClientFactory,
-        IEnumerable<IFavoritesSource> favoritesSources,
         PandacapDbContext pandacapDbContext)
     {
         [Function("RedundancyJobDaily")]
         public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo _)
         {
-            await ImportNewPostsAsync();
-            await ImportFavoritesAsync();
-            await SendOutboundActivitiesAsync();
-            await bridgedPostLinker.LinkAllBridgedPostsAsync();
-        }
-
-        private async Task ImportNewPostsAsync()
-        {
-            foreach (var source in inboxSources)
+            try
             {
-                try
-                {
-                    await source.ImportNewPostsAsync();
-                }
-                catch (Exception) { }
+                await atProtoFeedRefresher.RefreshAllAsync();
             }
-        }
+            catch (Exception) { }
 
-        private async Task ImportFavoritesAsync()
-        {
-            foreach (var source in favoritesSources)
+            try
             {
-                try
-                {
-                    await source.ImportFavoritesAsync();
-                }
-                catch (Exception) { }
+                await feedRefresher.RefreshAllAsync();
             }
-        }
+            catch (Exception) { }
 
-        private async Task SendOutboundActivitiesAsync()
-        {
             using var client = httpClientFactory.CreateClient();
 
             var query = pandacapDbContext.ActivityPubOutboundActivities
@@ -82,6 +61,8 @@ namespace Pandacap.Functions
                 }
                 catch (Exception) { }
             }
+
+            await bridgedPostLinker.LinkAllBridgedPostsAsync();
         }
     }
 }

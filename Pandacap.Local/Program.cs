@@ -12,9 +12,8 @@ using Pandacap.FurAffinity.Interfaces;
 using Pandacap.Inbox.ATProto;
 using Pandacap.Inbox.Feeds;
 using Pandacap.Inbox.Other;
+using Pandacap.Ingestion;
 using Pandacap.Local;
-using Pandacap.ManualInboxIngestion.ATProto;
-using Pandacap.ManualInboxIngestion.Feeds;
 using Pandacap.Outbox;
 using Pandacap.PeriodicTasks;
 using Pandacap.Rss;
@@ -41,7 +40,6 @@ builder.Services
         builder.Configuration["FurAffinityB"]!));
 
 builder.Services
-    .AddATProtoFeedRefresher()
     .AddATProtoHandleResolution()
     .AddATProtoInboxSources()
     .AddATProtoServices()
@@ -52,8 +50,8 @@ builder.Services
     .AddFavoritesHandlers()
     .AddFeedInboxSources()
     .AddFeedReaders()
-    .AddFeedRefresher()
     .AddFurAffinityClient()
+    .AddIngestion()
     .AddOtherInboxSources()
     .AddOutboxDestinations()
     .AddPeriodicTaskServices()

@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
-using Pandacap.ManualInboxIngestion.Feeds.Interfaces;
+using Pandacap.Ingestion.Interfaces;
 using Pandacap.Rss.Interfaces;
 
-namespace Pandacap.ManualInboxIngestion.Feeds
+namespace Pandacap.Ingestion
 {
     internal class FeedRefresher(
         IEnumerable<IFeedReader> feedReaders,
@@ -62,6 +62,30 @@ namespace Pandacap.ManualInboxIngestion.Feeds
             }
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task RefreshAllAsync(CancellationToken cancellationToken)
+        {
+            var feeds = await pandacapDbContext
+                .GeneralFeeds.Select(f => new { f.Id })
+                .ToListAsync(cancellationToken);
+
+            List<Exception> exceptions = [];
+
+            foreach (var feed in feeds)
+            {
+                try
+                {
+                    await RefreshFeedAsync(feed.Id, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+
+            if (exceptions.Count > 0)
+                throw new AggregateException(exceptions);
         }
 
         public async Task AddFeedAsync(

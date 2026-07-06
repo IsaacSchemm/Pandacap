@@ -3,9 +3,9 @@ using Microsoft.FSharp.Collections;
 using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
-using Pandacap.ManualInboxIngestion.ATProto.Interfaces;
+using Pandacap.Ingestion.Interfaces;
 
-namespace Pandacap.ManualInboxIngestion.ATProto
+namespace Pandacap.Ingestion
 {
     internal class ATProtoFeedRefresher(
         IATProtoService atProtoService,
@@ -189,6 +189,30 @@ namespace Pandacap.ManualInboxIngestion.ATProto
                 RecordKey = document.Ref.Uri.Components.RecordKey,
                 Title = document.Value.Title
             });
+        }
+
+        public async Task RefreshAllAsync(CancellationToken cancellationToken)
+        {
+            var feeds = await pandacapDbContext.ATProtoFeeds
+                .Select(f => new { f.DID, f.DisplayName })
+                .ToListAsync(cancellationToken);
+
+            List<Exception> exceptions = [];
+
+            foreach (var feed in feeds)
+            {
+                try
+                {
+                    await RefreshFeedAsync(feed.DID, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+
+            if (exceptions.Count > 0)
+                throw new AggregateException(exceptions);
         }
 
         public async Task AddFeedAsync(string did, CancellationToken cancellationToken)
