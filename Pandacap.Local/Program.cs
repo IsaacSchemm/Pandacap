@@ -7,9 +7,12 @@ using Pandacap.Credentials;
 using Pandacap.Database;
 using Pandacap.DeviantArt;
 using Pandacap.Favorites;
+using Pandacap.FeedIngestion;
 using Pandacap.FurAffinity;
 using Pandacap.FurAffinity.Interfaces;
 using Pandacap.Inbox;
+using Pandacap.Inbox.ATProto;
+using Pandacap.Inbox.Feeds;
 using Pandacap.Local;
 using Pandacap.Outbox;
 using Pandacap.PeriodicTasks;
@@ -34,17 +37,19 @@ builder.Services
 
 builder.Services
     .AddATProtoHandleResolution()
+    .AddATProtoInboxSources()
     .AddATProtoServices()
     .AddBridgingServices()
     .AddCredentialProviders()
     .AddDeviantArtClient()
     .AddDnsClient()
     .AddFavoritesHandlers()
+    .AddFeedInboxSources()
+    .AddFeedReaders()
     .AddFurAffinityClient()
     .AddSingleton<IFurAffinityCredentials>(new FurAffinityCredentials(
         builder.Configuration["FurAffinityA"]!,
         builder.Configuration["FurAffinityB"]!))
-    .AddInboxHandlers()
     .AddOutboxDestinations()
     .AddPeriodicTaskServices()
     .AddUIPostProviders()

@@ -3,7 +3,7 @@ using Pandacap.Database;
 using Pandacap.Inbox.Interfaces;
 using Pandacap.Weasyl.Interfaces;
 
-namespace Pandacap.Inbox.Weasyl
+namespace Pandacap.Inbox.Other.Weasyl
 {
     public class WeasylInboxHandler(
         PandacapDbContext pandacapDbContext,

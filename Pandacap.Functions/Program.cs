@@ -14,13 +14,11 @@ using Pandacap.Database;
 using Pandacap.DeviantArt;
 using Pandacap.Favorites;
 using Pandacap.FeedIngestion;
-using Pandacap.FurAffinity;
-using Pandacap.Inbox;
+using Pandacap.Inbox.ATProto;
+using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
 using Pandacap.PeriodicTasks;
 using Pandacap.UI.Posts;
-using Pandacap.Weasyl;
-using Pandacap.Weasyl.Scraping;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -61,13 +59,14 @@ var host = new HostBuilder()
         services
             .AddActivityPubOutboundServices()
             .AddActivityPubRemoteObjectServices()
+            .AddATProtoInboxSources()
             .AddATProtoServices()
             .AddBridgingServices()
             .AddCredentialProviders()
             .AddDeviantArtClient()
             .AddFavoritesHandlers()
+            .AddFeedInboxSources()
             .AddFeedReaders()
-            .AddInboxHandlers()
             .AddJsonLdExpansionService()
             .AddMemoryCache()
             .AddPandacapKeyVault(

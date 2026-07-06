@@ -5,7 +5,7 @@ using Pandacap.FurAffinity.Models;
 using Pandacap.Inbox.Interfaces;
 using System.Text.RegularExpressions;
 
-namespace Pandacap.Inbox.FurAffinity
+namespace Pandacap.Inbox.Other.FurAffinity
 {
     internal partial class FurAffinityInboxHandler(
         IEnumerable<IFurAffinityClientFactory> furAffinityClientFactories,

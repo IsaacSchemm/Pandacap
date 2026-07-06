@@ -61,6 +61,8 @@
     <ProjectReference Include="..\Pandacap.FeedIngestion\Pandacap.FeedIngestion.csproj" />
     <ProjectReference Include="..\Pandacap.Frontend.Feeds\Pandacap.Frontend.Feeds.csproj" />
     <ProjectReference Include="..\Pandacap.ImageConversion\Pandacap.ImageConversion.csproj" />
+    <ProjectReference Include="..\Pandacap.Inbox.ATProto\Pandacap.Inbox.ATProto.csproj" />
+    <ProjectReference Include="..\Pandacap.Inbox.Feeds\Pandacap.Inbox.Feeds.csproj" />
     <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
     <ProjectReference Include="..\Pandacap.Lemmy\Pandacap.Lemmy.fsproj" />
     <ProjectReference Include="..\Pandacap.Notifications.Composite\Pandacap.Notifications.Composite.fsproj" />

@@ -31,6 +31,8 @@ using Pandacap.DeviantArt.Feeds;
 using Pandacap.FeedIngestion;
 using Pandacap.Frontend.Feeds;
 using Pandacap.ImageConversion;
+using Pandacap.Inbox.ATProto;
+using Pandacap.Inbox.Feeds;
 using Pandacap.KeyVault;
 using Pandacap.Lemmy;
 using Pandacap.Notifications;
@@ -155,6 +157,7 @@ builder.Services
     .AddActivityPubRemoteObjectServices()
     .AddActivityPubSignatureValidator()
     .AddATProtoHandleResolution()
+    .AddATProtoInboxSources()
     .AddATProtoServices()
     .AddAudioServices()
     .AddCanonicalTagServices()
@@ -165,6 +168,7 @@ builder.Services
     .AddDeviantArtFeeds()
     .AddDnsClient()
     .AddFeedBuilder()
+    .AddFeedInboxSources()
     .AddFeedReaders()
     .AddImageConversion()
     .AddJsonLdExpansionService()
