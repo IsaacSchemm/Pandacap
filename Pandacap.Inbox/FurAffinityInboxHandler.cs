@@ -5,10 +5,10 @@ using Pandacap.FurAffinity.Models;
 using Pandacap.Inbox.Interfaces;
 using System.Text.RegularExpressions;
 
-namespace Pandacap.Inbox.Other.FurAffinity
+namespace Pandacap.Inbox
 {
     internal partial class FurAffinityInboxHandler(
-        IEnumerable<IFurAffinityClientFactory> furAffinityClientFactories,
+        IFurAffinityClientFactory furAffinityClientFactory,
         IEnumerable<IFurAffinityCredentials> furAffinityCredentials,
         IFurAffinityOnlineStatsProvider furAffinityOnlineStatsProvider,
         PandacapDbContext pandacapDbContext) : IInboxSource
@@ -18,9 +18,6 @@ namespace Pandacap.Inbox.Other.FurAffinity
 
         public async Task ImportSubmissionsAsync(CancellationToken cancellationToken)
         {
-            if (furAffinityClientFactories.FirstOrDefault() is not IFurAffinityClientFactory furAffinityClientFactory)
-                return;
-
             var credentials = furAffinityCredentials.FirstOrDefault();
 
             if (credentials == null)
@@ -102,9 +99,6 @@ namespace Pandacap.Inbox.Other.FurAffinity
 
         public async Task ImportJournalsAsync(CancellationToken cancellationToken)
         {
-            if (furAffinityClientFactories.FirstOrDefault() is not IFurAffinityClientFactory furAffinityClientFactory)
-                return;
-
             var credentials = furAffinityCredentials.FirstOrDefault();
 
             if (credentials == null)

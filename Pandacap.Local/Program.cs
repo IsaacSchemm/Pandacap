@@ -9,9 +9,7 @@ using Pandacap.DeviantArt;
 using Pandacap.Favorites;
 using Pandacap.FurAffinity;
 using Pandacap.FurAffinity.Interfaces;
-using Pandacap.Inbox.ATProto;
-using Pandacap.Inbox.Feeds;
-using Pandacap.Inbox.Other;
+using Pandacap.Inbox;
 using Pandacap.Ingestion;
 using Pandacap.Local;
 using Pandacap.Outbox;
@@ -41,18 +39,16 @@ builder.Services
 
 builder.Services
     .AddATProtoHandleResolution()
-    .AddATProtoInboxSources()
     .AddATProtoServices()
     .AddBridgingServices()
     .AddCredentialProviders()
     .AddDeviantArtClient()
     .AddDnsClient()
     .AddFavoritesHandlers()
-    .AddFeedInboxSources()
     .AddFeedReaders()
     .AddFurAffinityClient()
+    .AddInboxSources()
     .AddIngestion()
-    .AddOtherInboxSources()
     .AddOutboxDestinations()
     .AddPeriodicTaskServices()
     .AddUIPostProviders()

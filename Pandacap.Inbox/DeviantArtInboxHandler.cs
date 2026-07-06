@@ -4,7 +4,7 @@ using Pandacap.Database;
 using Pandacap.DeviantArt.Interfaces;
 using Pandacap.Inbox.Interfaces;
 
-namespace Pandacap.Inbox.Other.DeviantArt
+namespace Pandacap.Inbox
 {
     internal class DeviantArtInboxHandler(
         IDeviantArtClient deviantArtClient,

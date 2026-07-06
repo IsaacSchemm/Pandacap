@@ -1,16 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pandacap.Inbox.Interfaces;
-using Pandacap.Inbox.Other.DeviantArt;
-using Pandacap.Inbox.Other.FurAffinity;
-using Pandacap.Inbox.Other.Weasyl;
 
-namespace Pandacap.Inbox.Other
+namespace Pandacap.Inbox
 {
     public static class DependencyInjectionExtensions
     {
-        public static IServiceCollection AddOtherInboxSources(this IServiceCollection serviceCollection) =>
+        public static IServiceCollection AddInboxSources(this IServiceCollection serviceCollection) =>
             serviceCollection
+            .AddScoped<IInboxSource, ATProtoInboxSource>()
             .AddScoped<IInboxSource, DeviantArtInboxHandler>()
+            .AddScoped<IInboxSource, FeedInboxSource>()
             .AddScoped<IInboxSource, FurAffinityInboxHandler>()
             .AddScoped<IInboxSource, WeasylInboxHandler>();
     }

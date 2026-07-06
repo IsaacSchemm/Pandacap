@@ -3,11 +3,11 @@ using Pandacap.Database;
 using Pandacap.Inbox.Interfaces;
 using Pandacap.Weasyl.Interfaces;
 
-namespace Pandacap.Inbox.Other.Weasyl
+namespace Pandacap.Inbox
 {
     public class WeasylInboxHandler(
         PandacapDbContext pandacapDbContext,
-        IEnumerable<IWeasylClientFactory> weasylClientFactories) : IInboxSource
+        IWeasylClientFactory weasylClientFactory) : IInboxSource
     {
         /// <summary>
         /// Imports new posts from the past three days that have not yet been
@@ -16,9 +16,6 @@ namespace Pandacap.Inbox.Other.Weasyl
         /// <returns></returns>
         internal async Task ImportSubmissionsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            if (weasylClientFactories.FirstOrDefault() is not IWeasylClientFactory weasylClientFactory)
-                return;
-
             if (weasylClientFactory.CreateWeasylClient() is not IWeasylClient weasylClient)
                 return;
 
@@ -79,9 +76,6 @@ namespace Pandacap.Inbox.Other.Weasyl
         /// <returns></returns>
         public async Task ImportJournalsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            if (weasylClientFactories.FirstOrDefault() is not IWeasylClientFactory weasylClientFactory)
-                return;
-
             if (weasylClientFactory.CreateWeasylClient() is not IWeasylClient weasylClient)
                 return;
 

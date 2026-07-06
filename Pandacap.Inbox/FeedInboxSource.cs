@@ -1,7 +1,7 @@
 ﻿using Pandacap.Inbox.Interfaces;
 using Pandacap.Ingestion.Interfaces;
 
-namespace Pandacap.Inbox.Feeds
+namespace Pandacap.Inbox
 {
     internal class FeedInboxSource(
         IFeedRefresher feedRefresher) : IInboxSource

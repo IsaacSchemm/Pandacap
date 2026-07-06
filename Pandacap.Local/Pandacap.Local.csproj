@@ -16,9 +16,7 @@
     <ProjectReference Include="..\Pandacap.DeviantArt\Pandacap.DeviantArt.fsproj" />
     <ProjectReference Include="..\Pandacap.Favorites\Pandacap.Favorites.csproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
-    <ProjectReference Include="..\Pandacap.Inbox.ATProto\Pandacap.Inbox.ATProto.csproj" />
-    <ProjectReference Include="..\Pandacap.Inbox.Feeds\Pandacap.Inbox.Feeds.csproj" />
-    <ProjectReference Include="..\Pandacap.Inbox.Other\Pandacap.Inbox.Other.csproj" />
+    <ProjectReference Include="..\Pandacap.Inbox\Pandacap.Inbox.csproj" />
     <ProjectReference Include="..\Pandacap.Ingestion\Pandacap.Ingestion.csproj" />
     <ProjectReference Include="..\Pandacap.Outbox\Pandacap.Outbox.csproj" />
     <ProjectReference Include="..\Pandacap.PeriodicTasks\Pandacap.PeriodicTasks.csproj" />

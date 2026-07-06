@@ -1,7 +1,7 @@
 ﻿using Pandacap.Inbox.Interfaces;
 using Pandacap.Ingestion.Interfaces;
 
-namespace Pandacap.Inbox.ATProto
+namespace Pandacap.Inbox
 {
     internal class ATProtoInboxSource(
         IATProtoFeedRefresher atProtoFeedRefresher) : IInboxSource
