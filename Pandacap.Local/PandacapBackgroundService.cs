@@ -9,10 +9,14 @@
         {
             try
             {
+                Console.WriteLine($"{GetType().Name}: Delaying for {InitialDelay}");
+
                 await Delay(InitialDelay, stoppingToken);
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
+                    Console.WriteLine($"{GetType().Name}: Running now, will be run again in {Period}");
+
                     await Task.WhenAll(
                         RunAsync(stoppingToken),
                         Delay(Period, stoppingToken));
@@ -25,7 +29,6 @@
 
         private async Task Delay(TimeSpan timeSpan, CancellationToken cancellationToken)
         {
-            Console.WriteLine($"{GetType().Name}: Next run will be delayed for {timeSpan}");
             await Task.Delay(timeSpan, cancellationToken);
         }
     }
