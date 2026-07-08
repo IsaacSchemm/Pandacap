@@ -17,6 +17,7 @@ using Pandacap.PeriodicTasks;
 using Pandacap.Rss;
 using Pandacap.UI.Posts;
 using Pandacap.Weasyl;
+using Pandacap.Weasyl.Interfaces;
 using Pandacap.Weasyl.Scraping;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,7 +36,9 @@ builder.Services
     .AddSingleton(TimeProvider.System)
     .AddSingleton<IFurAffinityCredentials>(new FurAffinityCredentials(
         builder.Configuration["FurAffinityA"]!,
-        builder.Configuration["FurAffinityB"]!));
+        builder.Configuration["FurAffinityB"]!))
+    .AddSingleton<IWeasylCredentials>(new WeasylCredentials(
+        builder.Configuration["WeasylApiKey"]!));
 
 builder.Services
     .AddATProtoHandleResolution()
@@ -52,8 +55,7 @@ builder.Services
     .AddOutboxDestinations()
     .AddPeriodicTaskServices()
     .AddUIPostProviders()
-    .AddWeasylClient(
-        weasylApiKey: new(builder.Configuration["WeasylApiKey"]))
+    .AddWeasylClient()
     .AddWeasylScraper();
 
 builder.Services
@@ -72,6 +74,8 @@ var app = builder.Build();
 app.MapGet("/", () => "Pandacap Local Sidecar");
 
 app.Run($"http://+:5002");
+
+record WeasylCredentials(string WeasylApiKey) : IWeasylCredentials;
 
 record FurAffinityCredentials(string A, string B) : IFurAffinityCredentials
 {

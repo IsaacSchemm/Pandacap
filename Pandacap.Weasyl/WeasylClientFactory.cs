@@ -5,13 +5,12 @@ namespace Pandacap.Weasyl
 {
     internal class WeasylClientFactory(
         WeasylHttpHandlerProvider weasylHttpHandlerProvider,
-        IWeasylScraper weasylScraper,
-        WeasylConfiguration weasylConfiguration) : IWeasylClientFactory
+        IWeasylScraper weasylScraper) : IWeasylClientFactory
     {
-        public IWeasylClient CreateWeasylClient() =>
+        public IWeasylClient CreateWeasylClient(IWeasylCredentials weasylCredentials) =>
             new WeasylClient(
                 weasylHttpHandlerProvider.GetOrCreateHandler(),
-                weasylConfiguration.WeasylApiKey,
+                weasylCredentials.WeasylApiKey,
                 weasylScraper);
     }
 }

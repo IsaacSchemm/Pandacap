@@ -1,3 +1,3 @@
 ﻿Public Interface IWeasylClientFactory
-    Function CreateWeasylClient() As IWeasylClient
+    Function CreateWeasylClient(weasylCredentials As IWeasylCredentials) As IWeasylClient
 End Interface

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Credentials.Interfaces;
 using Pandacap.Database;
 using Pandacap.Outbox.Interfaces;
 using Pandacap.Text;
@@ -9,12 +8,15 @@ namespace Pandacap.Outbox.Weasyl
 {
     internal class WeasylOutboxHandler(
         PandacapDbContext pandacapDbContext,
-        IWeasylClientFactory weasylClientFactory) : IOutboxDestination
+        IWeasylClientFactory weasylClientFactory,
+        IEnumerable<IWeasylCredentials> weasylCredentials) : IOutboxDestination
     {
         public async Task<bool> PublishNextQueuedPostAsync(CancellationToken cancellationToken)
         {
-            if (weasylClientFactory.CreateWeasylClient() is not IWeasylClient client)
+            if (weasylCredentials.FirstOrDefault() is not IWeasylCredentials credentials)
                 return false;
+
+            var client = weasylClientFactory.CreateWeasylClient(credentials);
 
             var self = await client.WhoamiAsync(cancellationToken);
 
@@ -67,8 +69,10 @@ namespace Pandacap.Outbox.Weasyl
 
         public async Task SynchronizeOfflinePlatformCacheAsync(CancellationToken cancellationToken)
         {
-            if (weasylClientFactory.CreateWeasylClient() is not IWeasylClient client)
+            if (weasylCredentials.FirstOrDefault() is not IWeasylCredentials credentials)
                 return;
+
+            var client = weasylClientFactory.CreateWeasylClient(credentials);
 
             var folders = await client.GetFoldersAsync(cancellationToken).ToListAsync(cancellationToken);
 

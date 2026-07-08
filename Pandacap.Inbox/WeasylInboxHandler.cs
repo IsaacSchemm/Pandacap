@@ -7,7 +7,8 @@ namespace Pandacap.Inbox
 {
     public class WeasylInboxHandler(
         PandacapDbContext pandacapDbContext,
-        IWeasylClientFactory weasylClientFactory) : IInboxSource
+        IWeasylClientFactory weasylClientFactory,
+        IEnumerable<IWeasylCredentials> weasylCredentials) : IInboxSource
     {
         /// <summary>
         /// Imports new posts from the past three days that have not yet been
@@ -16,8 +17,10 @@ namespace Pandacap.Inbox
         /// <returns></returns>
         internal async Task ImportSubmissionsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            if (weasylClientFactory.CreateWeasylClient() is not IWeasylClient weasylClient)
+            if (weasylCredentials.FirstOrDefault() is not IWeasylCredentials credentials)
                 return;
+
+            var weasylClient = weasylClientFactory.CreateWeasylClient(credentials);
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
@@ -76,8 +79,10 @@ namespace Pandacap.Inbox
         /// <returns></returns>
         public async Task ImportJournalsByUsersWeWatchAsync(CancellationToken cancellationToken)
         {
-            if (weasylClientFactory.CreateWeasylClient() is not IWeasylClient weasylClient)
+            if (weasylCredentials.FirstOrDefault() is not IWeasylCredentials credentials)
                 return;
+
+            var weasylClient = weasylClientFactory.CreateWeasylClient(credentials);
 
             DateTimeOffset someTimeAgo = DateTimeOffset.UtcNow.AddDays(-3);
 
