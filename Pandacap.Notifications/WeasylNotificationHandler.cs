@@ -1,38 +1,44 @@
-﻿using Pandacap.Credentials.Interfaces;
+﻿using Pandacap.Database;
 using Pandacap.Notifications.Interfaces;
 using Pandacap.UI.Badges;
-using Pandacap.Weasyl.Interfaces;
-using System.Runtime.CompilerServices;
 
 namespace Pandacap.Notifications
 {
-    public class WeasylNotificationHandler() : INotificationHandler
+    public class WeasylNotificationHandler(
+        PandacapDbContext pandacapDbContext) : INotificationHandler
     {
-        public async IAsyncEnumerable<INotification> GetNotificationsAsync(
-            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<INotification> GetNotificationsAsync()
         {
-            yield break;
+            await foreach (var collection in pandacapDbContext.WeasylNotificationCollections)
+            {
+                foreach (var notification in collection.Notifications)
+                {
+                    yield return new Notification
+                    {
+                        ActivityName = notification.NotificationId?.TrimEnd('s') ?? "???",
+                        Badge = Badges.Weasyl,
+                        PostUrl = notification.PostUrl,
+                        Timestamp = notification.Time,
+                        UserName = notification.UserName,
+                        UserUrl = notification.UserUrl
+                    };
+                }
 
-            //if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
-            //    yield break;
-
-            //var notifications = await client.ExtractNotificationsAsync(cancellationToken);
-
-            //foreach (var notification in notifications.OrderByDescending(x => x.Time))
-            //{
-            //    yield return new Notification
-            //    {
-            //        ActivityName = notification.Id.TrimEnd('s'),
-            //        Badge = Badges.Weasyl,
-            //        PostUrl = notification.PostUrl,
-            //        Timestamp = notification.Time,
-            //        UserName = notification.UserName,
-            //        UserUrl = notification.UserUrl
-            //    };
-            //}
+                foreach (var note in collection.Notes)
+                {
+                    yield return new Notification
+                    {
+                        ActivityName = "note",
+                        Badge = Badges.Weasyl,
+                        Timestamp = note.Time,
+                        UserName = note.Sender,
+                        UserUrl = note.SenderUrl
+                    };
+                }
+            }
         }
 
         IAsyncEnumerable<INotification> INotificationHandler.GetNotificationsAsync() =>
-            GetNotificationsAsync();
+            GetNotificationsAsync().OrderByDescending(x => x.Timestamp);
     }
 }

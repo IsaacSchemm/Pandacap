@@ -304,6 +304,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Ingestion", "Panda
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.Inbox", "Pandacap.Inbox\Pandacap.Inbox.csproj", "{D1A5E4CC-8808-4565-89AC-B3F29AE7495E}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Pandacap.OfflineNotifications.Interfaces", "Pandacap.OfflineNotifications.Interfaces\Pandacap.OfflineNotifications.Interfaces.vbproj", "{38032375-B693-4EBC-882F-A5C8A8305BF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pandacap.OfflineNotifications", "Pandacap.OfflineNotifications\Pandacap.OfflineNotifications.csproj", "{74FEFFCD-F96B-4010-96B9-646888B10E34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -770,6 +774,14 @@ Global
 		{D1A5E4CC-8808-4565-89AC-B3F29AE7495E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1A5E4CC-8808-4565-89AC-B3F29AE7495E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1A5E4CC-8808-4565-89AC-B3F29AE7495E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38032375-B693-4EBC-882F-A5C8A8305BF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38032375-B693-4EBC-882F-A5C8A8305BF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38032375-B693-4EBC-882F-A5C8A8305BF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38032375-B693-4EBC-882F-A5C8A8305BF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74FEFFCD-F96B-4010-96B9-646888B10E34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74FEFFCD-F96B-4010-96B9-646888B10E34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74FEFFCD-F96B-4010-96B9-646888B10E34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74FEFFCD-F96B-4010-96B9-646888B10E34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -909,6 +921,8 @@ Global
 		{4B081DFB-A8B8-4C37-A9DF-5216A4E3249A} = {BF4C26B8-6F99-486F-BCF7-DC2077890BBB}
 		{F0DCC2D6-DCFC-44CD-93D6-CEEBD09F2006} = {BF4C26B8-6F99-486F-BCF7-DC2077890BBB}
 		{D1A5E4CC-8808-4565-89AC-B3F29AE7495E} = {024FE5A4-C2BC-451A-9708-17D349DA0340}
+		{38032375-B693-4EBC-882F-A5C8A8305BF0} = {024FE5A4-C2BC-451A-9708-17D349DA0340}
+		{74FEFFCD-F96B-4010-96B9-646888B10E34} = {024FE5A4-C2BC-451A-9708-17D349DA0340}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C08DE20-491B-46B3-B451-95EA64B8F4AE}

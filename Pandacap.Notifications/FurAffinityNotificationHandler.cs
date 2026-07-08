@@ -1,35 +1,42 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Pandacap.Database;
-using Pandacap.FurAffinity.Interfaces;
+﻿using Pandacap.Database;
 using Pandacap.Notifications.Interfaces;
 using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
     public class FurAffinityNotificationHandler(
-        PandacapDbContext context
+        PandacapDbContext pandacapDbContext
     ) : INotificationHandler
     {
-        public async IAsyncEnumerable<INotification> GetNotificationsAsync()
+        private async IAsyncEnumerable<INotification> GetNotificationsAsync()
         {
-            yield break;
+            await foreach (var collection in pandacapDbContext.FurAffinityNotificationCollections)
+            {
+                foreach (var notification in collection.Notifications)
+                {
+                    yield return new Notification
+                    {
+                        ActivityName = notification.Text ?? "???",
+                        Badge = Badges.FurAffinity,
+                        Timestamp = notification.Time
+                    };
+                }
 
-            //var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync();
-            //if (credentials == null)
-            //    yield break;
-
-            //var others = await furAffinityClientFactory
-            //    .CreateClient(credentials)
-            //    .GetNotificationsAsync(CancellationToken.None);
-
-            //foreach (var notification in others)
-            //    if (notification.journalId == null)
-            //        yield return new Notification
-            //        {
-            //            ActivityName = notification.text,
-            //            Badge = Badges.FurAffinity,
-            //            Timestamp = notification.time
-            //        };
+                foreach (var note in collection.Notes)
+                {
+                    yield return new Notification
+                    {
+                        ActivityName = "note",
+                        Badge = Badges.FurAffinity,
+                        PostUrl = $"https://www.furaffinity.net/viewmessage/{note.NoteId}",
+                        Timestamp = note.Time,
+                        UserName = note.UserDisplayName
+                    };
+                }
+            }
         }
+
+        IAsyncEnumerable<INotification> INotificationHandler.GetNotificationsAsync() =>
+            GetNotificationsAsync().OrderByDescending(x => x.Timestamp);
     }
 }

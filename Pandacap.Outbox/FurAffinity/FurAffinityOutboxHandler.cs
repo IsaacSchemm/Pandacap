@@ -9,6 +9,7 @@ namespace Pandacap.Outbox.FurAffinity
     internal class FurAffinityOutboxHandler(
         IFurAffinityClientFactory furAffinityClientFactory,
         IEnumerable<IFurAffinityCredentials> furAffinityCredentials,
+        IFurAffinityOnlineStatsProvider furAffinityOnlineStatsProvider,
         IHttpClientFactory httpClientFactory,
         PandacapDbContext pandacapDbContext) : IOutboxDestination
     {
@@ -32,6 +33,9 @@ namespace Pandacap.Outbox.FurAffinity
             var credentials = furAffinityCredentials.FirstOrDefault();
 
             if (credentials == null)
+                return false;
+
+            if (!await furAffinityOnlineStatsProvider.IsBotUsageOkAsync(cancellationToken))
                 return false;
 
             var post = await pandacapDbContext.Posts
@@ -97,6 +101,9 @@ namespace Pandacap.Outbox.FurAffinity
             var credentials = furAffinityCredentials.FirstOrDefault();
 
             if (credentials == null)
+                return;
+
+            if (!await furAffinityOnlineStatsProvider.IsBotUsageOkAsync(cancellationToken))
                 return;
 
             var client = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.WWW);

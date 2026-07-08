@@ -12,6 +12,7 @@ using Pandacap.FurAffinity.Interfaces;
 using Pandacap.Inbox;
 using Pandacap.Ingestion;
 using Pandacap.Local;
+using Pandacap.OfflineNotifications;
 using Pandacap.Outbox;
 using Pandacap.PeriodicTasks;
 using Pandacap.Rss;
@@ -52,6 +53,7 @@ builder.Services
     .AddFurAffinityClient()
     .AddInboxSources()
     .AddIngestion()
+    .AddOfflineNotificationsSources()
     .AddOutboxDestinations()
     .AddPeriodicTaskServices()
     .AddUIPostProviders()
@@ -63,6 +65,7 @@ builder.Services
     .AddHostedService<DismissedInboxPostCleanupService>()
     .AddHostedService<FavoritesIngestionService>()
     .AddHostedService<InboxService>()
+    .AddHostedService<OfflineNotificationsSynchronizationService>()
     .AddHostedService<OfflinePlatformCacheSynchronizationService>()
     .AddHostedService<OutboundActivityCleanupService>()
     .AddHostedService<OutboundActivityTriggerService>()

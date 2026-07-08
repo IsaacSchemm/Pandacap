@@ -2,6 +2,8 @@
 {
     public abstract class PandacapBackgroundService : BackgroundService
     {
+        private static readonly SemaphoreSlim _flag = new(1, 1);
+
         protected abstract TimeSpan InitialDelay { get; }
         protected abstract TimeSpan Period { get; }
 
@@ -11,25 +13,35 @@
             {
                 Console.WriteLine($"{GetType().Name}: Delaying for {InitialDelay}");
 
-                await Delay(InitialDelay, stoppingToken);
+                await Task.Delay(InitialDelay, stoppingToken);
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    Console.WriteLine($"{GetType().Name}: Running now, will be run again in {Period}");
-
                     await Task.WhenAll(
-                        RunAsync(stoppingToken),
-                        Delay(Period, stoppingToken));
+                        RunWithLockAsync(stoppingToken),
+                        Task.Delay(Period, stoppingToken));
                 }
             }
             catch (TaskCanceledException) when (stoppingToken.IsCancellationRequested) { }
         }
 
-        protected abstract Task RunAsync(CancellationToken cancellationToken);
-
-        private async Task Delay(TimeSpan timeSpan, CancellationToken cancellationToken)
+        private async Task RunWithLockAsync(CancellationToken cancellationToken)
         {
-            await Task.Delay(timeSpan, cancellationToken);
+            Console.WriteLine($"{GetType().Name}: Waiting for flag");
+
+            await _flag.WaitAsync(cancellationToken);
+
+            try
+            {
+                Console.WriteLine($"{GetType().Name}: Running now, will be run again in {Period}");
+                await RunAsync(cancellationToken);
+            }
+            finally
+            {
+                _flag.Release();
+            }
         }
+
+        protected abstract Task RunAsync(CancellationToken cancellationToken);
     }
 }
