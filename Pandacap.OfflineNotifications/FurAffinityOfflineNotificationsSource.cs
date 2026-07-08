@@ -23,6 +23,8 @@ namespace Pandacap.OfflineNotifications
                 .CreateClient(credentials)
                 .GetNotificationsAsync(cancellationToken);
 
+            notifications = [.. notifications.Where(x => x.journalId == null)];
+
             var oldTime = existingNotifications
                  .Select(x => x.Time)
                  .DefaultIfEmpty(DateTime.MinValue)
