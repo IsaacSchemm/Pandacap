@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.Database;
 using Pandacap.FurAffinity.Interfaces;
-using Pandacap.FurAffinity.Models;
 using Pandacap.OfflineNotifications.Interfaces;
 
 namespace Pandacap.OfflineNotifications
 {
-    public class FurAffinityOfflineNotificationsSource(
+    public class FurAffinityOfflineNoteNotificationsSource(
         IFurAffinityClientFactory furAffinityClientFactory,
         IEnumerable<IFurAffinityCredentials> furAffinityCredentials,
         PandacapDbContext pandacapDbContext) : IOfflineNotificationsSource
@@ -17,29 +16,33 @@ namespace Pandacap.OfflineNotifications
             if (credentials == null)
                 return;
 
-            var existingNotifications = await pandacapDbContext.FurAffinityNotifications.ToListAsync(cancellationToken);
+            var existingNotes = await pandacapDbContext.FurAffinityNotes.ToListAsync(cancellationToken);
 
-            var notifications = await furAffinityClientFactory
+            var notes = await furAffinityClientFactory
                 .CreateClient(credentials)
-                .GetNotificationsAsync(cancellationToken);
+                .GetNotesAsync(cancellationToken);
 
-            var oldTime = existingNotifications
-                 .Select(x => x.Time)
-                 .DefaultIfEmpty(DateTime.MinValue)
-                 .Max();
-            var newTime = notifications
+            var lastYear = DateTimeOffset.UtcNow.AddYears(-1);
+            notes = [.. notes.Where(x => x.time > lastYear)];
+
+            var oldTime = existingNotes
+                .Select(x => x.Time)
+                .DefaultIfEmpty(DateTime.MinValue)
+                .Max();
+            var newTime = notes
                 .Select(x => x.time)
                 .DefaultIfEmpty(DateTime.MinValue)
                 .Max();
 
             if (newTime > oldTime)
             {
-                pandacapDbContext.FurAffinityNotifications.RemoveRange(existingNotifications);
-                foreach (var n in notifications)
-                    pandacapDbContext.FurAffinityNotifications.Add(new()
+                pandacapDbContext.FurAffinityNotes.RemoveRange(existingNotes);
+                foreach (var n in notes)
+                    pandacapDbContext.FurAffinityNotes.Add(new()
                     {
-                        Text = n.text,
-                        Time = n.time
+                        NoteId = n.note_id,
+                        Time = n.time,
+                        UserDisplayName = n.userDisplayName
                     });
             }
 

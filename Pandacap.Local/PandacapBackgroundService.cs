@@ -17,9 +17,11 @@
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    await Task.WhenAll(
-                        RunWithLockAsync(stoppingToken),
-                        Task.Delay(Period, stoppingToken));
+                    var delay = Task.Delay(Period, stoppingToken);
+
+                    await RunWithLockAsync(stoppingToken);
+
+                    await delay;
                 }
             }
             catch (TaskCanceledException) when (stoppingToken.IsCancellationRequested) { }

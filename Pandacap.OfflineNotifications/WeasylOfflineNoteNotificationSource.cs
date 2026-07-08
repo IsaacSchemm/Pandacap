@@ -5,7 +5,7 @@ using Pandacap.Weasyl.Interfaces;
 
 namespace Pandacap.OfflineNotifications
 {
-    public class WeasylOfflineNotificationsSource(
+    public class WeasylOfflineNoteNotificationSource(
         IWeasylClientFactory weasylClientFactory,
         IEnumerable<IWeasylCredentials> weasylCredentials,
         PandacapDbContext pandacapDbContext) : IOfflineNotificationsSource
@@ -17,30 +17,31 @@ namespace Pandacap.OfflineNotifications
 
             var client = weasylClientFactory.CreateWeasylClient(credentials);
 
-            var existingNotifications = await pandacapDbContext.WeasylNotifications.ToListAsync(cancellationToken);
+            var existingNotes = await pandacapDbContext.WeasylNotes.ToListAsync(cancellationToken);
 
-            var notifications = await client.ExtractNotificationsAsync(cancellationToken);
+            var notes = await client.GetNotesAsync(cancellationToken);
 
-            var oldTime = existingNotifications
-                 .Select(x => x.Time)
-                 .DefaultIfEmpty(DateTime.MinValue)
-                 .Max();
-            var newTime = notifications
+            var lastYear = DateTimeOffset.UtcNow.AddYears(-1);
+            notes = [.. notes.Where(x => x.time > lastYear)];
+
+            var oldTime = existingNotes
                 .Select(x => x.Time)
+                .DefaultIfEmpty(DateTime.MinValue)
+                .Max();
+            var newTime = notes
+                .Select(x => x.time)
                 .DefaultIfEmpty(DateTime.MinValue)
                 .Max();
 
             if (newTime > oldTime)
             {
-                pandacapDbContext.WeasylNotifications.RemoveRange(existingNotifications);
-                foreach (var x in notifications)
-                    pandacapDbContext.WeasylNotifications.Add(new()
+                pandacapDbContext.WeasylNotes.RemoveRange(existingNotes);
+                foreach (var x in notes)
+                    pandacapDbContext.WeasylNotes.Add(new()
                     {
-                        NotificationId = x.Id,
-                        PostUrl = x.PostUrl,
-                        Time = x.Time,
-                        UserName = x.UserName,
-                        UserUrl = x.UserUrl
+                        Time = x.time,
+                        Sender = x.sender,
+                        SenderUrl = x.sender_url
                     });
             }
 

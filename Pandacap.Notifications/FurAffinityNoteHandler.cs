@@ -5,21 +5,23 @@ using Pandacap.UI.Badges;
 
 namespace Pandacap.Notifications
 {
-    public class FurAffinityNotificationHandler(
+    public class FurAffinityNoteHandler(
         PandacapDbContext pandacapDbContext
     ) : INotificationHandler
     {
         public async IAsyncEnumerable<INotification> GetNotificationsAsync()
         {
-            await foreach (var notification in pandacapDbContext.FurAffinityNotifications
+            await foreach (var note in pandacapDbContext.FurAffinityNotes
                 .OrderByDescending(x => x.Time)
                 .AsAsyncEnumerable())
             {
                 yield return new Notification
                 {
-                    ActivityName = notification.Text ?? "???",
+                    ActivityName = "note",
                     Badge = Badges.FurAffinity,
-                    Timestamp = notification.Time
+                    PostUrl = $"https://www.furaffinity.net/viewmessage/{note.NoteId}",
+                    Timestamp = note.Time,
+                    UserName = note.UserDisplayName
                 };
             }
         }

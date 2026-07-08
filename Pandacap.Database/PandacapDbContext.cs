@@ -54,8 +54,10 @@ namespace Pandacap.Database
         public DbSet<CanonicalCharacter> CanonicalCharacters { get; set; }
         public DbSet<CanonicalSpecies> CanonicalSpecies { get; set; }
         public DbSet<OfflinePlatformDataCacheItem> CachedPlatformData { get; set; }
-        public DbSet<FurAffinityNotificationCollection> FurAffinityNotificationCollections { get; set; }
-        public DbSet<WeasylNotificationCollection> WeasylNotificationCollections { get; set; }
+        public DbSet<FurAffinityNotification> FurAffinityNotifications { get; set; }
+        public DbSet<FurAffinityNote> FurAffinityNotes { get; set; }
+        public DbSet<WeasylNotification> WeasylNotifications { get; set; }
+        public DbSet<WeasylNote> WeasylNotes { get; set; }
 
         public IOfflinePlatformDataCache OfflinePlatformDataCache => this;
 

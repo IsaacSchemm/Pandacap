@@ -7,7 +7,9 @@ namespace Pandacap.OfflineNotifications
     {
         public static IServiceCollection AddOfflineNotificationsSources(this IServiceCollection serviceCollection) =>
             serviceCollection
+            .AddScoped<IOfflineNotificationsSource, FurAffinityOfflineNoteNotificationsSource>()
             .AddScoped<IOfflineNotificationsSource, FurAffinityOfflineNotificationsSource>()
+            .AddScoped<IOfflineNotificationsSource, WeasylOfflineNoteNotificationSource>()
             .AddScoped<IOfflineNotificationsSource, WeasylOfflineNotificationsSource>();
     }
 }
