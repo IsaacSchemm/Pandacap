@@ -41,6 +41,12 @@ builder.Services
     .AddSingleton<IWeasylCredentials>(new WeasylCredentials(
         builder.Configuration["WeasylApiKey"]!));
 
+if (builder.Configuration["FurAffinityA"] is string a && builder.Configuration["FurAffinityB"] is string b)
+    builder.Services.AddSingleton<IFurAffinityCredentials>(new FurAffinityCredentials(a, b));
+
+if (builder.Configuration["WeasylApiKey"] is string weasylApiKey)
+    builder.Services.AddSingleton<IWeasylCredentials>(new WeasylCredentials(weasylApiKey));
+
 builder.Services
     .AddATProtoHandleResolution()
     .AddATProtoServices()
