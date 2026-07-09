@@ -58,11 +58,9 @@
     <ProjectReference Include="..\Pandacap.Credentials\Pandacap.Credentials.csproj" />
     <ProjectReference Include="..\Pandacap.DeviantArt.Feeds\Pandacap.DeviantArt.Feeds.fsproj" />
     <ProjectReference Include="..\Pandacap.DeviantArt\Pandacap.DeviantArt.fsproj" />
-    <ProjectReference Include="..\Pandacap.FeedIngestion\Pandacap.FeedIngestion.csproj" />
     <ProjectReference Include="..\Pandacap.Frontend.Feeds\Pandacap.Frontend.Feeds.csproj" />
-    <ProjectReference Include="..\Pandacap.FurAffinity\Pandacap.FurAffinity.fsproj" />
     <ProjectReference Include="..\Pandacap.ImageConversion\Pandacap.ImageConversion.csproj" />
-    <ProjectReference Include="..\Pandacap.Inbox\Pandacap.Inbox.csproj" />
+    <ProjectReference Include="..\Pandacap.Ingestion\Pandacap.Ingestion.csproj" />
     <ProjectReference Include="..\Pandacap.KeyVault\Pandacap.KeyVault.csproj" />
     <ProjectReference Include="..\Pandacap.Lemmy\Pandacap.Lemmy.fsproj" />
     <ProjectReference Include="..\Pandacap.Notifications.Composite\Pandacap.Notifications.Composite.fsproj" />
@@ -70,11 +68,11 @@
     <ProjectReference Include="..\Pandacap.PlatformLinks\Pandacap.PlatformLinks.csproj" />
     <ProjectReference Include="..\Pandacap.PostCreation\Pandacap.PostCreation.csproj" />
     <ProjectReference Include="..\Pandacap.Resolvers\Pandacap.Resolvers.csproj" />
+    <ProjectReference Include="..\Pandacap.Rss\Pandacap.Rss.csproj" />
     <ProjectReference Include="..\Pandacap.UI.Lists\Pandacap.UI.Lists.csproj" />
     <ProjectReference Include="..\Pandacap.UI.Posts\Pandacap.UI.Posts.csproj" />
     <ProjectReference Include="..\Pandacap.VectorSearch\Pandacap.VectorSearch.csproj" />
     <ProjectReference Include="..\Pandacap.Weasyl.Scraping\Pandacap.Weasyl.Scraping.fsproj" />
-    <ProjectReference Include="..\Pandacap.Weasyl\Pandacap.Weasyl.csproj" />
   </ItemGroup>
 
   <ItemGroup>

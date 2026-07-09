@@ -13,7 +13,6 @@ namespace Pandacap.Weasyl
     internal partial class WeasylClient(
         HttpMessageHandler httpMessageHandler,
         string apiKey,
-        string phpProxyHost,
         IWeasylScraper weasylScraper): IWeasylClient
     {
         private HttpClient CreateClient()
@@ -27,10 +26,6 @@ namespace Pandacap.Weasyl
             return client;
         }
 
-        private Uri WeasylProxyHost => new("https://" + phpProxyHost);
-        private Uri WeasylProxy => new(WeasylProxyHost, "/pandacap/weasyl_proxy.php");
-        private Uri WeasylSubmit => new(WeasylProxyHost, "/pandacap/weasyl_submit.php");
-
         [GeneratedRegex(@"<option value=""(\d+)"">([^<]+)</option>")]
         private static partial Regex OptionTag();
 
@@ -43,7 +38,7 @@ namespace Pandacap.Weasyl
         public async Task<WhoamiResponse> WhoamiAsync(CancellationToken cancellationToken)
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"{WeasylProxy}?path=api/whoami", cancellationToken);
+            using var resp = await client.GetAsync($"https://www.weasyl.com/api/whoami", cancellationToken);
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<WhoamiResponse>(cancellationToken)
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
@@ -52,7 +47,7 @@ namespace Pandacap.Weasyl
         public async Task<AvatarResponse> GetAvatarAsync(string username, CancellationToken cancellationToken)
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"{WeasylProxy}?path=api/useravatar&username={Uri.EscapeDataString(username)}", cancellationToken);
+            using var resp = await client.GetAsync($"https://www.weasyl.com/api/useravatar?username={Uri.EscapeDataString(username)}", cancellationToken);
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<AvatarResponse>(cancellationToken)
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
@@ -61,7 +56,7 @@ namespace Pandacap.Weasyl
         public async Task<Submission> ViewSubmissionAsync(int submitid, CancellationToken cancellationToken)
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"{WeasylProxy}?path=api/submissions/{submitid}/view&anyway=x", cancellationToken);
+            using var resp = await client.GetAsync($"https://www.weasyl.com/api/submissions/{submitid}/view?anyway=x", cancellationToken);
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<Submission>(cancellationToken)
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
@@ -74,7 +69,7 @@ namespace Pandacap.Weasyl
                 : $"nexttime={nexttime}";
 
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"{WeasylProxy}?path={Uri.EscapeDataString($"api/messages/submissions?{qs}")}", cancellationToken);
+            using var resp = await client.GetAsync($"https://www.weasyl.com/api/messages/submissions?{qs}", cancellationToken);
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<SubmissionsResponse>(cancellationToken)
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
@@ -101,7 +96,7 @@ namespace Pandacap.Weasyl
         public async Task<MessagesSummary> GetMessagesSummaryAsync(CancellationToken cancellationToken)
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"{WeasylProxy}?path=api/messages/summary", cancellationToken);
+            using var resp = await client.GetAsync($"https://www.weasyl.com/api/messages/summary", cancellationToken);
             resp.EnsureSuccessStatusCode();
             return await resp.Content.ReadFromJsonAsync<MessagesSummary>(cancellationToken)
                 ?? throw new Exception($"Null response from {resp.RequestMessage?.RequestUri}");
@@ -118,7 +113,7 @@ namespace Pandacap.Weasyl
                     qs += $"&nextid={n}";
 
                 using var client = CreateClient();
-                using var resp = await client.GetAsync($"{WeasylProxy}?path=favorites&{qs}", cancellationToken);
+                using var resp = await client.GetAsync($"https://www.weasyl.com/api/favorites?{qs}", cancellationToken);
                 resp.EnsureSuccessStatusCode();
                 string html = await resp.Content.ReadAsStringAsync(cancellationToken);
                 var page = weasylScraper.ExtractFavoriteSubmitids(html);
@@ -136,7 +131,7 @@ namespace Pandacap.Weasyl
         public async Task<FSharpList<ExtractedJournal>> ExtractJournalsAsync(CancellationToken cancellationToken)
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"{WeasylProxy}?path=messages/notifications", cancellationToken);
+            using var resp = await client.GetAsync($"https://www.weasyl.com/messages/notifications", cancellationToken);
             resp.EnsureSuccessStatusCode();
             string html = await resp.Content.ReadAsStringAsync(cancellationToken);
             return weasylScraper.ExtractJournals(html);
@@ -145,7 +140,7 @@ namespace Pandacap.Weasyl
         public async Task<FSharpList<ExtractedNotification>> ExtractNotificationsAsync(CancellationToken cancellationToken)
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"{WeasylProxy}?path=messages/notifications", cancellationToken);
+            using var resp = await client.GetAsync($"https://www.weasyl.com/messages/notifications", cancellationToken);
             resp.EnsureSuccessStatusCode();
             string html = await resp.Content.ReadAsStringAsync(cancellationToken);
             return weasylScraper.ExtractNotifications(html);
@@ -154,7 +149,7 @@ namespace Pandacap.Weasyl
         public async Task<FSharpList<ExtractedNote>> GetNotesAsync(CancellationToken cancellationToken)
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"{WeasylProxy}?path=notes", cancellationToken);
+            using var resp = await client.GetAsync($"https://www.weasyl.com/notes", cancellationToken);
             resp.EnsureSuccessStatusCode();
             string html = await resp.Content.ReadAsStringAsync(cancellationToken);
             return weasylScraper.ExtractNotes(html);
@@ -163,7 +158,7 @@ namespace Pandacap.Weasyl
         public async IAsyncEnumerable<Folder> GetFoldersAsync([EnumeratorCancellation] CancellationToken cancellationToken)
         {
             using var client = CreateClient();
-            using var resp = await client.GetAsync($"{WeasylProxy}?path=submit/visual", cancellationToken);
+            using var resp = await client.GetAsync($"https://www.weasyl.com/submit/visual", cancellationToken);
             resp.EnsureSuccessStatusCode();
             using var stream = await resp.Content.ReadAsStreamAsync(cancellationToken);
             using var sr = new StreamReader(stream);
@@ -201,10 +196,13 @@ namespace Pandacap.Weasyl
             IEnumerable<string> tags,
             CancellationToken cancellationToken)
         {
-            using var req = new HttpRequestMessage(HttpMethod.Post, WeasylSubmit);
+            using var client = CreateClient();
+            using var fileReq = await client.GetAsync(url, cancellationToken);
+            using var fileContent = fileReq.EnsureSuccessStatusCode().Content;
 
-            req.Content = new MultipartFormDataContent {
-                { new StringContent(url), "submitfile" },
+            using var req = new HttpRequestMessage(HttpMethod.Post, $"https://www.weasyl.com/submit/visual");
+
+            using var formData = new MultipartFormDataContent {
                 { new StringContent(title), "title" },
                 { new StringContent($"{(int)subtype}"), "subtype" },
                 { new StringContent($"{folderid}"), "folderid" },
@@ -213,25 +211,27 @@ namespace Pandacap.Weasyl
                 { new StringContent(string.Join(" ", tags.Select(s => s.Replace(' ', '_')))), "tags" },
             };
 
-            using var client = CreateClient();
+            formData.Add(
+                new ByteArrayContent(await fileContent.ReadAsByteArrayAsync(cancellationToken)),
+                "submitfile",
+                "picture.dat");
+
+            formData.Add(
+                new ByteArrayContent([]),
+                "thumbfile",
+                "thumb.dat");
+
+            req.Content = formData;
+
             using var resp = await client.SendAsync(req, cancellationToken);
-            resp.EnsureSuccessStatusCode();
 
-            async IAsyncEnumerable<string> readResponseContentAsync()
+            if (resp.Headers.Location is not Uri uri)
             {
-                if (resp.Content.Headers.ContentType?.MediaType != "text/uri-list")
-                    yield break;
-
-                using var sr = new StreamReader(await resp.Content.ReadAsStreamAsync(cancellationToken));
-                string? line;
-                while ((line = await sr.ReadLineAsync(cancellationToken)) != null)
-                    yield return line;
+                resp.EnsureSuccessStatusCode();
+                throw new Exception("Expected a Location header");
             }
 
-            if (await readResponseContentAsync().SingleOrDefaultAsync(cancellationToken) is not string uri)
-                throw new Exception("Expected a single URI from the PHP proxy");
-
-            var match = SubmissionUri().Match(uri);
+            var match = SubmissionUri().Match(uri.AbsoluteUri);
             return match.Success && int.TryParse(match.Groups[1].Value, out int submitid)
                 ? submitid
                 : null;
@@ -244,7 +244,7 @@ namespace Pandacap.Weasyl
             IEnumerable<string> tags,
             CancellationToken cancellationToken)
         {
-            using var req = new HttpRequestMessage(HttpMethod.Post, $"{WeasylProxy}?path=submit/journal");
+            using var req = new HttpRequestMessage(HttpMethod.Post, $"https://www.weasyl.com/submit/journal");
 
             req.Content = new FormUrlEncodedContent(new Dictionary<string, string>
             {

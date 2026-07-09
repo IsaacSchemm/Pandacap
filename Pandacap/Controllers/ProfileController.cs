@@ -12,12 +12,11 @@ using Pandacap.ActivityPub.Static;
 using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.Extensions;
-using Pandacap.Inbox.Interfaces;
+using Pandacap.Ingestion.Interfaces;
 using Pandacap.Models;
 using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.UI.Elements;
 using Pandacap.UI.Lists;
-using Pandacap.UI.Posts.Interfaces;
 using Pandacap.VectorSearch.Interfaces;
 using System.Diagnostics;
 using System.Net;
@@ -26,8 +25,8 @@ using System.Text;
 namespace Pandacap.Controllers
 {
     public class ProfileController(
+        IATProtoFeedRefresher atProtoFeedRefresher,
         BlobServiceClient blobServiceClient,
-        IATProtoFeedReader atProtoFeedReader,
         IDeliveryInboxCollector deliveryInboxCollector,
         IFeedRefresher feedRefresher,
         IActivityPubCommunicationPrerequisites keyProvider,
@@ -317,8 +316,7 @@ namespace Pandacap.Controllers
                 .Where(f => f.DID == did)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            await atProtoFeedReader.RefreshFeedAsync(did, cancellationToken);
-
+            await atProtoFeedRefresher.RefreshFeedAsync(did, cancellationToken);
             return RedirectToAction(nameof(UpdateATProtoFeed), new { did });
         }
 
@@ -384,7 +382,6 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> AddFeed(string url, CancellationToken cancellationToken)
         {
             await feedRefresher.AddFeedAsync(url, cancellationToken);
-
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
 
@@ -394,7 +391,6 @@ namespace Pandacap.Controllers
         public async Task<IActionResult> RefreshFeed(Guid id, CancellationToken cancellationToken)
         {
             await feedRefresher.RefreshFeedAsync(id, cancellationToken);
-
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
 

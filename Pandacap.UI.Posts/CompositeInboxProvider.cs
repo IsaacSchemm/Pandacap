@@ -9,7 +9,7 @@ namespace Pandacap.UI.Posts
     public class CompositeInboxProvider(
         PandacapDbContext context) : ICompositeInboxProvider
     {
-        public IAsyncEnumerable<IInboxPost> GetAllInboxPostsAsync()
+        public IAsyncEnumerable<IInboxPost> GetAllInboxPostsAsync(bool includeDismissed)
         {
             var activityPub = context.InboxActivityStreamsPosts
                 .OrderByDescending(d => d.PostedAt)
@@ -88,7 +88,7 @@ namespace Pandacap.UI.Posts
                     weasylJournals
                 }
                 .MergeNewest(post => post.PostedAt)
-                .Where(post => post.DismissedAt == null);
+                .Where(post => includeDismissed || post.DismissedAt == null);
         }
     }
 }

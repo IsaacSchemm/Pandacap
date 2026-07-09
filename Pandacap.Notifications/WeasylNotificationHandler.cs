@@ -1,28 +1,22 @@
-﻿using Pandacap.Credentials.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.Database;
 using Pandacap.Notifications.Interfaces;
 using Pandacap.UI.Badges;
-using Pandacap.Weasyl.Interfaces;
-using System.Runtime.CompilerServices;
 
 namespace Pandacap.Notifications
 {
     public class WeasylNotificationHandler(
-        IUserAwareWeasylClientFactory userAwareWeasylClientFactory
-    ) : INotificationHandler
+        PandacapDbContext pandacapDbContext) : INotificationHandler
     {
-        public async IAsyncEnumerable<INotification> GetNotificationsAsync(
-            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<INotification> GetNotificationsAsync()
         {
-            if (await userAwareWeasylClientFactory.CreateWeasylClientAsync(cancellationToken) is not IWeasylClient client)
-                yield break;
-
-            var notifications = await client.ExtractNotificationsAsync(cancellationToken);
-
-            foreach (var notification in notifications.OrderByDescending(x => x.Time))
+            await foreach (var notification in pandacapDbContext.WeasylNotifications
+                .OrderByDescending(x => x.Time)
+                .AsAsyncEnumerable())
             {
                 yield return new Notification
                 {
-                    ActivityName = notification.Id.TrimEnd('s'),
+                    ActivityName = notification.NotificationId?.TrimEnd('s') ?? "???",
                     Badge = Badges.Weasyl,
                     PostUrl = notification.PostUrl,
                     Timestamp = notification.Time,
@@ -31,8 +25,5 @@ namespace Pandacap.Notifications
                 };
             }
         }
-
-        IAsyncEnumerable<INotification> INotificationHandler.GetNotificationsAsync() =>
-            GetNotificationsAsync();
     }
 }

@@ -10,6 +10,7 @@
     <Compile Include="Scraper.fs" />
     <Compile Include="Multipart.fs" />
     <Compile Include="FurAffinityHttpHandlerProvider.fs" />
+    <Compile Include="FurAffinityOnlineStatsProvider.fs" />
     <Compile Include="FurAffinityClient.fs" />
     <Compile Include="FurAffinityClientFactory.fs" />
     <Compile Include="DependencyInjectionExtensions.fs" />

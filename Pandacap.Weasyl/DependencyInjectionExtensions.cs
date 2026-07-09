@@ -6,11 +6,9 @@ namespace Pandacap.Weasyl
     public static class DependencyInjectionExtensions
     {
         public static IServiceCollection AddWeasylClient(
-            this IServiceCollection serviceCollection,
-            Uri weasylProxyHost
+            this IServiceCollection serviceCollection
         ) =>
             serviceCollection
-            .AddSingleton(new WeasylConfiguration { WeasylProxyHost = weasylProxyHost })
             .AddSingleton<WeasylHttpHandlerProvider>()
             .AddScoped<IWeasylClientFactory, WeasylClientFactory>();
     }

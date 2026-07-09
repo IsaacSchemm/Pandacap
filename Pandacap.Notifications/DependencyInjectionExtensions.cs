@@ -12,9 +12,7 @@ namespace Pandacap.Notifications
             .AddScoped<INotificationHandler, ActivityPubReplyNotificationHandler>()
             .AddScoped<INotificationHandler, ATProtoNotificationHandler>()
             .AddScoped<INotificationHandler, DeviantArtFeedNotificationHandler>()
-            .AddScoped<INotificationHandler, FurAffinityNoteNotificationHandler>()
             .AddScoped<INotificationHandler, FurAffinityNotificationHandler>()
-            .AddScoped<INotificationHandler, WeasylNoteNotificationHandler>()
             .AddScoped<INotificationHandler, WeasylNotificationHandler>();
     }
 }

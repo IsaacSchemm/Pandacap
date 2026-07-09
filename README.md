@@ -28,20 +28,20 @@ The home page shows:
 
 * Your avatar and username
 * Your ActivityPub handle
-* Your atproto handle, if any
-* Links to your attached accounts
-* Links to users and feeds you follow
+* A link to a page that list ActivityPub users, Bluesky users, and RSS/Atom feeds you follow
+* Links to view your ActivityPub profile, your bridged Bluesky account, and your other attached accounts
 * Up to 8 of your **image posts**
 * Up to 5 of your **text posts**
 
 ## Features
 
-* Create **image posts**, **status updates**, **journal entries**, and **links**, which are available on the site, via RSS/Atom, and via ActivityPub
+* Create **image posts** and **text posts**, which are available on the site, via RSS/Atom, and via ActivityPub
+    * Text posts can be **status updates**, **journal entries**, or **links**
 * Crosspost your image posts and text posts to attached DeviantArt, Fur Affinity, or Weasyl accounts
 * Follow other users and feeds via RSS/Atom, ActivityPub, or atproto
 * View posts from users or feeds you follow in the **inbox**
     * The inbox is split into **image posts**, **text posts**, **shares**, and **podcasts**
-    * Up to 100 posts are shown on one page, and posts within the same page are grouped by author
+    * Up to 50 posts are shown per page, and posts within the same page are grouped by author
     * Checkboxes are used to remove posts you've read from the inbox
     * Non-ActivityPub posts are periodically imported in the background
 * View **notifications** from activity on your posts or from your attached accounts
@@ -52,13 +52,30 @@ The home page shows:
 ## Techincal Information
 
 Pandacap is written on ASP.NET Core with a mix of C# and F#.
-It is designed to run on Microsoft Azure, using high-level resources like Azure App Service and Cosmos DB.
-This version is not designed to run on a VPS or a local machine.
+The main web application is designed to run on Microsoft Azure, using high-level resources like Azure App Service and Cosmos DB.
 
 To log in, the instance owner must use one of the following:
 * A Microsoft account that they have explicitly allowed in the associated Entra ID app registration.
   This means authorization is the reponsibility of your Entra ID registration, so only one user account should be allowed access.
 * A DeviantArt account whose username matches the app setting `DeviantArtUsername`.
+
+Background tasks are performed by Pandacap.Local, which is intended to run on a VPS or local machine
+(its HTTP port, 5002, does not need to be exposed to the internet).
+These tasks include:
+
+* Looking for unsent outbound ActivityPub activities and telling the Pandacap web application to attempt sending them.
+* Checking with Bridgy Fed for bridged Bluesky versions of your recent posts,
+  so they can be recorded and linked from the original post, and so Pandacap can look for interactions with them.
+* Looking for new favorites from DeviantArt, Fur Affinity, and Weasyl and adding them to Pandacap's favorites page.
+* Looks for recent posts from users you follow on Fur Affinity or Weasyl and adding them to the database.
+* Looking for recent notifications from Fur Affinity or Weasyl and adding them to the database.
+* Refreshing information about your Fur Affinity and Weasyl accounts which is relevant to creating a new post (your gallery folders, etc.)
+* Publishing queued Fur Affinity or Weasyl posts.
+* Removing old, unsent outbound ActivityPub activities from the database.
+* Removing dismissed inbox posts from the database.
+* Removing old inbox posts (any after the first 200 which are older than a month) from the database.
+
+The Azure Functions app Pandacap.Functions also performs some of these functions, on a less frequent basis, as a backup.
 
 ### ActivityPub
 
@@ -73,7 +90,7 @@ Pandacap also has the concept of an "addressed post", an unlisted message with s
 | Journal entry  | `/UserPosts/...`      | Article
 | Status update  | `/UserPosts/...`      | Note
 | Link           | `/UserPosts/...`      | Note
-| Scraps         | `/UserPosts/...`      | 
+| Scraps         | `/UserPosts/...`      | *not federated*
 | Addressed post | `/AddressedPosts/...` | Note
 
 Pandacap allows you to follow ActivityPub users.
@@ -91,11 +108,14 @@ Adding an ActivityPub post to your Favorites will send a `Like` activity.
 
 #### Following
 
-Pandacap allows you to follow atproto accounts as feeds. Individual DIDs or handles can be provided to Pandacap, which will store the DID and then treat the account as a feed. Each time it refreshes the feed, it will resolve the DID to a PDS and then query that PDS directly to detect changes, and (if necessary) for profile updates and any new posts (up to 20 per feed per run).
+Pandacap allows you to follow atproto accounts as feeds, without an atproto account.
+Individual DIDs or handles can be provided to Pandacap, which will store the DID and then treat the account as a feed.
+Each time it refreshes the feed, it will resolve the DID to a PDS and then query that PDS directly to detect changes, and (if necessary) for profile updates and any new posts (up to 20 per feed per run).
 
-For each user, you can choose whether to follow Bluesky posts, reposts, and/or likes. Other lexicons, like standard.site, are not supported yet.
+For each user, you can choose whether to follow Bluesky posts, reposts, and/or likes.
+There is also minimal support for the standard.site lexicon. Other lexicons are not supported at this time.
 
-Pandacap will also look for Bluesky profile data (name and icon) when it refreshes the feed (every 8 hours, just like for RSS feeds).
+Pandacap will also look for Bluesky profile data (name and icon) when it refreshes the feed.
 
 If you view a Bluesky post while logged in, and Pandacap detects that the post is available via Bridgy Fed, it will show the bridged ActivityPub version of the post, which allows you to like it (by adding it to your favorites) or reply to it.
 
@@ -128,7 +148,7 @@ You can crosspost to any or all of these platforms and view their notifications 
 
 Posts from users you follow on these platforms will appear in the Pandacap inbox, and posts you add to your favorites on these platforms will appear in Pandacap's Favorites automatically.
 
-Weasyl support relies on a PHP proxy script (included in this repository).
+Fur Affinity and Weasyl support require Pandacap.Local to be running with the appropriate credentials in the application configuration, and on a network that can access these sites.
 
 ### RSS / Atom
 
@@ -144,25 +164,18 @@ RSS and Atom posts cannot be added to Favorites. This is primarily because indiv
 
 This application runs on:
 
-* A Cosmos DB NoSQL database (for data storage)
-* An Azure Functions app
-* A web app
-* A Key Vault
-* A blob storage account
+* Azure resources
+    * A Cosmos DB NoSQL database
+    * A public web app
+    * An Azure Functions app (optional)
+    * A private key in a Key Vault
+    * A blob storage account
+* Non-Azure resources
+    * A local-only, always-on web app
 
 ASP.NET Core Identity is backed by an in-memory database, so after the application is rebooted, it will prompt you again to create a user account after you authenticate. Pandacap's actual data is stored in Cosmos DB, and Pandacap's own code only ever checks whether you're validly logged in or not.
 
-The web app and function app must have the appropriate IAM permissions to access the storage account (Storage Blob Data Contributor) and the key vault (Key Vault Crypto User).
-
-Function app responsibilities include:
-
-* adding the Bluesky DID and record keys (for the "View on Bluesky" link) to posts of yours that have been bridged
-* checking accounts for new favorites / likes / upvotes
-* deleting any dismissed inbox entries more than 7 days old
-* automatically dismissing active inbox entries (the 200 most recent posts, and any other posts newer than 30 days, will be kept)
-* checking feeds and connected platforms for new posts
-* removing unsent outbound ActivityPub messages that have been pending for more than 7 days
-* attempting to send any pending outbound ActivityPub messages (if a failure occurs, the recipient will be skipped for the next hour)
+The web app must have the appropriate IAM permissions to access the storage account (Storage Blob Data Contributor) and the key vault (Key Vault Crypto User).
 
 ### Authorization
 
@@ -184,30 +197,46 @@ This version of Pandacap uses Entra ID as the primary authentication and authori
 
 ### Configuration
 
-Application settings (for both the function app and the web app):
-
-| Name                    | Purpose
-| ----------------------- | -----------------------------------------------------
-| ActivityPubUsername     | Username to use for ActivityPub and on the home page
-| ApplicationHostname     | Public hostname of the app
-| CosmosDBAccountEndpoint | URL of the database
-| CosmosDBAccountKey      | Database key
-| DeviantArtClientId      | OAuth client ID from DeviantArt
-| DeviantArtClientSecret  | OAuth secret from DeviantArt
-| KeyVaultHostname        | Key vault hostname
-| StorageAccountHostname  | Hostname of the Azure blob storage account used for storing images associated with your posts or avatar
-| WeasylProxyHost         | Hostname that has `/pandacap/weasyl_proxy.php` and `/pandacap/weasyl_submit.php`
-
-Application settings (for the web app only):
+Application settings for the web app:
 
 | Name                                  | Purpose
-| ------------------------------------- | -----------------------------------------------------------------------
+| ------------------------------------- | -----------------------------------------------------
+| ActivityPubUsername                   | Username to use for ActivityPub and on the home page
+| ApplicationHostname                   | Public hostname of the app
 | Authentication:Microsoft:TenantId     | Tenant ID of your Entra (AAD) directory
 | Authentication:Microsoft:ClientId     | Application (client) ID of the app registration you've created in Entra
 | Authentication:Microsoft:ClientSecret | A client secret generated for the app registration
+| CosmosDBAccountEndpoint               | URL of the database
+| CosmosDBAccountKey                    | Database key
+| DeviantArtClientId                    | (optional) OAuth client ID from DeviantArt
+| DeviantArtClientSecret                | (optional) OAuth secret from DeviantArt
+| DeviantArtUsername                    | (optional) DeviantArt username
+| KeyVaultHostname                      | Key vault hostname
+| StorageAccountHostname                | Hostname of the Azure blob storage account used for storing images associated with your posts or avatar
 | VectorSearchEmbeddingsEndpoint        | (optional) The target URI for an embedding model in Microsoft Foundry
 | VectorSearchSearchEndpoint            | (optional) The URI of an Azure AI Search resource
 | VectorSearchIndexName                 | (optional) The name of the index in Azure AI Search to populate and use
+
+Application settings for Pandacap.Functions:
+
+| Name                                  | Purpose
+| ------------------------------------- | -----------------------------------------------------
+| ActivityPubUsername                   | Username to use for ActivityPub and on the home page
+| ApplicationHostname                   | Public hostname of the app
+| CosmosDBAccountEndpoint               | URL of the database
+| CosmosDBAccountKey                    | Database key
+
+Application settings for Pandacap.Local:
+
+| Name                                  | Purpose
+| ------------------------------------- | -----------------------------------------------------
+| ActivityPubUsername                   | Username to use for ActivityPub and on the home page
+| ApplicationHostname                   | Public hostname of the app
+| CosmosDBAccountEndpoint               | URL of the database
+| CosmosDBAccountKey                    | Database key
+| FurAffinityA                          | The value of the `a` cookie from a logged-in Fur Affinity session
+| FurAffinityB                          | The value of the `b` cookie from a logged-in Fur Affinity session
+| WeasylApiKey                          | A Weasyl API key
 
 [Vector search](https://learn.microsoft.com/en-us/azure/search/vector-search-how-to-create-index)
 uses embeddings generated from the title, alt text, description, links, and tags in your posts.

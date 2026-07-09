@@ -4,22 +4,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pandacap.ActivityPub.JsonLd;
-using Pandacap.ActivityPub.Outbox;
 using Pandacap.ActivityPub.RemoteObjects;
 using Pandacap.ActivityPub.Services;
 using Pandacap.ATProto.Services;
+using Pandacap.Bridging;
 using Pandacap.Configuration;
 using Pandacap.Credentials;
 using Pandacap.Database;
 using Pandacap.DeviantArt;
-using Pandacap.Favorites;
-using Pandacap.FeedIngestion;
-using Pandacap.FurAffinity;
-using Pandacap.Inbox;
+using Pandacap.Ingestion;
 using Pandacap.KeyVault;
+using Pandacap.PeriodicTasks;
+using Pandacap.Rss;
 using Pandacap.UI.Posts;
-using Pandacap.Weasyl;
-using Pandacap.Weasyl.Scraping;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -59,25 +56,23 @@ var host = new HostBuilder()
 
         services
             .AddActivityPubOutboundServices()
-            .AddActivityPubOutboxServices()
             .AddActivityPubRemoteObjectServices()
             .AddATProtoServices()
+            .AddBridgingServices()
             .AddCredentialProviders()
             .AddDeviantArtClient()
-            .AddFavoritesHandlers()
             .AddFeedReaders()
-            .AddFurAffinityClient()
-            .AddInboxHandlers()
+            .AddIngestion()
             .AddJsonLdExpansionService()
             .AddMemoryCache()
             .AddPandacapKeyVault(
                 keyVaultHost: new Uri("https://" + Environment.GetEnvironmentVariable("KeyVaultHostname")))
-            .AddUIPostProviders()
-            .AddWeasylClient(
-                weasylProxyHost: new("https://" + Environment.GetEnvironmentVariable("WeasylProxyHost")))
-            .AddWeasylScraper();
+            .AddPeriodicTaskServices()
+            .AddUIPostProviders();
 
-        services.AddHttpClient();
+        services
+            .AddHttpClient()
+            .AddSingleton(TimeProvider.System);
     })
     .Build();
 

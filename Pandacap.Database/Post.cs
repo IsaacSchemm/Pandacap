@@ -103,9 +103,49 @@ namespace Pandacap.Database
 
         public string? DeviantArtUrl { get; set; }
 
+        public class FurAffinityInformation
+        {
+            public int Cat { get; set; }
+
+            public int Atype { get; set; }
+
+            public int Species { get; set; }
+
+            public int Gender { get; set; }
+
+            public FurAffinity.Models.Rating Rating { get; set; }
+
+            public bool Scrap { get; set; }
+
+            public bool LockComments { get; set; }
+
+            public List<long> FolderIds { get; set; } = [];
+        }
+
+        public DateTimeOffset? FurAffinityPostQueuedAt { get; set; }
+
+        public FurAffinityInformation? FurAffinityQueuedPostInformation { get; set; }
+
+        public string? FurAffinityUsername { get; set; }
+
         public int? FurAffinitySubmissionId { get; set; }
 
         public int? FurAffinityJournalId { get; set; }
+
+        public class WeasylInformation
+        {
+            public Weasyl.Models.WeasylUpload.SubmissionType Subtype { get; set; }
+
+            public int? FolderId { get; set; }
+
+            public Weasyl.Models.WeasylUpload.Rating Rating { get; set; }
+        }
+
+        public DateTimeOffset? WeasylPostQueuedAt { get; set; }
+
+        public WeasylInformation? WeasylQueuedPostInformation { get; set; }
+
+        public string? WeasylUsername { get; set; }
 
         public int? WeasylSubmitId { get; set; }
 

@@ -22,6 +22,7 @@
     <ProjectReference Include="..\Pandacap.PlatformLinks.Interfaces\Pandacap.PlatformLinks.Interfaces.csproj" />
     <ProjectReference Include="..\Pandacap.Text\Pandacap.Text.fsproj" />
     <ProjectReference Include="..\Pandacap.UI.Elements\Pandacap.UI.Elements.csproj" />
+    <ProjectReference Include="..\Pandacap.Weasyl.Models\Pandacap.Weasyl.Models.fsproj" />
   </ItemGroup>
 
 </Project>

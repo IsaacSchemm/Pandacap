@@ -28,11 +28,9 @@ using Pandacap.Data;
 using Pandacap.Database;
 using Pandacap.DeviantArt;
 using Pandacap.DeviantArt.Feeds;
-using Pandacap.FeedIngestion;
 using Pandacap.Frontend.Feeds;
-using Pandacap.FurAffinity;
 using Pandacap.ImageConversion;
-using Pandacap.Inbox;
+using Pandacap.Ingestion;
 using Pandacap.KeyVault;
 using Pandacap.Lemmy;
 using Pandacap.Notifications;
@@ -40,11 +38,10 @@ using Pandacap.Notifications.Composite;
 using Pandacap.PlatformLinks;
 using Pandacap.PostCreation;
 using Pandacap.Resolvers;
+using Pandacap.Rss;
 using Pandacap.UI.Posts;
 using Pandacap.VectorSearch;
 using Pandacap.VectorSearch.Models;
-using Pandacap.Weasyl;
-using Pandacap.Weasyl.Scraping;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -170,9 +167,8 @@ builder.Services
     .AddDnsClient()
     .AddFeedBuilder()
     .AddFeedReaders()
-    .AddFurAffinityClient()
     .AddImageConversion()
-    .AddInboxHandlers()
+    .AddIngestion()
     .AddJsonLdExpansionService()
     .AddLemmyServices()
     .AddNotificationHandlers()
@@ -184,15 +180,14 @@ builder.Services
     .AddResolvers()
     .AddUIPostProviders()
     .AddVectorSearch()
-    .AddWeasylClient(
-        weasylProxyHost: new("https://" + builder.Configuration["WeasylProxyHost"]))
-    .AddWeasylScraper()
     .AddScoped<TokenUpdater>();
 
 builder.Services.AddHttpClient(string.Empty, client =>
     client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services
     .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)

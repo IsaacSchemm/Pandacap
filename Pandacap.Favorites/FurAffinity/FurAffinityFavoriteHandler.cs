@@ -2,37 +2,39 @@
 using Pandacap.Database;
 using Pandacap.Favorites.Interfaces;
 using Pandacap.FurAffinity.Interfaces;
-using System.Text.RegularExpressions;
 
 namespace Pandacap.Favorites.FurAffinity
 {
     public partial class FurAffinityFavoriteHandler(
-        PandacapDbContext context,
-        IFurAffinityClientFactory furAffinityClientFactory) : IFavoritesSource
+        IFurAffinityClientFactory furAffinityClientFactory,
+        IEnumerable<IFurAffinityCredentials> furAffinityCredentials,
+        IFurAffinityOnlineStatsProvider furAffinityOnlineStatsProvider,
+        PandacapDbContext pandacapDbContext) : IFavoritesSource
     {
         public async Task ImportFavoritesAsync(CancellationToken cancellationToken)
         {
-            var credentials = await context.FurAffinityCredentials.SingleOrDefaultAsync(cancellationToken);
+            var credentials = furAffinityCredentials.FirstOrDefault();
 
             if (credentials == null)
                 return;
 
-            var tooNew = DateTimeOffset.UtcNow.AddMinutes(-5);
+            if (!await furAffinityOnlineStatsProvider.IsBotUsageOkAsync(cancellationToken))
+                return;
 
             async IAsyncEnumerable<Pandacap.FurAffinity.Models.Submission> enumerateAsync()
             {
-                var pagination = Pandacap.FurAffinity.Models.FavoritesPage.First;
+                var client = furAffinityClientFactory.CreateClient(credentials, Pandacap.FurAffinity.Models.Domain.SFW);
 
-                var client = furAffinityClientFactory.CreateClient(
-                    credentials,
-                    Pandacap.FurAffinity.Models.Domain.SFW);
+                var username = await client.WhoamiAsync(cancellationToken);
+
+                var pagination = Pandacap.FurAffinity.Models.FavoritesPage.First;
 
                 while (true)
                 {
                     var page = await client.GetFavoritesAsync(
-                        credentials.Username,
+                        username,
                         pagination,
-                        CancellationToken.None);
+                        cancellationToken);
 
                     foreach (var submission in page)
                         yield return submission;
@@ -48,7 +50,7 @@ namespace Pandacap.Favorites.FurAffinity
 
             await foreach (var submission in enumerateAsync().WithCancellation(cancellationToken))
             {
-                var existing = await context.FurAffinityFavorites
+                var existing = await pandacapDbContext.FurAffinityFavorites
                     .Where(item => item.SubmissionId == submission.id)
                     .CountAsync(cancellationToken);
                 if (existing > 0)
@@ -62,7 +64,7 @@ namespace Pandacap.Favorites.FurAffinity
 
             while (items.TryPop(out var submission))
             {
-                context.FurAffinityFavorites.Add(new()
+                pandacapDbContext.FurAffinityFavorites.Add(new()
                 {
                     Id = Guid.NewGuid(),
                     SubmissionId = submission.id,
@@ -80,10 +82,7 @@ namespace Pandacap.Favorites.FurAffinity
                 });
             }
 
-            await context.SaveChangesAsync(cancellationToken);
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
-
-        [GeneratedRegex(@"^https://t.furaffinity.net/[0-9]+@[0-9]+-([0-9]+)")]
-        private static partial Regex GetFurAffinityThumbnailPattern();
     }
 }

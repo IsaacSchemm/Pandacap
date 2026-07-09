@@ -8,16 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ATProto.Services.Interfaces\Pandacap.ATProto.Services.Interfaces.vbproj" />
-    <ProjectReference Include="..\Pandacap.Credentials.Interfaces\Pandacap.Credentials.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Database\Pandacap.Database.csproj" />
     <ProjectReference Include="..\Pandacap.DeviantArt.Interfaces\Pandacap.DeviantArt.Interfaces.vbproj" />
-    <ProjectReference Include="..\Pandacap.FeedIngestion.Interfaces\Pandacap.FeedIngestion.Interfaces.vbproj" />
     <ProjectReference Include="..\Pandacap.Inbox.Interfaces\Pandacap.Inbox.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Ingestion.Interfaces\Pandacap.Ingestion.Interfaces.vbproj" />
+    <ProjectReference Include="..\Pandacap.Weasyl.Interfaces\Pandacap.Weasyl.Interfaces.vbproj" />
   </ItemGroup>
 
 </Project>

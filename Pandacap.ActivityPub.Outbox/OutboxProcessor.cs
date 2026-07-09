@@ -13,69 +13,47 @@ namespace Pandacap.ActivityPub.Outbox
     /// <param name="context">The database context</param>
     internal class OutboxProcessor(
         IActivityPubRequestHandler activityPubRequestHandler,
-        PandacapDbContext context) : IActivityPubOutboxProcessor
+        PandacapDbContext pandacapDbContext) : IActivityPubOutboxProcessor
     {
-        /// <summary>
-        /// Attempts to send any pending ActivityPub messages. Messages that are successfully sent will be removed from Pandacap's database.
-        /// If a message cannot be sent, any further messages to that inbox will be skipped for the next hour.
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public async Task SendPendingActivitiesAsync(CancellationToken cancellationToken)
+        public async Task AttemptToSendPendingActivityAsync(Guid id, CancellationToken cancellationToken)
         {
-            HashSet<string> inboxesToSkip = [];
+            var activity = await pandacapDbContext.ActivityPubOutboundActivities
+                .Where(a => a.Id == id)
+                .FirstOrDefaultAsync(cancellationToken);
 
-            while (true)
+            if (activity == null)
+                return;
+
+            if (activity.DelayUntil > DateTimeOffset.UtcNow)
+                return;
+
+            try
             {
-                var activities = await context.ActivityPubOutboundActivities
-                    .Where(r => !inboxesToSkip.Contains(r.Inbox))
-                    .OrderBy(r => r.StoredAt)
-                    .Take(100)
-                    .ToListAsync(cancellationToken);
+                await activityPubRequestHandler.PostAsync(
+                    new Uri(activity.Inbox),
+                    activity.JsonBody,
+                    CancellationToken.None);
 
-                if (activities.Count == 0)
-                    return;
+                pandacapDbContext.ActivityPubOutboundActivities.Remove(activity);
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode is HttpStatusCode code && (int)code % 100 == 4)
+            {
+                // Don't send this activity again
+                pandacapDbContext.ActivityPubOutboundActivities.Remove(activity);
+            }
+            catch (HttpRequestException)
+            {
+                // Don't send this activity again for one hour
+                activity.DelayUntil = DateTimeOffset.UtcNow.AddHours(1);
+            }
 
-                foreach (var activity in activities)
-                {
-                    // If this recipient is to be skipped, also skip any other activity to the same recipient
-                    if (activity.DelayUntil > DateTimeOffset.UtcNow)
-                        inboxesToSkip.Add(activity.Inbox);
-
-                    // If we're now skipping this inbox, skip this activity
-                    if (inboxesToSkip.Contains(activity.Inbox))
-                        continue;
-
-                    try
-                    {
-                        await activityPubRequestHandler.PostAsync(
-                            new Uri(activity.Inbox),
-                            activity.JsonBody,
-                            CancellationToken.None);
-                        context.ActivityPubOutboundActivities.Remove(activity);
-                    }
-                    catch (HttpRequestException ex) when (ex.StatusCode is HttpStatusCode code && (int)code % 100 == 4)
-                    {
-                        // Don't send this activity again
-                        context.ActivityPubOutboundActivities.Remove(activity);
-                    }
-                    catch (HttpRequestException)
-                    {
-                        // Don't send this activity again for one hour
-                        // This will also skip later activities to that inbox (see above)
-                        activity.DelayUntil = DateTimeOffset.UtcNow.AddHours(1);
-                        inboxesToSkip.Add(activity.Inbox);
-                    }
-
-                    try
-                    {
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception($"Could not save status of activity {activity.Id} (has it already been deleted?)", ex);
-                    }
-                }
+            try
+            {
+                await pandacapDbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not save status of activity {activity.Id} (has it already been deleted?)", ex);
             }
         }
     }
