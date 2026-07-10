@@ -29,6 +29,18 @@
                     {
                         Console.Error.WriteLine($"Error in {GetType().Name}; waiting a minimum of {_errorWaitTime}");
                         Console.Error.WriteLine(ex);
+
+                        try
+                        {
+                            await File.WriteAllTextAsync(
+                                Path.Combine(
+                                    Path.GetTempPath(),
+                                    "pandacap-last-error.txt"),
+                                $"{ex}",
+                                stoppingToken);
+                        }
+                        catch (Exception) { }
+
                         await Task.Delay(_errorWaitTime, stoppingToken);
                     }
 

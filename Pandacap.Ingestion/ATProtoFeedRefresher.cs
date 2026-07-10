@@ -205,7 +205,7 @@ namespace Pandacap.Ingestion
                 {
                     await RefreshFeedAsync(feed.DID, cancellationToken);
                 }
-                catch (XrpcException ex) when (ex.error == "NotFound")
+                catch (XrpcException ex) when (ex.error == "NotFound" || ex.error == "RepoDeactivated")
                 {
                     continue;
                 }
