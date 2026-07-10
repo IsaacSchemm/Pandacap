@@ -113,7 +113,7 @@ namespace Pandacap.Weasyl
                     qs += $"&nextid={n}";
 
                 using var client = CreateClient();
-                using var resp = await client.GetAsync($"https://www.weasyl.com/api/favorites?{qs}", cancellationToken);
+                using var resp = await client.GetAsync($"https://www.weasyl.com/favorites?{qs}", cancellationToken);
                 resp.EnsureSuccessStatusCode();
                 string html = await resp.Content.ReadAsStringAsync(cancellationToken);
                 var page = weasylScraper.ExtractFavoriteSubmitids(html);
