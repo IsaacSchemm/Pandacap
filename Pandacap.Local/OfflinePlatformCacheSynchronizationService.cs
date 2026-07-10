@@ -4,7 +4,7 @@ namespace Pandacap.Local
 {
     public class OfflinePlatformCacheSynchronizationService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(5);
+        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(1);
 
         protected override TimeSpan Period => TimeSpan.FromDays(7);
 

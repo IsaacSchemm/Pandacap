@@ -205,6 +205,10 @@ namespace Pandacap.Ingestion
                 {
                     await RefreshFeedAsync(feed.DID, cancellationToken);
                 }
+                catch (XrpcException ex) when (ex.error == "NotFound")
+                {
+                    continue;
+                }
                 catch (Exception ex)
                 {
                     exceptions.Add(ex);

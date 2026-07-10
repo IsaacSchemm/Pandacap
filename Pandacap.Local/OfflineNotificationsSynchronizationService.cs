@@ -4,7 +4,7 @@ namespace Pandacap.Local
 {
     public class OfflineNotificationsSynchronizationService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromSeconds(2);
+        protected override TimeSpan InitialDelay => TimeSpan.FromSeconds(10);
 
         protected override TimeSpan Period => TimeSpan.FromHours(6);
 

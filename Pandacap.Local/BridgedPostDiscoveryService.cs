@@ -4,7 +4,7 @@ namespace Pandacap.Local
 {
     public class BridgedPostDiscoveryService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(5);
+        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(1);
 
         protected override TimeSpan Period => TimeSpan.FromMinutes(30);
 

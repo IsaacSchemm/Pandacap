@@ -2,6 +2,8 @@
 {
     public abstract class PandacapBackgroundService : BackgroundService
     {
+        private static readonly TimeSpan _errorWaitTime = TimeSpan.FromHours(12);
+
         private static readonly SemaphoreSlim _flag = new(1, 1);
 
         protected abstract TimeSpan InitialDelay { get; }
@@ -19,7 +21,16 @@
                 {
                     var delay = Task.Delay(Period, stoppingToken);
 
-                    await RunWithLockAsync(stoppingToken);
+                    try
+                    {
+                        await RunWithLockAsync(stoppingToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Error in {GetType().Name}; waiting a minimum of {_errorWaitTime}");
+                        Console.Error.WriteLine(ex);
+                        await Task.Delay(_errorWaitTime, stoppingToken);
+                    }
 
                     await delay;
                 }

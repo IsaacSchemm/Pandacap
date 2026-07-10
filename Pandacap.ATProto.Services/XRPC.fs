@@ -3,6 +3,7 @@ namespace Pandacap.ATProto.Services
 open System
 open System.Net.Http
 open System.Net.Http.Json
+open Pandacap.ATProto.Models
 open Pandacap.ATProto.Services.Interfaces
 
 module XRPC =
@@ -10,8 +11,6 @@ module XRPC =
         error: string
         message: string
     }
-
-    exception XrpcException of XrpcError
 
     type internal Body =
     | NoBody
@@ -43,7 +42,7 @@ module XRPC =
 
             if not resp.IsSuccessStatusCode && isJson then
                 let! err = resp.Content.ReadFromJsonAsync<XrpcError>(token) |> Async.AwaitTask
-                return raise (XrpcException err)
+                return raise (XrpcException (err.error, err.message))
             else
                 return resp.EnsureSuccessStatusCode()
         }
