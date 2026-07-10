@@ -80,7 +80,7 @@ builder.Services
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Pandacap Local Sidecar");
+app.MapGet("/", () => $"Pandacap Local Sidecar\n{Pandacap.Constants.UserAgentInformation.UserAgent}");
 
 app.Run($"http://+:5002");
 
