@@ -63,17 +63,19 @@ Background tasks are performed by Pandacap.Local, which is intended to run on a 
 (its HTTP port, 5002, does not need to be exposed to the internet).
 These tasks include:
 
-* Looking for unsent outbound ActivityPub activities and telling the Pandacap web application to attempt sending them.
-* Checking with Bridgy Fed for bridged Bluesky versions of your recent posts,
-  so they can be recorded and linked from the original post, and so Pandacap can look for interactions with them.
-* Looking for new favorites from DeviantArt, Fur Affinity, and Weasyl and adding them to Pandacap's favorites page.
-* Looks for recent posts from users you follow on Fur Affinity or Weasyl and adding them to the database.
-* Looking for recent notifications from Fur Affinity or Weasyl and adding them to the database.
-* Refreshing information about your Fur Affinity and Weasyl accounts which is relevant to creating a new post (your gallery folders, etc.)
-* Publishing queued Fur Affinity or Weasyl posts.
-* Removing old, unsent outbound ActivityPub activities from the database.
-* Removing dismissed inbox posts from the database.
-* Removing old inbox posts (any after the first 200 which are older than a month) from the database.
+* ActivityPub
+    * Checking for unsent outbound ActivityPub activities and asking the Pandacap web application to attempt sending them.
+    * Checking with Bridgy Fed for bridged Bluesky versions of your recent posts, so they can be linked from the original post, and so Pandacap can look for interactions with them.
+    * Removing old, unsent outbound ActivityPub activities from the database.
+* Other
+    * Looking for recent posts from non-ActivityPub users you follow and adding them to the database.
+    * Looking for new favorites from DeviantArt, Fur Affinity, and Weasyl and adding them to Pandacap's favorites page.
+    * Looking for recent notifications from Fur Affinity or Weasyl and adding them to the database.
+    * Refreshing lists of options (gallery folders, etc.) that are available when creating a new Fur Affinity or Weasyl post.
+    * Publishing queued Fur Affinity or Weasyl posts.
+* Cleanup
+    * Removing dismissed inbox posts from the database.
+    * Removing old inbox posts (any after the first 200 which are older than a month) from the database.
 
 The Azure Functions app Pandacap.Functions also performs some of these functions, on a less frequent basis, as a backup.
 
