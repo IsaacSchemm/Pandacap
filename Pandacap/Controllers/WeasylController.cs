@@ -28,7 +28,10 @@ namespace Pandacap.Controllers
             return View(new WeasylCrosspostArtworkViewModel
             {
                 Id = id,
-                AvailableFolders = [.. folders.Select(f => new SelectListItem(f.Name, $"{f.FolderId}"))]
+                AvailableFolders = [
+                    new SelectListItem("(none)", ""),
+                    .. folders.Select(f => new SelectListItem(f.Name, $"{f.FolderId}"))
+                ]
             });
         }
 
