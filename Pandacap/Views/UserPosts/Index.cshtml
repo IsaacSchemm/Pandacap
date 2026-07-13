@@ -227,7 +227,7 @@
         {
             if (Model.Post.Images.Count == 1 && Model.Post.WeasylPostQueuedAt == null)
             {
-                <form asp-action="Crosspost" asp-controller="Weasyl" class="mb-3">
+                <form asp-action="Crosspost" asp-controller="Weasyl" method="get" class="mb-3">
                     <input type="hidden" name="id" value="@Model.Post.Id" />
                     <button type="submit" class="btn btn-success">
                         Post to Weasyl

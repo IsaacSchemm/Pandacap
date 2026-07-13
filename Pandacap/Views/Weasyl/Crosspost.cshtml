@@ -1,0 +1,34 @@
+﻿@model WeasylCrosspostArtworkViewModel
+
+@{
+    ViewBag.Title = "Post to Weasyl";
+}
+
+<h1>Post to Weasyl</h1>
+
+<hr />
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div class="container">
+        <div class="row">
+            <div class="col col-lg-6 mb-3">
+                <h2>Gallery Folders</h2>
+                <div class="mb-3">
+                    <label asp-for="@Model.FolderId" class="form-label"></label>
+                    <select asp-for="@Model.FolderId"
+                            asp-items="@Model.AvailableFolders"
+                            class="form-control"></select>
+                </div>
+            </div>
+            <div class="col col-lg-6 mb-3">
+                <h2>Rating</h2>
+                <div class="mb-3 form-check px-0">
+                    <input id="is_mature" type="checkbox" disabled checked>
+                    <label class="form-check-label" for="is_mature">General</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Post to Weasyl</button>
+</form>
