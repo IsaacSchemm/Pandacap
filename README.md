@@ -236,6 +236,8 @@ Application settings for Pandacap.Local:
 | ApplicationHostname                   | Public hostname of the app
 | CosmosDBAccountEndpoint               | URL of the database
 | CosmosDBAccountKey                    | Database key
+| DeviantArtClientId                    | (optional) OAuth client ID from DeviantArt
+| DeviantArtClientSecret                | (optional) OAuth secret from DeviantArt
 | FurAffinityA                          | The value of the `a` cookie from a logged-in Fur Affinity session
 | FurAffinityB                          | The value of the `b` cookie from a logged-in Fur Affinity session
 | WeasylApiKey                          | A Weasyl API key
