@@ -2,7 +2,35 @@
 
 Demo: https://pandacap-demo-gsasaqfrfqffa6b4.eastus-01.azurewebsites.net/
 
-A single-user hobby project that combines a public art gallery (+ blog) and a private feed reader, with crossposting and ActivityPub S2S support.
+A single-user hobby project (built on .NET and Azure) that combines a public art gallery and a private feed reader, with crossposting and ActivityPub S2S support.
+
+## Features
+
+* Create posts which are available on the web interface, via Atom/RSS, and via ActivityPub
+    * Posts are split into **image posts** and **text posts**
+        * Text posts are split into **status updates**, **journal entries**, and **links**
+* Follow other ActivityPub users
+* Follow Atom/RSS feeds
+* Follow Bluesky users (without a Bluesky account)
+* Crosspost your image posts and text posts to attached DeviantArt, Fur Affinity, or Weasyl accounts
+* View posts from users or feeds you follow in the **inbox**
+    * The inbox is split into **image posts**, **text posts**, **shares** (ActivityPub/Bluesky only), and **podcasts** (Atom/RSS only)
+    * Up to 50 posts are shown per page, and posts within the same page are grouped by author
+    * Checkboxes are used to remove posts you've read from the inbox
+    * Non-ActivityPub posts are periodically imported in the background
+* View **notifications** from activity on your posts or from your attached accounts
+    * Pandacap can link with Bridgy Fed and Constellation to discover the bridged Bluesky versions of your posts and include interactions with them in the notifications page
+* Configure **canonical tags** which indicate characters, species, or settings depicted or artistic mediums used, and attach these tags to image posts
+* Add posts to your **favorites**
+    * ActivityPub and Bluesky posts can be added manually
+    * Favorites from DeviantArt, Fur Affinity, and Weasyl are imported automatically
+
+## Some things Pandacap cannot do
+
+* Host more than one user
+* Share / boost / repost
+* Follow hashtags
+* Attach more than one image to a post
 
 ## Design Philosophy
 
@@ -32,22 +60,6 @@ The home page shows:
 * Links to view your ActivityPub profile, your bridged Bluesky account, and your other attached accounts
 * Up to 8 of your **image posts**
 * Up to 5 of your **text posts**
-
-## Features
-
-* Create **image posts** and **text posts**, which are available on the site, via RSS/Atom, and via ActivityPub
-    * Text posts can be **status updates**, **journal entries**, or **links**
-* Crosspost your image posts and text posts to attached DeviantArt, Fur Affinity, or Weasyl accounts
-* Follow other users and feeds via RSS/Atom, ActivityPub, or atproto
-* View posts from users or feeds you follow in the **inbox**
-    * The inbox is split into **image posts**, **text posts**, **shares**, and **podcasts**
-    * Up to 50 posts are shown per page, and posts within the same page are grouped by author
-    * Checkboxes are used to remove posts you've read from the inbox
-    * Non-ActivityPub posts are periodically imported in the background
-* View **notifications** from activity on your posts or from your attached accounts
-* Add posts to your **favorites**
-    * ActivityPub and Bluesky posts can be added manually
-    * Favorites from DeviantArt, Fur Affinity, and Weasyl are imported automatically
 
 ## Techincal Information
 
@@ -267,22 +279,8 @@ The key vault is for a single encryption key called `activitypub` that is used t
     1. Create a storage account (for Blob Storage) with an appropriate access tier for your use case (hot, cool, or cold).
         * Use access control (IAM) to assign the "Storage Blob Data Contributor" role to the web app's managed identity.
         * Create a container called "blobs".
-    1. Assign the following environment variables to the web app:
-        * `Authentication:Microsoft:ClientId` (if you want to log in with Microsoft): The application (client) ID of the app registration you've created in Entra.
-        * `Authentication:Microsoft:ClientSecret` (if you want to log in with Microsoft): The value of a client secret - you can create one from the "certificates & secrets" pane of the app registration (keep in mind that these have expiration dates).
-        * `Authentication:Microsoft:TenantId` (if you want to log in with Microsoft): The directory (tenant) ID.
-        * `DeviantArtClientId` (if you want to log in with DeviantArt): A client ID from https://www.deviantart.com/studio/apps.
-        * `DeviantArtClientSecret` (if you want to log in with DeviantArt): A client secret from https://www.deviantart.com/studio/apps.
-        * `DeviantArtUsername` (if you want to log in with DeviantArt): Only this user will be permitted to log in via DeviantArt; other valid DeviantArt users will be rejected.
-    1. Assign the following environment variables to both the web app and the function app:
-        * `ActivityPubUsername`: the username part of the ActivityPub handle (before the `@www.example.com` portion).
-        * `ApplicationHostname`: the web app's hostname (e.g. `www.example.com`).
-        * `CosmosDBAccountEndpoint`: the URL of the Cosmos DB server created above (e.g. https://www.example.net:443/).
-        * `CosmosDBAccountKey` (optional): if you are using key-based authentication, the key goes here.
-        * `KeyVaultHostname`: The hostname to the key vault created above.
-        * `StorageAccountHostname`: The hostname to the storage account created above.
-        * `WeasylProxyHost`: The hostname of a domain which contains the paths `/pandacap/weasyl_proxy.php` and `/pandacap/weasyl_submit.php`.
-1. Clone the Pandacap git repository: <br/> `git clone https://github.com/IsaacSchemm/Pandacap`, with storage account key access disabled.
+    1. Assign the appropriate environment variables to the web app and to the function app, as described in the section above.
+1. Clone the Pandacap git repository: <br/> `git clone https://github.com/IsaacSchemm/Pandacap`
 1. Open Pandacap.sln with Visual Studio.
 1. Right-click on the Pandacap project and click Publish.
     * Create a new profile to deploy to your newly created Azure App Service.
