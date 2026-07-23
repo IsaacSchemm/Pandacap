@@ -2,13 +2,9 @@
 
 namespace Pandacap.Local
 {
-    public class OfflineNotificationsSynchronizationService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
+    public class OfflineNotificationsSynchronizationService(IServiceScopeFactory serviceScopeFactory) : IPandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromSeconds(10);
-
-        protected override TimeSpan Period => TimeSpan.FromHours(6);
-
-        protected override async Task RunAsync(CancellationToken cancellationToken)
+        public async Task RunAsync(CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateScope();
 

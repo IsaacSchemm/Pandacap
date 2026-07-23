@@ -2,13 +2,9 @@
 
 namespace Pandacap.Local
 {
-    public class InboxService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
+    public class InboxService(IServiceScopeFactory serviceScopeFactory) : IPandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(1);
-
-        protected override TimeSpan Period => TimeSpan.FromHours(4);
-
-        protected override async Task RunAsync(CancellationToken cancellationToken)
+        public async Task RunAsync(CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateScope();
             var inboxSources = scope.ServiceProvider.GetServices<IInboxSource>();

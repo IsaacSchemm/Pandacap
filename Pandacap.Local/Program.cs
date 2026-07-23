@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ATProto.HandleResolution;
 using Pandacap.ATProto.Services;
@@ -32,6 +33,12 @@ builder.Services.AddDbContextFactory<PandacapDbContext>(options => options.UseCo
     databaseName: "Pandacap"));
 
 builder.Services
+    .AddHangfire(configuration => configuration
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseInMemoryStorage())
+    .AddHangfireServer()
     .AddHttpClient()
     .AddMemoryCache()
     .AddSingleton(TimeProvider.System)
@@ -67,22 +74,44 @@ builder.Services
     .AddWeasylScraper();
 
 builder.Services
-    .AddHostedService<BridgedPostDiscoveryService>()
-    .AddHostedService<DismissedInboxPostCleanupService>()
-    .AddHostedService<FavoritesIngestionService>()
-    .AddHostedService<InboxService>()
-    .AddHostedService<OfflineNotificationsSynchronizationService>()
-    .AddHostedService<OfflinePlatformCacheSynchronizationService>()
-    .AddHostedService<OutboundActivityCleanupService>()
-    .AddHostedService<OutboundActivityTriggerService>()
-    .AddHostedService<OutboxService>()
-    .AddHostedService<UnreadInboxPostCleanupService>();
+    .AddTransient<BridgedPostDiscoveryService>()
+    .AddTransient<DismissedInboxPostCleanupService>()
+    .AddTransient<FavoritesIngestionService>()
+    .AddTransient<InboxService>()
+    .AddTransient<OfflineNotificationsSynchronizationService>()
+    .AddTransient<OfflinePlatformCacheSynchronizationService>()
+    .AddTransient<OutboundActivityCleanupService>()
+    .AddTransient<OutboundActivityTriggerService>()
+    .AddTransient<OutboxService>()
+    .AddTransient<UnreadInboxPostCleanupService>();
 
 var app = builder.Build();
 
-app.MapGet("/", () => $"Pandacap Local Sidecar\n{Pandacap.Constants.UserAgentInformation.UserAgent}");
+app.UseHangfireDashboard(
+    pathMatch: "",
+    new DashboardOptions
+    {
+        Authorization = [new DashboardAuthorizationFilter()]
+    });
+
+AddRecurringJob<BridgedPostDiscoveryService>(Cron.MinuteInterval(30));
+AddRecurringJob<DismissedInboxPostCleanupService>(Cron.Daily());
+AddRecurringJob<FavoritesIngestionService>(Cron.HourInterval(4));
+AddRecurringJob<InboxService>(Cron.HourInterval(4));
+AddRecurringJob<OfflineNotificationsSynchronizationService>(Cron.HourInterval(8));
+AddRecurringJob<OfflinePlatformCacheSynchronizationService>(Cron.Weekly());
+AddRecurringJob<OutboundActivityCleanupService>(Cron.Daily());
+AddRecurringJob<OutboundActivityTriggerService>(Cron.Minutely());
+AddRecurringJob<OutboxService>(Cron.MinuteInterval(5));
+AddRecurringJob<UnreadInboxPostCleanupService>(Cron.Weekly());
 
 app.Run($"http://+:5002");
+
+static void AddRecurringJob<T>(string cronExpression) where T : IPandacapBackgroundService =>
+    RecurringJob.AddOrUpdate<T>(
+        recurringJobId: typeof(T).Name,
+        svc => svc.RunAsync(),
+        cronExpression);
 
 record WeasylCredentials(string WeasylApiKey) : IWeasylCredentials;
 

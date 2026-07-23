@@ -1,15 +1,10 @@
-﻿using Pandacap.Inbox.Interfaces;
-using Pandacap.Outbox.Interfaces;
+﻿using Pandacap.Outbox.Interfaces;
 
 namespace Pandacap.Local
 {
-    public class OutboxService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
+    public class OutboxService(IServiceScopeFactory serviceScopeFactory) : IPandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(1);
-
-        protected override TimeSpan Period => TimeSpan.FromMinutes(10);
-
-        protected override async Task RunAsync(CancellationToken cancellationToken)
+        public async Task RunAsync(CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateScope();
             var outboxDestinations = scope.ServiceProvider.GetServices<IOutboxDestination>();

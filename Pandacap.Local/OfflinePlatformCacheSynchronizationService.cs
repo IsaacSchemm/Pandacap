@@ -2,13 +2,9 @@
 
 namespace Pandacap.Local
 {
-    public class OfflinePlatformCacheSynchronizationService(IServiceScopeFactory serviceScopeFactory) : PandacapBackgroundService
+    public class OfflinePlatformCacheSynchronizationService(IServiceScopeFactory serviceScopeFactory) : IPandacapBackgroundService
     {
-        protected override TimeSpan InitialDelay => TimeSpan.FromMinutes(1);
-
-        protected override TimeSpan Period => TimeSpan.FromDays(7);
-
-        protected override async Task RunAsync(CancellationToken cancellationToken)
+        public async Task RunAsync(CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateScope();
 

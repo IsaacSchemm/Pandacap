@@ -72,7 +72,8 @@ To log in, the instance owner must use one of the following:
 * A DeviantArt account whose username matches the app setting `DeviantArtUsername`.
 
 Background tasks are performed by Pandacap.Local, which is intended to run on a VPS or local machine
-(its HTTP port, 5002, does not need to be exposed to the internet).
+(its HTTP port, 5002, hosts Hangfire's dashboard and should not be exposed to the internet).
+
 These tasks include:
 
 * ActivityPub
