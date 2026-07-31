@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using NSign;
 using Pandacap.ActivityPub.Services.Interfaces;
 
 namespace Pandacap.KeyVault
@@ -11,6 +12,7 @@ namespace Pandacap.KeyVault
         ) =>
             serviceCollection
             .AddSingleton(new KeyVaultConfiguration { KeyVaultHost = keyVaultHost })
-            .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>();
+            .AddScoped<IActivityPubCommunicationPrerequisites, ActivityPubCommunicationPrerequisites>()
+            .AddScoped<ISigner, ActivityPubCommunicationPrerequisites>();
     }
 }

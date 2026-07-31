@@ -1,6 +1,7 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Keys.Cryptography;
+using NSign;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Constants;
 
@@ -10,7 +11,8 @@ namespace Pandacap.KeyVault
     /// Provides access to an encryption key in Azure Key Vault. This key is
     /// used as the signing key for the ActivityPub actor.
     /// </summary>
-    internal class ActivityPubCommunicationPrerequisites(KeyVaultConfiguration keyVaultConfiguration) : IActivityPubCommunicationPrerequisites
+    internal class ActivityPubCommunicationPrerequisites(KeyVaultConfiguration keyVaultConfiguration)
+        : IActivityPubCommunicationPrerequisites, ISigner
     {
         private readonly Lazy<KeyClient> _keyClient = new(() => new(
             keyVaultConfiguration.KeyVaultHost,
@@ -45,6 +47,15 @@ namespace Pandacap.KeyVault
             var cryptographyClient = _keyClient.Value.GetCryptographyClient("activitypub");
             var result = await cryptographyClient.SignDataAsync(SignatureAlgorithm.RS256, data, cancellationToken);
             return result.Signature;
+        }
+
+        async Task<ReadOnlyMemory<byte>> ISigner.SignAsync(ReadOnlyMemory<byte> input, CancellationToken cancellationToken)
+        {
+            return await SignRsaSha256Async(input.ToArray(), cancellationToken);
+        }
+
+        void ISigner.UpdateSignatureParams(NSign.Signatures.SignatureParamsComponent signatureParams)
+        {
         }
     }
 }

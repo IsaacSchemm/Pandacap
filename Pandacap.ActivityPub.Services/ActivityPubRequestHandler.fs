@@ -18,31 +18,32 @@ type internal ActivityPubRequestHandler(
     let activityMediaType = "application/activity+json"
 
     let addSignatureAsync (req: HttpRequestMessage) (cancellationToken: CancellationToken) = task {
-        let headers = [
-            "(request-target)", $"{req.Method.Method.ToLowerInvariant()} {req.RequestUri.AbsolutePath}"
-            "host", req.Headers.Host
-            "date", (req.Headers.Date.Value.ToString("r"))
+        //let headers = [
+        //    "(request-target)", $"{req.Method.Method.ToLowerInvariant()} {req.RequestUri.AbsolutePath}"
+        //    "host", req.Headers.Host
+        //    "date", (req.Headers.Date.Value.ToString("r"))
 
-            match req.Headers.TryGetValues("Digest") with
-            | true, values -> "digest", Seq.exactlyOne values
-            | _ -> ()
-        ]
+        //    match req.Headers.TryGetValues("Digest") with
+        //    | true, values -> "digest", Seq.exactlyOne values
+        //    | _ -> ()
+        //]
 
-        let signatureInput =
-            headers
-            |> Seq.map (fun (k, v) -> $"{k}: {v}")
-            |> String.concat "\n"
-            |> Encoding.UTF8.GetBytes
+        //let signatureInput =
+        //    headers
+        //    |> Seq.map (fun (k, v) -> $"{k}: {v}")
+        //    |> String.concat "\n"
+        //    |> Encoding.UTF8.GetBytes
 
-        let! signature =
-            prerequisites.SignRsaSha256Async(signatureInput, cancellationToken)
+        //let! signature =
+        //    prerequisites.SignRsaSha256Async(signatureInput, cancellationToken)
 
-        let headerNames =
-            headers
-            |> Seq.map fst
-            |> String.concat " "
+        //let headerNames =
+        //    headers
+        //    |> Seq.map fst
+        //    |> String.concat " "
 
-        req.Headers.Add("Signature", $"keyId=\"{ActivityPubHostInformation.ActorId}#main-key\",algorithm=\"rsa-sha256\",headers=\"{headerNames}\",signature=\"{Convert.ToBase64String(signature)}\"")
+        //req.Headers.Add("Signature", $"keyId=\"{ActivityPubHostInformation.ActorId}#main-key\",algorithm=\"rsa-sha256\",headers=\"{headerNames}\",signature=\"{Convert.ToBase64String(signature)}\"")
+        return ()
     }
 
     let findAlternateLinks (html: string) = seq {
@@ -128,7 +129,7 @@ type internal ActivityPubRequestHandler(
             req.Headers.Date <- DateTime.UtcNow
             req.Headers.UserAgent.ParseAdd(prerequisites.UserAgent)
 
-            req.Headers.Add("Digest", $"SHA-256={digest}")
+            //req.Headers.Add("Digest", $"SHA-256={digest}")
 
             do! addSignatureAsync req cancellationToken
 

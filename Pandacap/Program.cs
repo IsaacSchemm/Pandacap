@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using NSign;
+using NSign.Providers;
+using NSign.Signatures;
 using NuGet.Packaging.Signing;
 using Pandacap;
 using Pandacap.ActivityPub.Favorites;
@@ -18,6 +21,7 @@ using Pandacap.ActivityPub.Outbox;
 using Pandacap.ActivityPub.RemoteObjects;
 using Pandacap.ActivityPub.Replies;
 using Pandacap.ActivityPub.Services;
+using Pandacap.ActivityPub.Static;
 using Pandacap.ATProto.HandleResolution;
 using Pandacap.ATProto.Services;
 using Pandacap.Audio;
@@ -45,6 +49,7 @@ using Pandacap.Signatures;
 using Pandacap.UI.Posts;
 using Pandacap.VectorSearch;
 using Pandacap.VectorSearch.Models;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -186,8 +191,10 @@ builder.Services
     .AddScoped<IActivityPubSignatureValidator, RFC9421SignatureValidator>()
     .AddScoped<TokenUpdater>();
 
-builder.Services.AddHttpClient(string.Empty, client =>
-    client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent));
+builder.Services
+    .AddHttpClient(string.Empty, client =>
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent))
+    .AddContentDigestAndSigningHandlers();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -207,6 +214,25 @@ builder.Services.AddRateLimiter(options =>
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         opt.QueueLimit = 0;
     });
+});
+
+builder.Services.ConfigureMessageSigningOptions(options =>
+{
+    options.SignatureName = "sig";
+
+    options
+        .WithMandatoryComponent(SignatureComponent.Method)
+        .WithMandatoryComponent(SignatureComponent.RequestTargetUri)
+        //.WithMandatoryComponent(SignatureComponent.Scheme)
+        .WithMandatoryComponent(SignatureComponent.Query)
+        .WithOptionalComponent(SignatureComponent.ContentDigest)
+        .WithOptionalComponent(SignatureComponent.ContentType);
+        //.WithOptionalComponent(SignatureComponent.ContentLength);
+
+    options.SetParameters = signatureParams => signatureParams
+        .WithKeyId($"{ActivityPubHostInformation.ActorId}#main-key")
+        .WithCreatedNow()
+        .WithExpires(TimeSpan.FromMinutes(5));
 });
 
 var app = builder.Build();
