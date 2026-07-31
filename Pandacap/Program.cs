@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using NuGet.Packaging.Signing;
 using Pandacap;
 using Pandacap.ActivityPub.Favorites;
 using Pandacap.ActivityPub.HttpSignatures.Discovery;
 using Pandacap.ActivityPub.HttpSignatures.Validation;
+using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
 using Pandacap.ActivityPub.Inbox;
 using Pandacap.ActivityPub.JsonLd;
 using Pandacap.ActivityPub.Outbox;
@@ -39,6 +41,7 @@ using Pandacap.PlatformLinks;
 using Pandacap.PostCreation;
 using Pandacap.Resolvers;
 using Pandacap.Rss;
+using Pandacap.Signatures;
 using Pandacap.UI.Posts;
 using Pandacap.VectorSearch;
 using Pandacap.VectorSearch.Models;
@@ -180,6 +183,7 @@ builder.Services
     .AddResolvers()
     .AddUIPostProviders()
     .AddVectorSearch()
+    .AddScoped<IActivityPubSignatureValidator, RFC9421SignatureValidator>()
     .AddScoped<TokenUpdater>();
 
 builder.Services.AddHttpClient(string.Empty, client =>

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces;
+using Pandacap.ActivityPub.HttpSignatures.Discovery.Models;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Models;
 using Pandacap.ActivityPub.JsonLd.Interfaces;
@@ -20,7 +21,7 @@ namespace Pandacap.Controllers
         IActivityPubOutboxProcessor activityPubOutboxProcessor,
         IActivityPubPostTranslator postTranslator,
         IActivityPubRelationshipTranslator relationshipTranslator,
-        IActivityPubSignatureValidator activityPubSignatureValidator,
+        IEnumerable<IActivityPubSignatureValidator> activityPubSignatureValidators,
         IJsonLdExpansionService expansionService,
         PandacapDbContext pandacapDbContext) : Controller
     {
@@ -59,6 +60,23 @@ namespace Pandacap.Controllers
                 Encoding.UTF8);
         }
 
+        private async Task<ActorKey?> GetValidKeyAsync(
+            string actorId,
+            CancellationToken cancellationToken)
+        {
+            await foreach (var key in activityPubKeyFinder.AcquireKeysAsync(Request, cancellationToken))
+            {
+                if (key.Owner != actorId)
+                    continue;
+
+                foreach (var validator in activityPubSignatureValidators)
+                    if (await validator.VerifyRequestSignatureAsync(Request, key, cancellationToken) == VerificationResult.SuccessfullyVerified)
+                        return key;
+            }
+
+            return null;
+        }
+
         [HttpPost]
         public async Task<IActionResult> Inbox(CancellationToken cancellationToken)
         {
@@ -78,12 +96,7 @@ namespace Pandacap.Controllers
             // Verify signature
             try
             {
-                var validKey = await activityPubKeyFinder
-                    .AcquireKeysAsync(Request, cancellationToken)
-                    .Where(key => key.Owner == actorId)
-                    .Where(async (key, token) =>
-                        await activityPubSignatureValidator.VerifyRequestSignatureAsync(Request, key, token) == VerificationResult.SuccessfullyVerified)
-                    .FirstOrDefaultAsync(cancellationToken);
+                var validKey = await GetValidKeyAsync(actorId, cancellationToken);
 
                 if (validKey == null)
                     return Unauthorized("Could not verify signature.");

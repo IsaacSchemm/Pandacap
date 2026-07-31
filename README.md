@@ -119,6 +119,10 @@ Activities (such as `Like`, `Dislike`, `Announce`) and replies to your posts are
 
 Adding an ActivityPub post to your Favorites will send a `Like` activity.
 
+Pandacap includes legacy draft-cavage HTTP signatures with its HTTP requests and accepts them on inbox requests.
+It should also be able to validate RFC 9421 HTTP signatures on inbox requests, using NSign, with code borrowed from
+[Letterbook](https://github.com/Letterbook/Letterbook), although this is still untested.
+
 ### atproto
 
 #### Following
