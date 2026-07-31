@@ -81,7 +81,8 @@ namespace Pandacap.Controllers
                 var validKey = await activityPubKeyFinder
                     .AcquireKeysAsync(Request, cancellationToken)
                     .Where(key => key.Owner == actorId)
-                    .Where(key => activityPubSignatureValidator.VerifyRequestSignature(Request, key) == VerificationResult.SuccessfullyVerified)
+                    .Where(async (key, token) =>
+                        await activityPubSignatureValidator.VerifyRequestSignatureAsync(Request, key, token) == VerificationResult.SuccessfullyVerified)
                     .FirstOrDefaultAsync(cancellationToken);
 
                 if (validKey == null)

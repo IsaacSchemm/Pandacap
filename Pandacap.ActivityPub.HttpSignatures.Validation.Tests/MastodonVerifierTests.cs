@@ -11,7 +11,7 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
     public class MastodonVerifierTests
     {
         [TestMethod]
-        public void VerifyRequestSignature_VerifiesPandacapSignature()
+        public async Task VerifyRequestSignature_VerifiesPandacapSignature()
         {
             var httpRequestMock = new Mock<HttpRequest>();
             httpRequestMock
@@ -62,14 +62,14 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
             var verifier = GetActivityPubSignatureValidator();
 
             Assert.AreEqual(
-                actual: verifier.VerifyRequestSignature(
+                actual: await verifier.VerifyRequestSignatureAsync(
                     httpRequestMock.Object,
                     keyMock.Object),
                 expected: VerificationResult.SuccessfullyVerified);
         }
 
         [TestMethod]
-        public void VerifyRequestSignature_VerifiesMastodonSignature()
+        public async Task VerifyRequestSignature_VerifiesMastodonSignature()
         {
             var httpRequestMock = new Mock<HttpRequest>();
             httpRequestMock
@@ -138,14 +138,14 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
             var verifier = GetActivityPubSignatureValidator();
 
             Assert.AreEqual(
-                actual: verifier.VerifyRequestSignature(
+                actual: await verifier.VerifyRequestSignatureAsync(
                     httpRequestMock.Object,
                     keyMock.Object),
                 expected: VerificationResult.SuccessfullyVerified);
         }
 
         [TestMethod]
-        public void VerifyRequestSignature_VerifiesPixelfedSignature()
+        public async Task VerifyRequestSignature_VerifiesPixelfedSignature()
         {
             var httpRequestMock = new Mock<HttpRequest>();
             httpRequestMock
@@ -214,14 +214,14 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
             var verifier = GetActivityPubSignatureValidator();
 
             Assert.AreEqual(
-                actual: verifier.VerifyRequestSignature(
+                actual: await verifier.VerifyRequestSignatureAsync(
                     httpRequestMock.Object,
                     keyMock.Object),
                 expected: VerificationResult.SuccessfullyVerified);
         }
 
         [TestMethod]
-        public void VerifyRequestSignature_FailsVerification()
+        public async Task VerifyRequestSignature_FailsVerification()
         {
             var httpRequestMock = new Mock<HttpRequest>();
             httpRequestMock
@@ -272,14 +272,14 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
             var verifier = GetActivityPubSignatureValidator();
 
             Assert.AreEqual(
-                actual: verifier.VerifyRequestSignature(
+                actual: await verifier.VerifyRequestSignatureAsync(
                     httpRequestMock.Object,
                     keyMock.Object),
                 expected: VerificationResult.SignatureMismatch);
         }
 
         [TestMethod]
-        public void VerifyRequestSignature_NoMatch()
+        public async Task VerifyRequestSignature_NoMatch()
         {
             var httpRequestMock = new Mock<HttpRequest>();
             httpRequestMock
@@ -327,7 +327,7 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation.Tests
             var verifier = GetActivityPubSignatureValidator();
 
             Assert.AreEqual(
-                actual: verifier.VerifyRequestSignature(
+                actual: await verifier.VerifyRequestSignatureAsync(
                     httpRequestMock.Object,
                     keyMock.Object),
                 expected: VerificationResult.NoMatchingVerifierFound);

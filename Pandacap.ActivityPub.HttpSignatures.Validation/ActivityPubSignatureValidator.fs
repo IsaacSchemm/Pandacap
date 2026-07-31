@@ -3,6 +3,7 @@ namespace Pandacap.ActivityPub.HttpSignatures.Validation
 open System
 open System.Security.Cryptography
 open System.Text
+open System.Threading.Tasks
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Http.Extensions
 open Pandacap.ActivityPub.HttpSignatures.Discovery.Models
@@ -109,5 +110,5 @@ module internal ActivityPubSignatureValidator =
 
 type ActivityPubSignatureValidator() =
     interface IActivityPubSignatureValidator with
-        member _.VerifyRequestSignature(request, key) =
-            ActivityPubSignatureValidator.verifyRequestSignature request key
+        member _.VerifyRequestSignatureAsync(request, key, _) =
+            Task.FromResult (ActivityPubSignatureValidator.verifyRequestSignature request key)
