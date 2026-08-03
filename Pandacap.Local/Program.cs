@@ -1,3 +1,4 @@
+using DeviantArtFs;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Pandacap.ATProto.HandleResolution;
@@ -41,12 +42,10 @@ builder.Services
     .AddHangfireServer()
     .AddHttpClient()
     .AddMemoryCache()
-    .AddSingleton(TimeProvider.System)
-    .AddSingleton<IFurAffinityCredentials>(new FurAffinityCredentials(
-        builder.Configuration["FurAffinityA"]!,
-        builder.Configuration["FurAffinityB"]!))
-    .AddSingleton<IWeasylCredentials>(new WeasylCredentials(
-        builder.Configuration["WeasylApiKey"]!));
+    .AddSingleton(TimeProvider.System);
+
+if (builder.Configuration["DeviantArtClientId"] is string daid && builder.Configuration["DeviantArtClientSecret"] is string dasecret)
+    builder.Services.AddSingleton(new DeviantArtApp(daid, dasecret));
 
 if (builder.Configuration["FurAffinityA"] is string a && builder.Configuration["FurAffinityB"] is string b)
     builder.Services.AddSingleton<IFurAffinityCredentials>(new FurAffinityCredentials(a, b));
