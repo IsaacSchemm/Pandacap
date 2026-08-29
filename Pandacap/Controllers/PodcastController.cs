@@ -8,7 +8,7 @@ namespace Pandacap.Controllers
 {
     [Authorize]
     public class PodcastController(
-        IAudioSplitter audioSplitter,
+        IEnumerable<IAudioSplitter> audioSplitters,
         IHttpClientFactory httpClientFactory) : Controller
     {
         public async Task<IActionResult> GetContentType(
@@ -54,6 +54,8 @@ namespace Pandacap.Controllers
             string url,
             CancellationToken cancellationToken)
         {
+            var audioSplitter = audioSplitters.Single();
+
             Response.ContentType = "application/zip";
             Response.Headers.ContentDisposition = $"attachment;filename=podcast.zip";
 

@@ -157,7 +157,7 @@ builder.Services
     .AddActivityPubSignatureValidator()
     .AddATProtoHandleResolution()
     .AddATProtoServices()
-    .AddAudioServices()
+    //.AddAudioServices()
     .AddCanonicalTagServices()
     .AddCanonicalTagTreeService()
     .AddCompositeNotificationHandler()
