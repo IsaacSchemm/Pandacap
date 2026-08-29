@@ -48,7 +48,7 @@ namespace Pandacap.Database
 
         DateTimeOffset IPost.PostedAt => CreatedAt;
 
-        string? IPost.ProfileUrl => $"https://bsky.app/profile/{CreatedBy.DID}";
+        string? IPost.ProfileUrl => $"/ATProto/ViewBlueskyProfile?did={CreatedBy.DID}";
 
         IEnumerable<IPostThumbnail> IPost.Thumbnails => Images.Select(image => new PostThumbnailAdapter(CreatedBy, image));
 

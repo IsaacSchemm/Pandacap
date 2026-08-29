@@ -5,7 +5,11 @@ using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
 using Pandacap.Ingestion.Interfaces;
+using Pandacap.Lemmy.Models;
 using Pandacap.Models;
+using Pandacap.Text;
+using Pandacap.UI.Badges;
+using Pandacap.UI.Elements;
 
 namespace Pandacap.Controllers
 {
@@ -44,14 +48,18 @@ namespace Pandacap.Controllers
             }
             else
             {
-                return Redirect($"https://cdn.bsky.app/img/feed_thumbnail/plain/{Uri.EscapeDataString(did)}/{Uri.EscapeDataString(cid)}@jpeg");
+                return Redirect($"https://cdn.bsky.app/img/feed_thumbnail/plain/{did}/{cid}@jpeg");
             }
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> ViewBlueskyProfile(
             string did,
             CancellationToken cancellationToken)
         {
+            if (User.Identity?.IsAuthenticated != true)
+                return Redirect($"https://bsky.app/profile/{did}");
+
             using var client = httpClientFactory.CreateClient();
 
             var doc = await didResolver.ResolveAsync(
@@ -63,11 +71,38 @@ namespace Pandacap.Controllers
                 did,
                 cancellationToken);
 
+            var posts = await blueskyService.GetNewestPostsAsync(doc.PDS, did)
+                .Where(post => !post.Value.Images.IsEmpty)
+                .Take(16)
+                .Select(post => new BlueskyImagePostAdapter(post))
+                .ToListAsync(cancellationToken);
+
             return View(
                 new BlueskyProfileViewModel(
                     DID: did,
                     Handle: doc.Handle,
-                    AvatarCID: profile?.Value?.AvatarCID));
+                    AvatarCID: profile?.Value?.AvatarCID,
+                    Posts: [.. posts]));
+        }
+
+        private record BlueskyImagePostAdapter(ATProtoRecord<BlueskyPost> Record) : IPost, IPostThumbnail
+        {
+            public Badge Badge => Badges.ATProto;
+            public string DisplayTitle => ExcerptGenerator.FromText(60, Record.Value.Text);
+            public string Id => Record.Ref.CID;
+            public string? InternalUrl => $"/ATProto/ViewBlueskyPost?did={Record.Ref.Uri.Components.DID}&rkey={Record.Ref.Uri.Components.RecordKey}";
+            public string? ExternalUrl => $"https://bsky.app/profile/{Record.Ref.Uri.Components.DID}/post/{Record.Ref.Uri.Components.RecordKey}";
+            public DateTimeOffset PostedAt => Record.Value.CreatedAt;
+            public string? ProfileUrl => $"https://bsky.app/profile/{Record.Ref.Uri.Components.DID}";
+            public IEnumerable<IPostThumbnail> Thumbnails => [this];
+            public string? Username => null;
+            public string? Usericon => null;
+
+            public string Url => Record.Value.Labels.Intersect(["porn", "sexual", "nudity", "sexual-figurative", "graphic-media"]).Any()
+                ? "/images/tr-gray.svg"
+                : $"/ATProto/GetBlob?did={Record.Ref.Uri.Components.DID}&cid={Record.Value.Images.Head.CID}";
+
+            public string AltText => Record.Value.Images.Head.Alt;
         }
 
         [HttpPost]

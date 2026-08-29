@@ -73,7 +73,7 @@ namespace Pandacap.Database
 
         Badge IFollow.Badge => Badges.ATProto;
 
-        string? IFollow.LinkUrl => $"https://bsky.app/profile/{Handle}";
+        string? IFollow.LinkUrl => $"/ATProto/ViewBlueskyProfile?did={DID}";
 
         string IFollow.Username => DisplayName ?? Handle ?? DID;
 
