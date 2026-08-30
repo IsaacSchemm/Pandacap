@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.11" />
     <PackageReference Include="NAudio" Version="3.0.1" />
+    <PackageReference Include="NAudio.Wasapi" Version="3.0.1" />
   </ItemGroup>
 
   <ItemGroup>

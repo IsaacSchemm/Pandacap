@@ -13,7 +13,7 @@ type AudioSplitter(httpClientFactory: IHttpClientFactory) =
     let _ = MediaFoundationApi.Startup()
 
     let readAudioFile (segmentLength: TimeSpan) (filename: string) = seq {
-        use reader = new AudioFileReader(filename)
+        use reader = new MediaFoundationReader(filename)
 
         let length =
             reader.WaveFormat.SampleRate
@@ -32,7 +32,7 @@ type AudioSplitter(httpClientFactory: IHttpClientFactory) =
 
                 yield {
                     new IWaveProvider with
-                        override _.Read(buffer, offset, count) = stream.Read(buffer, offset, count)
+                        override _.Read(span) = stream.Read(span)
                         override _.WaveFormat = reader.WaveFormat
                 }
     }
