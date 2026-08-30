@@ -14,8 +14,6 @@ namespace Pandacap.Database
 
         public DateTimeOffset CreatedAt { get; set; }
 
-        public List<string> Labels { get; set; } = [];
-
         public string Text { get; set; } = "";
 
         public class Image
@@ -74,11 +72,11 @@ namespace Pandacap.Database
         string? IPost.ProfileUrl => $"/ATProto/ViewBlueskyProfile?did={AttributeTo.DID}";
 
         IEnumerable<IPostThumbnail> IPost.Thumbnails =>
-            IsAdultContent == false
-            ? Images.Select(image => new PostThumbnail(
+            IsAdultContent == true && Images.Count != 0
+            ? [new PostThumbnail("/images/trgray.svg", "")]
+            : Images.Select(image => new PostThumbnail(
                 $"/ATProto/GetBlob?did={OriginalDID}&cid={image.CID}",
-                image.Alt))
-            : [new PostThumbnail("/images/trgray.svg", "")];
+                image.Alt));
 
         string? IPost.Username => AttributeTo.Handle ?? AttributeTo.DID;
 

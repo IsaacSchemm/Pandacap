@@ -4,6 +4,7 @@ using Pandacap.ATProto.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
 using Pandacap.Ingestion.Interfaces;
+using Pandacap.UI.Elements;
 
 namespace Pandacap.Ingestion
 {
@@ -76,7 +77,7 @@ namespace Pandacap.Ingestion
                 },
                 CID = post.Ref.CID,
                 CreatedAt = post.Value.CreatedAt,
-                Labels = [.. post.Value.Labels],
+                IsAdultContent = post.Value.AdultContent,
                 Images = feed.IgnoreImages
                     ? []
                     : [.. post.Value.Images.Select(i => new BlueskyPostFeedItem.Image
@@ -101,7 +102,7 @@ namespace Pandacap.Ingestion
             {
                 CID = like.Ref.CID,
                 CreatedAt = subject.Value.CreatedAt,
-                Labels = [.. subject.Value.Labels],
+                IsAdultContent = subject.Value.AdultContent,
                 Images = feed.IgnoreImages
                     ? []
                     : [.. subject.Value.Images.Select(i => new BlueskyRepostFeedItem.Image
@@ -141,7 +142,7 @@ namespace Pandacap.Ingestion
             {
                 CID = repost.Ref.CID,
                 CreatedAt = subject.Value.CreatedAt,
-                Labels = [.. subject.Value.Labels],
+                IsAdultContent = subject.Value.AdultContent,
                 Images = feed.IgnoreImages
                     ? []
                     : [.. subject.Value.Images.Select(i => new BlueskyRepostFeedItem.Image
