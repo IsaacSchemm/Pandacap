@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.Ingestion.Interfaces;
 using Pandacap.Rss.Interfaces;
@@ -24,8 +25,13 @@ namespace Pandacap.Ingestion
             try
             {
                 using var httpClient = httpClientFactory.CreateClient();
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgentInformation.UserAgent);
+
                 using var headRequest = new HttpRequestMessage(HttpMethod.Head, feed.FeedUrl);
                 using var headResponse = await httpClient.SendAsync(headRequest, cancellationToken);
+
+                if (headResponse.Content.Headers.ContentType?.MediaType == "text/html")
+                    Console.Error.WriteLine($"Feed returned text/html media type with status code {headResponse.StatusCode}: {feed.FeedUrl}");
 
                 var newFeedItems = await feedReaders
                     .Select(reader =>
