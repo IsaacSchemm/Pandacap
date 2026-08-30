@@ -16,9 +16,9 @@ using Pandacap.ActivityPub.Outbox;
 using Pandacap.ActivityPub.RemoteObjects;
 using Pandacap.ActivityPub.Replies;
 using Pandacap.ActivityPub.Services;
+using Pandacap.ATProto.Feeds;
 using Pandacap.ATProto.HandleResolution;
 using Pandacap.ATProto.Services;
-using Pandacap.Audio;
 using Pandacap.CanonicalTags;
 using Pandacap.CanonicalTags.Tree;
 using Pandacap.Configuration;
@@ -155,6 +155,7 @@ builder.Services
     .AddActivityPubOutboxServices()
     .AddActivityPubRemoteObjectServices()
     .AddActivityPubSignatureValidator()
+    .AddATProtoFeeds()
     .AddATProtoHandleResolution()
     .AddATProtoServices()
     //.AddAudioServices()

@@ -27,7 +27,19 @@ type BlueskyPost = {
     FediverseId: string
     Labels: string list
     CreatedAt: DateTimeOffset
-}
+} with
+    member this.AdultContent = Seq.head (seq {
+        for label in this.Labels do
+            match label with
+            | "porn"
+            | "sexual"
+            | "nudity"
+            | "sexual-figurative"
+            | "graphic-media" -> true
+            | _ -> ()
+
+        false
+    })
 
 type BlueskyInteraction = {
     CreatedAt: DateTimeOffset

@@ -50,6 +50,7 @@
     <ProjectReference Include="..\Pandacap.ActivityPub.RemoteObjects\Pandacap.ActivityPub.RemoteObjects.fsproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Replies\Pandacap.ActivityPub.Replies.csproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Services\Pandacap.ActivityPub.Services.fsproj" />
+    <ProjectReference Include="..\Pandacap.ATProto.Feeds\Pandacap.ATProto.Feeds.fsproj" />
     <ProjectReference Include="..\Pandacap.ATProto.HandleResolution\Pandacap.ATProto.HandleResolution.csproj" />
     <ProjectReference Include="..\Pandacap.ATProto.Services\Pandacap.ATProto.Services.fsproj" />
     <ProjectReference Include="..\Pandacap.Audio.Interfaces\Pandacap.Audio.Interfaces.vbproj" />

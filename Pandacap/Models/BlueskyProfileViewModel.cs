@@ -1,11 +1,12 @@
-﻿using Microsoft.FSharp.Collections;
-using Pandacap.UI.Elements;
+﻿using Pandacap.UI.Elements;
 
 namespace Pandacap.Models
 {
-    public record BlueskyProfileViewModel(
-        string DID,
-        string Handle,
-        string? AvatarCID,
-        FSharpList<IPost> Posts);
+    public class BlueskyProfileViewModel
+    {
+        public required string DID { get; set; }
+        public required string Handle { get; set; }
+        public required string? AvatarCID { get; set; }
+        public required IReadOnlyList<IPost> ImagePosts { get; set; }
+    }
 }

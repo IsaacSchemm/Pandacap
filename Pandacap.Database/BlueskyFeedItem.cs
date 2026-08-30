@@ -28,10 +28,7 @@ namespace Pandacap.Database
 
         public DateTimeOffset? DismissedAt { get; set; }
 
-        [NotMapped]
-        public bool AdultContent => Labels
-            .Intersect(["porn", "sexual", "nudity", "sexual-figurative", "graphic-media"])
-            .Any();
+        public bool? IsAdultContent { get; set; }
 
         public class User
         {
@@ -76,14 +73,12 @@ namespace Pandacap.Database
 
         string? IPost.ProfileUrl => $"/ATProto/ViewBlueskyProfile?did={AttributeTo.DID}";
 
-        IEnumerable<IPostThumbnail> IPost.Thumbnails => Images.Select(image =>
-            !AdultContent
-            ? new PostThumbnail(
+        IEnumerable<IPostThumbnail> IPost.Thumbnails =>
+            IsAdultContent == false
+            ? Images.Select(image => new PostThumbnail(
                 $"/ATProto/GetBlob?did={OriginalDID}&cid={image.CID}",
-                image.Alt)
-            : new PostThumbnail(
-                "/images/trgray.svg",
-                ""));
+                image.Alt))
+            : [new PostThumbnail("/images/trgray.svg", "")];
 
         string? IPost.Username => AttributeTo.Handle ?? AttributeTo.DID;
 
