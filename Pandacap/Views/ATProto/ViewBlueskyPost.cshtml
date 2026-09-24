@@ -84,7 +84,7 @@
 <hr />
 
 <p>
-    @if (!Model.IsInFavorites)
+    @if (!Model.IsInFavorites && Model.CanAddToFavorites)
     {
         <form asp-action="AddToFavorites" class="d-inline">
             <input type="hidden" name="did" value="@Model.DID" />
@@ -92,7 +92,8 @@
             <button class="btn btn-primary btn-sm">Add to Favorites</button>
         </form>
     }
-    else
+
+    @if (Model.IsInFavorites)
     {
         <form asp-action="RemoveFromFavorites" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this post from your favorites?')">
             <input type="hidden" name="cid" value="@Model.Record.Ref.CID" />

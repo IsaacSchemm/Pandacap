@@ -117,6 +117,8 @@ namespace Pandacap.Controllers
                 did,
                 cancellationToken);
 
+            var publicProfile = !profile.Value.NoUnauthenticated;
+
             var inFavoritesAsBlueskyPost = await pandacapDbContext.BlueskyPostFavorites
                 .Where(f => f.CID == post.Ref.CID)
                 .CountAsync(cancellationToken) > 0;
@@ -155,7 +157,8 @@ namespace Pandacap.Controllers
                     Handle: doc.Handle,
                     AvatarCID: profile?.Value?.AvatarCID,
                     Record: post,
-                    IsInFavorites: inFavoritesAsBlueskyPost));
+                    IsInFavorites: inFavoritesAsBlueskyPost,
+                    CanAddToFavorites: publicProfile));
         }
 
         [HttpGet]

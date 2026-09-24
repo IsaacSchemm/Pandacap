@@ -7,5 +7,6 @@ namespace Pandacap.Models
         string Handle,
         string? AvatarCID,
         ATProtoRecord<BlueskyPost> Record,
-        bool IsInFavorites);
+        bool IsInFavorites,
+        bool CanAddToFavorites);
 }
