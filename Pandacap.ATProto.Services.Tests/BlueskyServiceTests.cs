@@ -212,6 +212,7 @@ namespace Pandacap.ATProto.Services.Tests
                         uri: new("at://did:plc:6y5lt7n7msot7rm3mgom3knp/app.bsky.actor.profile/self")),
                     new(
                         avatarCID: "bafkreif632npb2cghp52u4jhotzvgwal52i3dqtbgskditifhaxxudzvte",
+                        labels: [],
                         displayName: "PWHL",
                         description: "The League Legends Call Home")));
         }

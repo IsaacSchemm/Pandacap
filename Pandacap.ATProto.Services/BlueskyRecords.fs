@@ -16,6 +16,11 @@ module internal BlueskyRecords =
                 size = Some 0
                 cid = Some ""
             |}
+            labels = Some {|
+                values = [{|
+                    ``val`` = ""
+                |}]
+            |}
             displayName = Some ""
             description = Some ""
         |}
@@ -31,6 +36,11 @@ module internal BlueskyRecords =
                         |> Option.map (fun r -> r.``$link``)
                         |> Option.orElse a.cid)
                     |> Option.toObj
+                Labels =
+                    item.labels
+                    |> Option.map (fun l -> l.values)
+                    |> Option.defaultValue []
+                    |> List.map (fun v -> v.``val``)
                 DisplayName = Option.toObj item.displayName
                 Description = Option.toObj item.description
             }

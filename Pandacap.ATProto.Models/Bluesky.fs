@@ -4,9 +4,12 @@ open System
 
 type BlueskyProfile = {
     AvatarCID: string
+    Labels: string list
     DisplayName: string
     Description: string
-}
+} with
+    member this.NoUnauthenticated =
+        this.Labels |> List.contains "!no-unauthenticated"
 
 type BlueskyImage = {
     CID: string
