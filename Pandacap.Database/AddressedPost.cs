@@ -59,7 +59,7 @@ namespace Pandacap.Database
             : IsReply
                 ? new(
                     To: ["https://www.w3.org/ns/activitystreams#Public"],
-                    Cc: [.. EnumerateRecipients()])
+                    Cc: [.. EnumerateRecipients()]) // TODO: should the recipients be in the To field instead? Would that get it to appear in Mastodon notifications?
                 : new(
                     To: ["https://www.w3.org/ns/activitystreams#Public"],
                     Cc: []);
