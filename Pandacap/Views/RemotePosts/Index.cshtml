@@ -79,14 +79,15 @@ else
 <hr />
 
 <p>
-    @if (!Model.IsInFavorites)
+    @if (!Model.IsInFavorites && Model.CanAddToFavorites)
     {
         <form asp-controller="Favorites" asp-action="Add" class="d-inline">
             <input type="hidden" name="id" value="@post.Id" />
             <button class="btn btn-primary btn-sm">Add to Favorites</button>
         </form>
     }
-    else
+
+    @if (Model.IsInFavorites)
     {
         <form asp-controller="Favorites" asp-action="Remove" class="d-inline">
             <input type="hidden" name="id" value="@post.Id" />

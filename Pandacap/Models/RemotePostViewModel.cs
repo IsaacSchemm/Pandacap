@@ -8,5 +8,6 @@ namespace Pandacap.Models
         public required RemotePost RemotePost { get; init; }
         public required IReadOnlyList<IReply> Replies { get; init; }
         public required bool IsInFavorites { get; init; }
+        public required bool CanAddToFavorites { get; init; }
     }
 }

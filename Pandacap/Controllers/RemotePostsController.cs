@@ -115,7 +115,8 @@ namespace Pandacap.Controllers
                 {
                     RemotePost = post,
                     Replies = replies,
-                    IsInFavorites = favorite != null
+                    IsInFavorites = favorite != null,
+                    CanAddToFavorites = post.Recipients.Contains(RemoteAddressee.PublicCollection)
                 });
             }
             catch (HttpRequestException ex) when (ex.InnerException is AuthenticationException)
