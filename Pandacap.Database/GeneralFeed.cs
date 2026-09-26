@@ -48,7 +48,7 @@ namespace Pandacap.Database
         /// </summary>
         public DateTimeOffset LastCheckedAt { get; set; } = DateTimeOffset.MinValue;
 
-        Badge IFollow.Badge => Badges.Feed
+        Badge IFollow.Badge => Badges.Feeds;
 
         string? IFollow.LinkUrl => FeedWebsiteUrl;
 
