@@ -42,5 +42,7 @@ namespace Pandacap.Database
         string IFollow.Username => PreferredUsername ?? ActorId;
 
         bool IFollow.Filtered => !IncludeImageShares || !IncludeTextShares;
+
+        bool IFollow.Public => true;
     }
 }

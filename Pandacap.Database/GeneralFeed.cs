@@ -34,6 +34,11 @@ namespace Pandacap.Database
         public string? FeedIconUrl { get; set; }
 
         /// <summary>
+        /// Whether this feed should be included on the publicFollowing list.
+        /// </summary>
+        public bool? Public { get; set; }
+
+        /// <summary>
         /// A decription of the error that occurred on the last refresh attempt, if any.
         /// </summary>
         public string? LastError { get; set; }
@@ -43,7 +48,7 @@ namespace Pandacap.Database
         /// </summary>
         public DateTimeOffset LastCheckedAt { get; set; } = DateTimeOffset.MinValue;
 
-        Badge IFollow.Badge => Badges.Feeds;
+        Badge IFollow.Badge => Badges.Feed
 
         string? IFollow.LinkUrl => FeedWebsiteUrl;
 
@@ -52,5 +57,7 @@ namespace Pandacap.Database
         string? IFollow.IconUrl => FeedIconUrl;
 
         bool IFollow.Filtered => false;
+
+        bool IFollow.Public => Public == true;
     }
 }

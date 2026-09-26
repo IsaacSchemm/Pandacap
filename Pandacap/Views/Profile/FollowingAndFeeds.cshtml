@@ -18,7 +18,7 @@ else
     <div class="user-blocks">
         @foreach (var item in Model)
         {
-            <div class="user-block">
+            <div class="user-block" style="opacity: @(item.Public ? "1" : "0.5")">
                 <a href="@item.LinkUrl" class="avatar"><img width="50" height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" /></a>
                 <span class="text">
                     <strong>
@@ -64,6 +64,21 @@ else
                         }
                         else if (item is GeneralFeed r)
                         {
+                            if (item.Public)
+                            {
+                                <form asp-action="HideFeed" class="d-inline">
+                                    <input type="hidden" name="id" value="@r.Id" />
+                                    <button type="submit" class="btn btn-outline-primary btn-sm py-0">Hide</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="ShowFeed" class="d-inline">
+                                    <input type="hidden" name="id" value="@r.Id" />
+                                    <button type="submit" class="btn btn-outline-primary btn-sm py-0">Show</button>
+                                </form>
+                            }
+
                             <form asp-action="RefreshFeed" class="d-inline">
                                 <input type="hidden" name="id" value="@r.Id" />
                                 <button type="submit" class="btn btn-outline-primary btn-sm py-0">Refresh</button>

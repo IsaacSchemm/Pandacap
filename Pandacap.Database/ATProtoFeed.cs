@@ -21,6 +21,11 @@ namespace Pandacap.Database
         public string CurrentPDS { get; set; } = "";
 
         /// <summary>
+        /// Whether this user should be included on the publicFollowing list.
+        /// </summary>
+        public bool? Public { get; set; }
+
+        /// <summary>
         /// Whether to add this users' posts to the inbox even if they don't have images.
         /// </summary>
         public bool IncludePostsWithoutImages { get; set; } = true;
@@ -85,5 +90,7 @@ namespace Pandacap.Database
             !IncludePostsWithoutImages
             || !IncludeQuotePosts
             || (NSIDs.Contains("app.bsky.feed.post") != NSIDs.Contains("app.bsky.feed.repost"));
+
+        bool IFollow.Public => Public == true;
     }
 }

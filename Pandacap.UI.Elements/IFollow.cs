@@ -13,6 +13,11 @@ namespace Pandacap.UI.Elements
         Badge Badge { get; }
 
         /// <summary>
+        /// Whether this user or feed is shown in the public list of followed users.
+        /// </summary>
+        bool Public { get; }
+
+        /// <summary>
         /// A URL where unauthenticated users can view this user or feed, if any.
         /// </summary>
         string? LinkUrl { get; }

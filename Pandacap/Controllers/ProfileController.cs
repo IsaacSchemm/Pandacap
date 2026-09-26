@@ -91,9 +91,7 @@ namespace Pandacap.Controllers
                     RecentArtwork = artwork,
                     RecentTextPosts = textPosts,
                     FollowerCount = await pandacapDbContext.Followers.CountAsync(cancellationToken),
-                    FollowingCount = await pandacapDbContext.Follows.CountAsync(cancellationToken)
-                        + await pandacapDbContext.GeneralFeeds.CountAsync(cancellationToken)
-                        + await pandacapDbContext.ATProtoFeeds.CountAsync(cancellationToken),
+                    FollowingCount = await EnumeratePublicFollowsAsync().CountAsync(cancellationToken),
                     FavoritesCount = await pandacapDbContext.ActivityPubFavorites.CountAsync(cancellationToken),
                     VectorSearchEnabled = vectorSearchIndexClient.VectorSearchEnabled
                 };
@@ -293,6 +291,7 @@ namespace Pandacap.Controllers
                 DID = feed.DID,
                 Handle = feed.Handle,
                 Avatar = follow.IconUrl,
+                Public = feed.Public == true,
                 IncludePostsWithoutImages = feed.IncludePostsWithoutImages,
                 IncludeReplies = feed.IncludeReplies,
                 IncludeQuotePosts = feed.IncludeQuotePosts,
@@ -329,6 +328,8 @@ namespace Pandacap.Controllers
                 .AsAsyncEnumerable()
                 .WithCancellation(cancellationToken))
             {
+                follow.Public = model.Public;
+
                 follow.IgnoreImages = model.IgnoreImages;
                 follow.IncludePostsWithoutImages = model.IncludePostsWithoutImages;
                 follow.IncludeReplies = model.IncludeReplies;
@@ -387,6 +388,32 @@ namespace Pandacap.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ShowFeed(Guid id, CancellationToken cancellationToken)
+        {
+            await foreach (var feed in pandacapDbContext.GeneralFeeds.Where(f => f.Id == id).AsAsyncEnumerable())
+                feed.Public = true;
+
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction(nameof(FollowingAndFeeds));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> HideFeed(Guid id, CancellationToken cancellationToken)
+        {
+            await foreach (var feed in pandacapDbContext.GeneralFeeds.Where(f => f.Id == id).AsAsyncEnumerable())
+                feed.Public = false;
+
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction(nameof(FollowingAndFeeds));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RefreshFeed(Guid id, CancellationToken cancellationToken)
         {
             await feedRefresher.RefreshFeedAsync(id, cancellationToken);
@@ -411,17 +438,21 @@ namespace Pandacap.Controllers
             return RedirectToAction(nameof(FollowingAndFeeds));
         }
 
+        private async IAsyncEnumerable<IFollow> EnumerateFollowsAsync()
+        {
+            await foreach (var x in pandacapDbContext.ATProtoFeeds) yield return x;
+            await foreach (var x in pandacapDbContext.Follows) yield return x;
+            await foreach (var x in pandacapDbContext.GeneralFeeds) yield return x;
+        }
+
+        private IAsyncEnumerable<IFollow> EnumeratePublicFollowsAsync() =>
+            EnumerateFollowsAsync()
+            .Where(f => User.Identity?.IsAuthenticated == true || f.Public)
+            .OrderBy(f => f.Username);
+
         public async Task<IActionResult> FollowingAndFeeds(CancellationToken cancellationToken)
         {
-            async IAsyncEnumerable<IFollow> getFollows()
-            {
-                await foreach (var x in pandacapDbContext.ATProtoFeeds) yield return x;
-                await foreach (var x in pandacapDbContext.Follows) yield return x;
-                await foreach (var x in pandacapDbContext.GeneralFeeds) yield return x;
-            }
-
-            var all = await getFollows()
-                .OrderBy(f => f.Username)
+            var all = await EnumeratePublicFollowsAsync()
                 .ToListAsync(cancellationToken);
 
             return View("FollowingAndFeeds", all);

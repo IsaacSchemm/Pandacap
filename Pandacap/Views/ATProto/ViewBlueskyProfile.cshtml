@@ -1,5 +1,4 @@
 ﻿@model BlueskyProfileViewModel
-@using Pandacap.ATProto.Models
 
 @{
     ViewBag.Title = "View Bluesky Profile";
@@ -11,7 +10,7 @@
         <img height="50" src="/ATProto/GetBlob?did=@Model.DID&cid=@Model.AvatarCID" alt="" />
     }
     <span style="display: inline-block; vertical-align: top">
-        <a href="https://bsky.app/profile/@@@Model.Handle" target="_blank">
+        <a href="https://bsky.app/profile/@Model.Handle" target="_blank">
             <strong>@@@Model.Handle</strong>
         </a>
 

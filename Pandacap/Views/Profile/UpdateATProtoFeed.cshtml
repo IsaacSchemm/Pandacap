@@ -1,5 +1,4 @@
-﻿@using Pandacap.Data
-@using Pandacap.Models
+﻿@using Pandacap.Models
 @model ATProtoFeedModel
 
 <div>
@@ -15,6 +14,15 @@
 
 <form asp-action="UpdateATProtoFeed" method="post" class="mt-3">
     <input type="hidden" asp-for="DID" />
+    <div class="mb-3 form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               asp-for="Public">
+        <label class="form-check-label" asp-for="Public">
+            Show in Following list
+        </label>
+    </div>
+    <hr />
     <div class="mb-3 form-check">
         <input type="checkbox"
                class="form-check-input"

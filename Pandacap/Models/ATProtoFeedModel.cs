@@ -7,6 +7,8 @@
         public string? Handle { get; init; }
         public string? Avatar { get; init; }
 
+        public bool Public { get; init; }
+
         public bool IncludePostsWithoutImages { get; init; }
         public bool IncludeReplies { get; init; }
         public bool IncludeQuotePosts { get; init; }
