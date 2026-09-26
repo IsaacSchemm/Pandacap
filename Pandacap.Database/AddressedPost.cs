@@ -56,13 +56,12 @@ namespace Pandacap.Database
                 ? new(
                     To: [.. EnumerateRecipients()],
                     Cc: [])
-            : IsReply
-                ? new(
-                    To: ["https://www.w3.org/ns/activitystreams#Public"],
-                    Cc: [.. EnumerateRecipients()]) // TODO: should the recipients be in the To field instead? Would that get it to appear in Mastodon notifications?
-                : new(
-                    To: ["https://www.w3.org/ns/activitystreams#Public"],
-                    Cc: []);
+            : new(
+                To: ["https://www.w3.org/ns/activitystreams#Public"],
+                Cc: [
+                    .. IsReply ? EnumerateRecipients() : [],
+                    $"https://{ActivityPubHostInformation.ApplicationHostname}/ActivityPub/Followers"
+                ]);
 
         Badge IPost.Badge => Badges.ActivityPub;
 
