@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Replies.Interfaces;
-using Pandacap.ActivityPub.Static;
 using Pandacap.Database;
 using System.Runtime.CompilerServices;
 

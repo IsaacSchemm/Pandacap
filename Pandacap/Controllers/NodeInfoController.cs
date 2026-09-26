@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pandacap.ActivityPub.Static;
+using Pandacap.ActivityPub.Models;
 using Pandacap.Constants;
 using Pandacap.Database;
 

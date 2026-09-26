@@ -5,9 +5,9 @@ using Pandacap.ActivityPub.HttpSignatures.Discovery.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Interfaces;
 using Pandacap.ActivityPub.HttpSignatures.Validation.Models;
 using Pandacap.ActivityPub.JsonLd.Interfaces;
+using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.ActivityPub.Static;
 using Pandacap.Database;
 using System.Text;
 

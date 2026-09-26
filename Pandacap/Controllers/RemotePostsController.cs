@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
 using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.ActivityPub.Static;
 using Pandacap.Database;
 using Pandacap.Models;
 using System.Net;

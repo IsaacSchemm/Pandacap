@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pandacap.ActivityPub.Inbox.Interfaces;
+using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.RemoteObjects.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
 using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.ActivityPub.Static;
 using Pandacap.Database;
 using System.Runtime.CompilerServices;
 

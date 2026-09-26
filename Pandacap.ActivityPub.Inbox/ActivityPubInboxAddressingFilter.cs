@@ -1,4 +1,5 @@
-﻿using Pandacap.ActivityPub.Models.Interfaces;
+﻿using Pandacap.ActivityPub.Models;
+using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.RemoteObjects.Models;
 
 namespace Pandacap.ActivityPub.Inbox
@@ -11,7 +12,7 @@ namespace Pandacap.ActivityPub.Inbox
         {
             var isPublic = post.Recipients.Contains(RemoteAddressee.PublicCollection);
             var addressesSpecificActors = post.Recipients.Any(r => r.IsActor);
-            var addressesMe = post.Recipients.Any(r => r.Id == Static.ActivityPubHostInformation.ActorId);
+            var addressesMe = post.Recipients.Any(r => r.Id == ActivityPubHostInformation.ActorId);
 
             return addressesMe || (isPublic && !addressesSpecificActors);
         }

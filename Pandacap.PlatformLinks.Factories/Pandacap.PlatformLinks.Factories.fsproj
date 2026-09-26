@@ -13,8 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.csproj" />
-    <ProjectReference Include="..\Pandacap.Constants\Pandacap.Constants.fsproj" />
+    <ProjectReference Include="..\Pandacap.ATProto.Models\Pandacap.ATProto.Models.fsproj" />
     <ProjectReference Include="..\Pandacap.PlatformLinks.Interfaces\Pandacap.PlatformLinks.Interfaces.csproj" />
   </ItemGroup>
 

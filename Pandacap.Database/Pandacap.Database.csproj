@@ -14,8 +14,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ActivityPub.Models.Interfaces\Pandacap.ActivityPub.Models.Interfaces.csproj" />
+    <ProjectReference Include="..\Pandacap.ActivityPub.Models\Pandacap.ActivityPub.Models.fsproj" />
     <ProjectReference Include="..\Pandacap.ActivityPub.Replies.Interfaces\Pandacap.ActivityPub.Replies.Interfaces.csproj" />
-    <ProjectReference Include="..\Pandacap.ActivityPub.Static\Pandacap.ActivityPub.Static.csproj" />
     <ProjectReference Include="..\Pandacap.Configuration\Pandacap.Configuration.csproj" />
     <ProjectReference Include="..\Pandacap.Constants\Pandacap.Constants.fsproj" />
     <ProjectReference Include="..\Pandacap.FurAffinity.Interfaces\Pandacap.FurAffinity.Interfaces.vbproj" />

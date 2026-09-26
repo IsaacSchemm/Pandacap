@@ -2,6 +2,19 @@ namespace Pandacap.ATProto.Models
 
 open System
 
+module BlueskyAppViews =
+    let private appView (name: string) (host: string) (icon: string) = {|
+        name = name
+        host = host
+        icon = icon
+    |}
+
+    let Bluesky = appView "Bluesky" "bsky.app" "bluesky.png"
+    let Blacksky = appView "Blacksky" "blacksky.community" "blacksky.png"
+    let RedDwarf = appView "Red Dwarf" "reddwarf.app" "reddwarf.ico"
+
+    let All = [Bluesky; Blacksky; RedDwarf]
+
 type BlueskyProfile = {
     AvatarCID: string
     Labels: string list

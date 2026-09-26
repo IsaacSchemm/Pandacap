@@ -2,7 +2,7 @@ namespace Pandacap.ActivityPub.Services
 
 open System
 open System.Net
-open Pandacap.ActivityPub.Static
+open Pandacap.ActivityPub.Models
 open Pandacap.ActivityPub.Models
 open Pandacap.ActivityPub.Services.Interfaces
 

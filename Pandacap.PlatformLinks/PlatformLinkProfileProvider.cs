@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.FSharp.Collections;
-using Pandacap.ActivityPub.Static;
+using Pandacap.ActivityPub.Models;
 using Pandacap.ATProto.Services.Interfaces;
 using Pandacap.Database;
 using Pandacap.PlatformLinks.Interfaces;

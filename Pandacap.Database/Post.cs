@@ -1,6 +1,6 @@
 ﻿using CommonMark;
+using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Models.Interfaces;
-using Pandacap.ActivityPub.Static;
 using Pandacap.PlatformLinks.Interfaces;
 using Pandacap.Text;
 using Pandacap.UI.Badges;

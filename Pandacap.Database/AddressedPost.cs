@@ -1,7 +1,7 @@
 ﻿using Microsoft.FSharp.Collections;
+using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Models.Interfaces;
 using Pandacap.ActivityPub.Replies.Interfaces;
-using Pandacap.ActivityPub.Static;
 using Pandacap.Text;
 using Pandacap.UI.Badges;
 using Pandacap.UI.Elements;

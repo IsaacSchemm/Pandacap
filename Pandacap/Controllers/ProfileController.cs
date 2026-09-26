@@ -8,7 +8,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Outbox.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.ActivityPub.Static;
 using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.Extensions;

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Pandacap.ActivityPub.Static;
+using Pandacap.ActivityPub.Models;
 
 namespace Pandacap.Controllers
 {

@@ -1,7 +1,7 @@
 ﻿namespace Pandacap.PlatformLinks.Factories
 
 open System
-open Pandacap.Constants
+open Pandacap.ATProto.Models
 open Pandacap.PlatformLinks.Interfaces
 
 module PlatformLinkFactory =

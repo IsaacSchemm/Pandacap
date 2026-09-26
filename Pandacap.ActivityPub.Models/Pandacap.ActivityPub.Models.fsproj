@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="ActivityPubHostInformation.fs" />
     <Compile Include="ActivityPubAvatar.fs" />
     <Compile Include="ActivityPubProfileLink.fs" />
     <Compile Include="ActivityPubProfile.fs" />
@@ -14,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pandacap.ActivityPub.Models.Interfaces\Pandacap.ActivityPub.Models.Interfaces.csproj" />
+    <ProjectReference Include="..\Pandacap.Configuration\Pandacap.Configuration.csproj" />
   </ItemGroup>
 
   <ItemGroup>

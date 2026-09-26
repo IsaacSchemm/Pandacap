@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pandacap.ActivityPub.Models;
 using Pandacap.ActivityPub.Services.Interfaces;
-using Pandacap.ActivityPub.Static;
 using Pandacap.CanonicalTags.Interfaces;
 using Pandacap.Database;
 using Pandacap.Extensions;

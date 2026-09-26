@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Compile Include="UserAgentInformation.fs" />
-    <Compile Include="BlueskyAppViews.fs" />
   </ItemGroup>
 
   <ItemGroup>

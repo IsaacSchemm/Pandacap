@@ -9,6 +9,7 @@ using Pandacap.Extensions;
 using System.Text;
 using Pandacap.ActivityPub.Favorites.Interfaces;
 using Pandacap.UI.Lists;
+using Pandacap.ActivityPub.Models;
 
 namespace Pandacap.Controllers
 {
@@ -36,7 +37,7 @@ namespace Pandacap.Controllers
                         listPage.Current,
                         listPage.Next == null
                             ? null
-                            : $"https://{ActivityPub.Static.ActivityPubHostInformation.ApplicationHostname}/Favorites?next={listPage.Next}&count={listPage.Current.Length}"),
+                            : $"https://{ActivityPubHostInformation.ApplicationHostname}/Favorites?next={listPage.Next}&count={listPage.Current.Length}"),
                     "application/activity+json",
                     Encoding.UTF8);
             }
