@@ -37,32 +37,44 @@ namespace Pandacap.Outbox.Weasyl
             post.WeasylSubmitId = null;
             post.WeasylJournalId = null;
 
-            if (post.Images.FirstOrDefault() is Post.Image image)
+            Exception? exception = null;
+
+            try
             {
-                post.WeasylSubmitId = await client.UploadVisualAsync(
-                    post.GetImageUrl(image),
-                    post.Title,
-                    queued.Subtype,
-                    queued.FolderId,
-                    queued.Rating,
-                    post.Body,
-                    post.Tags,
-                    cancellationToken);
+                if (post.Images.FirstOrDefault() is Post.Image image)
+                {
+                    post.WeasylSubmitId = await client.UploadVisualAsync(
+                        post.GetImageUrl(image),
+                        post.Title,
+                        queued.Subtype,
+                        queued.FolderId,
+                        queued.Rating,
+                        post.Body,
+                        post.Tags,
+                        cancellationToken);
+                }
+                else
+                {
+                    post.WeasylJournalId = await client.UploadJournalAsync(
+                        post.Title ?? ExcerptGenerator.FromText(40, post.Body),
+                        queued.Rating,
+                        post.Body,
+                        post.Tags,
+                        cancellationToken);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                post.WeasylJournalId = await client.UploadJournalAsync(
-                    post.Title ?? ExcerptGenerator.FromText(40, post.Body),
-                    queued.Rating,
-                    post.Body,
-                    post.Tags,
-                    cancellationToken);
+                exception = ex;
             }
 
             post.WeasylPostQueuedAt = null;
             post.WeasylQueuedPostInformation = null;
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
+
+            if (exception != null)
+                throw new Exception("Could not post to Weasyl", exception);
 
             return true;
         }

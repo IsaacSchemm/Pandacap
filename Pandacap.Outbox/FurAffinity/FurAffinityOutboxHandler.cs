@@ -57,41 +57,53 @@ namespace Pandacap.Outbox.FurAffinity
             post.FurAffinitySubmissionId = null;
             post.FurAffinityJournalId = null;
 
-            if (await TryGetImageDataAsync(post) is byte[] imageData)
+            Exception? exception = null;
+
+            try
             {
-                Uri posted = await client.PostArtworkAsync(
-                    imageData,
-                    new Pandacap.FurAffinity.Models.ArtworkMetadata(
-                        post.Title,
+                if (await TryGetImageDataAsync(post) is byte[] imageData)
+                {
+                    Uri posted = await client.PostArtworkAsync(
+                        imageData,
+                        new Pandacap.FurAffinity.Models.ArtworkMetadata(
+                            post.Title,
+                            post.Body,
+                            [.. post.Tags],
+                            queued.Cat,
+                            queued.Scrap,
+                            queued.Atype,
+                            queued.Species,
+                            queued.Gender,
+                            queued.Rating,
+                            queued.LockComments,
+                            [.. queued.FolderIds]),
+                        cancellationToken);
+
+                    post.FurAffinitySubmissionId = int.Parse(posted.Segments[2].TrimEnd('/'));
+                }
+                else
+                {
+                    Uri posted = await client.PostJournalAsync(
+                        post.Title ?? ExcerptGenerator.FromText(40, post.Body),
                         post.Body,
-                        [.. post.Tags],
-                        queued.Cat,
-                        queued.Scrap,
-                        queued.Atype,
-                        queued.Species,
-                        queued.Gender,
                         queued.Rating,
-                        queued.LockComments,
-                        [.. queued.FolderIds]),
-                    cancellationToken);
+                        cancellationToken);
 
-                post.FurAffinitySubmissionId = int.Parse(posted.Segments[2].TrimEnd('/'));
+                    post.FurAffinityJournalId = int.Parse(posted.Segments[2].TrimEnd('/'));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Uri posted = await client.PostJournalAsync(
-                    post.Title ?? ExcerptGenerator.FromText(40, post.Body),
-                    post.Body,
-                    queued.Rating,
-                    cancellationToken);
-
-                post.FurAffinityJournalId = int.Parse(posted.Segments[2].TrimEnd('/'));
+                exception = ex;
             }
 
             post.FurAffinityPostQueuedAt = null;
             post.FurAffinityQueuedPostInformation = null;
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
+
+            if (exception != null)
+                throw new Exception("Could not post to Fur Affinity", exception);
 
             return true;
         }

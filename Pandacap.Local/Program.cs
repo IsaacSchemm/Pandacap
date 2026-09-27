@@ -28,6 +28,9 @@ var builder = WebApplication.CreateBuilder(args);
 DeploymentInformation.ApplicationHostname = builder.Configuration["ApplicationHostname"]
     ?? throw new Exception("ApplicationHostname is not defined");
 
+DeploymentInformation.Username = builder.Configuration["ActivityPubUsername"]
+    ?? throw new Exception("ActivityPubUsername is not defined");
+
 builder.Services.AddDbContextFactory<PandacapDbContext>(options => options.UseCosmos(
     builder.Configuration["CosmosDBAccountEndpoint"]!,
     builder.Configuration["CosmosDBAccountKey"]!,
