@@ -5,6 +5,6 @@ open DeviantArtFs.Api.Deviation.Journal
 module internal Journal =
     let asyncPost token title body tags = async {
         let immutableFields = [Body body]
-        let mutableFields = [Title title; for tag in tags do Tag tag]
+        let mutableFields = [Title title; IsMature false; for tag in tags do Tag tag]
         return! AsyncCreate token immutableFields mutableFields
     }
