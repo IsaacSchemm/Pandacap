@@ -34,7 +34,7 @@ namespace Pandacap.Database
         public string DisplayFeedTitle => FeedTitle ?? FeedWebsiteUrl;
 
         [NotMapped]
-        public string DisplayTitle => Title ?? ExcerptGenerator.FromText(60, TextBody ?? HtmlBody ?? "");
+        public string DisplayTitle => ExcerptGenerator.FromText(60, Title ?? TextBody ?? HtmlBody ?? "");
 
         bool IInboxPost.IsPodcast => AudioUrl != null;
 
