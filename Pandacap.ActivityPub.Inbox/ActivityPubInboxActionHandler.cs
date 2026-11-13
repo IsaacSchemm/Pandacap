@@ -96,15 +96,15 @@ namespace Pandacap.ActivityPub.Inbox
                     Url = actor.Url,
                     IconUrl = actor.IconUrl
                 });
-
-                pandacapDbContext.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
-                {
-                    Id = Guid.NewGuid(),
-                    Inbox = actor.Inbox,
-                    JsonBody = activityPubRelationshipTranslator.BuildFollowAccept(followActivityId),
-                    StoredAt = DateTimeOffset.UtcNow
-                });
             }
+
+            pandacapDbContext.ActivityPubOutboundActivities.Add(new ActivityPubOutboundActivity
+            {
+                Id = Guid.NewGuid(),
+                Inbox = actor.Inbox,
+                JsonBody = activityPubRelationshipTranslator.BuildFollowAccept(followActivityId),
+                StoredAt = DateTimeOffset.UtcNow
+            });
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
         }
