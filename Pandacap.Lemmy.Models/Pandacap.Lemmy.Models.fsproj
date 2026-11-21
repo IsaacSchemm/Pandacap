@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommonMark.NET" Version="0.15.1" />
-    <PackageReference Include="HtmlSanitizer" Version="9.2.1039" />
+    <PackageReference Include="HtmlSanitizer" Version="11.0.26" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="10.1.401" />
+    <PackageReference Update="FSharp.Core" Version="11.0.101" />
   </ItemGroup>
 
 </Project>
