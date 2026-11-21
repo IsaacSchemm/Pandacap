@@ -48,6 +48,11 @@ namespace Pandacap.Database
         /// </summary>
         public DateTimeOffset LastCheckedAt { get; set; } = DateTimeOffset.MinValue;
 
+        /// <summary>
+        /// The last known date/time at which this feed added a new a post.
+        /// </summary>
+        public DateTimeOffset? LastActive { get; set; }
+
         Badge IFollow.Badge => Badges.Feeds;
 
         string? IFollow.LinkUrl => FeedWebsiteUrl;

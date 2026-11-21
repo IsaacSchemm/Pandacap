@@ -447,7 +447,7 @@ namespace Pandacap.Controllers
 
         private IAsyncEnumerable<IFollow> EnumeratePublicFollowsAsync() =>
             EnumerateFollowsAsync()
-            .Where(f => User.Identity?.IsAuthenticated == true || f.Public)
+            .Where(f => User.Identity?.IsAuthenticated == true || (f.Public && f.IsRecentlyActive()))
             .OrderBy(f => f.Username);
 
         public async Task<IActionResult> FollowingAndFeeds(CancellationToken cancellationToken)

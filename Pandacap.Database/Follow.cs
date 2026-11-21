@@ -35,6 +35,11 @@ namespace Pandacap.Database
         /// </summary>
         public bool IncludeTextShares { get; set; }
 
+        /// <summary>
+        /// The last known date/time at which this actor created or reposted a post.
+        /// </summary>
+        public DateTimeOffset? LastActive { get; set; }
+
         Badge IFollow.Badge => Badges.ActivityPub;
 
         string? IFollow.LinkUrl => Url ?? ActorId;

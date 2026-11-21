@@ -329,6 +329,8 @@ namespace Pandacap.Ingestion
 
                 await foreach (var post in posts)
                 {
+                    feed.UpdateLastActive(post.Value.CreatedAt);
+
                     seenThisTime.Add(post.Ref.CID);
 
                     if (seenLastTime.Contains(post.Ref.CID))
@@ -355,6 +357,8 @@ namespace Pandacap.Ingestion
 
                 await foreach (var repost in reposts)
                 {
+                    feed.UpdateLastActive(repost.Value.CreatedAt);
+
                     seenThisTime.Add(repost.Ref.CID);
 
                     if (seenLastTime.Contains(repost.Ref.CID))

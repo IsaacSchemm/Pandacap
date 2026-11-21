@@ -3,6 +3,7 @@ using Pandacap.Constants;
 using Pandacap.Database;
 using Pandacap.Ingestion.Interfaces;
 using Pandacap.Rss.Interfaces;
+using Pandacap.UI.Elements;
 
 namespace Pandacap.Ingestion
 {
@@ -51,6 +52,8 @@ namespace Pandacap.Ingestion
                     feed.FeedTitle = newFeedItems[0].FeedTitle;
                     feed.FeedWebsiteUrl = newFeedItems[0].FeedWebsiteUrl;
                     feed.FeedIconUrl = newFeedItems[0].FeedIconUrl;
+
+                    feed.UpdateLastActive(newFeedItems.Max(i => i.Timestamp));
 
                     pandacapDbContext.GeneralInboxItems.AddRange(newFeedItems);
                 }

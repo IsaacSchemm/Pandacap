@@ -76,6 +76,11 @@ namespace Pandacap.Database
         /// </summary>
         public List<string> LastCIDsSeen { get; set; } = [];
 
+        /// <summary>
+        /// The last known date/time at which this user created or reposted a post.
+        /// </summary>
+        public DateTimeOffset? LastActive { get; set; }
+
         Badge IFollow.Badge => Badges.ATProto;
 
         string? IFollow.LinkUrl => $"/ATProto/ViewBlueskyProfile?did={DID}";

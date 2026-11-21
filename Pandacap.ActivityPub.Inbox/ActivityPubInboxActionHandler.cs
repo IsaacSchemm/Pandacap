@@ -6,6 +6,7 @@ using Pandacap.ActivityPub.RemoteObjects.Models;
 using Pandacap.ActivityPub.Replies.Interfaces;
 using Pandacap.ActivityPub.Services.Interfaces;
 using Pandacap.Database;
+using Pandacap.UI.Elements;
 using System.Runtime.CompilerServices;
 
 namespace Pandacap.ActivityPub.Inbox
@@ -219,6 +220,12 @@ namespace Pandacap.ActivityPub.Inbox
             if (remotePost.AttributedTo.Id != sendingActor.Id)
                 return;
 
+            var follow = await pandacapDbContext.Follows
+                .Where(f => f.ActorId == remotePost.AttributedTo.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            follow?.UpdateLastActive(remotePost.PostedAt);
+
             string? inReplyTo = await remotePost.InReplyTo
                 .ToAsyncEnumerable()
                 .Where(async (id, token) => await replyCollationService.IsOriginalPostStoredAsync(id, token))
@@ -266,10 +273,6 @@ namespace Pandacap.ActivityPub.Inbox
             }
             else
             {
-                var follow = await pandacapDbContext.Follows
-                    .Where(f => f.ActorId == remotePost.AttributedTo.Id)
-                    .FirstOrDefaultAsync(cancellationToken);
-
                 if (follow != null
                     && ActivityPubInboxAddressingFilter.IsIncludedInInbox(remotePost, follow))
                 {

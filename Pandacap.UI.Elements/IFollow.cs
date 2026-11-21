@@ -13,9 +13,14 @@ namespace Pandacap.UI.Elements
         Badge Badge { get; }
 
         /// <summary>
-        /// Whether this user or feed is shown in the public list of followed users.
+        /// Whether this user or feed can be shown in the public list of followed users.
         /// </summary>
         bool Public { get; }
+
+        /// <summary>
+        /// The last known date/time at which this user or feed posted new content.
+        /// </summary>
+        DateTimeOffset? LastActive { get; set; }
 
         /// <summary>
         /// A URL where unauthenticated users can view this user or feed, if any.
@@ -36,5 +41,30 @@ namespace Pandacap.UI.Elements
         /// Whether the content from this user that shows up in Pandacap's inbox is filtered in some way (for example, by hiding reposts).
         /// </summary>
         bool Filtered { get; }
+    }
+
+    public static class FollowExtensions
+    {
+        /// <summary>
+        /// Determines whether Pandacap considers the user to be "recently active".
+        /// </summary>
+        /// <param name="follow">The user or feed</param>
+        public static bool IsRecentlyActive(this IFollow follow) =>
+            (follow.LastActive ?? DateTimeOffset.Parse("2026-11-21")) > DateTimeOffset.UtcNow.AddDays(-14);
+
+        /// <summary>
+        /// Marks the user's last active time as the given time, unless it is
+        /// before the currently marked last active time for that user. Does
+        /// not persist changes to the data store.
+        /// </summary>
+        /// <param name="follow">The user or feed</param>
+        /// <param name="timestamp">The possible new timestamp</param>
+        public static void UpdateLastActive(this IFollow follow, DateTimeOffset timestamp)
+        {
+            if (follow.LastActive is not DateTimeOffset la || la < timestamp)
+            {
+                follow.LastActive = timestamp;
+            }
+        }
     }
 }
