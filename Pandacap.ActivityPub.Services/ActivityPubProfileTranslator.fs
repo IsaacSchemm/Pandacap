@@ -3,7 +3,6 @@ namespace Pandacap.ActivityPub.Services
 open System
 open System.Net
 open Pandacap.ActivityPub.Models
-open Pandacap.ActivityPub.Models
 open Pandacap.ActivityPub.Services.Interfaces
 
 /// Creates ActivityPub objects (in string/object pair format) that represent the Pandacap actor.
@@ -24,6 +23,7 @@ type internal ActivityPubProfileTranslator() =
         pair "url" ActivityPubHostInformation.ActorId
         pair "discoverable" true
         pair "indexable" true
+        pair "manuallyApprovesFollowers" false
         pair "publicKey" {|
             id = $"{ActivityPubHostInformation.ActorId}#main-key"
             owner = ActivityPubHostInformation.ActorId
