@@ -81,7 +81,8 @@ namespace Pandacap.Controllers
                 Inbox = actor.Inbox,
                 SharedInbox = actor.SharedInbox,
                 PreferredUsername = actor.PreferredUsername,
-                IconUrl = actor.IconUrl
+                IconUrl = actor.IconUrl,
+                LastActive = DateTimeOffset.UtcNow
             });
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
