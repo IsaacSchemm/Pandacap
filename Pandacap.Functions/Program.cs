@@ -18,6 +18,8 @@ using Pandacap.PeriodicTasks;
 using Pandacap.Rss;
 using Pandacap.UI.Posts;
 
+AppContext.SetSwitch("Microsoft.EntityFrameworkCore.EscapeIllegalCosmosIdCharacters", true);
+
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>

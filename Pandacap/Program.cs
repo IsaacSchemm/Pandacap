@@ -45,6 +45,8 @@ using Pandacap.VectorSearch;
 using Pandacap.VectorSearch.Models;
 using System.Threading.RateLimiting;
 
+AppContext.SetSwitch("Microsoft.EntityFrameworkCore.EscapeIllegalCosmosIdCharacters", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 TokenCredential credential = builder.Configuration["VisualStudioTenantId"] is string tenantId

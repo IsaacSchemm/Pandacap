@@ -23,6 +23,8 @@ using Pandacap.Weasyl;
 using Pandacap.Weasyl.Interfaces;
 using Pandacap.Weasyl.Scraping;
 
+AppContext.SetSwitch("Microsoft.EntityFrameworkCore.EscapeIllegalCosmosIdCharacters", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 DeploymentInformation.ApplicationHostname = builder.Configuration["ApplicationHostname"]
