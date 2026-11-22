@@ -116,10 +116,10 @@ namespace Pandacap.ActivityPub.Outbox.Tests
 
         private class TestCollector(
             IReadOnlyList<ActivityPubFollower> followers,
-            IReadOnlyList<Follow> follows) : DeliveryInboxCollector(null!)
+            IReadOnlyList<ActivityPubFollow> follows) : DeliveryInboxCollector(null!)
         {
             internal override IAsyncEnumerable<ActivityPubFollower> Followers => followers.ToAsyncEnumerable();
-            internal override IAsyncEnumerable<Follow> Follows => follows.ToAsyncEnumerable();
+            internal override IAsyncEnumerable<ActivityPubFollow> Follows => follows.ToAsyncEnumerable();
         }
     }
 }

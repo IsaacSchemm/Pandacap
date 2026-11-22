@@ -103,7 +103,9 @@ namespace Pandacap.ActivityPub.Inbox
             {
                 Id = Guid.NewGuid(),
                 Inbox = actor.Inbox,
-                JsonBody = activityPubRelationshipTranslator.BuildFollowAccept(followActivityId),
+                JsonBody = activityPubRelationshipTranslator.BuildFollowAccept(
+                    followActivityId,
+                    actor.Id),
                 StoredAt = DateTimeOffset.UtcNow
             });
 
