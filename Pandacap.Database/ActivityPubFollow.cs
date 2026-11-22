@@ -38,7 +38,7 @@ namespace Pandacap.Database
         /// <summary>
         /// The last known date/time at which this actor created or reposted a post.
         /// </summary>
-        public DateTimeOffset? LastActive { get; set; }
+        public DateTimeOffset LastActive { get; set; }
 
         Badge IFollow.Badge => Badges.ActivityPub;
 

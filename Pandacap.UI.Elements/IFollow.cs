@@ -20,7 +20,7 @@ namespace Pandacap.UI.Elements
         /// <summary>
         /// The last known date/time at which this user or feed posted new content.
         /// </summary>
-        DateTimeOffset? LastActive { get; set; }
+        DateTimeOffset LastActive { get; set; }
 
         /// <summary>
         /// A URL where unauthenticated users can view this user or feed, if any.
@@ -50,7 +50,7 @@ namespace Pandacap.UI.Elements
         /// </summary>
         /// <param name="follow">The user or feed</param>
         public static bool IsRecentlyActive(this IFollow follow) =>
-            (follow.LastActive ?? DateTimeOffset.Parse("2026-11-21")) > DateTimeOffset.UtcNow.AddDays(-14);
+            follow.LastActive > DateTimeOffset.UtcNow.AddDays(-14);
 
         /// <summary>
         /// Marks the user's last active time as the given time, unless it is
@@ -61,10 +61,8 @@ namespace Pandacap.UI.Elements
         /// <param name="timestamp">The possible new timestamp</param>
         public static void UpdateLastActive(this IFollow follow, DateTimeOffset timestamp)
         {
-            if (follow.LastActive is not DateTimeOffset la || la < timestamp)
-            {
+            if (follow.LastActive < timestamp)
                 follow.LastActive = timestamp;
-            }
         }
     }
 }

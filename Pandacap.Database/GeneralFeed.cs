@@ -51,7 +51,7 @@ namespace Pandacap.Database
         /// <summary>
         /// The last known date/time at which this feed added a new a post.
         /// </summary>
-        public DateTimeOffset? LastActive { get; set; }
+        public DateTimeOffset LastActive { get; set; }
 
         Badge IFollow.Badge => Badges.Feeds;
 
