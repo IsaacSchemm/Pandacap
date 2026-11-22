@@ -7,7 +7,7 @@ namespace Pandacap.Database
     /// <summary>
     /// An ActivityPub actor who this Pandacap actor is following.
     /// </summary>
-    public class Follow : RemoteActorRelationship, IFollow, IActivityPubFollow
+    public class ActivityPubFollow : RemoteActorRelationship, IFollow, IActivityPubFollow
     {
         /// <summary>
         /// A random ID used in the ActivityPub ID of the Follow activity that was sent.

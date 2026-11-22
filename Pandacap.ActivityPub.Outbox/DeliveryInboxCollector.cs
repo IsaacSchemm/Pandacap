@@ -22,7 +22,7 @@ namespace Pandacap.ActivityPub.Outbox
             return [.. inboxes];
         }
 
-        internal virtual IAsyncEnumerable<Follower> Followers => pandacapDbContext.Followers.AsAsyncEnumerable();
-        internal virtual IAsyncEnumerable<Follow> Follows => pandacapDbContext.Follows.AsAsyncEnumerable();
+        internal virtual IAsyncEnumerable<ActivityPubFollower> Followers => pandacapDbContext.ActivityPubFollowers.AsAsyncEnumerable();
+        internal virtual IAsyncEnumerable<ActivityPubFollow> Follows => pandacapDbContext.ActivityPubFollows.AsAsyncEnumerable();
     }
 }

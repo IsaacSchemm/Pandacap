@@ -33,8 +33,8 @@ namespace Pandacap.Database
         public DbSet<InboxWeasylSubmission> InboxWeasylSubmissions { get; set; }
         public DbSet<GeneralFeed> GeneralFeeds { get; set; }
         public DbSet<GeneralInboxItem> GeneralInboxItems { get; set; }
-        public DbSet<Follow> Follows { get; set; }
-        public DbSet<Follower> Followers { get; set; }
+        public DbSet<ActivityPubFollow> ActivityPubFollows { get; set; }
+        public DbSet<ActivityPubFollower> ActivityPubFollowers { get; set; }
         public DbSet<CommunityBookmark> CommunityBookmarks { get; set; }
         public DbSet<ATProtoFeed> ATProtoFeeds { get; set; }
         public DbSet<BlueskyLikeFeedItem> BlueskyLikeFeedItems { get; set; }

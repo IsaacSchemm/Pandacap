@@ -30,7 +30,7 @@ else
                         <a href="@item.LinkUrl">@item.Username</a>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            if (item is Follow f)
+                            if (item is ActivityPubFollow f)
                             {
                                 if (!f.Accepted)
                                 {
@@ -50,7 +50,7 @@ else
                     {
                         <br />
 
-                        if (item is Follow f)
+                        if (item is ActivityPubFollow f)
                         {
                             <a asp-action="UpdateFollow" asp-route-id="@f.ActorId" class="btn btn-outline-primary btn-sm py-0">
                                 Options

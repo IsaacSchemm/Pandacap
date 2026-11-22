@@ -55,7 +55,7 @@ namespace Pandacap.Controllers
             string id,
             CancellationToken cancellationToken)
         {
-            if (await pandacapDbContext.Follows.Where(f => f.ActorId == id).CountAsync(cancellationToken) > 0)
+            if (await pandacapDbContext.ActivityPubFollows.Where(f => f.ActorId == id).CountAsync(cancellationToken) > 0)
                 return RedirectToAction("UpdateFollow", "Profile", new { id });
 
             var actor = await activityPubRemoteActorService.FetchActorAsync(id, cancellationToken);
@@ -72,7 +72,7 @@ namespace Pandacap.Controllers
                 StoredAt = DateTimeOffset.UtcNow
             });
 
-            pandacapDbContext.Follows.Add(new()
+            pandacapDbContext.ActivityPubFollows.Add(new()
             {
                 ActorId = actor.Id,
                 AddedAt = DateTimeOffset.UtcNow,

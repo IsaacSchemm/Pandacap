@@ -90,7 +90,7 @@ namespace Pandacap.Controllers
                     PlatformLinks = await platformLinkProvider.GetProfileLinksAsync().ToListAsync(cancellationToken),
                     RecentArtwork = artwork,
                     RecentTextPosts = textPosts,
-                    FollowerCount = await pandacapDbContext.Followers.CountAsync(cancellationToken),
+                    FollowerCount = await pandacapDbContext.ActivityPubFollowers.CountAsync(cancellationToken),
                     FollowingCount = await EnumeratePublicFollowsAsync().CountAsync(cancellationToken),
                     FavoritesCount = await pandacapDbContext.ActivityPubFavorites.CountAsync(cancellationToken),
                     VectorSearchEnabled = vectorSearchIndexClient.VectorSearchEnabled
@@ -196,7 +196,7 @@ namespace Pandacap.Controllers
         [Authorize]
         public async Task<IActionResult> Followers(CancellationToken cancellationToken)
         {
-            var followers = await pandacapDbContext.Followers
+            var followers = await pandacapDbContext.ActivityPubFollowers
                 .OrderByDescending(f => f.AddedAt)
                 .ToListAsync(cancellationToken);
 
@@ -216,7 +216,7 @@ namespace Pandacap.Controllers
             string id,
             CancellationToken cancellationToken)
         {
-            var follow = await pandacapDbContext.Follows
+            var follow = await pandacapDbContext.ActivityPubFollows
                 .Where(f => f.ActorId == id)
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -233,7 +233,7 @@ namespace Pandacap.Controllers
             bool includeTextShares,
             CancellationToken cancellationToken)
         {
-            await foreach (var follow in pandacapDbContext.Follows
+            await foreach (var follow in pandacapDbContext.ActivityPubFollows
                 .Where(f => f.ActorId == id)
                 .AsAsyncEnumerable())
             {
@@ -252,7 +252,7 @@ namespace Pandacap.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unfollow(string id, CancellationToken cancellationToken)
         {
-            await foreach (var follow in pandacapDbContext.Follows
+            await foreach (var follow in pandacapDbContext.ActivityPubFollows
                 .Where(f => f.ActorId == id)
                 .AsAsyncEnumerable()
                 .WithCancellation(cancellationToken))
@@ -267,7 +267,7 @@ namespace Pandacap.Controllers
                     StoredAt = DateTimeOffset.UtcNow
                 });
 
-                pandacapDbContext.Follows.Remove(follow);
+                pandacapDbContext.ActivityPubFollows.Remove(follow);
             }
 
             await pandacapDbContext.SaveChangesAsync(cancellationToken);
@@ -441,7 +441,7 @@ namespace Pandacap.Controllers
         private async IAsyncEnumerable<IFollow> EnumerateFollowsAsync()
         {
             await foreach (var x in pandacapDbContext.ATProtoFeeds) yield return x;
-            await foreach (var x in pandacapDbContext.Follows) yield return x;
+            await foreach (var x in pandacapDbContext.ActivityPubFollows) yield return x;
             await foreach (var x in pandacapDbContext.GeneralFeeds) yield return x;
         }
 

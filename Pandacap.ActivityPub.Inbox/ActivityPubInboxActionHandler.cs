@@ -22,7 +22,7 @@ namespace Pandacap.ActivityPub.Inbox
             RemoteActor sendingActor,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            int count = await pandacapDbContext.Follows
+            int count = await pandacapDbContext.ActivityPubFollows
                 .Where(f => f.ActorId == sendingActor.Id && f.IgnoreImages == false)
                 .CountAsync(cancellationToken);
 
@@ -41,7 +41,7 @@ namespace Pandacap.ActivityPub.Inbox
 
         public async Task UpdateRemoteActorAsync(RemoteActor actor, CancellationToken cancellationToken)
         {
-            await foreach (var follower in pandacapDbContext.Followers
+            await foreach (var follower in pandacapDbContext.ActivityPubFollowers
                 .Where(f => f.ActorId == actor.Id)
                 .AsAsyncEnumerable())
             {
@@ -52,7 +52,7 @@ namespace Pandacap.ActivityPub.Inbox
                 follower.IconUrl = actor.IconUrl;
             }
 
-            await foreach (var follow in pandacapDbContext.Follows
+            await foreach (var follow in pandacapDbContext.ActivityPubFollows
                 .Where(f => f.ActorId == actor.Id)
                 .AsAsyncEnumerable())
             {
@@ -68,7 +68,7 @@ namespace Pandacap.ActivityPub.Inbox
 
         public async Task MarkFollowerAsync(string followId, string actorId, bool accepted, CancellationToken cancellationToken)
         {
-            var follows = await pandacapDbContext.Follows
+            var follows = await pandacapDbContext.ActivityPubFollows
                 .Where(f => f.ActorId == actorId)
                 .ToListAsync(cancellationToken);
 
@@ -81,13 +81,13 @@ namespace Pandacap.ActivityPub.Inbox
 
         public async Task RecordFollowAsync(string followActivityId, RemoteActor actor, CancellationToken cancellationToken)
         {
-            var existing = await pandacapDbContext.Followers
+            var existing = await pandacapDbContext.ActivityPubFollowers
                 .Where(f => f.ActorId == actor.Id)
                 .SingleOrDefaultAsync(cancellationToken);
 
             if (existing == null)
             {
-                pandacapDbContext.Followers.Add(new Follower
+                pandacapDbContext.ActivityPubFollowers.Add(new ActivityPubFollower
                 {
                     ActorId = actor.Id,
                     AddedAt = DateTimeOffset.UtcNow,
@@ -112,7 +112,7 @@ namespace Pandacap.ActivityPub.Inbox
 
         public async Task EraseFollowAsync(string actorId, CancellationToken cancellationToken)
         {
-            await foreach (var follower in pandacapDbContext.Followers
+            await foreach (var follower in pandacapDbContext.ActivityPubFollowers
                 .Where(f => f.ActorId == actorId)
                 .AsAsyncEnumerable()
                 .WithCancellation(cancellationToken))
@@ -150,7 +150,7 @@ namespace Pandacap.ActivityPub.Inbox
 
         public async Task RecordAnnouncementAsync(RemoteActor announcingActor, string announceActivityId, string objectId, CancellationToken cancellationToken)
         {
-            var follow = await pandacapDbContext.Follows
+            var follow = await pandacapDbContext.ActivityPubFollows
                  .Where(f => f.ActorId == announcingActor.Id)
                  .FirstOrDefaultAsync(cancellationToken);
 
@@ -220,7 +220,7 @@ namespace Pandacap.ActivityPub.Inbox
             if (remotePost.AttributedTo.Id != sendingActor.Id)
                 return;
 
-            var follow = await pandacapDbContext.Follows
+            var follow = await pandacapDbContext.ActivityPubFollows
                 .Where(f => f.ActorId == remotePost.AttributedTo.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 

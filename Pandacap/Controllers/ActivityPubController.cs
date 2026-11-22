@@ -26,7 +26,7 @@ namespace Pandacap.Controllers
     {
         public async Task<IActionResult> Followers(CancellationToken cancellationToken)
         {
-            int followers = await pandacapDbContext.Followers
+            int followers = await pandacapDbContext.ActivityPubFollowers
                 .CountAsync(cancellationToken);
 
             return Content(
@@ -37,7 +37,7 @@ namespace Pandacap.Controllers
 
         public async Task<IActionResult> Following(CancellationToken cancellationToken)
         {
-            var follows = await pandacapDbContext.Follows
+            var follows = await pandacapDbContext.ActivityPubFollows
                 .ToListAsync(cancellationToken);
 
             return Content(
@@ -114,7 +114,7 @@ namespace Pandacap.Controllers
         [HttpGet]
         public async Task<IActionResult> Follow(Guid id, CancellationToken cancellationToken)
         {
-            var follow = await pandacapDbContext.Follows
+            var follow = await pandacapDbContext.ActivityPubFollows
                 .Where(f => f.FollowGuid == id)
                 .SingleOrDefaultAsync(cancellationToken);
 
