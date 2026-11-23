@@ -1,6 +1,6 @@
 ﻿@using Pandacap.Database
 @using Pandacap.UI.Elements
-@model IEnumerable<IFollow>
+@model FollowingAndFeedsViewModel
 
 @{
     ViewBag.Title = "Following";
@@ -8,7 +8,7 @@
     var recentDate = DateTimeOffset.UtcNow.AddDays(-14);
 }
 
-@if (!Model.Any())
+@if (!Model.Items.Any())
 {
     <p>
         This user does not follow any other feeds or actors.
@@ -17,13 +17,9 @@
 else
 {
     <div class="user-blocks">
-        @foreach (var item in Model)
+        @foreach (var item in Model.Items)
         {
-            var opacity = !item.Public ? 0.5
-                : !item.IsRecentlyActive() ? 0.75
-                : 1;
-
-            <div class="user-block" style="opacity: @(item.Public ? "1" : "0.5")">
+            <div class="user-block" style="opacity: @(item.Public && item.IsRecentlyActive() ? "1" : "0.25")">
                 <a href="@item.LinkUrl" class="avatar"><img width="50" height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" /></a>
                 <span class="text">
                     <strong>
@@ -48,6 +44,18 @@ else
 
                     @if (User.Identity?.IsAuthenticated == true)
                     {
+                        if (item is ActivityPubFollow apf)
+                        {
+                            if (Model.ProblemInboxes.Contains(apf.Inbox)
+                                || Model.ProblemInboxes.Contains(apf.SharedInbox))
+                            {
+                                <br />
+                                <span class="small text-warning">
+                                    Cannot send activities to inbox
+                                </span>
+                            }
+                        }
+
                         <br />
 
                         if (item is ActivityPubFollow f)

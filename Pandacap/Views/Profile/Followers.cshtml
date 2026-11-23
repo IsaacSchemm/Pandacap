@@ -1,5 +1,4 @@
-﻿@using Pandacap.Data
-@using Pandacap.Models
+﻿@using Pandacap.Models
 @model FollowerViewModel
 
 @{
@@ -20,13 +19,31 @@ else
 
         <div class="mb-3">
             <div>
-                <img height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" />
+                <img width="50" height="50" src="@(item.IconUrl ?? "/images/trgray.svg")" alt="" />
                 <span style="display: inline-block; vertical-align: top">
                     <strong>
                         @(item.PreferredUsername ?? item.ActorId)
                     </strong>
                     <br />
                     <a href="@item.ActorId">@item.ActorId</a>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        if (Model.ProblemInboxes.Contains(item.Inbox)
+                            || Model.ProblemInboxes.Contains(item.SharedInbox))
+                        {
+                            <br />
+
+                            <span class="small text-warning">
+                                Cannot send activities to inbox
+                            </span>
+                        }
+
+                        <br />
+                        <form asp-action="ForgetFollower" class="d-inline" onsubmit="return confirm('Are you sure you want Pandacap to forget this follower?')">
+                            <input type="hidden" name="id" value="@item.ActorId" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm py-0">Forget</button>
+                        </form>
+                    }
                 </span>
             </div>
         </div>

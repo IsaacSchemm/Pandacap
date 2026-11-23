@@ -193,6 +193,16 @@ namespace Pandacap.Controllers
                 cancellationToken);
         }
 
+        private Task<HashSet<string>> GetProblemInboxesAsync(CancellationToken cancellationToken)
+        {
+            var weekAgo = DateTime.UtcNow.AddDays(-1);
+
+            return pandacapDbContext.ActivityPubOutboundActivities
+                .Where(a => a.StoredAt < weekAgo)
+                .Select(a => a.Inbox)
+                .ToHashSetAsync(cancellationToken);
+        }
+
         [Authorize]
         public async Task<IActionResult> Followers(CancellationToken cancellationToken)
         {
@@ -202,8 +212,22 @@ namespace Pandacap.Controllers
 
             return View(new FollowerViewModel
             {
-                Items = followers
+                Items = followers,
+                ProblemInboxes = await GetProblemInboxesAsync(cancellationToken)
             });
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgetFollower(string id, CancellationToken cancellationToken)
+        {
+            await foreach (var follower in pandacapDbContext.ActivityPubFollowers.Where(f => f.ActorId == id).AsAsyncEnumerable())
+                pandacapDbContext.ActivityPubFollowers.Remove(follower);
+
+            await pandacapDbContext.SaveChangesAsync(cancellationToken);
+
+            return RedirectToAction(nameof(Followers));
         }
 
         public IActionResult Following()
@@ -455,7 +479,11 @@ namespace Pandacap.Controllers
             var all = await EnumeratePublicFollowsAsync()
                 .ToListAsync(cancellationToken);
 
-            return View("FollowingAndFeeds", all);
+            return View("FollowingAndFeeds", new FollowingAndFeedsViewModel
+            {
+                Items = all,
+                ProblemInboxes = await GetProblemInboxesAsync(cancellationToken)
+            });
         }
 
         [Authorize]
